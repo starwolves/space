@@ -1,28 +1,32 @@
-use bevy::{app, core::CorePlugin, log::LogPlugin, prelude::*, reflect::ReflectPlugin};
-use bevy_rapier3d::{na::Point3, physics::RapierPhysicsPlugin};
+use bevy::{app, prelude::*};
+use bevy_rapier3d::{na::Point3, physics::{RapierPhysicsPlugin}};
 use bevy_rapier3d::rapier::na::Vector;
 
 use bevy_rapier3d::rapier::dynamics::RigidBodyBuilder;
 use bevy_rapier3d::rapier::dynamics::RigidBody;
 
+
 use bevy_rapier3d::rapier::geometry::ColliderBuilder;
 
+use bevy_rapier3d::physics::PhysicsInterpolationComponent;
+use bevy_rapier3d::rapier::dynamics::RigidBodySet;
+use bevy_rapier3d::physics::RigidBodyHandleComponent;
 
-
-struct PhysicsDynamicRigidBody {
-    positon: Vec3,
-    velocity: Vec3
-}
+struct PhysicsDynamicRigidBodyComponent;
 
 fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
+        .add_plugin(RapierPhysicsPlugin)
         .add_startup_system(launch_server.system())
-        .add_system(interpolate_entity_system.system())
+        .add_system(interpolate_entities_system.system())
         .run();
 }
 
 fn launch_server(commands: &mut Commands) {
+
+    // Spawn floor and then a cube up high thatll fall down and hit it.
+
     commands.spawn((
         RigidBodyBuilder::new_static().translation(0., 0., 0.),
         ColliderBuilder::cuboid(64., 0., 64.),
@@ -30,21 +34,29 @@ fn launch_server(commands: &mut Commands) {
 
 
     commands.spawn((
-        RigidBodyBuilder::new_dynamic().translation(0., 10., 0.),
+        RigidBodyBuilder::new_dynamic().translation(0., 100., 0.),
         ColliderBuilder::cuboid(0.5, 0.5, 0.5),
-        PhysicsDynamicRigidBody {
-            positon: Vec3::new(0.,0.,0.),
-            velocity: Vec3::new(0.,0.,0.)
-        }
+        PhysicsDynamicRigidBodyComponent {}
     ));
 
 }
 
-fn interpolate_entity_system(mut query: Query<(&mut RigidBody)>) {
+fn interpolate_entities_system(
+    mut query: Query<
+        (&RigidBodyHandleComponent, &PhysicsDynamicRigidBodyComponent)
+    >,
+    bodies: ResMut<RigidBodySet>
+) {
 
-    for dynamicRigidBody in query.iter_mut() {
+    for (rigid_body_handle, traitDynamicRigidBody) in query.iter_mut() {
 
-        info!("Falling cube is at position {} !", dynamicRigidBody.position());
+        
+
+        if let Some(rigid_body) = bodies.get(rigid_body_handle.handle()) {
+            
+            info!("Falling cube is at position {} !", rigid_body.position());
+
+        }
 
     }
 
