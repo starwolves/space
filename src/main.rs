@@ -14,6 +14,9 @@ use bevy_rapier3d::{
         },
         geometry::{
             ColliderBuilder
+        },
+        pipeline:: {
+            PhysicsPipeline
         }
     }
 };
@@ -26,6 +29,7 @@ fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
+        .add_startup_system(enable_physics_profiling.system())
         .add_startup_system(launch_server.system())
         .add_system(interpolate_entities_system.system())
         .run();
@@ -68,8 +72,12 @@ fn launch_server(commands: &mut Commands) {
 
 }
 
+fn enable_physics_profiling(mut pipeline: ResMut<PhysicsPipeline>) {
+    pipeline.counters.enable()
+}
+
 fn interpolate_entities_system(
-    mut query: Query<
+    query: Query<
         (&RigidBodyHandleComponent, &PhysicsDynamicRigidBodyComponent)
     >,
     bodies: ResMut<RigidBodySet>
