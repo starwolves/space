@@ -12,3 +12,5 @@ edition = "2018"
 [dependencies]
 bevy = {version= "0.4"}
 bevy_rapier3d = {version= "0.8"}
+serde = {version= "1.0"}
+serde_json = {version= "1.0"}
