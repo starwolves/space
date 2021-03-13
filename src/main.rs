@@ -1,6 +1,8 @@
-use std::fs;
+use std::{env::Args, fs};
 
-use bevy::{prelude::*};
+use bevy::{
+    prelude::*
+};
 
 use bevy_rapier3d::{
     physics::{
@@ -14,14 +16,23 @@ use bevy_rapier3d::{
         },
         geometry::{
             ColliderBuilder
-        },
-        pipeline:: {
-            PhysicsPipeline
         }
     }
 };
 
-use serde::{Deserialize};
+use serde::{Serialize, Deserialize};
+
+
+use bevy_networking_turbulence::{NetworkEvent, NetworkResource, NetworkingPlugin, Packet};
+use std::{net::SocketAddr};
+
+#[derive(Default)]
+struct NetworkReader {
+    network_events: EventReader<NetworkEvent>,
+}
+
+
+
 
 struct PhysicsDynamicRigidBodyComponent;
 
@@ -29,7 +40,11 @@ fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
+        .add_plugin(NetworkingPlugin::default())
         .add_startup_system(launch_server.system())
+        .add_system(send_packets.system())
+        .init_resource::<NetworkReader>()
+        .add_system(handle_packets.system())
         .add_system(interpolate_entities_system.system())
         .run();
 }
@@ -43,9 +58,9 @@ struct CellData {
     orientation: i64
 }
 
-fn launch_server(commands: &mut Commands) {
+fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) {
 
-    // Load map json data
+    // Load map json data into real static bodies.
 
     let current_map_main_raw_json : String = fs::read_to_string(&DEFAULT_MAP_LOCATION).expect("main.rs launch_server() Error reading map main.json file from drive.");
     let current_map_main_data : Vec<CellData> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
@@ -69,10 +84,74 @@ fn launch_server(commands: &mut Commands) {
     
     commands.spawn((
         RigidBodyBuilder::new_dynamic().translation(0., 100., 0.),
-        ColliderBuilder::cuboid(0.5, 0.5, 0.5),
+        ColliderBuilder::ball(0.4),
         PhysicsDynamicRigidBodyComponent {}
     ));
 
+
+
+    let ip_address = bevy_networking_turbulence::find_my_ip_address().expect("main.rs launch_server() Error cannot find IP address");
+    let socket_address = SocketAddr::new(ip_address, SERVER_PORT);
+
+    net.listen(socket_address);
+
+
+}
+
+const SERVER_PORT: u16 = 57713;
+
+fn send_packets(mut net: ResMut<NetworkResource>, time: Res<Time>) {
+    if (time.seconds_since_startup() * 60.) as i64 % 60 == 0 {
+        //net.broadcast(Packet::from("PING"));
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct netCodedMessage {
+
+}
+
+fn handle_packets(
+    mut net: ResMut<NetworkResource>,
+    time: Res<Time>,
+    mut state: ResMut<NetworkReader>,
+    network_events: Res<Events<NetworkEvent>>,
+) {
+    for event in state.network_events.iter(&network_events) {
+        match event {
+            NetworkEvent::Packet(handle, packet) => {
+
+                // Recieved a new bytes packet from a client.
+
+
+
+
+
+                /*let message = String::from_utf8_lossy(packet);
+                if message == "PING" {
+                    let message = format!("PONG @ {}", time.seconds_since_startup());
+                    match net.send(*handle, Packet::from(message)) {
+                        Ok(()) => {
+                            info!("sent pong");
+                        }
+                        Err(error) => {
+                            error!("{}", error);
+                        }
+                    }
+                }*/
+            },
+            NetworkEvent::Connected(handle) => match net.connections.get_mut(handle) {
+                
+                // https://github.com/smokku/bevy_networking_turbulence/blob/master/examples/channels.rs
+
+                Some(_) => {}
+                None => {}
+            }
+            
+            NetworkEvent::Disconnected(_) => {}
+        }
+    }
+    
 }
 
 fn interpolate_entities_system(
@@ -88,7 +167,7 @@ fn interpolate_entities_system(
         
         if let Some(rigid_body) = bodies.get(rigid_body_handle.handle()) {
             
-            info!("Dynamic cube is at {} !", rigid_body.position().translation);
+            info!("Dynamic ball is at {} !", rigid_body.position().translation);
 
         }
 
