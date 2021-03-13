@@ -29,7 +29,6 @@ fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
-        .add_startup_system(enable_physics_profiling.system())
         .add_startup_system(launch_server.system())
         .add_system(interpolate_entities_system.system())
         .run();
@@ -51,6 +50,8 @@ fn launch_server(commands: &mut Commands) {
     let current_map_main_raw_json : String = fs::read_to_string(&DEFAULT_MAP_LOCATION).expect("main.rs launch_server() Error reading map main.json file from drive.");
     let current_map_main_data : Vec<CellData> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
     
+    
+
     for cell_data in current_map_main_data.iter() {
         
         let cell_id = json_vec3_to_vec3(&cell_data.id);
@@ -63,17 +64,15 @@ fn launch_server(commands: &mut Commands) {
         ));
 
     }
+
+    info!("Loaded map bullseye with {} static cells.", current_map_main_data.len());
     
     commands.spawn((
-        RigidBodyBuilder::new_dynamic().translation(0., 10., 0.),
+        RigidBodyBuilder::new_dynamic().translation(0., 100., 0.),
         ColliderBuilder::cuboid(0.5, 0.5, 0.5),
         PhysicsDynamicRigidBodyComponent {}
     ));
 
-}
-
-fn enable_physics_profiling(mut pipeline: ResMut<PhysicsPipeline>) {
-    pipeline.counters.enable()
 }
 
 fn interpolate_entities_system(
