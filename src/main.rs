@@ -1,7 +1,10 @@
-use std::{env::Args, fs};
+use std::{fs};
 
 use bevy::{
-    prelude::*
+    prelude::*,
+    app::{
+        ScheduleRunnerSettings
+    }
 };
 
 use bevy_rapier3d::{
@@ -24,7 +27,7 @@ use serde::{Serialize, Deserialize};
 
 
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource, NetworkingPlugin, Packet};
-use std::{net::SocketAddr};
+use std::{net::SocketAddr, time::Duration};
 
 #[derive(Default)]
 struct NetworkReader {
@@ -38,6 +41,9 @@ struct PhysicsDynamicRigidBodyComponent;
 
 fn main() {
     App::build()
+        .add_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f64(
+            1.0 / 60.0,
+        )))
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
         .add_plugin(NetworkingPlugin::default())
@@ -46,6 +52,7 @@ fn main() {
         .init_resource::<NetworkReader>()
         .add_system(handle_packets.system())
         .add_system(interpolate_entities_system.system())
+        .add_system_to_stage(stage::PRE_UPDATE, handle_messages_server.system())
         .run();
 }
 
@@ -98,6 +105,15 @@ fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) {
 
 }
 
+fn handle_messages_server(mut net: ResMut<NetworkResource>) {
+    for (handle, connection) in net.connections.iter_mut() {
+        let channels = connection.channels().unwrap();
+        while let Some(client_message) = channels.recv::<ClientMessage>() {
+            info!("ClientMessage received on [{}]: {:?}",handle, client_message);
+        }
+    }
+}
+
 const SERVER_PORT: u16 = 57713;
 
 fn send_packets(mut net: ResMut<NetworkResource>, time: Res<Time>) {
@@ -106,8 +122,8 @@ fn send_packets(mut net: ResMut<NetworkResource>, time: Res<Time>) {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-struct netCodedMessage {
+#[derive(Serialize, Deserialize, Debug)]
+struct ClientMessage {
 
 }
 
@@ -120,8 +136,6 @@ fn handle_packets(
     for event in state.network_events.iter(&network_events) {
         match event {
             NetworkEvent::Packet(handle, packet) => {
-
-                // Recieved a new bytes packet from a client.
 
 
 
@@ -144,8 +158,27 @@ fn handle_packets(
                 
                 // https://github.com/smokku/bevy_networking_turbulence/blob/master/examples/channels.rs
 
-                Some(_) => {}
-                None => {}
+                Some(connection) => {
+                    
+                    match connection.remote_address() {
+
+                        Some(remote_address) => {
+
+                            info!(
+                                "Incoming connection on [{}] from [{}]",
+                                handle,
+                                remote_address
+                            );
+
+                        }
+                        None => {
+                            info!("Connected on [{}]", handle);
+                        }
+
+                    }
+
+                }
+                None => warn!("Got packet for non-existing connection [{}]", handle),
             }
             
             NetworkEvent::Disconnected(_) => {}
