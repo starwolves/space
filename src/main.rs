@@ -1,4 +1,4 @@
-use std::{env::Args, fs};
+use std::{fs};
 
 use bevy::{
     prelude::*
@@ -23,8 +23,8 @@ use bevy_rapier3d::{
 use serde::{Serialize, Deserialize};
 
 
-use bevy_networking_turbulence::{NetworkEvent, NetworkResource, NetworkingPlugin, Packet};
-use std::{net::SocketAddr};
+use bevy_networking_turbulence::{NetworkEvent, NetworkResource, NetworkingPlugin, Packet, MessageChannelMode , MessageChannelSettings, ConnectionChannelsBuilder, ReliableChannelSettings};
+use std::{net::{SocketAddr, IpAddr}, time::Duration};
 
 #[derive(Default)]
 struct NetworkReader {
@@ -41,9 +41,10 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
         .add_plugin(NetworkingPlugin::default())
+        .add_startup_system(network_setup.system())
         .add_startup_system(launch_server.system())
-        .add_system(send_packets.system())
-        .init_resource::<NetworkReader>()
+        //.add_system(send_packets.system())
+        .add_resource(NetworkReader::default())
         .add_system(handle_packets.system())
         .add_system(interpolate_entities_system.system())
         .run();
@@ -94,7 +95,7 @@ fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) {
     let socket_address = SocketAddr::new(ip_address, SERVER_PORT);
 
     net.listen(socket_address);
-
+    info!("Server is listening for connections...");
 
 }
 
@@ -106,20 +107,66 @@ fn send_packets(mut net: ResMut<NetworkResource>, time: Res<Time>) {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-struct netCodedMessage {
-
+// Start In sync with client
+#[derive(Serialize, Deserialize, Debug, Clone)]
+enum ClientMessage {
+    ConfigMessage(ConfigMessage)
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+enum ConfigMessage {
+    Awoo
+}
+
+fn network_setup(mut net: ResMut<NetworkResource>) {
+    net.set_channels_builder(|builder: &mut ConnectionChannelsBuilder| {
+        builder
+            .register::<ClientMessage>(CLIENT_STATE_MESSAGE_SETTINGS)
+            .unwrap();
+        /*builder
+            .register::<GameStateMessage>(GAME_STATE_MESSAGE_SETTINGS)
+            .unwrap();*/
+    });
+}
+
+const CLIENT_STATE_MESSAGE_SETTINGS: MessageChannelSettings = MessageChannelSettings {
+    channel: 0,
+    channel_mode: MessageChannelMode::Reliable {
+        reliability_settings: ReliableChannelSettings {
+            bandwidth: 4096,
+            recv_window_size: 1024,
+            send_window_size: 1024,
+            burst_bandwidth: 1024,
+            init_send: 512,
+            wakeup_time: Duration::from_millis(100),
+            initial_rtt: Duration::from_millis(200),
+            max_rtt: Duration::from_secs(2),
+            rtt_update_factor: 0.1,
+            rtt_resend_factor: 1.5,
+        },
+        max_message_len: 1024,
+    },
+    message_buffer_size: 8,
+    packet_buffer_size: 8,
+};
+// End in sync with client
+
+
 
 fn handle_packets(
     mut net: ResMut<NetworkResource>,
-    time: Res<Time>,
     mut state: ResMut<NetworkReader>,
     network_events: Res<Events<NetworkEvent>>,
 ) {
+
     for event in state.network_events.iter(&network_events) {
+
+        info!("New network_events");
+
         match event {
             NetworkEvent::Packet(handle, packet) => {
+
+                info!("New Packet!");
 
                 // Recieved a new bytes packet from a client.
 
@@ -140,19 +187,51 @@ fn handle_packets(
                     }
                 }*/
             },
-            NetworkEvent::Connected(handle) => match net.connections.get_mut(handle) {
+            NetworkEvent::Connected(handle) => {
                 
                 // https://github.com/smokku/bevy_networking_turbulence/blob/master/examples/channels.rs
+                
+                info!("New Connected!");
 
-                Some(_) => {}
-                None => {}
+                match net.connections.get_mut(handle) {
+
+                    Some(connection) => {
+                        match connection.remote_address() {
+                            Some(remote_address) => {
+    
+                                info!(
+                                    "Incoming connection on [{}] from [{}]",
+                                    handle,
+                                    remote_address
+                                );
+    
+    
+    
+                            }
+                            None => {
+                                warn!("main.rs NetworkEvent::Connected: new connection with a weird remote_address [{}]", handle);
+                            }
+                        }
+                    }
+                    None => {
+                        panic!("main.rs NetworkEvent::Connected: got packet for non-existing connection [{}]", handle);
+                    }
+
+                }
+
+                
             }
             
-            NetworkEvent::Disconnected(_) => {}
+            NetworkEvent::Disconnected(_) => {
+                info!("New Disconnected!");
+            }
         }
     }
     
 }
+
+
+
 
 fn interpolate_entities_system(
     query: Query<
@@ -167,7 +246,7 @@ fn interpolate_entities_system(
         
         if let Some(rigid_body) = bodies.get(rigid_body_handle.handle()) {
             
-            info!("Dynamic ball is at {} !", rigid_body.position().translation);
+            //info!("Dynamic ball is at {} !", rigid_body.position().translation);
 
         }
 
