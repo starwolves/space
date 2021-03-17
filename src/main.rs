@@ -1,7 +1,10 @@
 use std::{fs};
 
 use bevy::{
-    prelude::*
+    prelude::*,
+    app::{
+        ScheduleRunnerSettings
+    }
 };
 
 use bevy_rapier3d::{
@@ -38,6 +41,9 @@ struct PhysicsDynamicRigidBodyComponent;
 
 fn main() {
     App::build()
+        .add_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f64(
+            1.0 / 60.0,
+        )))
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
         .add_plugin(NetworkingPlugin::default())
@@ -47,6 +53,7 @@ fn main() {
         .add_resource(NetworkReader::default())
         .add_system(handle_packets.system())
         .add_system(interpolate_entities_system.system())
+        .add_system_to_stage(stage::PRE_UPDATE, handle_messages_server.system())
         .run();
 }
 
@@ -97,6 +104,15 @@ fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) {
     net.listen(socket_address);
     info!("Server is listening for connections...");
 
+}
+
+fn handle_messages_server(mut net: ResMut<NetworkResource>) {
+    for (handle, connection) in net.connections.iter_mut() {
+        let channels = connection.channels().unwrap();
+        while let Some(client_message) = channels.recv::<ClientMessage>() {
+            info!("ClientMessage received on [{}]: {:?}",handle, client_message);
+        }
+    }
 }
 
 const SERVER_PORT: u16 = 57713;
