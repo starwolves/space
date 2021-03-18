@@ -137,7 +137,7 @@ enum ConfigMessage {
 fn network_setup(mut net: ResMut<NetworkResource>) {
     net.set_channels_builder(|builder: &mut ConnectionChannelsBuilder| {
         builder
-            .register::<ClientMessage>(CLIENT_STATE_MESSAGE_SETTINGS)
+            .register::<ClientMessage>(CLIENT_MESSAGE_RELIABLE)
             .unwrap();
         /*builder
             .register::<GameStateMessage>(GAME_STATE_MESSAGE_SETTINGS)
@@ -145,7 +145,7 @@ fn network_setup(mut net: ResMut<NetworkResource>) {
     });
 }
 
-const CLIENT_STATE_MESSAGE_SETTINGS: MessageChannelSettings = MessageChannelSettings {
+const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel: 0,
     channel_mode: MessageChannelMode::Reliable {
         reliability_settings: ReliableChannelSettings {
@@ -207,7 +207,7 @@ fn handle_packets(
                 
                 // https://github.com/smokku/bevy_networking_turbulence/blob/master/examples/channels.rs
                 
-                info!("New Connected!");
+                info!("New Connection!");
 
                 match net.connections.get_mut(handle) {
 
