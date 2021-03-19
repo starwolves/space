@@ -26,8 +26,12 @@ use bevy_rapier3d::{
 use serde::{Serialize, Deserialize};
 
 
-use bevy_networking_turbulence::{NetworkEvent, NetworkResource, NetworkingPlugin, Packet, MessageChannelMode , MessageChannelSettings, ConnectionChannelsBuilder, ReliableChannelSettings};
-use std::{net::{SocketAddr, IpAddr}, time::Duration};
+use bevy_networking_turbulence::{NetworkEvent, NetworkResource, NetworkingPlugin, MessageChannelMode , MessageChannelSettings, ConnectionChannelsBuilder, ReliableChannelSettings};
+use std::{net::{SocketAddr}, time::Duration};
+
+mod space_core;
+
+use space_core::structs::RawWorldEnvironment;
 
 #[derive(Default)]
 struct NetworkReader {
@@ -40,6 +44,12 @@ struct NetworkReader {
 struct PhysicsDynamicRigidBodyComponent;
 
 fn main() {
+
+
+    let current_map_environment_raw_json : String = fs::read_to_string(&DEFAULT_MAP_ENVIRONMENT_LOCATION).expect("main.rs launch_server() Error reading map environment.json file from drive.");
+    let current_map_environment_data : RawWorldEnvironment = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs launch_server() Error parsing map environment.json String.");
+    
+
     App::build()
         .add_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f64(
             1.0 / 60.0,
@@ -57,7 +67,8 @@ fn main() {
         .run();
 }
 
-const DEFAULT_MAP_LOCATION : &str = "content\\maps\\bullseye\\main.json";
+const DEFAULT_MAP_MAIN_LOCATION : &str = "content\\maps\\bullseye\\main.json";
+const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
 
 #[derive(Deserialize)]
 struct CellData {
@@ -66,11 +77,16 @@ struct CellData {
     orientation: i64
 }
 
+
+impl RawWorldEnvironment {
+    fn new(adjustment_brightness: f32, adjustment_contrast: f32, adjustment_enabled: bool, adjustment_saturation: f32, ambient_light_color: String, ambient_light_energy: f32, ambient_light_sky_contribution: f32, tonemap_auto_exposure: bool, tonemap_auto_exposure_max: f32, tonemap_auto_exposure_min: f32, tonemap_auto_exposure_grey: f32, tonemap_auto_exposure_speed: f32, camera_feed_id: i64, canvas_max_layer: i64, bg_color: String, bg_energy: f32, background_mode: u8, sky_custom_fov: f32, sky_custom_orientation: String, sky_rotation: String, skyRotationDegrees: String, dofBlurFarAmount: f32, dofBlurFarDistance: f32, dofBlurFarEnabled: bool, dofBlurFarQuality: u8, dofBlurFarTransition: f32, dofBlurNearAmount: f32, dofBlurNearDistance: f32, dofBlurNearEnabled: bool, dofBlurNearQuality: f32, dofBlurNearTransition: f32, fogColor: String, fogDepthBegin: f32, fogDepthCurve: f32, fogDepthEnabled: bool, fogDepthEnd: f32, fogEnabled: bool, fogHeightCurve: f32, fogHeightEnabled: bool, fogHeightMax: f32, fogHeightMin: f32, fogSunAmount: f32, fogSunColor: String, fogTransmitCurve: f32, fogTransmitEnabled: bool, glowBicubicUpscaleEnabled: bool, glowBlendMode: u8, glowBloom: f32, glowEnabled: bool, glowHdrLuminanceCap: f32, glowHdrBleedScale: f32, glowHdrBleedTreshold: f32, glowIntensity: f32, glowStrength: f32, ssrDepthTolerance: f32, ssrEnabled: bool, ssrFadeIn: f32, ssrFadeOut: f32, ssrMaxSteps: i64, ssrRough: bool, ssaoAoChannelAffect: f32, ssaoBias: f32, ssaoBlur: u8, ssaoColor: String, ssaoEdgeSharpness: f32, ssaoEnabled: bool, ssaoIntensity: f32, ssaoIntensity2: f32, ssaoDirectLightAffect: f32, ssaoQuality: u8, ssaoRadius: f32, toneMapExposure: f32, toneMapper: u8, toneMapWhite: f32) -> Self { Self { adjustment_brightness, adjustment_contrast, adjustment_enabled, adjustment_saturation, ambient_light_color, ambient_light_energy, ambient_light_sky_contribution, tonemap_auto_exposure, tonemap_auto_exposure_max, tonemap_auto_exposure_min, tonemap_auto_exposure_grey, tonemap_auto_exposure_speed, camera_feed_id, canvas_max_layer, bg_color, bg_energy, background_mode, sky_custom_fov, sky_custom_orientation, sky_rotation, skyRotationDegrees, dofBlurFarAmount, dofBlurFarDistance, dofBlurFarEnabled, dofBlurFarQuality, dofBlurFarTransition, dofBlurNearAmount, dofBlurNearDistance, dofBlurNearEnabled, dofBlurNearQuality, dofBlurNearTransition, fogColor, fog_depth_begin: fogDepthBegin, fog_depth_curve: fogDepthCurve, fog_depth_enabled: fogDepthEnabled, fog_depth_end: fogDepthEnd, fog_enabled: fogEnabled, fog_height_curve: fogHeightCurve, fog_height_enabled: fogHeightEnabled, fog_height_max: fogHeightMax, fog_height_min: fogHeightMin, fog_sun_amount: fogSunAmount, fog_sun_color: fogSunColor, fog_transmit_curve: fogTransmitCurve, fog_transmit_enabled: fogTransmitEnabled, glow_bicubic_upscale_enabled: glowBicubicUpscaleEnabled, glow_blend_mode: glowBlendMode, glow_bloom: glowBloom, glow_enabled: glowEnabled, glow_hdr_luminance_cap: glowHdrLuminanceCap, glow_hdr_bleed_scale: glowHdrBleedScale, glow_hdr_bleed_treshold: glowHdrBleedTreshold, glow_intensity: glowIntensity, glow_strength: glowStrength, ssr_depth_tolerance: ssrDepthTolerance, ssr_enabled: ssrEnabled, ssr_fade_in: ssrFadeIn, ssr_fade_out: ssrFadeOut, ssr_max_steps: ssrMaxSteps, ssr_rough: ssrRough, ssao_ao_channel_affect: ssaoAoChannelAffect, ssao_bias: ssaoBias, ssao_blur: ssaoBlur, ssao_color: ssaoColor, ssao_edge_sharpness: ssaoEdgeSharpness, ssao_enabled: ssaoEnabled, ssao_intensity: ssaoIntensity, ssao_intensity2: ssaoIntensity2, ssao_direct_light_affect: ssaoDirectLightAffect, ssao_quality: ssaoQuality, ssao_radius: ssaoRadius, tone_map_exposure: toneMapExposure, tone_mapper: toneMapper, tone_map_white: toneMapWhite } }
+}
+
 fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) {
 
     // Load map json data into real static bodies.
 
-    let current_map_main_raw_json : String = fs::read_to_string(&DEFAULT_MAP_LOCATION).expect("main.rs launch_server() Error reading map main.json file from drive.");
+    let current_map_main_raw_json : String = fs::read_to_string(&DEFAULT_MAP_MAIN_LOCATION).expect("main.rs launch_server() Error reading map main.json file from drive.");
     let current_map_main_data : Vec<CellData> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
     
     
@@ -87,6 +103,8 @@ fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) {
         ));
 
     }
+
+    
 
     info!("Loaded map bullseye with {} static cells.", current_map_main_data.len());
     
