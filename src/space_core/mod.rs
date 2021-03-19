@@ -1,1 +1,2 @@
-pub mod structs;
+pub mod resources;
+pub mod functions;

@@ -1,10 +1,7 @@
 use std::{fs};
 
 use bevy::{
-    prelude::*,
-    app::{
-        ScheduleRunnerSettings
-    }
+    prelude::*
 };
 
 use bevy_rapier3d::{
@@ -31,16 +28,12 @@ use std::{net::{SocketAddr}, time::Duration};
 
 mod space_core;
 
-use space_core::structs::WorldEnvironmentRaw;
-use space_core::structs::WorldEnvironment;
+use space_core::resources::world_environments::main::{WorldEnvironment,WorldEnvironmentRaw};
 
 #[derive(Default)]
 struct NetworkReader {
     network_events: EventReader<NetworkEvent>,
 }
-
-
-
 
 struct PhysicsDynamicRigidBodyComponent;
 
@@ -48,14 +41,15 @@ fn main() {
 
 
     let current_map_environment_raw_json : String = fs::read_to_string(&DEFAULT_MAP_ENVIRONMENT_LOCATION).expect("main.rs launch_server() Error reading map environment.json file from drive.");
-    let current_map_environment_data : WorldEnvironmentRaw = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs launch_server() Error parsing map environment.json String.");
+    let current_map_raw_environment : WorldEnvironmentRaw = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs launch_server() Error parsing map environment.json String.");
     
+    let current_map_environment : WorldEnvironment = WorldEnvironment::new(current_map_raw_environment);
     
 
     App::build()
-        .add_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f64(
+        /*.add_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f64(
             1.0 / 60.0,
-        )))
+        )))*/
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
         .add_plugin(NetworkingPlugin::default())
@@ -133,11 +127,12 @@ fn handle_messages_server(mut net: ResMut<NetworkResource>) {
 
 const SERVER_PORT: u16 = 57713;
 
-fn send_packets(mut net: ResMut<NetworkResource>, time: Res<Time>) {
+/*fn send_packets(mut _net: ResMut<NetworkResource>, time: Res<Time>) {
+    // This may be a heartbeat keep-alive func thats required. DISABLED ATM.
     if (time.seconds_since_startup() * 60.) as i64 % 60 == 0 {
         //net.broadcast(Packet::from("PING"));
     }
-}
+}*/
 
 // Start In sync with client
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -196,7 +191,7 @@ fn handle_packets(
         info!("New network_events");
 
         match event {
-            NetworkEvent::Packet(handle, packet) => {
+            NetworkEvent::Packet(_handle, _packet) => {
 
                 info!("New Packet!");
 
@@ -276,7 +271,7 @@ fn interpolate_entities_system(
         
 
         
-        if let Some(rigid_body) = bodies.get(rigid_body_handle.handle()) {
+        if let Some(_rigid_body) = bodies.get(rigid_body_handle.handle()) {
             
             //info!("Dynamic ball is at {} !", rigid_body.position().translation);
 
