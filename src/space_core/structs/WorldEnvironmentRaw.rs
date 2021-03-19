@@ -1,4 +1,4 @@
-pub struct RawWorldEnvironment {
+pub struct WorldEnvironmentRaw {
     adjustment_brightness: f32,
     adjustment_contrast: f32,
     adjustment_enabled: bool,
@@ -17,9 +17,8 @@ pub struct RawWorldEnvironment {
     bg_energy : f32,
     background_mode : u8,
     sky_custom_fov : f32,
-    sky_custom_orientation : String,
+    sky_orientation : String,
     sky_rotation : String,
-    sky_rotation_degrees : String,
     dof_blur_far_amount : f32,
     dof_blur_far_distance : f32,
     dof_blur_far_enabled : bool,
