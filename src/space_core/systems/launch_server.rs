@@ -51,22 +51,13 @@ pub fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) 
 
     }
 
-    
 
-    info!("Loaded map bullseye with {} static cells.", current_map_main_data.len());
-    
-    /*commands.spawn((
-        RigidBodyBuilder::new_dynamic().translation(0., 100., 0.),
-        ColliderBuilder::ball(0.4),
-        PhysicsDynamicRigidBodyComponent {}
-    ));*/
-
-
+    info!("Loaded map bullseye with {} main gridmap cells.", current_map_main_data.len());
 
     let ip_address = bevy_networking_turbulence::find_my_ip_address().expect("main.rs launch_server() Error cannot find IP address");
     let socket_address = SocketAddr::new(ip_address, SERVER_PORT);
 
     net.listen(socket_address);
-    info!("Server is listening for connections...");
+    info!("Server is ready");
 
 }
