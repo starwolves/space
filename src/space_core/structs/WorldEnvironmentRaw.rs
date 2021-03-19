@@ -1,3 +1,4 @@
+// Each struct value how it gets interpreted by verde-json and how it gets exported via the official JSON.print method on the godot server.
 pub struct WorldEnvironmentRaw {
     adjustment_brightness: f32,
     adjustment_contrast: f32,
@@ -18,7 +19,6 @@ pub struct WorldEnvironmentRaw {
     background_mode : u8,
     sky_custom_fov : f32,
     sky_orientation : String,
-    sky_rotation : String,
     dof_blur_far_amount : f32,
     dof_blur_far_distance : f32,
     dof_blur_far_enabled : bool,

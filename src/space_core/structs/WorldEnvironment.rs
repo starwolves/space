@@ -1,6 +1,6 @@
 use bevy::prelude::Color;
 use bevy::math::Quat;
-
+// The resource we send to each client on connection to initialize worldEnvironment.
 pub struct WorldEnvironment {
     adjustment_brightness: f32,
     adjustment_contrast: f32,
@@ -21,7 +21,6 @@ pub struct WorldEnvironment {
     background_mode : u8,
     sky_custom_fov : f32,
     sky_orientation : Quat,
-    sky_rotation : Quat,
     dof_blur_far_amount : f32,
     dof_blur_far_distance : f32,
     dof_blur_far_enabled : bool,
