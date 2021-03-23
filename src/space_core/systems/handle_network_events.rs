@@ -1,13 +1,24 @@
 use bevy::{ecs::{Res, ResMut}, prelude::{Events, info, warn}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
-use crate::space_core::{resources::{network_reader::NetworkReader, world_environments::WorldEnvironment}, structs::network_messages::*};
+use crate::space_core::{
+    resources::{
+        network_reader::NetworkReader,
+        world_environments::WorldEnvironment,
+        tick_rate::TickRate
+    }, 
+    structs::network_messages::*,
+    functions::{
+        on_new_connection::on_new_connection
+    }
+};
 
 pub fn handle_network_events(
     mut net: ResMut<NetworkResource>,
     mut state: ResMut<NetworkReader>,
     network_events: Res<Events<NetworkEvent>>,
-    world_environment: Res<WorldEnvironment>
+    world_environment: Res<WorldEnvironment>,
+    tick_rate : Res<TickRate>
 ) {
 
     for event in state.network_events.iter(&network_events) {
@@ -35,26 +46,31 @@ pub fn handle_network_events(
                                 );
                             }
                             None => {
-                                panic!("main.rs NetworkEvent::Connected: new connection with a strange remote_address [{}]", handle);
+                                panic!("handle_network_events.rs NetworkEvent::Connected: new connection with a strange remote_address [{}]", handle);
                             }
                         }
                     }
                     None => {
-                        panic!("main.rs NetworkEvent::Connected: got packet for non-existing connection [{}]", handle);
+                        panic!("handle_network_events.rs NetworkEvent::Connected: got packet for non-existing connection [{}]", handle);
                     }
                 }
 
-                match net.send_message(*handle, ClientMessage::ConfigMessage(ConfigMessage::WorldEnvironment(*world_environment))) {
+                match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::WorldEnvironment(*world_environment))) {
                     Ok(msg) => match msg {
                         Some(msg) => {
-                            warn!("Networkhound was unable to send Awoo: {:?}", msg);
+                            warn!("handle_network_events.rs NetworkEvent::Connected: was unable to send WorldEnvironment: {:?}", msg);
                         }
                         None => {}
                     },
                     Err(err) => {
-                        warn!("Networkhound was unable to send Awoo (1): {:?}", err);
+                        warn!("handle_network_events.rs NetworkEvent::Connected: was unable to send WorldEnvironment (1): {:?}", err);
                     }
                 };
+
+                on_new_connection();
+
+                
+
 
             }
             

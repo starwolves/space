@@ -18,7 +18,7 @@ use crate::space_core::functions::{string_to_type_converters::json_vec3_to_vec3,
 
 use serde::{Deserialize};
 
-use crate::space_core::structs::network_messages::ClientMessage;
+use crate::space_core::structs::network_messages::*;
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
@@ -58,7 +58,7 @@ pub fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) 
 
     net.set_channels_builder(|builder: &mut ConnectionChannelsBuilder| {
         builder
-            .register::<ClientMessage>(CLIENT_MESSAGE_RELIABLE)
+            .register::<ReliableServerMessage>(CLIENT_MESSAGE_RELIABLE)
             .unwrap();
     });
 
