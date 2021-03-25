@@ -11,5 +11,9 @@ pub enum ReliableServerMessage {
 pub enum ConfigMessage {
     Awoo,
     WorldEnvironment(WorldEnvironment),
-    TickRate(u8)
+    TickRate(u8),
+    HandleId(u32),
+    BlackCellID(i64, i64),
+    ChangeScene(bool, String),
+    ServerEntityId(u16)
 }

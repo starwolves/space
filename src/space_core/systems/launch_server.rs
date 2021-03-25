@@ -14,7 +14,12 @@ use bevy_rapier3d::{
 
 use std::{fs, net::{SocketAddr}, time::Duration};
 
-use crate::space_core::functions::{string_to_type_converters::json_vec3_to_vec3, gridmap_functions::cell_id_to_world};
+use crate::space_core::{components::{
+        server::Server
+    }, components::entity_id::EntityId, functions::{
+        string_to_type_converters::json_vec3_to_vec3, 
+        gridmap_functions::cell_id_to_world
+    }, resources::{server_id::ServerId, unique_entity_id::UniqueEntityId}};
 
 use serde::{Deserialize};
 
@@ -53,7 +58,12 @@ const SERVER_PORT: u16 = 57713;
 
 const DEFAULT_MAP_MAIN_LOCATION : &str = "content\\maps\\bullseye\\main.json";
 
-pub fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) {
+pub fn launch_server(
+    mut net: ResMut<NetworkResource>, 
+    mut unique_entity_id : ResMut<UniqueEntityId>,
+    mut server_id : ResMut<ServerId>,
+     commands: &mut Commands
+    ) {
 
 
     net.set_channels_builder(|builder: &mut ConnectionChannelsBuilder| {
@@ -86,6 +96,19 @@ pub fn launch_server(mut net: ResMut<NetworkResource>, commands: &mut Commands) 
 
 
     info!("Loaded map bullseye with {} main gridmap cells.", current_map_main_data.len());
+
+    // So we have one objectId that isnt an entity for sure
+    let server = Server{};
+    let entity_id = EntityId {
+        id : unique_entity_id.i
+    };
+
+    server_id.id = entity_id.id;
+
+    unique_entity_id.i+=1;
+
+    commands.spawn((server, entity_id));
+
 
     let ip_address = bevy_networking_turbulence::find_my_ip_address().expect("main.rs launch_server() Error cannot find IP address");
     let socket_address = SocketAddr::new(ip_address, SERVER_PORT);

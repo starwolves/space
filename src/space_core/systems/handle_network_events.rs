@@ -1,24 +1,20 @@
-use bevy::{ecs::{Res, ResMut}, prelude::{Events, info, warn}};
+use bevy::{ecs::{Commands, Res, ResMut}, prelude::{Events, info}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
-use crate::space_core::{
-    resources::{
-        network_reader::NetworkReader,
-        world_environments::WorldEnvironment,
-        tick_rate::TickRate
-    }, 
-    structs::network_messages::*,
-    functions::{
+use crate::space_core::{functions::{
         on_new_connection::on_new_connection
-    }
-};
+    }, resources::{authid_i::AuthidI, blackcells_data::BlackcellsData, network_reader::NetworkReader, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}};
 
 pub fn handle_network_events(
+    mut commands : ResMut<Commands>,
     mut net: ResMut<NetworkResource>,
     mut state: ResMut<NetworkReader>,
     network_events: Res<Events<NetworkEvent>>,
     world_environment: Res<WorldEnvironment>,
-    tick_rate : Res<TickRate>
+    tick_rate : Res<TickRate>,
+    blackcells_data: Res<BlackcellsData>,
+    mut auth_id_i : ResMut<AuthidI>,
+    server_id : Res<ServerId>
 ) {
 
     for event in state.network_events.iter(&network_events) {
@@ -55,21 +51,14 @@ pub fn handle_network_events(
                     }
                 }
 
-                match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::WorldEnvironment(*world_environment))) {
-                    Ok(msg) => match msg {
-                        Some(msg) => {
-                            warn!("handle_network_events.rs NetworkEvent::Connected: was unable to send WorldEnvironment: {:?}", msg);
-                        }
-                        None => {}
-                    },
-                    Err(err) => {
-                        warn!("handle_network_events.rs NetworkEvent::Connected: was unable to send WorldEnvironment (1): {:?}", err);
-                    }
-                };
-
-                on_new_connection();
-
-                
+                on_new_connection(
+                    &mut net,
+                     handle, &world_environment,
+                      &tick_rate, &blackcells_data, 
+                      &mut auth_id_i, 
+                      &server_id,
+                    &mut commands
+                );
 
 
             }
