@@ -14,7 +14,7 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, blocking_cells_list::BlockingCellsList, network_reader::NetworkReader, tick_rate::TickRate, unique_entity_id::UniqueEntityId, world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
+use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, non_blocking_cells_list::NonBlockingCellsList, network_reader::NetworkReader, tick_rate::TickRate, unique_entity_id::UniqueEntityId, world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
         launch_server::launch_server,
         handle_network_messages::handle_network_messages,
         handle_network_events::handle_network_events
@@ -22,7 +22,7 @@ use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCe
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
 const DEFAULT_MAP_BLACKCELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\blackcells.json";
-const DEFAULT_MAP_BLOCKING_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\blockinglist.json";
+const DEFAULT_MAP_BLOCKING_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\nonblockinglist.json";
 const DEFAULT_MAP_MAINORDERED_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\mainordered.json";
 const DEFAULT_MAP_DETAILS1ORDERED_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\details1ordered.json";
 
@@ -38,7 +38,11 @@ fn main() {
     let current_map_blackcells : BlackcellsData = serde_json::from_str(&current_map_blackcells_data_raw_json).expect("main.rs launch_server() Error parsing map blackcells.json String.");
 
     let current_map_blocking_cells_raw_json : String = fs::read_to_string(&DEFAULT_MAP_BLOCKING_CELLS_DATA_LOCATION).expect("main.rs launch_server() Error reading map blockinglist.json from drive.");
-    let current_map_blocking_cells : BlockingCellsList = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs launch_server() Error parsing map blockinglist.json String.");
+    let current_map_blocking_cells_data : Vec<i64> = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs launch_server() Error parsing map blockinglist.json String.");
+
+    let current_map_blocking_cells = NonBlockingCellsList{
+        list : current_map_blocking_cells_data
+    };
 
     let current_map_mainordered_cells_raw_json : String = fs::read_to_string(&DEFAULT_MAP_MAINORDERED_CELLS_DATA_LOCATION).expect("main.rs launch_server() Error reading map mainordered.json drive.");
     let current_map_mainordered_cells : Vec<String> = serde_json::from_str(&current_map_mainordered_cells_raw_json).expect("main.rs launch_server() Error parsing map mainordered.json String.");

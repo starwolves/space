@@ -14,6 +14,8 @@ pub enum ConfigMessage {
     TickRate(u8),
     HandleId(u32),
     BlackCellID(i64, i64),
+    OrderedCellsMain(Vec<String>),
+    OrderedCellsDetails1(Vec<String>),
     ChangeScene(bool, String),
     ServerEntityId(u16)
 }

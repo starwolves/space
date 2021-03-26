@@ -1,6 +1,6 @@
 use bevy::{ecs::{Commands, Res, ResMut}, prelude::warn};
 use bevy_networking_turbulence::NetworkResource;
-use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_connected::SoftConnected}, resources::{authid_i::AuthidI, blackcells_data::BlackcellsData, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}, structs::network_messages::*};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_connected::SoftConnected}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}, structs::network_messages::*};
 
 
 pub fn on_new_connection(
@@ -10,9 +10,10 @@ pub fn on_new_connection(
     blackcells_data: &Res<BlackcellsData>,
     auth_id_i : &mut ResMut<AuthidI>,
     server_id : &Res<ServerId>,
+    all_ordered_cells : &Res<AllOrderedCells>,
     commands: &mut Commands
 ) {
-
+    
     match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::WorldEnvironment(**world_environment))) {
         Ok(msg) => match msg {
             Some(msg) => {
@@ -58,6 +59,30 @@ pub fn on_new_connection(
         },
         Err(err) => {
             warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send BlackCellID (1): {:?}", err);
+        }
+    };
+
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::OrderedCellsMain(all_ordered_cells.main.clone()))) {
+        Ok(msg) => match msg {
+            Some(msg) => {
+                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsMain: {:?}", msg);
+            }
+            None => {}
+        },
+        Err(err) => {
+            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsMain (1): {:?}", err);
+        }
+    };
+
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::OrderedCellsDetails1(all_ordered_cells.details1.clone()))) {
+        Ok(msg) => match msg {
+            Some(msg) => {
+                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsDetails1: {:?}", msg);
+            }
+            None => {}
+        },
+        Err(err) => {
+            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsDetails1 (1): {:?}", err);
         }
     };
 

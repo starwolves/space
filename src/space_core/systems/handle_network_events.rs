@@ -3,10 +3,9 @@ use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
 use crate::space_core::{functions::{
         on_new_connection::on_new_connection
-    }, resources::{authid_i::AuthidI, blackcells_data::BlackcellsData, network_reader::NetworkReader, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}};
+    }, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, network_reader::NetworkReader, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}};
 
 pub fn handle_network_events(
-    mut commands : ResMut<Commands>,
     mut net: ResMut<NetworkResource>,
     mut state: ResMut<NetworkReader>,
     network_events: Res<Events<NetworkEvent>>,
@@ -14,7 +13,9 @@ pub fn handle_network_events(
     tick_rate : Res<TickRate>,
     blackcells_data: Res<BlackcellsData>,
     mut auth_id_i : ResMut<AuthidI>,
-    server_id : Res<ServerId>
+    server_id : Res<ServerId>,
+    all_ordered_cells: Res<AllOrderedCells>,
+    mut commands : &mut Commands
 ) {
 
     for event in state.network_events.iter(&network_events) {
@@ -57,6 +58,8 @@ pub fn handle_network_events(
                       &tick_rate, &blackcells_data, 
                       &mut auth_id_i, 
                       &server_id,
+                    &all_ordered_cells,
+
                     &mut commands
                 );
 

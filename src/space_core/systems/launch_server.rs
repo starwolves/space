@@ -98,16 +98,16 @@ pub fn launch_server(
     info!("Loaded map bullseye with {} main gridmap cells.", current_map_main_data.len());
 
     // So we have one objectId that isnt an entity for sure
-    let server = Server{};
-    let entity_id = EntityId {
+    let server_component = Server{};
+    let entity_id_component = EntityId {
         id : unique_entity_id.i
     };
 
-    server_id.id = entity_id.id;
-
     unique_entity_id.i+=1;
 
-    commands.spawn((server, entity_id));
+    server_id.id = entity_id_component.id;
+
+    commands.spawn((server_component, entity_id_component));
 
 
     let ip_address = bevy_networking_turbulence::find_my_ip_address().expect("main.rs launch_server() Error cannot find IP address");
