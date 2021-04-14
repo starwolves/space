@@ -1,7 +1,8 @@
 use std::{fs};
 
 use bevy::{
-    prelude::*
+    prelude::*,
+    app::CoreStage::PreUpdate
 };
 
 use bevy_rapier3d::{
@@ -14,7 +15,7 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, non_blocking_cells_list::NonBlockingCellsList, network_reader::NetworkReader, tick_rate::TickRate, unique_entity_id::UniqueEntityId, world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
+use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, non_blocking_cells_list::NonBlockingCellsList, tick_rate::TickRate, unique_entity_id::UniqueEntityId, world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
         launch_server::launch_server,
         handle_network_messages::handle_network_messages,
         handle_network_events::handle_network_events
@@ -75,16 +76,15 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin)
         .add_plugin(NetworkingPlugin::default())
         .add_startup_system(launch_server.system())
-        .add_resource(NetworkReader::default())
-        .add_resource(current_map_environment)
-        .add_resource(tick_rate)
-        .add_resource(current_map_blackcells)
-        .add_resource(current_map_blocking_cells)
-        .add_resource(all_ordered_cells)
-        .add_resource(authid_i)
-        .add_resource(unique_entity_id)
-        .add_resource(server_id)
+        .insert_resource(current_map_environment)
+        .insert_resource(tick_rate)
+        .insert_resource(current_map_blackcells)
+        .insert_resource(current_map_blocking_cells)
+        .insert_resource(all_ordered_cells)
+        .insert_resource(authid_i)
+        .insert_resource(unique_entity_id)
+        .insert_resource(server_id)
         .add_system(handle_network_events.system())
-        .add_system_to_stage(stage::PRE_UPDATE, handle_network_messages.system())
+        .add_system_to_stage(PreUpdate, handle_network_messages.system())
         .run();
 }

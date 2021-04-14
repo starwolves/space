@@ -1,5 +1,4 @@
 pub mod world_environments;
-pub mod network_reader;
 pub mod tick_rate;
 pub mod blackcells_data;
 pub mod non_blocking_cells_list;

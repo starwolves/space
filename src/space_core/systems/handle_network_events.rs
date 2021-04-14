@@ -1,24 +1,23 @@
-use bevy::{ecs::{Commands, Res, ResMut}, prelude::{Events, info}};
+use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, info}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
 use crate::space_core::{functions::{
         on_new_connection::on_new_connection
-    }, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, network_reader::NetworkReader, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}};
+    }, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}};
 
 pub fn handle_network_events(
     mut net: ResMut<NetworkResource>,
-    mut state: ResMut<NetworkReader>,
-    network_events: Res<Events<NetworkEvent>>,
+    mut reader: EventReader<NetworkEvent>,
     world_environment: Res<WorldEnvironment>,
     tick_rate : Res<TickRate>,
     blackcells_data: Res<BlackcellsData>,
     mut auth_id_i : ResMut<AuthidI>,
     server_id : Res<ServerId>,
     all_ordered_cells: Res<AllOrderedCells>,
-    mut commands : &mut Commands
+    mut commands: Commands
 ) {
 
-    for event in state.network_events.iter(&network_events) {
+    for event in reader.iter() {
 
         info!("New network_events");
 
@@ -59,7 +58,6 @@ pub fn handle_network_events(
                       &mut auth_id_i, 
                       &server_id,
                     &all_ordered_cells,
-
                     &mut commands
                 );
 

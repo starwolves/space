@@ -1,4 +1,4 @@
-use bevy::{ecs::{Commands, Res, ResMut}, prelude::warn};
+use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::warn};
 use bevy_networking_turbulence::NetworkResource;
 use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_connected::SoftConnected}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}, structs::network_messages::*};
 
@@ -121,19 +121,7 @@ pub fn on_new_connection(
 
     auth_id_i.i+=1;
 
-    commands.spawn((connected_player_component, soft_connected_component));
-    
-    
-
-
-
-
-
-
-
-
-
-
+    commands.spawn().insert_bundle((connected_player_component, soft_connected_component));
     
     
 }

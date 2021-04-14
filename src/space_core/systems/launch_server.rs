@@ -1,4 +1,4 @@
-use bevy::{ecs::{Commands, ResMut}, prelude::info};
+use bevy::{ecs::{system::{Commands, ResMut}}, prelude::info};
 
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, MessageChannelSettings, NetworkResource, ReliableChannelSettings};
 use bevy_rapier3d::{
@@ -83,7 +83,7 @@ pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
     mut unique_entity_id : ResMut<UniqueEntityId>,
     mut server_id : ResMut<ServerId>,
-     commands: &mut Commands
+    mut commands: Commands
     ) {
 
 
@@ -111,7 +111,7 @@ pub fn launch_server(
 
         let world_position = cell_id_to_world(cell_id);
 
-        commands.spawn((
+        commands.spawn().insert_bundle((
             RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
             ColliderBuilder::cuboid(1., 1., 1.),
         ));
@@ -131,7 +131,7 @@ pub fn launch_server(
 
     server_id.id = entity_id_component.id;
 
-    commands.spawn((server_component, entity_id_component));
+    commands.spawn().insert_bundle((server_component, entity_id_component));
 
 
     let ip_address = bevy_networking_turbulence::find_my_ip_address().expect("main.rs launch_server() Error cannot find IP address");
