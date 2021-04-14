@@ -1,0 +1,921 @@
+[
+	{
+		"type": "airLock",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 13.65, 0.472762, 0",
+		"data": {
+
+		}
+	},
+	{
+		"type": "jumpsuitSecurity",
+		"transform": "-1, 0.000022, 0.00001, 0.00001, -0.00001, 1, 0.000022, 1, 0.00001 - 14.0306, 0.099065, 16.817802",
+		"data": {
+
+		}
+	},
+	{
+		"type": "helmetSecurity",
+		"transform": "-1, 0.000029, -0.000004, -0.000029, -1, 0.000057, -0.000004, 0.000057, 1 - 17.080688, 0.278767, 16.850269",
+		"data": {
+
+		}
+	},
+	{
+		"type": "securityAirLock1",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -1, 0, 17",
+		"data": {
+
+		}
+	},
+	{
+		"type": "securityAirLock1",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 13, 0, 7",
+		"data": {
+
+		}
+	},
+	{
+		"type": "securityCounterWindow",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -5.88408, 1.41603, 7.06048",
+		"data": {
+
+		}
+	},
+	{
+		"type": "securityCounterWindow",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - -6.06563, 1.41603, 7.06048",
+		"data": {
+
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 44.738701, 1.50078, 60.300098",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -200.128006, 1.50078, 82.500099",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -200.695007, 1.50078, 182.244003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -200.695007, 1.50078, 125.106003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -201.893005, 1.50078, -2.60107",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -198.186996, 1.50078, 40.733898",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -153.020996, 1.50078, 82.500099",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -153.589005, 1.50078, 182.244003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -153.589005, 1.50078, 125.106003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -154.787003, 1.50078, -2.60107",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -151.080994, 1.50078, 40.733898",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -104.633003, 1.50078, 82.500099",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -105.199997, 1.50078, 182.244003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -105.199997, 1.50078, 125.106003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -75.138199, 1.50078, -2.60107",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -102.692001, 1.50078, 40.733898",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -37.839298, 1.50078, 58.2845",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 61.8601, 1.50078, 182.244003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -4.5719, 1.50078, 182.244003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -58.929199, 1.50078, 182.244003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 19.566401, 1.50078, 80.0439",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -4.5719, 1.50078, 125.106003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -58.929199, 1.50078, 125.106003",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -9.44937, 1.50078, 79.389",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 15.8046, 1.50078, 50.9464",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 44.179199, 1.50078, 8.22144",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 47.163101, 1.50078, 28.3699",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -5.8705, 1.50078, 12.4678",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -16.743, 1.50078, 39.509102",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 13.2823, 1.50078, 19.0026",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -39.701199, 1.50078, 1.81979",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -39.701199, 1.50078, 31.967699",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -16.134399, 1.50078, -13.3344",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -190.018005, 1.50078, -41.1292",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -138.25, 1.50078, -41.1292",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -90.171898, 1.50078, -41.1292",
+		"data": {
+			"omniAttenuation": 0.933035,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 0.5,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 50.793201, 1.50078, -13.9217",
+		"data": {
+			"omniAttenuation": 1.1487,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 1,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 12.8255, 1.50078, -13.024",
+		"data": {
+			"omniAttenuation": 1.1487,
+			"omniRange": 29.700001,
+			"omniShadowDetail": 1,
+			"omniShadowMode": 0,
+			"bakeMode": 1,
+			"color": "1,1,1,1",
+			"cullMask": 4294967295,
+			"lightEnergy": 1,
+			"lightIndirectEnergy": 1,
+			"negative": false,
+			"lightSpecular": 0.2,
+			"shadowBias": 0.5,
+			"shadowColor": "0,0,0,1",
+			"shadowContact": 0,
+			"shadow": true,
+			"shadowReverseCullFace": false
+		}
+	},
+	{
+		"type": "ReflectionProbe",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -8.701, 1.519, 31.695999",
+		"data": {
+			"projectionEnabled": false,
+			"cullMask": 1048575,
+			"shadowsEnabled": true,
+			"extents": "(100, 4, 100)",
+			"intensity": 1,
+			"interiorAmbient": "0,0,0,1",
+			"interiorAmbientProbeContribution": 0,
+			"interiorAmbientEnergy": 1,
+			"setAsInterior": false,
+			"maxDistance": 0,
+			"originOffset": "(0, 0, 0)",
+			"updateMode": 0
+		}
+	},
+	{
+		"type": "GIProbe",
+		"transform": "0.999999, -0.000925, -0.000593, 0.000925, 1, -0.000087, 0.000593, 0.000087, 1 - -14.533, 0, 40.282001",
+		"data": {
+			"bias": 1.5,
+			"compressed": false,
+			"probeData": "[GIProbeData:2036]",
+			"dynamicRange": 4,
+			"energy": 1,
+			"extents": "(100, 4, 100)",
+			"interior": true,
+			"normalBias": 0,
+			"propagation": 0.7,
+			"subdiv": 3
+		}
+	}
+]

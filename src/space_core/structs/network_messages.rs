@@ -2,13 +2,24 @@ use serde::{Serialize, Deserialize};
 
 use crate::space_core::{resources::world_environments::WorldEnvironment};
 
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ReliableClientMessage {
+    Awoo,
+    UIInput(String,String,String,String)
+}
+
+
+
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
-    ConfigMessage(ConfigMessage)
+    ConfigMessage(ServerConfigMessage)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum ConfigMessage {
+pub enum ServerConfigMessage {
     Awoo,
     WorldEnvironment(WorldEnvironment),
     TickRate(u8),

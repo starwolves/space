@@ -14,7 +14,7 @@ pub fn on_new_connection(
     commands: &mut Commands
 ) {
     
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::WorldEnvironment(**world_environment))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::WorldEnvironment(**world_environment))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send WorldEnvironment: {:?}", msg);
@@ -26,7 +26,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::TickRate(tick_rate.rate))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::TickRate(tick_rate.rate))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send TickRate: {:?}", msg);
@@ -38,7 +38,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::HandleId(*handle))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::HandleId(*handle))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send HandleId: {:?}", msg);
@@ -50,7 +50,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::BlackCellID(blackcells_data.blackcell_id, blackcells_data.blackcell_blocking_id))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::BlackCellID(blackcells_data.blackcell_id, blackcells_data.blackcell_blocking_id))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send BlackCellID: {:?}", msg);
@@ -62,7 +62,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::OrderedCellsMain(all_ordered_cells.main.clone()))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsMain(all_ordered_cells.main.clone()))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsMain: {:?}", msg);
@@ -74,7 +74,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::OrderedCellsDetails1(all_ordered_cells.details1.clone()))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsDetails1(all_ordered_cells.details1.clone()))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsDetails1: {:?}", msg);
@@ -86,7 +86,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::ChangeScene(false, "setupUI".to_string()))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(false, "setupUI".to_string()))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send ChangeScene: {:?}", msg);
@@ -98,7 +98,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ConfigMessage::ServerEntityId(server_id.id))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send ServerEntityId: {:?}", msg);
@@ -123,6 +123,8 @@ pub fn on_new_connection(
 
     commands.spawn((connected_player_component, soft_connected_component));
     
+    
+
 
 
 
