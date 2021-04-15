@@ -61,7 +61,7 @@ pub fn string_quat_to_quat(string_quad : &str) -> Quat {
 
 const STRING_VEC3_TO_VEC3_CANNOT_PARSE_MESSAGE : &str = "main.rs json_vec3_to_vec3() Error cannot parse cell id string as Vector 3.";
 
-pub fn json_vec3_to_vec3(string_vector : &str) -> Vec3 {
+pub fn string_vec3_to_vec3(string_vector : &str) -> Vec3 {
 
    
 

@@ -7,18 +7,18 @@ use crate::space_core::{functions::{
 
 pub fn handle_network_events(
     mut net: ResMut<NetworkResource>,
-    mut reader: EventReader<NetworkEvent>,
     world_environment: Res<WorldEnvironment>,
     tick_rate : Res<TickRate>,
     blackcells_data: Res<BlackcellsData>,
     mut auth_id_i : ResMut<AuthidI>,
     server_id : Res<ServerId>,
     all_ordered_cells: Res<AllOrderedCells>,
-    mut commands: Commands
+    mut commands: Commands,
+    mut reader: EventReader<NetworkEvent>,
 ) {
 
     for event in reader.iter() {
-
+        
         info!("New network_events");
 
         match event {

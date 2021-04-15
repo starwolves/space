@@ -18,4 +18,3 @@ serde = {version= "1.0"}
 serde_json = {version= "1.0"}
 
 bevy_networking_turbulence = {git = "https://github.com/nikitavondel/bevy_networking_turbulence", branch="dev"}
-bincode = "1.3.2"

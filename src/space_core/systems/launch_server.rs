@@ -17,7 +17,7 @@ use std::{fs, net::{SocketAddr}, time::Duration};
 use crate::space_core::{components::{
         server::Server
     }, components::entity_id::EntityId, functions::{
-        string_to_type_converters::json_vec3_to_vec3, 
+        string_to_type_converters::string_vec3_to_vec3, 
         gridmap_functions::cell_id_to_world
     }, resources::{server_id::ServerId, unique_entity_id::UniqueEntityId}};
 
@@ -31,6 +31,14 @@ struct CellData {
     id: String,
     item: i64,
     orientation: i64
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct RawEntity {
+    entity_type: String,
+    transform : String,
+    data : String
 }
 
 const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -78,6 +86,7 @@ const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
 const SERVER_PORT: u16 = 57713;
 
 const DEFAULT_MAP_MAIN_LOCATION : &str = "content\\maps\\bullseye\\main.json";
+const DEFAULT_MAP_ENTITIES_LOCATION : &str = "content\\maps\\bullseye\\entities.json";
 
 pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
@@ -107,7 +116,7 @@ pub fn launch_server(
 
     for cell_data in current_map_main_data.iter() {
         
-        let cell_id = json_vec3_to_vec3(&cell_data.id);
+        let cell_id = string_vec3_to_vec3(&cell_data.id);
 
         let world_position = cell_id_to_world(cell_id);
 
@@ -119,7 +128,14 @@ pub fn launch_server(
     }
 
 
-    info!("Loaded map bullseye with {} main gridmap cells.", current_map_main_data.len());
+    let current_map_entities_raw_json : String = fs::read_to_string(&DEFAULT_MAP_ENTITIES_LOCATION).expect("main.rs launch_server() Error reading map entities.json file from drive.");
+    let current_map_entities_data : Vec<RawEntity> = serde_json::from_str(&current_map_entities_raw_json).expect("main.rs launch_server() Error parsing map entities.json String.");
+    
+
+
+
+
+    info!("Loaded map bullseye with {} main gridmap cells and {} entities.", current_map_main_data.len(), current_map_entities_data.len());
 
     // So we have one objectId that isnt an entity for sure
     let server_component = Server{};
