@@ -98,7 +98,7 @@ pub fn on_new_connection(
         }
     };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id))) {
+    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id.id()))) {
         Ok(msg) => match msg {
             Some(msg) => {
                 warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send ServerEntityId: {:?}", msg);

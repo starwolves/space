@@ -28,5 +28,5 @@ pub enum ServerConfigMessage {
     OrderedCellsMain(Vec<String>),
     OrderedCellsDetails1(Vec<String>),
     ChangeScene(bool, String),
-    ServerEntityId(u16)
+    ServerEntityId(u32)
 }

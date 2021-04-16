@@ -1,5 +1,5 @@
 use serde::{Deserialize};
-use crate::space_core::functions::string_to_type_converters::{string_color_to_color, string_vec3_to_vec3};
+use crate::space_core::{components::reflection_probe::ReflectionProbe, functions::string_to_type_converters::{string_color_to_color, string_vec3_to_vec3}};
 use bevy::{math::Vec3, prelude::Color};
 
 #[allow(dead_code)]
@@ -50,6 +50,23 @@ impl ExportData {
             max_distance : raw.max_distance,
             origin_offset : string_vec3_to_vec3(&raw.origin_offset),
             update_mode : raw.update_mode
+        }
+    }
+
+    pub fn to_component(self) -> ReflectionProbe  {
+        ReflectionProbe{
+            projection_enabled : self.projection_enabled,
+            cull_mask : self.cull_mask,
+            shadows_enabled : self.shadows_enabled,
+            extents : self.extents,
+            intensity : self.intensity,
+            interior_ambient : self.interior_ambient,
+            interior_ambient_probe_contribution : self.interior_ambient_probe_contribution,
+            interior_ambient_energy : self.interior_ambient_energy,
+            set_as_interior : self.set_as_interior,
+            max_distance : self.max_distance,
+            origin_offset : self.origin_offset,
+            update_mode : self.update_mode
         }
     }
 

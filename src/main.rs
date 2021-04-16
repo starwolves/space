@@ -15,7 +15,7 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, non_blocking_cells_list::NonBlockingCellsList, tick_rate::TickRate, unique_entity_id::UniqueEntityId, world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
+use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, non_blocking_cells_list::NonBlockingCellsList, tick_rate::TickRate, world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
         launch_server::launch_server,
         handle_network_messages::handle_network_messages,
         handle_network_events::handle_network_events
@@ -63,12 +63,8 @@ fn main() {
         i : 0
     };
 
-    let unique_entity_id = UniqueEntityId {
-        i:0
-    };
-
     let server_id = ServerId {
-        id:0
+        id: Entity::new(0)
     };
     
     App::build()
@@ -82,7 +78,6 @@ fn main() {
         .insert_resource(current_map_blocking_cells)
         .insert_resource(all_ordered_cells)
         .insert_resource(authid_i)
-        .insert_resource(unique_entity_id)
         .insert_resource(server_id)
         .add_system(handle_network_events.system())
         .add_system_to_stage(PreUpdate, handle_network_messages.system())

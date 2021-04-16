@@ -1,6 +1,11 @@
 use bevy::prelude::Color;
 use serde::{Deserialize};
-use crate::space_core::functions::string_to_type_converters::{string_color_to_color};
+use crate::space_core::{
+    functions::string_to_type_converters::{string_color_to_color},
+    components::{
+        omni_light::OmniLight
+    }
+};
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
@@ -44,6 +49,29 @@ impl ExportData {
             shadow : raw.shadow,
             shadow_reverse_cull_face : raw.shadow_reverse_cull_face
         }
+    }
+
+    pub fn to_component(self) -> OmniLight {
+
+        OmniLight{
+            omni_attenuation : self.omni_attenuation,
+            omni_range : self.omni_range,
+            omni_shadow_detail : self.omni_shadow_detail,
+            omni_shadow_mode : self.omni_shadow_mode,
+            bake_mode : self.bake_mode,
+            color : self.color,
+            cull_mask : self.cull_mask,
+            light_energy : self.light_energy,
+            light_indirect_energy : self.light_indirect_energy,
+            negative : self.negative,
+            light_specular : self.light_specular,
+            shadow_bias : self.shadow_bias,
+            shadow_color : self.shadow_color,
+            shadow_contact : self.shadow_contact,
+            shadow : self.shadow,
+            shadow_reverse_cull_face : self.shadow_reverse_cull_face
+        }
+
     }
 
 }
