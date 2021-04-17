@@ -12,9 +12,11 @@ edition = "2018"
 [dependencies]
 
 bevy = {version= "0.5"}
-bevy_rapier3d = {version= "0.9" , features = [ "simd-stable", "parallel" ]}
+bevy_rapier3d = {version= "0.9" ,default-features = false, features = [ "dim3","simd-stable", "parallel" ]}
 
 serde = {version= "1.0"}
 serde_json = {version= "1.0"}
 
 bevy_networking_turbulence = {git = "https://github.com/nikitavondel/bevy_networking_turbulence", branch="dev"}
+
+rand = "0.8.3"

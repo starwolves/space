@@ -2,7 +2,10 @@ use std::{fs};
 
 use bevy::{
     prelude::*,
-    app::CoreStage::PreUpdate
+    app::CoreStage::PreUpdate,
+    log::LogPlugin,
+    transform::TransformPlugin,
+    diagnostic::DiagnosticsPlugin
 };
 
 use bevy_rapier3d::{
@@ -15,11 +18,22 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{resources::{server_id::ServerId,all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, non_blocking_cells_list::NonBlockingCellsList, tick_rate::TickRate, world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
+use space_core::{
+    resources::{
+        server_id::ServerId,
+        all_ordered_cells::AllOrderedCells,
+        authid_i::AuthidI,
+        blackcells_data::BlackcellsData, 
+        non_blocking_cells_list::NonBlockingCellsList, 
+        tick_rate::TickRate, 
+        used_names::UsedNames,
+        world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, 
+    systems::{
         launch_server::launch_server,
         handle_network_messages::handle_network_messages,
         handle_network_events::handle_network_events
-    }};
+    }
+};
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
 const DEFAULT_MAP_BLACKCELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\blackcells.json";
@@ -66,11 +80,18 @@ fn main() {
     let server_id = ServerId {
         id: Entity::new(0)
     };
+
+    let used_names = UsedNames {
+        names : vec![]
+    };
     
     App::build()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(MinimalPlugins)
+        .add_plugin(LogPlugin::default())
+        .add_plugin(TransformPlugin::default())
         .add_plugin(RapierPhysicsPlugin)
         .add_plugin(NetworkingPlugin::default())
+        .add_plugin(DiagnosticsPlugin::default())
         .add_startup_system(launch_server.system())
         .insert_resource(current_map_environment)
         .insert_resource(tick_rate)
@@ -79,6 +100,7 @@ fn main() {
         .insert_resource(all_ordered_cells)
         .insert_resource(authid_i)
         .insert_resource(server_id)
+        .insert_resource(used_names)
         .add_system(handle_network_events.system())
         .add_system_to_stage(PreUpdate, handle_network_messages.system())
         .run();
