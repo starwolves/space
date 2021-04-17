@@ -18,14 +18,14 @@ use crate::space_core::{
     }
 };
 
-
 struct PostProcessPerHandle {
     process : PostProcess,
     handle : u32
 }
 
 enum PostProcess {
-    GeneratedName(String)
+    GeneratedName(String),
+    UIRequestInput(String, String)
 }
 
 pub fn handle_network_messages(
@@ -51,7 +51,13 @@ pub fn handle_network_messages(
 
                             info!("Received boarding request from [{}]", handle);
 
-                            
+                            post_processes.push(PostProcessPerHandle{
+                                handle: *handle,
+                                process: PostProcess::UIRequestInput(
+                                    "setupUI".to_string(),
+                                    "HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName".to_string()
+                                )
+                            });
 
                         }
 
@@ -67,6 +73,28 @@ pub fn handle_network_messages(
                         process: PostProcess::GeneratedName(suggested_name)
                     });
                     
+
+                }
+                ReliableClientMessage::UIInputTransmitText(ui_type, node_path, input_text) => {
+
+                    if ui_type == "setupUI" {
+
+                        if node_path == 
+                        "HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName" {
+
+                            if used_names.names.contains(&input_text) {
+                                continue;
+                            }
+
+                            used_names.names.push(input_text.clone());
+
+                            // We have the player's name, now fully spawn in the player and remove from softConnected
+
+                            info!("{} [{}] has boarded the spaceship.",input_text, handle);
+
+                        }
+
+                    }
 
                 }
             }
@@ -97,6 +125,24 @@ pub fn handle_network_messages(
                     },
                     Err(err) => {
                         warn!("handle_network_messages.rs was unable to send suggested name (1): {:?}", err);
+                    }
+                };
+
+            }
+            PostProcess::UIRequestInput(ui_type, node_path) => {
+
+                match net.send_message(post_process_per_handle.handle, ReliableServerMessage::UIRequestInput(
+                    ui_type.to_string(),
+                    node_path.to_string()
+                )) {
+                    Ok(msg) => match msg {
+                        Some(msg) => {
+                            warn!("handle_network_messages.rs was unable to UIRequestInput: {:?}", msg);
+                        }
+                        None => {}
+                    },
+                    Err(err) => {
+                        warn!("handle_network_messages.rs was unable to UIRequestInput (1): {:?}", err);
                     }
                 };
 

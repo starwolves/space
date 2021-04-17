@@ -8,7 +8,8 @@ use crate::space_core::{resources::world_environments::WorldEnvironment};
 pub enum ReliableClientMessage {
     Awoo,
     UIInput(UIInputNodeClass,UIInputAction,String,String),
-    SceneReady
+    SceneReady,
+    UIInputTransmitText(String, String, String)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -24,8 +25,9 @@ pub enum UIInputAction {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
+    EntityUpdate(u32,String, EntityUpdateData),
     ConfigMessage(ServerConfigMessage),
-    EntityUpdate(u32,String, EntityUpdateData)
+    UIRequestInput(String, String)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
