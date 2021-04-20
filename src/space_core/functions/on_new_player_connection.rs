@@ -1,9 +1,17 @@
 use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::warn};
 use bevy_networking_turbulence::NetworkResource;
-use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_connected::SoftConnected}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}, structs::network_messages::*};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, soft_connected::SoftConnected}, resources::{
+        all_ordered_cells::AllOrderedCells,
+        authid_i::AuthidI,
+        blackcells_data::BlackcellsData,
+        server_id::ServerId, 
+        tick_rate::TickRate,
+        world_environments::WorldEnvironment,
+        handle_to_entity::HandleToEntity
+    }, structs::network_messages::*};
 
 
-pub fn on_new_connection(
+pub fn on_new_player_connection(
     net : &mut ResMut<NetworkResource>, 
     handle : &u32, world_environment: &Res<WorldEnvironment>, 
     tick_rate: &Res<TickRate>,
@@ -11,6 +19,7 @@ pub fn on_new_connection(
     auth_id_i : &mut ResMut<AuthidI>,
     server_id : &Res<ServerId>,
     all_ordered_cells : &Res<AllOrderedCells>,
+    handle_to_entity : &mut ResMut<HandleToEntity>,
     commands: &mut Commands
 ) {
     
@@ -117,11 +126,20 @@ pub fn on_new_connection(
         authid: auth_id_i.i
     };
 
-    let soft_connected_component = SoftConnected {};
+    let soft_connected_component = SoftConnected;
+
+    let persistent_player_data = PersistentPlayerData {
+        character_name: "".to_string()
+    };
 
     auth_id_i.i+=1;
 
-    commands.spawn().insert_bundle((connected_player_component, soft_connected_component));
+    let player_entity_id = commands.spawn().insert_bundle((
+        connected_player_component,
+        soft_connected_component,
+        persistent_player_data
+    )).id();
     
+    handle_to_entity.map.insert(*handle, player_entity_id);
     
 }

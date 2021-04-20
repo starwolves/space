@@ -1,9 +1,20 @@
 use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, info}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
-use crate::space_core::{functions::{
-        on_new_connection::on_new_connection
-    }, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, server_id::ServerId, tick_rate::TickRate, world_environments::WorldEnvironment}};
+use crate::space_core::{
+    functions::{
+        on_new_player_connection::on_new_player_connection
+    },
+    resources::{
+        all_ordered_cells::AllOrderedCells,
+        authid_i::AuthidI,
+        blackcells_data::BlackcellsData,
+        server_id::ServerId,
+        tick_rate::TickRate,
+        world_environments::WorldEnvironment,
+        handle_to_entity::HandleToEntity
+    }
+};
 
 pub fn handle_network_events(
     mut net: ResMut<NetworkResource>,
@@ -13,6 +24,7 @@ pub fn handle_network_events(
     mut auth_id_i : ResMut<AuthidI>,
     server_id : Res<ServerId>,
     all_ordered_cells: Res<AllOrderedCells>,
+    mut handle_to_entity : ResMut<HandleToEntity>,
     mut commands: Commands,
     mut reader: EventReader<NetworkEvent>,
 ) {
@@ -51,13 +63,16 @@ pub fn handle_network_events(
                     }
                 }
 
-                on_new_connection(
+                on_new_player_connection(
                     &mut net,
-                     handle, &world_environment,
-                      &tick_rate, &blackcells_data, 
-                      &mut auth_id_i, 
-                      &server_id,
+                    handle,
+                    &world_environment,
+                    &tick_rate,
+                    &blackcells_data, 
+                    &mut auth_id_i, 
+                    &server_id,
                     &all_ordered_cells,
+                    &mut handle_to_entity,
                     &mut commands
                 );
 

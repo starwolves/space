@@ -8,7 +8,7 @@ use crate::space_core::{resources::world_environments::WorldEnvironment};
 pub enum ReliableClientMessage {
     Awoo,
     UIInput(UIInputNodeClass,UIInputAction,String,String),
-    SceneReady,
+    SceneReady(String),
     UIInputTransmitText(String, String, String)
 }
 

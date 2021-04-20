@@ -6,3 +6,4 @@ pub mod all_ordered_cells;
 pub mod authid_i;
 pub mod server_id;
 pub mod used_names;
+pub mod handle_to_entity;

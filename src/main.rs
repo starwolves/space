@@ -1,11 +1,15 @@
-use std::{fs};
+use std::{
+    fs,
+    collections::HashMap
+};
 
 use bevy::{
     prelude::*,
-    app::CoreStage::PreUpdate,
+    app::CoreStage::{PreUpdate, Update, PostUpdate},
     log::LogPlugin,
     transform::TransformPlugin,
-    diagnostic::DiagnosticsPlugin
+    diagnostic::DiagnosticsPlugin,
+    ecs::schedule::ReportExecutionOrderAmbiguities
 };
 
 use bevy_rapier3d::{
@@ -18,22 +22,35 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{
-    resources::{
-        server_id::ServerId,
+use space_core::{events::{
+        ui_input::UIInput,
+        scene_ready::SceneReady,
+        ui_input_transmit_text::UIInputTransmitText
+    }, resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI,
-        blackcells_data::BlackcellsData, 
-        non_blocking_cells_list::NonBlockingCellsList, 
-        tick_rate::TickRate, 
+        blackcells_data::BlackcellsData,
+        handle_to_entity::HandleToEntity,
+        non_blocking_cells_list::NonBlockingCellsList,
+        server_id::ServerId,
+        tick_rate::TickRate,
         used_names::UsedNames,
-        world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, 
+        world_environments::{WorldEnvironment,WorldEnvironmentRaw}
+    }, 
     systems::{
-        launch_server::launch_server,
+        done_boarding::done_boarding, 
+        handle_network_events::handle_network_events,
         handle_network_messages::handle_network_messages,
-        handle_network_events::handle_network_events
+        launch_server::launch_server,
+        on_boarding::on_boarding, 
+        on_setupui::on_setupui,
+        ui_input_event::ui_input_event,
+        ui_input_transmit_text_event::ui_input_transmit_text_event,
+        scene_ready_event::scene_ready_event
+        
     }
 };
+
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
 const DEFAULT_MAP_BLACKCELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\blackcells.json";
@@ -84,6 +101,10 @@ fn main() {
     let used_names = UsedNames {
         names : vec![]
     };
+
+    let handle_to_entity = HandleToEntity {
+        map : HashMap::new()
+    };
     
     App::build()
         .add_plugins(MinimalPlugins)
@@ -92,7 +113,7 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin)
         .add_plugin(NetworkingPlugin::default())
         .add_plugin(DiagnosticsPlugin::default())
-        .add_startup_system(launch_server.system())
+        //.insert_resource(ReportExecutionOrderAmbiguities)
         .insert_resource(current_map_environment)
         .insert_resource(tick_rate)
         .insert_resource(current_map_blackcells)
@@ -101,7 +122,18 @@ fn main() {
         .insert_resource(authid_i)
         .insert_resource(server_id)
         .insert_resource(used_names)
+        .insert_resource(handle_to_entity)
+        .add_event::<UIInput>()
+        .add_event::<SceneReady>()
+        .add_event::<UIInputTransmitText>()
+        .add_startup_system(launch_server.system())
+        .add_system(ui_input_event.system())
+        .add_system(scene_ready_event.system())
         .add_system(handle_network_events.system())
+        .add_system(on_boarding.system())
+        .add_system(on_setupui.system())
+        .add_system(ui_input_transmit_text_event.system())
         .add_system_to_stage(PreUpdate, handle_network_messages.system())
+        .add_system_to_stage(PostUpdate, done_boarding.system())
         .run();
 }

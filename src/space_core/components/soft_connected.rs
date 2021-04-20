@@ -1,1 +1,1 @@
-pub struct SoftConnected {}
+pub struct SoftConnected;

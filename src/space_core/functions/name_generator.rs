@@ -1,4 +1,4 @@
-use bevy::prelude::ResMut;
+use bevy::prelude::Res;
 use rand::seq::SliceRandom;
 
 use crate::space_core::resources::{
@@ -208,7 +208,7 @@ const LAST_NAMES : [&str;47] = [
 ];
 
 
-pub fn get_full_name(gender : bool, unique : bool, used_names : &ResMut<UsedNames>) -> String {
+pub fn get_full_name(gender : bool, unique : bool, used_names : &Res<UsedNames>) -> String {
 
     let rng = &mut rand::thread_rng();
 

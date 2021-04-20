@@ -20,3 +20,9 @@ serde_json = {version= "1.0"}
 bevy_networking_turbulence = {git = "https://github.com/nikitavondel/bevy_networking_turbulence", branch="dev"}
 
 rand = "0.8.3"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1

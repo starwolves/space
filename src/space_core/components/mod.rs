@@ -6,3 +6,6 @@ pub mod visible;
 pub mod gi_probe;
 pub mod reflection_probe;
 pub mod static_transform;
+pub mod boarding;
+pub mod setup_phase;
+pub mod persistent_player_data;
