@@ -19,11 +19,6 @@ pub fn done_boarding(
 
         commands.entity(entity_id).remove::<SetupPhase>();
 
-        if used_names.names.contains(&persistent_player_data.character_name) {
-            // Character name of player is already in-use.
-            continue;
-        }
-
         used_names.names.push(persistent_player_data.character_name.clone());
 
         // We have the player's name, now fully spawn in the player and remove from softConnected

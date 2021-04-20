@@ -5,7 +5,7 @@ use std::{
 
 use bevy::{
     prelude::*,
-    app::CoreStage::{PreUpdate, Update, PostUpdate},
+    app::CoreStage::{PreUpdate, PostUpdate},
     log::LogPlugin,
     transform::TransformPlugin,
     diagnostic::DiagnosticsPlugin,
