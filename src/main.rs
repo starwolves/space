@@ -9,7 +9,7 @@ use bevy::{
     log::LogPlugin,
     transform::TransformPlugin,
     diagnostic::DiagnosticsPlugin,
-    ecs::schedule::ReportExecutionOrderAmbiguities
+    //ecs::schedule::ReportExecutionOrderAmbiguities
 };
 
 use bevy_rapier3d::{
@@ -22,11 +22,7 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{events::{
-        ui_input::UIInput,
-        scene_ready::SceneReady,
-        ui_input_transmit_text::UIInputTransmitText
-    }, resources::{
+use space_core::{events::{net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI,
         blackcells_data::BlackcellsData,
@@ -36,20 +32,7 @@ use space_core::{events::{
         tick_rate::TickRate,
         used_names::UsedNames,
         world_environments::{WorldEnvironment,WorldEnvironmentRaw}
-    }, 
-    systems::{
-        done_boarding::done_boarding, 
-        handle_network_events::handle_network_events,
-        handle_network_messages::handle_network_messages,
-        launch_server::launch_server,
-        on_boarding::on_boarding, 
-        on_setupui::on_setupui,
-        ui_input_event::ui_input_event,
-        ui_input_transmit_text_event::ui_input_transmit_text_event,
-        scene_ready_event::scene_ready_event
-        
-    }
-};
+    }, systems::{done_boarding::done_boarding, handle_network_events::handle_network_events, handle_network_messages::handle_network_messages, launch_server::launch_server, net_send_message_event::net_send_messages_event, on_boarding::on_boarding, on_setupui::on_setupui, scene_ready_event::scene_ready_event, ui_input_event::ui_input_event, ui_input_transmit_text_event::ui_input_transmit_text_event}};
 
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
@@ -57,7 +40,15 @@ const DEFAULT_MAP_BLACKCELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\bl
 const DEFAULT_MAP_BLOCKING_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\nonblockinglist.json";
 const DEFAULT_MAP_MAINORDERED_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\mainordered.json";
 const DEFAULT_MAP_DETAILS1ORDERED_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\details1ordered.json";
+#[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
+enum SpaceStages {
+    SendNetMessages
+}
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+enum PreUpdateLabels {
+    NetEvents
+}
 
 fn main() {
 
@@ -123,17 +114,33 @@ fn main() {
         .insert_resource(server_id)
         .insert_resource(used_names)
         .insert_resource(handle_to_entity)
+        .add_stage_after(
+            PostUpdate, 
+            SpaceStages::SendNetMessages, 
+            SystemStage::parallel()
+        )
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()
+        .add_event::<NetOnNewPlayerConnection>()
+        .add_event::<NetOnBoarding>()
+        .add_event::<NetOnSetupUI>()
         .add_startup_system(launch_server.system())
         .add_system(ui_input_event.system())
         .add_system(scene_ready_event.system())
-        .add_system(handle_network_events.system())
         .add_system(on_boarding.system())
         .add_system(on_setupui.system())
         .add_system(ui_input_transmit_text_event.system())
-        .add_system_to_stage(PreUpdate, handle_network_messages.system())
+        .add_system_to_stage(
+            PreUpdate, 
+            handle_network_events.system()
+            .label(PreUpdateLabels::NetEvents)
+        )
+        .add_system_to_stage(PreUpdate, 
+            handle_network_messages.system()
+            .after(PreUpdateLabels::NetEvents)
+        )
         .add_system_to_stage(PostUpdate, done_boarding.system())
+        .add_system_to_stage(SpaceStages::SendNetMessages, net_send_messages_event.system())
         .run();
 }

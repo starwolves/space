@@ -1,10 +1,8 @@
 use bevy::prelude::{Commands, Query, RemovedComponents, ResMut, info};
-use bevy_networking_turbulence::NetworkResource;
 
 use crate::space_core::{components::{boarding::Boarding, connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, setup_phase::SetupPhase}, resources::used_names::UsedNames};
 
 pub fn done_boarding(
-    mut _net: ResMut<NetworkResource>,
     mut used_names : ResMut<UsedNames>,
     players_done_boarding: RemovedComponents<Boarding>,
     query : Query<(&SetupPhase, &ConnectedPlayer, &PersistentPlayerData)>,

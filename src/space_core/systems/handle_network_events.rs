@@ -1,11 +1,9 @@
-use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, info}};
+use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, EventWriter, info}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
-use crate::space_core::{
-    functions::{
+use crate::space_core::{events::net_on_new_player_connection::NetOnNewPlayerConnection, functions::{
         on_new_player_connection::on_new_player_connection
-    },
-    resources::{
+    }, resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI,
         blackcells_data::BlackcellsData,
@@ -13,8 +11,7 @@ use crate::space_core::{
         tick_rate::TickRate,
         world_environments::WorldEnvironment,
         handle_to_entity::HandleToEntity
-    }
-};
+    }};
 
 pub fn handle_network_events(
     mut net: ResMut<NetworkResource>,
@@ -27,6 +24,7 @@ pub fn handle_network_events(
     mut handle_to_entity : ResMut<HandleToEntity>,
     mut commands: Commands,
     mut reader: EventReader<NetworkEvent>,
+    mut net_on_new_player_connection : EventWriter<NetOnNewPlayerConnection>,
 ) {
 
     for event in reader.iter() {
@@ -64,7 +62,7 @@ pub fn handle_network_events(
                 }
 
                 on_new_player_connection(
-                    &mut net,
+                    &mut net_on_new_player_connection,
                     handle,
                     &world_environment,
                     &tick_rate,

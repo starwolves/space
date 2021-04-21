@@ -1,6 +1,9 @@
-use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::warn};
-use bevy_networking_turbulence::NetworkResource;
-use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, soft_connected::SoftConnected}, resources::{
+use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::EventWriter};
+use crate::space_core::{components::{
+        connected_player::ConnectedPlayer,
+        persistent_player_data::PersistentPlayerData,
+        soft_connected::SoftConnected,
+    }, events::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI,
         blackcells_data::BlackcellsData,
@@ -12,7 +15,7 @@ use crate::space_core::{components::{connected_player::ConnectedPlayer, persiste
 
 
 pub fn on_new_player_connection(
-    net : &mut ResMut<NetworkResource>, 
+    net_on_new_player_connection : &mut EventWriter<NetOnNewPlayerConnection>,
     handle : &u32, world_environment: &Res<WorldEnvironment>, 
     tick_rate: &Res<TickRate>,
     blackcells_data: &Res<BlackcellsData>,
@@ -23,101 +26,47 @@ pub fn on_new_player_connection(
     commands: &mut Commands
 ) {
     
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::WorldEnvironment(**world_environment))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send WorldEnvironment: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send WorldEnvironment (1): {:?}", err);
-        }
-    };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::TickRate(tick_rate.rate))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send TickRate: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send TickRate (1): {:?}", err);
-        }
-    };
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::HandleId(*handle))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send HandleId: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send HandleId (1): {:?}", err);
-        }
-    };
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle : *handle,
+        message : ReliableServerMessage::ConfigMessage(ServerConfigMessage::WorldEnvironment(**world_environment))
+    });
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::BlackCellID(blackcells_data.blackcell_id, blackcells_data.blackcell_blocking_id))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send BlackCellID: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send BlackCellID (1): {:?}", err);
-        }
-    };
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::TickRate(tick_rate.rate))
+    });
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsMain(all_ordered_cells.main.clone()))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsMain: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsMain (1): {:?}", err);
-        }
-    };
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::HandleId(*handle))
+    });
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsDetails1(all_ordered_cells.details1.clone()))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsDetails1: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send OrderedCellsDetails1 (1): {:?}", err);
-        }
-    };
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::BlackCellID(blackcells_data.blackcell_id, blackcells_data.blackcell_blocking_id))
+    });
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(false, "setupUI".to_string()))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send ChangeScene: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send ChangeScene (1): {:?}", err);
-        }
-    };
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsMain(all_ordered_cells.main.clone()))
+    });
 
-    match net.send_message(*handle, ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id.id()))) {
-        Ok(msg) => match msg {
-            Some(msg) => {
-                warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send ServerEntityId: {:?}", msg);
-            }
-            None => {}
-        },
-        Err(err) => {
-            warn!("on_new_connection.rs NetworkEvent::Connected: was unable to send ServerEntityId (1): {:?}", err);
-        }
-    };
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsDetails1(all_ordered_cells.details1.clone()))
+    });
+
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle:*handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(false, "setupUI".to_string()))
+    });
+
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id.id()))
+    });
 
     // Create the actual Bevy entity for the player , with its network handle, authid and softConnected components.
     
