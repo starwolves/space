@@ -142,7 +142,7 @@ pub fn launch_server(
     info!("Loaded map bullseye with {} cells(main) and {} entities.", current_map_main_data.len(), current_map_entities_data.len());
 
     // So we have one reserved Id that isnt an entity for sure
-    let server_component = Server{};
+    let server_component = Server;
 
     server_id.id = commands.spawn().insert(server_component).id();
 

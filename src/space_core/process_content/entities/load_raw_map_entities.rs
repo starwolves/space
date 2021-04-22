@@ -28,7 +28,15 @@ pub fn load_raw_map_entities(raw_entities : &Vec<RawEntity>, commands : &mut Com
             let omni_light_data_raw : omni_light::ExportDataRaw = serde_json::from_str(&raw_entity.data).expect("load_raw_map_entities.rs Error parsing entity OmniLight data.");
             let omni_light_component = omni_light::ExportData::new(omni_light_data_raw).to_component();
 
-            commands.spawn_bundle((omni_light_component, Visible{is_light:true}, static_transform_component));
+            commands.spawn_bundle((
+                omni_light_component,
+                Visible{
+                    is_light:true,
+                    sensed_by: vec![],
+                    sensed_by_cached: vec![]
+                },
+                static_transform_component
+            ));
 
         } else if raw_entity.entity_type == "GIProbe" {
 

@@ -2,7 +2,7 @@ use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::EventWriter};
 use crate::space_core::{components::{
         connected_player::ConnectedPlayer,
         persistent_player_data::PersistentPlayerData,
-        soft_connected::SoftConnected,
+        soft_player::SoftPlayer,
     }, events::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI,
@@ -75,7 +75,7 @@ pub fn on_new_player_connection(
         authid: auth_id_i.i
     };
 
-    let soft_connected_component = SoftConnected;
+    let soft_connected_component = SoftPlayer;
 
     let persistent_player_data = PersistentPlayerData {
         character_name: "".to_string()

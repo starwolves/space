@@ -1,11 +1,11 @@
-use bevy::prelude::{Commands, EventReader, Query, Res};
+use bevy::prelude::{Commands, EventReader, Query, Res, ResMut};
 
 use crate::space_core::{components::{boarding::Boarding, persistent_player_data::PersistentPlayerData}, events::ui_input_transmit_text::UIInputTransmitText, resources::{handle_to_entity::HandleToEntity, used_names::UsedNames}};
 
 pub fn ui_input_transmit_text_event(
     mut event : EventReader<UIInputTransmitText>,
     handle_to_entity: Res<HandleToEntity>,
-    used_names : Res<UsedNames>,
+    mut used_names : ResMut<UsedNames>,
     mut query : Query<&mut PersistentPlayerData>,
     mut commands : Commands
 ) {
@@ -32,7 +32,9 @@ pub fn ui_input_transmit_text_event(
                     continue;
                 }
 
-                commands.entity(*player_entity).remove::<Boarding>();    
+                used_names.names.push(persistent_player_data.character_name.clone());
+
+                commands.entity(*player_entity).remove::<Boarding>();  
     
             }
     

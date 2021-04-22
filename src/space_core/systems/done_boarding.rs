@@ -1,11 +1,24 @@
-use bevy::prelude::{Commands, Query, RemovedComponents, ResMut, info};
+use bevy::prelude::{Commands, EventWriter, Query, RemovedComponents, ResMut, info};
 
-use crate::space_core::{components::{boarding::Boarding, connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, setup_phase::SetupPhase}, resources::used_names::UsedNames};
+use crate::space_core::{
+    components::{
+        boarding::Boarding,
+        connected_player::ConnectedPlayer,
+        persistent_player_data::PersistentPlayerData,
+        setup_phase::SetupPhase,
+        soft_player::SoftPlayer,
+        on_board::OnBoard,
+        spawning::Spawning
+    }, 
+    events::net_done_boarding::NetDoneBoarding, resources::spawn_points::SpawnPoints,
+    structs::network_messages::{ReliableServerMessage,ServerConfigMessage}
+};
 
 pub fn done_boarding(
-    mut used_names : ResMut<UsedNames>,
+    mut spawn_points : ResMut<SpawnPoints>,
     players_done_boarding: RemovedComponents<Boarding>,
     query : Query<(&SetupPhase, &ConnectedPlayer, &PersistentPlayerData)>,
+    mut net_done_boarding: EventWriter<NetDoneBoarding>,
     mut commands : Commands
 ) {
 
@@ -15,15 +28,25 @@ pub fn done_boarding(
         query.get(entity_id)
         .expect("done_boarding.rs could not find components for player that just got done boarding.");
 
-        commands.entity(entity_id).remove::<SetupPhase>();
-
-        used_names.names.push(persistent_player_data.character_name.clone());
-
-        // We have the player's name, now fully spawn in the player and remove from softConnected
-
         info!("{} [{}] has boarded the spaceship.",persistent_player_data.character_name, connected_player.handle);
 
-        
+
+        commands.entity(entity_id)
+        .insert_bundle((OnBoard,Spawning { transform: spawn_points.list[spawn_points.i].transform }))
+        .remove_bundle::<(SetupPhase, SoftPlayer)>();
+
+        spawn_points.i+=1;
+
+        if spawn_points.i >= spawn_points.list.len() {
+            spawn_points.i = 0;
+        }
+
+        // Queue net_code message for client so he goes back to the main scene and ditches setupUI.
+
+        net_done_boarding.send(NetDoneBoarding {
+            handle : connected_player.handle,
+            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(true, "".to_string()))
+        });
 
     }
 

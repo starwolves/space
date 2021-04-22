@@ -1,2 +1,2 @@
 
-pub struct Server {}
+pub struct Server;

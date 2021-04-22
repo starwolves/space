@@ -8,3 +8,5 @@ pub mod ui_input_event;
 pub mod scene_ready_event;
 pub mod ui_input_transmit_text_event;
 pub mod net_send_message_event;
+pub mod on_spawning;
+pub mod visible_checker;
