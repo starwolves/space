@@ -130,9 +130,10 @@ fn visible_check(
         
         visible_component.sensed_by.push(visible_checker_entity_id);
 
-        // 1. Add persistent_entity_updates component to Visible entities.
-        // 2. Make client spawn itself and omni_lights for a basic recognizable world.
-        // 3. Make GIProbes and ReflectionProbes permanently load in via a different system on first time world load.
+        // 1. Load in player with transform entity_update.
+        // 2. Load in omni_lights with transform and omni light data.
+        // 3. Ensure basic recognizable world shows up with own player and omni lights.
+        // 4. Make GIProbes and ReflectionProbes permanently load in via a different system on first time world load.
 
         let hash_map = HashMap::new();
 

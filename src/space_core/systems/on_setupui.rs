@@ -23,17 +23,23 @@ pub fn on_setupui (
 
         let suggested_name = name_generator::get_full_name(true, true, &used_names);
 
-        let mut hash_map = HashMap::new();
+        let mut hash_map_data = HashMap::new();
 
-        hash_map.insert("UIText".to_string(), EntityUpdateData::String(suggested_name));
+        hash_map_data.insert("UIText".to_string(), EntityUpdateData::String(suggested_name));
         
+        let mut hash_map_path = HashMap::new();
+
+        hash_map_path.insert(
+            "setupUI::HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName".to_string(),
+            hash_map_data
+        );
+
 
         net_on_setupui.send(NetOnSetupUI{
             handle: connected_player_component.handle,
             message: ReliableServerMessage::EntityUpdate(
                 server_id.id.id(),
-                "setupUI::HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName".to_string(),
-                hash_map
+                hash_map_path
             )
         });
 

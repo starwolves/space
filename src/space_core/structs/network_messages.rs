@@ -27,7 +27,7 @@ pub enum UIInputAction {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
-    EntityUpdate(u32,String, HashMap<String, EntityUpdateData>),
+    EntityUpdate(u32, HashMap<String, HashMap<String, EntityUpdateData>>),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
     LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, bool)
