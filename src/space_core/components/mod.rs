@@ -12,3 +12,4 @@ pub mod persistent_player_data;
 pub mod on_board;
 pub mod spawning;
 pub mod visible_checker;
+pub mod entity_data;

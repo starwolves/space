@@ -6,7 +6,8 @@ use crate::space_core::{
     functions::string_to_type_converters::{string_transform_to_transform},
     components::{
         visible::Visible,
-        static_transform::StaticTransform
+        static_transform::StaticTransform,
+        entity_data::EntityData
     },
     process_content::entities::{
         omni_light,
@@ -15,7 +16,10 @@ use crate::space_core::{
     }
 };
 
-pub fn load_raw_map_entities(raw_entities : &Vec<RawEntity>, commands : &mut Commands) {
+pub fn load_raw_map_entities(
+    raw_entities : &Vec<RawEntity>,
+    commands : &mut Commands
+) {
 
     for raw_entity in raw_entities.iter() {
 
@@ -35,7 +39,11 @@ pub fn load_raw_map_entities(raw_entities : &Vec<RawEntity>, commands : &mut Com
                     sensed_by: vec![],
                     sensed_by_cached: vec![]
                 },
-                static_transform_component
+                static_transform_component,
+                EntityData{
+                    entity_class: "omni_light".to_string(),
+                    entity_type: "".to_string(),
+                }
             ));
 
         } else if raw_entity.entity_type == "GIProbe" {
@@ -43,7 +51,14 @@ pub fn load_raw_map_entities(raw_entities : &Vec<RawEntity>, commands : &mut Com
             let gi_probe_data  : gi_probe::ExportData = serde_json::from_str(&raw_entity.data).expect("load_raw_map_entities.rs Error parsing entity GIProbe data.");
             let gi_probe_component = gi_probe_data.to_component();
 
-            commands.spawn_bundle((gi_probe_component,static_transform_component));
+            commands.spawn_bundle((
+                gi_probe_component,
+                static_transform_component,
+                EntityData{
+                    entity_class: "gi_probe".to_string(),
+                    entity_type: "".to_string(),
+                }
+            ));
 
 
         } else if raw_entity.entity_type == "ReflectionProbe" {
@@ -51,7 +66,14 @@ pub fn load_raw_map_entities(raw_entities : &Vec<RawEntity>, commands : &mut Com
             let reflection_probe_data_raw : reflection_probe::ExportDataRaw = serde_json::from_str(&raw_entity.data).expect("load_raw_map_entities.rs Error parsing entity ReflectionProbe data.");
             let reflection_probe_component = reflection_probe::ExportData::new(reflection_probe_data_raw).to_component();
 
-            commands.spawn_bundle((reflection_probe_component,static_transform_component));
+            commands.spawn_bundle((
+                reflection_probe_component,
+                static_transform_component,
+                EntityData{
+                    entity_class: "reflection_probe".to_string(),
+                    entity_type: "".to_string(),
+                }
+            ));
 
 
         }

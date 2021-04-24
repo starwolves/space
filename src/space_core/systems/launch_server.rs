@@ -133,19 +133,18 @@ pub fn launch_server(
     }
 
 
-    let current_map_entities_raw_json : String = fs::read_to_string(&DEFAULT_MAP_ENTITIES_LOCATION).expect("main.rs launch_server() Error reading map entities.json file from drive.");
-    let current_map_entities_data : Vec<RawEntity> = serde_json::from_str(&current_map_entities_raw_json).expect("main.rs launch_server() Error parsing map entities.json String.");
-    
-    load_raw_map_entities(&current_map_entities_data, &mut commands);
-
-
-    info!("Loaded map bullseye with {} cells(main) and {} entities.", current_map_main_data.len(), current_map_entities_data.len());
 
     // So we have one reserved Id that isnt an entity for sure
     let server_component = Server;
 
     server_id.id = commands.spawn().insert(server_component).id();
 
+    let current_map_entities_raw_json : String = fs::read_to_string(&DEFAULT_MAP_ENTITIES_LOCATION).expect("main.rs launch_server() Error reading map entities.json file from drive.");
+    let current_map_entities_data : Vec<RawEntity> = serde_json::from_str(&current_map_entities_raw_json).expect("main.rs launch_server() Error parsing map entities.json String.");
+    
+    load_raw_map_entities(&current_map_entities_data, &mut commands);
+
+    info!("Loaded map bullseye with {} cells(main) and {} entities.", current_map_main_data.len(), current_map_entities_data.len());
 
     let ip_address = bevy_networking_turbulence::find_my_ip_address().expect("main.rs launch_server() Error cannot find IP address");
     let socket_address = SocketAddr::new(ip_address, SERVER_PORT);

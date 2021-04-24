@@ -1,9 +1,16 @@
+use std::collections::HashMap;
+
 use bevy::prelude::{Added, EventWriter, Query, Res};
 
-use crate::space_core::{components::{
+use crate::space_core::{
+    components::{
         connected_player::ConnectedPlayer, 
         setup_phase::SetupPhase
-    }, events::net_on_setupui::NetOnSetupUI, functions::name_generator, resources::{server_id::ServerId, used_names::UsedNames}, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
+    }, 
+    events::net_on_setupui::NetOnSetupUI,
+    functions::name_generator,
+    resources::{server_id::ServerId, used_names::UsedNames},
+    structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
 
 pub fn on_setupui (
     used_names : Res<UsedNames>,
@@ -16,12 +23,17 @@ pub fn on_setupui (
 
         let suggested_name = name_generator::get_full_name(true, true, &used_names);
 
+        let mut hash_map = HashMap::new();
+
+        hash_map.insert("UIText".to_string(), EntityUpdateData::String(suggested_name));
+        
+
         net_on_setupui.send(NetOnSetupUI{
             handle: connected_player_component.handle,
             message: ReliableServerMessage::EntityUpdate(
                 server_id.id.id(),
                 "setupUI::HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName".to_string(),
-                EntityUpdateData::UIText(suggested_name.to_string())
+                hash_map
             )
         });
 

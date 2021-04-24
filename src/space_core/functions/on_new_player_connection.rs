@@ -40,11 +40,6 @@ pub fn on_new_player_connection(
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,
-        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::HandleId(*handle))
-    });
-
-    net_on_new_player_connection.send(NetOnNewPlayerConnection{
-        handle: *handle,
         message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::BlackCellID(blackcells_data.blackcell_id, blackcells_data.blackcell_blocking_id))
     });
 
@@ -90,5 +85,10 @@ pub fn on_new_player_connection(
     )).id();
     
     handle_to_entity.map.insert(*handle, player_entity_id);
+
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(player_entity_id.id()))
+    });
     
 }

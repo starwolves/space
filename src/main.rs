@@ -22,17 +22,7 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{
-    events::{
-        net_done_boarding::NetDoneBoarding,
-        net_on_boarding::NetOnBoarding,
-        net_on_new_player_connection::NetOnNewPlayerConnection,
-        net_on_setupui::NetOnSetupUI,
-        scene_ready::SceneReady,
-        ui_input::UIInput,
-        ui_input_transmit_text::UIInputTransmitText
-    },
-    resources::{
+use space_core::{events::{net_done_boarding::NetDoneBoarding, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_visible_checker::NetVisibleChecker, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI, blackcells_data::BlackcellsData,
         handle_to_entity::HandleToEntity,
@@ -40,8 +30,7 @@ use space_core::{
         server_id::ServerId,
         spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints},
         tick_rate::TickRate, used_names::UsedNames,
-        world_environments::{WorldEnvironment,WorldEnvironmentRaw}},
-    systems::{
+        world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
         done_boarding::done_boarding,
         handle_network_events::handle_network_events,
         handle_network_messages::handle_network_messages,
@@ -54,8 +43,7 @@ use space_core::{
         ui_input_transmit_text_event::ui_input_transmit_text_event,
         on_spawning::on_spawning,
         visible_checker::visible_checker
-    }
-};
+    }};
 
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
@@ -165,6 +153,7 @@ fn main() {
         .add_event::<NetOnBoarding>()
         .add_event::<NetOnSetupUI>()
         .add_event::<NetDoneBoarding>()
+        .add_event::<NetVisibleChecker>()
         .add_startup_system(launch_server.system())
         .add_system(ui_input_event.system())
         .add_system(scene_ready_event.system())

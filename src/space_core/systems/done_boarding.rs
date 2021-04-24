@@ -45,7 +45,7 @@ pub fn done_boarding(
 
         net_done_boarding.send(NetDoneBoarding {
             handle : connected_player.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(true, "".to_string()))
+            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(true, "setupUI".to_string()))
         });
 
     }
