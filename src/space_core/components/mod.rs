@@ -13,3 +13,4 @@ pub mod on_board;
 pub mod spawning;
 pub mod visible_checker;
 pub mod entity_data;
+pub mod entity_updates;

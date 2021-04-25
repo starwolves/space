@@ -1,7 +1,7 @@
 use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, EventWriter, info}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
-use crate::space_core::{events::net_on_new_player_connection::NetOnNewPlayerConnection, functions::{
+use crate::space_core::{events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::{
         on_new_player_connection::on_new_player_connection
     }, resources::{
         all_ordered_cells::AllOrderedCells,

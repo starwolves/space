@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, EventReader, Res};
 
 use crate::space_core::{
-    events::ui_input::UIInput,
+    events::general::ui_input::UIInput,
     resources::handle_to_entity::HandleToEntity,
     structs::network_messages::{
         UIInputAction, 

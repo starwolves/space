@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::math::{Quat, Vec3};
+use bevy::{math::{Quat, Vec3}, prelude::Color};
 use serde::{Serialize, Deserialize};
 
 use crate::space_core::{resources::world_environments::WorldEnvironment};
@@ -37,9 +37,12 @@ pub enum ReliableServerMessage {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum EntityUpdateData {
     Int(i64),
+    UInt8(u8),
     String(String),
     Float(f32),
-    Transform(Vec3,Quat,Vec3)
+    Transform(Vec3,Quat,Vec3),
+    Color(Color),
+    Bool(bool)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

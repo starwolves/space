@@ -3,7 +3,7 @@ use crate::space_core::{components::{
         connected_player::ConnectedPlayer,
         persistent_player_data::PersistentPlayerData,
         soft_player::SoftPlayer,
-    }, events::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{
+    }, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI,
         blackcells_data::BlackcellsData,
@@ -85,6 +85,7 @@ pub fn on_new_player_connection(
     )).id();
     
     handle_to_entity.map.insert(*handle, player_entity_id);
+    handle_to_entity.inv_map.insert(player_entity_id.id(), *handle);
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,

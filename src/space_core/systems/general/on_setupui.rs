@@ -7,7 +7,7 @@ use crate::space_core::{
         connected_player::ConnectedPlayer, 
         setup_phase::SetupPhase
     }, 
-    events::net_on_setupui::NetOnSetupUI,
+    events::net::net_on_setupui::NetOnSetupUI,
     functions::name_generator,
     resources::{server_id::ServerId, used_names::UsedNames},
     structs::network_messages::{EntityUpdateData, ReliableServerMessage}};

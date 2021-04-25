@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, info}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::{scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{
+use crate::space_core::{events::general::{scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{
         ReliableClientMessage, 
         ReliableServerMessage
     }

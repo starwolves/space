@@ -10,7 +10,7 @@ use crate::space_core::{
         on_board::OnBoard,
         spawning::Spawning
     }, 
-    events::net_done_boarding::NetDoneBoarding, resources::spawn_points::SpawnPoints,
+    events::net::net_done_boarding::NetDoneBoarding, resources::spawn_points::SpawnPoints,
     structs::network_messages::{ReliableServerMessage,ServerConfigMessage}
 };
 

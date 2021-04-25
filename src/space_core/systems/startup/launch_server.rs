@@ -64,8 +64,8 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
         },
         max_message_len: 1024,
     },
-    message_buffer_size: 8,
-    packet_buffer_size: 8,
+    message_buffer_size: 16,
+    packet_buffer_size: 16,
 };
 
 const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -85,8 +85,8 @@ const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
         },
         max_message_len: 1024,
     },
-    message_buffer_size: 8,
-    packet_buffer_size: 8,
+    message_buffer_size: 16,
+    packet_buffer_size: 16,
 };
 
 const SERVER_PORT: u16 = 57713;

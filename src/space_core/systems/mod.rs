@@ -1,12 +1,4 @@
-pub mod launch_server;
-pub mod handle_network_messages;
-pub mod handle_network_events;
-pub mod on_boarding;
-pub mod on_setupui;
-pub mod done_boarding;
-pub mod ui_input_event;
-pub mod scene_ready_event;
-pub mod ui_input_transmit_text_event;
-pub mod net_send_message_event;
-pub mod on_spawning;
-pub mod visible_checker;
+pub mod entity_updates;
+pub mod general;
+pub mod net;
+pub mod startup;

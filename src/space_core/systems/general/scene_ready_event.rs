@@ -1,6 +1,6 @@
 use bevy::prelude::{Commands, EventReader, Res};
 
-use crate::space_core::{components::setup_phase::SetupPhase, events::scene_ready::SceneReady, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::setup_phase::SetupPhase, events::general::scene_ready::SceneReady, resources::handle_to_entity::HandleToEntity};
 
 pub fn scene_ready_event(
     mut event : EventReader<SceneReady>,

@@ -1,6 +1,6 @@
 use bevy::prelude::{Commands, EventReader, Query, Res, ResMut};
 
-use crate::space_core::{components::{boarding::Boarding, persistent_player_data::PersistentPlayerData}, events::ui_input_transmit_text::UIInputTransmitText, resources::{handle_to_entity::HandleToEntity, used_names::UsedNames}};
+use crate::space_core::{components::{boarding::Boarding, persistent_player_data::PersistentPlayerData}, events::general::ui_input_transmit_text::UIInputTransmitText, resources::{handle_to_entity::HandleToEntity, used_names::UsedNames}};
 
 pub fn ui_input_transmit_text_event(
     mut event : EventReader<UIInputTransmitText>,

@@ -2,12 +2,15 @@ use bevy::prelude::Commands;
 
 use super::raw_entity::RawEntity;
 
+use std::collections::HashMap;
+
 use crate::space_core::{
     functions::string_to_type_converters::{string_transform_to_transform},
     components::{
         visible::Visible,
         static_transform::StaticTransform,
-        entity_data::EntityData
+        entity_data::EntityData,
+        entity_updates::EntityUpdates
     },
     process_content::entities::{
         omni_light,
@@ -43,6 +46,9 @@ pub fn load_raw_map_entities(
                 EntityData{
                     entity_class: "omni_light".to_string(),
                     entity_type: "".to_string(),
+                },
+                EntityUpdates{
+                    updates: HashMap::new()
                 }
             ));
 
@@ -57,6 +63,9 @@ pub fn load_raw_map_entities(
                 EntityData{
                     entity_class: "gi_probe".to_string(),
                     entity_type: "".to_string(),
+                },
+                EntityUpdates{
+                    updates: HashMap::new()
                 }
             ));
 
@@ -72,6 +81,9 @@ pub fn load_raw_map_entities(
                 EntityData{
                     entity_class: "reflection_probe".to_string(),
                     entity_type: "".to_string(),
+                },
+                EntityUpdates{
+                    updates: HashMap::new()
                 }
             ));
 

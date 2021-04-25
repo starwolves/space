@@ -22,7 +22,22 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{events::{net_done_boarding::NetDoneBoarding, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_visible_checker::NetVisibleChecker, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, resources::{
+use space_core::{
+    events::{
+        general::{
+            scene_ready::SceneReady, ui_input::UIInput, 
+            ui_input_transmit_text::UIInputTransmitText
+        },
+        net::{
+            net_done_boarding::NetDoneBoarding,
+            net_on_boarding::NetOnBoarding, 
+            net_on_new_player_connection::NetOnNewPlayerConnection, 
+            net_on_setupui::NetOnSetupUI,
+            net_visible_checker::NetVisibleChecker, 
+            net_send_entity_updates::NetSendEntityUpdates
+        }
+    },
+    resources::{
         all_ordered_cells::AllOrderedCells,
         authid_i::AuthidI, blackcells_data::BlackcellsData,
         handle_to_entity::HandleToEntity,
@@ -30,20 +45,33 @@ use space_core::{events::{net_done_boarding::NetDoneBoarding, net_on_boarding::N
         server_id::ServerId,
         spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints},
         tick_rate::TickRate, used_names::UsedNames,
-        world_environments::{WorldEnvironment,WorldEnvironmentRaw}}, systems::{
-        done_boarding::done_boarding,
-        handle_network_events::handle_network_events,
-        handle_network_messages::handle_network_messages,
-        launch_server::launch_server,
-        net_send_message_event::net_send_messages_event,
-        on_boarding::on_boarding,
-        on_setupui::on_setupui,
-        scene_ready_event::scene_ready_event,
-        ui_input_event::ui_input_event,
-        ui_input_transmit_text_event::ui_input_transmit_text_event,
-        on_spawning::on_spawning,
-        visible_checker::visible_checker
-    }};
+        world_environments::{WorldEnvironment,WorldEnvironmentRaw}
+    }, 
+    systems::{
+        general::{
+            done_boarding::done_boarding,
+            on_boarding::on_boarding,
+            on_setupui::on_setupui,
+            scene_ready_event::scene_ready_event,
+            ui_input_event::ui_input_event,
+            ui_input_transmit_text_event::ui_input_transmit_text_event,
+            on_spawning::on_spawning,
+            visible_checker::visible_checker
+        },
+        net::{
+            handle_network_events::handle_network_events,
+            handle_network_messages::handle_network_messages,
+            net_send_message_event::net_send_messages_event,
+        },
+        startup::{
+            launch_server::launch_server,
+        },
+        entity_updates::{
+            omni_light_update::omni_light_update,
+            send_entity_updates::send_entity_updates
+        }
+    }
+};
 
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
@@ -55,7 +83,9 @@ const DEFAULT_MAP_SPAWNPOINTS_LOCATION : &str = "content\\maps\\bullseye\\spawnp
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 enum SpaceStages {
-    SendNetMessages
+    SendNetMessages,
+    ProcessEntityUpdates,
+    SendEntityUpdates
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -120,7 +150,8 @@ fn main() {
     };
 
     let handle_to_entity = HandleToEntity {
-        map : HashMap::new()
+        map : HashMap::new(),
+        inv_map : HashMap::new()
     };
     
     App::build()
@@ -143,6 +174,16 @@ fn main() {
         .insert_resource(spawn_points)
         .add_stage_after(
             PostUpdate, 
+            SpaceStages::ProcessEntityUpdates, 
+            SystemStage::parallel()
+        )
+        .add_stage_after(
+            SpaceStages::ProcessEntityUpdates, 
+            SpaceStages::SendEntityUpdates, 
+            SystemStage::parallel()
+        )
+        .add_stage_after(
+            SpaceStages::SendEntityUpdates, 
             SpaceStages::SendNetMessages, 
             SystemStage::parallel()
         )
@@ -154,6 +195,7 @@ fn main() {
         .add_event::<NetOnSetupUI>()
         .add_event::<NetDoneBoarding>()
         .add_event::<NetVisibleChecker>()
+        .add_event::<NetSendEntityUpdates>()
         .add_startup_system(launch_server.system())
         .add_system(ui_input_event.system())
         .add_system(scene_ready_event.system())
@@ -170,6 +212,12 @@ fn main() {
         .add_system_to_stage(PreUpdate, 
             handle_network_messages.system()
             .after(PreUpdateLabels::NetEvents)
+        )
+        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
+            omni_light_update.system()
+        )
+        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+            send_entity_updates.system()
         )
         .add_system_to_stage(PostUpdate, done_boarding.system())
         .add_system_to_stage(SpaceStages::SendNetMessages, net_send_messages_event.system())

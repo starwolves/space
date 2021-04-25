@@ -1,6 +1,8 @@
 use bevy::prelude::{Added, Commands, Entity, Query};
 
-use crate::space_core::{components::{entity_data::EntityData, spawning::Spawning, visible::Visible, visible_checker::VisibleChecker}, functions::transform_to_isometry::transform_to_isometry};
+use std::collections::HashMap;
+
+use crate::space_core::{components::{entity_updates::EntityUpdates,entity_data::EntityData, spawning::Spawning, visible::Visible, visible_checker::VisibleChecker}, functions::transform_to_isometry::transform_to_isometry};
 
 use bevy_rapier3d::{
     rapier::{
@@ -40,10 +42,13 @@ pub fn on_spawning(
             EntityData {
                 entity_class : "entity".to_string(),
                 entity_type : "humanMale".to_string(),
+            },
+            EntityUpdates{
+                updates: HashMap::new()
             }
         )).remove::<Spawning>();
 
-
+        
 
     }
 
