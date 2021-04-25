@@ -51,7 +51,7 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel: 0,
     channel_mode: MessageChannelMode::Reliable {
         reliability_settings: ReliableChannelSettings {
-            bandwidth: 4096,
+            bandwidth: 163840,
             recv_window_size: 1024,
             send_window_size: 1024,
             burst_bandwidth: 1024,
@@ -64,15 +64,15 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
         },
         max_message_len: 1024,
     },
-    message_buffer_size: 16,
-    packet_buffer_size: 16,
+    message_buffer_size: 128,
+    packet_buffer_size: 128,
 };
 
 const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel: 1,
     channel_mode: MessageChannelMode::Reliable {
         reliability_settings: ReliableChannelSettings {
-            bandwidth: 4096,
+            bandwidth: 163840,
             recv_window_size: 1024,
             send_window_size: 1024,
             burst_bandwidth: 1024,
@@ -85,8 +85,8 @@ const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
         },
         max_message_len: 1024,
     },
-    message_buffer_size: 16,
-    packet_buffer_size: 16,
+    message_buffer_size: 128,
+    packet_buffer_size: 128,
 };
 
 const SERVER_PORT: u16 = 57713;
