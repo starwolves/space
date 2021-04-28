@@ -25,7 +25,7 @@ pub fn on_setupui (
 
         let mut hash_map_data = HashMap::new();
 
-        hash_map_data.insert("UIText".to_string(), EntityUpdateData::String(suggested_name));
+        hash_map_data.insert("label_text".to_string(), EntityUpdateData::String(suggested_name));
         
         let mut hash_map_path = HashMap::new();
 

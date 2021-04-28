@@ -31,7 +31,7 @@ pub enum ReliableServerMessage {
     EntityUpdate(u32, HashMap<String, HashMap<String, EntityUpdateData>>),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
-    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, bool)
+    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -26,7 +26,10 @@ pub fn on_new_player_connection(
     commands: &mut Commands
 ) {
     
-
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle : *handle,
+        message : ReliableServerMessage::ConfigMessage(ServerConfigMessage::Awoo)
+    });
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle : *handle,

@@ -55,12 +55,14 @@ pub fn visible_checker(
 
             let visible_entity_transform;
 
+            let mut is_interpolated = false;
+
             match static_transform_component_option {
                 Some(static_transform) => {
                     visible_entity_transform = static_transform.transform;
                 }
                 None => {
-
+                    is_interpolated=true;
                     let visible_entity_isometry = 
                     rigid_bodies.get(
                         rigid_body_handle_component_option
@@ -84,7 +86,7 @@ pub fn visible_checker(
                 visible_checker_connected_player_component.handle,
                 entity_data_component,
                 visible_entity_id.id(),
-                false,
+                is_interpolated,
                 &entity_updates_component.updates
             );
 
@@ -138,7 +140,7 @@ fn visible_check(
                 let mut transform_hash_map = HashMap::new();
                 transform_hash_map.insert("transform".to_string(), transform_entity_update);
 
-                hash_map.insert("raw_transform".to_string(), transform_hash_map);
+                hash_map.insert("rawTransform".to_string(), transform_hash_map);
             },
             false => {
                 let root_map_option = hash_map.get_mut(&".".to_string());
@@ -172,6 +174,7 @@ fn visible_check(
                     visible_entity_id,
                     true,
                     "main".to_string(),
+                    "".to_string(),
                     false
                 )
             }

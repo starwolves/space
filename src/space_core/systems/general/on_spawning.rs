@@ -2,7 +2,18 @@ use bevy::prelude::{Added, Commands, Entity, Query};
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{entity_updates::EntityUpdates,entity_data::EntityData, spawning::Spawning, visible::Visible, visible_checker::VisibleChecker}, functions::transform_to_isometry::transform_to_isometry};
+use crate::space_core::{
+    components::{
+        entity_updates::EntityUpdates,
+        entity_data::EntityData,
+        spawning::Spawning,
+        visible::Visible,
+        visible_checker::VisibleChecker,
+        world_mode::{WorldMode,WorldModes},
+        player_input::PlayerInput
+    },
+    functions::transform_to_isometry::transform_to_isometry
+};
 
 use bevy_rapier3d::{
     rapier::{
@@ -30,6 +41,9 @@ pub fn on_spawning(
 
         let collider_component = ColliderBuilder::capsule_y(1., 0.5);
 
+        let mut entity_updates_map = HashMap::new();
+        entity_updates_map.insert(".".to_string(), HashMap::new());
+
         commands.entity(entity_id).insert_bundle((
             rigid_body_component,
             collider_component,
@@ -44,7 +58,17 @@ pub fn on_spawning(
                 entity_type : "humanMale".to_string(),
             },
             EntityUpdates{
-                updates: HashMap::new()
+                updates: entity_updates_map
+            },
+            WorldMode {
+                mode : WorldModes::Kinematic
+            },
+            PlayerInput{
+                up : false,
+                down : false,
+                left : false,
+                right : false,
+                sprinting : false
             }
         )).remove::<Spawning>();
 
@@ -52,6 +76,6 @@ pub fn on_spawning(
 
     }
 
-
+    
     
 }

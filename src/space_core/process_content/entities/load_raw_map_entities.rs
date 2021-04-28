@@ -10,7 +10,8 @@ use crate::space_core::{
         visible::Visible,
         static_transform::StaticTransform,
         entity_data::EntityData,
-        entity_updates::EntityUpdates
+        entity_updates::EntityUpdates,
+        world_mode::{WorldMode,WorldModes}
     },
     process_content::entities::{
         omni_light,
@@ -35,6 +36,9 @@ pub fn load_raw_map_entities(
             let omni_light_data_raw : omni_light::ExportDataRaw = serde_json::from_str(&raw_entity.data).expect("load_raw_map_entities.rs Error parsing entity OmniLight data.");
             let omni_light_component = omni_light::ExportData::new(omni_light_data_raw).to_component();
 
+            let mut entity_updates_map = HashMap::new();
+            entity_updates_map.insert(".".to_string(), HashMap::new());
+
             commands.spawn_bundle((
                 omni_light_component,
                 Visible{
@@ -48,7 +52,10 @@ pub fn load_raw_map_entities(
                     entity_type: "".to_string(),
                 },
                 EntityUpdates{
-                    updates: HashMap::new()
+                    updates: entity_updates_map
+                },
+                WorldMode {
+                    mode : WorldModes::Static
                 }
             ));
 

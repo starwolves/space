@@ -3,14 +3,7 @@ use std::{
     collections::HashMap
 };
 
-use bevy::{
-    prelude::*,
-    app::CoreStage::{PreUpdate, PostUpdate},
-    log::LogPlugin,
-    transform::TransformPlugin,
-    diagnostic::DiagnosticsPlugin,
-    //ecs::schedule::ReportExecutionOrderAmbiguities
-};
+use bevy::{app::CoreStage::{PreUpdate, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
 
 use bevy_rapier3d::{
     physics::{
@@ -73,6 +66,8 @@ use space_core::{
     }
 };
 
+use crate::space_core::systems::{entity_updates::world_mode_update::world_mode_update, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms};
+
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
 const DEFAULT_MAP_BLACKCELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\blackcells.json";
@@ -85,13 +80,17 @@ const DEFAULT_MAP_SPAWNPOINTS_LOCATION : &str = "content\\maps\\bullseye\\spawnp
 enum SpaceStages {
     SendNetMessages,
     ProcessEntityUpdates,
-    SendEntityUpdates
+    SendEntityUpdates,
+    TransformInterpolation
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 enum PreUpdateLabels {
     NetEvents
 }
+
+const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
+
 
 fn main() {
 
@@ -122,6 +121,8 @@ fn main() {
     for raw_point in current_map_spawn_points_raw.iter() {
         current_map_spawn_points.push(SpawnPoint::new(raw_point));
     }
+
+
 
     let spawn_points = SpawnPoints {
         list : current_map_spawn_points,
@@ -187,6 +188,16 @@ fn main() {
             SpaceStages::SendNetMessages, 
             SystemStage::parallel()
         )
+        .add_stage_after(
+            SpaceStages::SendNetMessages,
+            SpaceStages::TransformInterpolation,
+            SystemStage::parallel()
+                .with_run_criteria(
+                    FixedTimestep::step(0.0625)
+                    .with_label(INTERPOLATION_LABEL),
+                )
+                .with_system(broadcast_interpolation_transforms.system()),
+        )
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()
@@ -215,6 +226,9 @@ fn main() {
         )
         .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
             omni_light_update.system()
+        )
+        .add_system_to_stage(SpaceStages::ProcessEntityUpdates,
+            world_mode_update.system()
         )
         .add_system_to_stage(SpaceStages::SendEntityUpdates, 
             send_entity_updates.system()
