@@ -1,11 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, info}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{
-        ReliableClientMessage, 
-        ReliableServerMessage
-    }
-};
+use crate::space_core::{events::general::{scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
@@ -60,6 +56,9 @@ pub fn handle_network_messages(
         }
 
         while let Some(_server_message) = channels.recv::<ReliableServerMessage>() {
+            // In case we ever get this from faulty or malicious clients, free it up.
+        }
+        while let Some(_server_message) = channels.recv::<UnreliableServerMessage>() {
             // In case we ever get this from faulty or malicious clients, free it up.
         }
 

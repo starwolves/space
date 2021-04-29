@@ -1,7 +1,4 @@
-use std::{
-    fs,
-    collections::HashMap
-};
+use std::{collections::HashMap, fs};
 
 use bevy::{app::CoreStage::{PreUpdate, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
 
@@ -66,7 +63,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::systems::{entity_updates::world_mode_update::world_mode_update, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms};
+use crate::space_core::{systems::{entity_updates::world_mode_update::world_mode_update, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
@@ -193,7 +190,7 @@ fn main() {
             SpaceStages::TransformInterpolation,
             SystemStage::parallel()
                 .with_run_criteria(
-                    FixedTimestep::step(0.0625)
+                    FixedTimestep::step(1./24.)
                     .with_label(INTERPOLATION_LABEL),
                 )
                 .with_system(broadcast_interpolation_transforms.system()),

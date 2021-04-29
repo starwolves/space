@@ -29,8 +29,6 @@ pub fn handle_network_events(
 
     for event in reader.iter() {
         
-        info!("New network_events");
-
         match event {
             NetworkEvent::Packet(_handle, _packet) => {
                 info!("New Packet!");
@@ -38,8 +36,6 @@ pub fn handle_network_events(
             NetworkEvent::Connected(handle) => {
                 
                 // https://github.com/smokku/bevy_networking_turbulence/blob/master/examples/channels.rs
-                
-                info!("New Connection!");
 
                 match net.connections.get_mut(handle) {
                     Some(connection) => {

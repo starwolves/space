@@ -57,3 +57,8 @@ pub enum ServerConfigMessage {
     ChangeScene(bool, String),
     ServerEntityId(u32)
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum UnreliableServerMessage {
+    TransformUpdate(u32, Vec3, Quat, Vec3, u64)
+}

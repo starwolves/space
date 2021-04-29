@@ -89,6 +89,13 @@ const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
     packet_buffer_size: 128,
 };
 
+const SERVER_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 2,
+    channel_mode: MessageChannelMode::Unreliable,
+    message_buffer_size: 1600,
+    packet_buffer_size: 1600,
+};
+
 const SERVER_PORT: u16 = 57713;
 
 const DEFAULT_MAP_MAIN_LOCATION : &str = "content\\maps\\bullseye\\main.json";
@@ -107,6 +114,9 @@ pub fn launch_server(
             .unwrap();
         builder
             .register::<ReliableClientMessage>(CLIENT_MESSAGE_RELIABLE)
+            .unwrap();
+        builder
+            .register::<UnreliableServerMessage>(SERVER_MESSAGE_UNRELIABLE)
             .unwrap();
     });
 

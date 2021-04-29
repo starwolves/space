@@ -223,7 +223,10 @@ pub fn get_full_name(gender : bool, unique : bool, used_names : &Res<UsedNames>)
         }
     }
 
-    let full_name : String = first_name.to_owned() + " " + LAST_NAMES.choose(rng).unwrap();
+    let rng2 = &mut rand::thread_rng();
+
+
+    let full_name : String = first_name.to_owned() + " " + LAST_NAMES.choose(rng2).unwrap();
 
     if unique == true {
         if used_names.names.contains(&full_name) {
