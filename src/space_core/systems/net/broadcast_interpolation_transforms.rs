@@ -1,4 +1,4 @@
-use bevy::{core::{/*FixedTimesteps,*/ Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, warn}};
+use bevy::{core::{/*FixedTimesteps,*/ Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, info, warn}};
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
@@ -49,6 +49,9 @@ pub fn broadcast_interpolation_transforms (
             rigid_body_translation_rapier.y,
             rigid_body_translation_rapier.z
         );
+
+        //info!("Player body position: {}", rigid_body_translation);
+
         let rigid_body_velocity = Vec3::new(
             rigid_body_velocity_rapier.x,
             rigid_body_velocity_rapier.y,

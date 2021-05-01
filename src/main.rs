@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs};
 
-use bevy::{app::CoreStage::{PreUpdate, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
+use bevy::{app::CoreStage::{PreUpdate, Update, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
 
 use bevy_rapier3d::{
     physics::{
@@ -63,7 +63,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{systems::{entity_updates::world_mode_update::world_mode_update, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
+use crate::space_core::{events::general::movement_input::MovementInput, systems::{entity_updates::world_mode_update::world_mode_update, general::{move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
@@ -84,6 +84,11 @@ enum SpaceStages {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 enum PreUpdateLabels {
     NetEvents
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+enum UpdateLabels {
+    ProcessMovementInput
 }
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
@@ -190,7 +195,7 @@ fn main() {
             SpaceStages::TransformInterpolation,
             SystemStage::parallel()
                 .with_run_criteria(
-                    FixedTimestep::step(1./24.)
+                    FixedTimestep::steps_per_second(24.)
                     .with_label(INTERPOLATION_LABEL),
                 )
                 .with_system(broadcast_interpolation_transforms.system()),
@@ -198,6 +203,7 @@ fn main() {
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()
+        .add_event::<MovementInput>()
         .add_event::<NetOnNewPlayerConnection>()
         .add_event::<NetOnBoarding>()
         .add_event::<NetOnSetupUI>()
@@ -205,6 +211,16 @@ fn main() {
         .add_event::<NetVisibleChecker>()
         .add_event::<NetSendEntityUpdates>()
         .add_startup_system(launch_server.system())
+        .add_system_to_stage(
+            Update, 
+            movement_input_event.system()
+            .label(UpdateLabels::ProcessMovementInput)
+        )
+        .add_system_to_stage(
+            Update,
+            move_player_bodies.system()
+            .after(UpdateLabels::ProcessMovementInput)
+        )
         .add_system(ui_input_event.system())
         .add_system(scene_ready_event.system())
         .add_system(on_boarding.system())

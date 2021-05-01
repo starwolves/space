@@ -1,13 +1,14 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, info}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
     mut ui_input_event : EventWriter<UIInput>,
     mut scene_ready_event : EventWriter<SceneReady>,
-    mut ui_input_transmit_text : EventWriter<UIInputTransmitText>
+    mut ui_input_transmit_text : EventWriter<UIInputTransmitText>,
+    mut movement_input_event : EventWriter<MovementInput>
 ) {
 
 
@@ -50,7 +51,12 @@ pub fn handle_network_messages(
                         input_text:input_text
                     });
                 }
-
+                ReliableClientMessage::MovementInput(movement_input) => {
+                    movement_input_event.send(MovementInput{
+                        handle: *handle,
+                        vector: movement_input
+                    });
+                }
             }
 
         }

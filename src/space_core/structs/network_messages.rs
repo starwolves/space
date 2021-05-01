@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Quat, Vec3}, prelude::Color};
+use bevy::{math::{Quat, Vec2, Vec3}, prelude::Color};
 use serde::{Serialize, Deserialize};
 
 use crate::space_core::{resources::world_environments::WorldEnvironment};
@@ -12,7 +12,8 @@ pub enum ReliableClientMessage {
     Awoo,
     UIInput(UIInputNodeClass,UIInputAction,String,String),
     SceneReady(String),
-    UIInputTransmitText(String, String, String)
+    UIInputTransmitText(String, String, String),
+    MovementInput(Vec2)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -55,7 +56,8 @@ pub enum ServerConfigMessage {
     OrderedCellsMain(Vec<String>),
     OrderedCellsDetails1(Vec<String>),
     ChangeScene(bool, String),
-    ServerEntityId(u32)
+    ServerEntityId(u32),
+    FinishedInitialization
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

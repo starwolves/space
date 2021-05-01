@@ -1,4 +1,4 @@
-use bevy::prelude::{Added, Commands, Entity, Query};
+use bevy::{math::Vec2, prelude::{Added, Commands, Entity, Query}};
 
 use std::collections::HashMap;
 
@@ -36,7 +36,9 @@ pub fn on_spawning(
         spawning_component
     ) in query.iter() {
 
-        let rigid_body_component = RigidBodyBuilder::new_kinematic()
+        let rigid_body_component = RigidBodyBuilder::new_dynamic()
+        .lock_rotations()
+        .ccd_enabled(true)
         .position(transform_to_isometry(spawning_component.transform));
 
         let collider_component = ColliderBuilder::capsule_y(1., 0.5);
@@ -64,10 +66,7 @@ pub fn on_spawning(
                 mode : WorldModes::Kinematic
             },
             PlayerInput{
-                up : false,
-                down : false,
-                left : false,
-                right : false,
+                movement_vector : Vec2::ZERO,
                 sprinting : false
             }
         )).remove::<Spawning>();

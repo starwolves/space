@@ -94,5 +94,10 @@ pub fn on_new_player_connection(
         handle: *handle,
         message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(player_entity_id.id()))
     });
+
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::FinishedInitialization)
+    });
     
 }
