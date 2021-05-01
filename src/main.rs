@@ -195,7 +195,7 @@ fn main() {
             SpaceStages::TransformInterpolation,
             SystemStage::parallel()
                 .with_run_criteria(
-                    FixedTimestep::steps_per_second(24.)
+                    FixedTimestep::step(1./24.)
                     .with_label(INTERPOLATION_LABEL),
                 )
                 .with_system(broadcast_interpolation_transforms.system()),

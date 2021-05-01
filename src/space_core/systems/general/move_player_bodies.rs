@@ -17,7 +17,7 @@ pub fn move_player_bodies(
         .expect("move_player_bodies.rs rigidbody handle was not present in RigidBodySet resource.");
 
         let rapier_vector : Vector<Real> = Vector::new(
-            player_input_component.movement_vector.x * 0.2,
+            player_input_component.movement_vector.x * -0.2,
             0.,
             player_input_component.movement_vector.y * 0.2,
         );
