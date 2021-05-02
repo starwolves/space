@@ -1,4 +1,4 @@
-use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, info}};
+use bevy::{ecs::system::{ResMut}, prelude::{EventWriter}};
 use bevy_networking_turbulence::NetworkResource;
 
 use crate::space_core::{events::general::{movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
@@ -19,7 +19,7 @@ pub fn handle_network_messages(
         
 
         while let Some(client_message) = channels.recv::<ReliableClientMessage>() {
-            info!("ReliableClientMessage received on [{}]: {:?}",handle, client_message);
+            //info!("ReliableClientMessage received on [{}]: {:?}",handle, client_message);
 
             match client_message {
                 ReliableClientMessage::Awoo => {},

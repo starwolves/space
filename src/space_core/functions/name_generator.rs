@@ -66,7 +66,7 @@ const MALE_FIRST_NAMES: [&str; 102] = [
     "Kalban",
     "Wavarek",
     "Rex",
-    "Yariq ",
+    "Yariq",
     "Tariq",
     "Finriel",
     "Israel",
