@@ -2,11 +2,9 @@ use std::{collections::HashMap, fs};
 
 use bevy::{app::CoreStage::{PreUpdate, Update, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
 
-use bevy_rapier3d::{
-    physics::{
+use bevy_rapier3d::{na::Quaternion, physics::{
         RapierPhysicsPlugin
-    }
-};
+    }};
 
 use bevy_networking_turbulence::{NetworkingPlugin};
 
@@ -63,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::general::movement_input::MovementInput, systems::{entity_updates::world_mode_update::world_mode_update, general::{move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
+use crate::space_core::{events::general::movement_input::MovementInput, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{human_pawn_update::human_pawn_update, world_mode_update::world_mode_update}, general::{move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
@@ -124,7 +122,7 @@ fn main() {
         current_map_spawn_points.push(SpawnPoint::new(raw_point));
     }
 
-
+    
 
     let spawn_points = SpawnPoints {
         list : current_map_spawn_points,
@@ -156,6 +154,27 @@ fn main() {
         map : HashMap::new(),
         inv_map : HashMap::new()
     };
+
+    let y_axis_rotations = PlayerYAxisRotations {
+        rotations: vec![
+            //0deg
+            Quaternion::new(0.,0.,0.,1.),
+            //45deg
+            Quaternion::new(0., 0.3826834 , 0., 0.9238795),
+            //90deg
+            Quaternion::new(0., 0.7071068, 0., 0.7071068),
+            //135deg
+            Quaternion::new(0. ,0.9238795 , 0., 0.3826834),
+            //180deg
+            Quaternion::new(0. ,1., 0., 0.),
+            //225deg
+            Quaternion::new(0., 0.9238795, 0., -0.3826834),
+            //270deg
+            Quaternion::new(0., 0.7071068, 0., -0.7071068),
+            //315deg
+            Quaternion::new(0., 0.3826834, 0., -0.9238795),
+        ]
+    };
     
     App::build()
         .add_plugins(MinimalPlugins)
@@ -175,6 +194,7 @@ fn main() {
         .insert_resource(used_names)
         .insert_resource(handle_to_entity)
         .insert_resource(spawn_points)
+        .insert_resource(y_axis_rotations)
         .add_stage_after(
             PostUpdate, 
             SpaceStages::ProcessEntityUpdates, 
@@ -239,6 +259,9 @@ fn main() {
         )
         .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
             omni_light_update.system()
+        )
+        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
+            human_pawn_update.system()
         )
         .add_system_to_stage(SpaceStages::ProcessEntityUpdates,
             world_mode_update.system()

@@ -10,7 +10,8 @@ use crate::space_core::{
         visible::Visible,
         visible_checker::VisibleChecker,
         world_mode::{WorldMode,WorldModes},
-        player_input::PlayerInput
+        player_input::PlayerInput,
+        human_character::{HumanCharacter, State as HumanState}
     },
     functions::transform_to_isometry::transform_to_isometry
 };
@@ -69,6 +70,9 @@ pub fn on_spawning(
             PlayerInput{
                 movement_vector : Vec2::ZERO,
                 sprinting : false
+            },
+            HumanCharacter {
+                state : HumanState::Idle
             }
         )).remove::<Spawning>();
 
