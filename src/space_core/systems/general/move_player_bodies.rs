@@ -1,4 +1,4 @@
-use bevy::prelude::{Query, Res, ResMut};
+use bevy::{core::Time, prelude::{Query, Res, ResMut, info}};
 use bevy_rapier3d::{na::{UnitQuaternion}, physics::RigidBodyHandleComponent, rapier::{dynamics::RigidBodySet, math::{Real, Vector}}};
 
 use crate::space_core::{components::{human_character::{HumanCharacter, State as HumanState}, player_input::PlayerInput}, resources::y_axis_rotations::PlayerYAxisRotations};
@@ -7,6 +7,7 @@ use crate::space_core::{components::{human_character::{HumanCharacter, State as 
 
 pub fn move_player_bodies(
     mut query : Query<(&PlayerInput, &RigidBodyHandleComponent, &mut HumanCharacter)>,
+    time: Res<Time>,
     mut rigid_bodies: ResMut<RigidBodySet>,
     movement_rotations: Res<PlayerYAxisRotations>
 ) {
@@ -20,12 +21,16 @@ pub fn move_player_bodies(
         let rigid_body = rigid_bodies.get_mut(rigid_body_handle_component.handle())
         .expect("move_player_bodies.rs rigidbody handle was not present in RigidBodySet resource.");
 
-        let mut speed_factor = 5.;
+        let mut speed_factor = 500.;
 
         if player_input_component.movement_vector.x.abs() == 1. && player_input_component.movement_vector.y.abs() == 1. {
-            // Can't have invite the devil now can we.
+            // Can't invite the devil now can we.
             speed_factor*=0.665;
         }
+
+        info!("{}",time.delta_seconds());
+
+        speed_factor*=time.delta_seconds();
 
         let rapier_vector : Vector<Real> = Vector::new(
             player_input_component.movement_vector.x * -speed_factor,
