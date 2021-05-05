@@ -27,9 +27,7 @@ pub fn move_player_bodies(
             // Can't invite the devil now can we.
             speed_factor*=0.665;
         }
-
-        info!("{}",time.delta_seconds());
-
+        
         speed_factor*=time.delta_seconds();
 
         let rapier_vector : Vector<Real> = Vector::new(
