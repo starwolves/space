@@ -23,7 +23,8 @@ pub fn move_player_bodies(
         let mut speed_factor = 5.;
 
         if player_input_component.movement_vector.x.abs() == 1. && player_input_component.movement_vector.y.abs() == 1. {
-            speed_factor*=0.6666;
+            // Can't have invite the devil now can we.
+            speed_factor*=0.665;
         }
 
         let rapier_vector : Vector<Real> = Vector::new(
