@@ -1,4 +1,4 @@
-use bevy::{core::Time, prelude::{Query, Res, ResMut, info}};
+use bevy::{core::Time, prelude::{Query, Res, ResMut}};
 use bevy_rapier3d::{na::{UnitQuaternion}, physics::RigidBodyHandleComponent, rapier::{dynamics::RigidBodySet, math::{Real, Vector}}};
 
 use crate::space_core::{components::{human_character::{HumanCharacter, State as HumanState}, player_input::PlayerInput}, resources::y_axis_rotations::PlayerYAxisRotations};
@@ -27,7 +27,7 @@ pub fn move_player_bodies(
             // Can't invite the devil now can we.
             speed_factor*=0.665;
         }
-        
+
         speed_factor*=time.delta_seconds();
 
         let rapier_vector : Vector<Real> = Vector::new(
