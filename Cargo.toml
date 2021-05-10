@@ -3,7 +3,7 @@ name = "space"
 version = "0.1.0"
 authors = ["Nikita <nikitaab98@gmail.com>"]
 description="A high performance multi-threaded ECS game server , written in Rust."
-homepage="https://maniastudios.com/"
+homepage=""
 license-file="LICENSE"
 edition = "2018"
 

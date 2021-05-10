@@ -12,7 +12,7 @@ pub enum ReliableClientMessage {
     Awoo,
     UIInput(UIInputNodeClass,UIInputAction,String,String),
     SceneReady(String),
-    UIInputTransmitText(String, String, String),
+    UIInputTransmitData(String, String, String),
     MovementInput(Vec2)
 }
 

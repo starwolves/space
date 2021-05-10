@@ -43,7 +43,7 @@ pub fn handle_network_messages(
                         scene_type: scene_type
                     });
                 }
-                ReliableClientMessage::UIInputTransmitText(ui_type, node_path, input_text) => {
+                ReliableClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
                     ui_input_transmit_text.send(UIInputTransmitText{
                         handle: *handle,
                         ui_type:ui_type,

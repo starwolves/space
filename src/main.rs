@@ -42,7 +42,7 @@ use space_core::{
             on_setupui::on_setupui,
             scene_ready_event::scene_ready_event,
             ui_input_event::ui_input_event,
-            ui_input_transmit_text_event::ui_input_transmit_text_event,
+            ui_input_transmit_data_event::ui_input_transmit_data_event,
             on_spawning::on_spawning,
             visible_checker::visible_checker
         },
@@ -245,7 +245,7 @@ fn main() {
         .add_system(scene_ready_event.system())
         .add_system(on_boarding.system())
         .add_system(on_setupui.system())
-        .add_system(ui_input_transmit_text_event.system())
+        .add_system(ui_input_transmit_data_event.system())
         .add_system(on_spawning.system())
         .add_system(visible_checker.system())
         .add_system_to_stage(
