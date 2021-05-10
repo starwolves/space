@@ -13,10 +13,16 @@ pub fn movement_input_event(
         let player_entity = handle_to_entity.map.get(&new_event.handle)
         .expect("movement_input_event.rs could not find player entity belonging to handle.");
 
-        let mut player_input_component = query.get_mut(*player_entity)
-        .expect("movement_input_event.rs could not find player entity in query.");
+        let player_input_component_result = query.get_mut(*player_entity);
 
-        player_input_component.movement_vector = new_event.vector;
+        match player_input_component_result {
+            Ok(mut player_input_component) => {
+                player_input_component.movement_vector = new_event.vector;
+            }
+            Err(_err) => {}
+        }
+
+        
 
 
     }
