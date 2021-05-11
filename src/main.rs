@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs, path::Path};
 
 use bevy::{app::CoreStage::{PreUpdate, Update, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
 
@@ -64,13 +64,6 @@ use space_core::{
 use crate::space_core::{events::general::movement_input::MovementInput, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{human_pawn_update::human_pawn_update, world_mode_update::world_mode_update}, general::{move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
-const DEFAULT_MAP_ENVIRONMENT_LOCATION : &str = "content\\maps\\bullseye\\environment.json";
-const DEFAULT_MAP_BLACKCELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\blackcells.json";
-const DEFAULT_MAP_BLOCKING_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\nonblockinglist.json";
-const DEFAULT_MAP_MAINORDERED_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\mainordered.json";
-const DEFAULT_MAP_DETAILS1ORDERED_CELLS_DATA_LOCATION : &str = "content\\maps\\bullseye\\details1ordered.json";
-const DEFAULT_MAP_SPAWNPOINTS_LOCATION : &str = "content\\maps\\bullseye\\spawnpoints.json";
-
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 enum SpaceStages {
     SendNetMessages,
@@ -95,27 +88,34 @@ const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 fn main() {
 
 
-    let current_map_environment_raw_json : String = fs::read_to_string(&DEFAULT_MAP_ENVIRONMENT_LOCATION).expect("main.rs launch_server() Error reading map environment.json file from drive.");
-    let current_map_raw_environment : WorldEnvironmentRaw = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs launch_server() Error parsing map environment.json String.");
+    let environment_json_location = Path::new("content").join("maps").join("bullseye").join("environment.json");
+    let current_map_environment_raw_json : String = fs::read_to_string(environment_json_location).expect("main.rs main() Error reading map environment.json file from drive.");
+    let current_map_raw_environment : WorldEnvironmentRaw = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs main() Error parsing map environment.json String.");
     let current_map_environment : WorldEnvironment = WorldEnvironment::new(current_map_raw_environment);
     
-    let current_map_blackcells_data_raw_json : String = fs::read_to_string(&DEFAULT_MAP_BLACKCELLS_DATA_LOCATION).expect("main.rs launch_server() Error reading blackcells_data from drive.");
-    let current_map_blackcells : BlackcellsData = serde_json::from_str(&current_map_blackcells_data_raw_json).expect("main.rs launch_server() Error parsing map blackcells.json String.");
+    let blackcells_json_location = Path::new("content").join("maps").join("bullseye").join("blackcells.json");
+    let current_map_blackcells_data_raw_json : String = fs::read_to_string(blackcells_json_location).expect("main.rs main() Error reading blackcells_data from drive.");
+    let current_map_blackcells : BlackcellsData = serde_json::from_str(&current_map_blackcells_data_raw_json).expect("main.rs main() Error parsing map blackcells.json String.");
 
-    let current_map_blocking_cells_raw_json : String = fs::read_to_string(&DEFAULT_MAP_BLOCKING_CELLS_DATA_LOCATION).expect("main.rs launch_server() Error reading map blockinglist.json from drive.");
-    let current_map_blocking_cells_data : Vec<i64> = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs launch_server() Error parsing map blockinglist.json String.");
+    let blocking_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonblockinglist.json");
+    let current_map_blocking_cells_raw_json : String = fs::read_to_string(&blocking_cells_json_location).expect("main.rs main() Error reading map nonblockinglist.json from drive.");
+    let current_map_blocking_cells_data : Vec<i64> = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs main() Error parsing map nonblockinglist.json String.");
 
     let current_map_blocking_cells = NonBlockingCellsList{
         list : current_map_blocking_cells_data
     };
 
-    let current_map_mainordered_cells_raw_json : String = fs::read_to_string(&DEFAULT_MAP_MAINORDERED_CELLS_DATA_LOCATION).expect("main.rs launch_server() Error reading map mainordered.json drive.");
-    let current_map_mainordered_cells : Vec<String> = serde_json::from_str(&current_map_mainordered_cells_raw_json).expect("main.rs launch_server() Error parsing map mainordered.json String.");
-    let current_map_details1ordered_cells_raw_json : String = fs::read_to_string(&DEFAULT_MAP_DETAILS1ORDERED_CELLS_DATA_LOCATION).expect("main.rs launch_server() Error reading map details1ordered.json drive.");
-    let current_map_details1ordered_cells : Vec<String> = serde_json::from_str(&current_map_details1ordered_cells_raw_json).expect("main.rs launch_server() Error parsing map details1ordered.json String.");
+    let mainordered_cells_json = Path::new("content").join("maps").join("bullseye").join("mainordered.json");
+    let current_map_mainordered_cells_raw_json : String = fs::read_to_string(mainordered_cells_json).expect("main.rs main() Error reading map mainordered.json drive.");
+    let current_map_mainordered_cells : Vec<String> = serde_json::from_str(&current_map_mainordered_cells_raw_json).expect("main.rs main() Error parsing map mainordered.json String.");
 
-    let current_map_spawn_points_raw_json : String = fs::read_to_string(&DEFAULT_MAP_SPAWNPOINTS_LOCATION).expect("main.rs launch_server() Error reading map spawnpoints.json from drive.");
-    let current_map_spawn_points_raw : Vec<SpawnPointRaw> = serde_json::from_str(&current_map_spawn_points_raw_json).expect("main.rs launch_server() Error parsing map spawnpoints.json String.");
+    let details1ordered_cells_json = Path::new("content").join("maps").join("bullseye").join("details1ordered.json");
+    let current_map_details1ordered_cells_raw_json : String = fs::read_to_string(details1ordered_cells_json).expect("main.rs main() Error reading map details1ordered.json drive.");
+    let current_map_details1ordered_cells : Vec<String> = serde_json::from_str(&current_map_details1ordered_cells_raw_json).expect("main.rs main() Error parsing map details1ordered.json String.");
+
+    let spawnpoints_json = Path::new("content").join("maps").join("bullseye").join("spawnpoints.json");
+    let current_map_spawn_points_raw_json : String = fs::read_to_string(spawnpoints_json).expect("main.rs main() Error reading map spawnpoints.json from drive.");
+    let current_map_spawn_points_raw : Vec<SpawnPointRaw> = serde_json::from_str(&current_map_spawn_points_raw_json).expect("main.rs main() Error parsing map spawnpoints.json String.");
     let mut current_map_spawn_points : Vec<SpawnPoint> = vec![];
 
     for raw_point in current_map_spawn_points_raw.iter() {

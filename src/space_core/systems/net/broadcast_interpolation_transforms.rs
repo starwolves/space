@@ -1,15 +1,15 @@
-use bevy::{core::{/*FixedTimesteps,*/ Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, warn}};
+use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, warn}};
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
 use crate::space_core::{components::{visible::Visible}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 
-//const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
+const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
 
 pub fn broadcast_interpolation_transforms (
     time: Res<Time>, 
-    //fixed_timesteps: Res<FixedTimesteps>,
+    fixed_timesteps: Res<FixedTimesteps>,
     
     mut net: ResMut<NetworkResource>,
     rigid_bodies: Res<RigidBodySet>,
@@ -17,13 +17,13 @@ pub fn broadcast_interpolation_transforms (
     query_interpolated_entities : Query<(Entity, &Visible, &RigidBodyHandleComponent)>,
 ) {
 
-    /*let fixed_timestep = fixed_timesteps.get(INTERPOLATION_LABEL).unwrap().overstep_percentage();
+    let fixed_timestep = fixed_timesteps.get(INTERPOLATION_LABEL).unwrap().overstep_percentage();
     if fixed_timestep > 5. {
         warn!(
             "overstep_percentage: {}",
             fixed_timestep
         );
-    }*/
+    }
 
     let current_time_stamp = time.time_since_startup().as_millis();
 

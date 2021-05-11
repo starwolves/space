@@ -12,7 +12,7 @@ use bevy_rapier3d::{
     }
 };
 
-use std::{fs, net::{SocketAddr}, time::Duration};
+use std::{fs, net::{SocketAddr}, path::Path, time::Duration};
 
 use crate::space_core::{
     components::{
@@ -98,9 +98,6 @@ const SERVER_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings
 
 const SERVER_PORT: u16 = 57713;
 
-const DEFAULT_MAP_MAIN_LOCATION : &str = "content\\maps\\bullseye\\main.json";
-const DEFAULT_MAP_ENTITIES_LOCATION : &str = "content\\maps\\bullseye\\entities.json";
-
 pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
     mut server_id : ResMut<ServerId>,
@@ -123,8 +120,8 @@ pub fn launch_server(
 
 
     // Load map json data into real static bodies.
-
-    let current_map_main_raw_json : String = fs::read_to_string(&DEFAULT_MAP_MAIN_LOCATION).expect("main.rs launch_server() Error reading map main.json file from drive.");
+    let main_json = Path::new("content").join("maps").join("bullseye").join("main.json");
+    let current_map_main_raw_json : String = fs::read_to_string(main_json).expect("main.rs launch_server() Error reading map main.json file from drive.");
     let current_map_main_data : Vec<CellData> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
     
     
@@ -149,7 +146,8 @@ pub fn launch_server(
 
     server_id.id = commands.spawn().insert(server_component).id();
 
-    let current_map_entities_raw_json : String = fs::read_to_string(&DEFAULT_MAP_ENTITIES_LOCATION).expect("main.rs launch_server() Error reading map entities.json file from drive.");
+    let entities_json = Path::new("content").join("maps").join("bullseye").join("entities.json");
+    let current_map_entities_raw_json : String = fs::read_to_string(entities_json).expect("main.rs launch_server() Error reading map entities.json file from drive.");
     let current_map_entities_data : Vec<RawEntity> = serde_json::from_str(&current_map_entities_raw_json).expect("main.rs launch_server() Error parsing map entities.json String.");
     
     load_raw_map_entities(&current_map_entities_data, &mut commands);
