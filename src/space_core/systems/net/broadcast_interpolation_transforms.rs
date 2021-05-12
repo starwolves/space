@@ -17,15 +17,22 @@ pub fn broadcast_interpolation_transforms (
     query_interpolated_entities : Query<(Entity, &Visible, &RigidBodyHandleComponent)>,
 ) {
 
+    let current_time_stamp = time.time_since_startup().as_millis();
+
     let fixed_timestep = fixed_timesteps.get(INTERPOLATION_LABEL).unwrap().overstep_percentage();
     if fixed_timestep > 5. {
-        warn!(
-            "overstep_percentage: {}",
-            fixed_timestep
-        );
-    }
 
-    let current_time_stamp = time.time_since_startup().as_millis();
+        if current_time_stamp > 5000 {
+            warn!(
+                "overstep_percentage: {}",
+                fixed_timestep
+            );
+        }
+
+        
+
+
+    }
 
     for (
         entity,

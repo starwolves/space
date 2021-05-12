@@ -64,6 +64,9 @@ pub fn load_raw_map_entities(
             let gi_probe_data  : gi_probe::ExportData = serde_json::from_str(&raw_entity.data).expect("load_raw_map_entities.rs Error parsing entity GIProbe data.");
             let gi_probe_component = gi_probe_data.to_component();
 
+            let mut entity_updates_map = HashMap::new();
+            entity_updates_map.insert(".".to_string(), HashMap::new());
+
             commands.spawn_bundle((
                 gi_probe_component,
                 static_transform_component,
@@ -72,7 +75,7 @@ pub fn load_raw_map_entities(
                     entity_type: "".to_string(),
                 },
                 EntityUpdates{
-                    updates: HashMap::new()
+                    updates: entity_updates_map
                 }
             ));
 
@@ -82,6 +85,9 @@ pub fn load_raw_map_entities(
             let reflection_probe_data_raw : reflection_probe::ExportDataRaw = serde_json::from_str(&raw_entity.data).expect("load_raw_map_entities.rs Error parsing entity ReflectionProbe data.");
             let reflection_probe_component = reflection_probe::ExportData::new(reflection_probe_data_raw).to_component();
 
+            let mut entity_updates_map = HashMap::new();
+            entity_updates_map.insert(".".to_string(), HashMap::new());
+
             commands.spawn_bundle((
                 reflection_probe_component,
                 static_transform_component,
@@ -90,7 +96,7 @@ pub fn load_raw_map_entities(
                     entity_type: "".to_string(),
                 },
                 EntityUpdates{
-                    updates: HashMap::new()
+                    updates: entity_updates_map
                 }
             ));
 

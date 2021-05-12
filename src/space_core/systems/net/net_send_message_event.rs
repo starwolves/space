@@ -1,7 +1,7 @@
-use bevy::prelude::{EventReader, ResMut, warn};
+use bevy::prelude::{EventReader, ResMut, info, warn};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::events::net::{net_done_boarding::NetDoneBoarding, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_send_entity_updates::NetSendEntityUpdates, net_visible_checker::NetVisibleChecker};
+use crate::space_core::events::net::{net_done_boarding::NetDoneBoarding, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_send_entity_updates::NetSendEntityUpdates, net_load_entity::NetLoadEntity};
 
 
 pub fn net_send_messages_event(
@@ -10,7 +10,7 @@ pub fn net_send_messages_event(
     mut net_on_new_player_connection : EventReader<NetOnNewPlayerConnection>,
     mut net_on_setupui : EventReader<NetOnSetupUI>,
     mut net_done_boarding : EventReader<NetDoneBoarding>,
-    mut net_visible_checker : EventReader<NetVisibleChecker>,
+    mut net_load_entity : EventReader<NetLoadEntity>,
     mut net_send_entity_updates: EventReader<NetSendEntityUpdates>,
 ) {
 
@@ -79,17 +79,17 @@ pub fn net_send_messages_event(
     }
 
 
-    for new_event in net_visible_checker.iter() {
+    for new_event in net_load_entity.iter() {
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
-                    warn!("net_send_message_event.rs was unable to send net_visible_checker message: {:?}", msg);
+                    warn!("net_send_message_event.rs was unable to send net_load_entity message: {:?}", msg);
                 }
                 None => {}
             },
             Err(err) => {
-                warn!("net_send_message_event.rs was unable to send net_visible_checker message (1): {:?}", err);
+                warn!("net_send_message_event.rs was unable to send net_load_entity message (1): {:?}", err);
             }
         };
 

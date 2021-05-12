@@ -1,6 +1,7 @@
+use bevy::math::Vec3;
 use serde::{Deserialize};
 
-use crate::space_core::components::gi_probe::GIProbe;
+use crate::space_core::{components::gi_probe::GIProbe, functions::string_to_type_converters::string_vec3_to_vec3};
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
@@ -12,7 +13,8 @@ pub struct ExportData {
     interior : bool,
     normal_bias : f32,
     propagation : f32,
-    subdiv : u8
+    subdiv : u8,
+    extents : String
 }
 
 impl ExportData {
@@ -25,7 +27,8 @@ impl ExportData {
             interior : self.interior,
             normal_bias : self.normal_bias,
             propagation : self.propagation,
-            subdiv : self.subdiv
+            subdiv : self.subdiv,
+            extents : string_vec3_to_vec3(&self.extents)
         }
     }
 }

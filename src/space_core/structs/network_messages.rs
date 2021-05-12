@@ -44,7 +44,8 @@ pub enum EntityUpdateData {
     Float(f32),
     Transform(Vec3,Quat,Vec3),
     Color(Color),
-    Bool(bool)
+    Bool(bool),
+    Vec3(Vec3)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

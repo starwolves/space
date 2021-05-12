@@ -21,7 +21,7 @@ use space_core::{
             net_on_boarding::NetOnBoarding, 
             net_on_new_player_connection::NetOnNewPlayerConnection, 
             net_on_setupui::NetOnSetupUI,
-            net_visible_checker::NetVisibleChecker, 
+            net_load_entity::NetLoadEntity, 
             net_send_entity_updates::NetSendEntityUpdates
         }
     },
@@ -61,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{human_pawn_update::human_pawn_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
+use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -229,7 +229,7 @@ fn main() {
         .add_event::<NetOnBoarding>()
         .add_event::<NetOnSetupUI>()
         .add_event::<NetDoneBoarding>()
-        .add_event::<NetVisibleChecker>()
+        .add_event::<NetLoadEntity>()
         .add_event::<NetSendEntityUpdates>()
         .add_startup_system(launch_server.system())
         .add_system_to_stage(
@@ -270,6 +270,12 @@ fn main() {
         )
         .add_system_to_stage(SpaceStages::SendEntityUpdates, 
             send_entity_updates.system()
+        )
+        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+            gi_probe_update.system()
+        )
+        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+            reflection_probe_update.system()
         )
         .add_system_to_stage(PostUpdate, done_boarding.system())
         .add_system_to_stage(SpaceStages::SendNetMessages, net_send_messages_event.system())

@@ -3,11 +3,8 @@ use std::collections::HashMap;
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform}};
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, visible::Visible, visible_checker::VisibleChecker}, events::net::net_visible_checker::NetVisibleChecker, functions::{
-        isometry_to_transform::isometry_to_transform
-    }, structs::{
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, visible::Visible, visible_checker::VisibleChecker}, events::net::net_load_entity::NetLoadEntity, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity}, structs::{
         network_messages::{
-            ReliableServerMessage,
             EntityUpdateData
         }
     }};
@@ -23,7 +20,7 @@ pub fn visible_checker(
     )>,
     query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyHandleComponent, &ConnectedPlayer)>,
     rigid_bodies: Res<RigidBodySet>,
-    mut net_visible_checker: EventWriter<NetVisibleChecker>,
+    mut net_load_entity: EventWriter<NetLoadEntity>,
 ) {
 
     for (
@@ -82,7 +79,7 @@ pub fn visible_checker(
                 visible_entity_transform,
                 visible_checker_translation_vec,
                 entity,
-                &mut net_visible_checker,
+                &mut net_load_entity,
                 visible_checker_connected_player_component.handle,
                 entity_data_component,
                 visible_entity_id.id(),
@@ -106,7 +103,7 @@ fn visible_check(
     visible_entity_transform : Transform,
     visible_checker_translation: Vec3,
     visible_checker_entity_id : Entity,
-    net_visible_checker : &mut EventWriter<NetVisibleChecker>,
+    net_load_entity : &mut EventWriter<NetLoadEntity>,
     visible_checker_handle : u32,
     visible_entity_data : &EntityData,
     visible_entity_id : u32,
@@ -122,65 +119,15 @@ fn visible_check(
         
         visible_component.sensed_by.push(visible_checker_entity_id);
 
-        // 1. Load in omni_lights with transform and omni light data.
-        // 2. Load in player with transform.
-        // 3. Ensure basic recognizable world shows up with own player and omni lights.
-        // 4. Make GIProbes and ReflectionProbes permanently load in via a different system on first time world load.
-
-        let mut hash_map = visible_entity_updates.clone();
-
-        let transform_entity_update= EntityUpdateData::Transform(
-            visible_entity_transform.translation,
-            visible_entity_transform.rotation,
-            visible_entity_transform.scale
+        load_entity(
+            visible_entity_updates,
+            visible_entity_transform,
+            interpolated_transform,
+            net_load_entity,
+            visible_checker_handle,
+            visible_entity_data,
+            visible_entity_id
         );
-
-        match interpolated_transform {
-            true => {
-                let mut transform_hash_map = HashMap::new();
-                transform_hash_map.insert("transform".to_string(), transform_entity_update);
-
-                hash_map.insert("rawTransform".to_string(), transform_hash_map);
-            },
-            false => {
-                let root_map_option = hash_map.get_mut(&".".to_string());
-
-                match root_map_option {
-                    Some(root_map) => {
-                        root_map.insert("transform".to_string(), transform_entity_update);
-                    }
-                    None => {
-
-                        let mut transform_hash_map = HashMap::new();
-                        transform_hash_map.insert("transform".to_string(), transform_entity_update);
-
-                        hash_map.insert(".".to_string(), transform_hash_map);
-                    }
-                }
-
-                
-            }
-        }
-
-        
-
-        net_visible_checker.send(
-            NetVisibleChecker {
-                handle: visible_checker_handle,
-                message: ReliableServerMessage::LoadEntity(
-                    visible_entity_data.entity_class.clone(),
-                    visible_entity_data.entity_type.clone(),
-                    hash_map,
-                    visible_entity_id,
-                    true,
-                    "main".to_string(),
-                    "".to_string(),
-                    false
-                )
-            }
-        );
-
-        
 
 
     }

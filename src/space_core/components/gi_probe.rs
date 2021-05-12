@@ -1,3 +1,5 @@
+use bevy::math::Vec3;
+
 pub struct GIProbe {
     pub bias : f32,
     pub compressed : bool,
@@ -6,5 +8,6 @@ pub struct GIProbe {
     pub interior : bool,
     pub normal_bias : f32,
     pub propagation : f32,
-    pub subdiv : u8
+    pub subdiv : u8,
+    pub extents : Vec3
 }
