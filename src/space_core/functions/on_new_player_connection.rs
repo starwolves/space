@@ -9,14 +9,13 @@ use crate::space_core::{components::{
         blackcells_data::BlackcellsData,
         server_id::ServerId, 
         tick_rate::TickRate,
-        world_environments::WorldEnvironment,
         handle_to_entity::HandleToEntity
     }, structs::network_messages::*};
 
 
 pub fn on_new_player_connection(
     net_on_new_player_connection : &mut EventWriter<NetOnNewPlayerConnection>,
-    handle : &u32, world_environment: &Res<WorldEnvironment>, 
+    handle : &u32, 
     tick_rate: &Res<TickRate>,
     blackcells_data: &Res<BlackcellsData>,
     auth_id_i : &mut ResMut<AuthidI>,
@@ -31,10 +30,7 @@ pub fn on_new_player_connection(
         message : ReliableServerMessage::ConfigMessage(ServerConfigMessage::Awoo)
     });
 
-    net_on_new_player_connection.send(NetOnNewPlayerConnection{
-        handle : *handle,
-        message : ReliableServerMessage::ConfigMessage(ServerConfigMessage::WorldEnvironment(**world_environment))
-    });
+    
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,

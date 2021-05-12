@@ -1,4 +1,3 @@
-use bevy::math::Vec3;
 use serde::{Deserialize};
 
 use crate::space_core::{components::gi_probe::GIProbe, functions::string_to_type_converters::string_vec3_to_vec3};

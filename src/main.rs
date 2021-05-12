@@ -61,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
+use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}, net::net_send_world_environment::NetSendWorldEnvironment}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -231,6 +231,7 @@ fn main() {
         .add_event::<NetDoneBoarding>()
         .add_event::<NetLoadEntity>()
         .add_event::<NetSendEntityUpdates>()
+        .add_event::<NetSendWorldEnvironment>()
         .add_startup_system(launch_server.system())
         .add_system_to_stage(
             Update, 

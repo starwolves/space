@@ -9,13 +9,11 @@ use crate::space_core::{events::net::net_on_new_player_connection::NetOnNewPlaye
         blackcells_data::BlackcellsData,
         server_id::ServerId,
         tick_rate::TickRate,
-        world_environments::WorldEnvironment,
         handle_to_entity::HandleToEntity
     }};
 
 pub fn handle_network_events(
     mut net: ResMut<NetworkResource>,
-    world_environment: Res<WorldEnvironment>,
     tick_rate : Res<TickRate>,
     blackcells_data: Res<BlackcellsData>,
     mut auth_id_i : ResMut<AuthidI>,
@@ -25,6 +23,8 @@ pub fn handle_network_events(
     mut commands: Commands,
     mut reader: EventReader<NetworkEvent>,
     mut net_on_new_player_connection : EventWriter<NetOnNewPlayerConnection>,
+
+
 ) {
 
     for event in reader.iter() {
@@ -60,7 +60,6 @@ pub fn handle_network_events(
                 on_new_player_connection(
                     &mut net_on_new_player_connection,
                     handle,
-                    &world_environment,
                     &tick_rate,
                     &blackcells_data, 
                     &mut auth_id_i, 
