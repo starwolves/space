@@ -6,7 +6,7 @@
 	},
 	{
 		"entity_type": "jumpsuitSecurity",
-		"transform": "-1, 0.000001, -0.000002, -0.000002, -0.000005, 1, 0.000001, 1, 0.000005 - 14.030607, 0.099058, 16.817804",
+		"transform": "-1, -0.000023, -0.000004, -0.000004, 0.000005, 1, -0.000023, 1, -0.000005 - 14.030608, 0.099061, 16.817793",
 		"data": ""
 	},
 	{
@@ -226,8 +226,8 @@
 	},
 	{
 		"entity_type": "ReflectionProbe",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -8.701, 1.519, 31.695999",
-		"data": "{\"projection_enabled\":false,\"cull_mask\":1048575,\"shadows_enabled\":true,\"extents\":\"(100, 4, 100)\",\"intensity\":1,\"interior_ambient\":\"0,0,0,1\",\"interior_ambient_probe_contribution\":0,\"interior_ambient_energy\":1,\"set_as_interior\":false,\"max_distance\":0,\"origin_offset\":\"(0, 0, 0)\",\"update_mode\":0}"
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -8.701, 0.280448, 31.695999",
+		"data": "{\"projection_enabled\":true,\"cull_mask\":1048575,\"shadows_enabled\":true,\"extents\":\"(100, 2.03501, 100)\",\"intensity\":1,\"interior_ambient\":\"0,0,0,1\",\"interior_ambient_probe_contribution\":0,\"interior_ambient_energy\":1,\"set_as_interior\":true,\"max_distance\":0,\"origin_offset\":\"(0, 0, 0)\",\"update_mode\":0}"
 	},
 	{
 		"entity_type": "GIProbe",
