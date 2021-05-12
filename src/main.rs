@@ -61,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::general::movement_input::MovementInput, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{human_pawn_update::human_pawn_update, world_mode_update::world_mode_update}, general::{move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
+use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{human_pawn_update::human_pawn_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -224,6 +224,7 @@ fn main() {
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()
         .add_event::<MovementInput>()
+        .add_event::<BuildGraphics>()
         .add_event::<NetOnNewPlayerConnection>()
         .add_event::<NetOnBoarding>()
         .add_event::<NetOnSetupUI>()
@@ -248,6 +249,7 @@ fn main() {
         .add_system(ui_input_transmit_data_event.system())
         .add_system(on_spawning.system())
         .add_system(visible_checker.system())
+        .add_system(build_graphics_event.system())
         .add_system_to_stage(
             PreUpdate, 
             handle_network_events.system()

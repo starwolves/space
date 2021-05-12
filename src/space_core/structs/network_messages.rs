@@ -13,7 +13,8 @@ pub enum ReliableClientMessage {
     UIInput(UIInputNodeClass,UIInputAction,String,String),
     SceneReady(String),
     UIInputTransmitData(String, String, String),
-    MovementInput(Vec2)
+    MovementInput(Vec2),
+    BuildGraphics
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

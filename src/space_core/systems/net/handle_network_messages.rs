@@ -1,14 +1,15 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
     mut ui_input_event : EventWriter<UIInput>,
     mut scene_ready_event : EventWriter<SceneReady>,
     mut ui_input_transmit_text : EventWriter<UIInputTransmitText>,
-    mut movement_input_event : EventWriter<MovementInput>
+    mut movement_input_event : EventWriter<MovementInput>,
+    mut build_graphics_event : EventWriter<BuildGraphics>,
 ) {
 
 
@@ -55,6 +56,11 @@ pub fn handle_network_messages(
                     movement_input_event.send(MovementInput{
                         handle: *handle,
                         vector: movement_input
+                    });
+                }
+                ReliableClientMessage::BuildGraphics => {
+                    build_graphics_event.send(BuildGraphics{
+                        handle: *handle
                     });
                 }
             }
