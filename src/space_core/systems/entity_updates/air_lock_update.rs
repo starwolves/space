@@ -12,6 +12,11 @@ pub fn air_lock_update(
 
         let mut animation_tree_data = HashMap::new();
 
+        animation_tree_data.insert(
+        "blend_speed".to_string(),
+        EntityUpdateData::Float(0.6)
+        );
+
         match air_lock_component.status {
             AirLockStatus::Open => {
                 animation_tree_data.insert(

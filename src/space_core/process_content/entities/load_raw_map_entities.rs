@@ -5,7 +5,7 @@ use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, static_transform::StaticTransform, visible::Visible, world_mode::{WorldMode,WorldModes}}, enums::space_access::SpaceAccess, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, static_transform::StaticTransform, visible::Visible, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
         omni_light,
         gi_probe,
         reflection_probe
@@ -135,7 +135,7 @@ pub fn load_raw_map_entities(
                 AirLock {
                     status : AirLockStatus::Closed,
                     access_lights : AccessLightsStatus::Neutral,
-                    access_permissions : vec![SpaceAccess::Security]
+                    access_permissions : vec![SpaceAccessEnum::Security]
                 },
                 EntityData{
                     entity_class: "entity".to_string(),

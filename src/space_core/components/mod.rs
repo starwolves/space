@@ -18,3 +18,5 @@ pub mod world_mode;
 pub mod player_input;
 pub mod human_character;
 pub mod air_lock;
+pub mod pawn;
+pub mod space_access;
