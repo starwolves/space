@@ -1,8 +1,8 @@
-use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, warn}};
+use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, Without, warn}};
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{visible::Visible}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
+use crate::space_core::{components::{static_transform::StaticTransform, visible::Visible}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
@@ -14,7 +14,7 @@ pub fn broadcast_interpolation_transforms (
     mut net: ResMut<NetworkResource>,
     rigid_bodies: Res<RigidBodySet>,
     handle_to_entity : Res<HandleToEntity>,
-    query_interpolated_entities : Query<(Entity, &Visible, &RigidBodyHandleComponent)>,
+    query_interpolated_entities : Query<(Entity, &Visible, &RigidBodyHandleComponent), Without<StaticTransform>>,
 ) {
 
     let current_time_stamp = time.time_since_startup().as_millis();

@@ -61,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}, net::net_send_world_environment::NetSendWorldEnvironment}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
+use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}, net::net_send_world_environment::NetSendWorldEnvironment, physics::air_lock_collision::AirLockCollision}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{air_lock_update::air_lock_update, gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms, physics::air_lock_physics::air_lock_physics}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -232,6 +232,7 @@ fn main() {
         .add_event::<NetLoadEntity>()
         .add_event::<NetSendEntityUpdates>()
         .add_event::<NetSendWorldEnvironment>()
+        .add_event::<AirLockCollision>()
         .add_startup_system(launch_server.system())
         .add_system_to_stage(
             Update, 
@@ -251,6 +252,8 @@ fn main() {
         .add_system(on_spawning.system())
         .add_system(visible_checker.system())
         .add_system(build_graphics_event.system())
+        .add_system(physics_events.system())
+        .add_system(air_lock_physics.system())
         .add_system_to_stage(
             PreUpdate, 
             handle_network_events.system()
@@ -277,6 +280,9 @@ fn main() {
         )
         .add_system_to_stage(SpaceStages::SendEntityUpdates, 
             reflection_probe_update.system()
+        )
+        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+            air_lock_update.system()
         )
         .add_system_to_stage(PostUpdate, done_boarding.system())
         .add_system_to_stage(SpaceStages::SendNetMessages, net_send_messages_event.system())

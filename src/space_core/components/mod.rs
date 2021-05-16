@@ -17,3 +17,4 @@ pub mod entity_updates;
 pub mod world_mode;
 pub mod player_input;
 pub mod human_character;
+pub mod air_lock;

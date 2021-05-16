@@ -30,9 +30,6 @@ pub fn human_pawn_update(
             }
         }
 
-        // Check how this works on client intepretation.
-        // Junen voor baan eerst.
-
         let mut animation_tree1_upper_body_updates = HashMap::new();
         let mut animation_tree1_lower_body_updates = HashMap::new();
 
