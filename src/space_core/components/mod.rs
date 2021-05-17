@@ -20,3 +20,5 @@ pub mod human_character;
 pub mod air_lock;
 pub mod pawn;
 pub mod space_access;
+pub mod air_lock_denied_timer;
+pub mod air_lock_open_timer;

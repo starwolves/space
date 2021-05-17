@@ -12,5 +12,7 @@ pub enum AirLockStatus {
 }
 
 pub enum AccessLightsStatus {
-    Neutral
+    Neutral,
+    Granted,
+    Denied
 }

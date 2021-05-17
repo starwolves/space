@@ -1,4 +1,4 @@
-use bevy::prelude::Commands;
+use bevy::{prelude::Commands};
 use bevy_rapier3d::rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder};
 
 use super::raw_entity::RawEntity;

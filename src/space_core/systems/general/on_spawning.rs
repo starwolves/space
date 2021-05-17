@@ -31,7 +31,7 @@ pub fn on_spawning(
         .position(transform_to_isometry(spawning_component.transform));
 
         let collider_component = ColliderBuilder::capsule_y(0.9, 0.25)
-        .translation(0., -0.9, 0.);
+        .translation(0., -1.0, 0.);
 
         let mut entity_updates_map = HashMap::new();
         entity_updates_map.insert(".".to_string(), HashMap::new());

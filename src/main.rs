@@ -61,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}, net::net_send_world_environment::NetSendWorldEnvironment, physics::air_lock_collision::AirLockCollision}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{air_lock_update::air_lock_update, gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms, physics::air_lock_physics::air_lock_physics}};
+use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}, net::net_send_world_environment::NetSendWorldEnvironment, physics::air_lock_collision::AirLockCollision}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{air_lock_update::air_lock_update, gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_timers::tick_timers}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -253,7 +253,8 @@ fn main() {
         .add_system(visible_checker.system())
         .add_system(build_graphics_event.system())
         .add_system(physics_events.system())
-        .add_system(air_lock_physics.system())
+        .add_system(air_lock_events.system())
+        .add_system(tick_timers.system())
         .add_system_to_stage(
             PreUpdate, 
             handle_network_events.system()

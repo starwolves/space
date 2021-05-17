@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{air_lock::{AirLock,AirLockStatus}, entity_updates::EntityUpdates}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_updates::EntityUpdates}, structs::network_messages::EntityUpdateData};
 
 pub fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,
@@ -36,6 +36,54 @@ pub fn air_lock_update(
             "animationTree1>>parameters/blend_position".to_string(),
             animation_tree_data
         );
+
+        let mut door_left_data = HashMap::new();
+        let mut door_right_data = HashMap::new();
+
+
+        match air_lock_component.access_lights {
+            AccessLightsStatus::Neutral => {
+                door_left_data.insert(
+                "emissiveTexture".to_string(),
+                EntityUpdateData::String("doorLeftEmissive".to_string())
+                );
+                door_right_data.insert(
+                "emissiveTexture".to_string(),
+                EntityUpdateData::String("doorRightEmissive".to_string())
+                );
+            }
+            AccessLightsStatus::Granted => {
+                door_left_data.insert(
+                "emissiveTexture".to_string(),
+                EntityUpdateData::String("allowedDoorLeftEmissive".to_string())
+                );
+                door_right_data.insert(
+                "emissiveTexture".to_string(),
+                EntityUpdateData::String("allowedDoorRightEmissive".to_string())
+                );
+            }
+            AccessLightsStatus::Denied => {
+                door_left_data.insert(
+                "emissiveTexture".to_string(),
+                EntityUpdateData::String("deniedDoorLeftEmissive".to_string())
+                );
+                door_right_data.insert(
+                "emissiveTexture".to_string(),
+                EntityUpdateData::String("deniedDoorRightEmissive".to_string())
+                );
+            }
+        }
+
+
+        entity_updates_component.updates.insert(
+            "doorLeft++material".to_string(),
+            door_left_data
+        );
+        entity_updates_component.updates.insert(
+            "doorRight++material".to_string(),
+            door_right_data
+        );
+
 
     }
 
