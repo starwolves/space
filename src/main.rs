@@ -61,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}, net::net_send_world_environment::NetSendWorldEnvironment, physics::air_lock_collision::AirLockCollision}, resources::y_axis_rotations::PlayerYAxisRotations, systems::{entity_updates::{air_lock_update::air_lock_update, gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_timers::tick_timers}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
+use crate::space_core::{events::{general::{build_graphics::BuildGraphics, movement_input::MovementInput}, net::net_send_world_environment::NetSendWorldEnvironment, physics::air_lock_collision::AirLockCollision}, resources::{sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_timers::tick_timers}, net::broadcast_interpolation_transforms::broadcast_interpolation_transforms}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -175,6 +175,10 @@ fn main() {
             Quaternion::new(0., 0.3826834, 0., -0.9238795),
         ]
     };
+
+    let sfx_auto_destroy_timers = SfxAutoDestroyTimers {
+        timers : HashMap::new()
+    };
     
     App::build()
         .add_plugins(MinimalPlugins)
@@ -195,6 +199,7 @@ fn main() {
         .insert_resource(handle_to_entity)
         .insert_resource(spawn_points)
         .insert_resource(y_axis_rotations)
+        .insert_resource(sfx_auto_destroy_timers)
         .add_stage_after(
             PostUpdate, 
             SpaceStages::ProcessEntityUpdates, 
@@ -264,6 +269,9 @@ fn main() {
             handle_network_messages.system()
             .after(PreUpdateLabels::NetEvents)
         )
+        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+            send_entity_updates.system()
+        )
         .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
             omni_light_update.system()
         )
@@ -273,18 +281,19 @@ fn main() {
         .add_system_to_stage(SpaceStages::ProcessEntityUpdates,
             world_mode_update.system()
         )
-        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
-            send_entity_updates.system()
-        )
-        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
             gi_probe_update.system()
         )
-        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
             reflection_probe_update.system()
         )
-        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
+        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
             air_lock_update.system()
         )
+        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
+            sfx_update.system()
+        )
+        
         .add_system_to_stage(PostUpdate, done_boarding.system())
         .add_system_to_stage(SpaceStages::SendNetMessages, net_send_messages_event.system())
         .run();

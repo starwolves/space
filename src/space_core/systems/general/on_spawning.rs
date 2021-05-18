@@ -2,7 +2,7 @@ use bevy::{math::Vec2, prelude::{Added, Commands, Entity, Query}};
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, player_input::PlayerInput, space_access::SpaceAccess, spawning::Spawning, visible::Visible, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::transform_to_isometry::transform_to_isometry};
+use crate::space_core::{components::{entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, player_input::PlayerInput, space_access::SpaceAccess, spawning::Spawning, sensable::Sensable, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::transform_to_isometry::transform_to_isometry};
 
 use bevy_rapier3d::{
     rapier::{
@@ -39,7 +39,8 @@ pub fn on_spawning(
         commands.entity(entity_id).insert_bundle((
             rigid_body_component,
             collider_component,
-            Visible{
+            Sensable{
+                is_audible : false,
                 is_light:false,
                 sensed_by_cached:vec![],
                 sensed_by:vec![]

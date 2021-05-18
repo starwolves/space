@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform}};
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, visible::Visible, visible_checker::VisibleChecker}, events::net::net_load_entity::NetLoadEntity, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity}, structs::{
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::net_load_entity::NetLoadEntity, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity}, structs::{
         network_messages::{
             EntityUpdateData
         }
@@ -12,7 +12,7 @@ use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_d
 pub fn visible_checker(
     mut query_visible_entities: Query<(
         Entity,
-        &mut Visible,
+        &mut Sensable,
         Option<&StaticTransform>,
         Option<&RigidBodyHandleComponent>,
         &EntityData,
@@ -99,7 +99,7 @@ pub fn visible_checker(
 
 
 fn visible_check(
-    visible_component : &mut Mut<Visible>,
+    visible_component : &mut Mut<Sensable>,
     visible_entity_transform : Transform,
     visible_checker_translation: Vec3,
     visible_checker_entity_id : Entity,

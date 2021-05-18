@@ -5,7 +5,7 @@ use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, static_transform::StaticTransform, visible::Visible, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
         omni_light,
         gi_probe,
         reflection_probe
@@ -36,8 +36,9 @@ pub fn load_raw_map_entities(
 
             commands.spawn_bundle((
                 omni_light_component,
-                Visible{
+                Sensable{
                     is_light:true,
+                    is_audible : false,
                     sensed_by: vec![],
                     sensed_by_cached: vec![]
                 },
@@ -127,7 +128,8 @@ pub fn load_raw_map_entities(
                 rigid_body_component,
                 collider_component,
                 static_transform_component,
-                Visible{
+                Sensable{
+                    is_audible : false,
                     is_light:false,
                     sensed_by: vec![],
                     sensed_by_cached: vec![]

@@ -9,3 +9,4 @@ pub mod used_names;
 pub mod handle_to_entity;
 pub mod spawn_points;
 pub mod y_axis_rotations;
+pub mod sfx_auto_destroy_timers;

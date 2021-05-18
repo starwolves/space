@@ -1,7 +1,8 @@
-use bevy::{core::Timer, prelude::{Commands, EventReader, Query, ResMut}};
+
+use bevy::{core::Timer, prelude::{Commands, Entity, EventReader, Query, ResMut}};
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, entity_data::EntityGroup, pawn::Pawn, space_access::SpaceAccess}, events::physics::air_lock_collision::AirLockCollision};
+use crate::space_core::{bundles::{air_lock_closed_sfx::{AirLockClosedSfxBundle, PLAY_BACK_DURATION as CLOSED_PLAY_BACK_DURATION}, air_lock_denied_sfx::{AirLockDeniedSfxBundle, PLAY_BACK_DURATION as DENIED_PLAY_BACK_DURATION}, air_lock_open_sfx::{AirLockOpenSfxBundle, PLAY_BACK_DURATION as OPEN_PLAY_BACK_DURATION}}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, entity_data::{EntityGroup}, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::air_lock_collision::AirLockCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
 
 pub fn air_lock_events(
     mut rigid_bodies: ResMut<RigidBodySet>,
@@ -9,18 +10,25 @@ pub fn air_lock_events(
     mut air_lock_query : Query<(
         &mut AirLock,
         &RigidBodyHandleComponent,
+        &StaticTransform,
         Option<&mut AirLockOpenTimer>,
-        Option<&mut AirLockDeniedTimer>
+        Option<&mut AirLockDeniedTimer>,
+        Option<&mut AirLockClosedTimer>,
+        Entity
     )>,
     pawn_query : Query<(&Pawn, &SpaceAccess)>,
+    mut auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands
 ) {
 
     for (
         mut air_lock_component,
         rigid_body_handle_component,
+        static_transform_component,
         timer_open_component_option,
-        timer_denied_component_option
+        timer_denied_component_option,
+        timer_closed_component_option,
+        air_lock_entity
     ) in air_lock_query.iter_mut() {
 
         match timer_open_component_option {
@@ -31,7 +39,25 @@ pub fn air_lock_events(
                     timer_component.timer.reset();
 
                     air_lock_component.status = AirLockStatus::Closed;
+                    //air_lock_component.access_lights = AccessLightsStatus::Neutral;
                     
+
+                    commands.entity(air_lock_entity).insert(AirLockClosedTimer {
+                        timer : Timer::from_seconds(1.1, false)
+                    });
+
+                }
+
+            }
+            None => {}
+        }
+
+        match timer_closed_component_option {
+            Some(mut timer_component) => {
+
+                if timer_component.timer.finished() == true {
+                    timer_component.timer.pause();
+                    timer_component.timer.reset();
 
                     let air_lock_rigid_body = rigid_bodies.get_mut(rigid_body_handle_component.handle())
                     .expect("air_lock_events.rs rigidbody handle was not present in RigidBodySet resource. (0)");
@@ -41,6 +67,12 @@ pub fn air_lock_events(
                     air_lock_rigid_body_position.translation.y -= 2.;
 
                     air_lock_rigid_body.set_position(air_lock_rigid_body_position, true);
+
+                    air_lock_component.access_lights = AccessLightsStatus::Neutral;
+
+                    let sfx_entity = commands.spawn().insert_bundle(AirLockClosedSfxBundle::new(static_transform_component.transform)).id();
+                    sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,CLOSED_PLAY_BACK_DURATION);
+                    
 
                 }
 
@@ -109,11 +141,13 @@ pub fn air_lock_events(
 
         let mut air_lock_component;
         let air_lock_rigid_body_handle_component;
+        let air_lock_static_transform_component;
 
         match air_lock_components_result {
             Ok(result) => {
                 air_lock_component = result.0;
                 air_lock_rigid_body_handle_component = result.1;
+                air_lock_static_transform_component = result.2;
             }
             Err(_err) => {continue;}
         }
@@ -148,12 +182,18 @@ pub fn air_lock_events(
                 timer : Timer::from_seconds(5.0, false)
             });
 
+            let sfx_entity = commands.spawn().insert_bundle(AirLockOpenSfxBundle::new(air_lock_static_transform_component.transform)).id();
+            sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,OPEN_PLAY_BACK_DURATION);
+
         } else {
             air_lock_component.access_lights = AccessLightsStatus::Denied;
 
             commands.entity(air_lock_entity).insert(AirLockDeniedTimer {
                 timer : Timer::from_seconds(5.0, false)
             });
+
+            let sfx_entity = commands.spawn().insert_bundle(AirLockDeniedSfxBundle::new(air_lock_static_transform_component.transform)).id();
+            sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,DENIED_PLAY_BACK_DURATION);
 
         }
 
