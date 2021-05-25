@@ -1,11 +1,11 @@
-use bevy::{prelude::Commands};
+use bevy::{prelude::{Commands}};
 use bevy_rapier3d::rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder};
 
 use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
         omni_light,
         gi_probe,
         reflection_probe
@@ -142,6 +142,50 @@ pub fn load_raw_map_entities(
                 EntityData{
                     entity_class: "entity".to_string(),
                     entity_type: "securityAirLock1".to_string(),
+                    entity_group: EntityGroup::AirLock
+                },
+                EntityUpdates{
+                    updates: entity_updates_map
+                }
+            ));
+
+
+        } else if raw_entity.entity_type == "securityCounterWindow" {
+
+            let static_transform_component = StaticTransform {
+                transform: entity_transform
+            };
+
+            let mut entity_updates_map = HashMap::new();
+            entity_updates_map.insert(".".to_string(), HashMap::new());
+
+            let rigid_body_component = RigidBodyBuilder::new_static()
+            .ccd_enabled(true)
+            .position(transform_to_isometry(entity_transform));
+
+            let collider_component = ColliderBuilder::cuboid(1.,0.593,1.)
+            .translation(0., -1., 1.);
+
+            
+
+            commands.spawn_bundle((
+                rigid_body_component,
+                collider_component,
+                static_transform_component,
+                Sensable{
+                    is_audible : false,
+                    is_light:false,
+                    sensed_by: vec![],
+                    sensed_by_cached: vec![]
+                },
+                CounterWindow {
+                    status: CounterWindowStatus::Closed,
+                    access_lights: CounterWindowAccessLightsStatus::Neutral,
+                    access_permissions: vec![SpaceAccessEnum::Security],
+                },
+                EntityData{
+                    entity_class: "entity".to_string(),
+                    entity_type: "securityCounterWindow".to_string(),
                     entity_group: EntityGroup::AirLock
                 },
                 EntityUpdates{

@@ -1,37 +1,19 @@
 use bevy::{ecs::{system::{Commands, ResMut}}, prelude::info};
 
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, MessageChannelSettings, NetworkResource, ReliableChannelSettings};
-use bevy_rapier3d::{
-    rapier::{
-        dynamics::{
-            RigidBodyBuilder
-        },
-        geometry::{
-            ColliderBuilder
-        }
-    }
-};
 
 use std::{fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{
-    components::{
+use crate::space_core::{components::{
         server::Server
-    }, 
-    functions::{
-        string_to_type_converters::string_vec3_to_vec3, 
-        gridmap_functions::cell_id_to_world
-    },
-    resources::{
-        server_id::ServerId
-    },
-    process_content::{
+    }, functions::{load_main_map_data::load_main_map_data}, process_content::{
         entities::{
             raw_entity::RawEntity,
             load_raw_map_entities::load_raw_map_entities
         }
-    }
-};
+    }, resources::{
+        server_id::ServerId
+    }};
 
 use serde::{Deserialize};
 
@@ -39,10 +21,10 @@ use crate::space_core::structs::network_messages::*;
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
-struct CellData {
-    id: String,
-    item: i64,
-    orientation: i64
+pub struct CellData {
+    pub id: String,
+    pub item: i64,
+    pub orientation: i64
 }
 
 
@@ -117,27 +99,14 @@ pub fn launch_server(
             .unwrap();
     });
 
-
-
     // Load map json data into real static bodies.
     let main_json = Path::new("content").join("maps").join("bullseye").join("main.json");
     let current_map_main_raw_json : String = fs::read_to_string(main_json).expect("main.rs launch_server() Error reading map main.json file from drive.");
     let current_map_main_data : Vec<CellData> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
     
+    load_main_map_data(&current_map_main_data, &mut commands);
+
     
-
-    for cell_data in current_map_main_data.iter() {
-        
-        let cell_id = string_vec3_to_vec3(&cell_data.id);
-
-        let world_position = cell_id_to_world(cell_id);
-
-        commands.spawn().insert_bundle((
-            RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
-            ColliderBuilder::cuboid(1., 1., 1.),
-        ));
-
-    }
 
 
 

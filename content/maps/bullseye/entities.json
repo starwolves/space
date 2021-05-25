@@ -6,7 +6,7 @@
 	},
 	{
 		"entity_type": "jumpsuitSecurity",
-		"transform": "-1, -0.000023, -0.000004, -0.000004, 0.000005, 1, -0.000023, 1, -0.000005 - 14.030608, 0.099061, 16.817793",
+		"transform": "-1, 0.000001, -0.000002, -0.000002, -0.000005, 1, 0.000001, 1, 0.000005 - 14.030607, 0.099058, 16.817804",
 		"data": ""
 	},
 	{
@@ -176,6 +176,11 @@
 	},
 	{
 		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -16.743, 1.50078, 9.00629",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":9.5,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
 		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -16.743, 1.50078, 39.509102",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
@@ -231,7 +236,7 @@
 	},
 	{
 		"entity_type": "GIProbe",
-		"transform": "0.999999, -0.000925, -0.000593, 0.000925, 1, -0.000087, 0.000593, 0.000087, 1 - -65.540802, 1.53, 51.295799",
+		"transform": "0.999999, -0.000925, -0.000593, 0.000925, 1, -0.000087, 0.000593, 0.000087, 1 - -65.540802, 1.67424, 51.295799",
 		"data": "{\"bias\":1.5,\"compressed\":false,\"dynamic_range\":4,\"energy\":1,\"extents\":\"(130.996994, 1.53605, 95.179199)\",\"interior\":true,\"normal_bias\":0,\"propagation\":0.7,\"subdiv\":3}"
 	}
 ]

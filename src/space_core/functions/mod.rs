@@ -5,3 +5,4 @@ pub mod name_generator;
 pub mod transform_to_isometry;
 pub mod isometry_to_transform;
 pub mod load_entity_for_player;
+pub mod load_main_map_data;
