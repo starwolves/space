@@ -163,7 +163,7 @@ pub fn load_raw_map_entities(
             .ccd_enabled(true)
             .position(transform_to_isometry(entity_transform));
 
-            let collider_component = ColliderBuilder::cuboid(1.,0.593,1.)
+            let collider_component = ColliderBuilder::cuboid(0.1,0.593,1.)
             .translation(0., -1., 1.);
 
             

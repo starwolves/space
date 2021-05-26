@@ -1,12 +1,12 @@
-use bevy::prelude::Commands;
+use bevy::prelude::{Commands, Res, info};
 use bevy_rapier3d::rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder};
 
-use crate::space_core::systems::startup::launch_server::CellData;
+use crate::space_core::{resources::all_ordered_cells::AllOrderedCells, systems::startup::launch_server::CellData};
 
 use super::{gridmap_functions::cell_id_to_world, string_to_type_converters::string_vec3_to_vec3};
 
 
-pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mut Commands) {
+pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mut Commands, all_ordered_cells : &Res<AllOrderedCells>) {
 
     for cell_data in current_map_main_data.iter() {
         
@@ -14,10 +14,26 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
 
         let world_position = cell_id_to_world(cell_id);
 
-        commands.spawn().insert_bundle((
-            RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
-            ColliderBuilder::cuboid(1., 1., 1.),
-        ));
+        if all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize] == "securityCounter1" {
+
+            info!("securityCounter1 found at ID: {}", cell_data.item);
+
+            commands.spawn().insert_bundle((
+                RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
+                ColliderBuilder::cuboid(1., 0.5, 0.5),
+            ));
+
+        } else {
+
+            commands.spawn().insert_bundle((
+                RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
+                ColliderBuilder::cuboid(1., 1., 1.),
+            ));
+
+        }
+
+
+        
 
     }
 

@@ -1,4 +1,4 @@
-use bevy::{ecs::{system::{Commands, ResMut}}, prelude::info};
+use bevy::{ecs::{system::{Commands, ResMut}}, prelude::{Res, info}};
 
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, MessageChannelSettings, NetworkResource, ReliableChannelSettings};
 
@@ -11,9 +11,7 @@ use crate::space_core::{components::{
             raw_entity::RawEntity,
             load_raw_map_entities::load_raw_map_entities
         }
-    }, resources::{
-        server_id::ServerId
-    }};
+    }, resources::{all_ordered_cells::AllOrderedCells, server_id::ServerId}};
 
 use serde::{Deserialize};
 
@@ -83,6 +81,7 @@ const SERVER_PORT: u16 = 57713;
 pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
     mut server_id : ResMut<ServerId>,
+    all_ordered_cells : Res<AllOrderedCells>,
     mut commands: Commands
     ) {
 
@@ -104,7 +103,7 @@ pub fn launch_server(
     let current_map_main_raw_json : String = fs::read_to_string(main_json).expect("main.rs launch_server() Error reading map main.json file from drive.");
     let current_map_main_data : Vec<CellData> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
     
-    load_main_map_data(&current_map_main_data, &mut commands);
+    load_main_map_data(&current_map_main_data, &mut commands, &all_ordered_cells);
 
     
 
