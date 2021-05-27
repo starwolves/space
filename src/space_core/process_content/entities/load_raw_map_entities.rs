@@ -1,11 +1,11 @@
-use bevy::{prelude::{Commands}};
+use bevy::{prelude::{BuildChildren, Commands}};
 use bevy_rapier3d::rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder};
 
 use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
         omni_light,
         gi_probe,
         reflection_probe
@@ -159,18 +159,27 @@ pub fn load_raw_map_entities(
             let mut entity_updates_map = HashMap::new();
             entity_updates_map.insert(".".to_string(), HashMap::new());
 
-            let rigid_body_component = RigidBodyBuilder::new_static()
+            let window_rigid_body_component = RigidBodyBuilder::new_static()
             .ccd_enabled(true)
             .position(transform_to_isometry(entity_transform));
 
-            let collider_component = ColliderBuilder::cuboid(0.1,0.593,1.)
+            let window_collider_component = ColliderBuilder::cuboid(0.1,0.593,1.)
             .translation(0., -1., 1.);
+
+
+            let sensor_rigid_body_component = RigidBodyBuilder::new_static()
+            .ccd_enabled(true)
+            .position(transform_to_isometry(entity_transform));
+
+            let sensor_collider_component = ColliderBuilder::cuboid(1.,1.,1.)
+            .translation(0., -1., 1.)
+            .sensor(true);
 
             
 
-            commands.spawn_bundle((
-                rigid_body_component,
-                collider_component,
+            let parent = commands.spawn_bundle((
+                window_rigid_body_component,
+                window_collider_component,
                 static_transform_component,
                 Sensable{
                     is_audible : false,
@@ -191,7 +200,24 @@ pub fn load_raw_map_entities(
                 EntityUpdates{
                     updates: entity_updates_map
                 }
-            ));
+            )).id();
+
+
+            let child = commands.spawn_bundle((
+                CounterWindowSensor {
+                    parent : parent
+                },
+                static_transform_component,
+                sensor_rigid_body_component,
+                sensor_collider_component,
+                EntityData{
+                    entity_class: "child".to_string(),
+                    entity_type: "counterWindowSensor".to_string(),
+                    entity_group: EntityGroup::CounterWindowSensor
+                },
+            )).id();
+
+            commands.entity(parent).push_children(&[child]);
 
 
         }

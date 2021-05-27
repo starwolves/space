@@ -38,9 +38,7 @@ pub fn air_lock_events(
                     timer_component.timer.pause();
                     timer_component.timer.reset();
 
-                    air_lock_component.status = AirLockStatus::Closed;
-                    //air_lock_component.access_lights = AccessLightsStatus::Neutral;
-                    
+                    air_lock_component.status = AirLockStatus::Closed;                    
 
                     commands.entity(air_lock_entity).insert(AirLockClosedTimer {
                         timer : Timer::from_seconds(1.1, false)

@@ -25,3 +25,7 @@ pub mod air_lock_open_timer;
 pub mod sfx;
 pub mod air_lock_closed_timer;
 pub mod counter_window;
+pub mod counter_window_sensor;
+pub mod counter_window_open_timer;
+pub mod counter_window_denied_timer;
+pub mod counter_window_closed_timer;

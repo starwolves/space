@@ -9,5 +9,6 @@ pub struct EntityData {
 pub enum EntityGroup {
     None,
     AirLock,
+    CounterWindowSensor,
     Pawn
 }

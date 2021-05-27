@@ -12,3 +12,4 @@ pub mod build_graphics_event;
 pub mod physics_events;
 pub mod tick_timers;
 pub mod air_lock_events;
+pub mod counter_window_events;

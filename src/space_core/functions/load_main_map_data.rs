@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, Res, info};
+use bevy::prelude::{Commands, Res};
 use bevy_rapier3d::rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder};
 
 use crate::space_core::{resources::all_ordered_cells::AllOrderedCells, systems::startup::launch_server::CellData};
@@ -15,8 +15,6 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
         let world_position = cell_id_to_world(cell_id);
 
         if all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize] == "securityCounter1" {
-
-            info!("securityCounter1 found at ID: {}", cell_data.item);
 
             commands.spawn().insert_bundle((
                 RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
