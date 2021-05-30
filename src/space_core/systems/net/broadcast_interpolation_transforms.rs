@@ -2,7 +2,7 @@ use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Q
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{static_transform::StaticTransform, sensable::Sensable}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
+use crate::space_core::{components::{sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
@@ -28,9 +28,6 @@ pub fn broadcast_interpolation_transforms (
                 fixed_timestep
             );
         }
-
-        
-
 
     }
 
@@ -108,5 +105,7 @@ pub fn broadcast_interpolation_transforms (
         }
 
     }
+
+
 
 }

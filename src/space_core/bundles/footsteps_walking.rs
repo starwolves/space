@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Transform};
 
-use crate::space_core::components::{entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, footsteps_walking::FootstepsWalking,  repeating_sfx::RepeatingSfx, sensable::Sensable, static_transform::StaticTransform};
+use crate::space_core::components::{entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, footsteps_walking::FootstepsWalking, repeating_sfx::RepeatingSfx, sensable::Sensable, static_transform::StaticTransform, update_transform::UpdateTransform};
 
 pub struct FootstepsWalkingSfxBundle;
 
@@ -14,7 +14,8 @@ impl FootstepsWalkingSfxBundle {
         Sensable,
         RepeatingSfx,
         EntityUpdates,
-        FootstepsWalking
+        FootstepsWalking,
+        UpdateTransform
     ) {
 
         let mut entity_updates_map = HashMap::new();
@@ -51,7 +52,7 @@ impl FootstepsWalkingSfxBundle {
             pitch_scale: 1.6,
             playing: false,
             stream_paused: false,
-            unit_db: 3.5,
+            unit_db: 6.5,
             unit_size: 1.,
             stream_id: "concrete_walking_footsteps".to_string(),
             auto_destroy : true,
@@ -60,7 +61,8 @@ impl FootstepsWalkingSfxBundle {
         EntityUpdates {
             updates: entity_updates_map
         },
-        FootstepsWalking
+        FootstepsWalking,
+        UpdateTransform
     )
 
     }

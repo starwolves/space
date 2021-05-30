@@ -32,3 +32,4 @@ pub mod counter_window_closed_timer;
 pub mod repeating_sfx;
 pub mod footsteps_walking;
 pub mod linked_footsteps_walking;
+pub mod update_transform;
