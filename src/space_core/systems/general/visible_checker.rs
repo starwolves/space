@@ -127,6 +127,10 @@ fn visible_check(
                 net_unload_entity
             );
 
+            let index = visible_component.sensed_by.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+
+            visible_component.sensed_by.remove(index);
+
         }
 
 

@@ -62,8 +62,7 @@ impl FootstepsWalkingSfxBundle {
             updates: entity_updates_map
         },
         FootstepsWalking,
-        UpdateTransform
-    )
+        UpdateTransform)
 
     }
 
