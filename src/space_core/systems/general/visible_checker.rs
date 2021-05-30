@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform}};
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::net_load_entity::NetLoadEntity, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity}, structs::{
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, structs::{
         network_messages::{
             EntityUpdateData
         }
@@ -21,6 +21,7 @@ pub fn visible_checker(
     query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyHandleComponent, &ConnectedPlayer)>,
     rigid_bodies: Res<RigidBodySet>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
+    mut net_unload_entity: EventWriter<NetUnloadEntity>,
 ) {
 
     for (
@@ -80,11 +81,12 @@ pub fn visible_checker(
                 visible_checker_translation_vec,
                 entity,
                 &mut net_load_entity,
+                &mut net_unload_entity,
                 visible_checker_connected_player_component.handle,
                 entity_data_component,
                 visible_entity_id.id(),
                 is_interpolated,
-                &entity_updates_component.updates
+                &entity_updates_component.updates,
             );
 
         }
@@ -104,6 +106,7 @@ fn visible_check(
     visible_checker_translation: Vec3,
     visible_checker_entity_id : Entity,
     net_load_entity : &mut EventWriter<NetLoadEntity>,
+    net_unload_entity : &mut EventWriter<NetUnloadEntity>,
     visible_checker_handle : u32,
     visible_entity_data : &EntityData,
     visible_entity_id : u32,
@@ -111,25 +114,49 @@ fn visible_check(
     visible_entity_updates : &HashMap<String,HashMap<String, EntityUpdateData>>
 ) {
 
-    if visible_checker_translation.distance(visible_entity_transform.translation) > 90. {
-        return;
-    }
+    let is_visible = !(visible_checker_translation.distance(visible_entity_transform.translation) > 90.);
 
-    if visible_component.sensed_by.contains(&visible_checker_entity_id) == false {
+    if is_visible == false {
+
+
+        if visible_component.sensed_by.contains(&visible_checker_entity_id) == true {
+
+            unload_entity(
+                visible_checker_handle,
+                visible_entity_id,
+                net_unload_entity
+            );
+
+        }
+
+
+
+
+
+
+
+    } else {
+
+
+        if visible_component.sensed_by.contains(&visible_checker_entity_id) == false {
         
-        visible_component.sensed_by.push(visible_checker_entity_id);
-
-        load_entity(
-            visible_entity_updates,
-            visible_entity_transform,
-            interpolated_transform,
-            net_load_entity,
-            visible_checker_handle,
-            visible_entity_data,
-            visible_entity_id
-        );
+            visible_component.sensed_by.push(visible_checker_entity_id);
+    
+            load_entity(
+                visible_entity_updates,
+                visible_entity_transform,
+                interpolated_transform,
+                net_load_entity,
+                visible_checker_handle,
+                visible_entity_data,
+                visible_entity_id
+            );
+    
+    
+        }
 
 
     }
+
 
 }

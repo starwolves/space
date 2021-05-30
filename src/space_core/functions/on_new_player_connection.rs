@@ -62,6 +62,54 @@ pub fn on_new_player_connection(
         message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id.id()))
     });
 
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::RepeatingSFX(
+            "concrete_walking_footsteps".to_string(),
+            vec![
+                "Concrete_Shoes_Walking_step1".to_string(),
+                "Concrete_Shoes_Walking_step2".to_string(),
+                "Concrete_Shoes_Walking_step3".to_string(),
+                "Concrete_Shoes_Walking_step4".to_string(),
+                "Concrete_Shoes_Walking_step5".to_string(),
+                "Concrete_Shoes_Walking_step6".to_string(),
+                "Concrete_Shoes_Walking_step7".to_string(),
+                "Concrete_Shoes_Walking_step8".to_string(),
+                "Concrete_Shoes_Walking_step9".to_string(),
+                "Concrete_Shoes_Walking_step10".to_string(),
+                "Concrete_Shoes_Walking_step11".to_string(),
+                "Concrete_Shoes_Walking_step12".to_string(),
+                "Concrete_Shoes_Walking_step13".to_string(),
+                "Concrete_Shoes_Walking_step14".to_string(),
+                "Concrete_Shoes_Walking_step15".to_string(),
+                "Concrete_Shoes_Walking_step16".to_string(),
+                "Concrete_Shoes_Walking_step17".to_string(),
+                "Concrete_Shoes_Walking_step18".to_string(),
+                "Concrete_Shoes_Walking_step19".to_string(),
+                "Concrete_Shoes_Walking_step20".to_string(),
+                "Concrete_Shoes_Walking_step21".to_string(),
+                "Concrete_Shoes_Walking_step22".to_string(),
+                "Concrete_Shoes_Walking_step23".to_string(),
+                "Concrete_Shoes_Walking_step24".to_string(),
+                "Concrete_Shoes_Walking_step25".to_string(),
+                "Concrete_Shoes_Walking_step26".to_string(),
+                "Concrete_Shoes_Walking_step27".to_string(),
+                "Concrete_Shoes_Walking_step28".to_string(),
+                "Concrete_Shoes_Walking_step29".to_string(),
+                "Concrete_Shoes_Walking_step30".to_string(),
+                "Concrete_Shoes_Walking_step31".to_string(),
+                "Concrete_Shoes_Walking_step32".to_string(),
+                "Concrete_Shoes_Walking_step33".to_string(),
+                "Concrete_Shoes_Walking_step34".to_string(),
+                "Concrete_Shoes_Walking_step35".to_string(),
+                "Concrete_Shoes_Walking_step36".to_string(),
+                "Concrete_Shoes_Walking_step37".to_string(),
+                "Concrete_Shoes_Walking_step38".to_string(),
+                "Concrete_Shoes_Walking_step39".to_string(),
+            ]
+        ))
+    });
+
     // Create the actual Bevy entity for the player , with its network handle, authid and softConnected components.
     
     let connected_player_component = ConnectedPlayer {

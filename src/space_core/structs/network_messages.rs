@@ -33,7 +33,8 @@ pub enum ReliableServerMessage {
     EntityUpdate(u32, HashMap<String, HashMap<String, EntityUpdateData>>),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
-    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool)
+    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool),
+    UnloadEntity(u32, bool)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -41,6 +42,7 @@ pub enum EntityUpdateData {
     Int(i64),
     UInt8(u8),
     String(String),
+    StringVec(Vec<String>),
     Float(f32),
     Transform(Vec3,Quat,Vec3),
     Color(Color),
@@ -59,6 +61,7 @@ pub enum ServerConfigMessage {
     OrderedCellsDetails1(Vec<String>),
     ChangeScene(bool, String),
     ServerEntityId(u32),
+    RepeatingSFX(String, Vec<String>),
     FinishedInitialization
 }
 

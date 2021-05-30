@@ -29,3 +29,6 @@ pub mod counter_window_sensor;
 pub mod counter_window_open_timer;
 pub mod counter_window_denied_timer;
 pub mod counter_window_closed_timer;
+pub mod repeating_sfx;
+pub mod footsteps_walking;
+pub mod linked_footsteps_walking;

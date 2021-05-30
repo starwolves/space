@@ -42,7 +42,7 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
             rtt_update_factor: 0.1,
             rtt_resend_factor: 1.5,
         },
-        max_message_len: 1024,
+        max_message_len: 10240,
     },
     message_buffer_size: 128,
     packet_buffer_size: 128,

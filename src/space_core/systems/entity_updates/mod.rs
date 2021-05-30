@@ -7,3 +7,4 @@ pub mod reflection_probe_update;
 pub mod air_lock_update;
 pub mod sfx_update;
 pub mod counter_window_update;
+pub mod repeating_sfx_update;
