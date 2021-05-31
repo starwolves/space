@@ -1,7 +1,7 @@
 use bevy::{core::{FixedTimesteps, Time}, prelude::{Entity, Query, Res, ResMut, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{components::{sensable::Sensable, static_transform::StaticTransform, update_transform::UpdateTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, sensable::Sensable, static_transform::StaticTransform, update_transform::UpdateTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 
 const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 
@@ -12,7 +12,7 @@ pub fn broadcast_position_updates (
     
     mut net: ResMut<NetworkResource>,
     handle_to_entity : Res<HandleToEntity>,
-    query_update_transform_entities : Query<(Entity, &Sensable, &UpdateTransform, &StaticTransform)>
+    mut query_update_transform_entities : Query<(Entity, &Sensable, &UpdateTransform, &StaticTransform, &mut CachedBroadcastTransform)>
 ) {
 
     let current_time_stamp = time.time_since_startup().as_millis();
@@ -33,8 +33,15 @@ pub fn broadcast_position_updates (
         entity,
         visible_component,
         _update_transform_component,
-        static_transform_component
-    ) in query_update_transform_entities.iter() {
+        static_transform_component,
+        mut cached_transform_component
+    ) in query_update_transform_entities.iter_mut() {
+
+        if cached_transform_component.transform == static_transform_component.transform {
+            continue;
+        }
+
+        cached_transform_component.transform = static_transform_component.transform;
 
         let entity_id = entity.id();
         let new_position = static_transform_component.transform.translation;

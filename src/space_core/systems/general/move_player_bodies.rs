@@ -138,6 +138,7 @@ pub fn move_player_bodies(
                     // Spawn FootstepsWalkingSfx entity here.
 
                     let repeating_sfx_id = commands.spawn_bundle(FootstepsWalkingSfxBundle::new(isometry_to_transform(rigid_body_position))).id();
+                    
                     commands.entity(entity).insert(LinkedFootstepsWalking{
                         entity: repeating_sfx_id
                     });

@@ -1,8 +1,8 @@
-use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, Without, warn}};
+use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, Transform, Without, warn}};
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
@@ -14,7 +14,7 @@ pub fn broadcast_interpolation_transforms (
     mut net: ResMut<NetworkResource>,
     rigid_bodies: Res<RigidBodySet>,
     handle_to_entity : Res<HandleToEntity>,
-    query_interpolated_entities : Query<(Entity, &Sensable, &RigidBodyHandleComponent), Without<StaticTransform>>,
+    mut query_interpolated_entities : Query<(Entity, &Sensable, &RigidBodyHandleComponent, &mut CachedBroadcastTransform), Without<StaticTransform>>,
 ) {
 
     let current_time_stamp = time.time_since_startup().as_millis();
@@ -34,8 +34,9 @@ pub fn broadcast_interpolation_transforms (
     for (
         entity,
         visible_component,
-        rigid_body_handle_component
-    ) in query_interpolated_entities.iter() {
+        rigid_body_handle_component,
+        mut cached_transform_component
+    ) in query_interpolated_entities.iter_mut() {
 
         let entity_id = entity.id();
 
@@ -65,6 +66,18 @@ pub fn broadcast_interpolation_transforms (
             rigid_body_rotation_rapier.j,
             rigid_body_rotation_rapier.k
         );
+
+        let this_transform = Transform {
+            translation: rigid_body_translation,
+            rotation: rigid_body_rotation,
+            scale: Vec3::ONE,
+        };
+
+        if this_transform == cached_transform_component.transform{
+            continue;
+        }
+
+        cached_transform_component.transform = this_transform;
 
         for sensed_by_entity in visible_component.sensed_by.iter() {
 

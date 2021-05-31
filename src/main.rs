@@ -218,7 +218,7 @@ fn main() {
             SpaceStages::PositionUpdates,
             SystemStage::parallel()
                 .with_run_criteria(
-                    FixedTimestep::step(1./4.)
+                    FixedTimestep::step(1./2.)
                     .with_label(INTERPOLATION_LABEL1),
                 )
                 .with_system(broadcast_position_updates.system())
