@@ -34,7 +34,8 @@ impl FootstepsWalkingSfxBundle {
             is_light : false,
             is_audible: true,
             sensed_by : vec![],
-            sensed_by_cached : vec![]
+            sensed_by_cached : vec![],
+            always_sensed : false
         },
         RepeatingSfx {
             area_mask: 0,
@@ -53,7 +54,7 @@ impl FootstepsWalkingSfxBundle {
             pitch_scale: 1.6,
             playing: false,
             stream_paused: false,
-            unit_db: 6.5,
+            unit_db: 9.0,
             unit_size: 1.,
             stream_id: "concrete_walking_footsteps".to_string(),
             auto_destroy : true,

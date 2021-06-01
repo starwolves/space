@@ -2,15 +2,16 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, human_character::{HumanCharacter}}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, human_character::{HumanCharacter}, persistent_player_data::PersistentPlayerData}, structs::network_messages::EntityUpdateData};
 
 pub fn human_pawn_update(
-    mut updated_humans: Query<(&HumanCharacter, &mut EntityUpdates), Changed<HumanCharacter>>,
+    mut updated_humans: Query<(&HumanCharacter, &mut EntityUpdates, &PersistentPlayerData), Changed<HumanCharacter>>,
 ) {
 
     for (
         human_character_component,
-        mut entity_updates_component
+        mut entity_updates_component,
+        persistent_player_data_component
     ) in updated_humans.iter_mut() {
 
         
@@ -52,6 +53,17 @@ pub fn human_pawn_update(
             animation_tree1_lower_body_updates
         );
 
+        let mut billboard_username_updates = HashMap::new();
+
+        billboard_username_updates.insert(
+            "bbcode".to_string(),
+            EntityUpdateData::String("[color=white][center][b]".to_owned() + &persistent_player_data_component.character_name + "[/b][/center][/color]")
+        );
+
+        entity_updates_component.updates.insert(
+            "Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(),
+            billboard_username_updates
+        );
 
     }
 

@@ -3,12 +3,12 @@ use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
 use crate::space_core::{components::{entity_updates::EntityUpdates, sensable::Sensable}, events::net::net_send_entity_updates::NetSendEntityUpdates, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
 
 pub fn send_entity_updates(
-    mut updated_entity_updates: Query<(Entity, &Sensable, &mut EntityUpdates), Changed<EntityUpdates>>,
+    updated_entity_updates: Query<(Entity, &Sensable, &EntityUpdates), Changed<EntityUpdates>>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
     handle_to_entity: ResMut<HandleToEntity>
 ) {
 
-    for (visible_entity, visible_component, entity_updates_component) in updated_entity_updates.iter_mut() {
+    for (visible_entity, visible_component, entity_updates_component) in updated_entity_updates.iter() {
 
         let visible_entity_id = visible_entity.id();
 

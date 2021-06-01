@@ -3,10 +3,10 @@ use bevy::prelude::{Changed, Query};
 use crate::space_core::{components::{entity_updates::EntityUpdates, sfx::Sfx}, structs::network_messages::EntityUpdateData};
 
 pub fn sfx_update(
-    mut updated_sfx: Query<(&Sfx, &mut EntityUpdates), Changed<Sfx>>,
+    mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), Changed<Sfx>>,
 ) {
 
-    for (sfx_component, mut entity_updates_component) in updated_sfx.iter_mut() {
+    for (mut sfx_component, mut entity_updates_component) in updated_sfx.iter_mut() {
 
         let entity_updates = entity_updates_component.updates
         .get_mut(&".".to_string()).unwrap();
@@ -88,13 +88,23 @@ pub fn sfx_update(
             EntityUpdateData::String(sfx_component.stream_id.clone())
         );
         entity_updates.insert(
-            "play_back_position".to_string(),
-            EntityUpdateData::Float(sfx_component.play_back_position)
-        );
-        entity_updates.insert(
             "auto_destroy".to_string(),
             EntityUpdateData::Bool(sfx_component.auto_destroy)
         );
+        entity_updates.insert(
+            "sfx_replay".to_string(),
+            EntityUpdateData::Bool(sfx_component.sfx_replay)
+        );
+        
+        entity_updates.insert(
+            "play_back_position".to_string(),
+            EntityUpdateData::Float(sfx_component.play_back_position)
+        );
+        
+        if sfx_component.sfx_replay == true {
+            sfx_component.sfx_replay = false;
+        }
+
 
     }
 

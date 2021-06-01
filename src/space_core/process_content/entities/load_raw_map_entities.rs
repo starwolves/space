@@ -40,7 +40,8 @@ pub fn load_raw_map_entities(
                     is_light:true,
                     is_audible : false,
                     sensed_by: vec![],
-                    sensed_by_cached: vec![]
+                    sensed_by_cached: vec![],
+                    always_sensed : false
                 },
                 static_transform_component,
                 EntityData{
@@ -132,7 +133,8 @@ pub fn load_raw_map_entities(
                     is_audible : false,
                     is_light:false,
                     sensed_by: vec![],
-                    sensed_by_cached: vec![]
+                    sensed_by_cached: vec![],
+                    always_sensed : false
                 },
                 AirLock {
                     status : AirLockStatus::Closed,
@@ -185,7 +187,8 @@ pub fn load_raw_map_entities(
                     is_audible : false,
                     is_light:false,
                     sensed_by: vec![],
-                    sensed_by_cached: vec![]
+                    sensed_by_cached: vec![],
+                    always_sensed : false
                 },
                 CounterWindow {
                     status: CounterWindowStatus::Closed,

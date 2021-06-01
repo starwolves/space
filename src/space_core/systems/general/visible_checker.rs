@@ -114,7 +114,11 @@ fn visible_check(
     visible_entity_updates : &HashMap<String,HashMap<String, EntityUpdateData>>
 ) {
 
-    let is_visible = !(visible_checker_translation.distance(visible_entity_transform.translation) > 90.);
+    let mut is_visible = !(visible_checker_translation.distance(visible_entity_transform.translation) > 90.);
+
+    if visible_component.always_sensed == true {
+        is_visible = true;
+    }
 
     if is_visible == false {
 

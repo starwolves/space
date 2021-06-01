@@ -1,12 +1,10 @@
-use bevy::{ecs::{system::{Commands, ResMut}}, prelude::{Res, info}};
+use bevy::{ ecs::{system::{Commands, ResMut}}, prelude::{Res, Transform, info}};
 
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, MessageChannelSettings, NetworkResource, ReliableChannelSettings};
 
 use std::{fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{components::{
-        server::Server
-    }, functions::{load_main_map_data::load_main_map_data}, process_content::{
+use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{load_main_map_data::load_main_map_data}, process_content::{
         entities::{
             raw_entity::RawEntity,
             load_raw_map_entities::load_raw_map_entities
@@ -106,8 +104,8 @@ pub fn launch_server(
     load_main_map_data(&current_map_main_data, &mut commands, &all_ordered_cells);
 
     
-
-
+    // Spawn ambience SFX
+    commands.spawn().insert_bundle(AmbienceSfxBundle::new(Transform::identity()));
 
     // So we have one reserved Id that isnt an entity for sure
     let server_component = Server;

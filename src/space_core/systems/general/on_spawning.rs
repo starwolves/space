@@ -22,7 +22,7 @@ pub fn on_spawning(
 
     for (
         entity_id,
-        spawning_component
+        spawning_component,
     ) in query.iter() {
 
         let rigid_body_component = RigidBodyBuilder::new_dynamic()
@@ -43,7 +43,8 @@ pub fn on_spawning(
                 is_audible : false,
                 is_light:false,
                 sensed_by_cached:vec![],
-                sensed_by:vec![]
+                sensed_by:vec![],
+                always_sensed : false
             },
             VisibleChecker,
             EntityData {

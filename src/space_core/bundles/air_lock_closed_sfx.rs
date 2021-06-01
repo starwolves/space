@@ -33,7 +33,8 @@ impl AirLockClosedSfxBundle {
             is_light : false,
             is_audible: true,
             sensed_by : vec![],
-            sensed_by_cached : vec![]
+            sensed_by_cached : vec![],
+            always_sensed : false
         },
         Sfx {
             area_mask: 0,
@@ -57,7 +58,8 @@ impl AirLockClosedSfxBundle {
             stream_id: "doorCloseCompression".to_string(),
             play_back_position: 0.,
             play_back_duration: PLAY_BACK_DURATION,
-            auto_destroy : true
+            auto_destroy : true,
+            sfx_replay : false
         },
         EntityUpdates {
             updates: entity_updates_map

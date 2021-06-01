@@ -1,25 +1,29 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Transform};
+use bevy::{core::Timer, prelude::{ Transform}};
 
-use crate::space_core::components::{entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, sfx::Sfx, static_transform::StaticTransform};
+use crate::space_core::components::{ambience_sfx_timer::AmbienceSfxTimer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, sfx::Sfx, static_transform::StaticTransform};
 
-pub struct CounterWindowOpenSfxBundle;
+pub struct AmbienceSfxBundle;
 
-pub const PLAY_BACK_DURATION : f32 = 1.75 + 1.;
+pub const PLAY_BACK_DURATION : f32 = 424. + 1.;
+// pub const PLAY_BACK_DURATION : f32 = 12. + 1.;
 
-impl CounterWindowOpenSfxBundle {
-
+impl AmbienceSfxBundle {
+    
     pub fn new(passed_transform : Transform) -> (
         StaticTransform,
         EntityData,
         Sensable,
         Sfx,
-        EntityUpdates
+        EntityUpdates,
+        AmbienceSfxTimer
     ) {
 
         let mut entity_updates_map = HashMap::new();
         entity_updates_map.insert(".".to_string(), HashMap::new());
+
+        
 
         (StaticTransform {
             transform: passed_transform,
@@ -34,7 +38,7 @@ impl CounterWindowOpenSfxBundle {
             is_audible: true,
             sensed_by : vec![],
             sensed_by_cached : vec![],
-            always_sensed : false
+            always_sensed : true
         },
         Sfx {
             area_mask: 0,
@@ -53,9 +57,9 @@ impl CounterWindowOpenSfxBundle {
             pitch_scale: 1.6,
             playing: false,
             stream_paused: false,
-            unit_db: 13.0,
+            unit_db: 11.,
             unit_size: 1.,
-            stream_id: "windowOpen".to_string(),
+            stream_id: "spaceshipAmbientSound".to_string(),
             play_back_position: 0.,
             play_back_duration: PLAY_BACK_DURATION,
             auto_destroy : true,
@@ -63,7 +67,11 @@ impl CounterWindowOpenSfxBundle {
         },
         EntityUpdates {
             updates: entity_updates_map
+        },
+        AmbienceSfxTimer {
+            timer : Timer::from_seconds(PLAY_BACK_DURATION, false)
         })
+        
 
     }
 

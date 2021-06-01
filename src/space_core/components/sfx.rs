@@ -24,6 +24,7 @@ pub struct Sfx {
     pub stream_id : String,
     pub play_back_position : f32,
     pub auto_destroy : bool,
+    pub sfx_replay : bool,
 
     pub play_back_duration : f32
 }
