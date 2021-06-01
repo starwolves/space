@@ -54,7 +54,7 @@ impl AmbienceSfxBundle {
             max_db: 3.,
             max_distance: 0.,
             out_of_range_mode: 0,
-            pitch_scale: 1.6,
+            pitch_scale: 1.,
             playing: false,
             stream_paused: false,
             unit_db: 11.,
@@ -66,7 +66,8 @@ impl AmbienceSfxBundle {
             sfx_replay : false
         },
         EntityUpdates {
-            updates: entity_updates_map
+            updates: entity_updates_map,
+            changed_parameters: vec![]
         },
         AmbienceSfxTimer {
             timer : Timer::from_seconds(PLAY_BACK_DURATION, false)

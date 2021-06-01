@@ -12,6 +12,13 @@ pub fn send_entity_updates(
 
         let visible_entity_id = visible_entity.id();
 
+
+        if entity_updates_component.changed_parameters.len() == 1 &&
+        entity_updates_component.changed_parameters.contains(&"play_back_position".to_string()) {
+            continue;
+        }
+
+
         for sensed_by_entity in visible_component.sensed_by.iter() {
 
             net_send_entity_updates.send(NetSendEntityUpdates {

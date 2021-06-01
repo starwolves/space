@@ -62,7 +62,8 @@ impl AirLockOpenSfxBundle {
             sfx_replay : false
         },
         EntityUpdates {
-            updates: entity_updates_map
+            updates: entity_updates_map,
+            changed_parameters: vec![]
         })
 
     }

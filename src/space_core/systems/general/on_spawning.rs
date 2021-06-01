@@ -53,7 +53,8 @@ pub fn on_spawning(
                 entity_group: EntityGroup::Pawn
             },
             EntityUpdates{
-                updates: entity_updates_map
+                updates: entity_updates_map,
+                changed_parameters: vec![]
             },
             WorldMode {
                 mode : WorldModes::Kinematic

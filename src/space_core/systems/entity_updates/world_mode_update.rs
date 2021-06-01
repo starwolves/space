@@ -30,6 +30,8 @@ pub fn world_mode_update(
 
         entity_updates.insert("world_mode".to_string(), EntityUpdateData::String(world_mode.to_string()));
 
+        
+
     }
 
 }

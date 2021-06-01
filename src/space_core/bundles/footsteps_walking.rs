@@ -51,7 +51,7 @@ impl FootstepsWalkingSfxBundle {
             max_db: 3.,
             max_distance: 0.,
             out_of_range_mode: 0,
-            pitch_scale: 1.6,
+            pitch_scale: 1.,
             playing: false,
             stream_paused: false,
             unit_db: 9.0,
@@ -61,7 +61,8 @@ impl FootstepsWalkingSfxBundle {
             repeat_time: 0.5,
         },
         EntityUpdates {
-            updates: entity_updates_map
+            updates: entity_updates_map,
+            changed_parameters: vec![]
         },
         FootstepsWalking,
         UpdateTransform,

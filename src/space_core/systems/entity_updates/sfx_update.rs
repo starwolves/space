@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, sfx::Sfx}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, sfx::Sfx}, functions::entity_update_change_detection::entity_update_changed_detection, structs::network_messages::EntityUpdateData};
 
 pub fn sfx_update(
     mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), Changed<Sfx>>,
@@ -8,102 +8,175 @@ pub fn sfx_update(
 
     for (mut sfx_component, mut entity_updates_component) in updated_sfx.iter_mut() {
 
+        
+        entity_updates_component.changed_parameters.clear();
+
         let entity_updates = entity_updates_component.updates
         .get_mut(&".".to_string()).unwrap();
 
-        entity_updates.insert(
-            "area_mask".to_string(),
-            EntityUpdateData::UInt8(sfx_component.area_mask)
+        let mut changed_parameters = vec![];
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::UInt8(sfx_component.area_mask),
+            "area_mask".to_string()
         );
-        entity_updates.insert(
-            "attenuation_filter_cutoff_hz".to_string(),
-            EntityUpdateData::Float(sfx_component.attenuation_filter_cutoff_hz)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.attenuation_filter_cutoff_hz),
+            "attenuation_filter_cutoff_hz".to_string()
         );
-        entity_updates.insert(
-            "attenuation_filter_db".to_string(),
-            EntityUpdateData::Float(sfx_component.attenuation_filter_db)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.attenuation_filter_db),
+            "attenuation_filter_db".to_string()
         );
-        entity_updates.insert(
-            "attenuation_model".to_string(),
-            EntityUpdateData::UInt8(sfx_component.attenuation_model)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::UInt8(sfx_component.attenuation_model),
+            "attenuation_model".to_string()
         );
-        entity_updates.insert(
-            "auto_play".to_string(),
-            EntityUpdateData::Bool(sfx_component.auto_play)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Bool(sfx_component.auto_play),
+            "auto_play".to_string()
         );
-        entity_updates.insert(
-            "bus".to_string(),
-            EntityUpdateData::String(sfx_component.bus.clone())
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::String(sfx_component.bus.clone()),
+            "bus".to_string()
         );
-        entity_updates.insert(
-            "doppler_tracking".to_string(),
-            EntityUpdateData::UInt8(sfx_component.doppler_tracking)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::UInt8(sfx_component.doppler_tracking),
+            "doppler_tracking".to_string()
         );
-        entity_updates.insert(
-            "emission_angle_degrees".to_string(),
-            EntityUpdateData::Float(sfx_component.emission_angle_degrees)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.emission_angle_degrees),
+            "emission_angle_degrees".to_string()
         );
-        entity_updates.insert(
-            "emission_angle_enabled".to_string(),
-            EntityUpdateData::Bool(sfx_component.emission_angle_enabled)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Bool(sfx_component.emission_angle_enabled),
+            "emission_angle_enabled".to_string()
         );
-        entity_updates.insert(
-            "emission_angle_filter_attenuation_db".to_string(),
-            EntityUpdateData::Float(sfx_component.emission_angle_filter_attenuation_db)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.emission_angle_filter_attenuation_db),
+            "emission_angle_filter_attenuation_db".to_string()
         );
-        entity_updates.insert(
-            "max_db".to_string(),
-            EntityUpdateData::Float(sfx_component.max_db)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.max_db),
+            "max_db".to_string()
         );
-        entity_updates.insert(
-            "max_distance".to_string(),
-            EntityUpdateData::Float(sfx_component.max_distance)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.max_distance),
+            "max_distance".to_string()
         );
-        entity_updates.insert(
-            "out_of_range_mode".to_string(),
-            EntityUpdateData::UInt8(sfx_component.out_of_range_mode)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::UInt8(sfx_component.out_of_range_mode),
+            "out_of_range_mode".to_string()
         );
-        entity_updates.insert(
-            "pitch_scale".to_string(),
-            EntityUpdateData::Float(sfx_component.pitch_scale)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.pitch_scale),
+            "pitch_scale".to_string()
         );
-        entity_updates.insert(
-            "playing".to_string(),
-            EntityUpdateData::Bool(sfx_component.playing)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Bool(sfx_component.playing),
+            "playing".to_string()
         );
-        entity_updates.insert(
-            "stream_paused".to_string(),
-            EntityUpdateData::Bool(sfx_component.stream_paused)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Bool(sfx_component.stream_paused),
+            "stream_paused".to_string()
         );
-        entity_updates.insert(
-            "unit_db".to_string(),
-            EntityUpdateData::Float(sfx_component.unit_db)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.unit_db),
+            "unit_db".to_string()
         );
-        entity_updates.insert(
-            "unit_size".to_string(),
-            EntityUpdateData::Float(sfx_component.unit_size)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.unit_size),
+            "unit_size".to_string()
         );
-        entity_updates.insert(
-            "stream_id".to_string(),
-            EntityUpdateData::String(sfx_component.stream_id.clone())
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::String(sfx_component.stream_id.clone()),
+            "stream_id".to_string()
         );
-        entity_updates.insert(
-            "auto_destroy".to_string(),
-            EntityUpdateData::Bool(sfx_component.auto_destroy)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Bool(sfx_component.auto_destroy),
+            "auto_destroy".to_string()
         );
-        entity_updates.insert(
-            "sfx_replay".to_string(),
-            EntityUpdateData::Bool(sfx_component.sfx_replay)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Bool(sfx_component.sfx_replay),
+            "sfx_replay".to_string()
         );
-        
-        entity_updates.insert(
-            "play_back_position".to_string(),
-            EntityUpdateData::Float(sfx_component.play_back_position)
+
+        entity_update_changed_detection(
+            &mut changed_parameters,
+            entity_updates,
+            EntityUpdateData::Float(sfx_component.play_back_position),
+            "play_back_position".to_string()
         );
         
         if sfx_component.sfx_replay == true {
             sfx_component.sfx_replay = false;
         }
+        
+
+        entity_updates_component.changed_parameters = changed_parameters;
+
 
 
     }

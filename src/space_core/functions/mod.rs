@@ -7,3 +7,4 @@ pub mod isometry_to_transform;
 pub mod load_entity_for_player;
 pub mod load_main_map_data;
 pub mod unload_entity_for_player;
+pub mod entity_update_change_detection;
