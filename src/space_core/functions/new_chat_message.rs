@@ -720,10 +720,6 @@ pub fn new_chat_message(
                 proximity_message_further = proximity_message_further + further_talk_data_i_start; 
                 proximity_message_far = proximity_message_far + far_talk_data_i_start;
 
-                info!("{}", nearby_talk_data_i_start);
-                info!("{}", further_talk_data_i_start);
-                info!("{}", far_talk_data_i_start);
-
             } else {
 
                 proximity_message_nearby = proximity_message_nearby + nearby_talk_data_normal_start;
