@@ -67,7 +67,8 @@ impl AmbienceSfxBundle {
         },
         EntityUpdates {
             updates: entity_updates_map,
-            changed_parameters: vec![]
+            changed_parameters: vec![],
+            excluded_handles:HashMap::new(),
         },
         AmbienceSfxTimer {
             timer : Timer::from_seconds(PLAY_BACK_DURATION, false)

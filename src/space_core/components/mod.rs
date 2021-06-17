@@ -35,3 +35,4 @@ pub mod linked_footsteps_walking;
 pub mod update_transform;
 pub mod cached_broadcast_transform;
 pub mod ambience_sfx_timer;
+pub mod radio;

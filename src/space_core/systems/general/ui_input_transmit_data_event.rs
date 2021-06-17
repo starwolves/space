@@ -1,6 +1,6 @@
 use bevy::prelude::{Commands, EventReader, Query, Res, ResMut};
 
-use crate::space_core::{components::{boarding::Boarding, persistent_player_data::PersistentPlayerData}, events::general::ui_input_transmit_text::UIInputTransmitText, resources::{handle_to_entity::HandleToEntity, used_names::UsedNames}};
+use crate::space_core::{components::{boarding::Boarding, persistent_player_data::PersistentPlayerData}, events::general::ui_input_transmit_text::UIInputTransmitText, functions::new_chat_message::escape_bb, resources::{handle_to_entity::HandleToEntity, used_names::UsedNames}};
 
 pub fn ui_input_transmit_data_event(
     mut event : EventReader<UIInputTransmitText>,
@@ -25,10 +25,13 @@ pub fn ui_input_transmit_data_event(
             "HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName" {
                 // In the future check if we have recieved all requested data sets and THEN remove Boarding component.
                 
-                persistent_player_data.character_name = new_event.input_text.clone();
+                persistent_player_data.character_name = escape_bb(new_event.input_text.clone(), true);
 
                 if used_names.names.contains(&persistent_player_data.character_name) {
                     // Character name of player is already in-use.
+                    continue;
+                }
+                if persistent_player_data.character_name.len() < 3 {
                     continue;
                 }
 

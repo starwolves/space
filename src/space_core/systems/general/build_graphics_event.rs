@@ -47,6 +47,7 @@ pub fn build_graphics_event(
                 &mut net_load_entity,
                 build_graphics_event.handle,
                 entity_data_component,
+                entity_updates_component,
                 entity.id()
             );
         }
@@ -65,6 +66,7 @@ pub fn build_graphics_event(
                 &mut net_load_entity,
                 build_graphics_event.handle,
                 entity_data_component,
+                entity_updates_component,
                 entity.id()
             );
         }

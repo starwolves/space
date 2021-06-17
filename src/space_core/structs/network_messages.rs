@@ -14,7 +14,8 @@ pub enum ReliableClientMessage {
     SceneReady(String),
     UIInputTransmitData(String, String, String),
     MovementInput(Vec2),
-    BuildGraphics
+    BuildGraphics,
+    InputChatMessage(String)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,7 +35,8 @@ pub enum ReliableServerMessage {
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
     LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool),
-    UnloadEntity(u32, bool)
+    UnloadEntity(u32, bool),
+    ChatMessage(String)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

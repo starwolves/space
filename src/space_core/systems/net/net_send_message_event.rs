@@ -1,7 +1,7 @@
 use bevy::prelude::{EventReader, ResMut, warn};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::events::net::{net_done_boarding::NetDoneBoarding, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_send_entity_updates::NetSendEntityUpdates, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity};
+use crate::space_core::events::net::{net_chat_message::NetChatMessage, net_done_boarding::NetDoneBoarding, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_send_entity_updates::NetSendEntityUpdates, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity};
 
 
 pub fn net_send_messages_event(
@@ -13,7 +13,8 @@ pub fn net_send_messages_event(
     mut net_load_entity : EventReader<NetLoadEntity>,
     mut net_unload_entity : EventReader<NetUnloadEntity>,
     mut net_send_entity_updates: EventReader<NetSendEntityUpdates>,
-    mut net_send_world_environment : EventReader<NetSendWorldEnvironment>
+    mut net_send_world_environment : EventReader<NetSendWorldEnvironment>,
+    mut net_chat_message : EventReader<NetChatMessage>
 ) {
 
     for new_event in net_on_boarding.iter() {
@@ -145,7 +146,23 @@ pub fn net_send_messages_event(
 
     }
 
+    for new_event in net_chat_message.iter() {
 
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_chat_message message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_chat_message message (1): {:?}", err);
+            }
+        };
+
+    }
+
+    
     
 
 

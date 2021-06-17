@@ -2,7 +2,7 @@ use bevy::{math::{Vec2}, prelude::{Added, Commands, Entity, Query}};
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, player_input::PlayerInput, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::transform_to_isometry::transform_to_isometry};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, functions::transform_to_isometry::transform_to_isometry};
 
 use bevy_rapier3d::{
     rapier::{
@@ -16,13 +16,14 @@ use bevy_rapier3d::{
 };
 
 pub fn on_spawning(
-    query : Query<(Entity, &Spawning),Added<Spawning>>,
+    query : Query<(Entity, &Spawning, &PersistentPlayerData),Added<Spawning>>,
     mut commands : Commands
 ) {
 
     for (
         entity_id,
         spawning_component,
+        persistent_player_data_component,
     ) in query.iter() {
 
         let rigid_body_component = RigidBodyBuilder::new_dynamic()
@@ -54,7 +55,8 @@ pub fn on_spawning(
             },
             EntityUpdates{
                 updates: entity_updates_map,
-                changed_parameters: vec![]
+                changed_parameters: vec![],
+                excluded_handles:HashMap::new(),
             },
             WorldMode {
                 mode : WorldModes::Kinematic
@@ -66,11 +68,18 @@ pub fn on_spawning(
             HumanCharacter {
                 state : HumanState::Idle
             },
-            Pawn,
+            Pawn {
+                name: persistent_player_data_component.character_name.clone(),
+                job: SpaceJobsEnum::Security
+            },
             SpaceAccess{
                 access : vec![SpaceAccessEnum::Security]
             },
-            CachedBroadcastTransform::new()
+            CachedBroadcastTransform::new(),
+            Radio {
+                listen_access: vec![RadioChannel::Common, RadioChannel::Security],
+                speak_access: vec![RadioChannel::Common, RadioChannel::Security],
+            }
         )).remove::<Spawning>();
 
         

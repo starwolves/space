@@ -2,7 +2,9 @@ use std::collections::HashMap;
 
 use bevy::prelude::{EventWriter, Transform};
 
-use crate::space_core::{components::entity_data::EntityData, events::net::net_load_entity::NetLoadEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
+use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates}, events::net::net_load_entity::NetLoadEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
+
+use super::entity_updates_personalise;
 
 pub fn load_entity(
     entity_updates : &HashMap<String,HashMap<String, EntityUpdateData>>,
@@ -11,10 +13,17 @@ pub fn load_entity(
     net_load_entity : &mut EventWriter<NetLoadEntity>,
     player_handle : u32,
     entity_data : &EntityData,
+    entity_updates_component : &EntityUpdates,
     entity_id : u32,
 ) {
 
     let mut hash_map = entity_updates.clone();
+
+    hash_map = entity_updates_personalise::personalise(
+        &mut hash_map,
+        player_handle,
+        entity_updates_component
+    );
 
     let transform_entity_update= EntityUpdateData::Transform(
         entity_transform.translation,
@@ -47,6 +56,8 @@ pub fn load_entity(
             
         }
     }
+
+    
 
     net_load_entity.send(
         NetLoadEntity {

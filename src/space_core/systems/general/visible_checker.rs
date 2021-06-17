@@ -1,13 +1,8 @@
-use std::collections::HashMap;
 
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform}};
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, structs::{
-        network_messages::{
-            EntityUpdateData
-        }
-    }};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}};
 
 pub fn visible_checker(
     mut query_visible_entities: Query<(
@@ -86,7 +81,7 @@ pub fn visible_checker(
                 entity_data_component,
                 visible_entity_id.id(),
                 is_interpolated,
-                &entity_updates_component.updates,
+                &entity_updates_component,
             );
 
         }
@@ -111,7 +106,7 @@ fn visible_check(
     visible_entity_data : &EntityData,
     visible_entity_id : u32,
     interpolated_transform : bool,
-    visible_entity_updates : &HashMap<String,HashMap<String, EntityUpdateData>>
+    visible_entity_updates_component : &EntityUpdates
 ) {
 
     let mut is_visible = !(visible_checker_translation.distance(visible_entity_transform.translation) > 90.);
@@ -151,12 +146,13 @@ fn visible_check(
             visible_component.sensed_by.push(visible_checker_entity_id);
     
             load_entity(
-                visible_entity_updates,
+                &visible_entity_updates_component.updates,
                 visible_entity_transform,
                 interpolated_transform,
                 net_load_entity,
                 visible_checker_handle,
                 visible_entity_data,
+                visible_entity_updates_component,
                 visible_entity_id
             );
     

@@ -51,7 +51,8 @@ pub fn load_raw_map_entities(
                 },
                 EntityUpdates{
                     updates: entity_updates_map,
-                    changed_parameters: vec![]
+                    changed_parameters: vec![],
+                    excluded_handles: HashMap::new(),
                 },
                 WorldMode {
                     mode : WorldModes::Static
@@ -80,7 +81,8 @@ pub fn load_raw_map_entities(
                 },
                 EntityUpdates{
                     updates: entity_updates_map,
-                    changed_parameters: vec![]
+                    changed_parameters: vec![],
+                    excluded_handles: HashMap::new(),
                 }
             ));
 
@@ -107,7 +109,8 @@ pub fn load_raw_map_entities(
                 },
                 EntityUpdates{
                     updates: entity_updates_map,
-                    changed_parameters: vec![]
+                    changed_parameters: vec![],
+                    excluded_handles: HashMap::new(),
                 }
             ));
 
@@ -151,7 +154,8 @@ pub fn load_raw_map_entities(
                 },
                 EntityUpdates{
                     updates: entity_updates_map,
-                    changed_parameters: vec![]
+                    changed_parameters: vec![],
+                    excluded_handles:HashMap::new(),
                 }
             ));
 
@@ -206,7 +210,8 @@ pub fn load_raw_map_entities(
                 },
                 EntityUpdates{
                     updates: entity_updates_map,
-                    changed_parameters: vec![]
+                    changed_parameters: vec![],
+                    excluded_handles:HashMap::new(),
                 }
             )).id();
 

@@ -2,16 +2,17 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, human_character::{HumanCharacter}, persistent_player_data::PersistentPlayerData}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, human_character::{HumanCharacter}, persistent_player_data::PersistentPlayerData}, structs::network_messages::EntityUpdateData};
 
 pub fn human_pawn_update(
-    mut updated_humans: Query<(&HumanCharacter, &mut EntityUpdates, &PersistentPlayerData), Changed<HumanCharacter>>,
+    mut updated_humans: Query<(&HumanCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>), Changed<HumanCharacter>>,
 ) {
 
     for (
         human_character_component,
         mut entity_updates_component,
-        persistent_player_data_component
+        persistent_player_data_component,
+        connected_player_component_option
     ) in updated_humans.iter_mut() {
 
         
@@ -59,6 +60,15 @@ pub fn human_pawn_update(
             "bbcode".to_string(),
             EntityUpdateData::String("[color=white][center][b]".to_owned() + &persistent_player_data_component.character_name + "[/b][/center][/color]")
         );
+
+        match connected_player_component_option {
+            Some(connected_player_component) => {
+                entity_updates_component.excluded_handles.insert("Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(), vec![connected_player_component.handle]);
+            },
+            None => {},
+        }
+
+        
 
         entity_updates_component.updates.insert(
             "Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(),
