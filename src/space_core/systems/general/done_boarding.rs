@@ -30,9 +30,12 @@ pub fn done_boarding(
 
         info!("{} [{}] has boarded the spaceship.",persistent_player_data.character_name, connected_player.handle);
 
+        let assigned_spawn_transform = spawn_points.list[spawn_points.i].transform;
+
+        info!("Assigned spawn transform {:?}", assigned_spawn_transform.rotation.to_axis_angle());
 
         commands.entity(entity_id)
-        .insert_bundle((OnBoard,Spawning { transform: spawn_points.list[spawn_points.i].transform }))
+        .insert_bundle((OnBoard,Spawning { transform:assigned_spawn_transform }))
         .remove_bundle::<(SetupPhase, SoftPlayer)>();
 
         spawn_points.i+=1;
