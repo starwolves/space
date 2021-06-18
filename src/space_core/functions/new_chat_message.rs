@@ -1,4 +1,4 @@
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, info, warn}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 use const_format::concatcp;
 

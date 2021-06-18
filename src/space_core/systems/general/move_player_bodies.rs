@@ -172,8 +172,8 @@ pub fn move_player_bodies(
         
 
         //info!("Applying vector: {}", rapier_vector);
-
         rigid_body.set_linvel(rapier_vector, true);
+        
 
     }
 

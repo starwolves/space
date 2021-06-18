@@ -1,4 +1,4 @@
-use bevy::{math::Quat, prelude::Transform};
+use bevy::{math::Quat, prelude::{Transform}};
 
 use serde::{Deserialize};
 
@@ -25,14 +25,17 @@ impl SpawnPoint {
     pub fn new(raw : &SpawnPointRaw) -> SpawnPoint {
 
         let mut this_transform = string_transform_to_transform(&raw.transform);
-        this_transform.translation.y = 0.5;
+        
+        this_transform.translation.y = 0.05;
 
-        this_transform.rotation = Quat::from_xyzw(0.,0.,1.,0.);
+        this_transform.rotation = Quat::IDENTITY;
+
 
         SpawnPoint {
             point_type : raw.point_type.clone(),
             transform : this_transform
         }
+
 
     }
 }

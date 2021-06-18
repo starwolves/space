@@ -158,7 +158,8 @@ fn main() {
         inv_map : HashMap::new()
     };
 
-    let y_axis_rotations = PlayerYAxisRotations {
+    // Old but falls through floor
+    /*let y_axis_rotations = PlayerYAxisRotations {
         rotations: vec![
             //0deg
             Quaternion::new(0.,0.,0.,1.),
@@ -176,6 +177,28 @@ fn main() {
             Quaternion::new(0., 0.7071068, 0., -0.7071068),
             //315deg
             Quaternion::new(0., 0.3826834, 0., -0.9238795),
+        ]
+    };*/
+
+    //New but upside down
+    let y_axis_rotations = PlayerYAxisRotations {
+        rotations: vec![
+            //0deg
+            Quaternion::new(1.,0.,0.,0.),
+            //45deg
+            Quaternion::new(0.9238795, 0. , 0.3826834, 0.),
+            //90deg
+            Quaternion::new(0.7071068, 0., 0.7071068, 0.),
+            //135deg
+            Quaternion::new(0.3826834 ,0. , 0.9238795, 0.),
+            //180deg
+            Quaternion::new(0. ,0., 1., 0.),
+            //225deg
+            Quaternion::new(-0.3826834, 0., 0.9238795, 0.),
+            //270deg
+            Quaternion::new(-0.7071068, 0., 0.7071068, 0.),
+            //315deg
+            Quaternion::new(-0.9238795, 0., 0.3826834,0.),
         ]
     };
 

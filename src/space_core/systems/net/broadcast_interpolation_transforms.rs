@@ -16,7 +16,7 @@ pub fn broadcast_interpolation_transforms (
     handle_to_entity : Res<HandleToEntity>,
     mut query_interpolated_entities : Query<(Entity, &Sensable, &RigidBodyHandleComponent, &mut CachedBroadcastTransform), Without<StaticTransform>>,
 ) {
-
+    
     let current_time_stamp = time.time_since_startup().as_millis();
 
     let fixed_timestep = fixed_timesteps.get(INTERPOLATION_LABEL).unwrap().overstep_percentage();
@@ -61,11 +61,13 @@ pub fn broadcast_interpolation_transforms (
             rigid_body_velocity_rapier.z
         );
         let rigid_body_rotation = Quat::from_xyzw(
-            rigid_body_rotation_rapier.w,
             rigid_body_rotation_rapier.i,
             rigid_body_rotation_rapier.j,
-            rigid_body_rotation_rapier.k
+            rigid_body_rotation_rapier.k,
+            rigid_body_rotation_rapier.w,
         );
+
+        
 
         let this_transform = Transform {
             translation: rigid_body_translation,
@@ -76,6 +78,7 @@ pub fn broadcast_interpolation_transforms (
         if this_transform == cached_transform_component.transform{
             continue;
         }
+
 
         cached_transform_component.transform = this_transform;
 

@@ -37,6 +37,7 @@ pub fn load_entity(
             transform_hash_map.insert("transform".to_string(), transform_entity_update);
 
             hash_map.insert("rawTransform".to_string(), transform_hash_map);
+
         },
         false => {
             let root_map_option = hash_map.get_mut(&".".to_string());
@@ -56,7 +57,6 @@ pub fn load_entity(
             
         }
     }
-
     
 
     net_load_entity.send(
