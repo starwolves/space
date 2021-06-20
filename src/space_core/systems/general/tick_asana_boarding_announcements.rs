@@ -1,13 +1,12 @@
 use bevy::{core::Time, math::Vec3, prelude::{Entity, EventWriter, Query, Res, ResMut}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent};
+use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::radio::Radio, enums::space_jobs::SpaceJobsEnum, events::net::net_chat_message::NetChatMessage, functions::new_chat_message::{Communicator, new_chat_message}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, handle_to_entity::HandleToEntity}};
 
 pub fn tick_asana_boarding_announcements(
     mut net_new_chat_message_event : EventWriter<NetChatMessage>,
     handle_to_entity : Res<HandleToEntity>,
-    radio_pawns : Query<(Entity, &Radio, &RigidBodyHandleComponent)>,
-    rigid_bodies: Res<RigidBodySet>,
+    radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition)>,
     mut asana_boarding_announcements : ResMut<AsanaBoardingAnnouncements>,
     time: Res<Time>,
 ) {
@@ -34,7 +33,6 @@ pub fn tick_asana_boarding_announcements(
                 true,
                 &radio_pawns,
                 None,
-                &rigid_bodies
             );
 
             done_messages.insert(

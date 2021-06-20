@@ -28,3 +28,5 @@ opt-level = 3
 
 [profile.dev]
 opt-level = 0
+[profile.dev.package.bevy_rapier3d]
+opt-level = 3
