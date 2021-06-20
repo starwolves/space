@@ -1,5 +1,5 @@
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier3d::{physics::RigidBodyHandleComponent};
 use const_format::concatcp;
 
 use crate::space_core::{components::radio::{Radio, RadioChannel}, enums::space_jobs::SpaceJobsEnum, events::net::net_chat_message::NetChatMessage, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
@@ -85,30 +85,30 @@ const TALK_DATA_STANDARD_NORMAL_FAR_END : &str = "[/font]";
 const TALK_DATA_MACHINE_I_NEARBY_START : &str = "[i]";
 const TALK_DATA_MACHINE_I_NEARBY_END : &str = "[/i]";
 
-const TALK_DATA_MACHINE_I_FURTHER_START : &str = concatcp!("[font=",FURTHER_ITALIC_FONT,"]");
+const TALK_DATA_MACHINE_I_FURTHER_START : &str = concatcp!("[font=",FURTHER_MACHINE_ITALIC_FONT,"]");
 const TALK_DATA_MACHINE_I_FURTHER_END : &str = "[/font]";
 
-const TALK_DATA_MACHINE_I_FAR_START : &str = concatcp!("[font=",FAR_ITALIC_FONT,"]");
+const TALK_DATA_MACHINE_I_FAR_START : &str = concatcp!("[font=",FAR_MACHINE_ITALIC_FONT,"]");
 const TALK_DATA_MACHINE_I_FAR_END : &str = "[/font]";
 
 
 const TALK_DATA_MACHINE_B_NEARBY_START : &str = "[b]";
 const TALK_DATA_MACHINE_B_NEARBY_END : &str = "[/b]";
 
-const TALK_DATA_MACHINE_B_FURTHER_START : &str = concatcp!("[font=",FURTHER_BOLD_FONT,"]");
+const TALK_DATA_MACHINE_B_FURTHER_START : &str = concatcp!("[font=",FURTHER_MACHINE_BOLD_FONT,"]");
 const TALK_DATA_MACHINE_B_FURTHER_END : &str = "[/font]";
 
-const TALK_DATA_MACHINE_B_FAR_START : &str = concatcp!("[font=",FAR_BOLD_FONT,"]");
+const TALK_DATA_MACHINE_B_FAR_START : &str = concatcp!("[font=",FAR_MACHINE_BOLD_FONT,"]");
 const TALK_DATA_MACHINE_B_FAR_END : &str = "[/font]";
 
 
 const TALK_DATA_MACHINE_NORMAL_NEARBY_START : &str = "";
 const TALK_DATA_MACHINE_NORMAL_NEARBY_END : &str = "";
 
-const TALK_DATA_MACHINE_NORMAL_FURTHER_START : &str = concatcp!("[font=",FURTHER_NORMAL_FONT,"]");
+const TALK_DATA_MACHINE_NORMAL_FURTHER_START : &str = concatcp!("[font=",FURTHER_MACHINE_MEDIUM_FONT,"]");
 const TALK_DATA_MACHINE_NORMAL_FURTHER_END : &str = "[/font]";
 
-const TALK_DATA_MACHINE_NORMAL_FAR_START : &str = concatcp!("[font=",FAR_NORMAL_FONT,"]");
+const TALK_DATA_MACHINE_NORMAL_FAR_START : &str = concatcp!("[font=",FAR_MACHINE_MEDIUM_FONT,"]");
 const TALK_DATA_MACHINE_NORMAL_FAR_END : &str = "[/font]";
 
 
@@ -199,6 +199,7 @@ const TALK_SPACE_SECURITY_WORD : &str = "Security";
 const TALK_SPACE_SPECIALOPS_WORD : &str = "Spec-op";
 
 const JOB_SECURITY_WORD : &str = "Security";
+const JOB_CONTROL_WORD : &str = "Control";
 
 
 enum Distance {
@@ -318,7 +319,7 @@ pub fn new_chat_message(
     communicator : Communicator,
     exclusive_radio : bool,
     radio_pawns : &Query<(Entity, &Radio, &RigidBodyHandleComponent)>,
-    messenger_entity : &Entity,
+    messenger_entity_option : Option<&Entity>,
     rigid_bodies: &Res<RigidBodySet>,
 ) {
 
@@ -344,8 +345,9 @@ pub fn new_chat_message(
 
     }
 
-
-
+    if exclusive_radio == true {
+        exclusive_proximity = false;
+    }
 
     if message.len() == 0 {
         return;
@@ -416,11 +418,19 @@ pub fn new_chat_message(
 
         let talk_font_nearby_start;
         let talk_font_nearby_end;
+        
+        let talk_font_nearby_start_1;
+        let talk_font_nearby_end_1;
         let talk_style_variation_word;
         match communicator {
             Communicator::Standard => {
                 talk_font_nearby_start = TALK_DATA_STANDARD_B_NEARBY_START;
                 talk_font_nearby_end=TALK_DATA_STANDARD_B_NEARBY_END;
+
+                
+                talk_font_nearby_start_1 = TALK_TYPE_MACHINE_NEARBY_START;
+                talk_font_nearby_end_1=TALK_TYPE_MACHINE_NEARBY_END;
+                
                 match talk_style_variation {
                     TalkStyleVariant::Standard => {talk_style_variation_word=TALK_STYLE_STANDARD_STANDARD;},
                     TalkStyleVariant::Shouts => {talk_style_variation_word=TALK_STYLE_STANDARD_SHOUTS;},
@@ -431,6 +441,9 @@ pub fn new_chat_message(
             Communicator::Machine => {
                 talk_font_nearby_start = TALK_DATA_MACHINE_B_NEARBY_START;
                 talk_font_nearby_end=TALK_DATA_MACHINE_B_NEARBY_END;
+
+                talk_font_nearby_start_1 = TALK_TYPE_MACHINE_NEARBY_START;
+                talk_font_nearby_end_1=TALK_TYPE_MACHINE_NEARBY_END;
                 match talk_style_variation {
                     TalkStyleVariant::Standard => {talk_style_variation_word=TALK_STYLE_MACHINE_STANDARD;},
                     TalkStyleVariant::Shouts => {talk_style_variation_word=TALK_STYLE_MACHINE_SHOUTS;},
@@ -445,6 +458,7 @@ pub fn new_chat_message(
         let rank_word;
         match job {
             SpaceJobsEnum::Security => {rank_word = JOB_SECURITY_WORD;},
+            SpaceJobsEnum::Control => {rank_word = JOB_CONTROL_WORD;},
         }
 
 
@@ -466,11 +480,11 @@ pub fn new_chat_message(
 
             if matches!(talk_style_variation, TalkStyleVariant::Shouts) {
 
-                radio_message = radio_message + talk_font_nearby_start + "[font=" + NEARBY_SHOUT_FONT + "]\"" + &message + "\"[/font]" + talk_font_nearby_end;
+                radio_message = radio_message + talk_font_nearby_start_1 + "[font=" + NEARBY_SHOUT_FONT + "]\"" + &message + "\"[/font]" + talk_font_nearby_end_1;
 
             } else {
 
-                radio_message = radio_message + talk_font_nearby_start + "\"" + &message + "\"" + talk_font_nearby_end;
+                radio_message = radio_message + talk_font_nearby_start_1 + "\"" + &message + "\"" + talk_font_nearby_end_1;
 
             }
 
@@ -530,6 +544,7 @@ pub fn new_chat_message(
         let rank_word;
         match job {
             SpaceJobsEnum::Security => {rank_word = JOB_SECURITY_WORD;},
+            SpaceJobsEnum::Control => {rank_word = JOB_CONTROL_WORD;},
         }
 
         if is_emote == false {
@@ -795,22 +810,27 @@ pub fn new_chat_message(
 
         let mut has_radio_permission = false;
 
-        let messenger_components_result = radio_pawns.get(*messenger_entity);
+        match messenger_entity_option {
+            Some(entity) => {
+                let messenger_components_result = radio_pawns.get(*entity);
 
-        match messenger_components_result {
-            Ok((_entity, radio_component, _rigid_body_handle_component)) => {
+                match messenger_components_result {
+                    Ok((_entity, radio_component, _rigid_body_handle_component)) => {
 
-                if radio_component.speak_access.contains(&radio_channel) {
+                        if radio_component.speak_access.contains(&radio_channel) {
 
-                    has_radio_permission=true;
+                            has_radio_permission=true;
 
+                        }
+
+                    },
+                    Err(_rr) => {return;},
                 }
-
             },
-            Err(_rr) => {},
+            None => {
+                has_radio_permission=true;
+            },
         }
-
-        
 
         if has_radio_permission {
 

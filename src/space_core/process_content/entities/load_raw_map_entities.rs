@@ -1,5 +1,5 @@
-use bevy::{prelude::{BuildChildren, Commands}};
-use bevy_rapier3d::rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder};
+use bevy::{math::Vec3, prelude::{BuildChildren, Commands}};
+use bevy_rapier3d::prelude::{ColliderBundle, ColliderShape, ColliderType, RigidBodyBundle, RigidBodyType};
 
 use super::raw_entity::RawEntity;
 
@@ -124,12 +124,17 @@ pub fn load_raw_map_entities(
             let mut entity_updates_map = HashMap::new();
             entity_updates_map.insert(".".to_string(), HashMap::new());
 
-            let rigid_body_component = RigidBodyBuilder::new_static()
-            .ccd_enabled(true)
-            .position(transform_to_isometry(entity_transform));
+            let rigid_body_component = RigidBodyBundle {
+                body_type: RigidBodyType::Static,
+                position: transform_to_isometry(entity_transform).into(),
+                ..Default::default()
+            };
 
-            let collider_component = ColliderBuilder::cuboid(1.,0.2,1.)
-            .translation(0., 1., 1.);
+            let collider_component = ColliderBundle {
+                shape: ColliderShape::cuboid(1.,0.2,1.),
+                position: Vec3::new(0., 1., 1.).into(),
+                ..Default::default()
+            };
 
             commands.spawn_bundle((
                 rigid_body_component,
@@ -169,21 +174,34 @@ pub fn load_raw_map_entities(
             let mut entity_updates_map = HashMap::new();
             entity_updates_map.insert(".".to_string(), HashMap::new());
 
-            let window_rigid_body_component = RigidBodyBuilder::new_static()
-            .ccd_enabled(true)
-            .position(transform_to_isometry(entity_transform));
 
-            let window_collider_component = ColliderBuilder::cuboid(0.1,0.593,1.)
-            .translation(0., -1., 1.);
+            let window_rigid_body_component = RigidBodyBundle {
+                body_type: RigidBodyType::Static,
+                position: transform_to_isometry(entity_transform).into(),
+                ..Default::default()
+            };
 
 
-            let sensor_rigid_body_component = RigidBodyBuilder::new_static()
-            .ccd_enabled(true)
-            .position(transform_to_isometry(entity_transform));
 
-            let sensor_collider_component = ColliderBuilder::cuboid(1.,1.,1.)
-            .translation(0., -1., 1.)
-            .sensor(true);
+            let window_collider_component = ColliderBundle {
+                shape: ColliderShape::cuboid(0.1,0.593,1.),
+                position: Vec3::new(0., -1., 1.).into(),
+                ..Default::default()
+            };
+
+            let sensor_rigid_body_component = RigidBodyBundle {
+                body_type: RigidBodyType::Static,
+                position: transform_to_isometry(entity_transform).into(),
+                ..Default::default()
+            };
+
+
+            let sensor_collider_component = ColliderBundle {
+                collider_type : ColliderType::Sensor,
+                shape: ColliderShape::cuboid(1.,1.,1.),
+                position: Vec3::new(0., -1., 1.).into(),
+                ..Default::default()
+            };
 
             
 

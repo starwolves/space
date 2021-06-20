@@ -4,7 +4,7 @@ use bevy::{app::CoreStage::{PreUpdate, Update, PostUpdate}, core::FixedTimestep,
 
 use bevy_rapier3d::{na::Quaternion, physics::{
         RapierPhysicsPlugin
-    }};
+    }, prelude::NoUserData};
 
 use bevy_networking_turbulence::{NetworkingPlugin};
 
@@ -61,7 +61,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{build_graphics::BuildGraphics, input_chat_message::InputChatMessage, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
+use crate::space_core::{events::{general::{build_graphics::BuildGraphics, input_chat_message::InputChatMessage, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, human_pawn_update::human_pawn_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -158,29 +158,6 @@ fn main() {
         inv_map : HashMap::new()
     };
 
-    // Old but falls through floor
-    /*let y_axis_rotations = PlayerYAxisRotations {
-        rotations: vec![
-            //0deg
-            Quaternion::new(0.,0.,0.,1.),
-            //45deg
-            Quaternion::new(0., 0.3826834 , 0., 0.9238795),
-            //90deg
-            Quaternion::new(0., 0.7071068, 0., 0.7071068),
-            //135deg
-            Quaternion::new(0. ,0.9238795 , 0., 0.3826834),
-            //180deg
-            Quaternion::new(0. ,1., 0., 0.),
-            //225deg
-            Quaternion::new(0., 0.9238795, 0., -0.3826834),
-            //270deg
-            Quaternion::new(0., 0.7071068, 0., -0.7071068),
-            //315deg
-            Quaternion::new(0., 0.3826834, 0., -0.9238795),
-        ]
-    };*/
-
-    //New but upside down
     let y_axis_rotations = PlayerYAxisRotations {
         rotations: vec![
             //0deg
@@ -205,12 +182,16 @@ fn main() {
     let sfx_auto_destroy_timers = SfxAutoDestroyTimers {
         timers : HashMap::new()
     };
+
+    let asana_boarding_announcements = AsanaBoardingAnnouncements {
+        announcements : HashMap::new()
+    };
     
     App::build()
         .add_plugins(MinimalPlugins)
         .add_plugin(LogPlugin::default())
         .add_plugin(TransformPlugin::default())
-        .add_plugin(RapierPhysicsPlugin)
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(NetworkingPlugin::default())
         .add_plugin(DiagnosticsPlugin::default())
         //.insert_resource(ReportExecutionOrderAmbiguities)
@@ -226,6 +207,7 @@ fn main() {
         .insert_resource(spawn_points)
         .insert_resource(y_axis_rotations)
         .insert_resource(sfx_auto_destroy_timers)
+        .insert_resource(asana_boarding_announcements)
         .add_stage_after(
             PostUpdate,
             SpaceStages::TransformInterpolation,
@@ -303,6 +285,7 @@ fn main() {
         .add_system(air_lock_events.system())
         .add_system(counter_window_events.system())
         .add_system(tick_timers.system())
+        .add_system(tick_asana_boarding_announcements.system())
         .add_system_to_stage(
             PreUpdate, 
             handle_network_events.system()

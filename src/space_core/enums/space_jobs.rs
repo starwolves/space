@@ -1,6 +1,7 @@
 #[derive(Copy, Clone)]
 pub enum SpaceJobsEnum {
 
-    Security
+    Security,
+    Control
 
 }

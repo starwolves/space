@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier3d::{physics::RigidBodyHandleComponent};
 
-use crate::space_core::{components::{pawn::Pawn, radio::Radio, sensable::Sensable}, events::{general::input_chat_message::InputChatMessage, net::net_chat_message::NetChatMessage}, functions::new_chat_message::{Communicator, new_chat_message}, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::{pawn::Pawn, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::net_chat_message::NetChatMessage}, functions::new_chat_message::{Communicator, new_chat_message}, resources::handle_to_entity::HandleToEntity};
 
 pub fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
@@ -71,7 +71,7 @@ pub fn chat_message_input_event(
                     Communicator::Standard,
                     false,
                     &radio_pawns,
-                    &player_pawn_entity,
+                    Some(&player_pawn_entity),
                     &rigid_bodies
                 );
 
