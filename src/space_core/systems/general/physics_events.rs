@@ -1,5 +1,5 @@
 use bevy::prelude::{Entity, EventWriter, Query, Res};
-use bevy_rapier3d::{physics::{EventQueue, ColliderHandleComponent }, rapier::geometry::ColliderHandle};
+use bevy_rapier3d::{physics::{ColliderHandleComponent }, rapier::geometry::ColliderHandle};
 
 use crate::space_core::{components::entity_data::{EntityData, EntityGroup}, events::physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}};
 

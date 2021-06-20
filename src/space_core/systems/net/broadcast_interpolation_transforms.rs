@@ -1,6 +1,6 @@
 use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, Transform, Without, warn}};
 use bevy_networking_turbulence::NetworkResource;
-use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier3d::{physics::RigidBodyHandleComponent};
 
 use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 

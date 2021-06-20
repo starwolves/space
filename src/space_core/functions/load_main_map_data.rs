@@ -1,5 +1,5 @@
 use bevy::prelude::{Commands, Res};
-use bevy_rapier3d::rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder};
+use bevy_rapier3d::prelude::{ColliderBundle, ColliderShape, RigidBodyBundle, RigidBodyType};
 
 use crate::space_core::{resources::all_ordered_cells::AllOrderedCells, systems::startup::launch_server::CellData};
 
@@ -17,15 +17,33 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
         if all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize] == "securityCounter1" {
 
             commands.spawn().insert_bundle((
-                RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
-                ColliderBuilder::cuboid(1., 0.5, 0.5),
+                //RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
+                RigidBodyBundle {
+                    body_type: RigidBodyType::Static,
+                    position: world_position.into(),
+                    ..Default::default()
+                },
+                //ColliderBuilder::cuboid(1., 0.5, 0.5),
+                ColliderBundle {
+                    shape: ColliderShape::cuboid(1., 0.5, 0.5),
+                    ..Default::default()
+                }
             ));
 
         } else {
 
             commands.spawn().insert_bundle((
-                RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
-                ColliderBuilder::cuboid(1., 1., 1.),
+                //RigidBodyBuilder::new_static().translation(world_position.x, world_position.y, world_position.z),
+                RigidBodyBundle {
+                    body_type: RigidBodyType::Static,
+                    position: world_position.into(),
+                    ..Default::default()
+                },
+                //ColliderBuilder::cuboid(1., 1., 1.),
+                ColliderBundle {
+                    shape: ColliderShape::cuboid(1., 1., 1.),
+                    ..Default::default()
+                }
             ));
 
         }

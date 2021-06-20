@@ -1,5 +1,5 @@
 use bevy::{core::Timer, prelude::{Commands, Entity, EventReader, Query, ResMut}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier3d::{physics::RigidBodyHandleComponent};
 
 use crate::space_core::{bundles::{counter_window_closed_sfx::{CounterWindowClosedSfxBundle, PLAY_BACK_DURATION as CLOSED_PLAY_BACK_DURATION}, counter_window_denied_sfx::{CounterWindowDeniedSfxBundle, PLAY_BACK_DURATION as DENIED_PLAY_BACK_DURATION}, counter_window_open_sfx::{CounterWindowOpenSfxBundle, PLAY_BACK_DURATION as OPEN_PLAY_BACK_DURATION}}, components::{counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer, counter_window_sensor::CounterWindowSensor, entity_data::EntityGroup, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::counter_window_sensor_collision::CounterWindowSensorCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
 
