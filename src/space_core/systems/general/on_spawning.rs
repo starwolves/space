@@ -1,26 +1,26 @@
-use bevy::{math::{Vec2, Vec3}, prelude::{Added, Commands, Entity, Query}};
-use bevy_rapier3d::prelude::{ColliderBundle, ColliderShape, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
+use bevy::{math::{Vec2, Vec3}, prelude::{Added, Commands, Entity, EventWriter, Query, ResMut}};
+use bevy_rapier3d::prelude::{ColliderBundle, ColliderMassProps, ColliderShape, ColliderType, MassProperties, RigidBodyBundle, RigidBodyCcd, RigidBodyMassPropsFlags, RigidBodyType};
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, functions::transform_to_isometry::transform_to_isometry};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::transform_to_isometry::transform_to_isometry, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
 
 
 pub fn on_spawning(
-    query : Query<(Entity, &Spawning, &PersistentPlayerData),Added<Spawning>>,
-    mut commands : Commands
+    mut net_on_new_player_connection : EventWriter<NetOnSpawning>,
+    query : Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData),Added<Spawning>>,
+    
+    mut commands : Commands,
+    mut handle_to_entity : ResMut<HandleToEntity>,
+    
 ) {
     
     for (
         entity_id,
         spawning_component,
+        connected_player_component,
         persistent_player_data_component,
     ) in query.iter() {
-
-        /*let rigid_body_component = RigidBodyBuilder::new_dynamic()
-        .lock_rotations()
-        .ccd_enabled(true)
-        .position(transform_to_isometry(spawning_component.transform));*/
 
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic,
@@ -29,29 +29,36 @@ pub fn on_spawning(
                 ccd_enabled: true,
                 ..Default::default()
             },
+            mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED_X | RigidBodyMassPropsFlags::ROTATION_LOCKED_Y| RigidBodyMassPropsFlags::ROTATION_LOCKED_Z).into(),
             ..Default::default()
         };
 
-        /*let collider_component = ColliderBuilder::capsule_y(0.9, 0.25)
-        .translation(0., 1.1, 0.);*/
-
         let collider_component = ColliderBundle {
             //shape: ColliderShape::capsule(0.0, 0.9, 0.25),
-            shape: ColliderShape::capsule(
+            /*shape: ColliderShape::capsule(
                 Vec3::new(0.0,0.0,0.0).into(),
                 Vec3::new(0.0,0.9,0.0).into(), 
                 0.25
-            ),
+            ),*/
+            shape: ColliderShape::cylinder(0.9, 0.25),
             position: Vec3::new(0., 1.1, 0.).into(),
+            collider_type: ColliderType::Solid,
+            mass_properties: ColliderMassProps::Density(1.0),
             ..Default::default()
         };
 
         let mut entity_updates_map = HashMap::new();
         entity_updates_map.insert(".".to_string(), HashMap::new());
 
-        commands.entity(entity_id).insert_bundle((
-            rigid_body_component,
+        let new_entity = commands.spawn_bundle(rigid_body_component).insert_bundle((
             collider_component,
+            ConnectedPlayer {
+                handle: connected_player_component.handle,
+                authid: connected_player_component.authid,
+            },
+            PersistentPlayerData {
+                character_name: persistent_player_data_component.character_name.clone(),
+            },
             Sensable{
                 is_audible : false,
                 is_light:false,
@@ -92,9 +99,24 @@ pub fn on_spawning(
                 listen_access: vec![RadioChannel::Common, RadioChannel::Security],
                 speak_access: vec![RadioChannel::Common, RadioChannel::Security],
             }
-        )).remove::<Spawning>();
+        )).id();
 
+
+        let handle = *handle_to_entity.inv_map.get(&entity_id.id()).unwrap();
+
+        handle_to_entity.inv_map.remove(&entity_id.id());
+        handle_to_entity.inv_map.insert(new_entity.id(), handle);
+
+        handle_to_entity.map.remove(&handle);
+        handle_to_entity.map.insert(handle, new_entity);
+
+        commands.entity(entity_id).despawn();
         
+        net_on_new_player_connection.send(NetOnSpawning{
+            handle: handle,
+            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(new_entity.id()))
+        });
+
 
     }
 

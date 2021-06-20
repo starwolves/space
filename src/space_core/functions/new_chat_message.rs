@@ -1,5 +1,5 @@
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent};
+use bevy_rapier3d::{prelude::RigidBodyPosition};
 use const_format::concatcp;
 
 use crate::space_core::{components::radio::{Radio, RadioChannel}, enums::space_jobs::SpaceJobsEnum, events::net::net_chat_message::NetChatMessage, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
@@ -318,9 +318,8 @@ pub fn new_chat_message(
     mut raw_message : String,
     communicator : Communicator,
     exclusive_radio : bool,
-    radio_pawns : &Query<(Entity, &Radio, &RigidBodyHandleComponent)>,
+    radio_pawns : &Query<(Entity, &Radio, &RigidBodyPosition)>,
     messenger_entity_option : Option<&Entity>,
-    rigid_bodies: &Res<RigidBodySet>,
 ) {
 
     raw_message = escape_bb(raw_message, true);
@@ -882,60 +881,55 @@ pub fn new_chat_message(
             let sensed_by_entity_components_result = radio_pawns.get(*entity);
 
             match sensed_by_entity_components_result {
-                Ok((entity, _radio_component, rigid_body_handle_component)) => {
+                Ok((entity, _radio_component, rigid_body_position)) => {
                     let listener_handle_result = handle_to_entity.inv_map.get(&entity.id());
 
                     match listener_handle_result {
                         Some(listener_handle) => {
-                            let listener_rigid_body_option = rigid_bodies.get(rigid_body_handle_component.handle());
 
-                            match listener_rigid_body_option {
-                                Some(listener_rigid_body) => {
-                                    let listener_rigid_body_transform = listener_rigid_body.position();
-                                    let listener_position = Vec3::new(
-                                        listener_rigid_body_transform.translation.x,
-                                        listener_rigid_body_transform.translation.y,
-                                        listener_rigid_body_transform.translation.z
-                                    );
+                    
+                            let listener_rigid_body_transform = rigid_body_position.position;
+                            let listener_position = Vec3::new(
+                                listener_rigid_body_transform.translation.x,
+                                listener_rigid_body_transform.translation.y,
+                                listener_rigid_body_transform.translation.z
+                            );
 
-                                    let listener_distance = position.distance(listener_position);
+                            let listener_distance = position.distance(listener_position);
 
-                                    let distance;
+                            let distance;
 
-                                    if listener_distance > 24. {
-                                        distance = Distance::Far;
-                                    } else if listener_distance > 14. {
-                                        distance = Distance::Further;
-                                    } else {
-                                        distance = Distance::Nearby;
-                                    }
+                            if listener_distance > 24. {
+                                distance = Distance::Far;
+                            } else if listener_distance > 14. {
+                                distance = Distance::Further;
+                            } else {
+                                distance = Distance::Nearby;
+                            }
 
-                                    match distance {
-                                        Distance::Nearby => {
-                                            net_new_chat_message_event.send(NetChatMessage{
-                                                handle: *listener_handle,
-                                                message: ReliableServerMessage::ChatMessage(proximity_message_nearby.clone()),
-                                            });
-                                        },
-                                        Distance::Further => {
-                                            net_new_chat_message_event.send(NetChatMessage{
-                                                handle: *listener_handle,
-                                                message: ReliableServerMessage::ChatMessage(proximity_message_further.clone()),
-                                            });
-                                        },
-                                        Distance::Far => {
-                                            net_new_chat_message_event.send(NetChatMessage{
-                                                handle: *listener_handle,
-                                                message: ReliableServerMessage::ChatMessage(proximity_message_far.clone()),
-                                            });
-                                        },
-                                    }
-
+                            match distance {
+                                Distance::Nearby => {
+                                    net_new_chat_message_event.send(NetChatMessage{
+                                        handle: *listener_handle,
+                                        message: ReliableServerMessage::ChatMessage(proximity_message_nearby.clone()),
+                                    });
                                 },
-                                None => {
-                                    warn!("Couldn't find rigid body of listener entity for a proximity message.");
+                                Distance::Further => {
+                                    net_new_chat_message_event.send(NetChatMessage{
+                                        handle: *listener_handle,
+                                        message: ReliableServerMessage::ChatMessage(proximity_message_further.clone()),
+                                    });
+                                },
+                                Distance::Far => {
+                                    net_new_chat_message_event.send(NetChatMessage{
+                                        handle: *listener_handle,
+                                        message: ReliableServerMessage::ChatMessage(proximity_message_far.clone()),
+                                    });
                                 },
                             }
+
+                                
+                            
 
                         },
                         None => {

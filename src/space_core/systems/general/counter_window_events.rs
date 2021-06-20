@@ -1,14 +1,13 @@
 use bevy::{core::Timer, prelude::{Commands, Entity, EventReader, Query, ResMut}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent};
+use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{bundles::{counter_window_closed_sfx::{CounterWindowClosedSfxBundle, PLAY_BACK_DURATION as CLOSED_PLAY_BACK_DURATION}, counter_window_denied_sfx::{CounterWindowDeniedSfxBundle, PLAY_BACK_DURATION as DENIED_PLAY_BACK_DURATION}, counter_window_open_sfx::{CounterWindowOpenSfxBundle, PLAY_BACK_DURATION as OPEN_PLAY_BACK_DURATION}}, components::{counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer, counter_window_sensor::CounterWindowSensor, entity_data::EntityGroup, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::counter_window_sensor_collision::CounterWindowSensorCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
 
 pub fn counter_window_events(
-    mut rigid_bodies: ResMut<RigidBodySet>,
     mut counter_window_sensor_collisions : EventReader<CounterWindowSensorCollision>,
     mut counter_window_query : Query<(
         &mut CounterWindow,
-        &RigidBodyHandleComponent,
+        &mut RigidBodyPosition,
         &StaticTransform,
         Option<&mut CounterWindowOpenTimer>,
         Option<&mut CounterWindowDeniedTimer>,
@@ -24,7 +23,7 @@ pub fn counter_window_events(
     
     for (
         mut counter_window_component,
-        rigid_body_handle_component,
+        mut rigid_body_position_component,
         static_transform_component,
         counter_window_open_timer_option,
         counter_window_denied_timer_option,
@@ -58,14 +57,12 @@ pub fn counter_window_events(
                     timer_component.timer.pause();
                     timer_component.timer.reset();
 
-                    let air_lock_rigid_body = rigid_bodies.get_mut(rigid_body_handle_component.handle())
-                    .expect("counter_window_events.rs rigidbody handle was not present in RigidBodySet resource. (0)");
 
-                    let mut counter_window_rigid_body_position = *air_lock_rigid_body.position();
+                    let mut counter_window_rigid_body_position = rigid_body_position_component.position;
 
                     counter_window_rigid_body_position.translation.y -= 2.;
 
-                    air_lock_rigid_body.set_position(counter_window_rigid_body_position, true);
+                    rigid_body_position_component.position = counter_window_rigid_body_position;
 
                     counter_window_component.access_lights = CounterWindowAccessLightsStatus::Neutral;
 
@@ -144,13 +141,13 @@ pub fn counter_window_events(
         let counter_window_components_result = counter_window_query.get_mut(counter_window_sensor_component.parent);
 
         let mut counter_window_component;
-        let counter_window_rigid_body_handle_component;
+        let mut counter_window_rigid_body_position_component;
         let counter_window_static_transform_component;
 
         match counter_window_components_result {
             Ok(result) => {
                 counter_window_component = result.0;
-                counter_window_rigid_body_handle_component = result.1;
+                counter_window_rigid_body_position_component = result.1;
                 counter_window_static_transform_component = result.2;
             }
             Err(_err) => {continue;}
@@ -172,14 +169,12 @@ pub fn counter_window_events(
             counter_window_component.status = CounterWindowStatus::Open;
             counter_window_component.access_lights = CounterWindowAccessLightsStatus::Granted;
 
-            let counter_window_rigid_body = rigid_bodies.get_mut(counter_window_rigid_body_handle_component.handle())
-            .expect("counter_window_events.rs rigidbody handle was not present in RigidBodySet resource. (1)");
 
-            let mut counter_window_rigid_body_position = *counter_window_rigid_body.position();
+            let mut counter_window_rigid_body_position = counter_window_rigid_body_position_component.position;
 
             counter_window_rigid_body_position.translation.y += 2.;
 
-            counter_window_rigid_body.set_position(counter_window_rigid_body_position, true);
+            counter_window_rigid_body_position_component.position = counter_window_rigid_body_position;
 
             commands.entity(counter_window_sensor_component.parent).insert(CounterWindowOpenTimer {
                 timer : Timer::from_seconds(5.0, false)

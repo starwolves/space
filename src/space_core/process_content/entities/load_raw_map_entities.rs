@@ -136,8 +136,7 @@ pub fn load_raw_map_entities(
                 ..Default::default()
             };
 
-            commands.spawn_bundle((
-                rigid_body_component,
+            commands.spawn_bundle(rigid_body_component).insert_bundle((
                 collider_component,
                 static_transform_component,
                 Sensable{
@@ -205,8 +204,7 @@ pub fn load_raw_map_entities(
 
             
 
-            let parent = commands.spawn_bundle((
-                window_rigid_body_component,
+            let parent = commands.spawn_bundle(window_rigid_body_component).insert_bundle((
                 window_collider_component,
                 static_transform_component,
                 Sensable{
@@ -234,12 +232,11 @@ pub fn load_raw_map_entities(
             )).id();
 
 
-            let child = commands.spawn_bundle((
+            let child = commands.spawn_bundle(sensor_rigid_body_component).insert_bundle((
                 CounterWindowSensor {
                     parent : parent
                 },
                 static_transform_component,
-                sensor_rigid_body_component,
                 sensor_collider_component,
                 EntityData{
                     entity_class: "child".to_string(),

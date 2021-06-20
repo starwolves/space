@@ -1,5 +1,5 @@
 use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent};
+use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::{pawn::Pawn, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::net_chat_message::NetChatMessage}, functions::new_chat_message::{Communicator, new_chat_message}, resources::handle_to_entity::HandleToEntity};
 
@@ -8,11 +8,10 @@ pub fn chat_message_input_event(
     handle_to_entity : Res<HandleToEntity>,
     player_pawns : Query<(
         &Pawn,
-        &RigidBodyHandleComponent,
+        &RigidBodyPosition,
         &Sensable
     )>,
-    radio_pawns : Query<(Entity, &Radio, &RigidBodyHandleComponent)>,
-    rigid_bodies: Res<RigidBodySet>,
+    radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition)>,
     mut net_new_chat_message_event : EventWriter<NetChatMessage>
 ) {
 
@@ -39,25 +38,15 @@ pub fn chat_message_input_event(
         match player_components_result {
             Ok(player_components) => {
 
-                let player_rigid_body_handle_component = player_components.1;
                 let player_position;
-
-                let player_position_option = rigid_bodies.get(player_rigid_body_handle_component.handle());
-
-                match player_position_option {
-                    Some(rigid_body) => {
-                        let translation = rigid_body.position().translation;
-                        player_position = Vec3::new(
-                            translation.x,
-                            translation.y,
-                            translation.z
-                        );
-                    },
-                    None => {
-                        warn!("Couldn't find player pawn rigid_body via rigid_bodies.get()");
-                        continue;
-                    },
-                }
+                
+                let translation = player_components.1.position.translation;
+                player_position = Vec3::new(
+                    translation.x,
+                    translation.y,
+                    translation.z
+                );
+                    
 
                 new_chat_message(
                     &mut net_new_chat_message_event,
@@ -71,8 +60,7 @@ pub fn chat_message_input_event(
                     Communicator::Standard,
                     false,
                     &radio_pawns,
-                    Some(&player_pawn_entity),
-                    &rigid_bodies
+                    Some(&player_pawn_entity)
                 );
 
             },

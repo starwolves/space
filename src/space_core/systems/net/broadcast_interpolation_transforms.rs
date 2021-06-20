@@ -1,6 +1,6 @@
 use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Query, Res, ResMut, Transform, Without, warn}};
 use bevy_networking_turbulence::NetworkResource;
-use bevy_rapier3d::{physics::RigidBodyHandleComponent};
+use bevy_rapier3d::{prelude::{RigidBodyPosition, RigidBodyVelocity}};
 
 use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 
@@ -12,9 +12,8 @@ pub fn broadcast_interpolation_transforms (
     fixed_timesteps: Res<FixedTimesteps>,
     
     mut net: ResMut<NetworkResource>,
-    rigid_bodies: Res<RigidBodySet>,
     handle_to_entity : Res<HandleToEntity>,
-    mut query_interpolated_entities : Query<(Entity, &Sensable, &RigidBodyHandleComponent, &mut CachedBroadcastTransform), Without<StaticTransform>>,
+    mut query_interpolated_entities : Query<(Entity, &Sensable, &RigidBodyPosition, &RigidBodyVelocity, &mut CachedBroadcastTransform), Without<StaticTransform>>,
 ) {
     
     let current_time_stamp = time.time_since_startup().as_millis();
@@ -34,19 +33,18 @@ pub fn broadcast_interpolation_transforms (
     for (
         entity,
         visible_component,
-        rigid_body_handle_component,
+        rigid_body_position_component,
+        rigid_body_velocity_component,
         mut cached_transform_component
     ) in query_interpolated_entities.iter_mut() {
 
         let entity_id = entity.id();
 
-        let rigid_body = rigid_bodies.get(rigid_body_handle_component.handle())
-        .expect("visible_checker.rs rigidbody handle was not present in RigidBodySet resource.");
 
-        let rigid_body_position = rigid_body.position();
+        let rigid_body_position = rigid_body_position_component.position;
 
         let rigid_body_translation_rapier = rigid_body_position.translation;
-        let rigid_body_velocity_rapier = rigid_body.linvel();
+        let rigid_body_velocity_rapier = rigid_body_velocity_component.linvel;
         let rigid_body_rotation_rapier = rigid_body_position.rotation;
 
         let rigid_body_translation = Vec3::new(

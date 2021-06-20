@@ -1,15 +1,14 @@
 
 use bevy::{core::Timer, prelude::{Commands, Entity, EventReader, Query, ResMut}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent};
+use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{bundles::{air_lock_closed_sfx::{AirLockClosedSfxBundle, PLAY_BACK_DURATION as CLOSED_PLAY_BACK_DURATION}, air_lock_denied_sfx::{AirLockDeniedSfxBundle, PLAY_BACK_DURATION as DENIED_PLAY_BACK_DURATION}, air_lock_open_sfx::{AirLockOpenSfxBundle, PLAY_BACK_DURATION as OPEN_PLAY_BACK_DURATION}}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, entity_data::{EntityGroup}, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::air_lock_collision::AirLockCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
 
 pub fn air_lock_events(
-    mut rigid_bodies: ResMut<RigidBodySet>,
     mut air_lock_collisions : EventReader<AirLockCollision>,
     mut air_lock_query : Query<(
         &mut AirLock,
-        &RigidBodyHandleComponent,
+        &mut RigidBodyPosition,
         &StaticTransform,
         Option<&mut AirLockOpenTimer>,
         Option<&mut AirLockDeniedTimer>,
@@ -23,7 +22,7 @@ pub fn air_lock_events(
 
     for (
         mut air_lock_component,
-        rigid_body_handle_component,
+        mut rigid_body_position_component,
         static_transform_component,
         timer_open_component_option,
         timer_denied_component_option,
@@ -57,14 +56,11 @@ pub fn air_lock_events(
                     timer_component.timer.pause();
                     timer_component.timer.reset();
 
-                    let air_lock_rigid_body = rigid_bodies.get_mut(rigid_body_handle_component.handle())
-                    .expect("air_lock_events.rs rigidbody handle was not present in RigidBodySet resource. (0)");
-
-                    let mut air_lock_rigid_body_position = *air_lock_rigid_body.position();
+                    let mut air_lock_rigid_body_position = rigid_body_position_component.position;
 
                     air_lock_rigid_body_position.translation.y -= 2.;
 
-                    air_lock_rigid_body.set_position(air_lock_rigid_body_position, true);
+                    rigid_body_position_component.position = air_lock_rigid_body_position;
 
                     air_lock_component.access_lights = AccessLightsStatus::Neutral;
 
@@ -138,13 +134,13 @@ pub fn air_lock_events(
         let air_lock_components_result = air_lock_query.get_mut(air_lock_entity);
 
         let mut air_lock_component;
-        let air_lock_rigid_body_handle_component;
+        let mut air_lock_rigid_body_position_component;
         let air_lock_static_transform_component;
 
         match air_lock_components_result {
             Ok(result) => {
                 air_lock_component = result.0;
-                air_lock_rigid_body_handle_component = result.1;
+                air_lock_rigid_body_position_component = result.1;
                 air_lock_static_transform_component = result.2;
             }
             Err(_err) => {continue;}
@@ -167,14 +163,12 @@ pub fn air_lock_events(
             air_lock_component.status = AirLockStatus::Open;
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
-            let air_lock_rigid_body = rigid_bodies.get_mut(air_lock_rigid_body_handle_component.handle())
-            .expect("air_lock_events.rs rigidbody handle was not present in RigidBodySet resource. (1)");
 
-            let mut air_lock_rigid_body_position = *air_lock_rigid_body.position();
+            let mut air_lock_rigid_body_position = air_lock_rigid_body_position_component.position;
 
             air_lock_rigid_body_position.translation.y += 2.;
 
-            air_lock_rigid_body.set_position(air_lock_rigid_body_position, true);
+            air_lock_rigid_body_position_component.position = air_lock_rigid_body_position;
 
             commands.entity(air_lock_entity).insert(AirLockOpenTimer {
                 timer : Timer::from_seconds(5.0, false)

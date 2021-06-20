@@ -23,8 +23,6 @@ pub fn done_boarding(
 
         let assigned_spawn_transform = spawn_points.list[spawn_points.i].transform;
 
-        info!("Assigned spawn transform {:?}", assigned_spawn_transform.rotation.to_axis_angle());
-
         commands.entity(entity_id)
         .insert_bundle((OnBoard,Spawning { transform:assigned_spawn_transform }))
         .remove_bundle::<(SetupPhase, SoftPlayer)>();

@@ -1,10 +1,11 @@
-use bevy::prelude::{Entity, EventWriter, Query, Res};
-use bevy_rapier3d::{physics::{ColliderHandleComponent }, rapier::geometry::ColliderHandle};
+use bevy::prelude::{Entity, EventReader, EventWriter, Query};
+use bevy_rapier3d::{physics::{ColliderHandleComponent }, prelude::{ContactEvent, IntersectionEvent}, rapier::geometry::ColliderHandle};
 
 use crate::space_core::{components::entity_data::{EntityData, EntityGroup}, events::physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}};
 
 pub fn physics_events(
-    physics_events: Res<EventQueue>,
+    mut intersection_events : EventReader<IntersectionEvent>,
+    mut contact_events: EventReader<ContactEvent>,
     interesting_entities_query : Query<(
         Entity,
         &ColliderHandleComponent,
@@ -14,7 +15,7 @@ pub fn physics_events(
     mut counter_window_collision_event : EventWriter<CounterWindowSensorCollision>
 ) {
 
-    while let Ok(intersection_event) = physics_events.intersection_events.pop() {
+    for  intersection_event in intersection_events.iter() {
         // This fires with sensor collider types.
 
         let collider1_handle = intersection_event.collider1;
@@ -34,7 +35,7 @@ pub fn physics_events(
 
     }
 
-    while let Ok(contact_event) = physics_events.contact_events.pop() {
+    for contact_event in contact_events.iter() {
 
         let mut collision_started = false;
         let collider1_handle ;
@@ -54,8 +55,8 @@ pub fn physics_events(
         }
 
         process_physics_event(
-            collider1_handle,
-            collider2_handle,
+            *collider1_handle,
+            *collider2_handle,
             collision_started,
             &interesting_entities_query,
             &mut air_lock_collision_event,

@@ -1,6 +1,6 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform}};
-use bevy_rapier3d::{physics::RigidBodyHandleComponent};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Transform}};
+use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}};
 
@@ -9,26 +9,22 @@ pub fn visible_checker(
         Entity,
         &mut Sensable,
         Option<&StaticTransform>,
-        Option<&RigidBodyHandleComponent>,
+        Option<&RigidBodyPosition>,
         &EntityData,
         &EntityUpdates
     )>,
-    query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyHandleComponent, &ConnectedPlayer)>,
-    rigid_bodies: Res<RigidBodySet>,
+    query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyPosition, &ConnectedPlayer)>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,
 ) {
-
+    
     for (
         entity,
         _visible_checker_component,
-        visible_checker_rigid_body_handle_component,
+        visible_checker_rigid_body_position_component,
         visible_checker_connected_player_component
     ) in query_visible_checker_entities_rigid.iter() {
-
-        let visible_checker_translation = rigid_bodies.get(visible_checker_rigid_body_handle_component.handle())
-        .expect("visible_checker.rs rigidbody handle was not present in RigidBodySet resource.")
-        .position().translation;
+        let visible_checker_translation = visible_checker_rigid_body_position_component.position.translation;
 
         let visible_checker_translation_vec = Vec3::new(
             visible_checker_translation.x,
@@ -41,7 +37,7 @@ pub fn visible_checker(
             visible_entity_id,
             mut visible_component,
             static_transform_component_option,
-            rigid_body_handle_component_option,
+            rigid_body_position_component_option,
             entity_data_component,
             entity_updates_component
         ) in query_visible_entities.iter_mut() {
@@ -55,17 +51,13 @@ pub fn visible_checker(
                     visible_entity_transform = static_transform.transform;
                 }
                 None => {
-                    is_interpolated=true;
-                    let visible_entity_isometry = 
-                    rigid_bodies.get(
-                        rigid_body_handle_component_option
-                        .expect("visible_checker.rs tried to check an entity that does not have any transform components.")
-                        .handle()
-                    )
-                    .expect("visible_checker.rs rigidbody handle was not present in RigidBodySet resource (1)")
-                    .position();
 
-                    visible_entity_transform = isometry_to_transform(*visible_entity_isometry);
+                    
+
+                    is_interpolated=true;
+                    let visible_entity_isometry =  rigid_body_position_component_option.unwrap().position;
+
+                    visible_entity_transform = isometry_to_transform(visible_entity_isometry);
 
                 }
             }
@@ -144,7 +136,7 @@ fn visible_check(
         if visible_component.sensed_by.contains(&visible_checker_entity_id) == false {
         
             visible_component.sensed_by.push(visible_checker_entity_id);
-    
+            
             load_entity(
                 &visible_entity_updates_component.updates,
                 visible_entity_transform,
