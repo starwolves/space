@@ -1,5 +1,5 @@
 use bevy::{math::{Vec2, Vec3}, prelude::{Added, Commands, Entity, EventWriter, Query, ResMut}};
-use bevy_rapier3d::prelude::{ColliderBundle, ColliderMassProps, ColliderShape, ColliderType, MassProperties, RigidBodyBundle, RigidBodyCcd, RigidBodyMassPropsFlags, RigidBodyType};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType,  RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
 use std::collections::HashMap;
 
@@ -22,36 +22,50 @@ pub fn on_spawning(
         persistent_player_data_component,
     ) in query.iter() {
 
+        //let mut adjusted_transform = spawning_component.transform.clone();
+        //adjusted_transform.translation.y = 55.;
+
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic,
             position: transform_to_isometry(spawning_component.transform).into(),
+            forces : RigidBodyForces {
+                gravity_scale: 1.,
+                ..Default::default()
+            },
+            //position: transform_to_isometry(adjusted_transform).into(),
             ccd: RigidBodyCcd {
-                ccd_enabled: true,
+                ccd_enabled: false,
                 ..Default::default()
             },
             mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED_X | RigidBodyMassPropsFlags::ROTATION_LOCKED_Y| RigidBodyMassPropsFlags::ROTATION_LOCKED_Z).into(),
             ..Default::default()
         };
 
+        let r = 0.25;
         let collider_component = ColliderBundle {
-            //shape: ColliderShape::capsule(0.0, 0.9, 0.25),
-            /*shape: ColliderShape::capsule(
-                Vec3::new(0.0,0.0,0.0).into(),
-                Vec3::new(0.0,0.9,0.0).into(), 
-                0.25
-            ),*/
-            shape: ColliderShape::cylinder(0.9, 0.25),
-            position: Vec3::new(0., 1.1, 0.).into(),
+            
+            shape: ColliderShape::capsule(
+                Vec3::new(0.0,0.0+r,0.0).into(),
+                Vec3::new(0.0,1.8-r,0.0).into(),
+                r
+            ),
+            position: Vec3::new(0., 0., 0.).into(),
             collider_type: ColliderType::Solid,
             mass_properties: ColliderMassProps::Density(1.0),
+            material: ColliderMaterial {
+                friction: 0.0,
+                friction_combine_rule:  CoefficientCombineRule::Average,
+                ..Default::default()
+             },
             ..Default::default()
         };
 
         let mut entity_updates_map = HashMap::new();
         entity_updates_map.insert(".".to_string(), HashMap::new());
 
-        let new_entity = commands.spawn_bundle(rigid_body_component).insert_bundle((
+        let new_entity = commands.spawn_bundle(rigid_body_component).insert_bundle(
             collider_component,
+        ).insert_bundle((
             ConnectedPlayer {
                 handle: connected_player_component.handle,
                 authid: connected_player_component.authid,

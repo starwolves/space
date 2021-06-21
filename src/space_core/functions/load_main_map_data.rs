@@ -1,5 +1,5 @@
-use bevy::prelude::{Commands, Res, info};
-use bevy_rapier3d::prelude::{ColliderBundle, ColliderShape, ColliderType, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
+use bevy::prelude::{Commands, Res};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderMaterial, ColliderShape, ColliderType, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
 use crate::space_core::{resources::all_ordered_cells::AllOrderedCells, systems::startup::launch_server::CellData};
 
@@ -20,7 +20,7 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
                 body_type: RigidBodyType::Static,
                 position: world_position.into(),
                 ccd: RigidBodyCcd {
-                    ccd_enabled: true,
+                    ccd_enabled: false,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -28,6 +28,10 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 0.5, 0.5),
                     collider_type: ColliderType::Solid,
+                    material: ColliderMaterial {
+                        friction_combine_rule:  CoefficientCombineRule::Min,
+                        ..Default::default()
+                     },
                     ..Default::default()
                 }
             );
@@ -38,7 +42,7 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
                 body_type: RigidBodyType::Static,
                 position: world_position.into(),
                 ccd: RigidBodyCcd {
-                    ccd_enabled: true,
+                    ccd_enabled: false,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -46,6 +50,10 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 1., 1.),
                     collider_type: ColliderType::Solid,
+                    material: ColliderMaterial {
+                        friction_combine_rule:  CoefficientCombineRule::Min,
+                        ..Default::default()
+                     },
                     ..Default::default()
                 }
             );
