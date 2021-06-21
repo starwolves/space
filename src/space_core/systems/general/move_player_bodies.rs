@@ -1,4 +1,4 @@
-use bevy::{math::Vec3, prelude::{Commands, Entity, EventWriter, Query, Res, info, warn}};
+use bevy::{math::Vec3, prelude::{Commands, Entity, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
 use crate::space_core::{bundles::footsteps_walking::FootstepsWalkingSfxBundle, components::{footsteps_walking::FootstepsWalking, human_character::{HumanCharacter, State as HumanState}, linked_footsteps_walking::LinkedFootstepsWalking, player_input::PlayerInput, sensable::{Sensable}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::{isometry_to_transform::isometry_to_transform}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
@@ -33,14 +33,14 @@ pub fn move_player_bodies(
         player_input_component,
         mut rigid_body_position_component,
         mut rigid_body_velocity_component,
-        mut rigid_body_massprops_component,
-        mut rigid_body_force_component,
+        mut _rigid_body_massprops_component,
+        mut _rigid_body_force_component,
         mut human_character_component,
         linked_footsteps_walking_option,
     ) in query.iter_mut() {
 
 
-        //let mut speed_factor = 5000000000000.;
+        //let mut speed_factor = 5000.;
         let mut speed_factor = 6.25;
 
         if player_input_component.movement_vector.x.abs() == 1. && player_input_component.movement_vector.y.abs() == 1. {
@@ -51,7 +51,7 @@ pub fn move_player_bodies(
 
         let rapier_vector : Vector<Real> = Vec3::new(
             player_input_component.movement_vector.x * -speed_factor,
-            0.,
+            0.0,
             player_input_component.movement_vector.y * speed_factor,
         ).into();
 
@@ -174,11 +174,7 @@ pub fn move_player_bodies(
             }
         }
         
-
-        //info!("Applying vector: {}", rapier_vector);
         rigid_body_velocity_component.linvel = rapier_vector;
-        //rigid_body_force_component.force = rapier_vector;
-        //rigid_body_velocity_component.apply_impulse(&rigid_body_massprops_component,rapier_vector);
 
     }
 
