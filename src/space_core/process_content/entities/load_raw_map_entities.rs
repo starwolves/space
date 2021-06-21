@@ -1,5 +1,5 @@
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands}};
-use bevy_rapier3d::prelude::{ColliderBundle, ColliderShape, ColliderType, RigidBodyBundle, RigidBodyType};
+use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderShape, ColliderType, RigidBodyBundle, RigidBodyType};
 
 use super::raw_entity::RawEntity;
 
@@ -133,11 +133,11 @@ pub fn load_raw_map_entities(
             let collider_component = ColliderBundle {
                 shape: ColliderShape::cuboid(1.,0.2,1.),
                 position: Vec3::new(0., 1., 1.).into(),
+                flags: (ActiveEvents::CONTACT_EVENTS | ActiveEvents::INTERSECTION_EVENTS).into(),
                 ..Default::default()
             };
 
-            commands.spawn_bundle(rigid_body_component).insert_bundle((
-                collider_component,
+            commands.spawn_bundle(rigid_body_component).insert_bundle(collider_component).insert_bundle((
                 static_transform_component,
                 Sensable{
                     is_audible : false,
@@ -199,13 +199,13 @@ pub fn load_raw_map_entities(
                 collider_type : ColliderType::Sensor,
                 shape: ColliderShape::cuboid(1.,1.,1.),
                 position: Vec3::new(0., -1., 1.).into(),
+                flags: (ActiveEvents::CONTACT_EVENTS | ActiveEvents::INTERSECTION_EVENTS).into(),
                 ..Default::default()
             };
 
             
 
-            let parent = commands.spawn_bundle(window_rigid_body_component).insert_bundle((
-                window_collider_component,
+            let parent = commands.spawn_bundle(window_rigid_body_component).insert_bundle(window_collider_component).insert_bundle((
                 static_transform_component,
                 Sensable{
                     is_audible : false,
@@ -232,12 +232,11 @@ pub fn load_raw_map_entities(
             )).id();
 
 
-            let child = commands.spawn_bundle(sensor_rigid_body_component).insert_bundle((
+            let child = commands.spawn_bundle(sensor_rigid_body_component).insert_bundle(sensor_collider_component).insert_bundle((
                 CounterWindowSensor {
                     parent : parent
                 },
                 static_transform_component,
-                sensor_collider_component,
                 EntityData{
                     entity_class: "child".to_string(),
                     entity_type: "counterWindowSensor".to_string(),
