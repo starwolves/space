@@ -1,4 +1,4 @@
-use bevy::prelude::{Entity, EventReader, EventWriter, Query, info};
+use bevy::prelude::{Entity, EventReader, EventWriter, Query};
 use bevy_rapier3d::{prelude::{ContactEvent, IntersectionEvent, IntoEntity, RigidBodyPosition}, rapier::geometry::ColliderHandle};
 
 use crate::space_core::{components::entity_data::{EntityData, EntityGroup}, events::physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}};

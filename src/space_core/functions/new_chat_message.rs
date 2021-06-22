@@ -4,17 +4,17 @@ use const_format::concatcp;
 
 use crate::space_core::{components::radio::{Radio, RadioChannel}, enums::space_jobs::SpaceJobsEnum, events::net::net_chat_message::NetChatMessage, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
 
-const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
-const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
+const _BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
+const _BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
 
 const NEARBY_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularBoldDyna.tres";
-const NEARBY_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumItDyna.tres";
-const NEARBY_NORMAL_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumDyna.tres";
+const _NEARBY_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumItDyna.tres";
+const _NEARBY_NORMAL_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumDyna.tres";
 const NEARBY_SHOUT_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatShoutBoldDyna.tres";
-const NEARBY_MACHINE_MEDIUM_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightMediumDyna.tres";
-const NEARBY_MACHINE_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicDyna.tres";
-const NEARBY_MACHINE_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightBoldDyna.tres";
-const NEARBY_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDyna.tres";
+const _NEARBY_MACHINE_MEDIUM_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightMediumDyna.tres";
+const _NEARBY_MACHINE_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicDyna.tres";
+const _NEARBY_MACHINE_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightBoldDyna.tres";
+const _NEARBY_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDyna.tres";
 
 const FURTHER_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularBoldDynaSmall.tres";
 const FURTHER_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumItDynaSmall.tres";
@@ -23,7 +23,7 @@ const FURTHER_SHOUT_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePr
 const FURTHER_MACHINE_MEDIUM_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightMediumDynaSmall.tres";
 const FURTHER_MACHINE_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicDynaSmall.tres";
 const FURTHER_MACHINE_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightBoldDynaSmall.tres";
-const FURTHER_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDynaSmall.tres";
+const _FURTHER_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDynaSmall.tres";
 
 
 const FAR_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularBoldDynaSmaller.tres";
@@ -33,7 +33,7 @@ const FAR_SHOUT_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-Ch
 const FAR_MACHINE_MEDIUM_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightMediumDynaSmaller.tres";
 const FAR_MACHINE_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicDynaSmaller.tres";
 const FAR_MACHINE_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightBoldDynaSmaller.tres";
-const FAR_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDynaSmaller.tres";
+const _FAR_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDynaSmaller.tres";
 
 
 
@@ -137,17 +137,17 @@ const SHOUT_DATA_MACHINE_FAR_I_END : &str = "[/font]";
 
 const TALK_TYPE_STANDARD_NEARBY_START : &str = "";
 const TALK_TYPE_STANDARD_NEARBY_END : &str = "";
-const TALK_TYPE_STANDARD_FURTHER_START : &str = "";
-const TALK_TYPE_STANDARD_FURTHER_END : &str = "";
-const TALK_TYPE_STANDARD_FAR_START : &str = "";
-const TALK_TYPE_STANDARD_FAR_END : &str = "";
+const _TALK_TYPE_STANDARD_FURTHER_START : &str = "";
+const _TALK_TYPE_STANDARD_FURTHER_END : &str = "";
+const _TALK_TYPE_STANDARD_FAR_START : &str = "";
+const _TALK_TYPE_STANDARD_FAR_END : &str = "";
 
 const TALK_TYPE_MACHINE_NEARBY_START : &str = "[i]";
 const TALK_TYPE_MACHINE_NEARBY_END : &str = "[/i]";
-const TALK_TYPE_MACHINE_FURTHER_START : &str = "[i]";
-const TALK_TYPE_MACHINE_FURTHER_END : &str = "[/i]";
-const TALK_TYPE_MACHINE_FAR_START : &str = "[i]";
-const TALK_TYPE_MACHINE_FAR_END : &str = "[/i]";
+const _TALK_TYPE_MACHINE_FURTHER_START : &str = "[i]";
+const _TALK_TYPE_MACHINE_FURTHER_END : &str = "[/i]";
+const _TALK_TYPE_MACHINE_FAR_START : &str = "[i]";
+const _TALK_TYPE_MACHINE_FAR_END : &str = "[/i]";
 
 
 
@@ -159,7 +159,7 @@ const TALK_SPACE_PROXIMITY_EMOTE_MESSAGEBBSTART : &str = "[color=#e6e6e6]";
 const TALK_SPACE_PROXIMITY_EMOTE_MESSAGEBBEND : &str = "[/color]";
 
 
-const TALK_SPACE_PROXIMITY_CHATPREFIX : &str = "";
+const _TALK_SPACE_PROXIMITY_CHATPREFIX : &str = "";
 const TALK_SPACE_PROXIMITY_PREFIXBBSTART : &str = "[color=#dbdbdb]";
 const TALK_SPACE_PROXIMITY_PREFIXBBEND : &str = "[/color]";
 const TALK_SPACE_PROXIMITY_MESSAGEBBSTART : &str = "[color=#e6e6e6]";
@@ -188,11 +188,11 @@ const TALK_SPACE_SPECIALOPS_MESSAGEBBEND : &str = "[/color]";
 
 
 
-const BILLBOARD_DATA_SECURITY_START : &str = "[center][color=#ff7070]";
-const BILLBOARD_DATA_SECURITY_END : &str = "[/color][/center]";
+const _BILLBOARD_DATA_SECURITY_START : &str = "[center][color=#ff7070]";
+const _BILLBOARD_DATA_SECURITY_END : &str = "[/color][/center]";
 
-const BILLBOARD_DATA_SPECIALOPS_START : &str = "[center][color=#ff7070]";
-const BILLBOARD_DATA_SPECIALOPS_END : &str = "[/color][/center]";
+const _BILLBOARD_DATA_SPECIALOPS_START : &str = "[center][color=#ff7070]";
+const _BILLBOARD_DATA_SPECIALOPS_END : &str = "[/color][/center]";
 
 const TALK_SPACE_COMMON_WORD : &str = "Common";
 const TALK_SPACE_SECURITY_WORD : &str = "Security";
