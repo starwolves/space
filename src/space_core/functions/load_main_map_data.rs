@@ -1,12 +1,14 @@
 use bevy::prelude::{Commands, Res};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderMaterial, ColliderShape, ColliderType, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
 use crate::space_core::{resources::all_ordered_cells::AllOrderedCells, systems::startup::launch_server::CellData};
 
-use super::{gridmap_functions::cell_id_to_world, string_to_type_converters::string_vec3_to_vec3};
+use super::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap_functions::cell_id_to_world, string_to_type_converters::string_vec3_to_vec3};
 
 
 pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mut Commands, all_ordered_cells : &Res<AllOrderedCells>) {
+
+
 
     for cell_data in current_map_main_data.iter() {
         
@@ -15,6 +17,8 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
         let world_position = cell_id_to_world(cell_id);
 
         if all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize] == "securityCounter1" {
+
+            let masks = get_bit_masks(ColliderGroup::StandardFOV);
 
             commands.spawn_bundle(RigidBodyBundle {
                 body_type: RigidBodyType::Static,
@@ -31,13 +35,19 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
                     material: ColliderMaterial {
                         friction_combine_rule:  CoefficientCombineRule::Min,
                         ..Default::default()
-                     },
+                    },
+                    flags: ColliderFlags {
+                        collision_groups: InteractionGroups::new(masks.0,masks.1),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 }
             );
 
         } else {
             
+            let masks = get_bit_masks(ColliderGroup::StandardFOV);
+
             commands.spawn_bundle(RigidBodyBundle {
                 body_type: RigidBodyType::Static,
                 position: world_position.into(),
@@ -53,7 +63,11 @@ pub fn load_main_map_data(current_map_main_data : &Vec<CellData>, commands : &mu
                     material: ColliderMaterial {
                         friction_combine_rule:  CoefficientCombineRule::Min,
                         ..Default::default()
-                     },
+                    },
+                    flags: ColliderFlags {
+                        collision_groups: InteractionGroups::new(masks.0,masks.1),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 }
             );

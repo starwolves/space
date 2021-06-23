@@ -10,3 +10,4 @@ pub mod unload_entity_for_player;
 pub mod entity_update_change_detection;
 pub mod entity_updates_personalise;
 pub mod new_chat_message;
+pub mod collider_interaction_groups;

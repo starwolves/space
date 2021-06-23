@@ -1,9 +1,9 @@
 use bevy::{math::{Vec2, Vec3}, prelude::{Added, Commands, Entity, EventWriter, Query, ResMut}};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType,  RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::transform_to_isometry::transform_to_isometry, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
 
 
 pub fn on_spawning(
@@ -41,7 +41,12 @@ pub fn on_spawning(
             ..Default::default()
         };
 
+
+        
+
         let r = 0.25;
+        let masks = get_bit_masks(ColliderGroup::Standard);
+
         let collider_component = ColliderBundle {
             
             shape: ColliderShape::capsule(
@@ -56,7 +61,11 @@ pub fn on_spawning(
                 friction: 0.0,
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 ..Default::default()
-             },
+            },
+            flags: ColliderFlags {
+                collision_groups: InteractionGroups::new(masks.0,masks.1),
+                ..Default::default()
+            },
             ..Default::default()
         };
 

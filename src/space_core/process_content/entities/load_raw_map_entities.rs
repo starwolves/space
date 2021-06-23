@@ -1,11 +1,11 @@
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands}};
-use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderShape, ColliderType, RigidBodyBundle, RigidBodyType};
+use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
 use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
         omni_light,
         gi_probe,
         reflection_probe
@@ -15,6 +15,8 @@ pub fn load_raw_map_entities(
     raw_entities : &Vec<RawEntity>,
     commands : &mut Commands
 ) {
+
+    
 
     for raw_entity in raw_entities.iter() {
 
@@ -130,10 +132,16 @@ pub fn load_raw_map_entities(
                 ..Default::default()
             };
 
+            let masks = get_bit_masks(ColliderGroup::Standard);
+
             let collider_component = ColliderBundle {
                 shape: ColliderShape::cuboid(1.,0.2,1.),
                 position: Vec3::new(0., 1., 1.).into(),
-                flags: (ActiveEvents::CONTACT_EVENTS | ActiveEvents::INTERSECTION_EVENTS).into(),
+                flags: ColliderFlags {
+                    collision_groups: InteractionGroups::new(masks.0,masks.1),
+                    active_events: (ActiveEvents::CONTACT_EVENTS),
+                    ..Default::default()
+                },
                 ..Default::default()
             };
 
@@ -180,11 +188,15 @@ pub fn load_raw_map_entities(
                 ..Default::default()
             };
 
-
+            let masks = get_bit_masks(ColliderGroup::Standard);
 
             let window_collider_component = ColliderBundle {
                 shape: ColliderShape::cuboid(0.1,0.593,1.),
                 position: Vec3::new(0., -1., 1.).into(),
+                flags: ColliderFlags {
+                    collision_groups: InteractionGroups::new(masks.0,masks.1),
+                    ..Default::default()
+                },
                 ..Default::default()
             };
 
@@ -195,11 +207,17 @@ pub fn load_raw_map_entities(
             };
 
 
+            let masks = get_bit_masks(ColliderGroup::Standard);
+
             let sensor_collider_component = ColliderBundle {
                 collider_type : ColliderType::Sensor,
                 shape: ColliderShape::cuboid(1.,1.,1.),
                 position: Vec3::new(0., -1., 1.).into(),
-                flags: (ActiveEvents::CONTACT_EVENTS | ActiveEvents::INTERSECTION_EVENTS).into(),
+                flags: ColliderFlags {
+                    collision_groups: InteractionGroups::new(masks.0,masks.1),
+                    active_events: (ActiveEvents::INTERSECTION_EVENTS),
+                    ..Default::default()
+                },
                 ..Default::default()
             };
 
