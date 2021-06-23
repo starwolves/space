@@ -33,7 +33,7 @@ impl PrecalculatedFOVData {
     }
 }
 
-#[derive(PartialEq,Eq, Hash)]
+#[derive(PartialEq,Eq, Hash, Copy, Clone, Debug)]
 pub struct Vec2Int {
     pub x : i16,
     pub y : i16,   

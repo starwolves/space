@@ -16,3 +16,4 @@ pub mod counter_window_events;
 pub mod tick_timers_slowed;
 pub mod chat_message_input_event;
 pub mod tick_asana_boarding_announcements;
+pub mod world_fov;

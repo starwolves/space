@@ -9,7 +9,7 @@ use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::
             raw_entity::RawEntity,
             load_raw_map_entities::load_raw_map_entities
         }
-    }, resources::{all_ordered_cells::AllOrderedCells, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId}};
+    }, resources::{all_ordered_cells::AllOrderedCells, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId, world_fov::WorldFOV}};
 
 use serde::{Deserialize};
 
@@ -79,6 +79,7 @@ pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
     mut server_id : ResMut<ServerId>,
     mut precalculated_fov_data_resource : ResMut<PrecalculatedFOVData>,
+    mut world_fov : ResMut<WorldFOV>,
     all_ordered_cells : Res<AllOrderedCells>,
     mut commands: Commands
     ) {
@@ -110,7 +111,6 @@ pub fn launch_server(
     let precalculated_fov_data: HashMap<String,Vec<String>> = serde_json::from_str(&precalculated_fov_raw_json).expect("main.rs launch_server() Error parsing FOVData.json file from String.");
 
     precalculated_fov_data_resource.data = PrecalculatedFOVData::new(precalculated_fov_data);
-
 
     // Spawn ambience SFX
     commands.spawn().insert_bundle(AmbienceSfxBundle::new(Transform::identity()));
