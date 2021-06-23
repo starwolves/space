@@ -2,20 +2,19 @@ use bevy::{ ecs::{system::{Commands, ResMut}}, prelude::{Res, Transform, info}};
 
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, MessageChannelSettings, NetworkResource, ReliableChannelSettings};
 
-use std::{fs, net::{SocketAddr}, path::Path, time::Duration};
+use std::{collections::HashMap, fs, net::{SocketAddr}, path::Path, time::Duration};
 
 use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{load_main_map_data::load_main_map_data}, process_content::{
         entities::{
             raw_entity::RawEntity,
             load_raw_map_entities::load_raw_map_entities
         }
-    }, resources::{all_ordered_cells::AllOrderedCells, server_id::ServerId}};
+    }, resources::{all_ordered_cells::AllOrderedCells, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId}};
 
 use serde::{Deserialize};
 
 use crate::space_core::structs::network_messages::*;
 
-#[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct CellData {
     pub id: String,
@@ -79,6 +78,7 @@ const SERVER_PORT: u16 = 57713;
 pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
     mut server_id : ResMut<ServerId>,
+    mut precalculated_fov_data_resource : ResMut<PrecalculatedFOVData>,
     all_ordered_cells : Res<AllOrderedCells>,
     mut commands: Commands
     ) {
@@ -104,6 +104,14 @@ pub fn launch_server(
     load_main_map_data(&current_map_main_data, &mut commands, &all_ordered_cells);
 
     
+    // Load precalculated FOV data.
+    let precalculated_fov_path = Path::new("data").join("FOVData.json");
+    let precalculated_fov_raw_json = fs::read_to_string(precalculated_fov_path).expect("main.rs launch_server() Error reading FOVData.json file from drive.");
+    let precalculated_fov_data: HashMap<String,Vec<String>> = serde_json::from_str(&precalculated_fov_raw_json).expect("main.rs launch_server() Error parsing FOVData.json file from String.");
+
+    precalculated_fov_data_resource.data = PrecalculatedFOVData::new(precalculated_fov_data);
+
+
     // Spawn ambience SFX
     commands.spawn().insert_bundle(AmbienceSfxBundle::new(Transform::identity()));
 
