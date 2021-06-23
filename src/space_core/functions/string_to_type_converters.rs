@@ -78,11 +78,11 @@ pub fn string_vec3_to_vec3(string_vector : &str) -> Vec3 {
 
     split_result = new_string.split(",").collect();
 
-    return Vec3::new(
+    Vec3::new(
         split_result[0].parse::<f32>().expect(STRING_VEC3_TO_VEC3_CANNOT_PARSE_MESSAGE),
         split_result[1].parse::<f32>().expect(STRING_VEC3_TO_VEC3_CANNOT_PARSE_MESSAGE),
         split_result[2].parse::<f32>().expect(STRING_VEC3_TO_VEC3_CANNOT_PARSE_MESSAGE)
-    );
+    )
 
 }
 
