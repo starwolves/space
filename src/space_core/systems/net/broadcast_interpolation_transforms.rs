@@ -21,7 +21,7 @@ pub fn broadcast_interpolation_transforms (
     let fixed_timestep = fixed_timesteps.get(INTERPOLATION_LABEL).unwrap().overstep_percentage();
     if fixed_timestep > 5. {
 
-        if current_time_stamp > 5000 {
+        if current_time_stamp > 60000 {
             warn!(
                 "overstep_percentage: {}",
                 fixed_timestep

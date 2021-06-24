@@ -9,19 +9,9 @@ use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::
             raw_entity::RawEntity,
             load_raw_map_entities::load_raw_map_entities
         }
-    }, resources::{all_ordered_cells::AllOrderedCells, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId, world_fov::WorldFOV}};
-
-use serde::{Deserialize};
+    }, resources::{all_ordered_cells::AllOrderedCells, gridmap_main::{CellDataWID, GridmapMain}, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId}};
 
 use crate::space_core::structs::network_messages::*;
-
-#[derive(Deserialize)]
-pub struct CellData {
-    pub id: String,
-    pub item: i64,
-    pub orientation: i64
-}
-
 
 
 const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -79,7 +69,7 @@ pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
     mut server_id : ResMut<ServerId>,
     mut precalculated_fov_data_resource : ResMut<PrecalculatedFOVData>,
-    mut world_fov : ResMut<WorldFOV>,
+    mut gridmap_main : ResMut<GridmapMain>,
     all_ordered_cells : Res<AllOrderedCells>,
     mut commands: Commands
     ) {
@@ -100,9 +90,14 @@ pub fn launch_server(
     // Load map json data into real static bodies.
     let main_json = Path::new("content").join("maps").join("bullseye").join("main.json");
     let current_map_main_raw_json : String = fs::read_to_string(main_json).expect("main.rs launch_server() Error reading map main.json file from drive.");
-    let current_map_main_data : Vec<CellData> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
-    
-    load_main_map_data(&current_map_main_data, &mut commands, &all_ordered_cells);
+    let current_map_main_data : Vec<CellDataWID> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
+
+    load_main_map_data(
+        &current_map_main_data,
+        &mut commands,
+        &all_ordered_cells,
+        &mut gridmap_main,
+    );
 
     
     // Load precalculated FOV data.

@@ -38,3 +38,9 @@ pub struct Vec2Int {
     pub x : i16,
     pub y : i16,   
 }
+#[derive(PartialEq,Eq, Hash, Copy, Clone, Debug)]
+pub struct Vec3Int {
+    pub x : i16,
+    pub y : i16,  
+    pub z : i16,  
+}

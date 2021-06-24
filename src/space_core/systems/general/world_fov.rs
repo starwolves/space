@@ -1,14 +1,28 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Res, ResMut, info};
+use bevy::{math::{Vec3}, prelude::{Res, ResMut, info, warn}};
+use bevy_rapier3d::prelude::{InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray};
 
-use crate::space_core::resources::{precalculated_fov_data::{PrecalculatedFOVData, Vec2Int}, world_fov::WorldFOV};
+use crate::space_core::{functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap_functions::cell_id_to_world}, resources::{gridmap_main::{CellData, GridmapMain}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::{PrecalculatedFOVData, Vec2Int, Vec3Int}, world_fov::WorldFOV}};
 
 const INIT_FOV_SQUARE_SIZE : u32 = 260;
+const VIEW_DISTANCE : i16 = 23;
+
+struct UnfilledCorner {
+    pub empty_offset_left : Vec2Int,
+    pub empty_offset_right : Vec2Int,
+    pub blocker_offset : Vec2Int,
+    pub to_be_shadowed_cell_if_eyes_left : Vec2Int,
+    pub to_be_shadowed_cell_if_eyes_right : Vec2Int,
+}
 
 pub fn world_fov(
     mut world_fov : ResMut<WorldFOV>,
+    gridmap_main : Res<GridmapMain>,
     precalculated_fov_data : Res<PrecalculatedFOVData>,
+    non_blocking_cells_list : Res<NonBlockingCellsList>,
+    query_pipeline: Res<QueryPipeline>,
+    collider_query: QueryPipelineColliderComponentsQuery,
 ) {
 
     if world_fov.init == true {
@@ -17,8 +31,6 @@ pub fn world_fov(
         // Hardcode map corners/limits for FOV calculation.
 
         let total_cells_amount = INIT_FOV_SQUARE_SIZE * INIT_FOV_SQUARE_SIZE;
-
-        //let half_cells_amount = INIT_FOV_SQUARE_SIZE / 2;
 
         let mut iterative_vector = Vec2Int {
             x: 0,
@@ -36,7 +48,6 @@ pub fn world_fov(
                 iterative_x = 0;
             } else {
                 // Get the remainder of i divided by strip size.
-                //info!("{}", i % INIT_FOV_SQUARE_SIZE);
                 iterative_x = i % INIT_FOV_SQUARE_SIZE;
 
                 if iterative_x == 0 {
@@ -59,15 +70,38 @@ pub fn world_fov(
 
     let mut new_fov_data : HashMap<Vec2Int, Vec<Vec2Int>> = HashMap::new();
 
-    for vector in &world_fov.to_be_recalculated {
+    let start_size = world_fov.to_be_recalculated.len();
+    let mut i = 0;
+    let mut j =0 ;
+    let frac_value = 0.33;
+    let frac_size = (start_size as f32 * frac_value) as usize;
 
-        
+    for vector in &world_fov.to_be_recalculated {
+        if i == 0 {
+            info!("Building FOV (0%).");
+        } else if i >= frac_size-1 {
+            i=0;
+            j+=1;
+            if j == (1./frac_value) as i32 {
+                info!("Building FOV (100%).");
+                info!("FOV Done!");
+            } else {
+                info!("Building FOV ({}%).", j as f32 * (frac_value*100.));
+            }
+            
+        }
 
         update_cell_fov(
             &mut new_fov_data,
             &precalculated_fov_data,
+            &gridmap_main,
+            &non_blocking_cells_list,
             vector,
+            &query_pipeline,
+            &collider_query
         );
+
+        i+=1;
 
     }
 
@@ -85,13 +119,613 @@ pub fn world_fov(
 
 
 fn update_cell_fov (
-    mut new_fov_data : &HashMap<Vec2Int, Vec<Vec2Int>>,
+    new_fov_data : &mut HashMap<Vec2Int, Vec<Vec2Int>>,
     precalculated_fov_data : &Res<PrecalculatedFOVData>,
-    cell_id : &Vec2Int,
+    gridmap_main : &Res<GridmapMain>,
+    non_blocking_cells_list : &Res<NonBlockingCellsList>,
+    viewpoint_cell_id : &Vec2Int,
+    query_pipeline: &Res<QueryPipeline>,
+    collider_query: &QueryPipelineColliderComponentsQuery,
 ) {
 
-    
-    
+
+    let fov_cell_start = Vec2Int {
+        x: viewpoint_cell_id.x - VIEW_DISTANCE,
+        y: viewpoint_cell_id.y - VIEW_DISTANCE,
+    };
+
+    let fov_cell_end = Vec2Int {
+        x: viewpoint_cell_id.x + VIEW_DISTANCE,
+        y: viewpoint_cell_id.y + VIEW_DISTANCE,
+    };
+
+
+    let total_cells_in_view_amount = (VIEW_DISTANCE*2) * (VIEW_DISTANCE*2) + 2 * (VIEW_DISTANCE*2);
+
+
+    //let mut all_visible_cells = vec![];
+    //let mut all_blocking_cells = vec![];
+    let mut confirmed_black_cells = vec![];
+    let mut forced_black_cells = vec![];
+    let mut forced_ray_intersect_cells = vec![];
+
+    let mut square_half_length = 0;
+    let mut square_cells_amount = 8;
+    let mut square_cells_side_amount = 3;
+    let mut current_square_cell = 0;
+
+    let mut iterated_cell_id = Vec2Int {
+        x: 0,
+        y: 0,
+    };
+
+    let mut new_fov : Vec<Vec2Int> = vec![];
+
+    let cell_surface_offsets = [
+        Vec3::new(-1.,0.,0.),
+        Vec3::new(1.,0.,0.),
+        Vec3::new(0.,0.,-1.),
+        Vec3::new(0.,0.,1.),
+    ];
+
+    //x = unfilled corner . = fov blocker , = this fov blocker
+    //This is for unfilled corners.
+    let unfilled_corners = [
+        //.x
+        //x,
+        UnfilledCorner {
+            empty_offset_left: Vec2Int{ x: -1, y: 0 },
+            empty_offset_right: Vec2Int{ x: 0, y: -1 },
+            blocker_offset: Vec2Int{ x: -1, y: -1 },
+            to_be_shadowed_cell_if_eyes_left: Vec2Int{ x: 0, y: -1 },
+            to_be_shadowed_cell_if_eyes_right: Vec2Int{ x: -1, y: 0 },
+        },
+        //x.
+        //,x
+        UnfilledCorner {
+            empty_offset_left: Vec2Int{ x: 0, y: -1 },
+            empty_offset_right: Vec2Int{ x: 1, y: 0 },
+            blocker_offset: Vec2Int{ x: 1, y: -1 },
+            to_be_shadowed_cell_if_eyes_left: Vec2Int{ x: 1, y: 0 },
+            to_be_shadowed_cell_if_eyes_right: Vec2Int{ x: 0, y: -1 },
+        },
+        //x,
+        //.x
+        UnfilledCorner {
+            empty_offset_left: Vec2Int{ x: -1, y: 0 },
+            empty_offset_right: Vec2Int{ x: 0, y: 1 },
+            blocker_offset: Vec2Int{ x: -1, y: 1 },
+            to_be_shadowed_cell_if_eyes_left: Vec2Int{ x: 0, y: 1 },
+            to_be_shadowed_cell_if_eyes_right: Vec2Int{ x: -1, y: 0 },
+        },
+        //,x
+        //x.
+        UnfilledCorner {
+            empty_offset_left: Vec2Int{ x: 0, y: 1 },
+            empty_offset_right: Vec2Int{ x: 1, y: 0 },
+            blocker_offset: Vec2Int{ x: 1, y: 1 },
+            to_be_shadowed_cell_if_eyes_left: Vec2Int{ x: 1, y: 0 },
+            to_be_shadowed_cell_if_eyes_right: Vec2Int{ x: 0, y: 1 },
+        },
+    ];
+
+
+    //We iterate from Entity position and then outwards like a square.
+	//Then we +1 the halflength and repeat it for a bigger square, until we find our FOV box.
+    //We number the cells from the bottom left then go up, right, down and left again. (this may not be accurate because y could be reversed)
+
+
+    for _i in 0..total_cells_in_view_amount {
+
+        if square_half_length > 0 {
+
+            if current_square_cell < square_cells_side_amount {
+
+                //Left strip, 1st strip
+
+                iterated_cell_id.x = viewpoint_cell_id.x - square_half_length;
+                iterated_cell_id.y = viewpoint_cell_id.y - square_half_length + current_square_cell;
+
+            } else if current_square_cell < square_cells_side_amount * 2 - 1 {
+
+                //Top strip, 2nd strip
+
+                iterated_cell_id.x = viewpoint_cell_id.x - (square_half_length -1) + (current_square_cell - square_cells_side_amount);
+                iterated_cell_id.y = viewpoint_cell_id.y + square_half_length;
+
+            } else if current_square_cell < square_cells_amount * 3 - 2 {
+
+                //Right strip, 3rd strip
+
+                iterated_cell_id.x = viewpoint_cell_id.x + square_half_length;
+                iterated_cell_id.y = viewpoint_cell_id.y + (square_half_length - 1) - (current_square_cell - square_cells_side_amount - (2*square_half_length));
+
+            } else {
+
+                //Bottom strip, 4th strip
+
+                iterated_cell_id.x = viewpoint_cell_id.x + (square_half_length -1) - (current_square_cell - square_cells_side_amount - (4*square_half_length));
+                iterated_cell_id.y = viewpoint_cell_id.y - square_half_length;
+
+            }
+
+            current_square_cell+=1;
+
+            if current_square_cell == square_cells_amount {
+                current_square_cell = 0;
+                square_half_length+=1;
+                square_cells_side_amount = (square_half_length * 3) - (square_half_length - 1);
+                square_cells_amount = square_half_length * 8;
+            }
+
+        } else {
+
+            iterated_cell_id.x = viewpoint_cell_id.x;
+            iterated_cell_id.y = viewpoint_cell_id.y;
+            square_half_length = 1;
+
+        }
+
+
+        let iterated_relative_cell_id = Vec2Int {
+            x: iterated_cell_id.x - viewpoint_cell_id.x,
+            y: iterated_cell_id.y - viewpoint_cell_id.y,
+        };
+
+        let iterated_cell_data_option = gridmap_main.data.get(&Vec3Int{ x: iterated_cell_id.x, y: 0, z: iterated_cell_id.y });
+
+        let iterated_cell_data;
+
+        match iterated_cell_data_option {
+            Some(data) => {
+                iterated_cell_data = data;
+            },
+            None => {
+                iterated_cell_data = &CellData {
+                    item: -1,
+                    orientation: 1,
+                };
+            },
+        }
+
+        let mut iterated_cell_is_visible = false;
+
+        
+
+        if !(iterated_cell_id.x == fov_cell_end.x ||
+        iterated_cell_id.x == fov_cell_start.x ||
+        iterated_cell_id.y == fov_cell_end.y ||
+        iterated_cell_id.y == fov_cell_start.y) {
+            
+
+            if !confirmed_black_cells.contains(&iterated_relative_cell_id) {
+                iterated_cell_is_visible=true;
+            }
+
+            if !non_blocking_cells_list.list.contains(&iterated_cell_data.item) {
+
+                //Check if we just formed an unfilled corner, if so also add the blackcells of that unfilled corner piece to still close the gap.
+				//Okay so this is some weird logic and works differently in reality than what this code shows. But with all the odd tweaks it works fine.
+				//If you are to edit and make sense of this, may God's grace be with you.
+
+                
+                let black_cells_for_blocker_option = precalculated_fov_data.data.get(&iterated_relative_cell_id);
+
+                let mut black_cells_for_blocker;
+
+                match black_cells_for_blocker_option {
+                    Some(data) => {
+                        black_cells_for_blocker = data.clone();
+                    },
+                    None => {
+                        //Weird cases where values like (14,-41) get created which are out of range, lets hope its ok to skip them.
+                        warn!("Accessing fov data out of precalculated_fov_data range: {:?}", iterated_relative_cell_id);
+                        continue;
+                    },
+                }
+
+                let mut unfilled_corner_i : i8 = -1;
+
+                for unfilled_corner in unfilled_corners.iter() {
+
+                    unfilled_corner_i+=1;
+
+                    let to_be_checked_cell_data_option = gridmap_main.data.get(&Vec3Int{ 
+                        x: iterated_relative_cell_id.x + unfilled_corner.blocker_offset.x,
+                        y: 0,
+                        z:  iterated_relative_cell_id.y + unfilled_corner.blocker_offset.y
+                    });
+
+                    let to_be_checked_cell_data;
+
+                    match to_be_checked_cell_data_option {
+                        Some(data) => {
+                            to_be_checked_cell_data = data;
+                        },
+                        None => {
+                            to_be_checked_cell_data = &CellData {
+                                item: -1,
+                                orientation: 1,
+                            };
+                        },
+                    }
+
+                    if non_blocking_cells_list.list.contains(&to_be_checked_cell_data.item) {
+                        continue;
+                    }
+
+
+                    let to_be_checked_cell_data_option = gridmap_main.data.get(&Vec3Int{
+                        x: iterated_relative_cell_id.x + unfilled_corner.empty_offset_left.x,
+                        y: 0,
+                        z: iterated_relative_cell_id.y + unfilled_corner.empty_offset_left.y 
+                    });
+
+                    let to_be_checked_cell_data;
+
+                    match to_be_checked_cell_data_option {
+                        Some(data) => {
+                            to_be_checked_cell_data = data;
+                        },
+                        None => {
+                            to_be_checked_cell_data = &CellData {
+                                item: -1,
+                                orientation: 1,
+                            };
+                        },
+                    }
+
+                    if to_be_checked_cell_data.item != -1 {
+                        continue;
+                    }
+
+                    let to_be_checked_cell_data_option = gridmap_main.data.get(&Vec3Int{
+                        x: iterated_relative_cell_id.x + unfilled_corner.empty_offset_right.x,
+                        y: 0,
+                        z: iterated_relative_cell_id.y + unfilled_corner.empty_offset_right.y 
+                    });
+
+                    let to_be_checked_cell_data;
+
+                    match to_be_checked_cell_data_option {
+                        Some(data) => {
+                            to_be_checked_cell_data = data;
+                        },
+                        None => {
+                            to_be_checked_cell_data = &CellData {
+                                item: -1,
+                                orientation: 1,
+                            };
+                        },
+                    }
+
+                    if to_be_checked_cell_data.item != -1 {
+                        continue;
+                    }
+
+                    let test_value;
+                    let mut invert_last_shadow_cell = false;
+
+                    if unfilled_corner_i == 0 {
+                        test_value = iterated_relative_cell_id.x < unfilled_corner.empty_offset_left.x || iterated_relative_cell_id.y < unfilled_corner.empty_offset_left.y;
+                    } else if unfilled_corner_i == 1 {
+
+                        // Peeking through unfilled corner bug happens here.
+                        if iterated_relative_cell_id.x > unfilled_corner.empty_offset_left.x {
+                            test_value = iterated_relative_cell_id.x > unfilled_corner.empty_offset_left.x || iterated_relative_cell_id.y < unfilled_corner.empty_offset_left.y;
+                        } else {
+                            test_value = iterated_relative_cell_id.x < unfilled_corner.empty_offset_left.x || iterated_relative_cell_id.y < unfilled_corner.empty_offset_left.y;
+                        }
+
+                        invert_last_shadow_cell = true;
+
+                    } else if unfilled_corner_i == 2 {
+                        
+                        if iterated_relative_cell_id.x > unfilled_corner.empty_offset_left.x {
+                            test_value = iterated_relative_cell_id.x < unfilled_corner.empty_offset_left.x || iterated_relative_cell_id.y < unfilled_corner.empty_offset_left.y;
+                        } else {
+                            test_value = iterated_relative_cell_id.x > unfilled_corner.empty_offset_left.x || iterated_relative_cell_id.y < unfilled_corner.empty_offset_left.y;
+                        }
+
+                    } else {
+                        test_value = iterated_relative_cell_id.x < unfilled_corner.empty_offset_left.x || iterated_relative_cell_id.y > unfilled_corner.empty_offset_left.y;
+                    }
+
+                    let mut to_be_shadowed_cell_vector;
+                    let mut last_shadow_cell_vector;
+                    let mut add_to_forced_ray_intersect = false;
+
+                    if test_value {
+
+                        to_be_shadowed_cell_vector = Vec2Int {
+                            x: iterated_relative_cell_id.x + unfilled_corner.to_be_shadowed_cell_if_eyes_right.x,
+                            y: iterated_relative_cell_id.y + unfilled_corner.to_be_shadowed_cell_if_eyes_right.y,
+                        };
+
+                        if invert_last_shadow_cell {
+
+                            last_shadow_cell_vector = Vec2Int {
+                                x: iterated_relative_cell_id.x + unfilled_corner.to_be_shadowed_cell_if_eyes_left.x,
+                                y: iterated_relative_cell_id.y + unfilled_corner.to_be_shadowed_cell_if_eyes_left.y,
+                            };
+
+                            if iterated_relative_cell_id.y + unfilled_corner.empty_offset_left.y >= 0 {
+
+                                to_be_shadowed_cell_vector = Vec2Int {
+                                    x: iterated_relative_cell_id.x + unfilled_corner.blocker_offset.x,
+                                    y: iterated_relative_cell_id.y + unfilled_corner.blocker_offset.y,
+                                };
+
+                                add_to_forced_ray_intersect = true;
+
+                            } else {
+
+                                if last_shadow_cell_vector.x == last_shadow_cell_vector.y {
+
+                                    last_shadow_cell_vector = Vec2Int {
+                                        x: (iterated_relative_cell_id.x + unfilled_corner.blocker_offset.x) - 1,
+                                        y: iterated_relative_cell_id.y + unfilled_corner.blocker_offset.y,
+                                    };
+
+                                    forced_black_cells.push(Vec2Int {
+                                        x: last_shadow_cell_vector.x + viewpoint_cell_id.x,
+                                        y: last_shadow_cell_vector.y + viewpoint_cell_id.y
+                                    });
+
+                                } else {
+
+                                    last_shadow_cell_vector = Vec2Int {
+                                        x: iterated_relative_cell_id.x + unfilled_corner.to_be_shadowed_cell_if_eyes_right.x,
+                                        y: iterated_relative_cell_id.y + unfilled_corner.to_be_shadowed_cell_if_eyes_right.y,
+                                    };
+
+                                }
+
+                            }
+
+                        } else {
+
+                            last_shadow_cell_vector = Vec2Int {
+                                x: iterated_relative_cell_id.x + unfilled_corner.to_be_shadowed_cell_if_eyes_right.x,
+                                y: iterated_relative_cell_id.y + unfilled_corner.to_be_shadowed_cell_if_eyes_right.y,
+                            };
+
+                        }
+
+
+                    } else {
+
+                        to_be_shadowed_cell_vector = Vec2Int {
+                            x: iterated_relative_cell_id.x + unfilled_corner.to_be_shadowed_cell_if_eyes_left.x,
+                            y: iterated_relative_cell_id.y + unfilled_corner.to_be_shadowed_cell_if_eyes_left.y,
+                        };
+
+                        last_shadow_cell_vector = Vec2Int {
+                            x: iterated_relative_cell_id.x + unfilled_corner.to_be_shadowed_cell_if_eyes_left.x,
+                            y: iterated_relative_cell_id.y + unfilled_corner.to_be_shadowed_cell_if_eyes_left.y,
+                        };
+
+                    }
+
+                    if add_to_forced_ray_intersect {
+
+                        for shadow_cell in precalculated_fov_data.data.get(&to_be_shadowed_cell_vector).unwrap() {
+
+                            forced_ray_intersect_cells.push(*shadow_cell);
+
+                        }
+
+                    }
+
+                    for shadowed_cell in precalculated_fov_data.data.get(&to_be_shadowed_cell_vector).unwrap() {
+                        black_cells_for_blocker.push(*shadowed_cell);
+                    }
+                    for shadowed_cell in precalculated_fov_data.data.get(&last_shadow_cell_vector).unwrap() {
+                        black_cells_for_blocker.push(*shadowed_cell);
+                    }
+
+                    black_cells_for_blocker.dedup();
+                    
+                    break;
+                    
+                }
+
+
+                for new_black_cell in black_cells_for_blocker {
+
+                    //Conservatively rayintersect to make sure up close walls dont shadow eachother.
+					//If the x or the y is the exact same as the blocking wall whose blackcells we are checking now. Raytrace ONCE (figure out offset based on relative xy from Entity)
+					//to find out if this is a case of walls shadowing eachother OR legitimate shadow.
+
+                    let mut should_raycast = false;
+                    let mut offset = Vec3::ZERO;
+
+                    let cell_world_position = cell_id_to_world(Vec3Int{
+                        x: new_black_cell.x + viewpoint_cell_id.x,
+                        y: 0,
+                        z: new_black_cell.y + viewpoint_cell_id.y,
+                    });
+
+                    if new_black_cell.x == iterated_relative_cell_id.x {
+
+                        should_raycast = true;
+
+                        if new_black_cell.x < 0 {
+                            offset = cell_surface_offsets[1];
+                        } else {
+                            offset = cell_surface_offsets[0];
+                        }
+
+                    } else if new_black_cell.y == iterated_relative_cell_id.y || forced_ray_intersect_cells.contains(&new_black_cell){
+
+                        should_raycast = true;
+
+                        if new_black_cell.y < 0 {
+                            offset = cell_surface_offsets[3];
+                        } else {
+                            offset = cell_surface_offsets[2];
+                        }
+
+                    }
+
+                    if should_raycast {
+
+                        let target_ray_point = cell_world_position + offset;
+                        let origin_position = cell_id_to_world(Vec3Int{
+                            x: viewpoint_cell_id.x,
+                            y: 0,
+                            z: viewpoint_cell_id.y,
+                        });
+                        let origin_ray_point = Vec3::new(origin_position.x, 1.8, origin_position.z);
+
+                        
+
+                        let masks = get_bit_masks(ColliderGroup::FOV);
+                        let collider_set = QueryPipelineColliderComponentsSet(&collider_query);
+                        let ray = Ray::new(origin_ray_point.into(), (origin_ray_point - target_ray_point).normalize().into());
+                        let max_toi = origin_ray_point.distance(target_ray_point);
+                        let solid = true;
+                        let groups = InteractionGroups::new(masks.0,masks.1);
+                        let filter = None;
+
+                        let mut is_correct_black_cell = false;
+
+                        if let Some((_handle, toi)) = query_pipeline.cast_ray(
+                            &collider_set, &ray, max_toi, solid, groups, filter
+                        ) {
+
+                            let distance_too_short = max_toi - toi;
+
+                            if distance_too_short > 1. {
+                                is_correct_black_cell = true;
+                            } 
+
+                        }
+
+                        if is_correct_black_cell {
+                            
+                            confirmed_black_cells.push(new_black_cell);
+
+                        } else {
+
+                            if confirmed_black_cells.contains(&new_black_cell) {
+                                confirmed_black_cells.remove(confirmed_black_cells.iter().position(|&r| r == new_black_cell).unwrap());
+                            }
+
+                        }
+
+
+                    } else {
+
+                        confirmed_black_cells.push(new_black_cell);
+
+                    }
+
+                    
+
+                }
+
+
+            }
+
+
+        }
+
+        //Fix a few buggy cells here.
+
+        if iterated_cell_is_visible {
+
+            if (iterated_cell_id.y == fov_cell_end.y - 1 || iterated_cell_id.y == fov_cell_end.y + 1) &&
+            (iterated_cell_id.x == viewpoint_cell_id.x - 10 ||
+            iterated_cell_id.x == viewpoint_cell_id.x + 10 ||
+            iterated_cell_id.x == viewpoint_cell_id.x - 8 ||
+            iterated_cell_id.x == viewpoint_cell_id.x + 8
+            ) {
+
+                let mut offset = Vec3::ZERO;
+
+                if iterated_cell_id.x == viewpoint_cell_id.x - 10 || iterated_cell_id.x == viewpoint_cell_id.x + 10{
+
+                    if iterated_cell_id.y >= viewpoint_cell_id.y {
+                        offset = cell_surface_offsets[2];
+                    } else {
+                        offset = cell_surface_offsets[3];
+                    }
+
+                }
+
+
+                let target_ray_point = cell_id_to_world(Vec3Int {
+                    x:iterated_cell_id.x,
+                    y:0,
+                    z: iterated_cell_id.y
+                }) + offset;
+
+                let origin_position = cell_id_to_world(Vec3Int{
+                    x: viewpoint_cell_id.x,
+                    y: 0,
+                    z: viewpoint_cell_id.y,
+                });
+                let origin_ray_point = Vec3::new(origin_position.x, 1.8, origin_position.z);
+
+
+                let masks = get_bit_masks(ColliderGroup::FOV);
+                let collider_set = QueryPipelineColliderComponentsSet(&collider_query);
+                let ray = Ray::new(origin_ray_point.into(), (origin_ray_point - target_ray_point).normalize().into());
+                let max_toi = origin_ray_point.distance(target_ray_point);
+                let solid = true;
+                let groups = InteractionGroups::new(masks.0,masks.1);
+                let filter = None;
+
+                let mut is_correct_black_cell = false;
+
+                if let Some((_handle, toi)) = query_pipeline.cast_ray(
+                    &collider_set, &ray, max_toi, solid, groups, filter
+                ) {
+
+                    let distance_too_short = max_toi - toi;
+
+                    if distance_too_short > 8.5 {
+                        is_correct_black_cell = true;
+                    } 
+
+                }
+
+                if is_correct_black_cell {
+
+                    iterated_cell_is_visible = false;
+
+                }
+
+
+            }
+
+        }
+
+        if iterated_cell_is_visible {
+
+            new_fov.push(iterated_cell_id.clone())
+
+        } else {
+
+            let vec_position_result = new_fov.iter().position(|&r| r == iterated_cell_id);
+
+            match vec_position_result{
+                Some(vec_position) => {
+                    new_fov.remove(vec_position);
+                },
+                None => {},
+            }
+
+            
+        }
+
+
+    }
+
+
+    new_fov_data.insert(*viewpoint_cell_id, new_fov);
+
 
 
 }
