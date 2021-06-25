@@ -37,23 +37,20 @@ pub fn world_fov(
             y: 0
         };
 
-        let mut iterative_y : i32 = -1;
+        let square_half_size = INIT_FOV_SQUARE_SIZE / 2;
 
-        for i in 0..total_cells_amount {
+        let mut iterative_y : i16 = -1*square_half_size as i16;
+        let mut iterative_x : i16 = -1*square_half_size as i16;
 
-            let iterative_x;
+        iterative_x-=1;
 
-            if i == 0 {
-                // Can't % by 0.
-                iterative_x = 0;
-            } else {
-                // Get the remainder of i divided by strip size.
-                iterative_x = i % INIT_FOV_SQUARE_SIZE;
+        for _i in 0..total_cells_amount {
 
-                if iterative_x == 0 {
-                    iterative_y+=1;
-                }
+            iterative_x+=1;
 
+            if iterative_x > square_half_size as i16 {
+                iterative_x = -1*square_half_size as i16;
+                iterative_y+=1;
             }
 
             iterative_vector.x = iterative_x as i16;
@@ -65,7 +62,6 @@ pub fn world_fov(
         }
 
         
-
     }
 
     let mut new_fov_data : HashMap<Vec2Int, Vec<Vec2Int>> = HashMap::new();
@@ -73,7 +69,7 @@ pub fn world_fov(
     let start_size = world_fov.to_be_recalculated.len();
     let mut i = 0;
     let mut j =0 ;
-    let frac_value = 0.33;
+    let frac_value = 0.2;
     let frac_size = (start_size as f32 * frac_value) as usize;
 
     for vector in &world_fov.to_be_recalculated {
@@ -259,13 +255,12 @@ fn update_cell_fov (
             }
 
         } else {
-
             iterated_cell_id.x = viewpoint_cell_id.x;
             iterated_cell_id.y = viewpoint_cell_id.y;
             square_half_length = 1;
-
         }
 
+        
 
         let iterated_relative_cell_id = Vec2Int {
             x: iterated_cell_id.x - viewpoint_cell_id.x,
@@ -318,8 +313,7 @@ fn update_cell_fov (
                         black_cells_for_blocker = data.clone();
                     },
                     None => {
-                        //Weird cases where values like (14,-41) get created which are out of range, lets hope its ok to skip them.
-                        warn!("Accessing fov data out of precalculated_fov_data range: {:?}", iterated_relative_cell_id);
+                        warn!("Relative y: {} - {}", iterated_cell_id.y, viewpoint_cell_id.y);
                         continue;
                     },
                 }
