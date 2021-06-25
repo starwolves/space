@@ -106,24 +106,31 @@ fn visible_check(
 
     let mut is_visible = !(visible_checker_translation.distance(visible_entity_transform.translation) > 90.);
 
-    if is_visible {
+    
+
+    if visible_component.is_light == false &&
+    visible_component.is_audible == false &&
+    visible_component.always_sensed == false &&
+    is_visible {
 
         let visible_checker_cell_id = world_to_cell_id(visible_checker_translation);
 
-        //is_visible = world_fov.data.contains_key( &Vec2Int{ x: this_cell_id.x, y: this_cell_id.z }  );
+        let visible_checker_cell_id_2d = &Vec2Int{ x: visible_checker_cell_id.x, y: visible_checker_cell_id.z };
 
-        let this_cell_fov_option = world_fov.data.get(&Vec2Int{ x: visible_checker_cell_id.x, y: visible_checker_cell_id.z });
+        let this_cell_fov_option = world_fov.data.get(visible_checker_cell_id_2d);
 
         match this_cell_fov_option {
             Some(this_cell_fov) => {
 
                 let visible_entity_cell_id = world_to_cell_id(visible_entity_transform.translation);
 
-                is_visible = this_cell_fov.contains(&Vec2Int{ x: visible_entity_cell_id.x, y: visible_entity_cell_id.z });
+                let visible_entity_cell_id_2d = &Vec2Int{ x: visible_entity_cell_id.x, y: visible_entity_cell_id.z };
+
+                is_visible = this_cell_fov.contains(visible_entity_cell_id_2d);
 
             },
             None => {
-                warn!("Requested world_fov out of range data.");
+                warn!("Requested world_fov out of range data: {:?}", visible_checker_cell_id_2d);
                 is_visible = false;
             },
         }
