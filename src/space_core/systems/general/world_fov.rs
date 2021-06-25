@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Vec3}, prelude::{Res, ResMut, info, warn}};
+use bevy::{math::{Vec3}, prelude::{Res, ResMut, info}};
 use bevy_rapier3d::prelude::{InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray};
 
 use crate::space_core::{functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap_functions::cell_id_to_world}, resources::{gridmap_main::{CellData, GridmapMain}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::{PrecalculatedFOVData, Vec2Int, Vec3Int}, world_fov::WorldFOV}};
@@ -222,19 +222,27 @@ fn update_cell_fov (
                 iterated_cell_id.x = viewpoint_cell_id.x - square_half_length;
                 iterated_cell_id.y = viewpoint_cell_id.y - square_half_length + current_square_cell;
 
-            } else if current_square_cell < square_cells_side_amount * 2 - 1 {
+
+            } else if current_square_cell < (square_cells_side_amount * 2 - 1) {
 
                 //Top strip, 2nd strip
 
                 iterated_cell_id.x = viewpoint_cell_id.x - (square_half_length -1) + (current_square_cell - square_cells_side_amount);
                 iterated_cell_id.y = viewpoint_cell_id.y + square_half_length;
 
-            } else if current_square_cell < square_cells_amount * 3 - 2 {
+
+            } else if current_square_cell < (square_cells_amount * 3 - 2) {
 
                 //Right strip, 3rd strip
 
                 iterated_cell_id.x = viewpoint_cell_id.x + square_half_length;
+
+                //Causes out of range iterated_cell_id.y values:
                 iterated_cell_id.y = viewpoint_cell_id.y + (square_half_length - 1) - (current_square_cell - square_cells_side_amount - (2*square_half_length));
+
+                
+                
+
 
             } else {
 
@@ -242,6 +250,7 @@ fn update_cell_fov (
 
                 iterated_cell_id.x = viewpoint_cell_id.x + (square_half_length -1) - (current_square_cell - square_cells_side_amount - (4*square_half_length));
                 iterated_cell_id.y = viewpoint_cell_id.y - square_half_length;
+
 
             }
 
@@ -313,7 +322,7 @@ fn update_cell_fov (
                         black_cells_for_blocker = data.clone();
                     },
                     None => {
-                        warn!("Relative y: {} - {}", iterated_cell_id.y, viewpoint_cell_id.y);
+
                         continue;
                     },
                 }
