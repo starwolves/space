@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Vec3}, prelude::{Res, ResMut, info}};
+use bevy::{core::Time, math::{Vec3}, prelude::{Res, ResMut, error, info}};
 use bevy_rapier3d::prelude::{InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray};
 
 use crate::space_core::{functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap_functions::cell_id_to_world}, resources::{gridmap_main::{CellData, GridmapMain}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::{PrecalculatedFOVData, Vec2Int, Vec3Int}, world_fov::WorldFOV}};
@@ -17,6 +17,7 @@ struct UnfilledCorner {
 }
 
 pub fn world_fov(
+    time: Res<Time>, 
     mut world_fov : ResMut<WorldFOV>,
     gridmap_main : Res<GridmapMain>,
     precalculated_fov_data : Res<PrecalculatedFOVData>,
@@ -25,7 +26,14 @@ pub fn world_fov(
     collider_query: QueryPipelineColliderComponentsQuery,
 ) {
 
+    
+
     if world_fov.init == true {
+        // Wait for physics engine to process all the new map cells, takes a short while.
+        // If FOV bugs sometimes at startup calculations it may be because this value isnt high enough.
+        if time.time_since_startup().as_millis() < 2000 {
+            return;
+        }
         world_fov.init = false;
 
         // Hardcode map corners/limits for FOV calculation.
@@ -72,6 +80,12 @@ pub fn world_fov(
     let frac_value = 0.2;
     let frac_size = (start_size as f32 * frac_value) as usize;
 
+    if world_fov.to_be_recalculated.len() == 0 {
+        return;
+    }
+
+    let collider_set = QueryPipelineColliderComponentsSet(&collider_query);
+
     for vector in &world_fov.to_be_recalculated {
         if i == 0 {
             info!("Building FOV (0%).");
@@ -94,7 +108,7 @@ pub fn world_fov(
             &non_blocking_cells_list,
             vector,
             &query_pipeline,
-            &collider_query
+            &collider_set
         );
 
         i+=1;
@@ -121,7 +135,7 @@ fn update_cell_fov (
     non_blocking_cells_list : &Res<NonBlockingCellsList>,
     viewpoint_cell_id : &Vec2Int,
     query_pipeline: &Res<QueryPipeline>,
-    collider_query: &QueryPipelineColliderComponentsQuery,
+    collider_set : &QueryPipelineColliderComponentsSet
 ) {
 
 
@@ -231,18 +245,13 @@ fn update_cell_fov (
                 iterated_cell_id.y = viewpoint_cell_id.y + square_half_length;
 
 
-            } else if current_square_cell < (square_cells_amount * 3 - 2) {
+            } else if current_square_cell < (square_cells_side_amount * 3 - 2) {
 
                 //Right strip, 3rd strip
 
                 iterated_cell_id.x = viewpoint_cell_id.x + square_half_length;
-
-                //Causes out of range iterated_cell_id.y values:
                 iterated_cell_id.y = viewpoint_cell_id.y + (square_half_length - 1) - (current_square_cell - square_cells_side_amount - (2*square_half_length));
-
-                
-                
-
+            
 
             } else {
 
@@ -261,6 +270,7 @@ fn update_cell_fov (
                 square_half_length+=1;
                 square_cells_side_amount = (square_half_length * 3) - (square_half_length - 1);
                 square_cells_amount = square_half_length * 8;
+
             }
 
         } else {
@@ -275,6 +285,8 @@ fn update_cell_fov (
             x: iterated_cell_id.x - viewpoint_cell_id.x,
             y: iterated_cell_id.y - viewpoint_cell_id.y,
         };
+
+
 
         let iterated_cell_data_option = gridmap_main.data.get(&Vec3Int{ x: iterated_cell_id.x, y: 0, z: iterated_cell_id.y });
 
@@ -322,7 +334,7 @@ fn update_cell_fov (
                         black_cells_for_blocker = data.clone();
                     },
                     None => {
-
+                        error!("Accessed out of range data for precalculated_fov_data {:?}.", iterated_relative_cell_id);
                         continue;
                     },
                 }
@@ -470,10 +482,16 @@ fn update_cell_fov (
                                         y: iterated_relative_cell_id.y + unfilled_corner.blocker_offset.y,
                                     };
 
-                                    forced_black_cells.push(Vec2Int {
+                                    let new_value = Vec2Int {
                                         x: last_shadow_cell_vector.x + viewpoint_cell_id.x,
                                         y: last_shadow_cell_vector.y + viewpoint_cell_id.y
-                                    });
+                                    };
+
+                                    if !forced_black_cells.contains(&new_value) {
+                                        forced_black_cells.push(new_value);
+                                    }
+
+                                    
 
                                 } else {
 
@@ -513,21 +531,23 @@ fn update_cell_fov (
                     if add_to_forced_ray_intersect {
 
                         for shadow_cell in precalculated_fov_data.data.get(&to_be_shadowed_cell_vector).unwrap() {
-
-                            forced_ray_intersect_cells.push(*shadow_cell);
-
+                            if !forced_ray_intersect_cells.contains(shadow_cell) {
+                                forced_ray_intersect_cells.push(*shadow_cell);
+                            }
                         }
 
                     }
 
                     for shadowed_cell in precalculated_fov_data.data.get(&to_be_shadowed_cell_vector).unwrap() {
-                        black_cells_for_blocker.push(*shadowed_cell);
+                        if !black_cells_for_blocker.contains(shadowed_cell) {
+                            black_cells_for_blocker.push(*shadowed_cell);
+                        }
                     }
                     for shadowed_cell in precalculated_fov_data.data.get(&last_shadow_cell_vector).unwrap() {
-                        black_cells_for_blocker.push(*shadowed_cell);
+                        if !black_cells_for_blocker.contains(shadowed_cell) {
+                            black_cells_for_blocker.push(*shadowed_cell);
+                        }
                     }
-
-                    black_cells_for_blocker.dedup();
                     
                     break;
                     
@@ -573,7 +593,8 @@ fn update_cell_fov (
 
                     if should_raycast {
 
-                        let target_ray_point = cell_world_position + offset;
+                        let mut target_ray_point = cell_world_position + offset;
+                        target_ray_point.y = 1.8;
                         let origin_position = cell_id_to_world(Vec3Int{
                             x: viewpoint_cell_id.x,
                             y: 0,
@@ -584,8 +605,8 @@ fn update_cell_fov (
                         
 
                         let masks = get_bit_masks(ColliderGroup::FOV);
-                        let collider_set = QueryPipelineColliderComponentsSet(&collider_query);
-                        let ray = Ray::new(origin_ray_point.into(), (origin_ray_point - target_ray_point).normalize().into());
+                        
+                        let ray = Ray::new(origin_ray_point.into(), (target_ray_point-origin_ray_point).normalize().into());
                         let max_toi = origin_ray_point.distance(target_ray_point);
                         let solid = true;
                         let groups = InteractionGroups::new(masks.0,masks.1);
@@ -594,20 +615,21 @@ fn update_cell_fov (
                         let mut is_correct_black_cell = false;
 
                         if let Some((_handle, toi)) = query_pipeline.cast_ray(
-                            &collider_set, &ray, max_toi, solid, groups, filter
+                            collider_set, &ray, max_toi, solid, groups, filter
                         ) {
 
                             let distance_too_short = max_toi - toi;
 
                             if distance_too_short > 1. {
                                 is_correct_black_cell = true;
-                            } 
+                            }
 
                         }
 
                         if is_correct_black_cell {
-                            
-                            confirmed_black_cells.push(new_black_cell);
+                            if !confirmed_black_cells.contains(&new_black_cell) {
+                                confirmed_black_cells.push(new_black_cell);
+                            }
 
                         } else {
 
@@ -619,9 +641,9 @@ fn update_cell_fov (
 
 
                     } else {
-
-                        confirmed_black_cells.push(new_black_cell);
-
+                        if !confirmed_black_cells.contains(&new_black_cell) {
+                            confirmed_black_cells.push(new_black_cell);
+                        }
                     }
 
                     
@@ -638,7 +660,8 @@ fn update_cell_fov (
 
         if iterated_cell_is_visible {
 
-            if (iterated_cell_id.y == fov_cell_end.y - 1 || iterated_cell_id.y == fov_cell_end.y + 1) &&
+            if (iterated_cell_id.y == viewpoint_cell_id.y - 1 ||
+                iterated_cell_id.y == viewpoint_cell_id.y + 1) &&
             (iterated_cell_id.x == viewpoint_cell_id.x - 10 ||
             iterated_cell_id.x == viewpoint_cell_id.x + 10 ||
             iterated_cell_id.x == viewpoint_cell_id.x - 8 ||
@@ -658,11 +681,13 @@ fn update_cell_fov (
                 }
 
 
-                let target_ray_point = cell_id_to_world(Vec3Int {
+                let mut target_ray_point = cell_id_to_world(Vec3Int {
                     x:iterated_cell_id.x,
                     y:0,
                     z: iterated_cell_id.y
                 }) + offset;
+
+                target_ray_point.y = 1.8;
 
                 let origin_position = cell_id_to_world(Vec3Int{
                     x: viewpoint_cell_id.x,
@@ -673,8 +698,7 @@ fn update_cell_fov (
 
 
                 let masks = get_bit_masks(ColliderGroup::FOV);
-                let collider_set = QueryPipelineColliderComponentsSet(&collider_query);
-                let ray = Ray::new(origin_ray_point.into(), (origin_ray_point - target_ray_point).normalize().into());
+                let ray = Ray::new(origin_ray_point.into(), (target_ray_point - origin_ray_point).normalize().into());
                 let max_toi = origin_ray_point.distance(target_ray_point);
                 let solid = true;
                 let groups = InteractionGroups::new(masks.0,masks.1);
@@ -683,14 +707,14 @@ fn update_cell_fov (
                 let mut is_correct_black_cell = false;
 
                 if let Some((_handle, toi)) = query_pipeline.cast_ray(
-                    &collider_set, &ray, max_toi, solid, groups, filter
+                    collider_set, &ray, max_toi, solid, groups, filter
                 ) {
 
                     let distance_too_short = max_toi - toi;
 
                     if distance_too_short > 8.5 {
                         is_correct_black_cell = true;
-                    } 
+                    }
 
                 }
 
