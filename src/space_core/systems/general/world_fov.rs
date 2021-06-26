@@ -128,11 +128,11 @@ pub fn world_fov(
 }
 
 fn _update_cell_fov2(
-    new_fov_data : &mut HashMap<Vec2Int, Vec<Vec2Int>>,
-    precalculated_fov_data : &Res<PrecalculatedFOVData>,
-    gridmap_main : &Res<GridmapMain>,
-    non_blocking_cells_list : &Res<NonBlockingCellsList>,
-    viewpoint_cell_id : &Vec2Int,
+    _new_fov_data : &mut HashMap<Vec2Int, Vec<Vec2Int>>,
+    _precalculated_fov_data : &Res<PrecalculatedFOVData>,
+    _gridmap_main : &Res<GridmapMain>,
+    _non_blocking_cells_list : &Res<NonBlockingCellsList>,
+    _viewpoint_cell_id : &Vec2Int,
     query_pipeline: &Res<QueryPipeline>,
     collider_set : &QueryPipelineColliderComponentsSet
 ) {
@@ -141,11 +141,11 @@ fn _update_cell_fov2(
 
     let total_cells_in_view_amount = (VIEW_DISTANCE*2) * (VIEW_DISTANCE*2) + 2 * (VIEW_DISTANCE*2);
 
-    for i in 0..total_cells_in_view_amount {
+    for _i in 0..total_cells_in_view_amount {
         
-        for j in 0..3 {
+        for _j in 0..3 {
 
-            let target_ray_point = Vec3::new(100.,1.8,50.);
+            let target_ray_point = Vec3::new(30.,1.8,30.);
             let origin_ray_point = Vec3::new(0.,1.8,0.);
     
             
@@ -158,7 +158,7 @@ fn _update_cell_fov2(
             let groups = InteractionGroups::new(masks.0,masks.1);
             let filter = None;
     
-            let mut is_correct_black_cell = false;
+            let mut _is_correct_black_cell = false;
     
             if let Some((_handle, toi)) = query_pipeline.cast_ray(
                 collider_set, &ray, max_toi, solid, groups, filter
@@ -167,7 +167,7 @@ fn _update_cell_fov2(
                 let distance_too_short = max_toi - toi;
     
                 if distance_too_short > 1. {
-                    is_correct_black_cell = true;
+                    _is_correct_black_cell = true;
                 }
     
             }
