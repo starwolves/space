@@ -77,7 +77,7 @@ pub fn world_fov(
     let start_size = world_fov.to_be_recalculated.len();
     let mut i = 0;
     let mut j =0 ;
-    let frac_value = 0.2;
+    let frac_value = 0.01;
     let frac_size = (start_size as f32 * frac_value) as usize;
 
     if world_fov.to_be_recalculated.len() == 0 {
@@ -127,6 +127,58 @@ pub fn world_fov(
 
 }
 
+fn _update_cell_fov2(
+    new_fov_data : &mut HashMap<Vec2Int, Vec<Vec2Int>>,
+    precalculated_fov_data : &Res<PrecalculatedFOVData>,
+    gridmap_main : &Res<GridmapMain>,
+    non_blocking_cells_list : &Res<NonBlockingCellsList>,
+    viewpoint_cell_id : &Vec2Int,
+    query_pipeline: &Res<QueryPipeline>,
+    collider_set : &QueryPipelineColliderComponentsSet
+) {
+
+    // Dummy function that can be used to demonstrate our custom function is faster than if we were to simply raytrace a few points for each cells.
+
+    let total_cells_in_view_amount = (VIEW_DISTANCE*2) * (VIEW_DISTANCE*2) + 2 * (VIEW_DISTANCE*2);
+
+    for i in 0..total_cells_in_view_amount {
+        
+        for j in 0..3 {
+
+            let target_ray_point = Vec3::new(100.,1.8,50.);
+            let origin_ray_point = Vec3::new(0.,1.8,0.);
+    
+            
+    
+            let masks = get_bit_masks(ColliderGroup::FOV);
+            
+            let ray = Ray::new(origin_ray_point.into(), (target_ray_point-origin_ray_point).normalize().into());
+            let max_toi = origin_ray_point.distance(target_ray_point);
+            let solid = true;
+            let groups = InteractionGroups::new(masks.0,masks.1);
+            let filter = None;
+    
+            let mut is_correct_black_cell = false;
+    
+            if let Some((_handle, toi)) = query_pipeline.cast_ray(
+                collider_set, &ray, max_toi, solid, groups, filter
+            ) {
+    
+                let distance_too_short = max_toi - toi;
+    
+                if distance_too_short > 1. {
+                    is_correct_black_cell = true;
+                }
+    
+            }
+
+        }
+
+        
+
+    }
+
+}
 
 fn update_cell_fov (
     new_fov_data : &mut HashMap<Vec2Int, Vec<Vec2Int>>,
