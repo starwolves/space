@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 
-use bevy::{core::Time, math::{Vec3}, prelude::{Res, ResMut, error, info}};
+use bevy::{core::Time, math::{Vec3}, prelude::{Local, Res, ResMut, error, info}};
 use bevy_rapier3d::prelude::{InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray};
 
 use crate::space_core::{functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap_functions::cell_id_to_world}, resources::{gridmap_main::{CellData, GridmapMain}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::{PrecalculatedFOVData, Vec2Int, Vec3Int}, world_fov::WorldFOV}};
 
 const INIT_FOV_SQUARE_SIZE : u32 = 260;
 const VIEW_DISTANCE : i16 = 23;
+
+const MAX_CELLS_PER_TICK : u8 = 10;
 
 struct UnfilledCorner {
     pub empty_offset_left : Vec2Int,
@@ -16,7 +18,15 @@ struct UnfilledCorner {
     pub to_be_shadowed_cell_if_eyes_right : Vec2Int,
 }
 
+
+#[derive(Default)]
+pub struct StartupProcessed {
+    pub value : bool
+}
+
 pub fn world_fov(
+    
+    mut startup_processed : Local<StartupProcessed>,
     time: Res<Time>, 
     mut world_fov : ResMut<WorldFOV>,
     gridmap_main : Res<GridmapMain>,
@@ -26,7 +36,7 @@ pub fn world_fov(
     collider_query: QueryPipelineColliderComponentsQuery,
 ) {
 
-    
+    let mut init_load = false;
 
     if world_fov.init == true {
         // Wait for physics engine to process all the new map cells, takes a short while.
@@ -34,6 +44,7 @@ pub fn world_fov(
         if time.time_since_startup().as_millis() < 2000 {
             return;
         }
+        init_load=true;
         world_fov.init = false;
 
         // Hardcode map corners/limits for FOV calculation.
@@ -72,33 +83,88 @@ pub fn world_fov(
         
     }
 
-    let mut new_fov_data : HashMap<Vec2Int, Vec<Vec2Int>> = HashMap::new();
-
-    let start_size = world_fov.to_be_recalculated.len();
-    let mut i = 0;
-    let mut j =0 ;
-    let frac_value = 0.01;
-    let frac_size = (start_size as f32 * frac_value) as usize;
-
-    if world_fov.to_be_recalculated.len() == 0 {
+    if world_fov.to_be_recalculated.len() == 0 && world_fov.to_be_recalculated_priority.len() == 0 {
+        if !startup_processed.value {
+            startup_processed.value=true;
+            info!("Finished building FOV!");
+        }
         return;
     }
 
+
+    let mut new_fov_data : HashMap<Vec2Int, Vec<Vec2Int>> = HashMap::new();
     let collider_set = QueryPipelineColliderComponentsSet(&collider_query);
 
-    for vector in &world_fov.to_be_recalculated {
-        if i == 0 {
-            info!("Building FOV (0%).");
-        } else if i >= frac_size-1 {
-            i=0;
-            j+=1;
-            if j == (1./frac_value) as i32 {
-                info!("Building FOV (100%).");
-                info!("FOV Done!");
-            } else {
-                info!("Building FOV ({}%).", j as f32 * (frac_value*100.));
+    if init_load && world_fov.blocking_load_at_init {
+
+        // Blockingly build FOV at startup.
+
+        startup_processed.value = true;
+
+        let start_size = world_fov.to_be_recalculated.len();
+        let mut i = 0;
+        let mut j =0 ;
+        let frac_value = 0.2;
+        let frac_size = (start_size as f32 * frac_value) as usize;
+
+        for vector in &world_fov.to_be_recalculated {
+            if i == 0 {
+                info!("Building FOV (0%).");
+            } else if i >= frac_size-1 {
+                i=0;
+                j+=1;
+                if j == (1./frac_value) as i32 {
+                    info!("Building FOV (100%).");
+                    info!("FOV Done!");
+                } else {
+                    info!("Building FOV ({}%).", j as f32 * (frac_value*100.));
+                }
+                
             }
-            
+
+            update_cell_fov(
+                &mut new_fov_data,
+                &precalculated_fov_data,
+                &gridmap_main,
+                &non_blocking_cells_list,
+                vector,
+                &query_pipeline,
+                &collider_set
+            );
+
+            i+=1;
+
+        }
+
+        world_fov.to_be_recalculated = vec![];
+
+        for (key, value) in new_fov_data {
+
+            world_fov.data.insert(key, value);
+    
+        }
+
+        return;
+
+    }
+
+    
+    for _i in 0..MAX_CELLS_PER_TICK {
+
+        // Non blocking load FOV with priorities
+        
+        let viewpoint_id;
+        let mut priority_queue = false;
+
+        if world_fov.to_be_recalculated_priority.len() > 0 {
+
+            viewpoint_id = world_fov.to_be_recalculated_priority[0];
+            priority_queue=true;
+
+        } else if world_fov.to_be_recalculated.len() >0 {
+            viewpoint_id = world_fov.to_be_recalculated[0];
+        } else {
+            break;
         }
 
         update_cell_fov(
@@ -106,24 +172,38 @@ pub fn world_fov(
             &precalculated_fov_data,
             &gridmap_main,
             &non_blocking_cells_list,
-            vector,
+            &viewpoint_id,
             &query_pipeline,
             &collider_set
         );
 
-        i+=1;
+        if priority_queue {
+            let index_option = world_fov.to_be_recalculated.iter().position(|&r| r == viewpoint_id);
+
+            match index_option {
+                Some(index) => {
+                    world_fov.to_be_recalculated.remove(index);
+                },
+                None => {},
+            }
+            
+            world_fov.to_be_recalculated_priority.remove(0);
+
+        } else {
+
+            world_fov.to_be_recalculated.remove(0);
+
+        }
+        
 
     }
-
-    world_fov.to_be_recalculated = vec![];
-
 
     for (key, value) in new_fov_data {
 
         world_fov.data.insert(key, value);
 
     }
-    
+
 
 }
 

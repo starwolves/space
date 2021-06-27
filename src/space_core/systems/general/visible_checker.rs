@@ -1,5 +1,5 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform, warn}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, ResMut, Transform}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{gridmap_functions::{world_to_cell_id}, isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, resources::{precalculated_fov_data::Vec2Int, world_fov::WorldFOV}};
@@ -16,7 +16,7 @@ pub fn visible_checker(
     query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyPosition, &ConnectedPlayer)>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,
-    world_fov : Res<WorldFOV>,
+    mut world_fov : ResMut<WorldFOV>,
 ) {
     
     for (
@@ -75,7 +75,7 @@ pub fn visible_checker(
                 visible_entity_id.id(),
                 is_interpolated,
                 &entity_updates_component,
-                &world_fov,
+                &mut world_fov,
             );
 
         }
@@ -101,7 +101,7 @@ fn visible_check(
     visible_entity_id : u32,
     interpolated_transform : bool,
     visible_entity_updates_component : &EntityUpdates,
-    world_fov : &Res<WorldFOV>,
+    world_fov : &mut ResMut<WorldFOV>,
 ) {
 
     let mut is_visible = !(visible_checker_translation.distance(visible_entity_transform.translation) > 90.);
@@ -130,8 +130,11 @@ fn visible_check(
 
             },
             None => {
-                warn!("Requested world_fov out of range data: {:?}", visible_checker_cell_id_2d);
-                is_visible = false;
+                if !world_fov.to_be_recalculated_priority.contains(visible_checker_cell_id_2d) {
+                    world_fov.to_be_recalculated_priority.push(*visible_checker_cell_id_2d);
+                }
+                //is_visible = false;
+                return;
             },
         }
 
