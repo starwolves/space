@@ -195,7 +195,9 @@ fn main() {
     let world_fov = WorldFOV {
         data : HashMap::new(),
         to_be_recalculated: vec![],
+        to_be_recalculated_priority: vec![],
         init: true,
+        blocking_load_at_init: false,
     };
 
     let gridmap_main = GridmapMain {
