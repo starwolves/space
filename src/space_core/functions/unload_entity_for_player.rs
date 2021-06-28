@@ -6,6 +6,7 @@ pub fn unload_entity(
     player_handle : u32,
     entity_id : u32,
     net_unload_entity : &mut EventWriter<NetUnloadEntity>,
+    unload_entirely : bool,
 ) {
 
     net_unload_entity.send(
@@ -13,7 +14,7 @@ pub fn unload_entity(
             handle: player_handle,
             message: ReliableServerMessage::UnloadEntity(
                 entity_id,
-                true
+                unload_entirely
             )
         }
     );

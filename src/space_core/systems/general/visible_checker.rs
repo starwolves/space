@@ -1,5 +1,5 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, ResMut, Transform}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, ResMut, Transform, info}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{gridmap_functions::{world_to_cell_id}, isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, resources::{precalculated_fov_data::Vec2Int, world_fov::WorldFOV}};
@@ -78,6 +78,8 @@ pub fn visible_checker(
                 &mut world_fov,
             );
 
+            
+
         }
 
 
@@ -88,6 +90,9 @@ pub fn visible_checker(
 
 }
 
+const VIEW_DISTANCE : f32 = 90.;
+const HEAR_DISTANCE : f32 = 60.;
+const LIGHT_DISTANCE : f32 = 180.;
 
 fn visible_check(
     visible_component : &mut Mut<Sensable>,
@@ -104,14 +109,25 @@ fn visible_check(
     world_fov : &mut ResMut<WorldFOV>,
 ) {
 
-    let mut is_visible = !(visible_checker_translation.distance(visible_entity_transform.translation) > 90.);
+    let distance = visible_checker_translation.distance(visible_entity_transform.translation);
+    let is_cached = distance < VIEW_DISTANCE;
+    let can_cache;
 
+    if visible_component.is_light ||
+    visible_component.is_audible ||
+    visible_component.always_sensed {
+        can_cache = false;
+    } else {
+        can_cache = true;
+    }
+
+    let mut is_sensed = false;
     
 
     if visible_component.is_light == false &&
     visible_component.is_audible == false &&
     visible_component.always_sensed == false &&
-    is_visible {
+    is_cached {
 
         let visible_checker_cell_id = world_to_cell_id(visible_checker_translation);
 
@@ -126,7 +142,7 @@ fn visible_check(
 
                 let visible_entity_cell_id_2d = &Vec2Int{ x: visible_entity_cell_id.x, y: visible_entity_cell_id.z };
 
-                is_visible = this_cell_fov.contains(visible_entity_cell_id_2d);
+                is_sensed = this_cell_fov.contains(visible_entity_cell_id_2d);
 
             },
             None => {
@@ -140,25 +156,72 @@ fn visible_check(
 
     }
 
-    if visible_component.always_sensed == true {
-        is_visible = true;
+    if visible_component.is_light {
+        is_sensed = distance < LIGHT_DISTANCE;
+    }
+    else if visible_component.is_audible {
+        is_sensed = distance < HEAR_DISTANCE;
     }
 
-    if is_visible == false {
+    if visible_component.always_sensed == true {
+        is_sensed = true;
+    }
+
+    let sensed_by_contains = visible_component.sensed_by.contains(&visible_checker_entity_id);
+    let sensed_by_cached_contains = visible_component.sensed_by_cached.contains(&visible_checker_entity_id);
+
+    if is_sensed == false {
+
+        let unload_entirely;
+
+        if can_cache {
+            unload_entirely = !is_cached;
+        } else {
+            unload_entirely = true;
+        }
 
 
-        if visible_component.sensed_by.contains(&visible_checker_entity_id) == true {
+        if sensed_by_contains {
+
+            //info!("(0) id:{}. unload_entirely:{}.", visible_entity_id, unload_entirely);
 
             unload_entity(
                 visible_checker_handle,
                 visible_entity_id,
-                net_unload_entity
+                net_unload_entity,
+                unload_entirely
             );
 
             let index = visible_component.sensed_by.iter().position(|x| x == &visible_checker_entity_id).unwrap();
-
             visible_component.sensed_by.remove(index);
 
+            if can_cache && !unload_entirely {
+                if !sensed_by_cached_contains {
+                    visible_component.sensed_by_cached.push(visible_checker_entity_id);
+                }
+            }
+            
+        } else if sensed_by_cached_contains && unload_entirely {
+            //info!("(1) id:{}. unload_entirely:{}.", visible_entity_id, unload_entirely);
+            unload_entity(
+                visible_checker_handle,
+                visible_entity_id,
+                net_unload_entity,
+                unload_entirely
+            );
+            let index = visible_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            visible_component.sensed_by_cached.remove(index);
+        } else if !sensed_by_contains && !sensed_by_cached_contains {
+            if can_cache && !unload_entirely {
+                //info!("(2) id:{}. unload_entirely:{}.", visible_entity_id, unload_entirely);
+                unload_entity(
+                    visible_checker_handle,
+                    visible_entity_id,
+                    net_unload_entity,
+                    unload_entirely
+                );
+                visible_component.sensed_by_cached.push(visible_checker_entity_id);
+            }
         }
 
 
@@ -169,11 +232,9 @@ fn visible_check(
 
     } else {
 
-
-        if visible_component.sensed_by.contains(&visible_checker_entity_id) == false {
-        
+        if !sensed_by_contains {
+            //info!("(3) id:{}. load_entirely:{}.", visible_entity_id, true);
             visible_component.sensed_by.push(visible_checker_entity_id);
-            
             load_entity(
                 &visible_entity_updates_component.updates,
                 visible_entity_transform,
@@ -182,10 +243,15 @@ fn visible_check(
                 visible_checker_handle,
                 visible_entity_data,
                 visible_entity_updates_component,
-                visible_entity_id
+                visible_entity_id,
+                true
             );
     
-    
+        }
+        
+        if sensed_by_cached_contains {
+            let index = visible_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            visible_component.sensed_by_cached.remove(index);
         }
 
 

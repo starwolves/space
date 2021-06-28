@@ -15,48 +15,59 @@ pub fn load_entity(
     entity_data : &EntityData,
     entity_updates_component : &EntityUpdates,
     entity_id : u32,
+    load_entirely : bool,
 ) {
 
-    let mut hash_map = entity_updates.clone();
+    let mut hash_map;
 
-    hash_map = entity_updates_personalise::personalise(
-        &mut hash_map,
-        player_handle,
-        entity_updates_component
-    );
+    if load_entirely {
 
-    let transform_entity_update= EntityUpdateData::Transform(
-        entity_transform.translation,
-        entity_transform.rotation,
-        entity_transform.scale
-    );
+        hash_map = entity_updates.clone();
 
-    match interpolated_transform {
-        true => {
-            let mut transform_hash_map = HashMap::new();
-            transform_hash_map.insert("transform".to_string(), transform_entity_update);
-
-            hash_map.insert("rawTransform".to_string(), transform_hash_map);
-
-        },
-        false => {
-            let root_map_option = hash_map.get_mut(&".".to_string());
-
-            match root_map_option {
-                Some(root_map) => {
-                    root_map.insert("transform".to_string(), transform_entity_update);
+        hash_map = entity_updates_personalise::personalise(
+            &mut hash_map,
+            player_handle,
+            entity_updates_component
+        );
+    
+        let transform_entity_update= EntityUpdateData::Transform(
+            entity_transform.translation,
+            entity_transform.rotation,
+            entity_transform.scale
+        );
+    
+        match interpolated_transform {
+            true => {
+                let mut transform_hash_map = HashMap::new();
+                transform_hash_map.insert("transform".to_string(), transform_entity_update);
+    
+                hash_map.insert("rawTransform".to_string(), transform_hash_map);
+    
+            },
+            false => {
+                let root_map_option = hash_map.get_mut(&".".to_string());
+    
+                match root_map_option {
+                    Some(root_map) => {
+                        root_map.insert("transform".to_string(), transform_entity_update);
+                    }
+                    None => {
+                        let mut transform_hash_map = HashMap::new();
+                        transform_hash_map.insert("transform".to_string(), transform_entity_update);
+    
+                        hash_map.insert(".".to_string(), transform_hash_map);
+                    }
                 }
-                None => {
-                    let mut transform_hash_map = HashMap::new();
-                    transform_hash_map.insert("transform".to_string(), transform_entity_update);
-
-                    hash_map.insert(".".to_string(), transform_hash_map);
-                }
+    
+                
             }
-
-            
         }
+
+    } else {
+        hash_map = HashMap::new();
     }
+
+    
     
 
     net_load_entity.send(
@@ -67,7 +78,7 @@ pub fn load_entity(
                 entity_data.entity_type.clone(),
                 hash_map,
                 entity_id,
-                true,
+                load_entirely,
                 "main".to_string(),
                 "".to_string(),
                 false
