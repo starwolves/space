@@ -48,7 +48,8 @@ pub fn build_graphics_event(
                 build_graphics_event.handle,
                 entity_data_component,
                 entity_updates_component,
-                entity.id()
+                entity.id(),
+                true
             );
         }
 
@@ -67,7 +68,8 @@ pub fn build_graphics_event(
                 build_graphics_event.handle,
                 entity_data_component,
                 entity_updates_component,
-                entity.id()
+                entity.id(),
+                true
             );
         }
 

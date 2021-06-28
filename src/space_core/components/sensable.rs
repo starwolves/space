@@ -23,7 +23,7 @@ impl Sensable {
 
             match handle_to_entity.inv_map.get(&sensed_by_entity.id()) {
                 Some(handle) => {
-                    unload_entity(*handle, entity.id(), &mut net_unload_entity);
+                    unload_entity(*handle, entity.id(), &mut net_unload_entity, true);
                 }
                 None => {}
             }
