@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{Commands, Entity, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::footsteps_walking::FootstepsWalkingSfxBundle, components::{footsteps_walking::FootstepsWalking, human_character::{HumanCharacter, State as HumanState}, linked_footsteps_walking::LinkedFootstepsWalking, player_input::PlayerInput, sensable::{Sensable}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::{isometry_to_transform::isometry_to_transform}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::footsteps_walking::FootstepsWalkingSfxBundle, components::{footsteps_walking::FootstepsWalking, standard_character::{StandardCharacter, State as HumanState}, linked_footsteps_walking::LinkedFootstepsWalking, player_input::PlayerInput, sensable::{Sensable}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::{isometry_to_transform::isometry_to_transform}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
 
@@ -13,7 +13,7 @@ pub fn move_player_bodies(
         &mut RigidBodyVelocity,
         &mut RigidBodyMassProps,
         &mut RigidBodyForces,
-        &mut HumanCharacter,
+        &mut StandardCharacter,
         Option<&LinkedFootstepsWalking>,
     )>,
     mut footsteps_walking_query : Query<(
@@ -102,8 +102,8 @@ pub fn move_player_bodies(
         match idle {
             true => {
 
-                if matches!(human_character_component.state, HumanState::Idle) == false {
-                    human_character_component.state = HumanState::Idle;
+                if matches!(human_character_component.current_animation_state, HumanState::Idle) == false {
+                    human_character_component.current_animation_state = HumanState::Idle;
                     // Despawn FootstepsWalkingSfx here.
 
 
@@ -136,8 +136,8 @@ pub fn move_player_bodies(
                 rigid_body_position.rotation = UnitQuaternion::from_quaternion(movement_rotations.rotations[movement_index]); 
                 rigid_body_position_component.position = rigid_body_position;
 
-                if matches!(human_character_component.state, HumanState::Walking) == false {
-                    human_character_component.state = HumanState::Walking;
+                if matches!(human_character_component.current_animation_state, HumanState::Walking) == false {
+                    human_character_component.current_animation_state = HumanState::Walking;
 
                     // Spawn FootstepsWalkingSfx entity here.
 

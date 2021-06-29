@@ -1,5 +1,5 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, ResMut, Transform, info}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, ResMut, Transform}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{gridmap_functions::{world_to_cell_id}, isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, resources::{precalculated_fov_data::Vec2Int, world_fov::WorldFOV}};
@@ -183,8 +183,6 @@ fn visible_check(
 
         if sensed_by_contains {
 
-            //info!("(0) id:{}. unload_entirely:{}.", visible_entity_id, unload_entirely);
-
             unload_entity(
                 visible_checker_handle,
                 visible_entity_id,
@@ -202,7 +200,6 @@ fn visible_check(
             }
             
         } else if sensed_by_cached_contains && unload_entirely {
-            //info!("(1) id:{}. unload_entirely:{}.", visible_entity_id, unload_entirely);
             unload_entity(
                 visible_checker_handle,
                 visible_entity_id,
@@ -213,7 +210,6 @@ fn visible_check(
             visible_component.sensed_by_cached.remove(index);
         } else if !sensed_by_contains && !sensed_by_cached_contains {
             if can_cache && !unload_entirely {
-                //info!("(2) id:{}. unload_entirely:{}.", visible_entity_id, unload_entirely);
                 unload_entity(
                     visible_checker_handle,
                     visible_entity_id,
@@ -233,7 +229,6 @@ fn visible_check(
     } else {
 
         if !sensed_by_contains {
-            //info!("(3) id:{}. load_entirely:{}.", visible_entity_id, true);
             visible_component.sensed_by.push(visible_checker_entity_id);
             load_entity(
                 &visible_entity_updates_component.updates,

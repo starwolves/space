@@ -33,6 +33,7 @@ pub fn tick_asana_boarding_announcements(
                 true,
                 &radio_pawns,
                 None,
+                None,
             );
 
             done_messages.insert(

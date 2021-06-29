@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFla
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, human_character::{HumanCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, standard_character::{StandardCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
 
 
 pub fn on_spawning(
@@ -107,8 +107,9 @@ pub fn on_spawning(
                 movement_vector : Vec2::ZERO,
                 sprinting : false
             },
-            HumanCharacter {
-                state : HumanState::Idle
+            StandardCharacter {
+                current_animation_state : HumanState::Idle,
+                billboard_messages: vec![],
             },
             Pawn {
                 name: persistent_player_data_component.character_name.clone(),

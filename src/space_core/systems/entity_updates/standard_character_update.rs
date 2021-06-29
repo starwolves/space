@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, human_character::{HumanCharacter}, persistent_player_data::PersistentPlayerData}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, standard_character::{StandardCharacter}, persistent_player_data::PersistentPlayerData}, structs::network_messages::EntityUpdateData};
 
-pub fn human_pawn_update(
-    mut updated_humans: Query<(&HumanCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>), Changed<HumanCharacter>>,
+pub fn standard_character_update(
+    mut updated_humans: Query<(&StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>), Changed<StandardCharacter>>,
 ) {
 
     for (
@@ -21,12 +21,12 @@ pub fn human_pawn_update(
 
         
 
-        match human_character_component.state {
-            crate::space_core::components::human_character::State::Idle => {
+        match human_character_component.current_animation_state {
+            crate::space_core::components::standard_character::State::Idle => {
                 lower_body_animation_state = "Idle".to_string();
                 upper_body_animation_state = "Idle".to_string();
             }
-            crate::space_core::components::human_character::State::Walking => {
+            crate::space_core::components::standard_character::State::Walking => {
                 lower_body_animation_state = "Jogging".to_string();
                 upper_body_animation_state = "Jogging".to_string();
             }

@@ -1,11 +1,12 @@
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, warn}};
+
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 use const_format::concatcp;
 
-use crate::space_core::{components::radio::{Radio, RadioChannel}, enums::space_jobs::SpaceJobsEnum, events::net::net_chat_message::NetChatMessage, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{radio::{Radio, RadioChannel}, standard_character::StandardCharacter}, enums::space_jobs::SpaceJobsEnum, events::net::net_chat_message::NetChatMessage, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
 
-const _BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
-const _BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
+const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
+const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
 
 const NEARBY_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularBoldDyna.tres";
 const _NEARBY_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumItDyna.tres";
@@ -188,8 +189,8 @@ const TALK_SPACE_SPECIALOPS_MESSAGEBBEND : &str = "[/color]";
 
 
 
-const _BILLBOARD_DATA_SECURITY_START : &str = "[center][color=#ff7070]";
-const _BILLBOARD_DATA_SECURITY_END : &str = "[/color][/center]";
+const BILLBOARD_DATA_SECURITY_START : &str = "[center][color=#ff7070]";
+const BILLBOARD_DATA_SECURITY_END : &str = "[/color][/center]";
 
 const _BILLBOARD_DATA_SPECIALOPS_START : &str = "[center][color=#ff7070]";
 const _BILLBOARD_DATA_SPECIALOPS_END : &str = "[/color][/center]";
@@ -320,6 +321,7 @@ pub fn new_chat_message(
     exclusive_radio : bool,
     radio_pawns : &Query<(Entity, &Radio, &RigidBodyPosition)>,
     messenger_entity_option : Option<&Entity>,
+    mut sender_standard_character_option : Option<&mut StandardCharacter>,
 ) {
 
     raw_message = escape_bb(raw_message, true);
@@ -800,6 +802,75 @@ pub fn new_chat_message(
     // Create & send proximity billboard message.
     
 
+    let mut billboard_message = "".to_string();
+
+    if exclusive_radio == false {
+
+        billboard_message = billboard_message + BILLBOARD_DATA_SECURITY_START;
+
+        let nearby_talk_data_i_start;
+        let nearby_talk_data_i_end;
+        let nearby_talk_data_b_start;
+        let nearby_talk_data_b_end;
+
+        match communicator {
+            Communicator::Standard => {
+                nearby_talk_data_i_start = TALK_DATA_STANDARD_I_NEARBY_START;
+                nearby_talk_data_i_end = TALK_DATA_STANDARD_I_NEARBY_END;
+
+                nearby_talk_data_b_start = TALK_DATA_STANDARD_B_NEARBY_START;
+                nearby_talk_data_b_end = TALK_DATA_STANDARD_B_NEARBY_END;
+            },
+            Communicator::Machine => {
+                nearby_talk_data_i_start = TALK_DATA_MACHINE_I_NEARBY_START;
+                nearby_talk_data_i_end = TALK_DATA_STANDARD_I_NEARBY_END;
+
+                nearby_talk_data_b_start = TALK_DATA_STANDARD_B_NEARBY_START;
+                nearby_talk_data_b_end = TALK_DATA_STANDARD_B_NEARBY_END;
+            },
+        }
+
+        if exclusive_proximity == false {
+            billboard_message = billboard_message + nearby_talk_data_i_start;
+        }
+
+        if matches!(talk_style_variation, TalkStyleVariant::Shouts) {
+            
+            
+            billboard_message = billboard_message + nearby_talk_data_b_start;
+
+            if exclusive_proximity == false {
+                billboard_message = billboard_message + "[font=" + BILLBOARD_SHOUT_FONT + "]" + &message + "[/font]";
+            } else {
+                billboard_message = billboard_message + "[font=" + BILLBOARD_SHOUT_ITALIC_FONT + "]" + &message + "[/font]";
+            }
+
+            billboard_message = billboard_message + nearby_talk_data_b_end;
+        } else {
+
+
+            if is_emote {
+                billboard_message = billboard_message + nearby_talk_data_i_start;
+                billboard_message = billboard_message + "*" + &message + "*";
+                billboard_message = billboard_message + nearby_talk_data_i_end;
+            } else {
+                billboard_message = billboard_message + &message;
+            }
+
+        }
+
+
+        if exclusive_proximity == false {
+
+            billboard_message = billboard_message + nearby_talk_data_i_end;
+
+        }
+
+        billboard_message = billboard_message + BILLBOARD_DATA_SECURITY_END;
+
+        
+    }
+
 
 
 
@@ -928,7 +999,17 @@ pub fn new_chat_message(
                                 },
                             }
 
-                                
+                            match sender_standard_character_option {
+                                Some(ref mut sender_standard_character) => {
+
+                                    sender_standard_character.billboard_messages.push(billboard_message.clone());
+
+                                },
+                                None => {
+                                    error!("Cannot send proximity message without providing &StandardCharacter");
+                                },
+                            }
+                            
                             
 
                         },
