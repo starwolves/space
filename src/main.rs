@@ -65,11 +65,6 @@ use space_core::{
 use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, input_chat_message::InputChatMessage, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_on_spawning::NetOnSpawning, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, standard_character_update::standard_character_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
 
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
-enum SpaceStages {
-    TransformInterpolation,
-}
-
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 enum PreUpdateLabels {
     NetEvents
@@ -290,56 +285,28 @@ fn main() {
         .add_system(tick_timers.system())
         .add_system(tick_asana_boarding_announcements.system())
         .add_system(world_fov_system.system())
-
         .add_system(ui_input_transmit_data_event.system())
         .add_system(done_boarding.system())
         .add_system(on_spawning.system())
-
-        .add_stage_after(
-            PostUpdate,
-            SpaceStages::TransformInterpolation,
-            SystemStage::parallel()
-                .with_run_criteria(
-                    FixedTimestep::step(1./24.)
-                    .with_label(INTERPOLATION_LABEL),
-                )
+        .add_system_set_to_stage( PostUpdate,
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(1./24.)
+                .with_label(INTERPOLATION_LABEL))
                 .with_system(broadcast_interpolation_transforms.system())
         )
-        .add_system_to_stage(PostUpdate, 
-            omni_light_update.system()
+        .add_system_set_to_stage(PostUpdate, 
+            SystemSet::new()
             .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate, 
-            standard_character_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate,
-            world_mode_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate, 
-            gi_probe_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate, 
-            reflection_probe_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate, 
-            air_lock_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate, 
-            sfx_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate, 
-            repeating_sfx_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
-        )
-        .add_system_to_stage(PostUpdate, 
-            counter_window_update.system()
-            .label(PostUpdateLabels::EntityUpdate)
+            .with_system(omni_light_update.system())
+            .with_system(standard_character_update.system())
+            .with_system(world_mode_update.system())
+            .with_system(gi_probe_update.system())
+            .with_system(reflection_probe_update.system())
+            .with_system(air_lock_update.system())
+            .with_system(sfx_update.system())
+            .with_system(repeating_sfx_update.system())
+            .with_system(counter_window_update.system())
+            .with_system(counter_window_update.system())
         )
         .add_system_to_stage(PostUpdate, 
             send_entity_updates.system()
