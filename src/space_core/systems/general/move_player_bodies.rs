@@ -17,7 +17,7 @@ pub fn move_player_bodies(
         Option<&LinkedFootstepsWalking>,
     )>,
     mut footsteps_walking_query : Query<(
-        &Sensable,
+        &mut Sensable,
         &FootstepsWalking,
         &mut StaticTransform
     )>,
@@ -110,7 +110,7 @@ pub fn move_player_bodies(
                     match linked_footsteps_walking_option {
                         Some(linked_footsteps_walking_component) => {
 
-                            let sensable_component = footsteps_walking_query.get_component::<Sensable>(linked_footsteps_walking_component.entity).unwrap();
+                            let mut sensable_component = footsteps_walking_query.get_component_mut::<Sensable>(linked_footsteps_walking_component.entity).unwrap();
 
                             sensable_component.despawn(
                                 linked_footsteps_walking_component.entity,

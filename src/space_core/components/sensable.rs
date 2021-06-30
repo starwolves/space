@@ -13,24 +13,35 @@ pub struct Sensable{
 
 impl Sensable {
     pub fn despawn(
-        &self,
+        &mut self,
         entity : Entity,
         mut net_unload_entity : &mut EventWriter<NetUnloadEntity>,
         handle_to_entity : &Res<HandleToEntity>,
     ) {
 
-        for sensed_by_entity in self.sensed_by.iter() {
+        // Shouldn't be called from the same stage visible_checker.system() runs in.
 
+        let entity_id = entity.id();
+
+        for sensed_by_entity in self.sensed_by.iter() {
             match handle_to_entity.inv_map.get(&sensed_by_entity.id()) {
                 Some(handle) => {
-                    unload_entity(*handle, entity.id(), &mut net_unload_entity, true);
+                    unload_entity(*handle, entity_id, &mut net_unload_entity, true);
                 }
                 None => {}
             }
-
-            
-
         }
+        for sensed_by_entity in self.sensed_by_cached.iter() {
+            match handle_to_entity.inv_map.get(&sensed_by_entity.id()) {
+                Some(handle) => {
+                    unload_entity(*handle, entity_id, &mut net_unload_entity, true);
+                }
+                None => {}
+            }
+        }
+
+        self.sensed_by = vec![];
+        self.sensed_by_cached = vec![];
 
     }
 }
