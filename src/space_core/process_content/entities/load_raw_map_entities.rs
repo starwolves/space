@@ -135,8 +135,8 @@ pub fn load_raw_map_entities(
             let masks = get_bit_masks(ColliderGroup::Standard);
 
             let collider_component = ColliderBundle {
-                shape: ColliderShape::cuboid(1.,0.2,1.),
-                position: Vec3::new(0., 1., 1.).into(),
+                shape: ColliderShape::cuboid(1.,1.,0.2),
+                position: Vec3::new(0., 1., 0.).into(),
                 flags: ColliderFlags {
                     collision_groups: InteractionGroups::new(masks.0,masks.1),
                     active_events: (ActiveEvents::CONTACT_EVENTS),

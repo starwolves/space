@@ -69,7 +69,6 @@ use crate::space_core::{events::{general::{build_graphics::BuildGraphics, input_
 enum SpaceStages {
     SendNetMessages,
     ProcessEntityUpdates,
-    SendEntityUpdates,
     TransformInterpolation,
     PositionUpdates
 }
@@ -82,6 +81,12 @@ enum PreUpdateLabels {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 enum UpdateLabels {
     ProcessMovementInput
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+enum SendNetMessagesLabels {
+    EntityUpdates,
+    VisibleChecker,
 }
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
@@ -256,11 +261,6 @@ fn main() {
         )
         .add_stage_after(
             SpaceStages::ProcessEntityUpdates, 
-            SpaceStages::SendEntityUpdates, 
-            SystemStage::parallel()
-        )
-        .add_stage_after(
-            SpaceStages::SendEntityUpdates, 
             SpaceStages::SendNetMessages, 
             SystemStage::parallel()
         )
@@ -300,7 +300,6 @@ fn main() {
         .add_system(on_setupui.system())
         .add_system(ui_input_transmit_data_event.system())
         .add_system(on_spawning.system())
-        .add_system(visible_checker.system())
         .add_system(build_graphics_event.system())
         .add_system(chat_message_input_event.system())
         .add_system(physics_events.system())
@@ -318,9 +317,7 @@ fn main() {
             handle_network_messages.system()
             .after(PreUpdateLabels::NetEvents)
         )
-        .add_system_to_stage(SpaceStages::SendEntityUpdates, 
-            send_entity_updates.system()
-        )
+        
         .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
             omni_light_update.system()
         )
@@ -349,7 +346,21 @@ fn main() {
             counter_window_update.system()
         )
         
-        .add_system_to_stage(PostUpdate, done_boarding.system())
-        .add_system_to_stage(SpaceStages::SendNetMessages, net_send_messages_event.system())
+        .add_system_to_stage(PostUpdate, 
+            done_boarding.system()
+        )
+        .add_system_to_stage(SpaceStages::SendNetMessages, 
+            send_entity_updates.system()
+            .label(SendNetMessagesLabels::EntityUpdates)
+        )
+        .add_system_to_stage(SpaceStages::SendNetMessages, 
+            visible_checker.system()
+            .after(SendNetMessagesLabels::EntityUpdates)
+            .label(SendNetMessagesLabels::VisibleChecker)
+        )
+        .add_system_to_stage(SpaceStages::SendNetMessages, 
+            net_send_messages_event.system()
+            .after(SendNetMessagesLabels::VisibleChecker)
+        )
         .run();
 }
