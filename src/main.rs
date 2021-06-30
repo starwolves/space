@@ -280,8 +280,8 @@ fn main() {
         .add_system(movement_input_event.system().label(UpdateLabels::ProcessMovementInput))
         .add_system(move_player_bodies.system().after(UpdateLabels::ProcessMovementInput))
         .add_system(broadcast_interpolation_transforms.system()
-            .with_run_criteria(FixedTimestep::step(1./24.))
-            .label(INTERPOLATION_LABEL)
+            .with_run_criteria(FixedTimestep::step(1./24.)
+            .with_label(INTERPOLATION_LABEL))
         )
         .add_system_set_to_stage(PostUpdate, 
             SystemSet::new()
