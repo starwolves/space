@@ -1,9 +1,11 @@
 
+use std::collections::HashMap;
+
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 use const_format::concatcp;
 
-use crate::space_core::{components::{radio::{Radio, RadioChannel}, standard_character::StandardCharacter}, enums::space_jobs::SpaceJobsEnum, events::net::net_chat_message::NetChatMessage, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{radio::{Radio, RadioChannel}}, enums::space_jobs::SpaceJobsEnum, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
 
 const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
 const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
@@ -321,7 +323,7 @@ pub fn new_chat_message(
     exclusive_radio : bool,
     radio_pawns : &Query<(Entity, &Radio, &RigidBodyPosition)>,
     messenger_entity_option : Option<&Entity>,
-    mut sender_standard_character_option : Option<&mut StandardCharacter>,
+    mut net_send_entity_updates_option: Option<&mut EventWriter<NetSendEntityUpdates>>,
 ) {
 
     raw_message = escape_bb(raw_message, true);
@@ -938,18 +940,32 @@ pub fn new_chat_message(
 
 
         // Proximity messages to listeners based on distance and shouting.
-        let sensed_by_list;
+        let mut sensed_by_list;
 
         if matches!(talk_style_variation, TalkStyleVariant::Shouts) {
-            sensed_by_list = sensed_by_distance;
+            sensed_by_list = vec![];
+            for entity in sensed_by {
+                sensed_by_list.push(*entity);
+            }
+            for entity in sensed_by_distance {
+                sensed_by_list.push(*entity);
+            }
         } else {
-            sensed_by_list = sensed_by;
+            sensed_by_list = sensed_by.to_vec();
         }
 
+        // Build billboard entity_update
+        let mut billboard_entity_update = HashMap::new();
+
+        let mut parameters_entity_update = HashMap::new();
+
+        parameters_entity_update.insert("billboardMessage".to_string(), EntityUpdateData::String(billboard_message.clone()));
+
+        billboard_entity_update.insert("Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText".to_string(), parameters_entity_update);
 
         for entity in sensed_by_list {
 
-            let sensed_by_entity_components_result = radio_pawns.get(*entity);
+            let sensed_by_entity_components_result = radio_pawns.get(entity);
 
             match sensed_by_entity_components_result {
                 Ok((entity, _radio_component, rigid_body_position)) => {
@@ -998,15 +1014,26 @@ pub fn new_chat_message(
                                     });
                                 },
                             }
+                                
+                            
 
-                            match sender_standard_character_option {
-                                Some(ref mut sender_standard_character) => {
-
-                                    sender_standard_character.billboard_messages.push(billboard_message.clone());
-
+                            match net_send_entity_updates_option {
+                                Some(ref mut net_send_entity_updates) => {
+                                    
+                                    match messenger_entity_option {
+                                        Some(messenger_entity) => {
+                                            net_send_entity_updates.send(NetSendEntityUpdates {
+                                                handle: *listener_handle,
+                                                message: ReliableServerMessage::EntityUpdate(messenger_entity.id(), billboard_entity_update.clone())
+                                            });
+                                        },
+                                        None => {
+                                            error!("Cannot send proximity message without providing messeger_entity.");
+                                        },
+                                    }
                                 },
                                 None => {
-                                    error!("Cannot send proximity message without providing &StandardCharacter");
+                                    error!("Cannot send proximity message without providing EventWriter<NetSendEntityUpdates>.");
                                 },
                             }
                             
