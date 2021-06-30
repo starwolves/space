@@ -247,8 +247,7 @@ fn main() {
         .add_event::<NetOnSpawning>()
         .add_event::<BoardingPlayer>()
         .add_startup_system(launch_server.system())
-        .add_system_to_stage(
-            PreUpdate, 
+        .add_system_to_stage(PreUpdate, 
             handle_network_events.system()
             .label(PreUpdateLabels::NetEvents)
         )
