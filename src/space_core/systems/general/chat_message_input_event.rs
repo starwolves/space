@@ -1,19 +1,19 @@
 use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{components::{pawn::Pawn, radio::Radio, sensable::Sensable, standard_character::StandardCharacter}, events::{general::{input_chat_message::InputChatMessage}, net::net_chat_message::NetChatMessage}, functions::new_chat_message::{Communicator, new_chat_message}, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::{pawn::Pawn, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::new_chat_message::{Communicator, new_chat_message}, resources::handle_to_entity::HandleToEntity};
 
 pub fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
     handle_to_entity : Res<HandleToEntity>,
-    mut player_pawns : Query<(
+    player_pawns : Query<(
         &Pawn,
         &RigidBodyPosition,
         &Sensable,
-        &mut StandardCharacter,
     )>,
     radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition)>,
-    mut net_new_chat_message_event : EventWriter<NetChatMessage>
+    mut net_new_chat_message_event : EventWriter<NetChatMessage>,
+    mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
 ) {
 
     for chat_message_input_event in chat_message_input_events.iter() {
@@ -32,12 +32,12 @@ pub fn chat_message_input_event(
             },
         }
 
-        let player_components_result = player_pawns.get_mut(*player_pawn_entity);
+        let player_components_result = player_pawns.get(*player_pawn_entity);
 
         
         
         match player_components_result {
-            Ok(mut player_components) => {
+            Ok(player_components) => {
 
                 let player_position;
                 
@@ -62,7 +62,7 @@ pub fn chat_message_input_event(
                     false,
                     &radio_pawns,
                     Some(&player_pawn_entity),
-                    Some(&mut player_components.3),
+                    Some(&mut net_send_entity_updates),
                 );
 
             },

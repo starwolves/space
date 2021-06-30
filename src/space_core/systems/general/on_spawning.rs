@@ -108,8 +108,7 @@ pub fn on_spawning(
                 sprinting : false
             },
             StandardCharacter {
-                current_animation_state : HumanState::Idle,
-                billboard_messages: vec![],
+                current_animation_state : HumanState::Idle
             },
             Pawn {
                 name: persistent_player_data_component.character_name.clone(),
