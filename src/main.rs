@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy::{app::CoreStage::{PreUpdate, Update, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
+use bevy::{app::CoreStage::{PreUpdate, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
 
 use bevy_rapier3d::{na::Quaternion, physics::{
         RapierPhysicsPlugin
@@ -256,16 +256,8 @@ fn main() {
             handle_network_messages.system()
             .after(PreUpdateLabels::NetEvents)
         )
-        .add_system_to_stage(
-            Update, 
-            movement_input_event.system()
-            .label(UpdateLabels::ProcessMovementInput)
-        )
-        .add_system_to_stage(
-            Update,
-            move_player_bodies.system()
-            .after(UpdateLabels::ProcessMovementInput)
-        )
+        .add_system(movement_input_event.system().label(UpdateLabels::ProcessMovementInput))
+        .add_system(move_player_bodies.system().after(UpdateLabels::ProcessMovementInput))
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1./2.)
