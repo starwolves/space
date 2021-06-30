@@ -62,15 +62,12 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{build_graphics::BuildGraphics, input_chat_message::InputChatMessage, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_on_spawning::NetOnSpawning, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, standard_character_update::standard_character_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
+use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, input_chat_message::InputChatMessage, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_on_spawning::NetOnSpawning, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, standard_character_update::standard_character_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 enum SpaceStages {
-    SendNetMessages,
-    ProcessEntityUpdates,
     TransformInterpolation,
-    PositionUpdates
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -80,13 +77,15 @@ enum PreUpdateLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 enum UpdateLabels {
-    ProcessMovementInput
+    ProcessMovementInput,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-enum SendNetMessagesLabels {
-    EntityUpdates,
+enum PostUpdateLabels {
+    EntityUpdate,
+    SendEntityUpdates,
     VisibleChecker,
+
 }
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
@@ -233,37 +232,6 @@ fn main() {
         .insert_resource(precalculated_fov_data)
         .insert_resource(world_fov)
         .insert_resource(gridmap_main)
-        .add_stage_after(
-            PostUpdate,
-            SpaceStages::TransformInterpolation,
-            SystemStage::parallel()
-                .with_run_criteria(
-                    FixedTimestep::step(1./24.)
-                    .with_label(INTERPOLATION_LABEL),
-                )
-                .with_system(broadcast_interpolation_transforms.system())
-        )
-        .add_stage_after(
-            SpaceStages::TransformInterpolation,
-            SpaceStages::PositionUpdates,
-            SystemStage::parallel()
-                .with_run_criteria(
-                    FixedTimestep::step(1./2.)
-                    .with_label(INTERPOLATION_LABEL1),
-                )
-                .with_system(broadcast_position_updates.system())
-                .with_system(tick_timers_slowed.system())
-        )
-        .add_stage_after(
-            SpaceStages::PositionUpdates, 
-            SpaceStages::ProcessEntityUpdates, 
-            SystemStage::parallel()
-        )
-        .add_stage_after(
-            SpaceStages::ProcessEntityUpdates, 
-            SpaceStages::SendNetMessages, 
-            SystemStage::parallel()
-        )
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()
@@ -281,9 +249,18 @@ fn main() {
         .add_event::<NetChatMessage>()
         .add_event::<AirLockCollision>()
         .add_event::<CounterWindowSensorCollision>()
-        
         .add_event::<NetOnSpawning>()
+        .add_event::<BoardingPlayer>()
         .add_startup_system(launch_server.system())
+        .add_system_to_stage(
+            PreUpdate, 
+            handle_network_events.system()
+            .label(PreUpdateLabels::NetEvents)
+        )
+        .add_system_to_stage(PreUpdate, 
+            handle_network_messages.system()
+            .after(PreUpdateLabels::NetEvents)
+        )
         .add_system_to_stage(
             Update, 
             movement_input_event.system()
@@ -294,12 +271,17 @@ fn main() {
             move_player_bodies.system()
             .after(UpdateLabels::ProcessMovementInput)
         )
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(1./2.)
+                .with_label(INTERPOLATION_LABEL1))
+                .with_system(broadcast_position_updates.system())
+                .with_system(tick_timers_slowed.system())
+        )
         .add_system(ui_input_event.system())
         .add_system(scene_ready_event.system())
         .add_system(on_boarding.system())
         .add_system(on_setupui.system())
-        .add_system(ui_input_transmit_data_event.system())
-        .add_system(on_spawning.system())
         .add_system(build_graphics_event.system())
         .add_system(chat_message_input_event.system())
         .add_system(physics_events.system())
@@ -308,59 +290,70 @@ fn main() {
         .add_system(tick_timers.system())
         .add_system(tick_asana_boarding_announcements.system())
         .add_system(world_fov_system.system())
-        .add_system_to_stage(
-            PreUpdate, 
-            handle_network_events.system()
-            .label(PreUpdateLabels::NetEvents)
+
+        .add_system(ui_input_transmit_data_event.system())
+        .add_system(done_boarding.system())
+        .add_system(on_spawning.system())
+
+        .add_stage_after(
+            PostUpdate,
+            SpaceStages::TransformInterpolation,
+            SystemStage::parallel()
+                .with_run_criteria(
+                    FixedTimestep::step(1./24.)
+                    .with_label(INTERPOLATION_LABEL),
+                )
+                .with_system(broadcast_interpolation_transforms.system())
         )
-        .add_system_to_stage(PreUpdate, 
-            handle_network_messages.system()
-            .after(PreUpdateLabels::NetEvents)
-        )
-        
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            omni_light_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            standard_character_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates,
-            world_mode_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            gi_probe_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            reflection_probe_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            air_lock_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            sfx_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            repeating_sfx_update.system()
-        )
-        .add_system_to_stage(SpaceStages::ProcessEntityUpdates, 
-            counter_window_update.system()
-        )
-        
         .add_system_to_stage(PostUpdate, 
-            done_boarding.system()
+            omni_light_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
         )
-        .add_system_to_stage(SpaceStages::SendNetMessages, 
+        .add_system_to_stage(PostUpdate, 
+            standard_character_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate,
+            world_mode_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate, 
+            gi_probe_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate, 
+            reflection_probe_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate, 
+            air_lock_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate, 
+            sfx_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate, 
+            repeating_sfx_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate, 
+            counter_window_update.system()
+            .label(PostUpdateLabels::EntityUpdate)
+        )
+        .add_system_to_stage(PostUpdate, 
             send_entity_updates.system()
-            .label(SendNetMessagesLabels::EntityUpdates)
+            .after(PostUpdateLabels::EntityUpdate)
+            .label(PostUpdateLabels::SendEntityUpdates)
         )
-        .add_system_to_stage(SpaceStages::SendNetMessages, 
+        .add_system_to_stage(PostUpdate, 
             visible_checker.system()
-            .after(SendNetMessagesLabels::EntityUpdates)
-            .label(SendNetMessagesLabels::VisibleChecker)
+            .after(PostUpdateLabels::SendEntityUpdates)
+            .label(PostUpdateLabels::VisibleChecker)
         )
-        .add_system_to_stage(SpaceStages::SendNetMessages, 
+        .add_system_to_stage(PostUpdate, 
             net_send_messages_event.system()
-            .after(SendNetMessagesLabels::VisibleChecker)
+            .after(PostUpdateLabels::VisibleChecker)
         )
         .run();
 }
