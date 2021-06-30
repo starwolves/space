@@ -256,8 +256,6 @@ fn main() {
             handle_network_messages.system()
             .after(PreUpdateLabels::NetEvents)
         )
-        .add_system(movement_input_event.system().label(UpdateLabels::ProcessMovementInput))
-        .add_system(move_player_bodies.system().after(UpdateLabels::ProcessMovementInput))
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1./2.)
@@ -280,6 +278,8 @@ fn main() {
         .add_system(ui_input_transmit_data_event.system())
         .add_system(done_boarding.system())
         .add_system(on_spawning.system())
+        .add_system(movement_input_event.system().label(UpdateLabels::ProcessMovementInput))
+        .add_system(move_player_bodies.system().after(UpdateLabels::ProcessMovementInput))
         .add_system_set_to_stage( PostUpdate,
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1./24.)
