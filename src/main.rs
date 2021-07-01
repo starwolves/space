@@ -62,7 +62,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_on_spawning::NetOnSpawning, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, standard_character_update::standard_character_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, examine_entity::examine_entity, examine_map::examine_map, move_standard_characters::move_standard_characters, physics_events::physics_events, player_input_event::player_input_event, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
+use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_on_spawning::NetOnSpawning, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, standard_character_update::standard_character_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, examine_entity::examine_entity, examine_map::examine_map, move_standard_characters::move_standard_characters, physics_events::physics_events, player_input_event::player_input_event, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -203,6 +203,10 @@ fn main() {
         data : HashMap::new()
     };
 
+    let gridmap_details1 = GridmapDetails1 {
+        data : HashMap::new()
+    };
+
     App::build()
         .add_plugins(MinimalPlugins)
         .add_plugin(LogPlugin::default())
@@ -227,6 +231,7 @@ fn main() {
         .insert_resource(precalculated_fov_data)
         .insert_resource(world_fov)
         .insert_resource(gridmap_main)
+        .insert_resource(gridmap_details1)
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()

@@ -1,9 +1,14 @@
 use bevy::prelude::{Commands, Res, ResMut};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use crate::space_core::{resources::{all_ordered_cells::AllOrderedCells, gridmap_main::{CellData, CellDataWID, GridmapMain}, precalculated_fov_data::Vec3Int}};
+use crate::space_core::{components::ship_cell::ShipCell, resources::{all_ordered_cells::AllOrderedCells, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain}, precalculated_fov_data::Vec3Int}, structs::network_messages::GridMapType};
 
 use super::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap_functions::cell_id_to_world, string_to_type_converters::string_vec3_to_vec3};
+
+
+
+
+
 
 
 pub fn load_main_map_data(
@@ -13,27 +18,28 @@ pub fn load_main_map_data(
     gridmap_main : &mut ResMut<GridmapMain>,
 ) {
 
-
-
     for cell_data in current_map_main_data.iter() {
         
         let cell_id = string_vec3_to_vec3(&cell_data.id);
 
-        let world_position = cell_id_to_world(Vec3Int{
+        let cell_id_int = Vec3Int{
             x: cell_id.x as i16,
             y: cell_id.y as i16,
             z: cell_id.z as i16,
-        });
+        };
 
-        gridmap_main.data.insert(Vec3Int {
-            x: cell_id.x as i16,
-            y: cell_id.y as i16,
-            z: cell_id.z as i16,
-        },
+        let world_position = cell_id_to_world(cell_id_int);
+
+        gridmap_main.data.insert(cell_id_int,
         CellData {
             item: cell_data.item,
             orientation: cell_data.orientation,
         });
+
+
+
+        
+        
 
         if all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize] == "securityCounter1" {
 
@@ -61,7 +67,13 @@ pub fn load_main_map_data(
                     },
                     ..Default::default()
                 }
-            );
+            ).insert_bundle((
+                ShipCell{
+                    item: cell_data.item,
+                    id: cell_id_int,
+                    grid_type: GridMapType::Main,
+                },
+            ));
 
         } else {
             
@@ -89,12 +101,51 @@ pub fn load_main_map_data(
                     },
                     ..Default::default()
                 }
-            );
+            ).insert_bundle((
+                ShipCell{
+                    item: cell_data.item,
+                    id: cell_id_int,
+                    grid_type: GridMapType::Main,
+                },
+            ));
 
         }
 
 
         
+
+    }
+
+}
+
+pub fn load_details1_map_data(
+    current_map_details1_data : &Vec<CellDataWID>, 
+    commands : &mut Commands, 
+    gridmap_details1 : &mut ResMut<GridmapDetails1>,
+) {
+    
+    for cell_data in current_map_details1_data.iter() {
+
+        let cell_id = string_vec3_to_vec3(&cell_data.id);
+
+        let cell_id_int = Vec3Int{
+            x: cell_id.x as i16,
+            y: cell_id.y as i16,
+            z: cell_id.z as i16,
+        };
+
+        gridmap_details1.data.insert(cell_id_int,
+        CellData {
+            item: cell_data.item,
+            orientation: cell_data.orientation,
+        });
+
+        commands.spawn().insert_bundle((ShipCell{
+            item: cell_data.item,
+            id: cell_id_int,
+            grid_type: GridMapType::Details1,
+        },));
+
 
     }
 

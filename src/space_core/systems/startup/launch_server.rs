@@ -4,12 +4,12 @@ use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, 
 
 use std::{collections::HashMap, fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{load_main_map_data::load_main_map_data}, process_content::{
+use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{spawn_ship_cells_from_data::{load_details1_map_data, load_main_map_data}}, process_content::{
         entities::{
             raw_entity::RawEntity,
             load_raw_map_entities::load_raw_map_entities
         }
-    }, resources::{all_ordered_cells::AllOrderedCells, gridmap_main::{CellDataWID, GridmapMain}, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId}};
+    }, resources::{all_ordered_cells::AllOrderedCells, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId}};
 
 use crate::space_core::structs::network_messages::*;
 
@@ -70,6 +70,7 @@ pub fn launch_server(
     mut server_id : ResMut<ServerId>,
     mut precalculated_fov_data_resource : ResMut<PrecalculatedFOVData>,
     mut gridmap_main : ResMut<GridmapMain>,
+    mut gridmap_details1 : ResMut<GridmapDetails1>,
     all_ordered_cells : Res<AllOrderedCells>,
     mut commands: Commands
     ) {
@@ -97,6 +98,16 @@ pub fn launch_server(
         &mut commands,
         &all_ordered_cells,
         &mut gridmap_main,
+    );
+
+    let details1_json = Path::new("content").join("maps").join("bullseye").join("details1.json");
+    let current_map_details1_raw_json : String = fs::read_to_string(details1_json).expect("main.rs launch_server() Error reading map details1_json file from drive.");
+    let current_map_details1_data : Vec<CellDataWID> = serde_json::from_str(&current_map_details1_raw_json).expect("main.rs launch_server() Error parsing map details1_json String.");
+
+    load_details1_map_data(
+        &current_map_details1_data,
+        &mut commands,
+        &mut gridmap_details1,
     );
 
     
