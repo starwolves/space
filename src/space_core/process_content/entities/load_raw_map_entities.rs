@@ -5,7 +5,7 @@ use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
         omni_light,
         gi_probe,
         reflection_probe
@@ -145,6 +145,11 @@ pub fn load_raw_map_entities(
                 ..Default::default()
             };
 
+            let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
+            + "A security air lock. It will only grant access to those authorised to use it."
+            + "[font=" + FURTHER_ITALIC_FONT + "]\n\nIt is in perfect shape and fully operational.[/font]"
+            + "\n*******[/font]";
+
             commands.spawn_bundle(rigid_body_component).insert_bundle(collider_component).insert_bundle((
                 static_transform_component,
                 Sensable{
@@ -168,6 +173,9 @@ pub fn load_raw_map_entities(
                     updates: entity_updates_map,
                     changed_parameters: vec![],
                     excluded_handles:HashMap::new(),
+                },
+                Examinable {
+                    text: examine_text,
                 }
             ));
 
@@ -221,7 +229,10 @@ pub fn load_raw_map_entities(
                 ..Default::default()
             };
 
-            
+            let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
+            + "An airtight security window. It will only grant access to those authorised to use it."
+            + "[font=" + FURTHER_ITALIC_FONT + "]\n\nIt is in perfect shape and fully operational.[/font]"
+            + "\n*******[/font]";
 
             let parent = commands.spawn_bundle(window_rigid_body_component).insert_bundle(window_collider_component).insert_bundle((
                 static_transform_component,
@@ -246,6 +257,9 @@ pub fn load_raw_map_entities(
                     updates: entity_updates_map,
                     changed_parameters: vec![],
                     excluded_handles:HashMap::new(),
+                },
+                Examinable {
+                    text: examine_text,
                 }
             )).id();
 

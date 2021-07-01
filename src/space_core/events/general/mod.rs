@@ -6,3 +6,5 @@ pub mod build_graphics;
 pub mod input_chat_message;
 pub mod boarding_player;
 pub mod input_sprinting;
+pub mod examine_entity;
+pub mod examine_map;

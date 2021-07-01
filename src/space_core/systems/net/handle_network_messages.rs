@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, resources::precalculated_fov_data::Vec3Int, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
@@ -12,6 +12,8 @@ pub fn handle_network_messages(
     mut build_graphics_event : EventWriter<BuildGraphics>,
     mut input_chat_message_event : EventWriter<InputChatMessage>,
     mut input_sprinting_event : EventWriter<InputSprinting>,
+    mut examine_entity : EventWriter<ExamineEntity>,
+    mut examine_map : EventWriter<ExamineMap>,
 ) {
 
 
@@ -76,6 +78,27 @@ pub fn handle_network_messages(
                     input_sprinting_event.send(InputSprinting {
                         handle: *handle,
                         is_sprinting: is_sprinting,
+                    });
+
+                },
+                ReliableClientMessage::ExamineEntity(entity_id) => {
+
+                    examine_entity.send(ExamineEntity{
+                        handle: *handle,
+                        examine_entity_id: entity_id,
+                    });
+
+                },
+                ReliableClientMessage::ExamineMap(grid_map_type, cell_id_x,cell_id_y,cell_id_z) => {
+
+                    examine_map.send(ExamineMap{
+                        handle: *handle,
+                        gridmap_type: grid_map_type,
+                        gridmap_cell_id: Vec3Int {
+                            x: cell_id_x,
+                            y: cell_id_y,
+                            z: cell_id_z,
+                        },
                     });
 
                 },

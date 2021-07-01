@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFla
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, standard_character::{StandardCharacter, State as HumanState}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, standard_character::{StandardCharacter, State as HumanState}, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
 
 
 pub fn on_spawning(
@@ -22,9 +22,6 @@ pub fn on_spawning(
         persistent_player_data_component,
     ) in query.iter() {
 
-        //let mut adjusted_transform = spawning_component.transform.clone();
-        //adjusted_transform.translation.y = 55.;
-
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic,
             position: transform_to_isometry(spawning_component.transform).into(),
@@ -32,7 +29,6 @@ pub fn on_spawning(
                 gravity_scale: 1.,
                 ..Default::default()
             },
-            //position: transform_to_isometry(adjusted_transform).into(),
             ccd: RigidBodyCcd {
                 ccd_enabled: false,
                 ..Default::default()
@@ -41,8 +37,6 @@ pub fn on_spawning(
             ..Default::default()
         };
 
-
-        
 
         let r = 0.25;
         let masks = get_bit_masks(ColliderGroup::Standard);
@@ -71,6 +65,12 @@ pub fn on_spawning(
 
         let mut entity_updates_map = HashMap::new();
         entity_updates_map.insert(".".to_string(), HashMap::new());
+
+        let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
+        + &persistent_player_data_component.character_name + ", a Security Officer.\n"
+        + "He is human.\n"
+        + "[font=" + FURTHER_ITALIC_FONT + "]\nHe is in perfect shape.[/font]"
+        + "\n*******[/font]";
 
         let new_entity = commands.spawn_bundle(rigid_body_component).insert_bundle(
             collider_component,
@@ -121,6 +121,9 @@ pub fn on_spawning(
             Radio {
                 listen_access: vec![RadioChannel::Common, RadioChannel::Security],
                 speak_access: vec![RadioChannel::Common, RadioChannel::Security],
+            },
+            Examinable {
+                text: examine_text,
             }
         )).id();
 
