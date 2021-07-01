@@ -5,7 +5,11 @@ use serde::{Serialize, Deserialize};
 
 use crate::space_core::{resources::world_environments::WorldEnvironment};
 
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum GridMapType {
+    Main,
+    Details1
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableClientMessage {
@@ -16,7 +20,9 @@ pub enum ReliableClientMessage {
     MovementInput(Vec2),
     SprintInput(bool),
     BuildGraphics,
-    InputChatMessage(String)
+    InputChatMessage(String),
+    ExamineEntity(u32),
+    ExamineMap(GridMapType, i16,i16,i16)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

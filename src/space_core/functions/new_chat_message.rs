@@ -20,8 +20,8 @@ const _NEARBY_MACHINE_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/Sourc
 const _NEARBY_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDyna.tres";
 
 const FURTHER_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularBoldDynaSmall.tres";
-const FURTHER_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumItDynaSmall.tres";
-const FURTHER_NORMAL_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumDynaSmall.tres";
+pub const FURTHER_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumItDynaSmall.tres";
+pub const FURTHER_NORMAL_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumDynaSmall.tres";
 const FURTHER_SHOUT_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatShoutBoldDynaSmall.tres";
 const FURTHER_MACHINE_MEDIUM_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightMediumDynaSmall.tres";
 const FURTHER_MACHINE_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicDynaSmall.tres";
