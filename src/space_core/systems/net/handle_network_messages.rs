@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, input_chat_message::InputChatMessage, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
@@ -10,7 +10,8 @@ pub fn handle_network_messages(
     mut ui_input_transmit_text : EventWriter<UIInputTransmitText>,
     mut movement_input_event : EventWriter<MovementInput>,
     mut build_graphics_event : EventWriter<BuildGraphics>,
-    mut input_chat_message_event : EventWriter<InputChatMessage>
+    mut input_chat_message_event : EventWriter<InputChatMessage>,
+    mut input_sprinting_event : EventWriter<InputSprinting>,
 ) {
 
 
@@ -69,6 +70,14 @@ pub fn handle_network_messages(
                         handle: *handle,
                         message: message
                     });
+                },
+                ReliableClientMessage::SprintInput(is_sprinting) => {
+
+                    input_sprinting_event.send(InputSprinting {
+                        handle: *handle,
+                        is_sprinting: is_sprinting,
+                    });
+
                 },
             }
 

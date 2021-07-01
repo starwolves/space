@@ -110,6 +110,52 @@ pub fn on_new_player_connection(
         ))
     });
 
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::RepeatingSFX(
+            "concrete_sprinting_footsteps".to_string(),
+            vec![
+                "Concrete_Shoes_Running_step4".to_string(),
+                "Concrete_Shoes_Running_step5".to_string(),
+                "Concrete_Shoes_Running_step7".to_string(),
+                "Concrete_Shoes_Running_step9".to_string(),
+                "Concrete_Shoes_Running_step10".to_string(),
+                "Concrete_Shoes_Running_step12".to_string(),
+                "Concrete_Shoes_Running_step13".to_string(),
+                "Concrete_Shoes_Running_step14".to_string(),
+                "Concrete_Shoes_Running_step15".to_string(),
+                "Concrete_Shoes_Running_step16".to_string(),
+                "Concrete_Shoes_Running_step17".to_string(),
+                "Concrete_Shoes_Running_step20".to_string(),
+                "Concrete_Shoes_Running_step21".to_string(),
+                "Concrete_Shoes_Running_step22".to_string(),
+                "Concrete_Shoes_Running_step23".to_string(),
+                "Concrete_Shoes_Running_step24".to_string(),
+                "Concrete_Shoes_Running_step25".to_string(),
+                "Concrete_Shoes_Running_step27".to_string(),
+                "Concrete_Shoes_Running_step28".to_string(),
+                "Concrete_Shoes_Running_step30".to_string(),
+                "Concrete_Shoes_Running_step31".to_string(),
+                "Concrete_Shoes_Running_step32".to_string(),
+                "Concrete_Shoes_Running_step34".to_string(),
+                "Concrete_Shoes_Running_step35".to_string(),
+                "Concrete_Shoes_Running_step36".to_string(),
+                "Concrete_Shoes_Running_step38".to_string(),
+                "Concrete_Shoes_Running_step40".to_string(),
+                "Concrete_Shoes_Running_step41".to_string(),
+                "Concrete_Shoes_Running_step42".to_string(),
+                "Concrete_Shoes_Running_step43".to_string(),
+                "Concrete_Shoes_Running_step44".to_string(),
+                "Concrete_Shoes_Running_step45".to_string(),
+                "Concrete_Shoes_Running_step46".to_string(),
+                "Concrete_Shoes_Running_step47".to_string(),
+                "Concrete_Shoes_Running_step49".to_string(),
+                "Concrete_Shoes_Running_step50".to_string(),
+                "Concrete_Shoes_Running_step51".to_string()
+            ]
+        ))
+    });
+
     // Create the actual Bevy entity for the player , with its network handle, authid and softConnected components.
     
     let connected_player_component = ConnectedPlayer {

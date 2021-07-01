@@ -4,5 +4,6 @@ pub struct StandardCharacter {
 
 pub enum State {
     Idle,
-    Walking
+    Walking,
+    Sprinting,
 }
