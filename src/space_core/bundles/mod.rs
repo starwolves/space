@@ -6,3 +6,4 @@ pub mod counter_window_denied_sfx;
 pub mod counter_window_closed_sfx;
 pub mod footsteps_walking;
 pub mod ambience_sfx;
+pub mod footsteps_sprinting;

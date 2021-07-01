@@ -14,6 +14,7 @@ pub enum ReliableClientMessage {
     SceneReady(String),
     UIInputTransmitData(String, String, String),
     MovementInput(Vec2),
+    SprintInput(bool),
     BuildGraphics,
     InputChatMessage(String)
 }

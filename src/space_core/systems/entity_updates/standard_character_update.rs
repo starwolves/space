@@ -17,6 +17,7 @@ pub fn standard_character_update(
 
         
         let lower_body_animation_state : String;
+        // upper_body_animation_state has blend set to 0 so its useless atm.
         let upper_body_animation_state : String;
 
         
@@ -28,8 +29,12 @@ pub fn standard_character_update(
             }
             crate::space_core::components::standard_character::State::Walking => {
                 lower_body_animation_state = "Jogging".to_string();
-                upper_body_animation_state = "Jogging".to_string();
+                upper_body_animation_state = "Idle".to_string();
             }
+            crate::space_core::components::standard_character::State::Sprinting => {
+                lower_body_animation_state = "Sprinting".to_string();
+                upper_body_animation_state = "Idle".to_string();
+            },
         }
 
         let mut animation_tree1_upper_body_updates = HashMap::new();

@@ -62,7 +62,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, input_chat_message::InputChatMessage, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_on_spawning::NetOnSpawning, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, standard_character_update::standard_character_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, move_player_bodies::move_player_bodies, movement_input_event::movement_input_event, physics_events::physics_events, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
+use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput}, net::{net_chat_message::NetChatMessage, net_on_spawning::NetOnSpawning, net_send_world_environment::NetSendWorldEnvironment, net_unload_entity::NetUnloadEntity}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, standard_character_update::standard_character_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, move_standard_characters::move_standard_characters, player_input_event::player_input_event, physics_events::physics_events, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -246,6 +246,7 @@ fn main() {
         .add_event::<CounterWindowSensorCollision>()
         .add_event::<NetOnSpawning>()
         .add_event::<BoardingPlayer>()
+        .add_event::<InputSprinting>()
         .add_startup_system(launch_server.system())
         .add_system_to_stage(PreUpdate, 
             handle_network_events.system()
@@ -277,8 +278,8 @@ fn main() {
         .add_system(ui_input_transmit_data_event.system())
         .add_system(done_boarding.system())
         .add_system(on_spawning.system())
-        .add_system(movement_input_event.system().label(UpdateLabels::ProcessMovementInput))
-        .add_system(move_player_bodies.system().after(UpdateLabels::ProcessMovementInput))
+        .add_system(player_input_event.system().label(UpdateLabels::ProcessMovementInput))
+        .add_system(move_standard_characters.system().after(UpdateLabels::ProcessMovementInput))
         .add_system(broadcast_interpolation_transforms.system()
             .with_run_criteria(FixedTimestep::step(1./24.)
             .with_label(INTERPOLATION_LABEL))
