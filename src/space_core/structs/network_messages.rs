@@ -23,7 +23,7 @@ pub enum ReliableClientMessage {
     InputChatMessage(String),
     ExamineEntity(u32),
     ExamineMap(GridMapType, i16,i16,i16),
-    UseWorldItem(u32),
+    UseWorldItem(u32, u32),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -42,7 +42,7 @@ pub enum ReliableServerMessage {
     EntityUpdate(u32, HashMap<String, HashMap<String, EntityUpdateData>>),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
-    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool),
+    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool, u32),
     UnloadEntity(u32, bool),
     ChatMessage(String)
 }
@@ -70,7 +70,7 @@ pub enum ServerConfigMessage {
     OrderedCellsMain(Vec<String>),
     OrderedCellsDetails1(Vec<String>),
     ChangeScene(bool, String),
-    ServerEntityId(u32),
+    ServerEntityId(u32,u32),
     RepeatingSFX(String, Vec<String>),
     FinishedInitialization
 }

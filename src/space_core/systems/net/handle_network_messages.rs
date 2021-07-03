@@ -104,7 +104,7 @@ pub fn handle_network_messages(
                     });
 
                 },
-                ReliableClientMessage::UseWorldItem(entity_id) => {
+                ReliableClientMessage::UseWorldItem(entity_id,entity_generation) => {
 
                     let player_entity_option = handle_to_entity.map.get(handle);
 
@@ -113,6 +113,7 @@ pub fn handle_network_messages(
                             use_world_item.send(UseWorldItem {
                                 pickuper_entity: *player_entity,
                                 pickupable_entity_id: entity_id,
+                                pickupable_entity_generation: entity_generation,
                             });
                         },
                         None => {

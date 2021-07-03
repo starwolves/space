@@ -1,7 +1,7 @@
-use bevy::prelude::{Entity, EventReader, Query, info};
-use bevy_rapier3d::prelude::{ColliderBundle, RigidBodyActivation, RigidBodyForces};
+use bevy::prelude::{Commands, Entity, EventReader, Query};
+use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces};
 
-use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, world_mode::{WorldMode, WorldModes}}, events::general::use_world_item::UseWorldItem, functions::toggle_rigidbody::turn_off_rigidbody};
+use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::general::use_world_item::UseWorldItem, functions::{toggle_rigidbody::turn_off_rigidbody}};
 
 pub fn pickup_world_item(
     mut use_world_item_events : EventReader<UseWorldItem>,
@@ -10,9 +10,10 @@ pub fn pickup_world_item(
         &mut Pickupable,
         &mut WorldMode,
         &mut RigidBodyActivation,
-        &mut ColliderBundle,
+        &mut ColliderFlags,
         &mut RigidBodyForces,
     )>,
+    mut commands : Commands,
 ) {
 
     for event in use_world_item_events.iter() {
@@ -44,8 +45,6 @@ pub fn pickup_world_item(
 
         let pickupable_entity = Entity::new(event.pickupable_entity_id);
 
-
-        // Continues ;/
         match pickupable_entities.get_mut(pickupable_entity) {
             Ok(components) => {
                 pickupable_entities_components = components;
@@ -55,14 +54,12 @@ pub fn pickup_world_item(
             },
         }
 
-
         let mut pickupable_component = pickupable_entities_components.0;
 
         if !matches!(pickupable_component.in_inventory_of_entity, None) {
             continue;
         }
 
-        
         let mut pickupable_world_mode = pickupable_entities_components.1;
         let mut pickupable_rigid_body_activation = pickupable_entities_components.2;
         let mut pickupable_collider_bundle = pickupable_entities_components.3;
@@ -77,8 +74,10 @@ pub fn pickup_world_item(
         pickup_slot.slot_item = Some(pickupable_entity);
         pickupable_world_mode.mode = WorldModes::Held;
 
+        commands.entity(pickupable_entity).insert(RigidBodyLinkTransform{
+            follow_entity: event.pickuper_entity,
+        });
 
-        info!("Picked up rigidbody should be turned off!");
 
 
     }
