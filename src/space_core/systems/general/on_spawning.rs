@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFla
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, standard_character::{StandardCharacter, State as HumanState}, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, standard_character::{StandardCharacter, State as HumanState}, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
 
 
 pub fn on_spawning(
@@ -124,7 +124,27 @@ pub fn on_spawning(
             },
             Examinable {
                 text: examine_text,
-            }
+            },
+            Inventory {
+                slots: vec![
+                    Slot {
+                        slot_type: SlotType::Generic,
+                        slot_name: "left_hand".to_string(),
+                        slot_item: None,
+                    },
+                    Slot {
+                        slot_type: SlotType::Generic,
+                        slot_name: "right_hand".to_string(),
+                        slot_item: None,
+                    },
+                    Slot {
+                        slot_type: SlotType::Helmet,
+                        slot_name: "helmet".to_string(),
+                        slot_item: None,
+                    },
+                ],
+                pickup_slot: "left_hand".to_string(),
+            },
         )).id();
 
 

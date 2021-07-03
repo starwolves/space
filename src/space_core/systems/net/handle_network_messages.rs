@@ -1,7 +1,7 @@
-use bevy::{ecs::system::{ResMut}, prelude::{EventWriter}};
+use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, resources::precalculated_fov_data::Vec3Int, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
@@ -14,6 +14,8 @@ pub fn handle_network_messages(
     mut input_sprinting_event : EventWriter<InputSprinting>,
     mut examine_entity : EventWriter<ExamineEntity>,
     mut examine_map : EventWriter<ExamineMap>,
+    mut use_world_item : EventWriter<UseWorldItem>,
+    handle_to_entity : Res<HandleToEntity>,
 ) {
 
 
@@ -100,6 +102,25 @@ pub fn handle_network_messages(
                             z: cell_id_z,
                         },
                     });
+
+                },
+                ReliableClientMessage::UseWorldItem(entity_id) => {
+
+                    let player_entity_option = handle_to_entity.map.get(handle);
+
+                    match player_entity_option {
+                        Some(player_entity) => {
+                            use_world_item.send(UseWorldItem {
+                                pickuper_entity: *player_entity,
+                                pickupable_entity_id: entity_id,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to UseWorldItem sender handle.");
+                        },
+                    }
+
+                    
 
                 },
             }

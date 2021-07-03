@@ -23,6 +23,9 @@ pub fn world_mode_update(
             WorldModes::Worn => {
                 world_mode = "worn";
             }
+            WorldModes::Held => {
+                world_mode = "held";
+            },
         };
 
         let entity_updates = entity_updates_component.updates
