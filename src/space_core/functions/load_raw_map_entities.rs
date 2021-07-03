@@ -1,15 +1,10 @@
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands}};
 use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, cached_broadcast_transform::CachedBroadcastTransform, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, pickupable::Pickupable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
-        omni_light,
-        gi_probe,
-        reflection_probe
-    }};
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, cached_broadcast_transform::CachedBroadcastTransform, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, pickupable::Pickupable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{gi_probe, omni_light, raw_entity::RawEntity, reflection_probe}};
 
 pub fn load_raw_map_entities(
     raw_entities : &Vec<RawEntity>,
@@ -303,7 +298,7 @@ pub fn load_raw_map_entities(
                 ),
                 position: Vec3::new(0., 0.011, -0.004).into(),
                 material: ColliderMaterial {
-                    friction: 0.0,
+                    friction: 0.75,
                     friction_combine_rule:  CoefficientCombineRule::Average,
                     ..Default::default()
                 },

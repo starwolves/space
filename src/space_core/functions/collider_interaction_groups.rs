@@ -14,13 +14,16 @@ pub fn get_bit_masks(
         ColliderGroup::StandardFOV => {
             (0b00000000000000000000000000000011, 0b00000000000000000000000000000011)
         },
+        ColliderGroup::NoCollision => {
+            (0b00000000000000000000000000000000, 0b00000000000000000000000000000000)
+        },
     }
 
 }
 
 
-#[allow(dead_code)]
 pub enum ColliderGroup {
+    NoCollision,
     Standard,
     FOV,
     StandardFOV,
