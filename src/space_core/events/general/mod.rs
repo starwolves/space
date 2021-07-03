@@ -8,3 +8,4 @@ pub mod boarding_player;
 pub mod input_sprinting;
 pub mod examine_entity;
 pub mod examine_map;
+pub mod use_world_item;

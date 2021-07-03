@@ -1,11 +1,11 @@
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands}};
-use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
+use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
 use super::raw_entity::RawEntity;
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, cached_broadcast_transform::CachedBroadcastTransform, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, pickupable::Pickupable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{
         omni_light,
         gi_probe,
         reflection_probe
@@ -281,7 +281,79 @@ pub fn load_raw_map_entities(
 
         } else if raw_entity.entity_type == "helmetSecurity" {
 
-            
+            let rigid_body_component = RigidBodyBundle {
+                body_type: RigidBodyType::Dynamic,
+                position: transform_to_isometry(entity_transform).into(),
+                ccd: RigidBodyCcd {
+                    ccd_enabled: false,
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+    
+    
+            let masks = get_bit_masks(ColliderGroup::Standard);
+    
+            let collider_component = ColliderBundle {
+                
+                shape: ColliderShape::cuboid(
+                    0.208,
+                    0.277,
+                    0.213,
+                ),
+                position: Vec3::new(0., 0.011, -0.004).into(),
+                material: ColliderMaterial {
+                    friction: 0.0,
+                    friction_combine_rule:  CoefficientCombineRule::Average,
+                    ..Default::default()
+                },
+                flags: ColliderFlags {
+                    collision_groups: InteractionGroups::new(masks.0,masks.1),
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+    
+            let mut entity_updates_map = HashMap::new();
+            entity_updates_map.insert(".".to_string(), HashMap::new());
+    
+            let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
+            + "A standard issue helmet used by Security Officers."
+            + "[font=" + FURTHER_ITALIC_FONT + "]\n\nIt is in perfect shape.[/font]"
+            + "\n*******[/font]";
+    
+            commands.spawn_bundle(rigid_body_component).insert_bundle(
+                collider_component,
+            ).insert_bundle((
+                Sensable{
+                    is_audible : false,
+                    is_light:false,
+                    sensed_by_cached:vec![],
+                    sensed_by:vec![],
+                    always_sensed : false
+                },
+                EntityData {
+                    entity_class : "entity".to_string(),
+                    entity_type : "helmetSecurity".to_string(),
+                    entity_group: EntityGroup::None
+                },
+                EntityUpdates{
+                    updates: entity_updates_map,
+                    changed_parameters: vec![],
+                    excluded_handles:HashMap::new(),
+                },
+                WorldMode {
+                    mode : WorldModes::Physics
+                },
+                CachedBroadcastTransform::new(),
+                Examinable {
+                    text: examine_text,
+                },
+                Helmet,
+                Pickupable {
+                    in_inventory_of_entity: None
+                },
+            ));
 
         }  else if raw_entity.entity_type == "jumpsuitSecurity" {
 

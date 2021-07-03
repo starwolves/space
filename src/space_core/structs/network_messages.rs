@@ -22,7 +22,8 @@ pub enum ReliableClientMessage {
     BuildGraphics,
     InputChatMessage(String),
     ExamineEntity(u32),
-    ExamineMap(GridMapType, i16,i16,i16)
+    ExamineMap(GridMapType, i16,i16,i16),
+    UseWorldItem(u32),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

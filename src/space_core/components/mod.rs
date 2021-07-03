@@ -40,3 +40,6 @@ pub mod linked_footsteps_running;
 pub mod footsteps_sprinting;
 pub mod examinable;
 pub mod ship_cell;
+pub mod helmet;
+pub mod pickupable;
+pub mod inventory;
