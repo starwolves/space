@@ -72,7 +72,7 @@ pub fn visible_checker(
                 &mut net_unload_entity,
                 visible_checker_connected_player_component.handle,
                 entity_data_component,
-                visible_entity_id.id(),
+                visible_entity_id,
                 is_interpolated,
                 &entity_updates_component,
                 &mut world_fov,
@@ -103,7 +103,7 @@ fn visible_check(
     net_unload_entity : &mut EventWriter<NetUnloadEntity>,
     visible_checker_handle : u32,
     visible_entity_data : &EntityData,
-    visible_entity_id : u32,
+    visible_entity_id : Entity,
     interpolated_transform : bool,
     visible_entity_updates_component : &EntityUpdates,
     world_fov : &mut ResMut<WorldFOV>,
@@ -185,7 +185,7 @@ fn visible_check(
 
             unload_entity(
                 visible_checker_handle,
-                visible_entity_id,
+                visible_entity_id.id(),
                 net_unload_entity,
                 unload_entirely
             );
@@ -202,7 +202,7 @@ fn visible_check(
         } else if sensed_by_cached_contains && unload_entirely {
             unload_entity(
                 visible_checker_handle,
-                visible_entity_id,
+                visible_entity_id.id(),
                 net_unload_entity,
                 unload_entirely
             );
@@ -212,7 +212,7 @@ fn visible_check(
             if can_cache && !unload_entirely {
                 unload_entity(
                     visible_checker_handle,
-                    visible_entity_id,
+                    visible_entity_id.id(),
                     net_unload_entity,
                     unload_entirely
                 );

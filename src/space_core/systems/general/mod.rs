@@ -20,3 +20,4 @@ pub mod world_fov;
 pub mod examine_entity;
 pub mod examine_map;
 pub mod pickup_world_item;
+pub mod rigidbody_link_transform;

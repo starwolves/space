@@ -53,14 +53,16 @@ pub fn on_new_player_connection(
     });
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id.id(), server_id.id.generation()))
+    });
+
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle:*handle,
         message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(false, "setupUI".to_string()))
     });
 
-    net_on_new_player_connection.send(NetOnNewPlayerConnection{
-        handle: *handle,
-        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(server_id.id.id()))
-    });
+    
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,
