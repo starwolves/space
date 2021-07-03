@@ -12,3 +12,5 @@ pub mod entity_updates_personalise;
 pub mod new_chat_message;
 pub mod collider_interaction_groups;
 pub mod examine_main_cell;
+pub mod toggle_rigidbody;
+pub mod load_raw_map_entities;
