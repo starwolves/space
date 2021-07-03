@@ -279,6 +279,14 @@ pub fn load_raw_map_entities(
             commands.entity(parent).push_children(&[child]);
 
 
+        } else if raw_entity.entity_type == "helmetSecurity" {
+
+            
+
+        }  else if raw_entity.entity_type == "jumpsuitSecurity" {
+
+
+
         }
 
     }
