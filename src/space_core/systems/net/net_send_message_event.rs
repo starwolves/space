@@ -19,6 +19,22 @@ pub fn net_send_messages_event(
 
 ) {
 
+    for new_event in net_on_spawning.iter() {
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_on_spawning message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_on_spawning message (1): {:?}", err);
+            }
+        };
+
+    }
+
     for new_event in net_on_boarding.iter() {
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
@@ -83,6 +99,21 @@ pub fn net_send_messages_event(
 
     }
 
+    for new_event in net_unload_entity.iter() {
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_unload_entity message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_unload_entity message (1): {:?}", err);
+            }
+        };
+
+    }
 
     for new_event in net_load_entity.iter() {
 
@@ -95,22 +126,6 @@ pub fn net_send_messages_event(
             },
             Err(err) => {
                 warn!("net_send_message_event.rs was unable to send net_load_entity message (1): {:?}", err);
-            }
-        };
-
-    }
-
-    for new_event in net_unload_entity.iter() {
-
-        match net.send_message(new_event.handle, new_event.message.clone()) {
-            Ok(msg) => match msg {
-                Some(msg) => {
-                    warn!("net_send_message_event.rs was unable to send net_unload_entity message: {:?}", msg);
-                }
-                None => {}
-            },
-            Err(err) => {
-                warn!("net_send_message_event.rs was unable to send net_unload_entity message (1): {:?}", err);
             }
         };
 
@@ -164,21 +179,7 @@ pub fn net_send_messages_event(
 
     }
 
-    for new_event in net_on_spawning.iter() {
-
-        match net.send_message(new_event.handle, new_event.message.clone()) {
-            Ok(msg) => match msg {
-                Some(msg) => {
-                    warn!("net_send_message_event.rs was unable to send net_on_spawning message: {:?}", msg);
-                }
-                None => {}
-            },
-            Err(err) => {
-                warn!("net_send_message_event.rs was unable to send net_on_spawning message (1): {:?}", err);
-            }
-        };
-
-    }
+    
     
 
     
