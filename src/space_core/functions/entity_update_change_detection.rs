@@ -86,6 +86,17 @@ pub fn entity_update_changed_detection(
                         _ => {}
                     }
                 },
+                EntityUpdateData::AttachedItem(old_value0, old_value1, old_value2, old_value3) => {
+                    match set.clone() {
+                        EntityUpdateData::AttachedItem(new_value0, new_value1,new_value2,new_value3) => {
+                            has_changed = new_value0 != *old_value0
+                            || new_value1 != *old_value1
+                            || new_value2 != *old_value2
+                            || new_value3 != *old_value3;
+                        },
+                        _ => {}
+                    }
+                },
             }
         },
         None => {

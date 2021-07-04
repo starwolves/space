@@ -2,7 +2,7 @@ use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Q
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{prelude::{RigidBodyPosition, RigidBodyVelocity}};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, rigidbody_disabled::RigidBodyDisabled, sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
@@ -13,7 +13,7 @@ pub fn broadcast_interpolation_transforms (
     
     mut net: ResMut<NetworkResource>,
     handle_to_entity : Res<HandleToEntity>,
-    mut query_interpolated_entities : Query<(Entity, &Sensable, &RigidBodyPosition, &RigidBodyVelocity, &mut CachedBroadcastTransform), Without<StaticTransform>>,
+    mut query_interpolated_entities : Query<(Entity, &Sensable, &RigidBodyPosition, &RigidBodyVelocity, &mut CachedBroadcastTransform), (Without<StaticTransform>, Without<RigidBodyDisabled>)>,
 ) {
     
     let current_time_stamp = time.time_since_startup().as_millis();

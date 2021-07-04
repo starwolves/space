@@ -1,4 +1,4 @@
-use bevy::{math::Vec3, prelude::{BuildChildren, Commands}};
+use bevy::{math::{Mat4, Quat, Vec3}, prelude::{BuildChildren, Commands, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
 
@@ -316,7 +316,18 @@ pub fn load_raw_map_entities(
             + "A standard issue helmet used by Security Officers."
             + "[font=" + FURTHER_ITALIC_FONT + "]\n\nIt is in perfect shape.[/font]"
             + "\n*******[/font]";
-    
+            
+            let mut attachment_transforms = HashMap::new();
+
+            attachment_transforms.insert("left_hand".to_string(), Transform::from_matrix(
+                Mat4::from_scale_rotation_translation(
+                Vec3::new(0.5,0.5,0.5),
+              Quat::from_axis_angle(Vec3::new(1.,0.,0.), 3.111607897),
+           Vec3::new(0.,-0.003, -0.108)
+                )
+            ));
+            //attachment_transforms.insert("right_hand".to_string(), );
+
             commands.spawn_bundle(rigid_body_component).insert_bundle(
                 collider_component,
             ).insert_bundle((
@@ -346,7 +357,8 @@ pub fn load_raw_map_entities(
                 },
                 Helmet,
                 Pickupable {
-                    in_inventory_of_entity: None
+                    in_inventory_of_entity: None,
+                    attachment_transforms: attachment_transforms,
                 },
             ));
 

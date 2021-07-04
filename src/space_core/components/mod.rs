@@ -44,3 +44,4 @@ pub mod helmet;
 pub mod pickupable;
 pub mod inventory;
 pub mod rigidbody_link_transform;
+pub mod rigidbody_disabled;
