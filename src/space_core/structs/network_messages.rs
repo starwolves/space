@@ -24,6 +24,7 @@ pub enum ReliableClientMessage {
     ExamineEntity(u32),
     ExamineMap(GridMapType, i16,i16,i16),
     UseWorldItem(u32, u32),
+    DropCurrentItem,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -46,6 +47,7 @@ pub enum ReliableServerMessage {
     UnloadEntity(u32, bool),
     ChatMessage(String),
     PickedUpItem(String, u32, String),
+    DropItem(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
