@@ -1,7 +1,7 @@
-use bevy::prelude::{Commands, Entity, EventReader, Query};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces};
 
-use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::general::use_world_item::UseWorldItem, functions::{toggle_rigidbody::disable_rigidbody}};
+use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, pickupable::Pickupable, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::UseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::{toggle_rigidbody::disable_rigidbody}, structs::network_messages::ReliableServerMessage};
 
 pub fn pickup_world_item(
     mut use_world_item_events : EventReader<UseWorldItem>,
@@ -12,8 +12,10 @@ pub fn pickup_world_item(
         &mut RigidBodyActivation,
         &mut ColliderFlags,
         &mut RigidBodyForces,
+        &EntityData,
     )>,
     mut commands : Commands,
+    mut net_pickup_world_item : EventWriter<NetPickupWorldItem>,
 ) {
 
     for event in use_world_item_events.iter() {
@@ -65,6 +67,8 @@ pub fn pickup_world_item(
         let mut pickupable_collider_bundle = pickupable_entities_components.3;
         let mut pickupable_rigid_body_forces = pickupable_entities_components.4;
 
+        let pickupable_entity_data = pickupable_entities_components.5;
+
         disable_rigidbody(
             &mut pickupable_rigid_body_activation,
             &mut pickupable_collider_bundle,
@@ -81,6 +85,10 @@ pub fn pickup_world_item(
             follow_entity: event.pickuper_entity,
         });
 
+        net_pickup_world_item.send(NetPickupWorldItem {
+            handle: event.handle,
+            message: ReliableServerMessage::PickedUpItem(pickupable_entity_data.entity_type.clone(), pickupable_entity.id(), pickup_slot.slot_name.clone()),
+        });
 
 
     }

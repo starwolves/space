@@ -111,6 +111,7 @@ pub fn handle_network_messages(
                     match player_entity_option {
                         Some(player_entity) => {
                             use_world_item.send(UseWorldItem {
+                                handle: *handle,
                                 pickuper_entity: *player_entity,
                                 pickupable_entity_id: entity_id,
                                 pickupable_entity_generation: entity_generation,
