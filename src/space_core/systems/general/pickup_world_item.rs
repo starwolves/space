@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Entity, EventReader, Query};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces};
 
-use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::general::use_world_item::UseWorldItem, functions::{toggle_rigidbody::turn_off_rigidbody}};
+use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::general::use_world_item::UseWorldItem, functions::{toggle_rigidbody::disable_rigidbody}};
 
 pub fn pickup_world_item(
     mut use_world_item_events : EventReader<UseWorldItem>,
@@ -65,11 +65,14 @@ pub fn pickup_world_item(
         let mut pickupable_collider_bundle = pickupable_entities_components.3;
         let mut pickupable_rigid_body_forces = pickupable_entities_components.4;
 
-        turn_off_rigidbody(
+        disable_rigidbody(
             &mut pickupable_rigid_body_activation,
             &mut pickupable_collider_bundle,
             &mut pickupable_rigid_body_forces,
+            &mut commands,
+            pickupable_entity
         );
+        
         pickupable_component.in_inventory_of_entity = Some(event.pickuper_entity);
         pickup_slot.slot_item = Some(pickupable_entity);
         pickupable_world_mode.mode = WorldModes::Held;
