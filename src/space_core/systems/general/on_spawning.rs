@@ -99,6 +99,7 @@ pub fn on_spawning(
                 updates: entity_updates_map,
                 changed_parameters: vec![],
                 excluded_handles:HashMap::new(),
+                updates_difference: HashMap::new(),
             },
             WorldMode {
                 mode : WorldModes::Kinematic

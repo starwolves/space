@@ -4,13 +4,15 @@ use bevy::prelude::{Changed, Query};
 use crate::space_core::{components::{
         omni_light::OmniLight,
         entity_updates::EntityUpdates
-    }, structs::network_messages::EntityUpdateData};
+    }, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn omni_light_update(
     mut updated_omni_lights: Query<(&OmniLight, &mut EntityUpdates), Changed<OmniLight>>,
 ) {
 
     for (omni_light_component, mut entity_updates_component) in updated_omni_lights.iter_mut() {
+
+        let old_entity_updates = entity_updates_component.updates.clone();
 
         let entity_updates = entity_updates_component.updates
         .get_mut(&".".to_string()).unwrap();
@@ -79,6 +81,13 @@ pub fn omni_light_update(
             "shadow_reverse_cull_face".to_string(), 
             EntityUpdateData::Bool(omni_light_component.shadow_reverse_cull_face)
         );
+
+        let difference_updates = get_entity_update_difference(
+            old_entity_updates,
+            &entity_updates_component.updates
+        );
+
+        entity_updates_component.updates_difference = difference_updates;
 
     }
 
