@@ -44,7 +44,8 @@ pub enum ReliableServerMessage {
     UIRequestInput(String, String),
     LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool, u32),
     UnloadEntity(u32, bool),
-    ChatMessage(String)
+    ChatMessage(String),
+    PickedUpItem(String, u32, String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
