@@ -12,7 +12,7 @@ pub fn send_entity_updates(
         visible_entity, 
         visible_component, 
         entity_updates_component,
-        connected_player_component_option
+        connected_player_component_option,
     ) in updated_entity_updates.iter() {
 
         let visible_entity_id = visible_entity.id();
@@ -23,13 +23,9 @@ pub fn send_entity_updates(
             continue;
         }
 
-
-        
-
         for sensed_by_entity in visible_component.sensed_by.iter() {
 
-
-            let mut updates_data = entity_updates_component.updates.clone();
+            let mut updates_data = entity_updates_component.updates_difference.clone();
 
             match connected_player_component_option {
                 Some(connected_player_component) => {

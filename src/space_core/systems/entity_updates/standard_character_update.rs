@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, standard_character::{StandardCharacter}, persistent_player_data::PersistentPlayerData}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, standard_character::{StandardCharacter}, persistent_player_data::PersistentPlayerData}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn standard_character_update(
     mut updated_humans: Query<(&StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>), Changed<StandardCharacter>>,
@@ -15,6 +15,7 @@ pub fn standard_character_update(
         connected_player_component_option
     ) in updated_humans.iter_mut() {
 
+        let old_entity_updates = entity_updates_component.updates.clone();
         
         let lower_body_animation_state : String;
         // upper_body_animation_state has blend set to 0 so its useless atm.
@@ -79,6 +80,13 @@ pub fn standard_character_update(
             "Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(),
             billboard_username_updates
         );
+
+        let difference_updates = get_entity_update_difference(
+            old_entity_updates,
+            &entity_updates_component.updates
+        );
+
+        entity_updates_component.updates_difference = difference_updates;
 
     }
 

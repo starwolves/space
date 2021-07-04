@@ -1,13 +1,15 @@
 use bevy::prelude::{Changed, Query};
 
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, gi_probe::GIProbe}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, gi_probe::GIProbe}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn gi_probe_update(
     mut updated_gi_probes: Query<(&GIProbe, &mut EntityUpdates), Changed<GIProbe>>,
 ) {
 
     for (gi_probe_component, mut entity_updates_component) in updated_gi_probes.iter_mut() {
+
+        let old_entity_updates = entity_updates_component.updates.clone();
 
         let entity_updates = entity_updates_component.updates
         .get_mut(&".".to_string()).unwrap();
@@ -48,6 +50,14 @@ pub fn gi_probe_update(
             "extents".to_string(),
             EntityUpdateData::Vec3(gi_probe_component.extents)
         );
+
+        let difference_updates = get_entity_update_difference(
+            old_entity_updates,
+            &entity_updates_component.updates
+        );
+
+        entity_updates_component.updates_difference = difference_updates;
+
     }
 
 }

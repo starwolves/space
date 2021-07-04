@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, inventory::Inventory, pickupable::Pickupable}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, inventory::Inventory, pickupable::Pickupable}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,
@@ -10,7 +10,9 @@ pub fn inventory_update(
 ) {
     
     for (inventory_component, mut entity_updates_component) in updated_entities.iter_mut() {
-                
+        
+        let old_entity_updates = entity_updates_component.updates.clone();
+
         for slot in &inventory_component.slots {
 
             let attachment_slot;
@@ -46,6 +48,13 @@ pub fn inventory_update(
             }
 
         }
+
+        let difference_updates = get_entity_update_difference(
+            old_entity_updates,
+            &entity_updates_component.updates
+        );
+
+        entity_updates_component.updates_difference = difference_updates;
 
     }
 

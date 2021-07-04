@@ -2,13 +2,15 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_updates::EntityUpdates}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_updates::EntityUpdates}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,
 ) {
 
     for (air_lock_component, mut entity_updates_component) in updated_air_locks.iter_mut() {
+
+        let old_entity_updates = entity_updates_component.updates.clone();
 
         let mut animation_tree_data = HashMap::new();
 
@@ -84,7 +86,12 @@ pub fn air_lock_update(
             door_right_data
         );
 
-        
+        let difference_updates = get_entity_update_difference(
+            old_entity_updates,
+            &entity_updates_component.updates
+        );
+
+        entity_updates_component.updates_difference = difference_updates;
 
 
     }

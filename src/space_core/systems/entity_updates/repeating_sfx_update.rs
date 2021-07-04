@@ -1,12 +1,14 @@
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, repeating_sfx::RepeatingSfx}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, repeating_sfx::RepeatingSfx}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn repeating_sfx_update(
     mut updated_sfx: Query<(&RepeatingSfx, &mut EntityUpdates), Changed<RepeatingSfx>>,
 ) {
 
     for (sfx_component, mut entity_updates_component) in updated_sfx.iter_mut() {
+
+        let old_entity_updates = entity_updates_component.updates.clone();
 
         let entity_updates = entity_updates_component.updates
         .get_mut(&".".to_string()).unwrap();
@@ -91,6 +93,13 @@ pub fn repeating_sfx_update(
             "stream_id".to_string(),
             EntityUpdateData::String(sfx_component.stream_id.clone())
         );
+
+        let difference_updates = get_entity_update_difference(
+            old_entity_updates,
+            &entity_updates_component.updates
+        );
+
+        entity_updates_component.updates_difference = difference_updates;
 
     }
 

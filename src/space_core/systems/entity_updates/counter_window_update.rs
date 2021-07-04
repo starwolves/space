@@ -2,13 +2,15 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, entity_updates::EntityUpdates}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, entity_updates::EntityUpdates}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn counter_window_update(
     mut updated_counter_windows: Query<(&CounterWindow, &mut EntityUpdates), Changed<CounterWindow>>,
 ) {
 
     for (counter_window_component, mut entity_updates_component) in updated_counter_windows.iter_mut() {
+
+        let old_entity_updates = entity_updates_component.updates.clone();
 
         let mut animation_tree_data = HashMap::new();
 
@@ -65,6 +67,13 @@ pub fn counter_window_update(
             "accessLight++material".to_string(),
             access_light_data
         );
+
+        let difference_updates = get_entity_update_difference(
+            old_entity_updates,
+            &entity_updates_component.updates
+        );
+
+        entity_updates_component.updates_difference = difference_updates;
 
     }
 
