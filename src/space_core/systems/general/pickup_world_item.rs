@@ -1,5 +1,5 @@
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query};
-use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces};
+use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query}};
+use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
 use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, pickupable::Pickupable, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::UseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::{toggle_rigidbody::disable_rigidbody}, structs::network_messages::ReliableServerMessage};
 
@@ -14,6 +14,7 @@ pub fn pickup_world_item(
         &mut RigidBodyForces,
         &EntityData,
     )>,
+    rigidbody_positions : Query<&RigidBodyPosition>,
     mut commands : Commands,
     mut net_pickup_world_item : EventWriter<NetPickupWorldItem>,
 ) {
@@ -61,6 +62,20 @@ pub fn pickup_world_item(
         if !matches!(pickupable_component.in_inventory_of_entity, None) {
             continue;
         }
+
+        let pickupable_position : Vec3 = rigidbody_positions.get(pickupable_entity)
+        .expect("pickup_world_item.rs pickupable_entity was not found in rigidbody_positions query.")
+        .position.translation.into();
+
+        let pickuper_position : Vec3 = rigidbody_positions.get(event.pickuper_entity)
+        .expect("pickup_world_item.rs pickuper_entity was not found in rigidbody_positions query.")
+        .position.translation.into();
+
+
+        if pickupable_position.distance(pickuper_position) > 2. {
+            continue;
+        }
+
 
         let mut pickupable_world_mode = pickupable_entities_components.1;
         let mut pickupable_rigid_body_activation = pickupable_entities_components.2;

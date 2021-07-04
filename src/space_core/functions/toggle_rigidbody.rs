@@ -24,3 +24,23 @@ pub fn disable_rigidbody(
     commands.entity(rigidbody_entity).insert(RigidBodyDisabled);
 
 }
+
+pub fn enable_rigidbody(
+    rigidbody_activation : &mut Mut<RigidBodyActivation>,
+    collider_flags : &mut Mut<ColliderFlags>,
+    rigidbody_forces : &mut Mut<RigidBodyForces>,
+    commands : &mut Commands,
+    rigidbody_entity : Entity,
+) {
+
+    let masks = get_bit_masks(ColliderGroup::Standard);
+
+    collider_flags.collision_groups  = InteractionGroups::new(masks.0,masks.1);
+
+    rigidbody_forces.gravity_scale = 1.;
+
+    rigidbody_activation.sleeping = false;
+
+    commands.entity(rigidbody_entity).remove::<RigidBodyDisabled>();
+
+}
