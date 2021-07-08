@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
@@ -17,6 +17,7 @@ pub fn handle_network_messages(
     mut use_world_item : EventWriter<UseWorldItem>,
     handle_to_entity : Res<HandleToEntity>,
     mut drop_current_item : EventWriter<DropCurrentItem>,
+    mut switch_hands : EventWriter<SwitchHands>,
 ) {
 
 
@@ -144,6 +145,23 @@ pub fn handle_network_messages(
 
                     
                         
+                },
+                ReliableClientMessage::SwitchHands => {
+
+                    let player_entity_option = handle_to_entity.map.get(handle);
+
+                    match player_entity_option {
+                        Some(player_entity) => {
+                            switch_hands.send(SwitchHands {
+                                handle: *handle,
+                                entity : *player_entity
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to SwitchHands sender handle.");
+                        },
+                    }
+
                 },
             }
 

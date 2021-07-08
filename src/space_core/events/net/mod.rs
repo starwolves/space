@@ -10,3 +10,4 @@ pub mod net_chat_message;
 pub mod net_on_spawning;
 pub mod net_pickup_world_item;
 pub mod net_drop_current_item;
+pub mod net_switch_hands;

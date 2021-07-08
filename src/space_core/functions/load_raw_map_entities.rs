@@ -4,7 +4,7 @@ use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundl
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, cached_broadcast_transform::CachedBroadcastTransform, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, pickupable::Pickupable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{gi_probe, omni_light, raw_entity::RawEntity, reflection_probe}};
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, cached_broadcast_transform::CachedBroadcastTransform, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, inventory::SlotType, pickupable::Pickupable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{gi_probe, omni_light, raw_entity::RawEntity, reflection_probe}};
 
 pub fn load_raw_map_entities(
     raw_entities : &Vec<RawEntity>,
@@ -332,6 +332,17 @@ pub fn load_raw_map_entities(
                 )
             ));
 
+            let right_hand_rotation = Vec3::new(0.11473795,0.775676679,0.);
+            let right_hand_rotation_length = right_hand_rotation.length();
+
+            attachment_transforms.insert("right_hand".to_string(), Transform::from_matrix(
+                Mat4::from_scale_rotation_translation(
+                Vec3::new(0.5,0.5,0.5),
+              Quat::from_axis_angle(Vec3::new(0.11473795,0.775676679,0.).normalize(), right_hand_rotation_length),
+           Vec3::new(0.064,-0.019, 0.065)
+                )
+            ));
+
 
 
             commands.spawn_bundle(rigid_body_component).insert_bundle(
@@ -371,8 +382,8 @@ pub fn load_raw_map_entities(
                 Vec3::new(1.,1.,1.),
               Quat::from_axis_angle(Vec3::new(-0.0394818427,0.00003351599,1.), 3.124470974),
            Vec3::new(0.,0.355, 0.)
-                )
-            ),
+                    ),),
+                    slot_type: SlotType::Helmet
                 },
             ));
 

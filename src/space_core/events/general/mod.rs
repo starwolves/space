@@ -10,3 +10,4 @@ pub mod examine_entity;
 pub mod examine_map;
 pub mod use_world_item;
 pub mod drop_current_item;
+pub mod switch_hands;

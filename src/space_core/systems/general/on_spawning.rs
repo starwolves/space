@@ -134,7 +134,7 @@ pub fn on_spawning(
                         slot_item: None,
                         slot_attachment: Some("Smoothing/pawn/humanMale/rig/leftHand/Position3D".to_string()),
                     },
-                    /*Slot {
+                    Slot {
                         slot_type: SlotType::Generic,
                         slot_name: "right_hand".to_string(),
                         slot_item: None,
@@ -145,7 +145,7 @@ pub fn on_spawning(
                         slot_name: "helmet".to_string(),
                         slot_item: None,
                         slot_attachment: Some("Smoothing/pawn/humanMale/rig/head/Position3D".to_string()),
-                    },*/
+                    },
                 ],
                 pickup_slot: "left_hand".to_string(),
             },
