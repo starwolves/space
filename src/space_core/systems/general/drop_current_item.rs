@@ -80,6 +80,8 @@ pub fn drop_current_item(
             pickupable_entity
         );
 
+        let new_position;
+
         
         match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
             Ok(mut position) => {
@@ -93,6 +95,8 @@ pub fn drop_current_item(
                     position.position.translation.z
                 );
                 //+ Vec3::new(0.45,0.,0.);
+
+                new_position = new_pickupable_transform.translation.clone();
                 
                 position.position = transform_to_isometry(new_pickupable_transform);
 
@@ -118,7 +122,7 @@ pub fn drop_current_item(
 
                 entity_update.insert("detachItem".to_string(), EntityUpdateData::AttachedItem(
                     pickupable_entity.id(),
-                    pickupable_component.drop_transform.translation, 
+                    new_position, 
                     pickupable_component.drop_transform.rotation,
                     pickupable_component.drop_transform.scale
                 ));
