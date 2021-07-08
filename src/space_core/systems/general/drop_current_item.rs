@@ -96,7 +96,7 @@ pub fn drop_current_item(
                 );
                 //+ Vec3::new(0.45,0.,0.);
 
-                new_position = new_pickupable_transform.translation.clone();
+                new_position = new_pickupable_transform.clone();
                 
                 position.position = transform_to_isometry(new_pickupable_transform);
 
@@ -122,9 +122,9 @@ pub fn drop_current_item(
 
                 entity_update.insert("detachItem".to_string(), EntityUpdateData::AttachedItem(
                     pickupable_entity.id(),
-                    new_position, 
-                    pickupable_component.drop_transform.rotation,
-                    pickupable_component.drop_transform.scale
+                    new_position.translation, 
+                    new_position.rotation,
+                    new_position.scale
                 ));
 
                 root_entity_update.insert(attachment_path.to_string(), entity_update);
