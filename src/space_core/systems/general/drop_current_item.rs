@@ -1,11 +1,18 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, Query};
-use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces};
+use std::collections::HashMap;
 
-use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::net_drop_current_item::NetDropCurrentItem}, functions::toggle_rigidbody::enable_rigidbody, structs::network_messages::ReliableServerMessage};
+use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, info}};
+use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
+
+use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{toggle_rigidbody::enable_rigidbody, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
 
 pub fn drop_current_item(
     mut drop_current_item_events : EventReader<DropCurrentItem>,
-    mut inventory_entities : Query<&mut Inventory>,
+    mut rigidbody_positions : Query<&mut RigidBodyPosition>,
+    mut inventory_entities : Query<(
+        Entity,
+        &mut Inventory,
+        &Sensable,
+    )>,
     mut pickupable_entities : Query<(
         &mut Pickupable,
         &mut WorldMode,
@@ -15,6 +22,8 @@ pub fn drop_current_item(
     )>,
     mut commands : Commands,
     mut net_drop_current_item : EventWriter<NetDropCurrentItem>,
+    mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
+    handle_to_entity : Res<HandleToEntity>,
 ) {
 
     for event in drop_current_item_events.iter() {
@@ -31,7 +40,7 @@ pub fn drop_current_item(
             },
         }
 
-        let mut pickuper_inventory = pickuper_components;
+        let mut pickuper_inventory = pickuper_components.1;
         
         let pickup_slot = &pickuper_inventory.pickup_slot.clone();
 
@@ -57,6 +66,8 @@ pub fn drop_current_item(
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
 
+        
+
         drop_slot.slot_item = None;
         pickupable_world_mode_component.mode = WorldModes::Physics;
         pickupable_component.in_inventory_of_entity = None;
@@ -68,6 +79,82 @@ pub fn drop_current_item(
             &mut commands,
             pickupable_entity
         );
+
+        
+        match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
+            Ok(mut position) => {
+
+                let mut new_pickupable_transform = pickupable_component.drop_transform.clone();
+
+                new_pickupable_transform.translation +=
+                Vec3::new(
+                    position.position.translation.x,
+                    position.position.translation.y,
+                    position.position.translation.z
+                );
+                //+ Vec3::new(0.45,0.,0.);
+                
+                position.position = transform_to_isometry(new_pickupable_transform);
+
+            },
+            Err(_rr) => {
+                continue;
+            },
+        }
+        
+        
+
+        
+        
+
+        match &drop_slot.slot_attachment {
+            Some(attachment_path) => {
+
+                // Create detachItem entityUpdate and send it to send_entity_update.rs 
+
+                let mut root_entity_update = HashMap::new();
+
+                let mut entity_update = HashMap::new();
+
+                entity_update.insert("detachItem".to_string(), EntityUpdateData::AttachedItem(
+                    pickupable_entity.id(),
+                    pickupable_component.drop_transform.translation, 
+                    pickupable_component.drop_transform.rotation,
+                    pickupable_component.drop_transform.scale
+                ));
+
+                root_entity_update.insert(attachment_path.to_string(), entity_update);
+
+
+                for entity_id in pickuper_components.2.sensed_by.iter() {
+
+                    let entity_id = entity_id.id();
+
+                    let handle_option = handle_to_entity.inv_map.get(&entity_id);
+                    
+                    match handle_option {
+                        Some(handle) => {
+                            
+                            net_send_entity_updates.send(NetSendEntityUpdates {
+                                handle: *handle,
+                                message: ReliableServerMessage::EntityUpdate(
+                                    entity_id,
+                                    root_entity_update.clone(),
+                                )
+                            });
+
+                        },
+                        None => {},
+                    }
+
+
+                }
+
+            },
+            None => {},
+        }
+
+        
 
         // Send UI/Control update to owning client.
         net_drop_current_item.send(NetDropCurrentItem {

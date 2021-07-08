@@ -331,7 +331,8 @@ pub fn load_raw_map_entities(
            Vec3::new(0.,-0.003, -0.108)
                 )
             ));
-            //attachment_transforms.insert("right_hand".to_string(), );
+
+
 
             commands.spawn_bundle(rigid_body_component).insert_bundle(
                 collider_component,
@@ -365,6 +366,13 @@ pub fn load_raw_map_entities(
                 Pickupable {
                     in_inventory_of_entity: None,
                     attachment_transforms: attachment_transforms,
+                    drop_transform: Transform::from_matrix(
+                     Mat4::from_scale_rotation_translation(
+                Vec3::new(1.,1.,1.),
+              Quat::from_axis_angle(Vec3::new(-0.0394818427,0.00003351599,1.), 3.124470974),
+           Vec3::new(0.,0.355, 0.)
+                )
+            ),
                 },
             ));
 
