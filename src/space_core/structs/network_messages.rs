@@ -27,6 +27,7 @@ pub enum ReliableClientMessage {
     DropCurrentItem,
     SwitchHands,
     WearItem(u32, String),
+    TakeOffItem(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -51,6 +52,7 @@ pub enum ReliableServerMessage {
     PickedUpItem(String, u32, String),
     DropItem(String),
     SwitchHands,
+    EquippedWornItem(String, u32, String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

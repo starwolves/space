@@ -12,3 +12,4 @@ pub mod net_pickup_world_item;
 pub mod net_drop_current_item;
 pub mod net_switch_hands;
 pub mod net_wear_item;
+pub mod net_takeoff_item;
