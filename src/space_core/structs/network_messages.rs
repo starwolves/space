@@ -26,6 +26,7 @@ pub enum ReliableClientMessage {
     UseWorldItem(u32, u32),
     DropCurrentItem,
     SwitchHands,
+    WearItem(u32, String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
