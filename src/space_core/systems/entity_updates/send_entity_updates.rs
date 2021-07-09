@@ -40,7 +40,9 @@ pub fn send_entity_updates(
                 None => {},
             }
 
-            
+            if updates_data.len() == 0 {
+                continue;
+            }
 
 
             net_send_entity_updates.send(NetSendEntityUpdates {
