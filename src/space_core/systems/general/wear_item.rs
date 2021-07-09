@@ -1,13 +1,12 @@
 use bevy::prelude::{EventReader, EventWriter, Query};
 
-use crate::space_core::{components::{entity_data::EntityData, inventory::{Inventory}, pickupable::Pickupable, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::wear_item::WearItem, net::net_wear_item::NetWearItem}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{entity_data::EntityData, inventory::{Inventory}, pickupable::Pickupable,  world_mode::{WorldMode, WorldModes}}, events::{general::wear_item::WearItem, net::net_wear_item::NetWearItem}, structs::network_messages::ReliableServerMessage};
 
 pub fn wear_item(
     mut wear_item_events : EventReader<WearItem>,
-    mut inventory_entities : Query<(
+    mut inventory_entities : Query<
         &mut Inventory,
-        &Sensable,
-    )>,
+    >,
     mut wearable_entities : Query<(
         &Pickupable,
         &mut WorldMode,
@@ -33,7 +32,7 @@ pub fn wear_item(
         }
 
 
-        let mut wearer_inventory = wearer_components.0;
+        let mut wearer_inventory = wearer_components;
 
         let pickup_slot_name = wearer_inventory.pickup_slot.clone();
 

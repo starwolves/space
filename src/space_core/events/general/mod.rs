@@ -12,3 +12,4 @@ pub mod use_world_item;
 pub mod drop_current_item;
 pub mod switch_hands;
 pub mod wear_item;
+pub mod take_off_item;
