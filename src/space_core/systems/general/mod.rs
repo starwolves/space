@@ -23,3 +23,4 @@ pub mod pickup_world_item;
 pub mod rigidbody_link_transform;
 pub mod drop_current_item;
 pub mod switch_hands;
+pub mod wear_item;

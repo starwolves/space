@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
     mut net: ResMut<NetworkResource>,
@@ -18,6 +18,7 @@ pub fn handle_network_messages(
     handle_to_entity : Res<HandleToEntity>,
     mut drop_current_item : EventWriter<DropCurrentItem>,
     mut switch_hands : EventWriter<SwitchHands>,
+    mut wear_items : EventWriter<WearItem>,
 ) {
 
 
@@ -159,6 +160,25 @@ pub fn handle_network_messages(
                         },
                         None => {
                             warn!("Couldn't find player_entity belonging to SwitchHands sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::WearItem(item_id, wear_slot) => {
+
+                    let player_entity_option = handle_to_entity.map.get(handle);
+
+                    match player_entity_option {
+                        Some(player_entity) => {
+                            wear_items.send(WearItem {
+                                handle: *handle,
+                                wearer_entity: *player_entity,
+                                wearable_id: item_id,
+                                wear_slot: wear_slot,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to WearItem sender handle.");
                         },
                     }
 

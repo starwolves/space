@@ -12,6 +12,8 @@ pub struct Slot {
     pub slot_attachment : Option<String>,
 }
 
+
+#[derive(Copy, Clone)]
 pub enum SlotType {
     Generic,
     Helmet,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res}};
+use bevy::{math::Vec3, prelude::{Commands, EventReader, EventWriter, Query, Res}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
 use crate::space_core::{components::{inventory::Inventory, pickupable::Pickupable, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{toggle_rigidbody::enable_rigidbody, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
@@ -9,7 +9,6 @@ pub fn drop_current_item(
     mut drop_current_item_events : EventReader<DropCurrentItem>,
     mut rigidbody_positions : Query<&mut RigidBodyPosition>,
     mut inventory_entities : Query<(
-        Entity,
         &mut Inventory,
         &Sensable,
     )>,
@@ -40,7 +39,7 @@ pub fn drop_current_item(
             },
         }
 
-        let mut pickuper_inventory = pickuper_components.1;
+        let mut pickuper_inventory = pickuper_components.0;
         
         let pickup_slot = &pickuper_inventory.pickup_slot.clone();
 
@@ -130,7 +129,7 @@ pub fn drop_current_item(
                 root_entity_update.insert(attachment_path.to_string(), entity_update);
 
 
-                for entity_id in pickuper_components.2.sensed_by.iter() {
+                for entity_id in pickuper_components.1.sensed_by.iter() {
 
                     let entity_id = entity_id.id();
 
