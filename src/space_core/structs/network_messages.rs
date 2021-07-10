@@ -67,6 +67,7 @@ pub enum EntityUpdateData {
     Bool(bool),
     Vec3(Vec3),
     AttachedItem(u32,Vec3,Quat,Vec3),
+    WornItem(String, u32, String, Vec3,Quat,Vec3)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
