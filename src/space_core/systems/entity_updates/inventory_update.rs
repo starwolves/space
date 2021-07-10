@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, inventory::Inventory, pickupable::Pickupable}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, inventory::Inventory, inventory_item::InventoryItem}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,
-    pickupables : Query<&Pickupable>,
+    pickupables : Query<&InventoryItem>,
 ) {
     
     for (inventory_component, mut entity_updates_component) in updated_entities.iter_mut() {
