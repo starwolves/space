@@ -12,7 +12,7 @@ pub fn visible_checker(
         Option<&RigidBodyPosition>,
         &EntityData,
         &EntityUpdates,
-        &WorldMode
+        Option<&WorldMode>
     )>,
     query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyPosition, &ConnectedPlayer)>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
@@ -42,7 +42,7 @@ pub fn visible_checker(
             rigid_body_position_component_option,
             entity_data_component,
             entity_updates_component,
-            entity_world_mode,
+            entity_world_mode_option,
         ) in query_visible_entities.iter_mut() {
 
             let visible_entity_transform;
@@ -55,12 +55,23 @@ pub fn visible_checker(
                 }
                 None => {
 
-                    if matches!(entity_world_mode.mode, WorldModes::Held) || 
-                    matches!(entity_world_mode.mode, WorldModes::Worn){
-                        is_interpolated=false;
-                    } else {
-                        is_interpolated=true;
+                    match entity_world_mode_option {
+                        Some(entity_world_mode) => {
+
+                            if matches!(entity_world_mode.mode, WorldModes::Held) || 
+                            matches!(entity_world_mode.mode, WorldModes::Worn){
+                                is_interpolated=false;
+                            } else {
+                                is_interpolated=true;
+                            }
+
+                        },
+                        None => {
+                            is_interpolated=false;
+                        },
                     }
+
+                    
 
                     
                     let visible_entity_isometry =  rigid_body_position_component_option.unwrap().position;
