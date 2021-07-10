@@ -2,7 +2,7 @@
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, ResMut, Transform}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, static_transform::StaticTransform, sensable::Sensable, visible_checker::VisibleChecker}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{gridmap_functions::{world_to_cell_id}, isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, resources::{precalculated_fov_data::Vec2Int, world_fov::WorldFOV}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, visible_checker::VisibleChecker, world_mode::{WorldMode, WorldModes}}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{gridmap_functions::{world_to_cell_id}, isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, resources::{precalculated_fov_data::Vec2Int, world_fov::WorldFOV}};
 
 pub fn visible_checker(
     mut query_visible_entities: Query<(
@@ -11,7 +11,8 @@ pub fn visible_checker(
         Option<&StaticTransform>,
         Option<&RigidBodyPosition>,
         &EntityData,
-        &EntityUpdates
+        &EntityUpdates,
+        &WorldMode
     )>,
     query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyPosition, &ConnectedPlayer)>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
@@ -40,7 +41,8 @@ pub fn visible_checker(
             static_transform_component_option,
             rigid_body_position_component_option,
             entity_data_component,
-            entity_updates_component
+            entity_updates_component,
+            entity_world_mode,
         ) in query_visible_entities.iter_mut() {
 
             let visible_entity_transform;
@@ -53,9 +55,14 @@ pub fn visible_checker(
                 }
                 None => {
 
-                    
+                    if matches!(entity_world_mode.mode, WorldModes::Held) || 
+                    matches!(entity_world_mode.mode, WorldModes::Worn){
+                        is_interpolated=false;
+                    } else {
+                        is_interpolated=true;
+                    }
 
-                    is_interpolated=true;
+                    
                     let visible_entity_isometry =  rigid_body_position_component_option.unwrap().position;
 
                     visible_entity_transform = isometry_to_transform(visible_entity_isometry);
