@@ -4,7 +4,7 @@ use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundl
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, cached_broadcast_transform::CachedBroadcastTransform, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, inventory::SlotType, pickupable::Pickupable, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{gi_probe, omni_light, raw_entity::RawEntity, reflection_probe}};
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, cached_broadcast_transform::CachedBroadcastTransform, counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, inventory::SlotType, inventory_item::InventoryItem, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{gi_probe, omni_light, raw_entity::RawEntity, reflection_probe}};
 
 pub fn load_raw_map_entities(
     raw_entities : &Vec<RawEntity>,
@@ -382,7 +382,7 @@ pub fn load_raw_map_entities(
                     text: examine_text,
                 },
                 Helmet,
-                Pickupable {
+                InventoryItem {
                     in_inventory_of_entity: None,
                     attachment_transforms: attachment_transforms,
                     drop_transform: Transform::from_matrix(
@@ -392,6 +392,7 @@ pub fn load_raw_map_entities(
            Vec3::new(0.,0.355, 0.)
                     ),),
                     slot_type: SlotType::Helmet,
+                    is_attached_when_worn : true,
                 },
             ));
 

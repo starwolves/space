@@ -1,6 +1,6 @@
 use bevy::prelude::{EventReader, EventWriter, Query};
 
-use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, pickupable::Pickupable, world_mode::{WorldMode, WorldModes}}, events::{general::take_off_item::TakeOffItem, net::net_takeoff_item::NetTakeOffItem}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, inventory_item::InventoryItem, world_mode::{WorldMode, WorldModes}}, events::{general::take_off_item::TakeOffItem, net::net_takeoff_item::NetTakeOffItem}, structs::network_messages::ReliableServerMessage};
 
 pub fn take_off_item(
     mut take_off_item_events : EventReader<TakeOffItem>,
@@ -8,7 +8,7 @@ pub fn take_off_item(
         &mut Inventory,
     >,
     mut pickupable_entities : Query<(
-        &Pickupable,
+        &InventoryItem,
         &mut WorldMode,
         &EntityData
     )>,
@@ -103,7 +103,7 @@ pub fn take_off_item(
             message: ReliableServerMessage::EquippedWornItem(takeoff_components.2.entity_type.clone(), takeoff_entity.id(), takeoff_slot.slot_name.clone()),
         });
 
-
+        
 
 
 
