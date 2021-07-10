@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
@@ -15,15 +14,14 @@ pub fn inventory_item_update(
         let old_entity_updates = entity_updates_component.updates.clone();
 
 
-        let mut insert_map = HashMap::new();
+        let insert_map = entity_updates_component.updates.get_mut(&".".to_string()).unwrap();
 
 
         insert_map.insert("worn_is_attached".to_string(), EntityUpdateData::Bool(inventory_item_component.is_attached_when_worn));
 
 
 
-
-        entity_updates_component.updates.insert(".".to_string(), insert_map);
+        //entity_updates_component.updates.insert(".".to_string(), insert_map);
 
 
 
