@@ -37,7 +37,7 @@ pub fn inventory_update(
                     
                     let mut update_map = HashMap::new();
 
-                    update_map.insert("attachedItem".to_string(), EntityUpdateData::AttachedItem(item.id(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
+                    //update_map.insert("attachedItem".to_string(), EntityUpdateData::AttachedItem(item.id(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
 
                     update_map.insert("wornItems".to_string(), EntityUpdateData::WornItem(slot.slot_name.clone(), item.id(), pickupable_components.1.entity_type.clone(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
 
