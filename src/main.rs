@@ -212,7 +212,11 @@ fn main() {
         .add_plugin(LogPlugin::default())
         .add_plugin(TransformPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(NetworkingPlugin::default())
+        .add_plugin(NetworkingPlugin {
+//            idle_timeout_ms: Some(15000),
+//            auto_heartbeat_ms: Some(10000),
+            ..Default::default()
+        })
         .add_plugin(DiagnosticsPlugin::default())
         //.insert_resource(ReportExecutionOrderAmbiguities)
         .insert_resource(current_map_environment)
