@@ -1,6 +1,6 @@
-use bevy::{core::{Time, Timer}, prelude::{Commands, Entity, Query, Res, ResMut}};
+use bevy::{core::{Time, Timer}, prelude::{Commands, Entity, EventWriter, Query, Res, ResMut}};
 
-use crate::space_core::{components::{air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer,  counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer}, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
+use crate::space_core::{components::{air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer, sensable::Sensable, sfx::Sfx}, events::net::net_unload_entity::NetUnloadEntity, resources::{handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 pub fn tick_timers(
     time: Res<Time>, 
@@ -14,6 +14,9 @@ pub fn tick_timers(
     
     
     mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
+    mut sfx_entities : Query<(&Sfx, &mut Sensable)>,
+    handle_to_entity : Res<HandleToEntity>,
+    mut net_unload_entity : EventWriter<NetUnloadEntity>,
     mut commands : Commands
 ) {
     for mut timer in query_timer.iter_mut() {
@@ -56,6 +59,9 @@ pub fn tick_timers(
     for expired_sfx_entity in expired_sfx_entities {
 
         sfx_auto_destroy_timers.timers.remove(&expired_sfx_entity);
+
+        sfx_entities.get_mut(expired_sfx_entity).unwrap().1.despawn(expired_sfx_entity, &mut net_unload_entity, &handle_to_entity);
+
         commands.entity(expired_sfx_entity).despawn();
     }
 
