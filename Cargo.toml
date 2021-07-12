@@ -1,8 +1,8 @@
 [package]
 name = "space"
 version = "0.1.0"
-authors = ["Nikita <nikitaab98@gmail.com>"]
-description="A high performance multi-threaded ECS game server , written in Rust."
+authors = ["Nikita Ramses Abdoelrahman <nikitaab98@gmail.com>"]
+description="A high performance multi-threaded ECS game server."
 homepage=""
 license-file="LICENSE"
 edition = "2018"
@@ -17,7 +17,7 @@ bevy_rapier3d = {version= "0.10.2" ,default-features = false, features = [ "dim3
 serde = {version= "1.0"}
 serde_json = {version= "1.0"}
 
-bevy_networking_turbulence = "0.3.0"
+bevy_networking_turbulence = "0.3.2"
 
 rand = "0.8.3"
 
