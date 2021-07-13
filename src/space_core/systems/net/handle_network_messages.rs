@@ -87,7 +87,7 @@ pub fn handle_network_messages(
                     });
 
                 },
-                ReliableClientMessage::ExamineEntity(entity_id) => {
+                ReliableClientMessage::ExamineEntity(entity_id, _entity_generation) => {
 
                     examine_entity.send(ExamineEntity{
                         handle: *handle,
@@ -165,7 +165,7 @@ pub fn handle_network_messages(
                     }
 
                 },
-                ReliableClientMessage::WearItem(item_id, wear_slot) => {
+                ReliableClientMessage::WearItem(item_id, _entity_generation, wear_slot) => {
 
                     let player_entity_option = handle_to_entity.map.get(handle);
 

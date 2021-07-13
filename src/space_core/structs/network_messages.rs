@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::space_core::{resources::world_environments::WorldEnvironment};
 
+
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 pub enum GridMapType {
     Main,
@@ -21,12 +22,12 @@ pub enum ReliableClientMessage {
     SprintInput(bool),
     BuildGraphics,
     InputChatMessage(String),
-    ExamineEntity(u32),
+    ExamineEntity(u32, u32),
     ExamineMap(GridMapType, i16,i16,i16),
     UseWorldItem(u32, u32),
     DropCurrentItem,
     SwitchHands,
-    WearItem(u32, String),
+    WearItem(u32, u32, String),
     TakeOffItem(String),
 }
 
@@ -43,16 +44,16 @@ pub enum UIInputAction {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
-    EntityUpdate(u32, HashMap<String, HashMap<String, EntityUpdateData>>),
+    EntityUpdate(u32, u32, HashMap<String, HashMap<String, EntityUpdateData>>),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
     LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool, u32),
-    UnloadEntity(u32, bool),
+    UnloadEntity(u32, u32, bool),
     ChatMessage(String),
-    PickedUpItem(String, u32, String),
+    PickedUpItem(String, u32, u32, String),
     DropItem(String),
     SwitchHands,
-    EquippedWornItem(String, u32, String),
+    EquippedWornItem(String, u32, u32, String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -66,8 +67,8 @@ pub enum EntityUpdateData {
     Color(Color),
     Bool(bool),
     Vec3(Vec3),
-    AttachedItem(u32,Vec3,Quat,Vec3),
-    WornItem(String, u32, String, Vec3,Quat,Vec3)
+    AttachedItem(u32,u32, Vec3,Quat,Vec3),
+    WornItem(String, u32, u32, String, Vec3,Quat,Vec3)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -75,7 +76,7 @@ pub enum ServerConfigMessage {
     Awoo,
     WorldEnvironment(WorldEnvironment),
     TickRate(u8),
-    EntityId(u32),
+    EntityId(u32, u32),
     BlackCellID(i64, i64),
     OrderedCellsMain(Vec<String>),
     OrderedCellsDetails1(Vec<String>),
@@ -87,6 +88,6 @@ pub enum ServerConfigMessage {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableServerMessage {
-    TransformUpdate(u32, Vec3, Quat, Vec3, u64),
-    PositionUpdate(u32, Vec3, u64)
+    TransformUpdate(u32, u32, Vec3, Quat, Vec3, u64),
+    PositionUpdate(u32, u32, Vec3, u64)
 }

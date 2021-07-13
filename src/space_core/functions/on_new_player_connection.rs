@@ -184,7 +184,7 @@ pub fn on_new_player_connection(
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,
-        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(player_entity_id.id()))
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(player_entity_id.id(), player_entity_id.generation()))
     });
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{

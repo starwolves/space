@@ -39,7 +39,8 @@ pub fn on_setupui (
             handle: connected_player_component.handle,
             message: ReliableServerMessage::EntityUpdate(
                 server_id.id.id(),
-                hash_map_path
+                server_id.id.generation(),
+                hash_map_path,
             )
         });
 

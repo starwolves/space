@@ -325,7 +325,6 @@ fn main() {
             .with_system(sfx_update.system())
             .with_system(repeating_sfx_update.system())
             .with_system(counter_window_update.system())
-            .with_system(counter_window_update.system())
             .with_system(inventory_update.system())
             .with_system(inventory_item_update.system())
         )

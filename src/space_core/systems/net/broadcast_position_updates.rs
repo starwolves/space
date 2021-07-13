@@ -57,6 +57,7 @@ pub fn broadcast_position_updates (
                         *handle,
                         UnreliableServerMessage::PositionUpdate (
                             entity_id,
+                            entity.generation(),
                             new_position,
                             current_time_stamp as u64
                         )

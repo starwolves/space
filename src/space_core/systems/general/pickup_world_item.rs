@@ -102,7 +102,7 @@ pub fn pickup_world_item(
 
         net_pickup_world_item.send(NetPickupWorldItem {
             handle: event.handle,
-            message: ReliableServerMessage::PickedUpItem(pickupable_entity_data.entity_type.clone(), pickupable_entity.id(), pickup_slot.slot_name.clone()),
+            message: ReliableServerMessage::PickedUpItem(pickupable_entity_data.entity_type.clone(), event.pickupable_entity_id, event.pickupable_entity_generation, pickup_slot.slot_name.clone()),
         });
 
 
