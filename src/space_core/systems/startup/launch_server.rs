@@ -18,9 +18,9 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel_mode: MessageChannelMode::Reliable {
         reliability_settings: ReliableChannelSettings {
             bandwidth: 163840,
-            recv_window_size: 10240,
-            send_window_size: 10240,
-            burst_bandwidth: 10240,
+            recv_window_size: 1024*5,
+            send_window_size: 1024*5,
+            burst_bandwidth: 1024*5,
             init_send: 512,
             wakeup_time: Duration::from_millis(100),
             initial_rtt: Duration::from_millis(200),
@@ -28,7 +28,7 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
             rtt_update_factor: 0.1,
             rtt_resend_factor: 1.5,
         },
-        max_message_len: 10242,
+        max_message_len: 10240,
     },
     message_buffer_size: 256,
     packet_buffer_size: 256,
