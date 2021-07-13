@@ -30,8 +30,8 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
         },
         max_message_len: 10240,
     },
-    message_buffer_size: 128,
-    packet_buffer_size: 128,
+    message_buffer_size: 256,
+    packet_buffer_size: 256,
 };
 
 const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -51,8 +51,8 @@ const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
         },
         max_message_len: 1024,
     },
-    message_buffer_size: 128,
-    packet_buffer_size: 128,
+    message_buffer_size: 256,
+    packet_buffer_size: 256,
 };
 
 const SERVER_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
