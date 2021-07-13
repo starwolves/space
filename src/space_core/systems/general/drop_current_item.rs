@@ -121,6 +121,7 @@ pub fn drop_current_item(
 
                 entity_update.insert("detachItem".to_string(), EntityUpdateData::AttachedItem(
                     pickupable_entity.id(),
+                    pickupable_entity.generation(),
                     new_position.translation, 
                     new_position.rotation,
                     new_position.scale
@@ -131,9 +132,9 @@ pub fn drop_current_item(
 
                 for entity_id in pickuper_components.1.sensed_by.iter() {
 
-                    let entity_id = entity_id.id();
+                    let entity_idy = entity_id.id();
 
-                    let handle_option = handle_to_entity.inv_map.get(&entity_id);
+                    let handle_option = handle_to_entity.inv_map.get(&entity_idy);
                     
                     match handle_option {
                         Some(handle) => {
@@ -141,7 +142,8 @@ pub fn drop_current_item(
                             net_send_entity_updates.send(NetSendEntityUpdates {
                                 handle: *handle,
                                 message: ReliableServerMessage::EntityUpdate(
-                                    entity_id,
+                                    entity_idy,
+                                    entity_id.generation(),
                                     root_entity_update.clone(),
                                 )
                             });

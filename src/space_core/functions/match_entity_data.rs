@@ -80,27 +80,29 @@ pub fn entity_data_is_matching(
                 _ => {}
             }
         },
-        EntityUpdateData::AttachedItem(old_value0, old_value1, old_value2, old_value3) => {
+        EntityUpdateData::AttachedItem(old_value0, old_value1, old_value2, old_value3, old_value4) => {
             match data2 {
-                EntityUpdateData::AttachedItem(new_value0, new_value1,new_value2,new_value3) => {
+                EntityUpdateData::AttachedItem(new_value0, new_value1,new_value2,new_value3, new_value4) => {
                     is_not_matching = *new_value0 != *old_value0
                     || *new_value1 != *old_value1
                     || *new_value2 != *old_value2
-                    || *new_value3 != *old_value3;
+                    || *new_value3 != *old_value3
+                    || *new_value4 != *old_value4;
                 },
                 _ => {}
             }
         },
-        EntityUpdateData::WornItem(old_value0, old_value1, old_value2, old_value3, old_value4, old_value5) => {
+        EntityUpdateData::WornItem(old_value0, old_value1, old_value2, old_value3, old_value4, old_value5, old_value6) => {
 
             match data2 {
-                EntityUpdateData::WornItem(new_value0, new_value1,new_value2,new_value3, new_value4, new_value5) => {
+                EntityUpdateData::WornItem(new_value0, new_value1,new_value2,new_value3, new_value4, new_value5, new_value6) => {
                     is_not_matching = *new_value0 != *old_value0
                     || *new_value1 != *old_value1
                     || *new_value2 != *old_value2
                     || *new_value3 != *old_value3
                     || *new_value4 != *old_value4
-                    || *new_value5 != *old_value5;
+                    || *new_value5 != *old_value5
+                    || *new_value6 != *old_value6
                 },
                 _ => {}
             }

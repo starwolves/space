@@ -203,7 +203,7 @@ fn visible_check(
 
             unload_entity(
                 visible_checker_handle,
-                visible_entity_id.id(),
+                visible_entity_id,
                 net_unload_entity,
                 unload_entirely
             );
@@ -220,7 +220,7 @@ fn visible_check(
         } else if sensed_by_cached_contains && unload_entirely {
             unload_entity(
                 visible_checker_handle,
-                visible_entity_id.id(),
+                visible_entity_id,
                 net_unload_entity,
                 unload_entirely
             );
@@ -230,7 +230,7 @@ fn visible_check(
             if can_cache && !unload_entirely {
                 unload_entity(
                     visible_checker_handle,
-                    visible_entity_id.id(),
+                    visible_entity_id,
                     net_unload_entity,
                     unload_entirely
                 );

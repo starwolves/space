@@ -91,6 +91,7 @@ pub fn broadcast_interpolation_transforms (
                         *handle,
                         UnreliableServerMessage::TransformUpdate (
                             entity_id,
+                            entity.generation(),
                             rigid_body_translation,
                             rigid_body_rotation,
                             rigid_body_velocity,

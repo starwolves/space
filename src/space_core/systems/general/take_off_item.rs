@@ -100,7 +100,7 @@ pub fn take_off_item(
 
         net_takeoff_item.send(NetTakeOffItem {
             handle: event.handle,
-            message: ReliableServerMessage::EquippedWornItem(takeoff_components.2.entity_type.clone(), takeoff_entity.id(), takeoff_slot.slot_name.clone()),
+            message: ReliableServerMessage::EquippedWornItem(takeoff_components.2.entity_type.clone(), takeoff_entity.id(), takeoff_entity.generation(), takeoff_slot.slot_name.clone()),
         });
 
         

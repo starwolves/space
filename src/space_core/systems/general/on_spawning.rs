@@ -164,7 +164,7 @@ pub fn on_spawning(
         
         net_on_new_player_connection.send(NetOnSpawning{
             handle: handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(new_entity.id()))
+            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(new_entity.id(), new_entity.generation()))
         });
 
 
