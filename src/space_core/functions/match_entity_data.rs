@@ -108,6 +108,19 @@ pub fn entity_data_is_matching(
             }
 
         },
+        EntityUpdateData::WornItemNotAttached(old_value0, old_value1, old_value2, old_value3) => {
+
+            match data2 {
+                EntityUpdateData::WornItemNotAttached(new_value0, new_value1,new_value2,new_value3) => {
+                    is_not_matching = *new_value0 != *old_value0
+                    || *new_value1 != *old_value1
+                    || *new_value2 != *old_value2
+                    || *new_value3 != *old_value3
+                },
+                _ => {}
+            }
+
+        },
     }
 
     !is_not_matching

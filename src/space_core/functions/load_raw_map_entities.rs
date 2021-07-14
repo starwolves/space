@@ -398,7 +398,116 @@ pub fn load_raw_map_entities(
 
         }  else if raw_entity.entity_type == "jumpsuitSecurity" {
 
+            let rigid_body_component = RigidBodyBundle {
+                body_type: RigidBodyType::Dynamic,
+                position: transform_to_isometry(entity_transform).into(),
+                ccd: RigidBodyCcd {
+                    ccd_enabled: false,
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+    
+    
+            let masks = get_bit_masks(ColliderGroup::Standard);
+    
+            let collider_component = ColliderBundle {
+                
+                shape: ColliderShape::cuboid(
+                    0.269,
+                    0.377,
+                    0.098,
+                ),
+                position: Vec3::new(0., -0.021, -0.011).into(),
+                material: ColliderMaterial {
+                    friction: 0.75,
+                    friction_combine_rule:  CoefficientCombineRule::Average,
+                    ..Default::default()
+                },
+                flags: ColliderFlags {
+                    collision_groups: InteractionGroups::new(masks.0,masks.1),
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+    
+            let mut entity_updates_map = HashMap::new();
+            entity_updates_map.insert(".".to_string(), HashMap::new());
+    
+            let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
+            + "A standard issue security jumpsuit used by Security Officers."
+            + "[font=" + FURTHER_ITALIC_FONT + "]\n\nIt is in perfect shape.[/font]"
+            + "\n*******[/font]";
+            
+            let mut attachment_transforms = HashMap::new();
 
+            let left_hand_rotation = Vec3::new(-0.324509068,-1.52304412,2.79253);
+            let left_hand_rotation_length = left_hand_rotation.length();
+
+            attachment_transforms.insert("left_hand".to_string(), Transform::from_matrix(
+                Mat4::from_scale_rotation_translation(
+                Vec3::new(0.5,0.5,0.5),
+              Quat::from_axis_angle(left_hand_rotation.normalize(), left_hand_rotation_length),
+           Vec3::new(0.003,0.069, 0.012)
+                )
+            ));
+
+            let right_hand_rotation = Vec3::new(-0.202877072,-0.762290004,-0.190973927);
+            let right_hand_rotation_length = right_hand_rotation.length();
+
+            attachment_transforms.insert("right_hand".to_string(), Transform::from_matrix(
+                Mat4::from_scale_rotation_translation(
+                Vec3::new(0.5,0.5,0.5),
+              Quat::from_axis_angle(right_hand_rotation.normalize(), right_hand_rotation_length),
+           Vec3::new(0.026,-0.008, 0.004)
+                )
+            ));
+
+            let drop_transform_rotation = Vec3::new(-1.57079633,3.127595113,0.);
+            let drop_transform_rotation_length = drop_transform_rotation.length();
+
+            commands.spawn_bundle(rigid_body_component).insert_bundle(
+                collider_component,
+            ).insert_bundle((
+                Sensable{
+                    is_audible : false,
+                    is_light:false,
+                    sensed_by_cached:vec![],
+                    sensed_by:vec![],
+                    always_sensed : false
+                },
+                EntityData {
+                    entity_class : "entity".to_string(),
+                    entity_type : "jumpsuitSecurity".to_string(),
+                    entity_group: EntityGroup::None
+                },
+                EntityUpdates{
+                    updates: entity_updates_map,
+                    changed_parameters: vec![],
+                    excluded_handles:HashMap::new(),
+                    updates_difference: HashMap::new(),
+                },
+                WorldMode {
+                    mode : WorldModes::Physics
+                },
+                CachedBroadcastTransform::new(),
+                Examinable {
+                    text: examine_text,
+                },
+                Helmet,
+                InventoryItem {
+                    in_inventory_of_entity: None,
+                    attachment_transforms: attachment_transforms,
+                    drop_transform: Transform::from_matrix(
+                     Mat4::from_scale_rotation_translation(
+                Vec3::new(1.,1.,1.),
+              Quat::from_axis_angle(drop_transform_rotation.normalize(), drop_transform_rotation_length),
+           Vec3::new(0.,0.116, 0.)
+                    ),),
+                    slot_type: SlotType::Jumpsuit,
+                    is_attached_when_worn : false,
+                },
+            ));
 
         }
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Query};
+use bevy::prelude::{Changed, Query, warn};
 
 use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates, inventory::Inventory, inventory_item::InventoryItem}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
@@ -32,15 +32,38 @@ pub fn inventory_update(
                     let pickupable_components = pickupables.get(item)
                     .expect("inventory_update.rs couldn't find pickupable entity in query that is in inventory slot.");
 
-                    let attachment_transform = pickupable_components.0.attachment_transforms.get(&slot.slot_name)
-                    .expect("inventory_update.rs couldn't pickupable attachment transform for used slot name.");
                     
                     let mut update_map = HashMap::new();
 
-                    update_map.insert("attachedItem".to_string(), EntityUpdateData::AttachedItem(item.id(), item.generation(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
+                    let attachment_transform_option = pickupable_components.0.attachment_transforms.get(&slot.slot_name);
 
-                    update_map.insert("wornItems".to_string(), EntityUpdateData::WornItem(slot.slot_name.clone(), item.id(), item.generation(), pickupable_components.1.entity_type.clone(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
+                    match attachment_transform_option {
+                        Some(attachment_transform) => {
+    
+                            update_map.insert("attachedItem".to_string(), EntityUpdateData::AttachedItem(item.id(), item.generation(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
+    
+                            update_map.insert("wornItems".to_string(), EntityUpdateData::WornItem(slot.slot_name.clone(), item.id(), item.generation(), pickupable_components.1.entity_type.clone(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
 
+                        },
+                        None => {
+
+                            if pickupable_components.0.is_attached_when_worn == true {
+
+                                warn!("inventory_update.rs couldn't find pickupable attachment transform for used slot name.");
+
+
+                            } else {
+                                                                
+                                update_map.insert("wornItems".to_string(), EntityUpdateData::WornItemNotAttached(slot.slot_name.clone(), item.id(), item.generation(), pickupable_components.1.entity_type.clone()));
+        
+                            }
+
+                        },
+                    }
+                    
+                    
+
+                    
                     entity_updates_component.updates.insert(attachment_slot.to_string(), update_map);
 
                 },
