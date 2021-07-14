@@ -116,7 +116,7 @@ pub fn wear_item(
 
         net_wear_item.send(NetWearItem {
             handle: event.handle,
-            message: ReliableServerMessage::PickedUpItem(wearable_components.2.entity_type.clone(), event.wearer_entity.id(), event.wearer_entity.generation(), wear_slot.slot_name.clone()),
+            message: ReliableServerMessage::PickedUpItem(wearable_components.2.entity_type.clone(), wearable_entity.id(), wearable_entity.generation(), wear_slot.slot_name.clone()),
         });
 
 
