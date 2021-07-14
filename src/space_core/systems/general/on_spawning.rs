@@ -146,6 +146,12 @@ pub fn on_spawning(
                         slot_item: None,
                         slot_attachment: Some("Smoothing/pawn/humanMale/rig/head/Position3D".to_string()),
                     },
+                    Slot {
+                        slot_type: SlotType::Jumpsuit,
+                        slot_name: "jumpsuit".to_string(),
+                        slot_item: None,
+                        slot_attachment: Some("Smoothing/pawn/humanMale/rig/humanMale".to_string()),
+                    },
                 ],
                 pickup_slot: "left_hand".to_string(),
             },

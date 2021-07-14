@@ -5,6 +5,7 @@ pub struct Inventory {
     pub pickup_slot : String,
 }
 
+#[derive(Debug)]
 pub struct Slot {
     pub slot_type : SlotType,
     pub slot_name : String,
@@ -13,10 +14,11 @@ pub struct Slot {
 }
 
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum SlotType {
     Generic,
     Helmet,
+    Jumpsuit,
 }
 
 impl Inventory {

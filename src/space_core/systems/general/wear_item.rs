@@ -15,6 +15,8 @@ pub fn wear_item(
     mut net_wear_item : EventWriter<NetWearItem>,
 ) {
 
+    // Todo for robustness against script kids:
+    // Check if wear_slot string provided by client is legit to the item it submitted to that slot. Ie Jumpsuit cant have "helmet".
 
     for event in wear_item_events.iter() {
 

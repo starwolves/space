@@ -20,13 +20,6 @@ pub fn inventory_item_update(
         insert_map.insert("worn_is_attached".to_string(), EntityUpdateData::Bool(inventory_item_component.is_attached_when_worn));
 
 
-
-        //entity_updates_component.updates.insert(".".to_string(), insert_map);
-
-
-
-
-
         let difference_updates = get_entity_update_difference(
             old_entity_updates,
             &entity_updates_component.updates
