@@ -167,7 +167,6 @@ fn visible_check(
                 if !world_fov.to_be_recalculated_priority.contains(visible_checker_cell_id_2d) {
                     world_fov.to_be_recalculated_priority.push(*visible_checker_cell_id_2d);
                 }
-                //is_visible = false;
                 return;
             },
         }
@@ -181,7 +180,7 @@ fn visible_check(
         is_sensed = distance < HEAR_DISTANCE;
     }
 
-    if visible_component.always_sensed == true {
+    if visible_component.always_sensed == true || visible_checker_entity_id ==  visible_entity_id {
         is_sensed = true;
     }
 
