@@ -1024,7 +1024,7 @@ pub fn new_chat_message(
                                         Some(messenger_entity) => {
                                             net_send_entity_updates.send(NetSendEntityUpdates {
                                                 handle: *listener_handle,
-                                                message: ReliableServerMessage::EntityUpdate(messenger_entity.id(), messenger_entity.generation(), billboard_entity_update.clone())
+                                                message: ReliableServerMessage::EntityUpdate(messenger_entity.id(), messenger_entity.generation(), billboard_entity_update.clone(), false)
                                             });
                                         },
                                         None => {

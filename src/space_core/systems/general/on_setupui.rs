@@ -41,6 +41,7 @@ pub fn on_setupui (
                 server_id.id.id(),
                 server_id.id.generation(),
                 hash_map_path,
+                false,
             )
         });
 

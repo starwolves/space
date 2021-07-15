@@ -145,6 +145,7 @@ pub fn drop_current_item(
                                     entity_idy,
                                     entity_id.generation(),
                                     root_entity_update.clone(),
+                                    false,
                                 )
                             });
 

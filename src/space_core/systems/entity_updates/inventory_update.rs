@@ -61,9 +61,6 @@ pub fn inventory_update(
                         },
                     }
                     
-                    
-
-                    
                     entity_updates_component.updates.insert(attachment_slot.to_string(), update_map);
 
                 },

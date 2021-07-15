@@ -48,7 +48,7 @@ pub fn send_entity_updates(
             net_send_entity_updates.send(NetSendEntityUpdates {
                 handle: *handle_to_entity.inv_map.get(&sensed_by_entity.id())
                 .expect("send_entity_updates.rs could not find entity id in handle_to_entity.inv_map"),
-                message: ReliableServerMessage::EntityUpdate(visible_entity_id, visible_entity.generation(), updates_data)
+                message: ReliableServerMessage::EntityUpdate(visible_entity_id, visible_entity.generation(), updates_data, false)
             });
 
         }
