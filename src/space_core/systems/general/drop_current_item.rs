@@ -120,8 +120,7 @@ pub fn drop_current_item(
                 let mut entity_update = HashMap::new();
 
                 entity_update.insert("detachItem".to_string(), EntityUpdateData::AttachedItem(
-                    pickupable_entity.id(),
-                    pickupable_entity.generation(),
+                    pickupable_entity.to_bits(),
                     new_position.translation, 
                     new_position.rotation,
                     new_position.scale
@@ -142,8 +141,7 @@ pub fn drop_current_item(
                             net_send_entity_updates.send(NetSendEntityUpdates {
                                 handle: *handle,
                                 message: ReliableServerMessage::EntityUpdate(
-                                    entity_idy,
-                                    entity_id.generation(),
+                                    entity_id.to_bits(),
                                     root_entity_update.clone(),
                                     false,
                                 )

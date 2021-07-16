@@ -46,7 +46,7 @@ pub fn pickup_world_item(
 
         let pickupable_entities_components;
 
-        let pickupable_entity = Entity::new(event.pickupable_entity_id);
+        let pickupable_entity = Entity::from_bits(event.pickupable_entity_bits);
 
         match pickupable_entities.get_mut(pickupable_entity) {
             Ok(components) => {
@@ -102,7 +102,7 @@ pub fn pickup_world_item(
 
         net_pickup_world_item.send(NetPickupWorldItem {
             handle: event.handle,
-            message: ReliableServerMessage::PickedUpItem(pickupable_entity_data.entity_type.clone(), event.pickupable_entity_id, event.pickupable_entity_generation, pickup_slot.slot_name.clone()),
+            message: ReliableServerMessage::PickedUpItem(pickupable_entity_data.entity_type.clone(), event.pickupable_entity_bits, pickup_slot.slot_name.clone()),
         });
 
 

@@ -38,9 +38,6 @@ pub fn broadcast_interpolation_transforms (
         mut cached_transform_component
     ) in query_interpolated_entities.iter_mut() {
 
-        let entity_id = entity.id();
-
-
         let rigid_body_position = rigid_body_position_component.position;
 
         let rigid_body_translation_rapier = rigid_body_position.translation;
@@ -90,8 +87,7 @@ pub fn broadcast_interpolation_transforms (
                     match net.send_message(
                         *handle,
                         UnreliableServerMessage::TransformUpdate (
-                            entity_id,
-                            entity.generation(),
+                            entity.to_bits(),
                             rigid_body_translation,
                             rigid_body_rotation,
                             rigid_body_velocity,

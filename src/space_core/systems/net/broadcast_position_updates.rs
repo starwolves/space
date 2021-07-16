@@ -43,7 +43,6 @@ pub fn broadcast_position_updates (
 
         cached_transform_component.transform = static_transform_component.transform;
 
-        let entity_id = entity.id();
         let new_position = static_transform_component.transform.translation;
 
         for sensed_by_entity in visible_component.sensed_by.iter() {
@@ -56,8 +55,7 @@ pub fn broadcast_position_updates (
                     match net.send_message(
                         *handle,
                         UnreliableServerMessage::PositionUpdate (
-                            entity_id,
-                            entity.generation(),
+                            entity.to_bits(),
                             new_position,
                             current_time_stamp as u64
                         )

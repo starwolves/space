@@ -38,8 +38,7 @@ pub fn on_setupui (
         net_on_setupui.send(NetOnSetupUI{
             handle: connected_player_component.handle,
             message: ReliableServerMessage::EntityUpdate(
-                server_id.id.id(),
-                server_id.id.generation(),
+                server_id.id.to_bits(),
                 hash_map_path,
                 false,
             )

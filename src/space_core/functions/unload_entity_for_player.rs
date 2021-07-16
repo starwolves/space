@@ -13,8 +13,7 @@ pub fn unload_entity(
         NetUnloadEntity {
             handle: player_handle,
             message: ReliableServerMessage::UnloadEntity(
-                entity_id.id(),
-                entity_id.generation(),
+                entity_id.to_bits(),
                 unload_entirely
             )
         }

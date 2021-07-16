@@ -15,9 +15,6 @@ pub fn send_entity_updates(
         connected_player_component_option,
     ) in updated_entity_updates.iter() {
 
-        let visible_entity_id = visible_entity.id();
-
-
         if entity_updates_component.changed_parameters.len() == 1 &&
         entity_updates_component.changed_parameters.contains(&"play_back_position".to_string()) {
             continue;
@@ -48,7 +45,7 @@ pub fn send_entity_updates(
             net_send_entity_updates.send(NetSendEntityUpdates {
                 handle: *handle_to_entity.inv_map.get(&sensed_by_entity.id())
                 .expect("send_entity_updates.rs could not find entity id in handle_to_entity.inv_map"),
-                message: ReliableServerMessage::EntityUpdate(visible_entity_id, visible_entity.generation(), updates_data, false)
+                message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data, false)
             });
 
         }
