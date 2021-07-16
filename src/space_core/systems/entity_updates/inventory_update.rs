@@ -40,9 +40,9 @@ pub fn inventory_update(
                     match attachment_transform_option {
                         Some(attachment_transform) => {
     
-                            update_map.insert("attachedItem".to_string(), EntityUpdateData::AttachedItem(item.id(), item.generation(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
+                            update_map.insert("attachedItem".to_string(), EntityUpdateData::AttachedItem(item.to_bits(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
     
-                            update_map.insert("wornItems".to_string(), EntityUpdateData::WornItem(slot.slot_name.clone(), item.id(), item.generation(), pickupable_components.1.entity_type.clone(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
+                            update_map.insert("wornItems".to_string(), EntityUpdateData::WornItem(slot.slot_name.clone(), item.to_bits(), pickupable_components.1.entity_type.clone(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
 
                         },
                         None => {
@@ -54,7 +54,7 @@ pub fn inventory_update(
 
                             } else {
                                                                 
-                                update_map.insert("wornItems".to_string(), EntityUpdateData::WornItemNotAttached(slot.slot_name.clone(), item.id(), item.generation(), pickupable_components.1.entity_type.clone()));
+                                update_map.insert("wornItems".to_string(), EntityUpdateData::WornItemNotAttached(slot.slot_name.clone(), item.to_bits(), pickupable_components.1.entity_type.clone()));
         
                             }
 

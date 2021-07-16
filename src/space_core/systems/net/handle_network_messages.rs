@@ -87,11 +87,11 @@ pub fn handle_network_messages(
                     });
 
                 },
-                ReliableClientMessage::ExamineEntity(entity_id, _entity_generation) => {
+                ReliableClientMessage::ExamineEntity(entity_id) => {
 
                     examine_entity.send(ExamineEntity{
                         handle: *handle,
-                        examine_entity_id: entity_id,
+                        examine_entity_bits: entity_id,
                     });
 
                 },
@@ -108,7 +108,7 @@ pub fn handle_network_messages(
                     });
 
                 },
-                ReliableClientMessage::UseWorldItem(entity_id,entity_generation) => {
+                ReliableClientMessage::UseWorldItem(entity_id) => {
 
                     let player_entity_option = handle_to_entity.map.get(handle);
 
@@ -117,8 +117,7 @@ pub fn handle_network_messages(
                             use_world_item.send(UseWorldItem {
                                 handle: *handle,
                                 pickuper_entity: *player_entity,
-                                pickupable_entity_id: entity_id,
-                                pickupable_entity_generation: entity_generation,
+                                pickupable_entity_bits: entity_id,
                             });
                         },
                         None => {
@@ -165,7 +164,7 @@ pub fn handle_network_messages(
                     }
 
                 },
-                ReliableClientMessage::WearItem(item_id, _entity_generation, wear_slot) => {
+                ReliableClientMessage::WearItem(item_id, wear_slot) => {
 
                     let player_entity_option = handle_to_entity.map.get(handle);
 
@@ -174,7 +173,7 @@ pub fn handle_network_messages(
                             wear_items.send(WearItem {
                                 handle: *handle,
                                 wearer_entity: *player_entity,
-                                wearable_id: item_id,
+                                wearable_id_bits: item_id,
                                 wear_slot: wear_slot,
                             });
                         },

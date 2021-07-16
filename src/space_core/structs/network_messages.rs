@@ -22,12 +22,12 @@ pub enum ReliableClientMessage {
     SprintInput(bool),
     BuildGraphics,
     InputChatMessage(String),
-    ExamineEntity(u32, u32),
+    ExamineEntity(u64),
     ExamineMap(GridMapType, i16,i16,i16),
-    UseWorldItem(u32, u32),
+    UseWorldItem(u64),
     DropCurrentItem,
     SwitchHands,
-    WearItem(u32, u32, String),
+    WearItem(u64, String),
     TakeOffItem(String),
 }
 
@@ -44,16 +44,16 @@ pub enum UIInputAction {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
-    EntityUpdate(u32, u32, HashMap<String, HashMap<String, EntityUpdateData>>, bool),
+    EntityUpdate(u64, HashMap<String, HashMap<String, EntityUpdateData>>, bool),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
-    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u32, bool, String, String, bool, u32),
-    UnloadEntity(u32, u32, bool),
+    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u64, bool, String, String, bool),
+    UnloadEntity(u64, bool),
     ChatMessage(String),
-    PickedUpItem(String, u32, u32, String),
+    PickedUpItem(String, u64, String),
     DropItem(String),
     SwitchHands,
-    EquippedWornItem(String, u32, u32, String),
+    EquippedWornItem(String, u64, String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -67,9 +67,9 @@ pub enum EntityUpdateData {
     Color(Color),
     Bool(bool),
     Vec3(Vec3),
-    AttachedItem(u32,u32, Vec3,Quat,Vec3),
-    WornItem(String, u32, u32, String, Vec3,Quat,Vec3),
-    WornItemNotAttached(String, u32, u32, String),
+    AttachedItem(u64, Vec3,Quat,Vec3),
+    WornItem(String, u64, String, Vec3,Quat,Vec3),
+    WornItemNotAttached(String, u64, String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -77,18 +77,18 @@ pub enum ServerConfigMessage {
     Awoo,
     WorldEnvironment(WorldEnvironment),
     TickRate(u8),
-    EntityId(u32, u32),
+    EntityId(u64),
     BlackCellID(i64, i64),
     OrderedCellsMain(Vec<String>),
     OrderedCellsDetails1(Vec<String>),
     ChangeScene(bool, String),
-    ServerEntityId(u32,u32),
+    ServerEntityId(u64),
     RepeatingSFX(String, Vec<String>),
     FinishedInitialization
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableServerMessage {
-    TransformUpdate(u32, u32, Vec3, Quat, Vec3, u64),
-    PositionUpdate(u32, u32, Vec3, u64)
+    TransformUpdate(u64, Vec3, Quat, Vec3, u64),
+    PositionUpdate(u64, Vec3, u64)
 }

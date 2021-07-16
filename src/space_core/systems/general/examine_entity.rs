@@ -11,7 +11,7 @@ pub fn examine_entity(
 
     for examine_event in examine_entity_events.iter() {
 
-        let entity_reference = Entity::new(examine_event.examine_entity_id);
+        let entity_reference = Entity::from_bits(examine_event.examine_entity_bits);
 
         let entity_components_option = examinable_entities.get(entity_reference);
 

@@ -77,12 +77,11 @@ pub fn load_entity(
                 entity_data.entity_class.clone(),
                 entity_data.entity_type.clone(),
                 hash_map,
-                entity_id.id(),
+                entity_id.to_bits(),
                 load_entirely,
                 "main".to_string(),
                 "".to_string(),
                 false,
-                entity_id.generation()
             )
         }
     );
