@@ -174,7 +174,8 @@ pub fn load_raw_map_entities(
                     updates_difference: HashMap::new(),
                 },
                 Examinable {
-                    text: examine_text,
+                    description: examine_text,
+                    name : "a security airlock".to_string()
                 }
             ));
 
@@ -259,7 +260,8 @@ pub fn load_raw_map_entities(
                     updates_difference: HashMap::new(),
                 },
                 Examinable {
-                    text: examine_text,
+                    description: examine_text,
+                    name: "a security counter window".to_string()
                 }
             )).id();
 
@@ -379,7 +381,8 @@ pub fn load_raw_map_entities(
                 },
                 CachedBroadcastTransform::new(),
                 Examinable {
-                    text: examine_text,
+                    description: examine_text,
+                    name: "a security helmet".to_string()
                 },
                 Helmet,
                 InventoryItem {
@@ -492,7 +495,8 @@ pub fn load_raw_map_entities(
                 },
                 CachedBroadcastTransform::new(),
                 Examinable {
-                    text: examine_text,
+                    description: examine_text,
+                    name: "a security jumpsuit".to_string()
                 },
                 Helmet,
                 InventoryItem {

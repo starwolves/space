@@ -1,4 +1,4 @@
-use bevy::prelude::{EventReader, EventWriter, Query};
+use bevy::prelude::{EventReader, EventWriter, Query, info};
 
 use crate::space_core::{components::{entity_data::EntityData, inventory::{Inventory}, inventory_item::InventoryItem,  world_mode::{WorldMode, WorldModes}}, events::{general::wear_item::WearItem, net::net_wear_item::NetWearItem}, structs::network_messages::ReliableServerMessage};
 
@@ -15,7 +15,6 @@ pub fn wear_item(
     mut net_wear_item : EventWriter<NetWearItem>,
 ) {
 
-    // Todo for robustness against script kids:
     // Check if wear_slot string provided by client is legit to the item it submitted to that slot. Ie Jumpsuit cant have "helmet".
 
     for event in wear_item_events.iter() {
@@ -101,16 +100,42 @@ pub fn wear_item(
                 
             },
         }
-        
 
+        // Matches!() doesn't work so this is a work around.
 
-        let _wear_slot_type = wear_slot.slot_type;
+        let wearable_wearable_match_index;
 
+        match wearable_wearable.slot_type {
+            crate::space_core::components::inventory::SlotType::Generic => {
+                wearable_wearable_match_index = 1;
+            },
+            crate::space_core::components::inventory::SlotType::Helmet => {
+                wearable_wearable_match_index = 2;
+            },
+            crate::space_core::components::inventory::SlotType::Jumpsuit => {
+                wearable_wearable_match_index = 3;
+            },
+        }
 
-        if !matches!(&wearable_wearable.slot_type, _wear_slot_type) {
+        let wear_slot_match_index;
+
+        match wear_slot.slot_type {
+            crate::space_core::components::inventory::SlotType::Generic => {
+                wear_slot_match_index = 1;
+            },
+            crate::space_core::components::inventory::SlotType::Helmet => {
+                wear_slot_match_index = 2;
+            },
+            crate::space_core::components::inventory::SlotType::Jumpsuit => {
+                wear_slot_match_index = 3;
+            },
+        }
+
+        if wearable_wearable_match_index != wear_slot_match_index {
             continue;
         }
 
+        info!("Passed!");
         
         pickup_slot.slot_item = None;
         wear_slot.slot_item = Some(wearable_entity);

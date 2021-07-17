@@ -1,3 +1,4 @@
 pub struct Examinable {
-    pub text : String
+    pub description : String,
+    pub name : String,
 }
