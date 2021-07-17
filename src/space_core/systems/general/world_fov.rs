@@ -453,9 +453,7 @@ fn update_cell_fov (
             if !non_blocking_cells_list.list.contains(&iterated_cell_data.item) {
 
                 //Check if we just formed an unfilled corner, if so also add the blackcells of that unfilled corner piece to still close the gap.
-				//Okay so this is some weird logic and works differently in reality than what this code shows. But with all the odd tweaks it works fine.
-				//If you are to edit and make sense of this, may God's grace be with you.
-
+				//Also do some other FOV corrections.
                 
                 let black_cells_for_blocker_option = precalculated_fov_data.data.get(&iterated_relative_cell_id);
 
