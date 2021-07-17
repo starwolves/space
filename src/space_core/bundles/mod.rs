@@ -4,6 +4,6 @@ pub mod air_lock_closed_sfx;
 pub mod counter_window_open_sfx;
 pub mod counter_window_denied_sfx;
 pub mod counter_window_closed_sfx;
-pub mod footsteps_walking;
+pub mod footsteps_walking_sfx;
 pub mod ambience_sfx;
-pub mod footsteps_sprinting;
+pub mod footsteps_sprinting_sfx;
