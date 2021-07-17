@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFla
 
 use std::collections::HashMap;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, standard_character::{StandardCharacter, State as HumanState}, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, space_access::SpaceAccess, spawning::Spawning, standard_character::{StandardCharacter, State as HumanState}, visible_checker::VisibleChecker, world_mode::{WorldMode,WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::{ net_on_spawning::NetOnSpawning}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}, systems::entity_updates::inventory_update::generate_human_examine_text};
 
 
 pub fn on_spawning(
@@ -66,11 +66,11 @@ pub fn on_spawning(
         let mut entity_updates_map = HashMap::new();
         entity_updates_map.insert(".".to_string(), HashMap::new());
 
-        let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
-        + &persistent_player_data_component.character_name + ", a Security Officer.\n"
-        + "He is human.\n"
-        + "[font=" + FURTHER_ITALIC_FONT + "]\nHe is in perfect shape.[/font]"
-        + "\n*******[/font]";
+        let examine_text = generate_human_examine_text(
+            &persistent_player_data_component.character_name,
+            None,
+            None,
+        );
 
         let new_entity = commands.spawn_bundle(rigid_body_component).insert_bundle(
             collider_component,
@@ -109,7 +109,8 @@ pub fn on_spawning(
                 sprinting : false
             },
             StandardCharacter {
-                current_animation_state : HumanState::Idle
+                current_animation_state : HumanState::Idle,
+                character_name: persistent_player_data_component.character_name.clone(),
             },
             Pawn {
                 name: persistent_player_data_component.character_name.clone(),
@@ -124,7 +125,8 @@ pub fn on_spawning(
                 speak_access: vec![RadioChannel::Common, RadioChannel::Security],
             },
             Examinable {
-                text: examine_text,
+                description: examine_text,
+                name: "a male human".to_string(),
             },
             Inventory {
                 slots: vec![
