@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Entity, Mut};
 use bevy_rapier3d::prelude::{ColliderFlags, InteractionGroups, RigidBodyActivation, RigidBodyForces};
 
-use crate::space_core::components::{rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform};
+use crate::space_core::components::{rigidbody_disabled::RigidBodyDisabled};
 
 use super::collider_interaction_groups::{ColliderGroup, get_bit_masks};
 
@@ -41,6 +41,6 @@ pub fn enable_rigidbody(
 
     rigidbody_activation.sleeping = false;
 
-    commands.entity(rigidbody_entity).remove_bundle::<(RigidBodyDisabled, RigidBodyLinkTransform)>();
+    commands.entity(rigidbody_entity).remove_bundle::<(RigidBodyDisabled,)>();
 
 }

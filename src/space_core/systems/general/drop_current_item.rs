@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::Vec3, prelude::{Commands, EventReader, EventWriter, Query, Res}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{toggle_rigidbody::enable_rigidbody, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
+use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{toggle_rigidbody::enable_rigidbody, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
 
 pub fn drop_current_item(
     mut drop_current_item_events : EventReader<DropCurrentItem>,
@@ -78,6 +78,10 @@ pub fn drop_current_item(
             &mut commands,
             pickupable_entity
         );
+
+        
+
+        commands.entity(pickupable_entity).remove_bundle::<(RigidBodyLinkTransform,)>();
 
         let new_position;
 

@@ -15,8 +15,6 @@ pub fn wear_item(
     mut net_wear_item : EventWriter<NetWearItem>,
 ) {
 
-    // Check if wear_slot string provided by client is legit to the item it submitted to that slot. Ie Jumpsuit cant have "helmet".
-
     for event in wear_item_events.iter() {
 
 
@@ -143,6 +141,10 @@ pub fn wear_item(
             handle: event.handle,
             message: ReliableServerMessage::PickedUpItem(wearable_components.2.entity_type.clone(), wearable_entity.to_bits(), wear_slot.slot_name.clone()),
         });
+
+
+
+
 
 
     }    
