@@ -24,15 +24,15 @@ pub fn standard_character_update(
         
 
         match human_character_component.current_animation_state {
-            crate::space_core::components::standard_character::State::Idle => {
+            crate::space_core::components::standard_character::CharacterAnimationState::Idle => {
                 lower_body_animation_state = "Idle".to_string();
                 upper_body_animation_state = "Idle".to_string();
             }
-            crate::space_core::components::standard_character::State::Walking => {
+            crate::space_core::components::standard_character::CharacterAnimationState::Walking => {
                 lower_body_animation_state = "Jogging".to_string();
                 upper_body_animation_state = "Idle".to_string();
             }
-            crate::space_core::components::standard_character::State::Sprinting => {
+            crate::space_core::components::standard_character::CharacterAnimationState::Sprinting => {
                 lower_body_animation_state = "Sprinting".to_string();
                 upper_body_animation_state = "Idle".to_string();
             },

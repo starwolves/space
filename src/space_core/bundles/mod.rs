@@ -7,3 +7,6 @@ pub mod counter_window_closed_sfx;
 pub mod footsteps_walking_sfx;
 pub mod ambience_sfx;
 pub mod footsteps_sprinting_sfx;
+pub mod jumpsuit_security;
+pub mod helmet_security;
+pub mod human_male_pawn;
