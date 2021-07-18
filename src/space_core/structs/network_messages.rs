@@ -15,6 +15,7 @@ pub enum GridMapType {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableClientMessage {
     Awoo,
+    HeartBeat,
     UIInput(UIInputNodeClass,UIInputAction,String,String),
     SceneReady(String),
     UIInputTransmitData(String, String, String),

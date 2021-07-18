@@ -8,7 +8,7 @@ use crate::space_core::{functions::{collider_interaction_groups::{ColliderGroup,
 const INIT_FOV_SQUARE_SIZE : u32 = 260;
 const VIEW_DISTANCE : i16 = 23;
 
-const MAX_CELLS_PER_TICK : u8 = 10;
+const MAX_CELLS_PER_TICK : u8 = 7;
 
 struct UnfilledCorner {
     pub empty_offset_left : Vec2Int,

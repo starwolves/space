@@ -201,6 +201,7 @@ pub fn handle_network_messages(
                     
 
                 },
+                ReliableClientMessage::HeartBeat => {},
             }
 
         }
