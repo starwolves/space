@@ -213,8 +213,8 @@ fn main() {
         .add_plugin(TransformPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(NetworkingPlugin {
-//            idle_timeout_ms: Some(15000),
-//            auto_heartbeat_ms: Some(10000),
+            idle_timeout_ms: Some(10000),
+//            auto_heartbeat_ms: Some(1000),
             ..Default::default()
         })
         .add_plugin(DiagnosticsPlugin::default())

@@ -1,4 +1,4 @@
-use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, EventWriter, info, warn}};
+use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, EventWriter, info}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
 use crate::space_core::{events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::{
@@ -75,8 +75,8 @@ pub fn handle_network_events(
             NetworkEvent::Disconnected(handle) => {
                 info!("[{}] disconnected!", handle);
             }
-            NetworkEvent::Error(handle, err) => {
-                warn!("NetworkEvent error [{}] : {:?}", handle, err);
+            NetworkEvent::Error(_handle, _err) => {
+                //warn!("NetworkEvent error [{}] : {:?}", _handle, _err);
             }
         }
     }
