@@ -38,10 +38,10 @@ pub fn on_setupui (
             )
         });
 
-        let mut passed_inventory_setup = HashMap::new();
+        let passed_inventory_setup = HashMap::new();
 
-        passed_inventory_setup.insert("jumpsuit".to_string(), "jumpsuitSecurity".to_string());
-        passed_inventory_setup.insert("helmet".to_string(), "helmetSecurity".to_string());
+        //passed_inventory_setup.insert("jumpsuit".to_string(), "jumpsuitSecurity".to_string());
+        //passed_inventory_setup.insert("helmet".to_string(), "helmetSecurity".to_string());
 
         HumanMalePawnBundle::spawn(
             Transform::identity(),

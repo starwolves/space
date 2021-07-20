@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Query};
+use bevy::prelude::{Changed, Entity, Query};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn standard_character_update(
-    mut updated_humans: Query<(&StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
+    mut updated_humans: Query<(Entity,&StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
 ) {
 
     for (
+        entity,
         human_character_component,
         mut entity_updates_component,
         persistent_player_data_component,
@@ -62,9 +63,9 @@ pub fn standard_character_update(
         );
 
         match showcase_component_option {
-            Some(_showcase_component) => {},
+            Some(_showcase_component) => {
+            },
             None => {
-
                 let mut billboard_username_updates = HashMap::new();
 
                 billboard_username_updates.insert(
