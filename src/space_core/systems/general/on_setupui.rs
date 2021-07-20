@@ -1,25 +1,19 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Added, EventWriter, Query, Res};
+use bevy::prelude::{Added, Commands, EventWriter, Query, Res, Transform};
 
-use crate::space_core::{
-    components::{
-        connected_player::ConnectedPlayer, 
-        setup_phase::SetupPhase
-    }, 
-    events::net::net_on_setupui::NetOnSetupUI,
-    functions::name_generator,
-    resources::{server_id::ServerId, used_names::UsedNames},
-    structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
+use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, setup_phase::SetupPhase}, events::net::{net_on_setupui::NetOnSetupUI, net_showcase::NetShowcase}, functions::name_generator, resources::{server_id::ServerId, used_names::UsedNames}, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
 
 pub fn on_setupui (
     used_names : Res<UsedNames>,
     server_id : Res<ServerId>,
-    query : Query<&ConnectedPlayer,Added<SetupPhase>>,
-    mut net_on_setupui : EventWriter<NetOnSetupUI>
+    query : Query<(&ConnectedPlayer, &PersistentPlayerData),Added<SetupPhase>>,
+    mut net_on_setupui : EventWriter<NetOnSetupUI>,
+    mut net_showcase : EventWriter<NetShowcase>,
+    mut commands : Commands,
 ) {
     
-    for connected_player_component in query.iter() {
+    for (connected_player_component, persistent_player_data_component) in query.iter() {
 
         let suggested_name = name_generator::get_full_name(true, true, &used_names);
 
@@ -43,6 +37,23 @@ pub fn on_setupui (
                 false,
             )
         });
+
+        let mut passed_inventory_setup = HashMap::new();
+
+        passed_inventory_setup.insert("jumpsuit".to_string(), "jumpsuitSecurity".to_string());
+        passed_inventory_setup.insert("helmet".to_string(), "helmetSecurity".to_string());
+
+        HumanMalePawnBundle::spawn(
+            Transform::identity(),
+            &mut commands,
+            persistent_player_data_component,
+            connected_player_component,
+            passed_inventory_setup,
+            true,
+            Some(&mut net_showcase),
+        );
+
+        
 
     }
 

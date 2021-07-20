@@ -13,3 +13,4 @@ pub mod net_drop_current_item;
 pub mod net_switch_hands;
 pub mod net_wear_item;
 pub mod net_takeoff_item;
+pub mod net_showcase;

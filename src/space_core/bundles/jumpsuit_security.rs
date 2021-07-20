@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, Transform, warn}};
+use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, inventory::SlotType, inventory_item::InventoryItem, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, inventory::SlotType, inventory_item::InventoryItem, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}, structs::network_messages::ReliableServerMessage};
 
 pub struct JumpsuitSecurityBundle;
 
@@ -12,6 +12,9 @@ impl JumpsuitSecurityBundle {
     pub fn spawn_held(
         commands : &mut Commands,
         holder_entity : Entity,
+        showcase_instance : bool,
+        showcase_handle_option : Option<u32>,
+        net_showcase : &mut Option<&mut EventWriter<NetShowcase>>,
     ) -> Entity {
         
         spawn(
@@ -21,6 +24,9 @@ impl JumpsuitSecurityBundle {
         
             true,
             Some(holder_entity),
+            showcase_instance,
+            showcase_handle_option,
+            net_showcase,
         )
 
     }
@@ -38,6 +44,9 @@ impl JumpsuitSecurityBundle {
         
             false,
             None,
+            false,
+            None,
+            &mut None,
         )
 
     }
@@ -51,6 +60,11 @@ fn spawn(
 
     held : bool,
     holder_entity_option : Option<Entity>,
+
+    showcase_instance : bool,
+    showcase_handle_option : Option<u32>,
+
+    net_showcase : &mut Option<&mut EventWriter<NetShowcase>>,
 ) -> Entity {
 
     let this_transform;
@@ -186,13 +200,6 @@ fn spawn(
     let drop_transform_rotation_length = drop_transform_rotation.length();
 
     let rest = (
-        Sensable{
-            is_audible : false,
-            is_light:false,
-            sensed_by_cached:vec![],
-            sensed_by:vec![],
-            always_sensed : false
-        },
         EntityData {
             entity_class : "entity".to_string(),
             entity_type : "jumpsuitSecurity".to_string(),
@@ -228,12 +235,50 @@ fn spawn(
     );
 
     
+    
+
+
 
     let mut builder = commands.spawn_bundle(rigid_body_component);
+
+    let entity_id = builder.id();
 
     builder.insert_bundle(
         collider_component,
     ).insert_bundle(rest);
+
+    if showcase_instance {
+        let handle = showcase_handle_option.unwrap();
+        builder.insert_bundle((
+            Showcase {
+                handle: handle,
+            },
+        ));
+        let entity_updates = HashMap::new();
+        net_showcase.as_deref_mut().unwrap().send(NetShowcase{
+            handle: handle,
+            message: ReliableServerMessage::LoadEntity(
+                "entity".to_string(),
+                "humanMale".to_string(),
+                entity_updates,
+                entity_id.to_bits(),
+                true,
+                "setupUI".to_string(),
+                "".to_string(),
+                false,
+            )
+        });
+    } else {
+        builder.insert_bundle((
+            Sensable{
+                is_audible : false,
+                is_light:false,
+                sensed_by_cached:vec![],
+                sensed_by:vec![],
+                always_sensed : false
+            },
+        ));
+    }
 
     match held {
         true => {
@@ -257,6 +302,6 @@ fn spawn(
         },
     }
 
-    builder.id()
+    entity_id
 
 }
