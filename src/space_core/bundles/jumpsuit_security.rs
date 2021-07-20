@@ -263,7 +263,7 @@ fn spawn(
                 entity_updates,
                 entity_id.to_bits(),
                 true,
-                "setupUI".to_string(),
+                "main".to_string(),
                 "".to_string(),
                 false,
             )

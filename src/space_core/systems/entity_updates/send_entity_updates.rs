@@ -62,8 +62,8 @@ pub fn send_entity_updates(
         match showcase_component_option {
             Some(showcase_component) => {
 
-                let mut updates_data = entity_updates_component.updates_difference.clone();
-        
+                let mut updates_data = entity_updates_component.updates.clone();
+
                 match connected_player_component_option {
                     Some(connected_player_component) => {
                         
@@ -80,7 +80,8 @@ pub fn send_entity_updates(
                 if updates_data.len() == 0 {
                     continue;
                 }
-    
+                
+                //info!("{:?}", updates_data);
     
                 net_send_entity_updates.send(NetSendEntityUpdates {
                     handle: showcase_component.handle,
