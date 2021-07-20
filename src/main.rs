@@ -50,7 +50,7 @@ use space_core::{
         net::{
             handle_network_events::handle_network_events,
             handle_network_messages::handle_network_messages,
-            net_send_message_event::net_send_messages_event,
+            net_send_message_event0::net_send_messages_event0,
         },
         startup::{
             launch_server::launch_server,
@@ -62,7 +62,7 @@ use space_core::{
     }
 };
 
-use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, switch_hands::SwitchHands, take_off_item::TakeOffItem, use_world_item::UseWorldItem, wear_item::WearItem}, net::{net_chat_message::NetChatMessage, net_drop_current_item::NetDropCurrentItem, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_send_world_environment::NetSendWorldEnvironment, net_switch_hands::NetSwitchHands, net_takeoff_item::NetTakeOffItem, net_unload_entity::NetUnloadEntity, net_wear_item::NetWearItem}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, inventory_item_update::inventory_item_update, inventory_update::inventory_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, standard_character_update::standard_character_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, drop_current_item::drop_current_item, examine_entity::examine_entity, examine_map::examine_map, move_standard_characters::move_standard_characters, physics_events::physics_events, pickup_world_item::pickup_world_item, player_input_event::player_input_event, rigidbody_link_transform::rigidbody_link_transform, switch_hands::switch_hands, take_off_item::take_off_item, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed, wear_item::wear_item}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates}}};
+use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, switch_hands::SwitchHands, take_off_item::TakeOffItem, use_world_item::UseWorldItem, wear_item::WearItem}, net::{net_chat_message::NetChatMessage, net_drop_current_item::NetDropCurrentItem, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_takeoff_item::NetTakeOffItem, net_unload_entity::NetUnloadEntity, net_wear_item::NetWearItem}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, precalculated_fov_data::PrecalculatedFOVData, sfx_auto_destroy_timers::SfxAutoDestroyTimers, world_fov::WorldFOV, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, inventory_item_update::inventory_item_update, inventory_update::inventory_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, standard_character_update::standard_character_update, world_mode_update::world_mode_update}, general::{air_lock_events::air_lock_events, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, counter_window_events::counter_window_events, drop_current_item::drop_current_item, examine_entity::examine_entity, examine_map::examine_map, move_standard_characters::move_standard_characters, physics_events::physics_events, pickup_world_item::pickup_world_item, player_input_event::player_input_event, rigidbody_link_transform::rigidbody_link_transform, switch_hands::switch_hands, take_off_item::take_off_item, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed, wear_item::wear_item}, net::{broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates, net_send_message_event1::net_send_messages_event1}}};
 
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -268,6 +268,7 @@ fn main() {
         .add_event::<NetWearItem>()
         .add_event::<TakeOffItem>()
         .add_event::<NetTakeOffItem>()
+        .add_event::<NetShowcase>()
         .add_startup_system(launch_server.system())
         .add_system_to_stage(PreUpdate, 
             handle_network_events.system()
@@ -338,8 +339,9 @@ fn main() {
             .after(PostUpdateLabels::SendEntityUpdates)
             .label(PostUpdateLabels::VisibleChecker)
         )
-        .add_system_to_stage(PostUpdate, 
-            net_send_messages_event.system()
+        .add_system_set_to_stage(PostUpdate, SystemSet::new()
+            .with_system(net_send_messages_event0.system())
+            .with_system(net_send_messages_event1.system())
             .after(PostUpdateLabels::VisibleChecker)
         )
         .run();

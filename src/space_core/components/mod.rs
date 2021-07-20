@@ -45,3 +45,4 @@ pub mod inventory_item;
 pub mod inventory;
 pub mod rigidbody_link_transform;
 pub mod rigidbody_disabled;
+pub mod showcase;

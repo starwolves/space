@@ -2,17 +2,18 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, standard_character::{StandardCharacter}, persistent_player_data::PersistentPlayerData}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn standard_character_update(
-    mut updated_humans: Query<(&StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>), Changed<StandardCharacter>>,
+    mut updated_humans: Query<(&StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
 ) {
 
     for (
         human_character_component,
         mut entity_updates_component,
         persistent_player_data_component,
-        connected_player_component_option
+        connected_player_component_option,
+        showcase_component_option
     ) in updated_humans.iter_mut() {
 
         let old_entity_updates = entity_updates_component.updates.clone();
@@ -60,26 +61,33 @@ pub fn standard_character_update(
             animation_tree1_lower_body_updates
         );
 
-        let mut billboard_username_updates = HashMap::new();
+        match showcase_component_option {
+            Some(_showcase_component) => {},
+            None => {
 
-        billboard_username_updates.insert(
-            "bbcode".to_string(),
-            EntityUpdateData::String("[color=white][center][b]".to_owned() + &persistent_player_data_component.character_name + "[/b][/center][/color]")
-        );
+                let mut billboard_username_updates = HashMap::new();
 
-        match connected_player_component_option {
-            Some(connected_player_component) => {
-                entity_updates_component.excluded_handles.insert("Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(), vec![connected_player_component.handle]);
+                billboard_username_updates.insert(
+                    "bbcode".to_string(),
+                    EntityUpdateData::String("[color=white][center][b]".to_owned() + &persistent_player_data_component.character_name + "[/b][/center][/color]")
+                );
+
+                match connected_player_component_option {
+                    Some(connected_player_component) => {
+                        entity_updates_component.excluded_handles.insert("Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(), vec![connected_player_component.handle]);
+                    },
+                    None => {},
+                }
+        
+                entity_updates_component.updates.insert(
+                    "Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(),
+                    billboard_username_updates
+                );
+
             },
-            None => {},
         }
 
         
-
-        entity_updates_component.updates.insert(
-            "Smoothing/pawn/humanMale/textViewPortChat0/ViewPort/chatText/VControl/name".to_string(),
-            billboard_username_updates
-        );
 
         let difference_updates = get_entity_update_difference(
             old_entity_updates,

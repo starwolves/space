@@ -33,6 +33,8 @@ pub fn on_spawning(
             persistent_player_data_component,
             connected_player_component,
             passed_inventory_setup,
+            false,
+            None,
         );
 
 
