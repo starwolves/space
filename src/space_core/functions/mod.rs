@@ -17,3 +17,4 @@ pub mod load_raw_map_entities;
 pub mod get_entity_update_difference;
 pub mod match_entity_data;
 pub mod spawn_entity;
+pub mod get_console_commands;

@@ -30,7 +30,15 @@ pub enum ReliableClientMessage {
     SwitchHands,
     WearItem(u64, String),
     TakeOffItem(String),
-    RconAuthorization(String),
+    ConsoleCommand(String, Vec<ConsoleCommandVariantValues>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ConsoleCommandVariantValues {
+    Int(i64),
+    String(String),
+    Float(f32),
+    Bool(bool),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -57,6 +65,14 @@ pub enum ReliableServerMessage {
     SwitchHands,
     EquippedWornItem(String, u64, String),
     ConsoleWriteLine(String),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ConsoleCommandVariant {
+    Int,
+    String,
+    Float,
+    Bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -87,7 +103,8 @@ pub enum ServerConfigMessage {
     ChangeScene(bool, String),
     ServerEntityId(u64),
     RepeatingSFX(String, Vec<String>),
-    FinishedInitialization
+    FinishedInitialization,
+    ConsoleCommands(Vec<(String,String, Vec<(String, ConsoleCommandVariant)>)>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
