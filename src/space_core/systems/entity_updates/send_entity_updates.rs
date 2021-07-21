@@ -80,8 +80,6 @@ pub fn send_entity_updates(
                 if updates_data.len() == 0 {
                     continue;
                 }
-                
-                //info!("{:?}", updates_data);
     
                 net_send_entity_updates.send(NetSendEntityUpdates {
                     handle: showcase_component.handle,
