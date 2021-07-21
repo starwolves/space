@@ -56,6 +56,7 @@ pub enum ReliableServerMessage {
     DropItem(String),
     SwitchHands,
     EquippedWornItem(String, u64, String),
+    ConsoleWriteLine(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
