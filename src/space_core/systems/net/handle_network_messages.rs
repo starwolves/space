@@ -1,7 +1,7 @@
-use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
+use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, info, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, rcon_authorization::RconAuthorization, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
 
@@ -23,9 +23,9 @@ pub fn handle_network_messages(
         EventWriter<TakeOffItem>,
     ),
 
-    tuple1 : (
-        EventWriter<RconAuthorization>,
-    ),
+    /*tuple1 : (
+
+    ),*/
 
     handle_to_entity : Res<HandleToEntity>,
 
@@ -50,10 +50,9 @@ pub fn handle_network_messages(
     )
     = tuple0;
 
-    let (
-        mut rcon_authorization,
+    /*let (
     )
-    = tuple1;
+    = tuple1;*/
 
 
     for (handle, connection) in net.connections.iter_mut() {
@@ -228,21 +227,9 @@ pub fn handle_network_messages(
 
                 },
                 ReliableClientMessage::HeartBeat => {},
-                ReliableClientMessage::RconAuthorization(input_password) => {
+                ReliableClientMessage::ConsoleCommand(command_name, variant_arguments) => {
 
-                    
-                    match handle_to_entity.map.get(handle) {
-                        Some(player_entity) => {
-                            rcon_authorization.send(RconAuthorization {
-                                handle: *handle,
-                                entity : *player_entity,
-                                input_password : input_password
-                            });
-                        },
-                        None => {
-                            warn!("Couldn't find player_entity belonging to take_off_item sender handle.");
-                        },
-                    }
+                    info!("Recieved new server-registered command {}, [{:?}]", command_name, variant_arguments);
 
                 },
             }

@@ -25,4 +25,3 @@ pub mod drop_current_item;
 pub mod switch_hands;
 pub mod wear_item;
 pub mod take_off_item;
-pub mod rcon_authorization_event;
