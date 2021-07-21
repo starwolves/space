@@ -9,7 +9,7 @@ pub fn standard_character_update(
 ) {
 
     for (
-        entity,
+        _entity,
         human_character_component,
         mut entity_updates_component,
         persistent_player_data_component,

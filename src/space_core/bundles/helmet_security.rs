@@ -255,7 +255,7 @@ fn spawn(
             handle: handle,
             message: ReliableServerMessage::LoadEntity(
                 "entity".to_string(),
-                "humanMale".to_string(),
+                "helmetSecurity".to_string(),
                 entity_updates,
                 entity_id.to_bits(),
                 true,
