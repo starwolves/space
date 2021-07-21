@@ -1,27 +1,59 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, rcon_authorization::RconAuthorization, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
-    mut net: ResMut<NetworkResource>,
-    mut ui_input_event : EventWriter<UIInput>,
-    mut scene_ready_event : EventWriter<SceneReady>,
-    mut ui_input_transmit_text : EventWriter<UIInputTransmitText>,
-    mut movement_input_event : EventWriter<MovementInput>,
-    mut build_graphics_event : EventWriter<BuildGraphics>,
-    mut input_chat_message_event : EventWriter<InputChatMessage>,
-    mut input_sprinting_event : EventWriter<InputSprinting>,
-    mut examine_entity : EventWriter<ExamineEntity>,
-    mut examine_map : EventWriter<ExamineMap>,
-    mut use_world_item : EventWriter<UseWorldItem>,
+
+    tuple0 : (
+        ResMut<NetworkResource>,
+        EventWriter<UIInput>,
+        EventWriter<SceneReady>,
+        EventWriter<UIInputTransmitText>,
+        EventWriter<MovementInput>,
+        EventWriter<BuildGraphics>,
+        EventWriter<InputChatMessage>,
+        EventWriter<InputSprinting>,
+        EventWriter<ExamineEntity>,
+        EventWriter<ExamineMap>,
+        EventWriter<UseWorldItem>,
+        EventWriter<DropCurrentItem>,
+        EventWriter<SwitchHands>,
+        EventWriter<WearItem>,
+        EventWriter<TakeOffItem>,
+    ),
+
+    tuple1 : (
+        EventWriter<RconAuthorization>,
+    ),
+
     handle_to_entity : Res<HandleToEntity>,
-    mut drop_current_item : EventWriter<DropCurrentItem>,
-    mut switch_hands : EventWriter<SwitchHands>,
-    mut wear_items : EventWriter<WearItem>,
-    mut take_off_item : EventWriter<TakeOffItem>,
+
 ) {
 
+    let (
+        mut net,
+        mut ui_input_event,
+        mut scene_ready_event,
+        mut ui_input_transmit_text,
+        mut movement_input_event,
+        mut build_graphics_event ,
+        mut input_chat_message_event,
+        mut input_sprinting_event,
+        mut examine_entity,
+        mut examine_map,
+        mut use_world_item,
+        mut drop_current_item,
+        mut switch_hands,
+        mut wear_items,
+        mut take_off_item,
+    )
+    = tuple0;
+
+    let (
+        mut rcon_authorization,
+    )
+    = tuple1;
 
 
     for (handle, connection) in net.connections.iter_mut() {
@@ -110,9 +142,8 @@ pub fn handle_network_messages(
                 },
                 ReliableClientMessage::UseWorldItem(entity_id) => {
 
-                    let player_entity_option = handle_to_entity.map.get(handle);
 
-                    match player_entity_option {
+                    match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             use_world_item.send(UseWorldItem {
                                 handle: *handle,
@@ -130,9 +161,7 @@ pub fn handle_network_messages(
                 },
                 ReliableClientMessage::DropCurrentItem => {
 
-                    let player_entity_option = handle_to_entity.map.get(handle);
-
-                    match player_entity_option {
+                    match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             drop_current_item.send(DropCurrentItem {
                                 handle: *handle,
@@ -149,9 +178,8 @@ pub fn handle_network_messages(
                 },
                 ReliableClientMessage::SwitchHands => {
 
-                    let player_entity_option = handle_to_entity.map.get(handle);
 
-                    match player_entity_option {
+                    match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             switch_hands.send(SwitchHands {
                                 handle: *handle,
@@ -166,9 +194,8 @@ pub fn handle_network_messages(
                 },
                 ReliableClientMessage::WearItem(item_id, wear_slot) => {
 
-                    let player_entity_option = handle_to_entity.map.get(handle);
 
-                    match player_entity_option {
+                    match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             wear_items.send(WearItem {
                                 handle: *handle,
@@ -184,9 +211,8 @@ pub fn handle_network_messages(
 
                 },
                 ReliableClientMessage::TakeOffItem(slot_name) => {
-                    let player_entity_option = handle_to_entity.map.get(handle);
 
-                    match player_entity_option {
+                    match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             take_off_item.send(TakeOffItem {
                                 handle: *handle,
@@ -202,6 +228,23 @@ pub fn handle_network_messages(
 
                 },
                 ReliableClientMessage::HeartBeat => {},
+                ReliableClientMessage::RconAuthorization(input_password) => {
+
+                    
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            rcon_authorization.send(RconAuthorization {
+                                handle: *handle,
+                                entity : *player_entity,
+                                input_password : input_password
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to take_off_item sender handle.");
+                        },
+                    }
+
+                },
             }
 
         }

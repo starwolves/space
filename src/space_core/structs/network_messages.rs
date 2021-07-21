@@ -30,6 +30,7 @@ pub enum ReliableClientMessage {
     SwitchHands,
     WearItem(u64, String),
     TakeOffItem(String),
+    RconAuthorization(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
