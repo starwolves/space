@@ -227,6 +227,7 @@ impl HumanMalePawnBundle {
                 ConnectedPlayer {
                     handle: connected_player_component.handle,
                     authid: connected_player_component.authid,
+                    rcon : false,
                 },
                 Radio {
                     listen_access: vec![RadioChannel::Common, RadioChannel::Security],
