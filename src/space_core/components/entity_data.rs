@@ -1,7 +1,7 @@
 pub struct EntityData {
     pub entity_class : String,
     pub entity_type : String,
-    pub entity_group : EntityGroup
+    pub entity_group : EntityGroup,
 }
 
 

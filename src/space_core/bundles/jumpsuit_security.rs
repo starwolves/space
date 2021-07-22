@@ -203,7 +203,7 @@ fn spawn(
         EntityData {
             entity_class : "entity".to_string(),
             entity_type : "jumpsuitSecurity".to_string(),
-            entity_group: EntityGroup::None
+            entity_group: EntityGroup::None,
         },
         EntityUpdates{
             updates: entity_updates_map,

@@ -2,7 +2,7 @@ use bevy::prelude::{Commands, Entity, EventWriter, Transform, warn};
 
 use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, jumpsuit_security::JumpsuitSecurityBundle}, events::net::net_showcase::NetShowcase};
 
-pub fn _spawn_entity(
+pub fn spawn_entity(
     entity_name : String,
     transform : Transform,
     commands: &mut Commands,

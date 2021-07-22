@@ -57,7 +57,7 @@ pub fn drop_current_item(
         }
 
         let (
-            mut pickupable_component,
+            mut inventory_item_component,
             mut pickupable_world_mode_component,
             mut pickupable_rigidbody_activation,
             mut pickupable_rigidbody_collider_flags,
@@ -69,7 +69,7 @@ pub fn drop_current_item(
 
         drop_slot.slot_item = None;
         pickupable_world_mode_component.mode = WorldModes::Physics;
-        pickupable_component.in_inventory_of_entity = None;
+        inventory_item_component.in_inventory_of_entity = None;
 
         enable_rigidbody(
             &mut pickupable_rigidbody_activation,
@@ -89,7 +89,7 @@ pub fn drop_current_item(
         match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
             Ok(mut position) => {
 
-                let mut new_pickupable_transform = pickupable_component.drop_transform.clone();
+                let mut new_pickupable_transform = inventory_item_component.drop_transform.clone();
 
                 new_pickupable_transform.translation +=
                 Vec3::new(
