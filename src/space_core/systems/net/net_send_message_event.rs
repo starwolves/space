@@ -1,7 +1,7 @@
 use bevy::prelude::{EventReader, ResMut, warn};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::events::net::{net_chat_message::NetChatMessage, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_send_entity_updates::NetSendEntityUpdates, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_takeoff_item::NetTakeOffItem, net_unload_entity::NetUnloadEntity, net_wear_item::NetWearItem};
+use crate::space_core::events::net::{net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_send_entity_updates::NetSendEntityUpdates, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_takeoff_item::NetTakeOffItem, net_unload_entity::NetUnloadEntity, net_wear_item::NetWearItem};
 
 
 pub fn net_send_messages_event(
@@ -25,6 +25,7 @@ pub fn net_send_messages_event(
     ),
     tuple1 : (
         EventReader<NetShowcase>,
+        EventReader<NetConsoleCommands>,
     )
 ) {
 
@@ -49,10 +50,11 @@ pub fn net_send_messages_event(
     )
     = tuple0;
     
-    let 
-        mut net_showcase
-        
-    = tuple1.0;
+    let (
+        mut net_showcase,
+        mut net_console_commands,
+    )
+    = tuple1;
 
 
 
@@ -315,6 +317,24 @@ pub fn net_send_messages_event(
         };
 
     }
+
+    for new_event in net_console_commands.iter() {
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_console_commands message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_console_commands message (1): {:?}", err);
+            }
+        };
+
+    }
+    
+
     
     
 

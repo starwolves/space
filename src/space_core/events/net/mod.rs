@@ -14,3 +14,4 @@ pub mod net_switch_hands;
 pub mod net_wear_item;
 pub mod net_takeoff_item;
 pub mod net_showcase;
+pub mod net_console_commands;
