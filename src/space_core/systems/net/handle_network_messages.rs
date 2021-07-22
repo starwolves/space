@@ -1,7 +1,7 @@
-use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, info, warn}};
+use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{handle_to_entity::HandleToEntity, precalculated_fov_data::Vec3Int}, structs::network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}};
 
 pub fn handle_network_messages(
 
@@ -23,9 +23,9 @@ pub fn handle_network_messages(
         EventWriter<TakeOffItem>,
     ),
 
-    /*tuple1 : (
-
-    ),*/
+    tuple1 : (
+        EventWriter<ConsoleCommand>,
+    ),
 
     handle_to_entity : Res<HandleToEntity>,
 
@@ -50,9 +50,10 @@ pub fn handle_network_messages(
     )
     = tuple0;
 
-    /*let (
-    )
-    = tuple1;*/
+    let 
+        mut console_command
+    
+    = tuple1.0;
 
 
     for (handle, connection) in net.connections.iter_mut() {
@@ -229,7 +230,20 @@ pub fn handle_network_messages(
                 ReliableClientMessage::HeartBeat => {},
                 ReliableClientMessage::ConsoleCommand(command_name, variant_arguments) => {
 
-                    info!("Recieved new server-registered command {}, [{:?}]", command_name, variant_arguments);
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            console_command.send(ConsoleCommand {
+                                handle: *handle,
+                                entity: *player_entity,
+                                command_name: command_name,
+                                command_arguments: variant_arguments,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to console_command sender handle.");
+                        },
+                    }
+
 
                 },
             }
