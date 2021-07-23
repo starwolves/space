@@ -51,6 +51,7 @@ pub fn on_setupui (
             passed_inventory_setup,
             true,
             Some(&mut net_showcase),
+            true,
         );
 
         

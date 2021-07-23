@@ -21,3 +21,4 @@ pub mod get_console_commands;
 pub mod rcon_authorization;
 pub mod rcon_status;
 pub mod rcon_spawn_entity;
+pub mod entity_spawn_position_for_player;

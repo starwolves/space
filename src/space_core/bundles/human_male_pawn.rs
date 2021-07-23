@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Vec2, Vec3}, prelude::{Commands, Entity, EventWriter, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, visible_checker::VisibleChecker, world_mode::{WorldMode, WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::net_showcase::NetShowcase, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, spawn_entity::{ spawn_held_entity}, transform_to_isometry::transform_to_isometry}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, visible_checker::VisibleChecker, world_mode::{WorldMode, WorldModes}}, enums::{space_access_enum::SpaceAccessEnum, space_jobs::SpaceJobsEnum}, events::net::net_showcase::NetShowcase, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, spawn_entity::{ spawn_held_entity}, transform_to_isometry::transform_to_isometry}, structs::network_messages::ReliableServerMessage};
 
 pub struct HumanMalePawnBundle;
 
@@ -17,8 +17,21 @@ impl HumanMalePawnBundle {
         passed_inventory_setup : HashMap<String,String>,
         showcase_instance : bool,
         mut net_showcase : Option<&mut EventWriter<NetShowcase>>,
+
+        correct_transform : bool,
     ) -> Entity {
 
+        let default_transform = Transform::identity();
+
+        let mut this_transform = passed_transform;
+
+        if correct_transform {
+
+            this_transform.rotation = default_transform.rotation;
+
+        }
+        
+        
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic,
             position: transform_to_isometry(passed_transform).into(),
@@ -91,6 +104,9 @@ impl HumanMalePawnBundle {
             CachedBroadcastTransform::new(),
             PersistentPlayerData {
                 character_name: persistent_player_data_component.character_name.clone(),
+            },
+            DefaultTransform {
+                transform: Transform::identity(),
             },
         ));
 
