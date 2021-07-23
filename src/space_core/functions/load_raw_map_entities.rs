@@ -283,13 +283,12 @@ pub fn load_raw_map_entities(
 
         } else if raw_entity.entity_type == "helmetSecurity" {
 
-            HelmetSecurityBundle::spawn(entity_transform, commands);
+            HelmetSecurityBundle::spawn(entity_transform, commands, false);
 
         }  else if raw_entity.entity_type == "jumpsuitSecurity" {
 
-            JumpsuitSecurityBundle::spawn(entity_transform, commands);
+            JumpsuitSecurityBundle::spawn(entity_transform, commands, false);
 
-            
         }
 
     }

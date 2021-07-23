@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, inventory::SlotType, inventory_item::InventoryItem, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, inventory::SlotType, inventory_item::InventoryItem, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, transform_to_isometry::transform_to_isometry}, structs::network_messages::ReliableServerMessage};
 
 pub struct JumpsuitSecurityBundle;
 
@@ -27,6 +27,7 @@ impl JumpsuitSecurityBundle {
             showcase_instance,
             showcase_handle_option,
             net_showcase,
+            false
         )
 
     }
@@ -34,6 +35,7 @@ impl JumpsuitSecurityBundle {
     pub fn spawn(
         passed_transform : Transform,
         commands : &mut Commands,
+        correct_transform : bool,
     ) -> Entity{
 
 
@@ -47,6 +49,7 @@ impl JumpsuitSecurityBundle {
             false,
             None,
             &mut None,
+            correct_transform,
         )
 
     }
@@ -65,19 +68,34 @@ fn spawn(
     showcase_handle_option : Option<u32>,
 
     net_showcase : &mut Option<&mut EventWriter<NetShowcase>>,
+
+    correct_transform : bool,
 ) -> Entity {
 
-    let this_transform;
+    let mut this_transform;
+
+    let default_transform = Transform::from_matrix(
+        Mat4::from_scale_rotation_translation(
+        Vec3::new(1.,1.,1.),
+        Quat::from_axis_angle(Vec3::new(-0.00000035355248,0.707105,0.7071085), 3.1415951),
+        Vec3::new(0.,0.116, 0.)
+    ),);
+    
 
     match passed_transform_option {
         Some(transform) => {
             this_transform = transform;
         },
         None => {
-            this_transform = Transform::identity();
+            this_transform = default_transform;
         },
     }
 
+    if correct_transform {
+
+        this_transform.rotation = default_transform.rotation;
+
+    }
 
     let rigid_body_component;
     let collider_component;
@@ -196,8 +214,7 @@ fn spawn(
         )
     ));
 
-    let drop_transform_rotation = Vec3::new(-1.57079633,3.127595113,0.);
-    let drop_transform_rotation_length = drop_transform_rotation.length();
+    
 
     let rest = (
         EntityData {
@@ -223,14 +240,12 @@ fn spawn(
         InventoryItem {
             in_inventory_of_entity: holder_entity_option,
             attachment_transforms: attachment_transforms,
-            drop_transform: Transform::from_matrix(
-                Mat4::from_scale_rotation_translation(
-                Vec3::new(1.,1.,1.),
-                Quat::from_axis_angle(drop_transform_rotation.normalize(), drop_transform_rotation_length),
-                Vec3::new(0.,0.116, 0.)
-            ),),
+            drop_transform: default_transform,
             slot_type: SlotType::Jumpsuit,
             is_attached_when_worn : false,
+        },
+        DefaultTransform {
+            transform: default_transform,
         },
     );
 

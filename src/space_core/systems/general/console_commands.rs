@@ -1,7 +1,7 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query};
+use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query, Res};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::connected_player::ConnectedPlayer, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_status::rcon_status}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::connected_player::ConnectedPlayer, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_status::rcon_status}, resources::gridmap_main::GridmapMain, structs::network_messages::ReliableServerMessage};
 
 pub fn console_commands(
     mut console_commands_events : EventReader<ConsoleCommand>,
@@ -11,6 +11,9 @@ pub fn console_commands(
 
     mut net_console_commands : EventWriter<NetConsoleCommands>,
     mut commands : Commands,
+
+    gridmap_main : Res<GridmapMain>,
+
 ) {
 
     for console_command_event in console_commands_events.iter() {
@@ -72,6 +75,7 @@ pub fn console_commands(
                 },
             }
 
+
             match &console_command_event.command_arguments[1] {
                 crate::space_core::structs::network_messages::ConsoleCommandVariantValues::Int(value) => {
                     rcon_spawn_entity(
@@ -82,6 +86,7 @@ pub fn console_commands(
                         console_command_event.handle,
                         &mut rigid_body_positions,
                         &mut net_console_commands,
+                        &gridmap_main,
                     );
                 },
                 _=> {

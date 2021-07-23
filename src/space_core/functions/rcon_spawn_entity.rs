@@ -1,26 +1,26 @@
-use bevy::prelude::{Commands, Entity, EventWriter, Query};
+use bevy::prelude::{Commands, Entity, EventWriter, Query, Res};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{events::net::net_console_commands::NetConsoleCommands, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{events::net::net_console_commands::NetConsoleCommands, resources::gridmap_main::GridmapMain, structs::network_messages::ReliableServerMessage};
 
-use super::spawn_entity::spawn_entity;
+use super::{entity_spawn_position_for_player::entity_spawn_position_for_player, isometry_to_transform::isometry_to_transform, spawn_entity::spawn_entity};
 
 pub fn rcon_spawn_entity(
     entity_name : String,
-    spawn_amount : i64,
+    mut spawn_amount : i64,
     commands : &mut Commands,
     player_entity : Entity,
     player_handle : u32,
     rigid_body_positions : &mut Query<&RigidBodyPosition>,
     net_console_commands : &mut EventWriter<NetConsoleCommands>,
+    gridmap_main : &Res<GridmapMain>,
 ) {
 
-
-    let player_position;
+    let mut player_position;
 
     match rigid_body_positions.get(player_entity) {
         Ok(position) => {
-            player_position = position.position;
+            player_position = position.position.clone();
         },
         Err(_rr) => {
             net_console_commands.send(NetConsoleCommands {
@@ -34,19 +34,38 @@ pub fn rcon_spawn_entity(
         },
     }
 
-    // Obtain entity's default position.
+    player_position.translation.x+=1.5;
 
-    /*player_position
+    if spawn_amount > 5{
+        spawn_amount = 5;
+        net_console_commands.send(NetConsoleCommands {
+            handle: player_handle,
+            message: ReliableServerMessage::ConsoleWriteLine(
+                "Capped amount to 5, maniac protection."
+                .to_string()
+            ),
+        });
+    }
+
+
+    let spawn_position = 
+    entity_spawn_position_for_player(
+    isometry_to_transform(
+    player_position,
+        ),
+        gridmap_main,
+    );
     
-    for i in 0..spawn_amount {
+    for _i in 0..spawn_amount {
 
         spawn_entity(
-            entity_name,
-            ,
-            &mut commands,
+            entity_name.clone(),
+            spawn_position,
+            commands,
+            true,
         );
 
-    }*/
+    }
 
     
 

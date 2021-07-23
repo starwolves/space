@@ -96,8 +96,8 @@ pub fn drop_current_item(
                     position.position.translation.x,
                     position.position.translation.y,
                     position.position.translation.z
-                );
-                //+ Vec3::new(0.45,0.,0.);
+                )
+                + Vec3::new(1.5,0.,0.);
 
                 new_position = new_pickupable_transform.clone();
                 

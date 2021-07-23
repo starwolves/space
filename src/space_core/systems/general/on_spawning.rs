@@ -35,6 +35,7 @@ pub fn on_spawning(
             passed_inventory_setup,
             false,
             None,
+            true,
         );
 
 

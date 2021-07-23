@@ -6,17 +6,18 @@ pub fn spawn_entity(
     entity_name : String,
     transform : Transform,
     commands: &mut Commands,
+    correct_transform : bool,
 ) -> Entity {
 
     let return_entity;
 
     if entity_name == "jumpsuitSecurity" {
 
-        return_entity = Some(JumpsuitSecurityBundle::spawn(transform,commands));
+        return_entity = Some(JumpsuitSecurityBundle::spawn(transform,commands, correct_transform));
 
     } else if entity_name == "helmetSecurity" {
 
-        return_entity = Some(HelmetSecurityBundle::spawn(transform,commands));
+        return_entity = Some(HelmetSecurityBundle::spawn(transform,commands, correct_transform));
 
     } else {
         warn!("Attempted to spawn an unknown entity.");
