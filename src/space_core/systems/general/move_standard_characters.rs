@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{Commands, Entity, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, player_input::PlayerInput, sensable::{Sensable}, standard_character::{StandardCharacter, CharacterAnimationState}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::{isometry_to_transform::isometry_to_transform}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::{isometry_to_transform::isometry_to_transform}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
 
@@ -16,6 +16,7 @@ pub fn move_standard_characters(
         &mut StandardCharacter,
         Option<&LinkedFootstepsWalking>,
         Option<&LinkedFootstepsSprinting>,
+        &mut Pawn,
     )>,
     mut footsteps_query : Query<(
         &mut Sensable,
@@ -40,6 +41,7 @@ pub fn move_standard_characters(
         mut human_character_component,
         linked_footsteps_walking_option,
         linked_footsteps_sprinting_option,
+        mut pawn_component,
     ) in query.iter_mut() {
 
         let mut speed_factor = 6.25;
@@ -67,42 +69,54 @@ pub fn move_standard_characters(
 
         let mut idle = false;
 
+        let mut facing_direction = pawn_component.facing_direction.clone();
+
         // Moving up.
         if player_input_component.movement_vector.y == 1. && player_input_component.movement_vector.x == 0. {
             movement_index = 0;
+            facing_direction = FacingDirection::Up;
         }
         // Moving down.
         else if player_input_component.movement_vector.y == -1. && player_input_component.movement_vector.x == 0. {
             movement_index = 4;
+            facing_direction = FacingDirection::Down;
         }
         // Moving left.
         else if player_input_component.movement_vector.y == 0. && player_input_component.movement_vector.x == -1. {
             movement_index = 2;
+            facing_direction = FacingDirection::Left;
         }
         // Moving right.
         else if player_input_component.movement_vector.y == 0. && player_input_component.movement_vector.x == 1. {
             movement_index = 6;
+            facing_direction = FacingDirection::Right;
         }
         // Moving up left.
         else if player_input_component.movement_vector.y == 1. && player_input_component.movement_vector.x == -1. {
             movement_index = 1;
+            facing_direction = FacingDirection::UpLeft;
         }
         // Moving up right.
         else if player_input_component.movement_vector.y == 1. && player_input_component.movement_vector.x == 1. {
             movement_index = 7;
+            facing_direction = FacingDirection::UpRight;
         }
         // Moving down left.
         else if player_input_component.movement_vector.y == -1. && player_input_component.movement_vector.x == -1. {
             movement_index = 5;
+            facing_direction = FacingDirection::DownLeft;
         }
         // Moving down right.
         else if player_input_component.movement_vector.y == -1. && player_input_component.movement_vector.x == 1. {
             movement_index = 3;
+            facing_direction = FacingDirection::DownRight;
         }
         
         else if player_input_component.movement_vector.y == 0. && player_input_component.movement_vector.x == 0. {
             idle=true;
         }
+
+        pawn_component.facing_direction = facing_direction;
         
         match idle {
             true => {

@@ -1,13 +1,13 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query, Res};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::connected_player::ConnectedPlayer, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_status::rcon_status}, resources::gridmap_main::GridmapMain, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::Pawn}, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_status::rcon_status}, resources::gridmap_main::GridmapMain, structs::network_messages::ReliableServerMessage};
 
 pub fn console_commands(
     mut console_commands_events : EventReader<ConsoleCommand>,
     mut rcon_bruteforce_protection : Local<BruteforceProtection>,
     mut connected_players : Query<&mut ConnectedPlayer>,
-    mut rigid_body_positions : Query<&RigidBodyPosition>,
+    mut rigid_body_positions : Query<(&RigidBodyPosition, &Pawn)>,
 
     mut net_console_commands : EventWriter<NetConsoleCommands>,
     mut commands : Commands,
