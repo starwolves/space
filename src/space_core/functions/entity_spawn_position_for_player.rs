@@ -20,7 +20,7 @@ pub fn entity_spawn_position_for_player(
 
     
 
-    new_transform.translation += get_offset(player_facing_direction);
+    new_transform.translation += get_offset(player_facing_direction, OFFSET_CHECK);
 
     let cell_id = world_to_cell_id(new_transform.translation);
 
@@ -54,18 +54,22 @@ pub fn entity_spawn_position_for_player(
                         this_direction = FacingDirection::Left;
                     }
 
-                    new_transform.translation += get_offset(&this_direction);
+                    new_transform.translation += get_offset(&this_direction, OFFSET_CHECK);
                 
                     let cell_id = world_to_cell_id(new_transform.translation);
             
                     match gridmap_main.data.get(&cell_id) {
                         Some(cell_data) => {
                             if cell_data.item == -1 {
+                                new_transform = original_transform.clone();
+                                new_transform.translation += get_offset(&this_direction, OFFSET_FROM_PLAYER);
                                 found_correct_spawn = true;
                                 break;
                             }
                         },
                         None => {
+                            new_transform = original_transform.clone();
+                            new_transform.translation += get_offset(&this_direction, OFFSET_FROM_PLAYER);
                             found_correct_spawn = true;
                             break;
                         },
@@ -78,7 +82,7 @@ pub fn entity_spawn_position_for_player(
                 if found_correct_spawn == false {
 
                     new_transform = original_transform.clone();
-                    new_transform.translation += 0.1 * get_offset(player_facing_direction);
+                    new_transform.translation += 0.1 * get_offset(player_facing_direction, OFFSET_FROM_PLAYER);
 
                 }
 
@@ -87,42 +91,48 @@ pub fn entity_spawn_position_for_player(
 
             }
         },
-        None => {},
+        None => {
+            new_transform = original_transform.clone();
+            new_transform.translation += get_offset(player_facing_direction, OFFSET_FROM_PLAYER);
+        },
     }
     
     new_transform
 }
 
 
+const OFFSET_FROM_PLAYER : f32 = 1.;
+const OFFSET_CHECK : f32 = 1.80;
+
 fn get_offset(
     player_facing_direction : &FacingDirection,
+    offset : f32,
 ) -> Vec3 {
-    let offset_from_player = 1.;
 
     match player_facing_direction {
         FacingDirection::UpLeft => {
-            Vec3::new(offset_from_player,0.,offset_from_player)
+            Vec3::new(offset,0.,offset)
         },
         FacingDirection::Up => {
-            Vec3::new(0.,0.,offset_from_player)
+            Vec3::new(0.,0.,offset)
         },
         FacingDirection::UpRight => {
-            Vec3::new(-offset_from_player,0.,offset_from_player)
+            Vec3::new(-offset,0.,offset)
         },
         FacingDirection::Right => {
-            Vec3::new(-offset_from_player,0.,0.)
+            Vec3::new(-offset,0.,0.)
         },
         FacingDirection::DownRight => {
-            Vec3::new(-offset_from_player,0.,-offset_from_player)
+            Vec3::new(-offset,0.,-offset)
         },
         FacingDirection::Down => {
-            Vec3::new(0.,0.,-offset_from_player)
+            Vec3::new(0.,0.,-offset)
         },
         FacingDirection::DownLeft => {
-            Vec3::new(offset_from_player,0.,-offset_from_player)
+            Vec3::new(offset,0.,-offset)
         },
         FacingDirection::Left => {
-            Vec3::new(offset_from_player,0.,0.)
+            Vec3::new(offset,0.,0.)
         },
     }
 }
