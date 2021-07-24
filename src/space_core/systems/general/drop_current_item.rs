@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::{math::Vec3, prelude::{Commands, EventReader, EventWriter, Query, Res}};
+use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{toggle_rigidbody::enable_rigidbody, transform_to_isometry::transform_to_isometry}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
+use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{entity_spawn_position_for_player::entity_spawn_position_for_player, isometry_to_transform::isometry_to_transform, toggle_rigidbody::enable_rigidbody, transform_to_isometry::transform_to_isometry}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity}, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
 
 pub fn drop_current_item(
     mut drop_current_item_events : EventReader<DropCurrentItem>,
@@ -11,6 +11,7 @@ pub fn drop_current_item(
     mut inventory_entities : Query<(
         &mut Inventory,
         &Sensable,
+        &Pawn,
     )>,
     mut pickupable_entities : Query<(
         &mut InventoryItem,
@@ -23,6 +24,7 @@ pub fn drop_current_item(
     mut net_drop_current_item : EventWriter<NetDropCurrentItem>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
     handle_to_entity : Res<HandleToEntity>,
+    gridmap_main : Res<GridmapMain>,
 ) {
 
     for event in drop_current_item_events.iter() {
@@ -85,19 +87,20 @@ pub fn drop_current_item(
 
         let new_position;
 
+        let pawn_component = pickuper_components.2;
         
         match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
             Ok(mut position) => {
 
-                let mut new_pickupable_transform = inventory_item_component.drop_transform.clone();
+                let mut new_pickupable_transform = isometry_to_transform(position.position);
 
-                new_pickupable_transform.translation +=
-                Vec3::new(
-                    position.position.translation.x,
-                    position.position.translation.y,
-                    position.position.translation.z
-                )
-                + Vec3::new(1.5,0.,0.);
+                new_pickupable_transform = entity_spawn_position_for_player(
+                    new_pickupable_transform,
+                    &pawn_component.facing_direction,
+                    &gridmap_main
+                );
+
+                new_pickupable_transform.rotation = inventory_item_component.drop_transform.rotation;
 
                 new_position = new_pickupable_transform.clone();
                 

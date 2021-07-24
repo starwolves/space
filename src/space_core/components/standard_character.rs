@@ -8,3 +8,4 @@ pub enum CharacterAnimationState {
     Walking,
     Sprinting,
 }
+
