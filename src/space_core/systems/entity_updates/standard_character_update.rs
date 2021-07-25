@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Entity, Query};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn standard_character_update(
     mut updated_humans: Query<(Entity,&StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,

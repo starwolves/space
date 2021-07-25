@@ -2,7 +2,8 @@
 use bevy::prelude::Color;
 use bevy::math::Quat;
 use serde::{Serialize, Deserialize};
-use crate::space_core::functions::string_to_type_converters::{string_color_to_color,string_quat_to_quat};
+
+use crate::space_core::functions::converters::string_to_type_converters::{string_color_to_color, string_quat_to_quat};
 
 // The resource we send to each client on connection to initialize worldEnvironment.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

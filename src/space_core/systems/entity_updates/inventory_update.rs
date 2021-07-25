@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Entity, Query, QuerySet, warn};
 
-use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates, examinable::Examinable, inventory::Inventory, inventory_item::InventoryItem, standard_character::StandardCharacter}, functions::{get_entity_update_difference::get_entity_update_difference, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates, examinable::Examinable, inventory::Inventory, inventory_item::InventoryItem, standard_character::StandardCharacter}, functions::{entity::new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, entity_updates::get_entity_update_difference::get_entity_update_difference}, structs::network_messages::EntityUpdateData};
 
 pub fn inventory_update(
     mut updated_entities: Query

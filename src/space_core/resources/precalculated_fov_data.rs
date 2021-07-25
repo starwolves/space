@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::space_core::{functions::string_to_type_converters::string_vec2_to_vec2_int};
+use crate::space_core::functions::converters::string_to_type_converters::string_vec2_to_vec2_int;
 
 
 pub struct PrecalculatedFOVData {

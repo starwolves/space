@@ -1,7 +1,7 @@
 use bevy::prelude::{Changed, Query};
 
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, gi_probe::GIProbe}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, gi_probe::GIProbe}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn gi_probe_update(
     mut updated_gi_probes: Query<(&GIProbe, &mut EntityUpdates), Changed<GIProbe>>,

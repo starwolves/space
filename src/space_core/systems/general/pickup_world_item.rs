@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
-use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::UseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::{toggle_rigidbody::disable_rigidbody}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::UseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::entity::toggle_rigidbody::disable_rigidbody, structs::network_messages::ReliableServerMessage};
 
 pub fn pickup_world_item(
     mut use_world_item_events : EventReader<UseWorldItem>,

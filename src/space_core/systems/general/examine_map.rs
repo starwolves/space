@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{EventReader, EventWriter, Query, Res}};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::pawn::Pawn, events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::{examine_main_cell::{examine_ship_cell, get_empty_cell_message}, gridmap_functions::world_to_cell_id}, resources::{gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, precalculated_fov_data::{Vec2Int, Vec3Int}, world_fov::WorldFOV}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::pawn::Pawn, events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_main_cell::{examine_ship_cell, get_empty_cell_message}, gridmap_functions::world_to_cell_id}, resources::{gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, precalculated_fov_data::{Vec2Int, Vec3Int}, world_fov::WorldFOV}, structs::network_messages::ReliableServerMessage};
 
 pub fn examine_map(
     mut examine_map_events : EventReader<ExamineMap>,

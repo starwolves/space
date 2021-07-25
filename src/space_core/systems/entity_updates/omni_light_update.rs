@@ -4,7 +4,7 @@ use bevy::prelude::{Changed, Query};
 use crate::space_core::{components::{
         omni_light::OmniLight,
         entity_updates::EntityUpdates
-    }, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+    }, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn omni_light_update(
     mut updated_omni_lights: Query<(&OmniLight, &mut EntityUpdates), Changed<OmniLight>>,

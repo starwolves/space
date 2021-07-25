@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, EventWriter, Res};
 
-use crate::space_core::{events::net::net_unload_entity::NetUnloadEntity, functions::unload_entity_for_player::unload_entity, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{events::net::net_unload_entity::NetUnloadEntity, functions::entity_updates::unload_entity_for_player::unload_entity, resources::handle_to_entity::HandleToEntity};
 
 pub struct Sensable{
     pub is_light : bool,

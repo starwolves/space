@@ -1,8 +1,8 @@
 use bevy::{math::Vec3, prelude::{Res, Transform}};
 
-use crate::space_core::{components::pawn::FacingDirection, resources::gridmap_main::GridmapMain};
+use crate::space_core::{components::pawn::FacingDirection, functions::gridmap::gridmap_functions::world_to_cell_id, resources::gridmap_main::GridmapMain};
 
-use super::gridmap_functions::world_to_cell_id;
+
 
 pub fn entity_spawn_position_for_player(
     player_transform : Transform,

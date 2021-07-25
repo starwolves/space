@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res};
 
-use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates, gi_probe::GIProbe, reflection_probe::ReflectionProbe, static_transform::StaticTransform}, events::{general::build_graphics::BuildGraphics, net::{net_load_entity::NetLoadEntity, net_send_world_environment::NetSendWorldEnvironment}}, functions::load_entity_for_player::load_entity, resources::world_environments::WorldEnvironment, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
+use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates, gi_probe::GIProbe, reflection_probe::ReflectionProbe, static_transform::StaticTransform}, events::{general::build_graphics::BuildGraphics, net::{net_load_entity::NetLoadEntity, net_send_world_environment::NetSendWorldEnvironment}}, functions::entity_updates::load_entity_for_player::load_entity, resources::world_environments::WorldEnvironment, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
 
 
 pub fn build_graphics_event(
