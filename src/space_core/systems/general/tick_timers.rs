@@ -56,17 +56,18 @@ pub fn tick_timers(
 
     }
 
-    for expired_sfx_entity in expired_sfx_entities {
+    for i in 0..expired_sfx_entities.len() {
+        
+        sfx_auto_destroy_timers.timers.remove(i);
 
-        sfx_auto_destroy_timers.timers.remove(&expired_sfx_entity);
+        let this_entity_id = expired_sfx_entities[i];
 
-        sfx_entities.get_mut(expired_sfx_entity).unwrap().1.despawn(expired_sfx_entity, &mut net_unload_entity, &handle_to_entity);
+        sfx_entities.get_mut(this_entity_id).unwrap().1.despawn(this_entity_id, &mut net_unload_entity, &handle_to_entity);
 
-        commands.entity(expired_sfx_entity).despawn();
+        commands.entity(this_entity_id).despawn();
+
     }
 
-
-    
 
 
 }
