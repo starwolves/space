@@ -1,4 +1,4 @@
-use crate::space_core::{resources::precalculated_fov_data::Vec3Int, structs::network_messages::GridMapType};
+use crate::space_core::{resources::{network_messages::GridMapType, precalculated_fov_data::Vec3Int}};
 
 pub struct ShipCell {
     pub item : i64,

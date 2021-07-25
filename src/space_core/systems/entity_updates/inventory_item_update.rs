@@ -1,7 +1,7 @@
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, inventory_item::InventoryItem}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, inventory_item::InventoryItem}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, resources::network_messages::EntityUpdateData};
 
 pub fn inventory_item_update(
     mut updated_entities: Query<(&InventoryItem, &mut EntityUpdates), Changed<InventoryItem>>,

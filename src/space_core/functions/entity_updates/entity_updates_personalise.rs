@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::space_core::{components::{ entity_updates::EntityUpdates}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{ entity_updates::EntityUpdates}, resources::network_messages::EntityUpdateData};
 
 pub fn personalise (
     updates_data : &mut HashMap<String,HashMap<String, EntityUpdateData>>,

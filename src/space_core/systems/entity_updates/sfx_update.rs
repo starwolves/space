@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, sfx::Sfx}, functions::entity_updates::{entity_update_change_detection::entity_update_changed_detection, get_entity_update_difference::get_entity_update_difference}, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, sfx::Sfx}, functions::entity_updates::{entity_update_change_detection::entity_update_changed_detection, get_entity_update_difference::get_entity_update_difference}, resources::network_messages::EntityUpdateData};
 
 pub fn sfx_update(
     mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), Changed<Sfx>>,

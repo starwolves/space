@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use crate::space_core::structs::network_messages::EntityUpdateData;
+
+use crate::space_core::resources::network_messages::EntityUpdateData;
 
 use super::match_entity_data::entity_data_is_matching;
 

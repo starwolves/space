@@ -1,4 +1,5 @@
-use crate::space_core::structs::network_messages::ConsoleCommandVariant;
+use crate::space_core::resources::network_messages::ConsoleCommandVariant;
+
 
 pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)> {
 

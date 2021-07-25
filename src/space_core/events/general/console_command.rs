@@ -1,6 +1,6 @@
 use bevy::prelude::Entity;
 
-use crate::space_core::structs::network_messages::ConsoleCommandVariantValues;
+use crate::space_core::resources::network_messages::ConsoleCommandVariantValues;
 
 pub struct ConsoleCommand {
     pub handle : u32,

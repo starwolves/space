@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, repeating_sfx::RepeatingSfx}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, repeating_sfx::RepeatingSfx}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, resources::network_messages::EntityUpdateData};
 
 pub fn repeating_sfx_update(
     mut updated_sfx: Query<(&RepeatingSfx, &mut EntityUpdates), Changed<RepeatingSfx>>,

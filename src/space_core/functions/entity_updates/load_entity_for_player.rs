@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Entity, EventWriter, Transform};
 
-use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates}, events::net::net_load_entity::NetLoadEntity, structs::network_messages::{EntityUpdateData, ReliableServerMessage}};
+use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates}, events::net::net_load_entity::NetLoadEntity, resources::network_messages::{EntityUpdateData, ReliableServerMessage}};
 
 use super::entity_updates_personalise;
 

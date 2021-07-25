@@ -1,6 +1,6 @@
 use bevy::{prelude::{Added, Commands, Entity, EventWriter, Query, ResMut}};
 
-use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, spawning::Spawning}, events::{net::net_on_spawning::NetOnSpawning}, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
+use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, spawning::Spawning}, events::{net::net_on_spawning::NetOnSpawning}, resources::{handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}}};
 
 
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Entity, EventWriter, Local, Query};
 
-use crate::space_core::{components::connected_player::ConnectedPlayer, events::net::net_console_commands::NetConsoleCommands, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::connected_player::ConnectedPlayer, events::net::net_console_commands::NetConsoleCommands, resources::network_messages::ReliableServerMessage};
 
 const RCON_PASSWORD  : &str = "KA-BAR";
 
