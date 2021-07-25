@@ -1,5 +1,5 @@
 
-use crate::space_core::{functions::entity::new_chat_message::FURTHER_NORMAL_FONT, resources::gridmap_main::CellData, structs::network_messages::GridMapType};
+use crate::space_core::{functions::entity::new_chat_message::FURTHER_NORMAL_FONT, resources::{gridmap_main::CellData, network_messages::GridMapType}};
 
 
 const EXAMINATION_MAIN : [&str;13] = [

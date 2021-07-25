@@ -1,4 +1,5 @@
-use crate::space_core::structs::network_messages::{UIInputAction, UIInputNodeClass};
+use crate::space_core::resources::network_messages::{UIInputAction, UIInputNodeClass};
+
 
 pub struct UIInput {
     pub handle : u32,

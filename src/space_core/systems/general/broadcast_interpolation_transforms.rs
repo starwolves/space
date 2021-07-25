@@ -2,7 +2,7 @@ use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Q
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{prelude::{RigidBodyPosition, RigidBodyVelocity}};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, rigidbody_disabled::RigidBodyDisabled, sensable::Sensable, static_transform::StaticTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, rigidbody_disabled::RigidBodyDisabled, sensable::Sensable, static_transform::StaticTransform}, resources::{handle_to_entity::HandleToEntity, network_messages::UnreliableServerMessage}};
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 

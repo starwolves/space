@@ -1,7 +1,7 @@
 use bevy::{core::{FixedTimesteps, Time}, prelude::{Entity, Query, Res, ResMut, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, sensable::Sensable, static_transform::StaticTransform, update_transform::UpdateTransform}, resources::handle_to_entity::HandleToEntity, structs::network_messages::UnreliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, sensable::Sensable, static_transform::StaticTransform, update_transform::UpdateTransform}, resources::{handle_to_entity::HandleToEntity, network_messages::UnreliableServerMessage}};
 
 const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 

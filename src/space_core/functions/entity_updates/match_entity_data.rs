@@ -1,4 +1,5 @@
-use crate::space_core::structs::network_messages::EntityUpdateData;
+use crate::space_core::resources::network_messages::EntityUpdateData;
+
 
 pub fn entity_data_is_matching(
     data1 : &EntityUpdateData,

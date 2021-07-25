@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, EventWriter};
 
-use crate::space_core::{events::net::net_unload_entity::NetUnloadEntity, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{events::net::net_unload_entity::NetUnloadEntity, resources::network_messages::ReliableServerMessage};
 
 pub fn unload_entity(
     player_handle : u32,

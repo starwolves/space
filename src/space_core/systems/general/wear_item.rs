@@ -1,6 +1,6 @@
 use bevy::prelude::{EventReader, EventWriter, Query};
 
-use crate::space_core::{components::{entity_data::EntityData, inventory::{Inventory}, inventory_item::InventoryItem,  world_mode::{WorldMode, WorldModes}}, events::{general::wear_item::WearItem, net::net_wear_item::NetWearItem}, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{entity_data::EntityData, inventory::{Inventory}, inventory_item::InventoryItem,  world_mode::{WorldMode, WorldModes}}, events::{general::wear_item::WearItem, net::net_wear_item::NetWearItem}, resources::network_messages::ReliableServerMessage};
 
 pub fn wear_item(
     mut wear_item_events : EventReader<WearItem>,

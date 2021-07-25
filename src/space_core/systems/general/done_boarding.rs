@@ -1,6 +1,6 @@
 use bevy::{core::Timer, prelude::{Commands, EventReader, EventWriter, ResMut, info}};
 
-use crate::space_core::{components::{ on_board::OnBoard,  setup_phase::SetupPhase, soft_player::SoftPlayer, spawning::Spawning}, events::{general::boarding_player::BoardingPlayer, net::{net_done_boarding::NetDoneBoarding}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements,  spawn_points::SpawnPoints}, structs::network_messages::{ReliableServerMessage,ServerConfigMessage}};
+use crate::space_core::{components::{ on_board::OnBoard,  setup_phase::SetupPhase, soft_player::SoftPlayer, spawning::Spawning}, events::{general::boarding_player::BoardingPlayer, net::{net_done_boarding::NetDoneBoarding}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, network_messages::{ReliableServerMessage, ServerConfigMessage}, spawn_points::SpawnPoints}};
 
 pub fn done_boarding(
     mut spawn_points : ResMut<SpawnPoints>,

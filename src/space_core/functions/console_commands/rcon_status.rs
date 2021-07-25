@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, EventWriter, Query};
 
-use crate::space_core::{components::connected_player::ConnectedPlayer, events::net::net_console_commands::NetConsoleCommands, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::connected_player::ConnectedPlayer, events::net::net_console_commands::NetConsoleCommands, resources::network_messages::ReliableServerMessage};
 
 pub fn rcon_status(
     connected_players : &mut Query<&mut ConnectedPlayer>,

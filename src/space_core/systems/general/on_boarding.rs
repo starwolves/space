@@ -3,7 +3,7 @@ use bevy::prelude::{Added, EventWriter, Query};
 use crate::space_core::{components::{
         boarding::Boarding,
         connected_player::ConnectedPlayer
-    }, events::net::net_on_boarding::NetOnBoarding, structs::network_messages::{ReliableServerMessage}};
+    }, events::net::net_on_boarding::NetOnBoarding, resources::network_messages::ReliableServerMessage};
 
 pub fn on_boarding(
     query : Query<&ConnectedPlayer,Added<Boarding>>,

@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res, warn};
 
-use crate::space_core::{components::{examinable::Examinable, sensable::Sensable}, events::{general::examine_entity::ExamineEntity, net::net_chat_message::NetChatMessage}, resources::handle_to_entity::HandleToEntity, structs::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{examinable::Examinable, sensable::Sensable}, events::{general::examine_entity::ExamineEntity, net::net_chat_message::NetChatMessage}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
 pub fn examine_entity(
     mut examine_entity_events : EventReader<ExamineEntity>,
