@@ -1,4 +1,5 @@
-use crate::space_core::enums::space_access_enum::SpaceAccessEnum;
+use super::pawn::SpaceAccessEnum;
+
 
 pub struct AirLock {
     pub status : AirLockStatus,
