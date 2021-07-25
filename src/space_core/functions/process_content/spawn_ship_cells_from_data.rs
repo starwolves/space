@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, Res, ResMut};
+use bevy::prelude::{Commands, ResMut};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
 use crate::space_core::{components::ship_cell::ShipCell, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain}, precalculated_fov_data::Vec3Int}, structs::network_messages::GridMapType};
@@ -13,7 +13,7 @@ use crate::space_core::{components::ship_cell::ShipCell, functions::{converters:
 pub fn load_main_map_data(
     current_map_main_data : &Vec<CellDataWID>, 
     commands : &mut Commands, 
-    all_ordered_cells : &Res<AllOrderedCells>,
+    all_ordered_cells : &AllOrderedCells,
     gridmap_main : &mut ResMut<GridmapMain>,
 ) {
 
