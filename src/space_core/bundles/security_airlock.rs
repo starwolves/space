@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::Vec3, prelude::{Commands, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, sensable::Sensable, static_transform::StaticTransform}, enums::space_access_enum::SpaceAccessEnum, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}};
+use crate::space_core::{components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}};
 
 pub struct SecurityAirlockBundle;
 

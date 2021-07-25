@@ -1,5 +1,3 @@
-use crate::space_core::enums::space_jobs::SpaceJobsEnum;
-
 pub struct Pawn {
 
     pub name : String,
@@ -18,4 +16,18 @@ pub enum FacingDirection {
     Down,
     DownLeft,
     Left,
+}
+
+#[derive(Copy, Clone)]
+pub enum SpaceJobsEnum {
+
+    Security,
+    Control
+
+}
+
+
+#[derive(PartialEq)]
+pub enum SpaceAccessEnum {
+    Security
 }
