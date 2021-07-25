@@ -10,3 +10,8 @@ pub mod footsteps_sprinting_sfx;
 pub mod jumpsuit_security;
 pub mod helmet_security;
 pub mod human_male_pawn;
+pub mod omni_light;
+pub mod gi_probe;
+pub mod reflection_probe;
+pub mod security_airlock;
+pub mod security_counter_window;
