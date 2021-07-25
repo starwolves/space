@@ -31,6 +31,6 @@ pub struct Sfx {
 
 pub fn sfx_auto_destroy(entity : Entity, sfx_auto_destroy_timers : &mut ResMut<SfxAutoDestroyTimers>, play_back_duration : f32) {
 
-    sfx_auto_destroy_timers.timers.insert(entity, Timer::from_seconds(play_back_duration, false));
+    sfx_auto_destroy_timers.timers.push((entity, Timer::from_seconds(play_back_duration, false)));
 
 }

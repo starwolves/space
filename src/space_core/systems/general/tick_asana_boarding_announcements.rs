@@ -11,8 +11,9 @@ pub fn tick_asana_boarding_announcements(
     time: Res<Time>,
 ) {
 
-    let mut done_messages : Vec<String> = vec![];
-    let mut vec_i = 0;
+    let mut done_messages : Vec<usize> = vec![];
+
+    let mut j = 0;
 
     for (announcement_message, announcement_timer) in &mut asana_boarding_announcements.announcements {
 
@@ -36,20 +37,19 @@ pub fn tick_asana_boarding_announcements(
                 None,
             );
 
-            done_messages.insert(
-                vec_i,
-                announcement_message.to_string()
+            done_messages.push(
+                j,
             );
-
-            vec_i+=1;
 
         }
 
+        j+=1;
+
     }
 
-    for done_message in done_messages {
+    for j in done_messages {
 
-        asana_boarding_announcements.announcements.remove(&done_message);
+        asana_boarding_announcements.announcements.remove(j);
 
     }
 

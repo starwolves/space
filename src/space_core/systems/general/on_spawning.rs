@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use bevy::{prelude::{Added, Commands, Entity, EventWriter, Query, ResMut}};
 
 use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, spawning::Spawning}, events::net::net_on_spawning::NetOnSpawning, resources::handle_to_entity::HandleToEntity, structs::network_messages::{ReliableServerMessage, ServerConfigMessage}};
@@ -22,10 +20,10 @@ pub fn on_spawning(
         persistent_player_data_component,
     ) in query.iter() {
 
-        let mut passed_inventory_setup = HashMap::new();
-
-        passed_inventory_setup.insert("jumpsuit".to_string(), "jumpsuitSecurity".to_string());
-        passed_inventory_setup.insert("helmet".to_string(), "helmetSecurity".to_string());
+        let passed_inventory_setup = vec![
+            ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
+            ("helmet".to_string(), "helmetSecurity".to_string()),
+        ];
 
         let new_entity = HumanMalePawnBundle::spawn(
             spawning_component.transform,

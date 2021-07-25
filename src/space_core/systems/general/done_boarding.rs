@@ -38,10 +38,10 @@ pub fn done_boarding(
             message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(true, "main".to_string()))
         });
 
-        asana_boarding_announcements.announcements.insert(
+        asana_boarding_announcements.announcements.push((
             ";Security Officer ".to_owned() + &player_character_name + " is now on board.", 
             Timer::from_seconds(2., false)
-        );
+        ));
 
 
 

@@ -172,11 +172,11 @@ fn main() {
     };
 
     let sfx_auto_destroy_timers = SfxAutoDestroyTimers {
-        timers : HashMap::new()
+        timers : vec![]
     };
 
     let asana_boarding_announcements = AsanaBoardingAnnouncements {
-        announcements : HashMap::new()
+        announcements : vec![],
     };
 
     let precalculated_fov_data = PrecalculatedFOVData {

@@ -14,7 +14,7 @@ impl HumanMalePawnBundle {
         commands : &mut Commands,
         persistent_player_data_component : &PersistentPlayerData,
         connected_player_component : &ConnectedPlayer,
-        passed_inventory_setup : HashMap<String,String>,
+        passed_inventory_setup : Vec<(String,String)>,
         showcase_instance : bool,
         mut net_showcase : Option<&mut EventWriter<NetShowcase>>,
 
