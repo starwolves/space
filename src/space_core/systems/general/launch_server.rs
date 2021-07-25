@@ -154,7 +154,7 @@ pub fn launch_server(
 
     
     // Load precalculated FOV data.
-    let precalculated_fov_path = Path::new("data").join("FOVData.json");
+    let precalculated_fov_path = Path::new("content").join("FOVData.json");
     let precalculated_fov_raw_json = fs::read_to_string(precalculated_fov_path).expect("main.rs launch_server() Error reading FOVData.json file from drive.");
     let precalculated_fov_data: HashMap<String,Vec<String>> = serde_json::from_str(&precalculated_fov_raw_json).expect("main.rs launch_server() Error parsing FOVData.json file from String.");
 
