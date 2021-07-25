@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{components::{entity_updates::EntityUpdates, world_mode::{WorldMode,WorldModes}}, functions::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_updates::EntityUpdates, world_mode::{WorldMode,WorldModes}}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, structs::network_messages::EntityUpdateData};
 
 pub fn world_mode_update(
     mut updated_entities: Query<(&WorldMode, &mut EntityUpdates), Changed<WorldMode>>,

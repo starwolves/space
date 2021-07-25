@@ -1,7 +1,6 @@
 
-use crate::space_core::{resources::gridmap_main::CellData, structs::network_messages::GridMapType};
+use crate::space_core::{functions::entity::new_chat_message::FURTHER_NORMAL_FONT, resources::gridmap_main::CellData, structs::network_messages::GridMapType};
 
-use super::new_chat_message::FURTHER_NORMAL_FONT;
 
 const EXAMINATION_MAIN : [&str;13] = [
     "An Aluminum floor. This one is painted with security department colors.",

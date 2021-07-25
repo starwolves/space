@@ -1,6 +1,6 @@
 use serde::{Deserialize};
 
-use crate::space_core::{components::gi_probe::GIProbe, functions::string_to_type_converters::string_vec3_to_vec3};
+use crate::space_core::{components::gi_probe::GIProbe, functions::converters::string_to_type_converters::string_vec3_to_vec3};
 
 #[allow(dead_code)]
 #[derive(Deserialize)]

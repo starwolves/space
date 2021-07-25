@@ -6,6 +6,7 @@ use crate::space_core::{components::{entity_data::EntityData, entity_updates::En
 
 use super::entity_updates_personalise;
 
+
 pub fn load_entity(
     entity_updates : &HashMap<String,HashMap<String, EntityUpdateData>>,
     entity_transform : Transform,

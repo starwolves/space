@@ -1,5 +1,5 @@
 use serde::{Deserialize};
-use crate::space_core::{components::reflection_probe::ReflectionProbe, functions::string_to_type_converters::{string_color_to_color, string_vec3_to_vec3}};
+use crate::space_core::{components::reflection_probe::ReflectionProbe, functions::converters::string_to_type_converters::{string_color_to_color, string_vec3_to_vec3}};
 use bevy::{math::Vec3, prelude::Color};
 
 #[allow(dead_code)]

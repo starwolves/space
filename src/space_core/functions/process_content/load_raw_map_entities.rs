@@ -4,7 +4,10 @@ use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, Collid
 
 use std::collections::HashMap;
 
-use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, jumpsuit_security::JumpsuitSecurityBundle}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus},  counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable,  sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, string_to_type_converters::{string_transform_to_transform}, transform_to_isometry::transform_to_isometry}, process_content::entities::{gi_probe, omni_light, raw_entity::RawEntity, reflection_probe}};
+use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, jumpsuit_security::JumpsuitSecurityBundle}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus},  counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable,  sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode,WorldModes}}, enums::space_access_enum::SpaceAccessEnum, functions::{converters::{string_to_type_converters::string_transform_to_transform, transform_to_isometry::transform_to_isometry}, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}, process_content::{gi_probe, omni_light, reflection_probe}}};
+
+use super::raw_entity::RawEntity;
+
 
 pub fn load_raw_map_entities(
     raw_entities : &Vec<RawEntity>,

@@ -1,11 +1,8 @@
 use bevy::prelude::Color;
 use serde::{Deserialize};
-use crate::space_core::{
-    functions::string_to_type_converters::{string_color_to_color},
-    components::{
+use crate::space_core::{components::{
         omni_light::OmniLight
-    }
-};
+    }, functions::converters::string_to_type_converters::string_color_to_color};
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
