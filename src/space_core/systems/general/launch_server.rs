@@ -1,10 +1,10 @@
-use bevy::{ ecs::{system::{Commands, ResMut}}, prelude::{Res, Transform, info}};
+use bevy::{ecs::{system::{Commands, ResMut}}, prelude::{Transform, info}};
 
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, MessageChannelSettings, NetworkResource, ReliableChannelSettings};
 
 use std::{collections::HashMap, fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, spawn_ship_cells_from_data::{load_details1_map_data, load_main_map_data}}}, resources::{all_ordered_cells::AllOrderedCells, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId}};
+use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, spawn_ship_cells_from_data::{load_details1_map_data, load_main_map_data}}}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
 
 use crate::space_core::structs::network_messages::*;
 
@@ -66,9 +66,56 @@ pub fn launch_server(
     mut precalculated_fov_data_resource : ResMut<PrecalculatedFOVData>,
     mut gridmap_main : ResMut<GridmapMain>,
     mut gridmap_details1 : ResMut<GridmapDetails1>,
-    all_ordered_cells : Res<AllOrderedCells>,
+    mut all_ordered_cells : ResMut<AllOrderedCells>,
+    mut map_environment : ResMut<WorldEnvironment>,
+    mut blackcells_data_res : ResMut<BlackcellsData>,
+    mut non_blocking_cells : ResMut<NonBlockingCellsList>,
+    mut spawn_points_res : ResMut<SpawnPoints>,
     mut commands: Commands
-    ) {
+) {
+
+    let environment_json_location = Path::new("content").join("maps").join("bullseye").join("environment.json");
+    let current_map_environment_raw_json : String = fs::read_to_string(environment_json_location).expect("main.rs main() Error reading map environment.json file from drive.");
+    let current_map_raw_environment : WorldEnvironmentRaw = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs main() Error parsing map environment.json String.");
+    let current_map_environment : WorldEnvironment = WorldEnvironment::new(current_map_raw_environment);
+
+    current_map_environment.adjust(&mut map_environment);
+
+    let blackcells_json_location = Path::new("content").join("maps").join("bullseye").join("blackcells.json");
+    let current_map_blackcells_data_raw_json : String = fs::read_to_string(blackcells_json_location).expect("main.rs main() Error reading blackcells_data from drive.");
+    let current_map_blackcells : BlackcellsData = serde_json::from_str(&current_map_blackcells_data_raw_json).expect("main.rs main() Error parsing map blackcells.json String.");
+    
+    blackcells_data_res.blackcell_blocking_id = current_map_blackcells.blackcell_blocking_id;
+    blackcells_data_res.blackcell_id = current_map_blackcells.blackcell_id;
+
+    let blocking_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonblockinglist.json");
+    let current_map_blocking_cells_raw_json : String = fs::read_to_string(&blocking_cells_json_location).expect("main.rs main() Error reading map nonblockinglist.json from drive.");
+    let current_map_blocking_cells_data : Vec<i64> = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs main() Error parsing map nonblockinglist.json String.");
+
+    non_blocking_cells.list = current_map_blocking_cells_data;
+
+    let mainordered_cells_json = Path::new("content").join("maps").join("bullseye").join("mainordered.json");
+    let current_map_mainordered_cells_raw_json : String = fs::read_to_string(mainordered_cells_json).expect("main.rs main() Error reading map mainordered.json drive.");
+    let current_map_mainordered_cells : Vec<String> = serde_json::from_str(&current_map_mainordered_cells_raw_json).expect("main.rs main() Error parsing map mainordered.json String.");
+
+    let details1ordered_cells_json = Path::new("content").join("maps").join("bullseye").join("details1ordered.json");
+    let current_map_details1ordered_cells_raw_json : String = fs::read_to_string(details1ordered_cells_json).expect("main.rs main() Error reading map details1ordered.json drive.");
+    let current_map_details1ordered_cells : Vec<String> = serde_json::from_str(&current_map_details1ordered_cells_raw_json).expect("main.rs main() Error parsing map details1ordered.json String.");
+
+    let spawnpoints_json = Path::new("content").join("maps").join("bullseye").join("spawnpoints.json");
+    let current_map_spawn_points_raw_json : String = fs::read_to_string(spawnpoints_json).expect("main.rs main() Error reading map spawnpoints.json from drive.");
+    let current_map_spawn_points_raw : Vec<SpawnPointRaw> = serde_json::from_str(&current_map_spawn_points_raw_json).expect("main.rs main() Error parsing map spawnpoints.json String.");
+    let mut current_map_spawn_points : Vec<SpawnPoint> = vec![];
+
+    for raw_point in current_map_spawn_points_raw.iter() {
+        current_map_spawn_points.push(SpawnPoint::new(raw_point));
+    }
+
+    spawn_points_res.list = current_map_spawn_points;
+    spawn_points_res.i = 0;
+
+    all_ordered_cells.main =  current_map_mainordered_cells;
+    all_ordered_cells.details1 = current_map_details1ordered_cells;
 
 
     net.set_channels_builder(|builder: &mut ConnectionChannelsBuilder| {

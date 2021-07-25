@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use bevy::prelude::{FromWorld, World};
+
 use crate::space_core::functions::converters::string_to_type_converters::string_vec2_to_vec2_int;
 
 
@@ -32,6 +34,15 @@ impl PrecalculatedFOVData {
 
     }
 }
+
+impl FromWorld for PrecalculatedFOVData {
+    fn from_world(_world: &mut World) -> Self {
+        PrecalculatedFOVData {
+           data : HashMap::new(), 
+        }
+    }
+}
+
 
 #[derive(PartialEq,Eq, Hash, Copy, Clone, Debug)]
 pub struct Vec2Int {

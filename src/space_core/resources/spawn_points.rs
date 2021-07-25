@@ -1,4 +1,4 @@
-use bevy::{math::Quat, prelude::{Transform}};
+use bevy::{math::Quat, prelude::{FromWorld, Transform, World}};
 
 use serde::{Deserialize};
 
@@ -38,5 +38,14 @@ impl SpawnPoint {
         }
 
 
+    }
+}
+
+impl FromWorld for SpawnPoints {
+    fn from_world(_world: &mut World) -> Self {
+        SpawnPoints {
+            list : vec![],
+            i : 0,
+        }
     }
 }

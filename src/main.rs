@@ -1,8 +1,6 @@
-use std::{collections::HashMap, fs, path::Path};
-
 use bevy::{app::CoreStage::{PreUpdate, PostUpdate}, core::FixedTimestep, diagnostic::DiagnosticsPlugin, log::LogPlugin, prelude::*, transform::TransformPlugin};
 
-use bevy_rapier3d::{na::Quaternion, physics::{
+use bevy_rapier3d::{physics::{
         RapierPhysicsPlugin
     }, prelude::NoUserData};
 
@@ -31,9 +29,9 @@ use space_core::{
         handle_to_entity::HandleToEntity,
         non_blocking_cells_list::NonBlockingCellsList,
         server_id::ServerId,
-        spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints},
+        spawn_points::{SpawnPoints},
         tick_rate::TickRate, used_names::UsedNames,
-        world_environments::{WorldEnvironment,WorldEnvironmentRaw}
+        world_environments::{WorldEnvironment}
     }, 
     systems::{
         general::{
@@ -82,123 +80,6 @@ const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 
 fn main() {
 
-
-    let environment_json_location = Path::new("content").join("maps").join("bullseye").join("environment.json");
-    let current_map_environment_raw_json : String = fs::read_to_string(environment_json_location).expect("main.rs main() Error reading map environment.json file from drive.");
-    let current_map_raw_environment : WorldEnvironmentRaw = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs main() Error parsing map environment.json String.");
-    let current_map_environment : WorldEnvironment = WorldEnvironment::new(current_map_raw_environment);
-    
-    let blackcells_json_location = Path::new("content").join("maps").join("bullseye").join("blackcells.json");
-    let current_map_blackcells_data_raw_json : String = fs::read_to_string(blackcells_json_location).expect("main.rs main() Error reading blackcells_data from drive.");
-    let current_map_blackcells : BlackcellsData = serde_json::from_str(&current_map_blackcells_data_raw_json).expect("main.rs main() Error parsing map blackcells.json String.");
-
-    let blocking_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonblockinglist.json");
-    let current_map_blocking_cells_raw_json : String = fs::read_to_string(&blocking_cells_json_location).expect("main.rs main() Error reading map nonblockinglist.json from drive.");
-    let current_map_blocking_cells_data : Vec<i64> = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs main() Error parsing map nonblockinglist.json String.");
-
-    let current_map_blocking_cells = NonBlockingCellsList{
-        list : current_map_blocking_cells_data
-    };
-
-    let mainordered_cells_json = Path::new("content").join("maps").join("bullseye").join("mainordered.json");
-    let current_map_mainordered_cells_raw_json : String = fs::read_to_string(mainordered_cells_json).expect("main.rs main() Error reading map mainordered.json drive.");
-    let current_map_mainordered_cells : Vec<String> = serde_json::from_str(&current_map_mainordered_cells_raw_json).expect("main.rs main() Error parsing map mainordered.json String.");
-
-    let details1ordered_cells_json = Path::new("content").join("maps").join("bullseye").join("details1ordered.json");
-    let current_map_details1ordered_cells_raw_json : String = fs::read_to_string(details1ordered_cells_json).expect("main.rs main() Error reading map details1ordered.json drive.");
-    let current_map_details1ordered_cells : Vec<String> = serde_json::from_str(&current_map_details1ordered_cells_raw_json).expect("main.rs main() Error parsing map details1ordered.json String.");
-
-    let spawnpoints_json = Path::new("content").join("maps").join("bullseye").join("spawnpoints.json");
-    let current_map_spawn_points_raw_json : String = fs::read_to_string(spawnpoints_json).expect("main.rs main() Error reading map spawnpoints.json from drive.");
-    let current_map_spawn_points_raw : Vec<SpawnPointRaw> = serde_json::from_str(&current_map_spawn_points_raw_json).expect("main.rs main() Error parsing map spawnpoints.json String.");
-    let mut current_map_spawn_points : Vec<SpawnPoint> = vec![];
-
-    for raw_point in current_map_spawn_points_raw.iter() {
-        current_map_spawn_points.push(SpawnPoint::new(raw_point));
-    }
-
-    
-
-    let spawn_points = SpawnPoints {
-        list : current_map_spawn_points,
-        i : 0
-    };
-
-    let all_ordered_cells = AllOrderedCells{
-        main: current_map_mainordered_cells,
-        details1: current_map_details1ordered_cells
-    };
-
-    let tick_rate = TickRate {
-        rate : 24
-    };
-
-    let authid_i = AuthidI {
-        i : 0
-    };
-
-    let server_id = ServerId {
-        id: Entity::new(0)
-    };
-
-    let used_names = UsedNames {
-        names : vec![]
-    };
-
-    let handle_to_entity = HandleToEntity {
-        map : HashMap::new(),
-        inv_map : HashMap::new()
-    };
-
-    let y_axis_rotations = PlayerYAxisRotations {
-        rotations: vec![
-            //0deg
-            Quaternion::new(1.,0.,0.,0.),
-            //45deg
-            Quaternion::new(0.9238795, 0. , 0.3826834, 0.),
-            //90deg
-            Quaternion::new(0.7071068, 0., 0.7071068, 0.),
-            //135deg
-            Quaternion::new(0.3826834 ,0. , 0.9238795, 0.),
-            //180deg
-            Quaternion::new(0. ,0., 1., 0.),
-            //225deg
-            Quaternion::new(-0.3826834, 0., 0.9238795, 0.),
-            //270deg
-            Quaternion::new(-0.7071068, 0., 0.7071068, 0.),
-            //315deg
-            Quaternion::new(-0.9238795, 0., 0.3826834,0.),
-        ]
-    };
-
-    let sfx_auto_destroy_timers = SfxAutoDestroyTimers {
-        timers : vec![]
-    };
-
-    let asana_boarding_announcements = AsanaBoardingAnnouncements {
-        announcements : vec![],
-    };
-
-    let precalculated_fov_data = PrecalculatedFOVData {
-        data : HashMap::new()
-    };
-    
-    let world_fov = WorldFOV {
-        data : HashMap::new(),
-        to_be_recalculated: vec![],
-        to_be_recalculated_priority: vec![],
-        init: true,
-        blocking_load_at_init: false,
-    };
-
-    let gridmap_main = GridmapMain {
-        data : HashMap::new()
-    };
-
-    let gridmap_details1 = GridmapDetails1 {
-        data : HashMap::new()
-    };
-
     App::build()
         .add_plugins(MinimalPlugins)
         .add_plugin(LogPlugin::default())
@@ -206,28 +87,27 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(NetworkingPlugin {
             idle_timeout_ms: Some(10000),
-//            auto_heartbeat_ms: Some(1000),
             ..Default::default()
         })
         .add_plugin(DiagnosticsPlugin::default())
         //.insert_resource(ReportExecutionOrderAmbiguities)
-        .insert_resource(current_map_environment)
-        .insert_resource(tick_rate)
-        .insert_resource(current_map_blackcells)
-        .insert_resource(current_map_blocking_cells)
-        .insert_resource(all_ordered_cells)
-        .insert_resource(authid_i)
-        .insert_resource(server_id)
-        .insert_resource(used_names)
-        .insert_resource(handle_to_entity)
-        .insert_resource(spawn_points)
-        .insert_resource(y_axis_rotations)
-        .insert_resource(sfx_auto_destroy_timers)
-        .insert_resource(asana_boarding_announcements)
-        .insert_resource(precalculated_fov_data)
-        .insert_resource(world_fov)
-        .insert_resource(gridmap_main)
-        .insert_resource(gridmap_details1)
+        .init_resource::<WorldEnvironment>()
+        .init_resource::<BlackcellsData>()
+        .init_resource::<NonBlockingCellsList>()
+        .init_resource::<AllOrderedCells>()
+        .init_resource::<SpawnPoints>()
+        .init_resource::<TickRate>()
+        .init_resource::<GridmapMain>()
+        .init_resource::<GridmapDetails1>()
+        .init_resource::<PrecalculatedFOVData>()
+        .init_resource::<AuthidI>()
+        .init_resource::<ServerId>()
+        .init_resource::<UsedNames>()
+        .init_resource::<HandleToEntity>()
+        .init_resource::<PlayerYAxisRotations>()
+        .init_resource::<SfxAutoDestroyTimers>()
+        .init_resource::<AsanaBoardingAnnouncements>()
+        .init_resource::<WorldFOV>()
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()

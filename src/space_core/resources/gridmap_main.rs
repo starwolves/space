@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use bevy::prelude::{FromWorld, World};
 use serde::{Deserialize};
 
 use super::precalculated_fov_data::Vec3Int;
@@ -17,4 +18,12 @@ pub struct CellDataWID {
 pub struct CellData {
     pub item: i64,
     pub orientation: i64,
+}
+
+impl FromWorld for GridmapMain {
+    fn from_world(_world: &mut World) -> Self {
+        GridmapMain {
+           data : HashMap::new(), 
+        }
+    }
 }
