@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Vec2, Vec3}, prelude::{Commands, Entity, EventWriter, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::{FacingDirection, Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, visible_checker::VisibleChecker, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, spawn_entity::spawn_held_entity}}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::{FacingDirection, Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, senser::Senser, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage, precalculated_fov_data::Vec2Int}};
 
 pub struct HumanMalePawnBundle;
 
@@ -232,7 +232,12 @@ impl HumanMalePawnBundle {
         } else {
 
             entity_commands.insert_bundle((
-                VisibleChecker,
+                Senser {
+                    cell_id: Vec2Int{
+                        x: 0,
+                        y: 0
+                    }
+                },
                 Sensable{
                     is_audible : false,
                     is_light:false,

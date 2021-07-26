@@ -4,7 +4,7 @@ use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, 
 
 use std::{collections::HashMap, fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, spawn_ship_cells_from_data::{load_details1_map_data, load_main_map_data}}}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
+use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{gridmap::build_gridmap_from_data::{build_details1, build_main}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, }}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, doryen_fov::{ DoryenMap}, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
 
 
 const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -69,8 +69,10 @@ pub fn launch_server(
     mut blackcells_data_res : ResMut<BlackcellsData>,
     mut non_blocking_cells : ResMut<NonBlockingCellsList>,
     mut spawn_points_res : ResMut<SpawnPoints>,
+    mut fov_map : ResMut<DoryenMap>,
     mut commands: Commands
 ) {
+
 
     let environment_json_location = Path::new("content").join("maps").join("bullseye").join("environment.json");
     let current_map_environment_raw_json : String = fs::read_to_string(environment_json_location).expect("main.rs main() Error reading map environment.json file from drive.");
@@ -133,18 +135,20 @@ pub fn launch_server(
     let current_map_main_raw_json : String = fs::read_to_string(main_json).expect("main.rs launch_server() Error reading map main.json file from drive.");
     let current_map_main_data : Vec<CellDataWID> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
 
-    load_main_map_data(
+    build_main(
         &current_map_main_data,
         &mut commands,
         &all_ordered_cells,
         &mut gridmap_main,
+        &mut fov_map,
+        &mut non_blocking_cells,
     );
 
     let details1_json = Path::new("content").join("maps").join("bullseye").join("details1.json");
     let current_map_details1_raw_json : String = fs::read_to_string(details1_json).expect("main.rs launch_server() Error reading map details1_json file from drive.");
     let current_map_details1_data : Vec<CellDataWID> = serde_json::from_str(&current_map_details1_raw_json).expect("main.rs launch_server() Error parsing map details1_json String.");
 
-    load_details1_map_data(
+    build_details1(
         &current_map_details1_data,
         &mut commands,
         &mut gridmap_details1,

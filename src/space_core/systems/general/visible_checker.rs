@@ -1,8 +1,8 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, ResMut, Transform}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, visible_checker::VisibleChecker, world_mode::{WorldMode, WorldModes}}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{converters::isometry_to_transform::isometry_to_transform, entity_updates::{load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, gridmap::gridmap_functions::world_to_cell_id}, resources::{precalculated_fov_data::Vec2Int, world_fov::WorldFOV}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, senser::Senser, world_mode::{WorldMode, WorldModes}}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{converters::isometry_to_transform::isometry_to_transform, entity_updates::{load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, gridmap::gridmap_functions::world_to_cell_id}, resources::{doryen_fov::{DoryenMap, to_doryen_coordinates}}};
 
 pub fn visible_checker(
     mut query_visible_entities: Query<(
@@ -14,15 +14,15 @@ pub fn visible_checker(
         &EntityUpdates,
         Option<&WorldMode>
     )>,
-    query_visible_checker_entities_rigid : Query<(Entity, &VisibleChecker,  &RigidBodyPosition, &ConnectedPlayer)>,
+    query_visible_checker_entities_rigid : Query<(Entity, &Senser,  &RigidBodyPosition, &ConnectedPlayer)>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,
-    mut world_fov : ResMut<WorldFOV>,
+    fov_map : Res<DoryenMap>,
 ) {
     
     for (
         entity,
-        _visible_checker_component,
+        visible_checker_component,
         visible_checker_rigid_body_position_component,
         visible_checker_connected_player_component
     ) in query_visible_checker_entities_rigid.iter() {
@@ -83,6 +83,7 @@ pub fn visible_checker(
 
             visible_check(
                 &mut visible_component,
+                &visible_checker_component,
                 visible_entity_transform,
                 visible_checker_translation_vec,
                 entity,
@@ -93,7 +94,7 @@ pub fn visible_checker(
                 visible_entity_id,
                 is_interpolated,
                 &entity_updates_component,
-                &mut world_fov,
+                &fov_map,
             );
 
             
@@ -113,7 +114,8 @@ const HEAR_DISTANCE : f32 = 60.;
 const LIGHT_DISTANCE : f32 = 180.;
 
 fn visible_check(
-    visible_component : &mut Mut<Sensable>,
+    sensable_component : &mut Mut<Sensable>,
+    _senser_component : &Senser,
     visible_entity_transform : Transform,
     visible_checker_translation: Vec3,
     visible_checker_entity_id : Entity,
@@ -124,16 +126,16 @@ fn visible_check(
     visible_entity_id : Entity,
     interpolated_transform : bool,
     visible_entity_updates_component : &EntityUpdates,
-    world_fov : &mut ResMut<WorldFOV>,
+    fov_map : &Res<DoryenMap>,
 ) {
 
     let distance = visible_checker_translation.distance(visible_entity_transform.translation);
     let is_cached = distance < VIEW_DISTANCE;
     let can_cache;
 
-    if visible_component.is_light ||
-    visible_component.is_audible ||
-    visible_component.always_sensed {
+    if sensable_component.is_light ||
+    sensable_component.is_audible ||
+    sensable_component.always_sensed {
         can_cache = false;
     } else {
         can_cache = true;
@@ -142,50 +144,31 @@ fn visible_check(
     let mut is_sensed = false;
     
 
-    if visible_component.is_light == false &&
-    visible_component.is_audible == false &&
-    visible_component.always_sensed == false &&
+    if sensable_component.is_light == false &&
+    sensable_component.is_audible == false &&
+    sensable_component.always_sensed == false &&
     is_cached {
 
-        let visible_checker_cell_id = world_to_cell_id(visible_checker_translation);
-
-        let visible_checker_cell_id_2d = &Vec2Int{ x: visible_checker_cell_id.x, y: visible_checker_cell_id.z };
-
-        let this_cell_fov_option = world_fov.data.get(visible_checker_cell_id_2d);
-
-        match this_cell_fov_option {
-            Some(this_cell_fov) => {
-
-                let visible_entity_cell_id = world_to_cell_id(visible_entity_transform.translation);
-
-                let visible_entity_cell_id_2d = &Vec2Int{ x: visible_entity_cell_id.x, y: visible_entity_cell_id.z };
-
-                is_sensed = this_cell_fov.contains(visible_entity_cell_id_2d);
-
-            },
-            None => {
-                if !world_fov.to_be_recalculated_priority.contains(visible_checker_cell_id_2d) {
-                    world_fov.to_be_recalculated_priority.push(*visible_checker_cell_id_2d);
-                }
-                return;
-            },
-        }
+        let visible_entity_cell_id = world_to_cell_id(visible_entity_transform.translation);
+        
+        let coords = to_doryen_coordinates(visible_entity_cell_id.x, visible_entity_cell_id.z);
+        is_sensed = fov_map.map.is_in_fov(coords.0, coords.1);
 
     }
 
-    if visible_component.is_light {
+    if sensable_component.is_light {
         is_sensed = distance < LIGHT_DISTANCE;
     }
-    else if visible_component.is_audible {
+    else if sensable_component.is_audible {
         is_sensed = distance < HEAR_DISTANCE;
     }
 
-    if visible_component.always_sensed == true || visible_checker_entity_id ==  visible_entity_id {
+    if sensable_component.always_sensed == true || visible_checker_entity_id ==  visible_entity_id {
         is_sensed = true;
     }
 
-    let sensed_by_contains = visible_component.sensed_by.contains(&visible_checker_entity_id);
-    let sensed_by_cached_contains = visible_component.sensed_by_cached.contains(&visible_checker_entity_id);
+    let sensed_by_contains = sensable_component.sensed_by.contains(&visible_checker_entity_id);
+    let sensed_by_cached_contains = sensable_component.sensed_by_cached.contains(&visible_checker_entity_id);
 
     if is_sensed == false {
 
@@ -207,12 +190,12 @@ fn visible_check(
                 unload_entirely
             );
 
-            let index = visible_component.sensed_by.iter().position(|x| x == &visible_checker_entity_id).unwrap();
-            visible_component.sensed_by.remove(index);
+            let index = sensable_component.sensed_by.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            sensable_component.sensed_by.remove(index);
 
             if can_cache && !unload_entirely {
                 if !sensed_by_cached_contains {
-                    visible_component.sensed_by_cached.push(visible_checker_entity_id);
+                    sensable_component.sensed_by_cached.push(visible_checker_entity_id);
                 }
             }
             
@@ -223,8 +206,8 @@ fn visible_check(
                 net_unload_entity,
                 unload_entirely
             );
-            let index = visible_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
-            visible_component.sensed_by_cached.remove(index);
+            let index = sensable_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            sensable_component.sensed_by_cached.remove(index);
         } else if !sensed_by_contains && !sensed_by_cached_contains {
             if can_cache && !unload_entirely {
                 unload_entity(
@@ -233,7 +216,7 @@ fn visible_check(
                     net_unload_entity,
                     unload_entirely
                 );
-                visible_component.sensed_by_cached.push(visible_checker_entity_id);
+                sensable_component.sensed_by_cached.push(visible_checker_entity_id);
             }
         }
 
@@ -246,7 +229,7 @@ fn visible_check(
     } else {
 
         if !sensed_by_contains {
-            visible_component.sensed_by.push(visible_checker_entity_id);
+            sensable_component.sensed_by.push(visible_checker_entity_id);
             load_entity(
                 &visible_entity_updates_component.updates,
                 visible_entity_transform,
@@ -262,8 +245,8 @@ fn visible_check(
         }
         
         if sensed_by_cached_contains {
-            let index = visible_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
-            visible_component.sensed_by_cached.remove(index);
+            let index = sensable_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            sensable_component.sensed_by_cached.remove(index);
         }
 
 

@@ -8,9 +8,6 @@ pub fn get_bit_masks(
         ColliderGroup::Standard => {
             (0b00000000000000000000000000000001, 0b00000000000000000000000000000001)
         },
-        ColliderGroup::FOV => {
-            (0b00000000000000000000000000000010, 0b00000000000000000000000000000010)
-        },
         ColliderGroup::StandardFOV => {
             (0b00000000000000000000000000000011, 0b00000000000000000000000000000011)
         },
@@ -25,6 +22,5 @@ pub fn get_bit_masks(
 pub enum ColliderGroup {
     NoCollision,
     Standard,
-    FOV,
     StandardFOV,
 }

@@ -4,6 +4,9 @@ use bevy::prelude::{FromWorld, World};
 
 use crate::space_core::functions::converters::string_to_type_converters::string_vec2_to_vec2_int;
 
+use serde::{Serialize, Deserialize};
+
+
 
 pub struct PrecalculatedFOVData {
     pub data: HashMap<Vec2Int, Vec<Vec2Int>>
@@ -44,7 +47,7 @@ impl FromWorld for PrecalculatedFOVData {
 }
 
 
-#[derive(PartialEq,Eq, Hash, Copy, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq,Eq, Hash, Copy, Clone, Debug)]
 pub struct Vec2Int {
     pub x : i16,
     pub y : i16,   

@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, ResMut};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use crate::space_core::{components::ship_cell::ShipCell, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain}, network_messages::GridMapType, precalculated_fov_data::Vec3Int}};
+use crate::space_core::{components::ship_cell::ShipCell, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain}, network_messages::GridMapType, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::Vec3Int}};
 
 
 
@@ -10,11 +10,13 @@ use crate::space_core::{components::ship_cell::ShipCell, functions::{converters:
 
 
 
-pub fn load_main_map_data(
+pub fn build_main(
     current_map_main_data : &Vec<CellDataWID>, 
     commands : &mut Commands, 
     all_ordered_cells : &AllOrderedCells,
     gridmap_main : &mut ResMut<GridmapMain>,
+    fov_map : &mut ResMut<DoryenMap>,
+    non_fov_blocking_cells : &mut ResMut<NonBlockingCellsList>,
 ) {
 
     for cell_data in current_map_main_data.iter() {
@@ -36,7 +38,16 @@ pub fn load_main_map_data(
         });
 
 
+        if cell_id_int.y == 0 {
+            // Wall
 
+            if !non_fov_blocking_cells.list.contains(&cell_data.item) {
+                let coords = to_doryen_coordinates(cell_id_int.x, cell_id_int.z);
+                fov_map.map.set_transparent(coords.0, coords.1, false);
+            }
+
+
+        }
         
         
 
@@ -117,7 +128,7 @@ pub fn load_main_map_data(
 
 }
 
-pub fn load_details1_map_data(
+pub fn build_details1(
     current_map_details1_data : &Vec<CellDataWID>, 
     commands : &mut Commands, 
     gridmap_details1 : &mut ResMut<GridmapDetails1>,
