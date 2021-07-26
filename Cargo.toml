@@ -23,7 +23,7 @@ rand = "0.8.3"
 
 const_format = "0.2.14"
 
-kv = "0.22.0"
+doryen-fov = "0.1.1"
 
 [profile.dev.package."*"]
 opt-level = 3

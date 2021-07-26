@@ -12,7 +12,7 @@ pub mod y_axis_rotations;
 pub mod sfx_auto_destroy_timers;
 pub mod asana_boarding_announcements;
 pub mod precalculated_fov_data;
-pub mod world_fov;
 pub mod gridmap_main;
 pub mod gridmap_details1;
 pub mod network_messages;
+pub mod doryen_fov;
