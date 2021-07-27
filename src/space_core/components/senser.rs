@@ -7,5 +7,5 @@ pub struct Senser {
     pub fov : FovRecursiveShadowCasting,
 }
 
-pub const FOV_MAP_WIDTH : usize = 500;
-pub const FOV_MAP_HEIGHT : usize = 500;
+pub const FOV_MAP_WIDTH : usize = 2000;
+pub const FOV_MAP_HEIGHT : usize = 2000;
