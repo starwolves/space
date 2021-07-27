@@ -1,8 +1,7 @@
 use bevy::prelude::{FromWorld, World};
 use doryen_fov::{MapData};
 
-const MAP_WIDTH : usize = 500;
-
+use crate::space_core::components::senser::{FOV_MAP_HEIGHT, FOV_MAP_WIDTH};
 
 pub struct DoryenMap {
 
@@ -15,7 +14,7 @@ impl FromWorld for DoryenMap {
 
         DoryenMap {
             
-            map : MapData::new(MAP_WIDTH, MAP_WIDTH),
+            map : MapData::new(FOV_MAP_WIDTH, FOV_MAP_HEIGHT),
 
         }
     }
@@ -23,8 +22,8 @@ impl FromWorld for DoryenMap {
 
 pub fn to_doryen_coordinates(x : i16, y : i16) -> (usize, usize){
 
-    let n_x=x+MAP_WIDTH as i16/2;
-    let n_y=y+MAP_WIDTH as i16/2;
+    let n_x=x+FOV_MAP_WIDTH as i16/2;
+    let n_y=y+FOV_MAP_HEIGHT as i16/2;
 
     (n_x as usize,n_y as usize)
 
