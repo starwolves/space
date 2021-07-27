@@ -1,8 +1,8 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Res, Transform}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Transform}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, senser::Senser, world_mode::{WorldMode, WorldModes}}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{converters::isometry_to_transform::isometry_to_transform, entity_updates::{load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, gridmap::gridmap_functions::world_to_cell_id}, resources::{doryen_fov::{DoryenMap, to_doryen_coordinates}}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, senser::Senser, world_mode::{WorldMode, WorldModes}}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{converters::isometry_to_transform::isometry_to_transform, entity_updates::{load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, gridmap::gridmap_functions::world_to_cell_id}, resources::{doryen_fov::{to_doryen_coordinates}}};
 
 pub fn visible_checker(
     mut query_visible_entities: Query<(
@@ -17,7 +17,6 @@ pub fn visible_checker(
     query_visible_checker_entities_rigid : Query<(Entity, &Senser,  &RigidBodyPosition, &ConnectedPlayer)>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,
-    fov_map : Res<DoryenMap>,
 ) {
     
     for (
@@ -94,7 +93,6 @@ pub fn visible_checker(
                 visible_entity_id,
                 is_interpolated,
                 &entity_updates_component,
-                &fov_map,
             );
 
             
@@ -115,7 +113,7 @@ const LIGHT_DISTANCE : f32 = 180.;
 
 fn visible_check(
     sensable_component : &mut Mut<Sensable>,
-    _senser_component : &Senser,
+    senser_component : &Senser,
     visible_entity_transform : Transform,
     visible_checker_translation: Vec3,
     visible_checker_entity_id : Entity,
@@ -126,7 +124,6 @@ fn visible_check(
     visible_entity_id : Entity,
     interpolated_transform : bool,
     visible_entity_updates_component : &EntityUpdates,
-    fov_map : &Res<DoryenMap>,
 ) {
 
     let distance = visible_checker_translation.distance(visible_entity_transform.translation);
@@ -152,7 +149,7 @@ fn visible_check(
         let visible_entity_cell_id = world_to_cell_id(visible_entity_transform.translation);
         
         let coords = to_doryen_coordinates(visible_entity_cell_id.x, visible_entity_cell_id.z);
-        is_sensed = fov_map.map.is_in_fov(coords.0, coords.1);
+        is_sensed = senser_component.fov.is_in_fov(coords.0, coords.1);
 
     }
 

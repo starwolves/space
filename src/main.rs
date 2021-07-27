@@ -23,7 +23,7 @@ use space_core::{events::{
             net_load_entity::NetLoadEntity, 
             net_send_entity_updates::NetSendEntityUpdates
         }
-    }, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, doryen_fov::{DoryenFOV, DoryenMap}, handle_to_entity::HandleToEntity, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoints}, tick_rate::TickRate, used_names::UsedNames, world_environments::{WorldEnvironment}}, systems::{
+    }, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, doryen_fov::{DoryenMap}, handle_to_entity::HandleToEntity, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoints}, tick_rate::TickRate, used_names::UsedNames, world_environments::{WorldEnvironment}}, systems::{
         general::{
             done_boarding::done_boarding,
             on_boarding::on_boarding,
@@ -95,7 +95,6 @@ fn main() {
         .init_resource::<PlayerYAxisRotations>()
         .init_resource::<SfxAutoDestroyTimers>()
         .init_resource::<AsanaBoardingAnnouncements>()
-        .init_resource::<DoryenFOV>()
         .init_resource::<DoryenMap>()
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
