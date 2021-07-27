@@ -1,22 +1,34 @@
-use bevy::{prelude::{EventReader, EventWriter, Res}};
+use bevy::{prelude::{EventReader, EventWriter, Query, Res, warn}};
 
-use crate::space_core::{events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_main_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{DoryenMap, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage, precalculated_fov_data::{Vec3Int}}};
+use crate::space_core::{components::senser::Senser, events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_main_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage, precalculated_fov_data::{Vec3Int}}};
 
 pub fn examine_map(
     mut examine_map_events : EventReader<ExamineMap>,
     mut net_new_chat_message_event : EventWriter<NetChatMessage>,
     gridmap_main : Res<GridmapMain>,
     gridmap_details1 : Res<GridmapDetails1>,
-    fov_map : Res<DoryenMap>,
+    senser_entities : Query<&Senser>,
 ) {
 
     for examine_event in examine_map_events.iter() {
+
+        let examiner_senser_component;
+
+        match senser_entities.get(examine_event.entity) {
+            Ok(examiner_senser) => {
+                examiner_senser_component = examiner_senser;
+            },
+            Err(_rr) => {
+                warn!("Couldn't find examiner entity in &Senser query.");
+                continue;
+            },
+        }
 
 
         let examine_text;
 
         let coords = to_doryen_coordinates(examine_event.gridmap_cell_id.x, examine_event.gridmap_cell_id.z);
-        if !fov_map.map.is_in_fov(coords.0, coords.1) {
+        if !examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
             examine_text = get_empty_cell_message();
         } else {
 

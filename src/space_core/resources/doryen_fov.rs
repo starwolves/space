@@ -1,29 +1,13 @@
 use bevy::prelude::{FromWorld, World};
-use doryen_fov::{FovRecursiveShadowCasting, MapData};
+use doryen_fov::{MapData};
 
 const MAP_WIDTH : usize = 500;
 
-pub struct DoryenFOV {
-
-    pub fov : FovRecursiveShadowCasting,
-
-}
 
 pub struct DoryenMap {
 
     pub map : MapData,
 
-}
-
-impl FromWorld for DoryenFOV {
-    fn from_world(_world: &mut World) -> Self {
-
-        DoryenFOV {
-            
-            fov : FovRecursiveShadowCasting::new(),
-
-        }
-    }
 }
 
 impl FromWorld for DoryenMap {

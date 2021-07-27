@@ -129,15 +129,23 @@ pub fn handle_network_messages(
                 },
                 ReliableClientMessage::ExamineMap(grid_map_type, cell_id_x,cell_id_y,cell_id_z) => {
 
-                    examine_map.send(ExamineMap{
-                        handle: *handle,
-                        gridmap_type: grid_map_type,
-                        gridmap_cell_id: Vec3Int {
-                            x: cell_id_x,
-                            y: cell_id_y,
-                            z: cell_id_z,
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            examine_map.send(ExamineMap{
+                                handle: *handle,
+                                entity: *player_entity,
+                                gridmap_type: grid_map_type,
+                                gridmap_cell_id: Vec3Int {
+                                    x: cell_id_x,
+                                    y: cell_id_y,
+                                    z: cell_id_z,
+                                },
+                            });
                         },
-                    });
+                        None => {
+                            warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
+                        },
+                    }
 
                 },
                 ReliableClientMessage::UseWorldItem(entity_id) => {
