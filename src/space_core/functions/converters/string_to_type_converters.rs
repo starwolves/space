@@ -2,7 +2,8 @@
 use bevy::{math::{Mat3, Vec3}, prelude::{Color, Transform}};
 use bevy::math::Quat;
 
-use crate::space_core::resources::precalculated_fov_data::Vec2Int;
+use crate::space_core::resources::doryen_fov::Vec2Int;
+
 
 
 pub fn string_color_to_color(string_color : &str) -> Color {
@@ -86,10 +87,10 @@ pub fn string_vec3_to_vec3(string_vector : &str) -> Vec3 {
 
 }
 
-const STRING_VEC2_TO_VEC2_CANNOT_PARSE_MESSAGE : &str = "main.rs string_vec2_to_vec2() Error cannot parse cell id string as Vector 3.";
+const _STRING_VEC2_TO_VEC2_CANNOT_PARSE_MESSAGE : &str = "main.rs string_vec2_to_vec2() Error cannot parse cell id string as Vector 3.";
 
 
-pub fn string_vec2_to_vec2_int(string_vector : &str) -> Vec2Int {
+pub fn _string_vec2_to_vec2_int(string_vector : &str) -> Vec2Int {
 
     let clean_string = string_vector.replace(" ", "");
 
@@ -104,8 +105,8 @@ pub fn string_vec2_to_vec2_int(string_vector : &str) -> Vec2Int {
     split_result = new_string.split(",").collect();
 
     Vec2Int {
-        x:split_result[0].parse::<f32>().expect(STRING_VEC2_TO_VEC2_CANNOT_PARSE_MESSAGE) as i16,
-        y:split_result[1].parse::<f32>().expect(STRING_VEC2_TO_VEC2_CANNOT_PARSE_MESSAGE) as i16,
+        x:split_result[0].parse::<f32>().expect(_STRING_VEC2_TO_VEC2_CANNOT_PARSE_MESSAGE) as i16,
+        y:split_result[1].parse::<f32>().expect(_STRING_VEC2_TO_VEC2_CANNOT_PARSE_MESSAGE) as i16,
     }
 
 }

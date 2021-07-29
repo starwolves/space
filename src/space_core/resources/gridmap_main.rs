@@ -2,7 +2,8 @@ use std::collections::HashMap;
 use bevy::prelude::{FromWorld, World};
 use serde::{Deserialize};
 
-use super::precalculated_fov_data::Vec3Int;
+use super::doryen_fov::Vec3Int;
+
 
 pub struct GridmapMain {
     pub data : HashMap<Vec3Int, CellData>

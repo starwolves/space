@@ -1,6 +1,7 @@
 use doryen_fov::FovRecursiveShadowCasting;
 
-use crate::space_core::resources::precalculated_fov_data::Vec2Int;
+use crate::space_core::resources::doryen_fov::Vec2Int;
+
 
 pub struct Senser {
     pub cell_id : Vec2Int,

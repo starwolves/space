@@ -1,6 +1,6 @@
 use bevy::{prelude::{EventReader, EventWriter, Query, Res, warn}};
 
-use crate::space_core::{components::senser::Senser, events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_main_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage, precalculated_fov_data::{Vec3Int}}};
+use crate::space_core::{components::senser::Senser, events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_main_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
 pub fn examine_map(
     mut examine_map_events : EventReader<ExamineMap>,
