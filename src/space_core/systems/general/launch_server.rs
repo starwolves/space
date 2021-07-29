@@ -2,9 +2,9 @@ use bevy::{ecs::{system::{Commands, ResMut}}, prelude::{Transform, info}};
 
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, MessageChannelSettings, NetworkResource, ReliableChannelSettings};
 
-use std::{collections::HashMap, fs, net::{SocketAddr}, path::Path, time::Duration};
+use std::{ fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{gridmap::build_gridmap_from_data::{build_details1, build_main}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, }}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, doryen_fov::{ DoryenMap}, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList, precalculated_fov_data::PrecalculatedFOVData, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
+use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{gridmap::build_gridmap_from_data::{build_details1, build_main}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, }}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, doryen_fov::{ DoryenMap}, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
 
 
 const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -61,7 +61,6 @@ const SERVER_PORT: u16 = 57713;
 pub fn launch_server(
     mut net: ResMut<NetworkResource>, 
     mut server_id : ResMut<ServerId>,
-    mut precalculated_fov_data_resource : ResMut<PrecalculatedFOVData>,
     mut gridmap_main : ResMut<GridmapMain>,
     mut gridmap_details1 : ResMut<GridmapDetails1>,
     mut all_ordered_cells : ResMut<AllOrderedCells>,
@@ -154,13 +153,7 @@ pub fn launch_server(
         &mut gridmap_details1,
     );
 
-    
-    // Load precalculated FOV data.
-    let precalculated_fov_path = Path::new("content").join("FOVData.json");
-    let precalculated_fov_raw_json = fs::read_to_string(precalculated_fov_path).expect("main.rs launch_server() Error reading FOVData.json file from drive.");
-    let precalculated_fov_data: HashMap<String,Vec<String>> = serde_json::from_str(&precalculated_fov_raw_json).expect("main.rs launch_server() Error parsing FOVData.json file from String.");
 
-    precalculated_fov_data_resource.data = PrecalculatedFOVData::new(precalculated_fov_data);
 
     // Spawn ambience SFX
     commands.spawn().insert_bundle(AmbienceSfxBundle::new(Transform::identity()));

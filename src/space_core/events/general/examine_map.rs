@@ -1,6 +1,6 @@
 use bevy::prelude::Entity;
 
-use crate::space_core::{resources::{network_messages::GridMapType, precalculated_fov_data::Vec3Int}};
+use crate::space_core::{resources::{doryen_fov::Vec3Int, network_messages::GridMapType}};
 
 pub struct ExamineMap{
     pub handle : u32,

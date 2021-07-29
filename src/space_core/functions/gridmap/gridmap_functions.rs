@@ -1,6 +1,7 @@
 use bevy::math::Vec3;
 
-use crate::space_core::resources::precalculated_fov_data::Vec3Int;
+use crate::space_core::resources::doryen_fov::Vec3Int;
+
 
 const CELL_SIZE : f32 = 2.;
 const Y_CENTER_OFFSET : f32 = 1.;
