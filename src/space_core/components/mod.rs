@@ -39,7 +39,6 @@ pub mod radio;
 pub mod linked_footsteps_running;
 pub mod footsteps_sprinting;
 pub mod examinable;
-pub mod ship_cell;
 pub mod helmet;
 pub mod inventory_item;
 pub mod inventory;
