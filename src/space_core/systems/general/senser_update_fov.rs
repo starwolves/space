@@ -29,7 +29,7 @@ pub fn senser_update_fov(
             // Max map size support is around 4kmx4km but will need a faster FOV algorithm for that.
             senser_component.fov.clear_fov();
             let coords = to_doryen_coordinates(senser_cell_id.x, senser_cell_id.y);
-            senser_component.fov.compute_fov(&mut map.map, coords.0, coords.1, 20, false);
+            senser_component.fov.compute_fov(&mut map.map, coords.0, coords.1, 20, true);
             
         }
     }

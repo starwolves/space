@@ -6,12 +6,12 @@
 	},
 	{
 		"entity_type": "jumpsuitSecurity",
-		"transform": "-1, -0.000023, -0.000004, -0.000004, 0.000005, 1, -0.000023, 1, -0.000005 - 14.030608, 0.099061, 16.817793",
+		"transform": "-1, 0, -0, 0, 0, 1, 0, 1, -0 - 14.0306, -4.065796, 16.817801",
 		"data": ""
 	},
 	{
 		"entity_type": "helmetSecurity",
-		"transform": "-1, -0.000057, -0.000033, 0.000057, -1, 0.000026, -0.000033, 0.000026, 1 - 17.080713, 0.278768, 16.850292",
+		"transform": "-1, -0, 0, 0, -1, 0, 0, 0, 1 - 17.0807, -3.885767, 16.8503",
 		"data": ""
 	},
 	{
@@ -91,17 +91,157 @@
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 279.075989, 1.50078, -332.031006",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 278.583008, 1.50078, -364.837006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 330.843994, 1.50078, -332.031006",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 330.351013, 1.50078, -364.837006",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 122.829002, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 174.597, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 222.675003, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -32.349499, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 19.418501, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 67.496597, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -188.802994, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -137.035004, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -88.9562, 1.50078, -363.454987",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -343.687988, 1.50078, -363.572998",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -291.920013, 1.50078, -363.572998",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -243.841995, 1.50078, -363.572998",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 278.583008, 1.50078, -331.912994",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 330.351013, 1.50078, -331.912994",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
 		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 268.966003, 1.50078, 84.1978",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 268.398987, 1.50078, 290.699005",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 315.505005, 1.50078, 290.699005",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 112.644997, 1.50078, 290.699005",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 159.751007, 1.50078, 290.699005",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 208.139999, 1.50078, 290.699005",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -354.36499, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -307.259003, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -258.869995, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -200.695007, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -153.589005, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -105.199997, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 61.8601, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -4.5719, 1.50078, 289.001007",
+		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
+	},
+	{
+		"entity_type": "OmniLight",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -58.929199, 1.50078, 289.001007",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
@@ -396,17 +536,17 @@
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 123.321999, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 122.829002, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 175.089996, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 174.597, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 223.167999, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 222.675003, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
@@ -491,17 +631,17 @@
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -31.857, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -32.349499, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 19.910999, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 19.418501, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 67.989098, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 67.496597, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
@@ -581,17 +721,17 @@
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -188.309998, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -188.802994, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -136.542007, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -137.035004, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
 		"entity_type": "OmniLight",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -88.463699, 1.50078, -330.648987",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -88.9562, 1.50078, -330.531006",
 		"data": "{\"omni_attenuation\":0.933035,\"omni_range\":29.700001,\"omni_shadow_detail\":1,\"omni_shadow_mode\":0,\"bake_mode\":1,\"color\":\"1,1,1,1\",\"cull_mask\":4294967295,\"light_energy\":0.5,\"light_indirect_energy\":1,\"negative\":false,\"light_specular\":0.2,\"shadow_bias\":0.5,\"shadow_color\":\"0,0,0,1\",\"shadow_contact\":0,\"shadow\":true,\"shadow_reverse_cull_face\":false}"
 	},
 	{
