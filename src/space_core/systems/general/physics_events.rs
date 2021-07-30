@@ -17,7 +17,6 @@ pub fn physics_events(
 
     for  intersection_event in intersection_events.iter() {
         // This fires with sensor collider types.
-
         let collider1_handle = intersection_event.collider1;
         let collider2_handle = intersection_event.collider2;
         let collision_started = intersection_event.intersecting;
@@ -35,7 +34,6 @@ pub fn physics_events(
     }
 
     for contact_event in contact_events.iter() {
-
         let mut collision_started = false;
         let collider1_handle ;
         let collider2_handle ;

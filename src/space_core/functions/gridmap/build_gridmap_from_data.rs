@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, ResMut};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use crate::space_core::{components::ship_cell::ShipCell, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain}, network_messages::GridMapType, non_blocking_cells_list::NonBlockingCellsList}};
+use crate::space_core::{functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain}, non_blocking_cells_list::NonBlockingCellsList}};
 
 
 
@@ -10,7 +10,7 @@ use crate::space_core::{components::ship_cell::ShipCell, functions::{converters:
 
 
 
-pub fn build_main(
+pub fn build_main_gridmap(
     current_map_main_data : &Vec<CellDataWID>, 
     commands : &mut Commands, 
     all_ordered_cells : &AllOrderedCells,
@@ -47,6 +47,10 @@ pub fn build_main(
             }
 
 
+        } else {
+            // Floor cells dont have collision. Don't need to be an entity at this moment either.
+            // It would add millions of just floor entities in large maps, dont think its ideal to make each cell its own entity and pollute the engine.
+            continue;
         }
         
         
@@ -77,13 +81,7 @@ pub fn build_main(
                     },
                     ..Default::default()
                 }
-            ).insert_bundle((
-                ShipCell{
-                    item: cell_data.item,
-                    id: cell_id_int,
-                    grid_type: GridMapType::Main,
-                },
-            ));
+            );
 
         } else {
             
@@ -111,13 +109,7 @@ pub fn build_main(
                     },
                     ..Default::default()
                 }
-            ).insert_bundle((
-                ShipCell{
-                    item: cell_data.item,
-                    id: cell_id_int,
-                    grid_type: GridMapType::Main,
-                },
-            ));
+            );
 
         }
 
@@ -128,9 +120,8 @@ pub fn build_main(
 
 }
 
-pub fn build_details1(
+pub fn build_details1_gridmap(
     current_map_details1_data : &Vec<CellDataWID>, 
-    commands : &mut Commands, 
     gridmap_details1 : &mut ResMut<GridmapDetails1>,
 ) {
     
@@ -149,12 +140,6 @@ pub fn build_details1(
             item: cell_data.item,
             orientation: cell_data.orientation,
         });
-
-        commands.spawn().insert_bundle((ShipCell{
-            item: cell_data.item,
-            id: cell_id_int,
-            grid_type: GridMapType::Details1,
-        },));
 
 
     }
