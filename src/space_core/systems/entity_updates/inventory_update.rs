@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Entity, Query, QuerySet, warn};
 
-use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates, examinable::Examinable, inventory::Inventory, inventory_item::InventoryItem, standard_character::StandardCharacter}, functions::{entity::new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, entity_updates::get_entity_update_difference::get_entity_update_difference}, resources::network_messages::EntityUpdateData};
+use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{entity_data::EntityData, entity_updates::EntityUpdates, examinable::Examinable, inventory::Inventory, inventory_item::InventoryItem, standard_character::StandardCharacter}, functions::{entity_updates::get_entity_update_difference::get_entity_update_difference}, resources::network_messages::EntityUpdateData};
 
 pub fn inventory_update(
     mut updated_entities: Query
@@ -131,52 +131,3 @@ pub fn inventory_update(
 
 }
 
-pub fn generate_human_examine_text(
-    character_name : &str,
-    inventory_component_option : Option<&Inventory>,
-    examinable_items_option : Option<&Query<&Examinable>>,
-) -> String {
-
-    let mut examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
-    + character_name + ", a Security Officer.\n"
-    + "He is human.\n"
-    + "[font=" + FURTHER_ITALIC_FONT + "]He is in perfect shape.[/font]\n";
-
-    match inventory_component_option {
-        Some(inventory_component) => {
-            examine_text = examine_text + "\n";
-            let examinables = examinable_items_option.unwrap();
-            for slot in inventory_component.slots.iter() {
-                match slot.slot_item {
-                    Some(slot_item_entity) => {
-
-                        let examinable = examinables.get(slot_item_entity)
-                        .expect("inventory_update.rs::generate_human_examine_text couldn't find inventory_item_component of an item from passed inventory.");
-
-
-                        if slot.slot_name == "left_hand"  {
-                            examine_text = examine_text + "He is holding " + &examinable.name + " in his left hand.\n";
-                        } else if slot.slot_name == "right_hand" {
-                            examine_text = examine_text + "He is holding " + &examinable.name + " in his right hand.\n";
-                        } else {
-                            examine_text = examine_text + "He is wearing " + &examinable.name + ".\n";
-                        }
-
-                        
-
-
-                    },
-                    None => {},
-                }
-            }
-            examine_text = examine_text + "\n";
-        },
-        None => {},
-    }
-
-    examine_text = examine_text + "*******[/font]";
-
-    examine_text
-
-
-}
