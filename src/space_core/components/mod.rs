@@ -46,3 +46,4 @@ pub mod rigidbody_link_transform;
 pub mod rigidbody_disabled;
 pub mod showcase;
 pub mod default_transform;
+pub mod interpolation_priority;

@@ -1,5 +1,5 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Transform}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Transform, info}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, senser::Senser, world_mode::{WorldMode, WorldModes}}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{converters::isometry_to_transform::isometry_to_transform, entity_updates::{load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, gridmap::gridmap_functions::world_to_cell_id}, resources::{doryen_fov::{to_doryen_coordinates}}};
@@ -14,17 +14,17 @@ pub fn visible_checker(
         &EntityUpdates,
         Option<&WorldMode>
     )>,
-    query_visible_checker_entities_rigid : Query<(Entity, &Senser,  &RigidBodyPosition, &ConnectedPlayer)>,
+    mut query_visible_checker_entities_rigid : Query<(Entity, &mut Senser,  &RigidBodyPosition, &ConnectedPlayer)>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,
 ) {
     
     for (
         entity,
-        visible_checker_component,
+        mut visible_checker_component,
         visible_checker_rigid_body_position_component,
         visible_checker_connected_player_component
-    ) in query_visible_checker_entities_rigid.iter() {
+    ) in query_visible_checker_entities_rigid.iter_mut() {
         let visible_checker_translation = visible_checker_rigid_body_position_component.position.translation;
 
         let visible_checker_translation_vec = Vec3::new(
@@ -32,7 +32,6 @@ pub fn visible_checker(
             visible_checker_translation.y,
             visible_checker_translation.z
         );
-
 
         for (
             visible_entity_id,
@@ -82,7 +81,7 @@ pub fn visible_checker(
 
             visible_check(
                 &mut visible_component,
-                &visible_checker_component,
+                &mut visible_checker_component,
                 visible_entity_transform,
                 visible_checker_translation_vec,
                 entity,
@@ -113,7 +112,7 @@ const LIGHT_DISTANCE : f32 = 180.;
 
 fn visible_check(
     sensable_component : &mut Mut<Sensable>,
-    senser_component : &Senser,
+    senser_component : &mut Mut<Senser>,
     visible_entity_transform : Transform,
     visible_checker_translation: Vec3,
     visible_checker_entity_id : Entity,
@@ -187,8 +186,16 @@ fn visible_check(
                 unload_entirely
             );
 
-            let index = sensable_component.sensed_by.iter().position(|x| x == &visible_checker_entity_id).unwrap();
-            sensable_component.sensed_by.remove(index);
+            let index1 = sensable_component.sensed_by.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            sensable_component.sensed_by.remove(index1);
+
+            match senser_component.sensing.iter().position(|x| x == &visible_checker_entity_id) {
+                Some(index) => {
+                    senser_component.sensing.remove(index);
+                },
+                None => {},
+            }
+            
 
             if can_cache && !unload_entirely {
                 if !sensed_by_cached_contains {
@@ -203,8 +210,13 @@ fn visible_check(
                 net_unload_entity,
                 unload_entirely
             );
-            let index = sensable_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+
+            let mut index = sensable_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
             sensable_component.sensed_by_cached.remove(index);
+
+            index = senser_component.sensing.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            senser_component.sensing.remove(index);
+
         } else if !sensed_by_contains && !sensed_by_cached_contains {
             if can_cache && !unload_entirely {
                 unload_entity(
@@ -217,16 +229,14 @@ fn visible_check(
             }
         }
 
-
-
-        
-
-
-
     } else {
 
         if !sensed_by_contains {
             sensable_component.sensed_by.push(visible_checker_entity_id);
+            if !senser_component.sensing.contains(&visible_checker_entity_id) {
+                senser_component.sensing.push(visible_checker_entity_id);
+            }
+            
             load_entity(
                 &visible_entity_updates_component.updates,
                 visible_entity_transform,

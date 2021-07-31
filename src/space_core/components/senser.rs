@@ -1,3 +1,4 @@
+use bevy::prelude::Entity;
 use doryen_fov::FovRecursiveShadowCasting;
 
 use crate::space_core::resources::doryen_fov::Vec2Int;
@@ -6,6 +7,7 @@ use crate::space_core::resources::doryen_fov::Vec2Int;
 pub struct Senser {
     pub cell_id : Vec2Int,
     pub fov : FovRecursiveShadowCasting,
+    pub sensing : Vec<Entity>,
 }
 
 // Turning up these values drastically increases fov calculation time.

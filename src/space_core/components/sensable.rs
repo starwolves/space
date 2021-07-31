@@ -21,8 +21,6 @@ impl Sensable {
 
         // Shouldn't be called from the same stage visible_checker.system() runs in.
 
-        //let entity_id = entity.id();
-
         for sensed_by_entity in self.sensed_by.iter() {
             match handle_to_entity.inv_map.get(&sensed_by_entity.id()) {
                 Some(handle) => {

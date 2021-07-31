@@ -4,7 +4,7 @@ use bevy::{math::{Vec2, Vec3}, prelude::{Commands, Entity, EventWriter, Query, T
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 use doryen_fov::FovRecursiveShadowCasting;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, inventory::{Inventory, Slot, SlotType}, pawn::{FacingDirection, Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{FOV_MAP_HEIGHT, FOV_MAP_WIDTH, Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{doryen_fov::Vec2Int, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{FacingDirection, Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{FOV_MAP_HEIGHT, FOV_MAP_WIDTH, Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{doryen_fov::Vec2Int, network_messages::ReliableServerMessage}};
 
 pub struct HumanMalePawnBundle;
 
@@ -108,6 +108,9 @@ impl HumanMalePawnBundle {
             },
             DefaultTransform {
                 transform: Transform::identity(),
+            },
+            InterpolationPriority {
+                priority: InterpolationPriorityStatus::High,
             },
         ));
 
@@ -239,6 +242,7 @@ impl HumanMalePawnBundle {
                         y: 0
                     },
                     fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_HEIGHT),
+                    sensing: vec![],
                 },
                 Sensable{
                     is_audible : false,
@@ -299,7 +303,6 @@ pub fn generate_human_examine_text(
                         let examinable = examinables.get(slot_item_entity)
                         .expect("inventory_update.rs::generate_human_examine_text couldn't find inventory_item_component of an item from passed inventory.");
 
-
                         if slot.slot_name == "left_hand"  {
                             examine_text = examine_text + "He is holding " + &examinable.name + " in his left hand.\n";
                         } else if slot.slot_name == "right_hand" {
@@ -307,9 +310,6 @@ pub fn generate_human_examine_text(
                         } else {
                             examine_text = examine_text + "He is wearing " + &examinable.name + ".\n";
                         }
-
-                        
-
 
                     },
                     None => {},
@@ -323,6 +323,5 @@ pub fn generate_human_examine_text(
     examine_text = examine_text + "*******[/font]";
 
     examine_text
-
 
 }
