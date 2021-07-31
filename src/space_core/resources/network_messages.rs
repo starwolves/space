@@ -109,6 +109,6 @@ pub enum ServerConfigMessage {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableServerMessage {
-    TransformUpdate(u64, Vec3, Quat, Vec3, u64),
+    TransformUpdate(u64, Vec3, Quat, Vec3, u64, u8),
     PositionUpdate(u64, Vec3, u64)
 }
