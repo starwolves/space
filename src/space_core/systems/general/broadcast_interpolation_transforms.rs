@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Local, Query, Res, ResMut, Transform, Without, info, warn}};
+use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Local, Query, Res, ResMut, Transform, Without, warn}};
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{prelude::{RigidBodyPosition, RigidBodyVelocity}};
 
@@ -68,8 +68,6 @@ pub fn broadcast_interpolation_transforms (
         let mut low_priority_count : u16 = 0;
         let mut medium_priority_count : u16 = 0;
         let mut high_priority_count : u16 = 0;
-
-        //info!("{:?}", senser.sensing);
 
         for sensed_entity in senser.sensing.iter() {
 

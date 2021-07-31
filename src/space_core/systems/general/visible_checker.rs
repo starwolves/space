@@ -1,5 +1,5 @@
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Transform, info}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Mut, Query, Transform}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, static_transform::StaticTransform, senser::Senser, world_mode::{WorldMode, WorldModes}}, events::net::{net_load_entity::NetLoadEntity, net_unload_entity::NetUnloadEntity}, functions::{converters::isometry_to_transform::isometry_to_transform, entity_updates::{load_entity_for_player::load_entity, unload_entity_for_player::unload_entity}, gridmap::gridmap_functions::world_to_cell_id}, resources::{doryen_fov::{to_doryen_coordinates}}};
