@@ -3,7 +3,7 @@
 
   
 
-Pre-Alpha Stage.
+![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg)![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
 
   
 
@@ -47,9 +47,7 @@ This game server is designed to work and scale well on modern processors that ha
 * To compile & run the game server:
 
 ```
-
 cargo run --release
-
 ```
 
 ### Space Frontiers client
