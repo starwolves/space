@@ -19,7 +19,8 @@ This game server is designed to work and scale well on modern processors that ha
 * High player & entity counts support for matches.
 * Server-side moddable map support with sizes up to 1km by 1km with 100k+ dynamic ship cells that make up the map.
 * Server-side moddable inventory support.
-* Server-side console commands, including admin RCON commands to spawn in entities and the like.
+* Server-side moddable console commands, including rcon admin commands.
+* Server-side moddable proximity and radio chat.
 * Built with the parallel [Rapier 3D Physics engine](https://rapier.rs/).
 * Interpolation throttling on a per client basis to meet bandwidth usage quotas.
 * Entity and netcode are expandable and dynamic to be able to interact with per server custom content for the clients.
@@ -51,7 +52,7 @@ cargo run --release
 ```
 
 ### Space Frontiers client
-You need to download the official Space Frontiers client to be able to connect to yourself and inspect it. There is no public release of this client as of yet.
+You need to get the official Space Frontiers client to be able to connect to the server yourself. There is currently no public release of this client.
 
 
 ## Contributions
