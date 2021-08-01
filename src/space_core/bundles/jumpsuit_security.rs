@@ -311,6 +311,7 @@ fn spawn(
         Some(holder_entity) => {
             builder.insert(RigidBodyLinkTransform{
                 follow_entity: holder_entity,
+                active: true,
             });
         },
         None => {

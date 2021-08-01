@@ -15,7 +15,9 @@ pub fn rigidbody_link_transform(
     let mut linked_with_following = HashMap::new();
 
     for (entity, rigid_body_link_transform_component, _rigidbody_position_component) in rigidbodies_set.q0_mut().iter_mut() {
-        linked_with_following.insert(entity, rigid_body_link_transform_component.follow_entity );
+        if rigid_body_link_transform_component.active {
+            linked_with_following.insert(entity, rigid_body_link_transform_component.follow_entity );
+        }
     }
 
     let mut linked_with_new_positions = HashMap::new();
@@ -34,11 +36,10 @@ pub fn rigidbody_link_transform(
 
     }
 
-
-
-    for (entity, _rigid_body_link_transform_component, mut rigidbody_position_component) in rigidbodies_set.q0_mut().iter_mut() {
-        rigidbody_position_component.position = *linked_with_new_positions.get(&entity).expect("Couldn't find linked entity that we were about to set following transform of.");
+    for (entity, rigid_body_link_transform_component, mut rigidbody_position_component) in rigidbodies_set.q0_mut().iter_mut() {
+        if rigid_body_link_transform_component.active {
+            rigidbody_position_component.position = *linked_with_new_positions.get(&entity).expect("Couldn't find linked entity that we were about to set following transform of.");
+        }
     }
-
 
 }

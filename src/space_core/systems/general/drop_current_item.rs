@@ -19,6 +19,7 @@ pub fn drop_current_item(
         &mut RigidBodyActivation,
         &mut ColliderFlags,
         &mut RigidBodyForces,
+        &mut RigidBodyLinkTransform,
     )>,
     mut commands : Commands,
     mut net_drop_current_item : EventWriter<NetDropCurrentItem>,
@@ -64,6 +65,7 @@ pub fn drop_current_item(
             mut pickupable_rigidbody_activation,
             mut pickupable_rigidbody_collider_flags,
             mut pickupable_rigidbody_forces,
+            mut pickupable_rigidbody_link_transform_component,
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
 
@@ -81,9 +83,9 @@ pub fn drop_current_item(
             pickupable_entity
         );
 
-        
+        pickupable_rigidbody_link_transform_component.active = false;
 
-        commands.entity(pickupable_entity).remove_bundle::<(RigidBodyLinkTransform,)>();
+        commands.entity(pickupable_entity).remove::<RigidBodyLinkTransform>();
 
         let new_position;
 
