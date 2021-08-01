@@ -39,6 +39,7 @@ enum PreUpdateLabels {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 enum UpdateLabels {
     ProcessMovementInput,
+    DropCurrentItem
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -151,13 +152,13 @@ fn main() {
         .add_system(examine_entity.system())
         .add_system(examine_map.system())
         .add_system(pickup_world_item.system())
-        .add_system(rigidbody_link_transform.system())
-        .add_system(drop_current_item.system())
         .add_system(switch_hands.system())
         .add_system(wear_item.system())
         .add_system(take_off_item.system())
         .add_system(console_commands.system())
         .add_system(senser_update_fov.system())
+        .add_system(drop_current_item.system().label(UpdateLabels::DropCurrentItem))
+        .add_system(rigidbody_link_transform.system().after(UpdateLabels::DropCurrentItem))
         .add_system(player_input_event.system().label(UpdateLabels::ProcessMovementInput))
         .add_system(move_standard_characters.system().after(UpdateLabels::ProcessMovementInput))
         .add_system(broadcast_interpolation_transforms.system()

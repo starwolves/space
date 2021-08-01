@@ -305,6 +305,7 @@ Vec3::new(0.,0.355, 0.)
         Some(holder_entity) => {
             builder.insert(RigidBodyLinkTransform{
                 follow_entity: holder_entity,
+                active: true,
             });
         },
         None => {
