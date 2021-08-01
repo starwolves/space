@@ -23,8 +23,8 @@ This game server is designed to work and scale well on modern processors that ha
 * Built with the parallel [Rapier 3D Physics engine](https://rapier.rs/).
 * Interpolation throttling on a per client basis to meet bandwidth usage quotas.
 * Entity and netcode are expandable and dynamic to be able to interact with per server custom content for the clients.
-* Fearless resource access across multiple threads.
-* [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) algorithm.
+* Fearless multi-threading and resource access across multiple threads.
+* A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) algorithm.
 
 ## Getting Started
 
