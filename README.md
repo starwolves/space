@@ -11,7 +11,7 @@ Pre-Alpha Stage.
 
   
 
-A multi-threaded sci-fi community game server written in Rust with the Bevy ECS game engine. Made to exclusively communicate with a moddable client with the Godot engine.
+A multi-threaded sci-fi community game server written in Rust with the Bevy ECS game engine. Made to exclusively communicate with the official moddable Space Frontiers client made with the Godot engine.
 This game server is designed to work and scale well on modern processors that have multiple CPU cores.
   
 ### Features
