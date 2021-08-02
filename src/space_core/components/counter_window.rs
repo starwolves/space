@@ -17,3 +17,13 @@ pub enum CounterWindowAccessLightsStatus {
     Granted,
     Denied
 }
+
+impl Default for CounterWindow {
+    fn default() -> Self {
+        Self {
+            status: CounterWindowStatus::Closed,
+            access_lights: CounterWindowAccessLightsStatus::Neutral,
+            access_permissions: vec![SpaceAccessEnum::Common],
+        }
+    }
+}

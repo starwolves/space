@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Vec2, Vec3}, prelude::{Commands, Entity, EventWriter, Query, Transform}};
+use bevy::{math::{Vec3}, prelude::{Commands, Entity, EventWriter, Query, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
-use doryen_fov::FovRecursiveShadowCasting;
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{FacingDirection, Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{FOV_MAP_HEIGHT, FOV_MAP_WIDTH, Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{doryen_fov::Vec2Int, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage}};
 
 pub struct HumanMalePawnBundle;
 
@@ -74,8 +73,6 @@ impl HumanMalePawnBundle {
             ..Default::default()
         };
 
-        let mut entity_updates_map = HashMap::new();
-        entity_updates_map.insert(".".to_string(), HashMap::new());
 
         
 
@@ -89,12 +86,7 @@ impl HumanMalePawnBundle {
                 entity_type : "humanMale".to_string(),
                 entity_group: EntityGroup::Pawn
             },
-            EntityUpdates{
-                updates: entity_updates_map,
-                changed_parameters: vec![],
-                excluded_handles:HashMap::new(),
-                updates_difference: HashMap::new(),
-            },
+            EntityUpdates::default(),
             WorldMode {
                 mode : WorldModes::Kinematic
             },
@@ -102,13 +94,11 @@ impl HumanMalePawnBundle {
                 current_animation_state : CharacterAnimationState::Idle,
                 character_name: persistent_player_data_component.character_name.clone(),
             },
-            CachedBroadcastTransform::new(),
+            CachedBroadcastTransform::default(),
             PersistentPlayerData {
                 character_name: persistent_player_data_component.character_name.clone(),
             },
-            DefaultTransform {
-                transform: Transform::identity(),
-            },
+            DefaultTransform::default(),
             InterpolationPriority {
                 priority: InterpolationPriorityStatus::High,
             },
@@ -236,26 +226,12 @@ impl HumanMalePawnBundle {
         } else {
 
             entity_commands.insert_bundle((
-                Senser {
-                    cell_id: Vec2Int{
-                        x: 0,
-                        y: 0
-                    },
-                    fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_HEIGHT),
-                    sensing: vec![],
-                },
-                Sensable{
-                    is_audible : false,
-                    is_light:false,
-                    sensed_by_cached:vec![],
-                    sensed_by:vec![],
-                    always_sensed : false
-                },
+                Senser::default(),
+                Sensable::default(),
                 ConnectedPlayer {
                     handle: connected_player_component.handle,
                     authid: connected_player_component.authid,
-                    rcon : false,
-                    connected : true,
+                    ..Default::default()
                 },
                 Radio {
                     listen_access: vec![RadioChannel::Common, RadioChannel::Security],
@@ -267,12 +243,9 @@ impl HumanMalePawnBundle {
                 Pawn {
                     name: persistent_player_data_component.character_name.clone(),
                     job: SpaceJobsEnum::Security,
-                    facing_direction: FacingDirection::Up,
+                    ..Default::default()
                 },
-                PlayerInput{
-                    movement_vector : Vec2::ZERO,
-                    sprinting : false
-                },
+                PlayerInput::default(),
             ));
         }
 

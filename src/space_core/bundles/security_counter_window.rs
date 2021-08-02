@@ -1,9 +1,8 @@
-use std::collections::HashMap;
 
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{components::{counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}};
+use crate::space_core::{components::{counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}};
 
 pub struct SecurityCounterWindowBundle;
 
@@ -18,9 +17,6 @@ impl SecurityCounterWindowBundle {
         let static_transform_component = StaticTransform {
             transform: entity_transform
         };
-
-        let mut entity_updates_map = HashMap::new();
-        entity_updates_map.insert(".".to_string(), HashMap::new());
 
 
         let window_rigid_body_component = RigidBodyBundle {
@@ -69,29 +65,17 @@ impl SecurityCounterWindowBundle {
 
         let parent = commands.spawn_bundle(window_rigid_body_component).insert_bundle(window_collider_component).insert_bundle((
             static_transform_component,
-            Sensable{
-                is_audible : false,
-                is_light:false,
-                sensed_by: vec![],
-                sensed_by_cached: vec![],
-                always_sensed : false
-            },
+            Sensable::default(),
             CounterWindow {
-                status: CounterWindowStatus::Closed,
-                access_lights: CounterWindowAccessLightsStatus::Neutral,
                 access_permissions: vec![SpaceAccessEnum::Security],
+                ..Default::default()
             },
             EntityData{
                 entity_class: "entity".to_string(),
                 entity_type: "securityCounterWindow".to_string(),
                 entity_group: EntityGroup::AirLock
             },
-            EntityUpdates{
-                updates: entity_updates_map,
-                changed_parameters: vec![],
-                excluded_handles:HashMap::new(),
-                updates_difference: HashMap::new(),
-            },
+            EntityUpdates::default(),
             Examinable {
                 description: examine_text,
                 name: "a security counter window".to_string()

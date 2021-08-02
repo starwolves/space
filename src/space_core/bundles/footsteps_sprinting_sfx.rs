@@ -1,8 +1,7 @@
-use std::collections::HashMap;
 
 use bevy::prelude::{Transform};
 
-use crate::space_core::components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, footsteps_walking::FootstepsWalking, repeating_sfx::RepeatingSfx, sensable::Sensable, static_transform::StaticTransform, update_transform::UpdateTransform};
+use crate::space_core::components::{cached_broadcast_transform::CachedBroadcastTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, footsteps_walking::FootstepsWalking, repeating_sfx::RepeatingSfx, sensable::Sensable, static_transform::StaticTransform, update_transform::UpdateTransform};
 
 pub struct FootstepsSprintingSfxBundle;
 
@@ -19,23 +18,17 @@ impl FootstepsSprintingSfxBundle {
         CachedBroadcastTransform
     ) {
 
-        let mut entity_updates_map = HashMap::new();
-        entity_updates_map.insert(".".to_string(), HashMap::new());
 
         (StaticTransform {
             transform: passed_transform,
         },
         EntityData {
             entity_class : "RepeatingSFX".to_string(),
-            entity_type: "".to_string(),
-            entity_group : EntityGroup::None
+            ..Default::default()
         },
         Sensable {
-            is_light : false,
             is_audible: true,
-            sensed_by : vec![],
-            sensed_by_cached : vec![],
-            always_sensed : false
+            ..Default::default()
         },
         RepeatingSfx {
             area_mask: 0,
@@ -60,15 +53,11 @@ impl FootstepsSprintingSfxBundle {
             auto_destroy : true,
             repeat_time: 0.35,
         },
-        EntityUpdates {
-            updates: entity_updates_map,
-            changed_parameters: vec![],
-            excluded_handles:HashMap::new(),
-            updates_difference: HashMap::new(),
-        },
+        EntityUpdates::default(),
         FootstepsWalking,
         UpdateTransform,
-        CachedBroadcastTransform::new())
+        CachedBroadcastTransform::default(),
+        )
 
     }
 

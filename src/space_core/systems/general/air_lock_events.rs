@@ -1,5 +1,6 @@
 
-use bevy::{core::Timer, prelude::{Commands, Entity, EventReader, Query, ResMut}};
+
+use bevy::{prelude::{Commands, Entity, EventReader, Query, ResMut}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{bundles::{air_lock_closed_sfx::{AirLockClosedSfxBundle, PLAY_BACK_DURATION as CLOSED_PLAY_BACK_DURATION}, air_lock_denied_sfx::{AirLockDeniedSfxBundle, PLAY_BACK_DURATION as DENIED_PLAY_BACK_DURATION}, air_lock_open_sfx::{AirLockOpenSfxBundle, PLAY_BACK_DURATION as OPEN_PLAY_BACK_DURATION}}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, entity_data::{EntityGroup}, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::air_lock_collision::AirLockCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
@@ -39,9 +40,7 @@ pub fn air_lock_events(
 
                     air_lock_component.status = AirLockStatus::Closed;                    
 
-                    commands.entity(air_lock_entity).insert(AirLockClosedTimer {
-                        timer : Timer::from_seconds(1.1, false)
-                    });
+                    commands.entity(air_lock_entity).insert(AirLockClosedTimer::default());
 
                 }
 
@@ -170,9 +169,7 @@ pub fn air_lock_events(
 
             air_lock_rigid_body_position_component.position = air_lock_rigid_body_position;
 
-            commands.entity(air_lock_entity).insert(AirLockOpenTimer {
-                timer : Timer::from_seconds(5.0, false)
-            });
+            commands.entity(air_lock_entity).insert(AirLockOpenTimer::default());
 
             let sfx_entity = commands.spawn().insert_bundle(AirLockOpenSfxBundle::new(air_lock_static_transform_component.transform)).id();
             sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,OPEN_PLAY_BACK_DURATION);
@@ -180,9 +177,7 @@ pub fn air_lock_events(
         } else {
             air_lock_component.access_lights = AccessLightsStatus::Denied;
 
-            commands.entity(air_lock_entity).insert(AirLockDeniedTimer {
-                timer : Timer::from_seconds(5.0, false)
-            });
+            commands.entity(air_lock_entity).insert(AirLockDeniedTimer::default());
 
             let sfx_entity = commands.spawn().insert_bundle(AirLockDeniedSfxBundle::new(air_lock_static_transform_component.transform)).id();
             sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,DENIED_PLAY_BACK_DURATION);

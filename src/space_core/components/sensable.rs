@@ -10,6 +10,18 @@ pub struct Sensable{
     pub always_sensed : bool
 }
 
+impl Default for Sensable {
+    fn default() -> Self {
+        Self {
+            is_audible : false,
+            is_light:false,
+            sensed_by_cached:vec![],
+            sensed_by:vec![],
+            always_sensed : false
+        }
+    }
+}
+
 
 impl Sensable {
     pub fn despawn(

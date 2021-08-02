@@ -1,12 +1,11 @@
-use std::collections::HashMap;
 
-use bevy::{core::Timer, prelude::{ Transform}};
+use bevy::{prelude::{ Transform}};
 
-use crate::space_core::components::{ambience_sfx_timer::AmbienceSfxTimer, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, sfx::Sfx, static_transform::StaticTransform};
+use crate::space_core::components::{ambience_sfx_timer::AmbienceSfxTimer, entity_data::{EntityData}, entity_updates::EntityUpdates, sensable::Sensable, sfx::Sfx, static_transform::StaticTransform};
 
 pub struct AmbienceSfxBundle;
 
-pub const PLAY_BACK_DURATION : f32 = 424. + 1.;
+pub const AMBIENCE_SFX_PLAY_BACK_DURATION : f32 = 424. + 1.;
 // pub const PLAY_BACK_DURATION : f32 = 12. + 1.;
 
 impl AmbienceSfxBundle {
@@ -20,8 +19,6 @@ impl AmbienceSfxBundle {
         AmbienceSfxTimer
     ) {
 
-        let mut entity_updates_map = HashMap::new();
-        entity_updates_map.insert(".".to_string(), HashMap::new());
 
         
 
@@ -30,15 +27,12 @@ impl AmbienceSfxBundle {
         },
         EntityData {
             entity_class : "SFX".to_string(),
-            entity_type: "".to_string(),
-            entity_group : EntityGroup::None
+            ..Default::default()
         },
         Sensable {
-            is_light : false,
             is_audible: true,
-            sensed_by : vec![],
-            sensed_by_cached : vec![],
-            always_sensed : true
+            always_sensed: true,
+            ..Default::default()
         },
         Sfx {
             area_mask: 0,
@@ -61,19 +55,13 @@ impl AmbienceSfxBundle {
             unit_size: 1.,
             stream_id: "spaceshipAmbientSound".to_string(),
             play_back_position: 0.,
-            play_back_duration: PLAY_BACK_DURATION,
+            play_back_duration: AMBIENCE_SFX_PLAY_BACK_DURATION,
             auto_destroy : true,
             sfx_replay : false
         },
-        EntityUpdates {
-            updates: entity_updates_map,
-            changed_parameters: vec![],
-            excluded_handles:HashMap::new(),
-            updates_difference: HashMap::new(),
-        },
-        AmbienceSfxTimer {
-            timer : Timer::from_seconds(PLAY_BACK_DURATION, false)
-        })
+        EntityUpdates::default(),
+        AmbienceSfxTimer::default(),
+    )
         
 
     }

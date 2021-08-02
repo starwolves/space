@@ -17,3 +17,13 @@ pub enum AccessLightsStatus {
     Granted,
     Denied
 }
+
+impl Default for AirLock {
+    fn default() -> Self {
+        Self {
+            status : AirLockStatus::Closed,
+            access_lights : AccessLightsStatus::Neutral,
+            access_permissions : vec![SpaceAccessEnum::Common]
+        }
+    }
+}
