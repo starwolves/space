@@ -1,8 +1,7 @@
-use std::collections::HashMap;
 
 use bevy::prelude::{Commands, Transform};
 
-use crate::space_core::{components::{entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, omni_light::OmniLight, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode, WorldModes}}};
+use crate::space_core::{components::{entity_data::{EntityData}, entity_updates::EntityUpdates, omni_light::OmniLight, sensable::Sensable, static_transform::StaticTransform, world_mode::{WorldMode, WorldModes}}};
 
 pub struct OmniLightBundle;
 
@@ -19,30 +18,19 @@ impl OmniLightBundle {
             transform: entity_transform
         };
 
-        let mut entity_updates_map = HashMap::new();
-        entity_updates_map.insert(".".to_string(), HashMap::new());
 
         commands.spawn_bundle((
             omni_light_component,
             Sensable{
                 is_light:true,
-                is_audible : false,
-                sensed_by: vec![],
-                sensed_by_cached: vec![],
-                always_sensed : false
+                ..Default::default()
             },
             static_transform_component,
             EntityData{
                 entity_class: "omni_light".to_string(),
-                entity_type: "".to_string(),
-                entity_group: EntityGroup::None
+                ..Default::default()
             },
-            EntityUpdates{
-                updates: entity_updates_map,
-                changed_parameters: vec![],
-                excluded_handles: HashMap::new(),
-                updates_difference: HashMap::new(),
-            },
+            EntityUpdates::default(),
             WorldMode {
                 mode : WorldModes::Static
             }

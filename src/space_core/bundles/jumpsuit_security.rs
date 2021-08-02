@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::SlotType, inventory_item::InventoryItem, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::InventoryItem, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}, resources::network_messages::ReliableServerMessage};
 
 pub struct JumpsuitSecurityBundle;
 
@@ -182,9 +182,6 @@ fn spawn(
 
 
 
-    let mut entity_updates_map = HashMap::new();
-    entity_updates_map.insert(".".to_string(), HashMap::new());
-
     let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
     + "A standard issue security jumpsuit used by Security Officers."
     + "[font=" + FURTHER_ITALIC_FONT + "]\n\nIt is in perfect shape.[/font]"
@@ -220,15 +217,10 @@ fn spawn(
         EntityData {
             entity_class : "entity".to_string(),
             entity_type : "jumpsuitSecurity".to_string(),
-            entity_group: EntityGroup::None,
+            ..Default::default()
         },
-        EntityUpdates{
-            updates: entity_updates_map,
-            changed_parameters: vec![],
-            excluded_handles:HashMap::new(),
-            updates_difference: HashMap::new(),
-        },
-        CachedBroadcastTransform::new(),
+        EntityUpdates::default(),
+        CachedBroadcastTransform::default(),
         Examinable {
             description: examine_text,
             name: "a security jumpsuit".to_string()
@@ -244,9 +236,7 @@ fn spawn(
         DefaultTransform {
             transform: default_transform,
         },
-        InterpolationPriority {
-            priority: InterpolationPriorityStatus::Low,
-        },
+        InterpolationPriority::default(),
     );
 
     
@@ -285,13 +275,7 @@ fn spawn(
         });
     } else {
         builder.insert_bundle((
-            Sensable{
-                is_audible : false,
-                is_light:false,
-                sensed_by_cached:vec![],
-                sensed_by:vec![],
-                always_sensed : false
-            },
+            Sensable::default(),
         ));
     }
 
@@ -317,7 +301,7 @@ fn spawn(
         Some(holder_entity) => {
             builder.insert(RigidBodyLinkTransform{
                 follow_entity: holder_entity,
-                active: true,
+                ..Default::default()
             });
         },
         None => {

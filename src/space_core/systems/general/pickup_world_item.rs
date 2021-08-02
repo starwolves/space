@@ -98,7 +98,7 @@ pub fn pickup_world_item(
 
         commands.entity(pickupable_entity).insert(RigidBodyLinkTransform{
             follow_entity: event.pickuper_entity,
-            active: true,
+            ..Default::default()
         });
 
         net_pickup_world_item.send(NetPickupWorldItem {

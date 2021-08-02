@@ -12,3 +12,13 @@ pub enum EntityGroup {
     CounterWindowSensor,
     Pawn
 }
+
+impl Default for EntityData {
+    fn default() -> Self {
+        Self {
+            entity_class : "".to_string(),
+            entity_type : "".to_string(),
+            entity_group: EntityGroup::None,
+        }
+    }
+}

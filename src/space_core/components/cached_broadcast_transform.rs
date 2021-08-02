@@ -5,10 +5,9 @@ pub struct CachedBroadcastTransform {
     pub is_active : bool,
 }
 
-impl CachedBroadcastTransform {
-
-    pub fn new() -> CachedBroadcastTransform {
-        CachedBroadcastTransform {
+impl Default for CachedBroadcastTransform {
+    fn default() -> Self {
+        Self {
             transform : Transform{
                 translation: Vec3::ZERO,
                 rotation: Quat::from_rotation_x(0.),
@@ -17,5 +16,4 @@ impl CachedBroadcastTransform {
             is_active: false,
         }
     }
-
 }

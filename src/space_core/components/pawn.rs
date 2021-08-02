@@ -6,6 +6,16 @@ pub struct Pawn {
 
 }
 
+impl Default for Pawn {
+    fn default() -> Self {
+        Self {
+            name: "".to_string(),
+            job: SpaceJobsEnum::Security,
+            facing_direction: FacingDirection::Up,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum FacingDirection {
     UpLeft,
@@ -29,5 +39,6 @@ pub enum SpaceJobsEnum {
 
 #[derive(PartialEq)]
 pub enum SpaceAccessEnum {
-    Security
+    Security,
+    Common,
 }

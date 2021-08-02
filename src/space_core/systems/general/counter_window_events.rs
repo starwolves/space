@@ -1,4 +1,4 @@
-use bevy::{core::Timer, prelude::{Commands, Entity, EventReader, Query, ResMut}};
+use bevy::{prelude::{Commands, Entity, EventReader, Query, ResMut}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
 use crate::space_core::{bundles::{counter_window_closed_sfx::{CounterWindowClosedSfxBundle, PLAY_BACK_DURATION as CLOSED_PLAY_BACK_DURATION}, counter_window_denied_sfx::{CounterWindowDeniedSfxBundle, PLAY_BACK_DURATION as DENIED_PLAY_BACK_DURATION}, counter_window_open_sfx::{CounterWindowOpenSfxBundle, PLAY_BACK_DURATION as OPEN_PLAY_BACK_DURATION}}, components::{counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer, counter_window_sensor::CounterWindowSensor, entity_data::EntityGroup, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::counter_window_sensor_collision::CounterWindowSensorCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
@@ -40,9 +40,7 @@ pub fn counter_window_events(
 
                     counter_window_component.status = CounterWindowStatus::Closed;
 
-                    commands.entity(counter_window_entity).insert(CounterWindowClosedTimer {
-                        timer : Timer::from_seconds(1.1, false)
-                    });
+                    commands.entity(counter_window_entity).insert(CounterWindowClosedTimer::default());
 
                 }
 
@@ -176,9 +174,7 @@ pub fn counter_window_events(
 
             counter_window_rigid_body_position_component.position = counter_window_rigid_body_position;
 
-            commands.entity(counter_window_sensor_component.parent).insert(CounterWindowOpenTimer {
-                timer : Timer::from_seconds(5.0, false)
-            });
+            commands.entity(counter_window_sensor_component.parent).insert(CounterWindowOpenTimer::default());
 
             let sfx_entity = commands.spawn().insert_bundle(CounterWindowOpenSfxBundle::new(counter_window_static_transform_component.transform)).id();
             sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,OPEN_PLAY_BACK_DURATION);
@@ -187,9 +183,7 @@ pub fn counter_window_events(
 
             counter_window_component.access_lights = CounterWindowAccessLightsStatus::Denied;
 
-            commands.entity(counter_window_sensor_component.parent).insert(CounterWindowDeniedTimer {
-                timer : Timer::from_seconds(5.0, false)
-            });
+            commands.entity(counter_window_sensor_component.parent).insert(CounterWindowDeniedTimer::default());
 
             let sfx_entity = commands.spawn().insert_bundle(CounterWindowDeniedSfxBundle::new(counter_window_static_transform_component.transform)).id();
             sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,DENIED_PLAY_BACK_DURATION);

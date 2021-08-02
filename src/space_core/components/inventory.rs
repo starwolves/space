@@ -13,6 +13,15 @@ pub struct Slot {
     pub slot_attachment : Option<String>,
 }
 
+impl Default for Inventory {
+    fn default() -> Self {
+        Self {
+            slots: vec![],
+            pickup_slot: "".to_string(),
+        }
+    }
+}
+
 
 #[derive(Copy, Clone, Debug)]
 pub enum SlotType {

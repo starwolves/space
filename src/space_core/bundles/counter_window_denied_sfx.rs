@@ -1,8 +1,7 @@
-use std::collections::HashMap;
 
 use bevy::prelude::{Transform};
 
-use crate::space_core::components::{entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, sensable::Sensable, sfx::Sfx, static_transform::StaticTransform};
+use crate::space_core::components::{entity_data::{EntityData}, entity_updates::EntityUpdates, sensable::Sensable, sfx::Sfx, static_transform::StaticTransform};
 
 pub struct CounterWindowDeniedSfxBundle;
 
@@ -18,23 +17,17 @@ impl CounterWindowDeniedSfxBundle {
         EntityUpdates
     ) {
 
-        let mut entity_updates_map = HashMap::new();
-        entity_updates_map.insert(".".to_string(), HashMap::new());
 
         (StaticTransform {
             transform: passed_transform,
         },
         EntityData {
             entity_class : "SFX".to_string(),
-            entity_type: "".to_string(),
-            entity_group : EntityGroup::None
+            ..Default::default()
         },
         Sensable {
-            is_light : false,
             is_audible: true,
-            sensed_by : vec![],
-            sensed_by_cached : vec![],
-            always_sensed : false
+            ..Default::default()
         },
         Sfx {
             area_mask: 0,
@@ -61,12 +54,8 @@ impl CounterWindowDeniedSfxBundle {
             auto_destroy: true,
             sfx_replay : false
         },
-        EntityUpdates {
-            updates: entity_updates_map,
-            changed_parameters: vec![],
-            excluded_handles:HashMap::new(),
-            updates_difference: HashMap::new(),
-        })
+        EntityUpdates::default(),
+    )
 
     }
 

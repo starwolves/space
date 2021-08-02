@@ -156,8 +156,7 @@ pub fn on_new_player_connection(
     let connected_player_component = ConnectedPlayer {
         handle: *handle,
         authid: auth_id_i.i,
-        rcon : false,
-        connected : true,
+        ..Default::default()
     };
 
     let soft_connected_component = SoftPlayer;
