@@ -3,7 +3,7 @@
 
   
 
-![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg)![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
+![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg) ![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
 
   
 
