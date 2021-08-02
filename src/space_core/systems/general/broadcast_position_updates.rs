@@ -47,7 +47,7 @@ pub fn broadcast_position_updates (
 
         for sensed_by_entity in visible_component.sensed_by.iter() {
 
-            let player_handle_option = handle_to_entity.inv_map.get(&sensed_by_entity.id());
+            let player_handle_option = handle_to_entity.inv_map.get(&sensed_by_entity);
 
             match player_handle_option {
                 Some(handle) => {

@@ -157,6 +157,7 @@ pub fn on_new_player_connection(
         handle: *handle,
         authid: auth_id_i.i,
         rcon : false,
+        connected : true,
     };
 
     let soft_connected_component = SoftPlayer;
@@ -174,7 +175,7 @@ pub fn on_new_player_connection(
     )).id();
     
     handle_to_entity.map.insert(*handle, player_entity_id);
-    handle_to_entity.inv_map.insert(player_entity_id.id(), *handle);
+    handle_to_entity.inv_map.insert(player_entity_id, *handle);
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,

@@ -3,7 +3,7 @@ use bevy::prelude::{Entity, FromWorld, World};
 
 pub struct HandleToEntity {
     pub map : HashMap<u32, Entity>,
-    pub inv_map : HashMap<u32, u32>
+    pub inv_map : HashMap<Entity, u32>
 }
 
 impl FromWorld for HandleToEntity {

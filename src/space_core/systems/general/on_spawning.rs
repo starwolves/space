@@ -36,10 +36,10 @@ pub fn on_spawning(
         );
 
 
-        let handle = *handle_to_entity.inv_map.get(&entity_id.id()).unwrap();
+        let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();
 
-        handle_to_entity.inv_map.remove(&entity_id.id());
-        handle_to_entity.inv_map.insert(new_entity.id(), handle);
+        handle_to_entity.inv_map.remove(&entity_id);
+        handle_to_entity.inv_map.insert(new_entity, handle);
 
         handle_to_entity.map.remove(&handle);
         handle_to_entity.map.insert(handle, new_entity);

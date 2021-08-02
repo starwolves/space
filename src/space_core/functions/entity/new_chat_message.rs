@@ -1,7 +1,7 @@
 
 use std::collections::HashMap;
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error, warn}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 use const_format::concatcp;
 
@@ -911,7 +911,7 @@ pub fn new_chat_message(
 
                 if radio_component.listen_access.contains(&radio_channel) {
 
-                    let listener_handle_result = handle_to_entity.inv_map.get(&entity.id());
+                    let listener_handle_result = handle_to_entity.inv_map.get(&entity);
                     match listener_handle_result {
                         Some(listener_handle) => {
                             
@@ -921,9 +921,7 @@ pub fn new_chat_message(
                             });
 
                         },
-                        None => {
-                            warn!("Couldn't find entity id in handle_to_entity for radio message to listener.");
-                        },
+                        None => {},
                     }
 
                 }
@@ -969,7 +967,7 @@ pub fn new_chat_message(
 
             match sensed_by_entity_components_result {
                 Ok((entity, _radio_component, rigid_body_position)) => {
-                    let listener_handle_result = handle_to_entity.inv_map.get(&entity.id());
+                    let listener_handle_result = handle_to_entity.inv_map.get(&entity);
 
                     match listener_handle_result {
                         Some(listener_handle) => {
@@ -1040,9 +1038,7 @@ pub fn new_chat_message(
                             
 
                         },
-                        None => {
-                            warn!("Couldn't find entity id in handle_to_entity for proximity message to listener.");
-                        },
+                        None => {},
                     }
 
                 },
@@ -1052,9 +1048,5 @@ pub fn new_chat_message(
         }
 
     }
-
-    
-
-
 
 }

@@ -5,3 +5,4 @@ pub mod entity_spawn_position_for_player;
 pub mod on_new_player_connection;
 pub mod name_generator;
 pub mod new_chat_message;
+pub mod on_player_disconnect;

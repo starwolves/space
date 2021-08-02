@@ -14,7 +14,12 @@ pub fn visible_checker(
         &EntityUpdates,
         Option<&WorldMode>
     )>,
-    mut query_visible_checker_entities_rigid : Query<(Entity, &mut Senser,  &RigidBodyPosition, &ConnectedPlayer)>,
+    mut query_visible_checker_entities_rigid : Query<(
+        Entity,
+        &mut Senser,
+        &RigidBodyPosition,
+        Option<&ConnectedPlayer>,
+    )>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,
 ) {
@@ -23,7 +28,7 @@ pub fn visible_checker(
         entity,
         mut visible_checker_component,
         visible_checker_rigid_body_position_component,
-        visible_checker_connected_player_component
+        visible_checker_connected_player_component_option
     ) in query_visible_checker_entities_rigid.iter_mut() {
         let visible_checker_translation = visible_checker_rigid_body_position_component.position.translation;
 
@@ -87,7 +92,7 @@ pub fn visible_checker(
                 entity,
                 &mut net_load_entity,
                 &mut net_unload_entity,
-                visible_checker_connected_player_component.handle,
+                visible_checker_connected_player_component_option,
                 entity_data_component,
                 visible_entity_id,
                 is_interpolated,
@@ -118,7 +123,7 @@ fn visible_check(
     visible_checker_entity_id : Entity,
     net_load_entity : &mut EventWriter<NetLoadEntity>,
     net_unload_entity : &mut EventWriter<NetUnloadEntity>,
-    visible_checker_handle : u32,
+    visible_checker_component_option : Option<&ConnectedPlayer>,
     visible_entity_data : &EntityData,
     visible_entity_id : Entity,
     interpolated_transform : bool,
@@ -179,12 +184,21 @@ fn visible_check(
 
         if sensed_by_contains {
 
-            unload_entity(
-                visible_checker_handle,
-                visible_entity_id,
-                net_unload_entity,
-                unload_entirely
-            );
+            match visible_checker_component_option {
+                Some(visible_checker_component) => {
+                    if visible_checker_component.connected {
+                        unload_entity(
+                            visible_checker_component.handle,
+                            visible_entity_id,
+                            net_unload_entity,
+                            unload_entirely
+                        );
+                    }
+                },
+                None => {},
+            }
+
+            
 
             let index1 = sensable_component.sensed_by.iter().position(|x| x == &visible_checker_entity_id).unwrap();
             sensable_component.sensed_by.remove(index1);
@@ -204,27 +218,47 @@ fn visible_check(
             }
             
         } else if sensed_by_cached_contains && unload_entirely {
-            unload_entity(
-                visible_checker_handle,
-                visible_entity_id,
-                net_unload_entity,
-                unload_entirely
-            );
 
-            let mut index = sensable_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
+            match visible_checker_component_option {
+                Some(visible_checker_component) => {
+                    if visible_checker_component.connected {
+                        unload_entity(
+                            visible_checker_component.handle,
+                            visible_entity_id,
+                            net_unload_entity,
+                            unload_entirely
+                        );
+                    }
+                },
+                None => {},
+            }
+
+            let index = sensable_component.sensed_by_cached.iter().position(|x| x == &visible_checker_entity_id).unwrap();
             sensable_component.sensed_by_cached.remove(index);
 
-            index = senser_component.sensing.iter().position(|x| x == &visible_checker_entity_id).unwrap();
-            senser_component.sensing.remove(index);
+            match senser_component.sensing.iter().position(|x| x == &visible_checker_entity_id) {
+                Some(index) => {
+                    senser_component.sensing.remove(index);
+                },
+                None => {},
+            }
 
         } else if !sensed_by_contains && !sensed_by_cached_contains {
             if can_cache && !unload_entirely {
-                unload_entity(
-                    visible_checker_handle,
-                    visible_entity_id,
-                    net_unload_entity,
-                    unload_entirely
-                );
+                match visible_checker_component_option {
+                    Some(visible_checker_component) => {
+                        if visible_checker_component.connected {
+                            unload_entity(
+                                visible_checker_component.handle,
+                                visible_entity_id,
+                                net_unload_entity,
+                                unload_entirely
+                            );
+                        }
+                    },
+                    None => {},
+                }
+                
                 sensable_component.sensed_by_cached.push(visible_checker_entity_id);
             }
         }
@@ -236,18 +270,27 @@ fn visible_check(
             if !senser_component.sensing.contains(&visible_checker_entity_id) {
                 senser_component.sensing.push(visible_checker_entity_id);
             }
+
+            match visible_checker_component_option {
+                Some(visible_checker_component) => {
+                    if visible_checker_component.connected {
+                        load_entity(
+                            &visible_entity_updates_component.updates,
+                            visible_entity_transform,
+                            interpolated_transform,
+                            net_load_entity,
+                            visible_checker_component.handle,
+                            visible_entity_data,
+                            visible_entity_updates_component,
+                            visible_entity_id,
+                            true
+                        );
+                    }
+                },
+                None => {},
+            }
             
-            load_entity(
-                &visible_entity_updates_component.updates,
-                visible_entity_transform,
-                interpolated_transform,
-                net_load_entity,
-                visible_checker_handle,
-                visible_entity_data,
-                visible_entity_updates_component,
-                visible_entity_id,
-                true
-            );
+            
     
         }
         
