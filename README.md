@@ -52,7 +52,7 @@ cargo run --release
 ```
 
 ### Space Frontiers client
-You need to get the official Space Frontiers client to be able to connect to the server yourself. There is currently no public release of this client.
+You need to get the official Space Frontiers client with the default client-side content folder to be able to connect to the server yourself. There are no public releases of the client yet.
 
 
 ## Contributions
