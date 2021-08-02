@@ -25,7 +25,6 @@ pub struct Sfx {
     pub play_back_position : f32,
     pub auto_destroy : bool,
     pub sfx_replay : bool,
-
     pub play_back_duration : f32
 }
 
@@ -33,4 +32,34 @@ pub fn sfx_auto_destroy(entity : Entity, sfx_auto_destroy_timers : &mut ResMut<S
 
     sfx_auto_destroy_timers.timers.push((entity, Timer::from_seconds(play_back_duration, false)));
 
+}
+
+impl Default for Sfx {
+    fn default() -> Self {
+        Self {
+            area_mask : 0,
+            attenuation_filter_cutoff_hz: 5000.,
+            attenuation_filter_db : -24.,
+            attenuation_model: 0,
+            auto_play : true,
+            bus : "Master".to_string(),
+            doppler_tracking : 0,
+            emission_angle_degrees : 45.,
+            emission_angle_enabled: false,
+            emission_angle_filter_attenuation_db : -12.,
+            max_db : 3.,
+            max_distance: 0.,
+            out_of_range_mode : 0,
+            pitch_scale: 1.,
+            playing : false,
+            stream_paused : false,
+            unit_db: 0.,
+            unit_size: 1.,
+            stream_id: "".to_string(),
+            play_back_position: 0.,
+            auto_destroy : true,
+            sfx_replay :false,
+            play_back_duration: 3.5,
+        }
+    }
 }
