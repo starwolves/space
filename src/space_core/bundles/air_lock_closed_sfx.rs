@@ -46,7 +46,7 @@ impl AirLockClosedSfxBundle {
             pitch_scale: 1.,
             playing: false,
             stream_paused: false,
-            unit_db: 13.,
+            unit_db: 19.,
             unit_size: 1.,
             stream_id: "doorCloseCompression".to_string(),
             play_back_position: 0.,

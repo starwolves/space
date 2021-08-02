@@ -47,7 +47,7 @@ impl FootstepsSprintingSfxBundle {
             pitch_scale: 1.,
             playing: false,
             stream_paused: false,
-            unit_db: 9.0,
+            unit_db: 18.0,
             unit_size: 1.,
             stream_id: "concrete_sprinting_footsteps".to_string(),
             auto_destroy : true,

@@ -46,7 +46,7 @@ impl AirLockDeniedSfxBundle {
             pitch_scale: 1.,
             playing: false,
             stream_paused: false,
-            unit_db: 15.,
+            unit_db: 19.,
             unit_size: 1.,
             stream_id: "doorAccessDenied".to_string(),
             play_back_position: 0.,

@@ -46,7 +46,7 @@ impl AirLockOpenSfxBundle {
             pitch_scale: 1.6,
             playing: false,
             stream_paused: false,
-            unit_db: 3.5,
+            unit_db: 17.,
             unit_size: 1.,
             stream_id: "doorOpen".to_string(),
             play_back_position: 0.,
