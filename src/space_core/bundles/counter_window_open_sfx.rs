@@ -46,7 +46,7 @@ impl CounterWindowOpenSfxBundle {
             pitch_scale: 1.,
             playing: false,
             stream_paused: false,
-            unit_db: 13.0,
+            unit_db: 19.0,
             unit_size: 1.,
             stream_id: "windowOpen".to_string(),
             play_back_position: 0.,

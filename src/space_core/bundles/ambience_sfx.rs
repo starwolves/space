@@ -51,7 +51,7 @@ impl AmbienceSfxBundle {
             pitch_scale: 1.,
             playing: false,
             stream_paused: false,
-            unit_db: 11.,
+            unit_db: 21.,
             unit_size: 1.,
             stream_id: "spaceshipAmbientSound".to_string(),
             play_back_position: 0.,
