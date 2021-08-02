@@ -58,7 +58,7 @@ pub fn move_standard_characters(
 
         let rapier_vector : Vector<Real> = Vec3::new(
             player_input_component.movement_vector.x * -speed_factor,
-            0.0,
+            -1.0,
             player_input_component.movement_vector.y * speed_factor,
         ).into();
 

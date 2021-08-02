@@ -22,7 +22,7 @@ impl Sensable {
         // Shouldn't be called from the same stage visible_checker.system() runs in.
 
         for sensed_by_entity in self.sensed_by.iter() {
-            match handle_to_entity.inv_map.get(&sensed_by_entity.id()) {
+            match handle_to_entity.inv_map.get(&sensed_by_entity) {
                 Some(handle) => {
                     unload_entity(*handle, entity, &mut net_unload_entity, true);
                 }
@@ -30,7 +30,7 @@ impl Sensable {
             }
         }
         for sensed_by_entity in self.sensed_by_cached.iter() {
-            match handle_to_entity.inv_map.get(&sensed_by_entity.id()) {
+            match handle_to_entity.inv_map.get(&sensed_by_entity) {
                 Some(handle) => {
                     unload_entity(*handle, entity, &mut net_unload_entity, true);
                 }

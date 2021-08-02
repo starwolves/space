@@ -294,10 +294,19 @@ Vec3::new(0.,0.355, 0.)
 
     match held {
         true => {
-            builder.insert(RigidBodyDisabled);
+            builder.insert_bundle((
+                RigidBodyDisabled,
+                WorldMode {
+                    mode : WorldModes::Worn
+                },
+            ));
         },
         false => {
-
+            builder.insert(
+                WorldMode {
+                    mode : WorldModes::Physics
+                },
+            );
         },
     }
 

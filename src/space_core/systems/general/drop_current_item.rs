@@ -140,9 +140,7 @@ pub fn drop_current_item(
 
                 for entity_id in pickuper_components.1.sensed_by.iter() {
 
-                    let entity_idy = entity_id.id();
-
-                    let handle_option = handle_to_entity.inv_map.get(&entity_idy);
+                    let handle_option = handle_to_entity.inv_map.get(&entity_id);
                     
                     match handle_option {
                         Some(handle) => {

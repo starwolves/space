@@ -1,11 +1,11 @@
-use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
+use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, sensable::Sensable, showcase::Showcase}, events::net::net_send_entity_updates::NetSendEntityUpdates, functions::entity_updates::entity_updates_personalise, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
 pub fn send_entity_updates(
     updated_entity_updates: Query<(Entity, Option<&Sensable>, &EntityUpdates, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<EntityUpdates>>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
-    handle_to_entity: ResMut<HandleToEntity>
+    handle_to_entity: Res<HandleToEntity>,
 ) {
 
     for (
@@ -44,13 +44,18 @@ pub fn send_entity_updates(
                     if updates_data.len() == 0 {
                         continue;
                     }
+                    
+                    match handle_to_entity.inv_map.get(&sensed_by_entity) {
+                        Some(handle) => {
+                            net_send_entity_updates.send(NetSendEntityUpdates {
+                                handle: *handle,
+                                message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data, false)
+                            });
+                        },
+                        None => {},
+                    }
         
-        
-                    net_send_entity_updates.send(NetSendEntityUpdates {
-                        handle: *handle_to_entity.inv_map.get(&sensed_by_entity.id())
-                        .expect("send_entity_updates.rs could not find entity id in handle_to_entity.inv_map"),
-                        message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data, false)
-                    });
+                    
         
                 }
 

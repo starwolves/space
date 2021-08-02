@@ -228,9 +228,6 @@ fn spawn(
             excluded_handles:HashMap::new(),
             updates_difference: HashMap::new(),
         },
-        WorldMode {
-            mode : WorldModes::Physics
-        },
         CachedBroadcastTransform::new(),
         Examinable {
             description: examine_text,
@@ -300,10 +297,19 @@ fn spawn(
 
     match held {
         true => {
-            builder.insert(RigidBodyDisabled);
+            builder.insert_bundle((
+                RigidBodyDisabled,
+                WorldMode {
+                    mode : WorldModes::Worn
+                },
+            ));
         },
         false => {
-
+            builder.insert(
+                WorldMode {
+                    mode : WorldModes::Physics
+                },
+            );
         },
     }
 

@@ -4,7 +4,7 @@ use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, L
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::{prelude::{RigidBodyPosition, RigidBodyVelocity}};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, interpolation_priority::InterpolationPriority, rigidbody_disabled::RigidBodyDisabled, sensable::Sensable, senser::Senser, static_transform::StaticTransform}, resources::{handle_to_entity::HandleToEntity, network_messages::UnreliableServerMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, interpolation_priority::InterpolationPriority, rigidbody_disabled::RigidBodyDisabled, sensable::Sensable, senser::Senser, static_transform::StaticTransform}, resources::{handle_to_entity::HandleToEntity, network_messages::UnreliableServerMessage}};
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
@@ -40,7 +40,11 @@ pub fn broadcast_interpolation_transforms (
         Without<StaticTransform>,
         Without<RigidBodyDisabled>
     )>,
-    query_sensers : Query<(Entity, &Senser)>,
+    query_sensers : Query<(
+        Entity,
+        &Senser,
+        &ConnectedPlayer
+    )>,
     mut interpolation_frame : Local<InterpolationFrame>,
 ) {
     
@@ -62,8 +66,15 @@ pub fn broadcast_interpolation_transforms (
 
     let mut senser_priority_rates = HashMap::new();
 
-    for (entity, senser) in query_sensers.iter() {
+    for (
+        entity,
+        senser,
+        connected_player_component,
+    ) in query_sensers.iter() {
 
+        if !connected_player_component.connected {
+            continue;
+        }
 
         let mut low_priority_count : u16 = 0;
         let mut medium_priority_count : u16 = 0;
@@ -255,7 +266,6 @@ pub fn broadcast_interpolation_transforms (
                     high_priority_rate=high_rate;
                 },
                 None => {
-                    warn!("Couldn't find entity id from sensable.sensed_by in senser_priority_rates.");
                     continue;
                 },
             }
@@ -275,7 +285,7 @@ pub fn broadcast_interpolation_transforms (
             }
 
             if *sensed_by_entity == interpolated_entity {
-                entity_tick_rate = high_priority_rate;
+                entity_tick_rate = &InterpolationPriorityRates::T24;
             }
 
             if !is_interpolation_frame(
@@ -302,7 +312,7 @@ pub fn broadcast_interpolation_transforms (
                 },
             }
 
-            let player_handle_option = handle_to_entity.inv_map.get(&sensed_by_entity.id());
+            let player_handle_option = handle_to_entity.inv_map.get(&sensed_by_entity);
 
             match player_handle_option {
                 Some(handle) => {
