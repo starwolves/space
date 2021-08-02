@@ -30,29 +30,11 @@ impl AirLockOpenSfxBundle {
             ..Default::default()
         },
         Sfx {
-            area_mask: 0,
-            attenuation_filter_cutoff_hz: 5000.,
-            attenuation_filter_db: -24.,
-            attenuation_model: 0,
-            auto_play: true,
-            bus: "Master".to_string(),
-            doppler_tracking: 0,
-            emission_angle_degrees: 45.,
-            emission_angle_enabled: false,
-            emission_angle_filter_attenuation_db: -12.,
-            max_db: 3.,
-            max_distance: 0.,
-            out_of_range_mode: 0,
             pitch_scale: 1.6,
-            playing: false,
-            stream_paused: false,
             unit_db: 17.,
-            unit_size: 1.,
             stream_id: "doorOpen".to_string(),
-            play_back_position: 0.,
             play_back_duration: PLAY_BACK_DURATION,
-            auto_destroy : true,
-            sfx_replay : false
+            ..Default::default()
         },
         EntityUpdates::default(),
     )
