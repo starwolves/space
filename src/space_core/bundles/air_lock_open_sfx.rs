@@ -1,7 +1,7 @@
 
 use bevy::prelude::{Transform};
 
-use crate::space_core::components::{entity_data::{EntityData}, entity_updates::EntityUpdates, sensable::Sensable, sfx::Sfx, static_transform::StaticTransform};
+use crate::space_core::components::{entity_data::{EntityData}, entity_updates::EntityUpdates, sensable::Sensable, sfx::{Sfx, get_random_pitch_scale}, static_transform::StaticTransform};
 
 pub struct AirLockOpenSfxBundle;
 
@@ -30,10 +30,10 @@ impl AirLockOpenSfxBundle {
             ..Default::default()
         },
         Sfx {
-            pitch_scale: 1.6,
             unit_db: 17.,
             stream_id: "doorOpen".to_string(),
             play_back_duration: PLAY_BACK_DURATION,
+            pitch_scale: get_random_pitch_scale(1.6),
             ..Default::default()
         },
         EntityUpdates::default(),

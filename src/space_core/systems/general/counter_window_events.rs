@@ -164,6 +164,11 @@ pub fn counter_window_events(
 
         if pawn_has_permission == true {
 
+            if !matches!(counter_window_component.status, CounterWindowStatus::Open) {
+                let sfx_entity = commands.spawn().insert_bundle(CounterWindowOpenSfxBundle::new(counter_window_static_transform_component.transform)).id();
+                sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,OPEN_PLAY_BACK_DURATION);
+            }
+
             counter_window_component.status = CounterWindowStatus::Open;
             counter_window_component.access_lights = CounterWindowAccessLightsStatus::Granted;
 
@@ -176,8 +181,6 @@ pub fn counter_window_events(
 
             commands.entity(counter_window_sensor_component.parent).insert(CounterWindowOpenTimer::default());
 
-            let sfx_entity = commands.spawn().insert_bundle(CounterWindowOpenSfxBundle::new(counter_window_static_transform_component.transform)).id();
-            sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,OPEN_PLAY_BACK_DURATION);
 
         } else {
 

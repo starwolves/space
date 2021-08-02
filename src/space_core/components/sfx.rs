@@ -1,4 +1,5 @@
 use bevy::{core::Timer, prelude::{Entity, ResMut}};
+use rand::Rng;
 
 use crate::space_core::resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers;
 
@@ -32,6 +33,13 @@ pub fn sfx_auto_destroy(entity : Entity, sfx_auto_destroy_timers : &mut ResMut<S
 
     sfx_auto_destroy_timers.timers.push((entity, Timer::from_seconds(play_back_duration, false)));
 
+}
+
+pub fn get_random_pitch_scale(
+    input_scale : f32,
+) -> f32 {
+    let mut rng = rand::thread_rng();
+    input_scale + rng.gen_range(-0.2..0.2)
 }
 
 impl Default for Sfx {
