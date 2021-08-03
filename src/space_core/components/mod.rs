@@ -47,3 +47,4 @@ pub mod rigidbody_disabled;
 pub mod showcase;
 pub mod default_transform;
 pub mod interpolation_priority;
+pub mod jumpsuit;

@@ -17,7 +17,7 @@ bevy_rapier3d = {version= "0.10.2" ,default-features = false, features = [ "dim3
 serde = {version= "1.0"}
 serde_json = {version= "1.0"}
 
-bevy_networking_turbulence = "0.3.2"
+bevy_networking_turbulence = "0.3.3"
 
 rand = "0.8.3"
 

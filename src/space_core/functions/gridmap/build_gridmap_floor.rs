@@ -7,7 +7,7 @@ pub fn build_gridmap_floor(
     commands : &mut Commands,
 ) {
 
-    let masks = get_bit_masks(ColliderGroup::StandardFOV);
+    let masks = get_bit_masks(ColliderGroup::Standard);
 
     commands.spawn_bundle(RigidBodyBundle {
         body_type: RigidBodyType::Static,
@@ -22,7 +22,8 @@ pub fn build_gridmap_floor(
             shape: ColliderShape::cuboid(500., 1., 500.),
             collider_type: ColliderType::Solid,
             material: ColliderMaterial {
-                friction_combine_rule:  CoefficientCombineRule::Min,
+                friction_combine_rule:  CoefficientCombineRule::Average,
+                friction: 0.5,
                 ..Default::default()
             },
             flags: ColliderFlags {

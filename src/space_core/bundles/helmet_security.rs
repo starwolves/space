@@ -18,7 +18,7 @@ impl HelmetSecurityBundle {
         net_showcase : &mut Option<&mut EventWriter<NetShowcase>>,
     ) -> Entity {
 
-        spawn(
+        spawn_entity(
             commands,
 
             None,
@@ -39,7 +39,7 @@ impl HelmetSecurityBundle {
         correct_transform: bool,
     ) -> Entity {
 
-        spawn(
+        spawn_entity(
             commands,
 
             Some(passed_transform),
@@ -55,7 +55,7 @@ impl HelmetSecurityBundle {
     }
 }
 
-fn spawn(
+fn spawn_entity(
 
     commands : &mut Commands,
 
@@ -174,11 +174,6 @@ Vec3::new(0.,0.355, 0.)
 
     }
 
-    
-
-
-    
-
 
     let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
     + "A standard issue helmet used by Security Officers."
@@ -252,11 +247,11 @@ Vec3::new(0.,0.355, 0.)
 
     if showcase_instance {
         let handle = showcase_handle_option.unwrap();
-        builder.insert_bundle((
+        builder.insert(
             Showcase {
                 handle: handle,
-            },
-        ));
+            }
+        );
         let entity_updates = HashMap::new();
         net_showcase.as_deref_mut().unwrap().send(NetShowcase{
             handle: handle,
@@ -272,9 +267,9 @@ Vec3::new(0.,0.355, 0.)
             )
         });
     } else {
-        builder.insert_bundle((
-            Sensable::default(),
-        ));
+        builder.insert(
+            Sensable::default()
+        );
     }
 
     match held {
@@ -310,6 +305,5 @@ Vec3::new(0.,0.355, 0.)
     }
 
     entity_id
-
 
 }

@@ -52,6 +52,5 @@ impl Sensable {
 
         self.sensed_by = vec![];
         self.sensed_by_cached = vec![];
-
     }
 }
