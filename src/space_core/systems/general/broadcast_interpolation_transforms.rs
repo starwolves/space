@@ -8,6 +8,8 @@ use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcast
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
+
+#[derive(Debug)]
 pub enum InterpolationPriorityRates {
     T4,
     T8,
@@ -89,7 +91,7 @@ pub fn broadcast_interpolation_transforms (
                     sensed_entity_components = components;
                 },
                 Err(_rr) => {
-                    warn!("Couldn't find components for entity in senser.sensed.");
+                    // Not of interpolation type.
                     continue;
                 },
             }
@@ -97,6 +99,7 @@ pub fn broadcast_interpolation_transforms (
             if !sensed_entity_components.4.is_active {
                 continue;
             }
+
 
             match sensed_entity_components.5.priority {
                 crate::space_core::components::interpolation_priority::InterpolationPriorityStatus::High => {
@@ -112,6 +115,8 @@ pub fn broadcast_interpolation_transforms (
 
 
         }
+
+        //info!("{},{},{}", high_priority_count, medium_priority_count, low_priority_count);
 
 
 
@@ -131,24 +136,27 @@ pub fn broadcast_interpolation_transforms (
         if medium_priority_count > 6 {
 
             if medium_priority_count < 12 {
-                low_priority_rate = InterpolationPriorityRates::T8;
+                if !matches!(low_priority_rate, InterpolationPriorityRates::T4) {
+                    low_priority_rate = InterpolationPriorityRates::T8;
+                }
             } else {
                 low_priority_rate = InterpolationPriorityRates::T4;
             }
 
         }
+
 
         if high_priority_count > 5 {
 
             if high_priority_count < 10 {
-                low_priority_rate = InterpolationPriorityRates::T8;
+                if !matches!(low_priority_rate, InterpolationPriorityRates::T4) {
+                    low_priority_rate = InterpolationPriorityRates::T8;
+                }
             } else {
                 low_priority_rate = InterpolationPriorityRates::T4;
             }
 
         }
-
-
 
 
 
@@ -160,10 +168,12 @@ pub fn broadcast_interpolation_transforms (
             medium_priority_rate = InterpolationPriorityRates::T8;
         }
 
-        if low_priority_count > 30 {
+        if low_priority_count > 20 {
 
-            if low_priority_count < 50 {
-                medium_priority_rate = InterpolationPriorityRates::T12;
+            if low_priority_count < 40 {
+                if !matches!(medium_priority_rate, InterpolationPriorityRates::T8) {
+                    medium_priority_rate = InterpolationPriorityRates::T12;
+                }
             } else {
                 medium_priority_rate = InterpolationPriorityRates::T8;
             }
@@ -172,7 +182,9 @@ pub fn broadcast_interpolation_transforms (
 
         if high_priority_count > 8 {
             if high_priority_count < 14 {
-                medium_priority_rate = InterpolationPriorityRates::T12;
+                if !matches!(medium_priority_rate, InterpolationPriorityRates::T8) {
+                    medium_priority_rate = InterpolationPriorityRates::T12;
+                }
             } else {
                 medium_priority_rate = InterpolationPriorityRates::T8;
             }
@@ -188,7 +200,7 @@ pub fn broadcast_interpolation_transforms (
             high_priority_rate = InterpolationPriorityRates::T12;
         }
 
-        if low_priority_count > 40 {
+        if low_priority_count > 20 {
             high_priority_rate = InterpolationPriorityRates::T12;
         }
 
@@ -200,7 +212,6 @@ pub fn broadcast_interpolation_transforms (
         senser_priority_rates.insert(entity, (low_priority_rate,medium_priority_rate,high_priority_rate));
 
     }
-
 
 
     for (
@@ -242,11 +253,11 @@ pub fn broadcast_interpolation_transforms (
             scale: Vec3::ONE,
         };
 
+
         if this_transform == cached_transform_component.transform{
             cached_transform_component.is_active = false;
             continue;
         }
-
         cached_transform_component.is_active = true;
 
         cached_transform_component.transform = this_transform;

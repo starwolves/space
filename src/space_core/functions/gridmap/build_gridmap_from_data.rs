@@ -57,7 +57,7 @@ pub fn build_main_gridmap(
 
         if all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize] == "securityCounter1" {
 
-            let masks = get_bit_masks(ColliderGroup::StandardFOV);
+            let masks = get_bit_masks(ColliderGroup::Standard);
 
             commands.spawn_bundle(RigidBodyBundle {
                 body_type: RigidBodyType::Static,
@@ -73,6 +73,7 @@ pub fn build_main_gridmap(
                     collider_type: ColliderType::Solid,
                     material: ColliderMaterial {
                         friction_combine_rule:  CoefficientCombineRule::Min,
+                        friction: 0.,
                         ..Default::default()
                     },
                     flags: ColliderFlags {
@@ -85,7 +86,7 @@ pub fn build_main_gridmap(
 
         } else {
             
-            let masks = get_bit_masks(ColliderGroup::StandardFOV);
+            let masks = get_bit_masks(ColliderGroup::Standard);
 
             commands.spawn_bundle(RigidBodyBundle {
                 body_type: RigidBodyType::Static,

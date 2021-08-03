@@ -103,8 +103,9 @@ pub fn visible_checker(
 
         }
 
-
     }
+
+    
 
 
 
@@ -265,11 +266,13 @@ fn visible_check(
 
     } else {
 
+        if !senser_component.sensing.contains(&visible_entity_id) {
+            senser_component.sensing.push(visible_entity_id);
+        }
+
         if !sensed_by_contains {
             sensable_component.sensed_by.push(visible_checker_entity_id);
-            if !senser_component.sensing.contains(&visible_checker_entity_id) {
-                senser_component.sensing.push(visible_checker_entity_id);
-            }
+            
 
             match visible_checker_component_option {
                 Some(visible_checker_component) => {
@@ -289,8 +292,6 @@ fn visible_check(
                 },
                 None => {},
             }
-            
-            
     
         }
         

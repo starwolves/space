@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::InventoryItem, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::InventoryItem, jumpsuit::Jumpsuit, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}, resources::network_messages::ReliableServerMessage};
 
 pub struct JumpsuitSecurityBundle;
 
@@ -225,7 +225,7 @@ fn spawn(
             description: examine_text,
             name: "a security jumpsuit".to_string()
         },
-        Helmet,
+        Jumpsuit,
         InventoryItem {
             in_inventory_of_entity: holder_entity_option,
             attachment_transforms: attachment_transforms,
@@ -310,7 +310,6 @@ fn spawn(
             }
         },
     }
-
     entity_id
 
 }
