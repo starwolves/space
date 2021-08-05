@@ -116,10 +116,6 @@ pub fn broadcast_interpolation_transforms (
 
         }
 
-        //info!("{},{},{}", high_priority_count, medium_priority_count, low_priority_count);
-
-
-
 
         // With the counts, determine enum state for each priority type.
 
