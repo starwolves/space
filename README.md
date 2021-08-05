@@ -15,7 +15,7 @@ A moddable multi-threaded sci-fi community game server written in Rust with the 
 This game server is designed to run on modern processors that have multiple CPU cores.
   
 ### Features
-* Parallelized ECS (Entity Component System) architecture.
+* Parallelized ECS (Entity Component System) architecture 🐆.
 * High player & entity counts support for matches.
 * Server-side moddable map support with sizes up to 1km by 1km with 100k+ dynamic ship cells that make up the map.
 * Server-side moddable inventory support.
@@ -33,7 +33,7 @@ This game server is designed to run on modern processors that have multiple CPU 
 
 ### Dependencies
 
-  
+
 
 * [Rust](https://www.rust-lang.org/)
 
