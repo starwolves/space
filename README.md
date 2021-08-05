@@ -54,9 +54,9 @@ cargo run --release
 ### Space Frontiers client
 You need to get the official Space Frontiers client together with the standard client content folder to be able to connect to the server. There are no public releases of the client yet.
 
-The client is built on top of the latest stable Godot 3 release. This also means that there are graphical artefacts present on certain hardware and the optional high quality dynamic light configuration cannot be used on low-end devices due to limited dynamic light rendering performance.
+The client is built on top of the latest stable Godot 3 release. This also means that there are graphical artefacts present on certain hardware and low performance on low-end devices due to the limited dynamic lighting rendering performance of the implementation of GLES3 of the Godot Engine.
 
-When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering.
+When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan rendering API.
 
 
 ## Contributions
