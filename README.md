@@ -21,7 +21,7 @@ This game server is designed to run on modern processors that have multiple CPU 
 * Server-side moddable inventory support.
 * Server-side moddable console commands, including rcon admin commands.
 * Server-side moddable proximity and radio chat.
-* Built with the parallel [Rapier 3D Physics engine](https://rapier.rs/).
+* Built with the concurrent [Rapier 3D Physics engine](https://rapier.rs/).
 * Interpolation throttling on a per client basis to meet bandwidth usage quotas.
 * Built from the ground up to support safe and secure server-side modding with content folders. 
 * Fearless multi-threading and resource access across multiple threads.
