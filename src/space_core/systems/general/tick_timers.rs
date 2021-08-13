@@ -42,32 +42,36 @@ pub fn tick_timers(
     }
 
     let mut expired_sfx_entities : Vec<Entity> =  vec![];
-    let mut expired_sfx_entities_i : usize = 0;
 
     for (sfx_entity, timer) in &mut sfx_auto_destroy_timers.timers {
 
         if timer.tick(time.delta()).just_finished() {
 
-            
-            expired_sfx_entities.insert(expired_sfx_entities_i, *sfx_entity);
-            expired_sfx_entities_i+=1;
+            expired_sfx_entities.push(*sfx_entity);
 
         }
 
     }
 
     for i in 0..expired_sfx_entities.len() {
-        
-        sfx_auto_destroy_timers.timers.remove(i);
 
         let this_entity_id = expired_sfx_entities[i];
+
+        let mut j = 0;
+        for (sfx_entity, _timer) in &mut sfx_auto_destroy_timers.timers {
+            if this_entity_id == *sfx_entity {
+                break;
+            }
+            j+=1;
+        }
+
+        sfx_auto_destroy_timers.timers.remove(j);
 
         sfx_entities.get_mut(this_entity_id).unwrap().1.despawn(this_entity_id, &mut net_unload_entity, &handle_to_entity);
 
         commands.entity(this_entity_id).despawn();
 
     }
-
-
+    
 
 }
