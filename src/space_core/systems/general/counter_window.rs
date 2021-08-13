@@ -67,7 +67,6 @@ pub fn counter_window_events(
                     let sfx_entity = commands.spawn().insert_bundle(CounterWindowClosedSfxBundle::new(static_transform_component.transform)).id();
                     sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,CLOSED_PLAY_BACK_DURATION);
                     
-
                 }
 
             }
@@ -82,7 +81,6 @@ pub fn counter_window_events(
                     timer_component.timer.reset();
 
                     counter_window_component.access_lights = CounterWindowAccessLightsStatus::Neutral;
-
                 }
 
             }
@@ -141,12 +139,14 @@ pub fn counter_window_events(
         let mut counter_window_component;
         let mut counter_window_rigid_body_position_component;
         let counter_window_static_transform_component;
+        let counter_window_closed_timer_option;
 
         match counter_window_components_result {
             Ok(result) => {
                 counter_window_component = result.0;
                 counter_window_rigid_body_position_component = result.1;
                 counter_window_static_transform_component = result.2;
+                counter_window_closed_timer_option = result.5;
             }
             Err(_err) => {continue;}
         }
@@ -160,6 +160,14 @@ pub fn counter_window_events(
                 break;
             }
 
+        }
+        
+        match counter_window_closed_timer_option {
+            Some(mut counter_window_closed_timer) => {
+                counter_window_closed_timer.timer.pause();
+                counter_window_closed_timer.timer.reset();
+            },
+            None => {},
         }
 
         if pawn_has_permission == true {
@@ -180,7 +188,6 @@ pub fn counter_window_events(
             counter_window_rigid_body_position_component.position = counter_window_rigid_body_position;
 
             commands.entity(counter_window_sensor_component.parent).insert(CounterWindowOpenTimer::default());
-
 
         } else {
 
