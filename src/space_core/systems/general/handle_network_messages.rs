@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, input_toggle_combat_mode::InputToggleCombatMode, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
 
 pub fn handle_network_messages(
 
@@ -25,6 +25,7 @@ pub fn handle_network_messages(
 
     tuple1 : (
         EventWriter<ConsoleCommand>,
+        EventWriter<InputToggleCombatMode>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -50,10 +51,11 @@ pub fn handle_network_messages(
     )
     = tuple0;
 
-    let 
-        mut console_command
-    
-    = tuple1.0;
+    let (
+        mut console_command,
+        mut input_toggle_combat_mode,
+    )
+    = tuple1;
 
 
     for (handle, connection) in net.connections.iter_mut() {
@@ -252,6 +254,36 @@ pub fn handle_network_messages(
                         },
                     }
 
+
+                },
+                ReliableClientMessage::ToggleCombatModeInput => {
+
+                    
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_toggle_combat_mode.send(InputToggleCombatMode {
+                                handle: *handle,
+                                entity: *player_entity,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to input_toggle_combat_mode sender handle.");
+                        },
+                    }
+
+
+                },
+            }
+
+        }
+
+        while let Some(client_message) = channels.recv::<UnreliableClientMessage>() {
+
+            match client_message {
+                UnreliableClientMessage::MouseDirectionUpdate(mouse_direction) => {
+
+                    
 
                 },
             }

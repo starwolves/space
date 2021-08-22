@@ -14,3 +14,4 @@ pub mod switch_hands;
 pub mod wear_item;
 pub mod take_off_item;
 pub mod console_command;
+pub mod input_toggle_combat_mode;

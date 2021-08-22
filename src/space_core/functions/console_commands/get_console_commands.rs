@@ -20,7 +20,7 @@ pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleComman
             vec![]
         ),
         (
-            "rcon_spawn_entity".to_string(),
+            "spawn_entity".to_string(),
             "For server administrators only. Spawn in entities in your proximity.".to_string(),
             vec![
                 (
@@ -32,7 +32,7 @@ pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleComman
                     ConsoleCommandVariant::Int
                 ),
             ]
-        )
+        ),
     ]
 
 }
