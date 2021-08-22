@@ -10,23 +10,17 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{events::{
-        general::{
-            scene_ready::SceneReady, ui_input::UIInput, 
-            ui_input_transmit_text::UIInputTransmitText
-        },
-        net::{
+use space_core::{events::{general::{input_toggle_combat_mode::InputToggleCombatMode, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, net::{
             net_done_boarding::NetDoneBoarding,
             net_on_boarding::NetOnBoarding, 
             net_on_new_player_connection::NetOnNewPlayerConnection, 
             net_on_setupui::NetOnSetupUI,
             net_load_entity::NetLoadEntity, 
             net_send_entity_updates::NetSendEntityUpdates
-        }
-    }, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, doryen_fov::{DoryenMap}, handle_to_entity::HandleToEntity, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoints}, tick_rate::TickRate, used_names::UsedNames, world_environments::{WorldEnvironment}}, systems::{entity_updates::{
+        }}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, doryen_fov::{DoryenMap}, handle_to_entity::HandleToEntity, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoints}, tick_rate::TickRate, used_names::UsedNames, world_environments::{WorldEnvironment}}, systems::{entity_updates::{
             omni_light_update::omni_light_update,
             send_entity_updates::send_entity_updates
-        }, general::{broadcast_interpolation_transforms::BROADCAST_INTERPOLATION_TRANSFORM_RATE, done_boarding::done_boarding, on_boarding::on_boarding, on_setupui::on_setupui, on_spawning::on_spawning, scene_ready_event::scene_ready_event, ui_input_event::ui_input_event, ui_input_transmit_data_event::ui_input_transmit_data_event, visible_checker::visible_checker}}};
+        }, general::{broadcast_interpolation_transforms::BROADCAST_INTERPOLATION_TRANSFORM_RATE, done_boarding::done_boarding, on_boarding::on_boarding, on_setupui::on_setupui, on_spawning::on_spawning, scene_ready_event::scene_ready_event, toggle_combat_mode::toggle_combat_mode, ui_input_event::ui_input_event, ui_input_transmit_data_event::ui_input_transmit_data_event, visible_checker::visible_checker}}};
 
 use crate::space_core::{events::{general::{boarding_player::BoardingPlayer, build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, movement_input::MovementInput, switch_hands::SwitchHands, take_off_item::TakeOffItem, use_world_item::UseWorldItem, wear_item::WearItem}, net::{net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_drop_current_item::NetDropCurrentItem, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_takeoff_item::NetTakeOffItem, net_unload_entity::NetUnloadEntity, net_wear_item::NetWearItem}, physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}, systems::{entity_updates::{air_lock_update::air_lock_update, counter_window_update::counter_window_update, gi_probe_update::gi_probe_update, inventory_item_update::inventory_item_update, inventory_update::inventory_update, reflection_probe_update::reflection_probe_update, repeating_sfx_update::repeating_sfx_update, sfx_update::sfx_update, standard_character_update::standard_character_update, world_mode_update::world_mode_update}, general::{air_lock::air_lock_events, broadcast_interpolation_transforms::broadcast_interpolation_transforms, broadcast_position_updates::broadcast_position_updates, build_graphics_event::build_graphics_event, chat_message_input_event::chat_message_input_event, console_commands::console_commands, counter_window::counter_window_events, drop_current_item::drop_current_item, examine_entity::examine_entity, examine_map::examine_map, handle_network_events::handle_network_events, handle_network_messages::handle_network_messages, launch_server::launch_server, move_standard_characters::move_standard_characters, net_send_message_event::net_send_message_event, physics_events::physics_events, pickup_world_item::pickup_world_item, player_input_event::player_input_event, rigidbody_link_transform::rigidbody_link_transform, senser_update_fov::senser_update_fov, switch_hands::switch_hands, take_off_item::take_off_item, tick_asana_boarding_announcements::tick_asana_boarding_announcements, tick_timers::tick_timers, tick_timers_slowed::tick_timers_slowed, wear_item::wear_item}}};
 
@@ -119,6 +113,7 @@ fn main() {
         .add_event::<NetShowcase>()
         .add_event::<ConsoleCommand>()
         .add_event::<NetConsoleCommands>()
+        .add_event::<InputToggleCombatMode>()
         .add_startup_system(launch_server.system())
         .add_system_to_stage(PreUpdate, 
             handle_network_events.system()
@@ -157,6 +152,7 @@ fn main() {
         .add_system(take_off_item.system())
         .add_system(console_commands.system())
         .add_system(senser_update_fov.system())
+        .add_system(toggle_combat_mode.system())
         .add_system(drop_current_item.system().label(UpdateLabels::DropCurrentItem))
         .add_system(rigidbody_link_transform.system().after(UpdateLabels::DropCurrentItem))
         .add_system(player_input_event.system().label(UpdateLabels::ProcessMovementInput))

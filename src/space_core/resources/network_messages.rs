@@ -31,6 +31,7 @@ pub enum ReliableClientMessage {
     WearItem(u64, String),
     TakeOffItem(String),
     ConsoleCommand(String, Vec<ConsoleCommandVariantValues>),
+    ToggleCombatModeInput,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -111,4 +112,11 @@ pub enum ServerConfigMessage {
 pub enum UnreliableServerMessage {
     TransformUpdate(u64, Vec3, Quat, Vec3, u64, u8),
     PositionUpdate(u64, Vec3, u64)
+}
+
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum UnreliableClientMessage {
+    MouseDirectionUpdate(Vec3),
 }

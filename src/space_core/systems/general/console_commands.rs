@@ -3,6 +3,8 @@ use bevy_rapier3d::prelude::RigidBodyPosition;
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::Pawn}, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::console_commands::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_status::rcon_status}, resources::{gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
+// Don't forget functions -> get_console_commands()
+
 pub fn console_commands(
     mut console_commands_events : EventReader<ConsoleCommand>,
     mut rcon_bruteforce_protection : Local<BruteforceProtection>,
@@ -45,24 +47,20 @@ pub fn console_commands(
 
         }
 
-        if console_command_event.command_name.starts_with("rcon_") {
+        let player_entity = connected_players.get_mut(console_command_event.entity).unwrap();
 
-            let player_entity = connected_players.get_mut(console_command_event.entity).unwrap();
-
-            if player_entity.rcon == false{
-                net_console_commands.send(NetConsoleCommands {
-                    handle: console_command_event.handle,
-                    message: ReliableServerMessage::ConsoleWriteLine(
-                        "[color=#ff6600]RCON status denied.[/color]"
-                        .to_string()
-                    ),
-                });
-                return;
-            }
-
+        if player_entity.rcon == false{
+            net_console_commands.send(NetConsoleCommands {
+                handle: console_command_event.handle,
+                message: ReliableServerMessage::ConsoleWriteLine(
+                    "[color=#ff6600]RCON status denied.[/color]"
+                    .to_string()
+                ),
+            });
+            return;
         }
 
-        if console_command_event.command_name == "rcon_spawn_entity" {
+        if console_command_event.command_name == "spawn_entity" {
 
             let entity_name;
 

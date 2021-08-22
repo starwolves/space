@@ -4,7 +4,7 @@ use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, 
 
 use std::{ fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, }}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, doryen_fov::{ DoryenMap}, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
+use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, }}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, doryen_fov::{ DoryenMap}, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
 
 
 const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -51,6 +51,13 @@ const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
 
 const SERVER_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel: 2,
+    channel_mode: MessageChannelMode::Unreliable,
+    message_buffer_size: 1600,
+    packet_buffer_size: 1600,
+};
+
+const CLIENT_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 3,
     channel_mode: MessageChannelMode::Unreliable,
     message_buffer_size: 1600,
     packet_buffer_size: 1600,
@@ -126,6 +133,9 @@ pub fn launch_server(
             .unwrap();
         builder
             .register::<UnreliableServerMessage>(SERVER_MESSAGE_UNRELIABLE)
+            .unwrap();
+        builder
+            .register::<UnreliableClientMessage>(CLIENT_MESSAGE_UNRELIABLE)
             .unwrap();
     });
 

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Vec3}, prelude::{Commands, Entity, EventWriter, Query, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{CharacterAnimationState, StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, humanoid_health::HumanoidHealth, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage}};
 
 pub struct HumanMalePawnBundle;
 
@@ -91,8 +91,8 @@ impl HumanMalePawnBundle {
                 mode : WorldModes::Kinematic
             },
             StandardCharacter {
-                current_animation_state : CharacterAnimationState::Idle,
                 character_name: persistent_player_data_component.character_name.clone(),
+                ..Default::default()
             },
             CachedBroadcastTransform::default(),
             PersistentPlayerData {
@@ -246,6 +246,7 @@ impl HumanMalePawnBundle {
                     ..Default::default()
                 },
                 PlayerInput::default(),
+                HumanoidHealth::default(),
             ));
         }
 
