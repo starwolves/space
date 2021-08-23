@@ -118,5 +118,5 @@ pub enum UnreliableServerMessage {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableClientMessage {
-    MouseDirectionUpdate(Vec3),
+    MouseDirectionUpdate(f32),
 }
