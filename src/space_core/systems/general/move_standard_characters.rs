@@ -1,7 +1,7 @@
-use bevy::{math::Vec3, prelude::{Commands, Entity, EventWriter, Query, Res, warn}};
+use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::converters::isometry_to_transform::isometry_to_transform, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
 
@@ -38,7 +38,7 @@ pub fn move_standard_characters(
         mut rigid_body_velocity_component,
         mut _rigid_body_massprops_component,
         mut _rigid_body_force_component,
-        mut human_character_component,
+        mut standard_character_component,
         linked_footsteps_walking_option,
         linked_footsteps_sprinting_option,
         mut pawn_component,
@@ -70,6 +70,19 @@ pub fn move_standard_characters(
         let mut idle = false;
 
         let mut facing_direction = pawn_component.facing_direction.clone();
+
+
+        // If combat mode, specific new rotation based on mouse direction.
+        if standard_character_component.combat_mode {
+
+            let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
+
+            rigid_body_transform.rotation = Quat::from_axis_angle(Vec3::new(0.,1.,0.), standard_character_component.facing_direction);
+
+            rigid_body_position_component.position = transform_to_isometry(rigid_body_transform);
+
+        }
+        
 
         // Moving up.
         if player_input_component.movement_vector.y == 1. && player_input_component.movement_vector.x == 0. {
@@ -121,8 +134,8 @@ pub fn move_standard_characters(
         match idle {
             true => {
 
-                if matches!(human_character_component.current_animation_state, CharacterAnimationState::Walking) {
-                    human_character_component.current_animation_state = CharacterAnimationState::Idle;
+                if matches!(standard_character_component.current_animation_state, CharacterAnimationState::Walking) {
+                    standard_character_component.current_animation_state = CharacterAnimationState::Idle;
                     // Despawn FootstepsWalkingSfx here.
 
 
@@ -149,8 +162,8 @@ pub fn move_standard_characters(
 
                 }
 
-                if matches!(human_character_component.current_animation_state, CharacterAnimationState::Sprinting) {
-                    human_character_component.current_animation_state = CharacterAnimationState::Idle;
+                if matches!(standard_character_component.current_animation_state, CharacterAnimationState::Sprinting) {
+                    standard_character_component.current_animation_state = CharacterAnimationState::Idle;
                     // Despawn FootstepsSprintingSfx here.
 
                     match linked_footsteps_sprinting_option {
@@ -179,12 +192,14 @@ pub fn move_standard_characters(
             }
             false => {
 
-                rigid_body_position.rotation = UnitQuaternion::from_quaternion(movement_rotations.rotations[movement_index]); 
-                rigid_body_position_component.position = rigid_body_position;
+                if standard_character_component.combat_mode == false {
+                    rigid_body_position.rotation = UnitQuaternion::from_quaternion(movement_rotations.rotations[movement_index]); 
+                    rigid_body_position_component.position = rigid_body_position;
+                }
 
-                if !player_input_component.sprinting && matches!(human_character_component.current_animation_state, CharacterAnimationState::Walking) == false {
+                if !player_input_component.sprinting && matches!(standard_character_component.current_animation_state, CharacterAnimationState::Walking) == false {
 
-                    if matches!(human_character_component.current_animation_state, CharacterAnimationState::Sprinting) {
+                    if matches!(standard_character_component.current_animation_state, CharacterAnimationState::Sprinting) {
                         match linked_footsteps_sprinting_option {
                             Some(linked_footsteps_sprinting_component) => {
     
@@ -206,7 +221,7 @@ pub fn move_standard_characters(
                         }
                     }
 
-                    human_character_component.current_animation_state = CharacterAnimationState::Walking;
+                    standard_character_component.current_animation_state = CharacterAnimationState::Walking;
 
                     // Spawn FootstepsWalkingSfx entity here.
 
@@ -216,7 +231,7 @@ pub fn move_standard_characters(
                         entity: repeating_sfx_id
                     });
 
-                } else if !player_input_component.sprinting && matches!(human_character_component.current_animation_state, CharacterAnimationState::Walking) {
+                } else if !player_input_component.sprinting && matches!(standard_character_component.current_animation_state, CharacterAnimationState::Walking) {
                     // Update transform of our FootstepsWalkingSfx Entity here. (Should be moved to its own 2tick/s system eventually)
 
                     match linked_footsteps_walking_option {
@@ -238,9 +253,9 @@ pub fn move_standard_characters(
                         None => {}
                     }
 
-                } else if player_input_component.sprinting && matches!(human_character_component.current_animation_state, CharacterAnimationState::Sprinting) == false {
+                } else if player_input_component.sprinting && matches!(standard_character_component.current_animation_state, CharacterAnimationState::Sprinting) == false {
 
-                    if matches!(human_character_component.current_animation_state, CharacterAnimationState::Walking) {
+                    if matches!(standard_character_component.current_animation_state, CharacterAnimationState::Walking) {
                         match linked_footsteps_walking_option {
                             Some(linked_footsteps_walking_component) => {
     
@@ -262,7 +277,7 @@ pub fn move_standard_characters(
                         }
                     }
 
-                    human_character_component.current_animation_state = CharacterAnimationState::Sprinting;
+                    standard_character_component.current_animation_state = CharacterAnimationState::Sprinting;
 
                     // Spawn FootstepsWalkingSfx entity here.
 
@@ -272,7 +287,7 @@ pub fn move_standard_characters(
                         entity: repeating_sfx_id
                     });
 
-                } else if player_input_component.sprinting && matches!(human_character_component.current_animation_state, CharacterAnimationState::Sprinting) {
+                } else if player_input_component.sprinting && matches!(standard_character_component.current_animation_state, CharacterAnimationState::Sprinting) {
                     // Update transform of our FootstepsSprintingSfx Entity here. (Should be moved to its own 2tick/s system eventually)
 
                     match linked_footsteps_sprinting_option {
