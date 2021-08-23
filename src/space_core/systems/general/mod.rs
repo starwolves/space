@@ -33,3 +33,4 @@ pub mod broadcast_interpolation_transforms;
 pub mod net_send_message_event;
 pub mod senser_update_fov;
 pub mod toggle_combat_mode;
+pub mod mouse_direction_update;
