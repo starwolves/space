@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, input_toggle_combat_mode::InputToggleCombatMode, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_sprinting::InputSprinting, input_toggle_combat_mode::InputToggleCombatMode, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
 
 pub fn handle_network_messages(
 
@@ -26,6 +26,7 @@ pub fn handle_network_messages(
     tuple1 : (
         EventWriter<ConsoleCommand>,
         EventWriter<InputToggleCombatMode>,
+        EventWriter<MouseDirectionUpdate>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -54,6 +55,7 @@ pub fn handle_network_messages(
     let (
         mut console_command,
         mut input_toggle_combat_mode,
+        mut mouse_direction_update,
     )
     = tuple1;
 
@@ -283,7 +285,18 @@ pub fn handle_network_messages(
             match client_message {
                 UnreliableClientMessage::MouseDirectionUpdate(mouse_direction) => {
 
-                    
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            mouse_direction_update.send(MouseDirectionUpdate {
+                                handle: *handle,
+                                entity: *player_entity,
+                                direction: mouse_direction,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to mouse_direction_update sender handle.");
+                        },
+                    }
 
                 },
             }
