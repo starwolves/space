@@ -92,6 +92,7 @@ pub fn move_standard_characters(
             standard_character_component.facing_direction + 0.5*PI,
             );
 
+            // Should slerp, but sometime uses longest path between quats and am unsure how to resolve that.
             rigid_body_transform.rotation = end_rotation;
 
             rigid_body_position_component.position = transform_to_isometry(rigid_body_transform);
