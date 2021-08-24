@@ -283,7 +283,7 @@ pub fn handle_network_messages(
         while let Some(client_message) = channels.recv::<UnreliableClientMessage>() {
 
             match client_message {
-                UnreliableClientMessage::MouseDirectionUpdate(mouse_direction) => {
+                UnreliableClientMessage::MouseDirectionUpdate(mouse_direction, time_stamp) => {
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
@@ -291,6 +291,7 @@ pub fn handle_network_messages(
                                 handle: *handle,
                                 entity: *player_entity,
                                 direction: mouse_direction,
+                                time_stamp
                             });
                         },
                         None => {
