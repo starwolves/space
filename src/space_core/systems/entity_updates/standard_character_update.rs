@@ -7,12 +7,12 @@ use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_u
 use vector2math::*;
 
 pub fn standard_character_update(
-    mut updated_humans: Query<(Entity,&Pawn, &StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
+    mut updated_humans: Query<(Entity,Option<&Pawn>, &StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
 ) {
 
     for (
         _entity,
-        pawn_component,
+        pawn_component_option,
         standard_character_component,
         mut entity_updates_component,
         persistent_player_data_component,
@@ -45,7 +45,7 @@ pub fn standard_character_update(
                     let mut strafe_jogging_blend_position;
 
 
-                    match pawn_component.facing_direction {
+                    match pawn_component_option.as_ref().unwrap().facing_direction {
                         crate::space_core::components::pawn::FacingDirection::UpLeft => {
                             strafe_jogging_blend_position = [-1.,1.];
                         },

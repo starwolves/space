@@ -33,7 +33,8 @@ enum PreUpdateLabels {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 enum UpdateLabels {
     ProcessMovementInput,
-    DropCurrentItem
+    DropCurrentItem,
+    MoveStandardCharacters,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -154,11 +155,11 @@ fn main() {
         .add_system(console_commands.system())
         .add_system(senser_update_fov.system())
         .add_system(toggle_combat_mode.system())
-        .add_system(mouse_direction_update.system())
         .add_system(drop_current_item.system().label(UpdateLabels::DropCurrentItem))
         .add_system(rigidbody_link_transform.system().after(UpdateLabels::DropCurrentItem))
         .add_system(player_input_event.system().label(UpdateLabels::ProcessMovementInput))
-        .add_system(move_standard_characters.system().after(UpdateLabels::ProcessMovementInput))
+        .add_system(mouse_direction_update.system().before(UpdateLabels::MoveStandardCharacters))
+        .add_system(move_standard_characters.system().label(UpdateLabels::MoveStandardCharacters).after(UpdateLabels::ProcessMovementInput))
         .add_system(broadcast_interpolation_transforms.system()
             .with_run_criteria(FixedTimestep::step(1./BROADCAST_INTERPOLATION_TRANSFORM_RATE)
             .with_label(INTERPOLATION_LABEL))
