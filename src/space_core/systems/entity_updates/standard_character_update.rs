@@ -10,7 +10,7 @@ pub fn standard_character_update(
 
     for (
         _entity,
-        human_character_component,
+        standard_character_component,
         mut entity_updates_component,
         persistent_player_data_component,
         connected_player_component_option,
@@ -20,12 +20,10 @@ pub fn standard_character_update(
         let old_entity_updates = entity_updates_component.updates.clone();
         
         let lower_body_animation_state : String;
-        // upper_body_animation_state has blend set to 0 so its useless atm.
-        let upper_body_animation_state : String;
 
-        
+        let mut upper_body_animation_state : String;
 
-        match human_character_component.current_animation_state {
+        match standard_character_component.current_animation_state {
             crate::space_core::components::standard_character::CharacterAnimationState::Idle => {
                 lower_body_animation_state = "Idle".to_string();
                 upper_body_animation_state = "Idle".to_string();
@@ -40,6 +38,41 @@ pub fn standard_character_update(
             },
         }
 
+        
+        let mut animation_tree1_upper_blend = HashMap::new();
+
+        if standard_character_component.combat_mode {
+
+            // Here we can set upper body animations to certain combat state, eg boxing stance, melee weapon stances, projectile weapon stances etc.
+
+            match standard_character_component.current_animation_state {
+                crate::space_core::components::standard_character::CharacterAnimationState::Idle => {
+                    upper_body_animation_state = "Idle".to_string();
+                }
+                crate::space_core::components::standard_character::CharacterAnimationState::Walking => {
+                    upper_body_animation_state = "Idle".to_string();
+                }
+                crate::space_core::components::standard_character::CharacterAnimationState::Sprinting => {
+                    upper_body_animation_state = "Idle".to_string();
+                },
+            }
+
+            
+            // 0 for now.
+            animation_tree1_upper_blend.insert(
+                "blend_amount".to_string(),
+                EntityUpdateData::Float(0.)
+            );
+
+        } else {
+
+            animation_tree1_upper_blend.insert(
+                "blend_amount".to_string(),
+                EntityUpdateData::Float(0.)
+            );
+
+        }
+        
         let mut animation_tree1_upper_body_updates = HashMap::new();
         let mut animation_tree1_lower_body_updates = HashMap::new();
 
@@ -61,6 +94,12 @@ pub fn standard_character_update(
             "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/playback/travel".to_string(),
             animation_tree1_lower_body_updates
         );
+
+        entity_updates_component.updates.insert(
+            "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyBlend/blend_amount".to_string(),
+            animation_tree1_upper_blend
+        );
+        
 
         match showcase_component_option {
             Some(_showcase_component) => {
