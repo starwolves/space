@@ -87,6 +87,7 @@ pub enum EntityUpdateData {
     Color(Color),
     Bool(bool),
     Vec3(Vec3),
+    Vec2(Vec2),
     AttachedItem(u64, Vec3,Quat,Vec3),
     WornItem(String, u64, String, Vec3,Quat,Vec3),
     WornItemNotAttached(String, u64, String),
