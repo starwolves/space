@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
@@ -77,7 +79,20 @@ pub fn move_standard_characters(
 
             let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
 
-            rigid_body_transform.rotation = Quat::from_axis_angle(Vec3::new(0.,1.,0.), standard_character_component.facing_direction);
+            if standard_character_component.facing_direction > 0. && standard_character_component.facing_direction < 0.1 {
+                standard_character_component.facing_direction = 0.1;
+            }
+
+            if standard_character_component.facing_direction > PI-0.1 && standard_character_component.facing_direction < PI {
+                standard_character_component.facing_direction = PI-0.1;
+            }
+
+            let end_rotation = Quat::from_axis_angle(
+                Vec3::new(0.,1.,0.), 
+            standard_character_component.facing_direction + 0.5*PI,
+            );
+
+            rigid_body_transform.rotation = end_rotation;
 
             rigid_body_position_component.position = transform_to_isometry(rigid_body_transform);
 

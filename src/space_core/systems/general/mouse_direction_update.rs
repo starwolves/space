@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::prelude::{EventReader, Query};
 
 use crate::space_core::{components::standard_character::StandardCharacter, events::general::mouse_direction_update::MouseDirectionUpdate};
@@ -16,7 +18,9 @@ pub fn mouse_direction_update(
                     continue;
                 }
 
-                standard_character_component.facing_direction = event.direction;
+                let direction = event.direction.clamp(-PI,PI);
+
+                standard_character_component.facing_direction = direction;
 
             },
             Err(_rr) => {},
