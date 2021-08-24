@@ -119,6 +119,14 @@ pub fn entity_data_is_matching(
             }
 
         },
+        EntityUpdateData::Vec2(old_value0) => {
+            match data2 {
+                EntityUpdateData::Vec2(new_value0) => {
+                    is_not_matching = *new_value0 != *old_value0
+                },
+                _ => {}
+            }
+        },
     }
 
     !is_not_matching

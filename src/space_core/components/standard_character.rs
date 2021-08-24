@@ -7,7 +7,7 @@ pub struct StandardCharacter {
 
 pub enum CharacterAnimationState {
     Idle,
-    Walking,
+    Jogging,
     Sprinting,
 }
 
