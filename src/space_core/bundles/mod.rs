@@ -15,3 +15,5 @@ pub mod gi_probe;
 pub mod reflection_probe;
 pub mod security_airlock;
 pub mod security_counter_window;
+pub mod play_sound_radio_message;
+pub mod play_sound_proximity_message;
