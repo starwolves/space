@@ -4,8 +4,9 @@ use std::collections::HashMap;
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 use const_format::concatcp;
+use rand::Rng;
 
-use crate::space_core::{components::{pawn::SpaceJobsEnum, radio::{Radio, RadioChannel}}, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, ReliableServerMessage}}};
+use crate::space_core::{components::{pawn::SpaceJobsEnum, radio::{Radio, RadioChannel}, sfx::get_random_pitch_scale}, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, ReliableServerMessage}}};
 
 const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
 const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
@@ -878,6 +879,10 @@ pub fn new_chat_message(
 
 
     // Send radio message to all radio_pawns who can listen to that channel.
+
+    let mut handles_direct_proximity : Vec<u32> = vec![];
+    let mut handles_radio : Vec<u32> = vec![];
+
     if exclusive_proximity == false {
 
         let mut has_radio_permission = false;
@@ -919,6 +924,8 @@ pub fn new_chat_message(
                                 handle: *listener_handle,
                                 message: ReliableServerMessage::ChatMessage(radio_message.clone()),
                             });
+
+                            handles_radio.push(*listener_handle);
 
                         },
                         None => {},
@@ -1024,6 +1031,7 @@ pub fn new_chat_message(
                                                 handle: *listener_handle,
                                                 message: ReliableServerMessage::EntityUpdate(messenger_entity.to_bits(), billboard_entity_update.clone(), false)
                                             });
+                                            handles_direct_proximity.push(*listener_handle);
                                         },
                                         None => {
                                             error!("Cannot send proximity message without providing messeger_entity.");
@@ -1049,4 +1057,43 @@ pub fn new_chat_message(
 
     }
 
+
+    for player_handle in handles_direct_proximity.iter() {
+
+        let mut rng = rand::thread_rng();
+
+        let random_index = rng.gen_range(0..SFX_NAMES.len());
+
+        net_new_chat_message_event.send(NetChatMessage {
+            handle: *player_handle,
+            message: ReliableServerMessage::PlaySound(SFX_NAMES[random_index].to_string(), 1., get_random_pitch_scale(1.))
+        });
+
+    }
+
+    for player_handle in handles_radio.iter() {
+
+        if !handles_direct_proximity.contains(player_handle) {
+
+            net_new_chat_message_event.send(NetChatMessage {
+                handle: *player_handle,
+                message: ReliableServerMessage::PlaySound("radio_message".to_string(), 1.8, get_random_pitch_scale(1.))
+            });
+
+        }
+
+    }
+
+    
+
+
 }
+
+const SFX_NAMES : [&str;6] = [
+    "proximity_message1",
+    "proximity_message2",
+    "proximity_message3",
+    "proximity_message4",
+    "proximity_message5",
+    "proximity_message6",
+];
