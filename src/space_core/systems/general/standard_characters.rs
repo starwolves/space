@@ -91,7 +91,7 @@ pub fn move_standard_characters(
 
 
         // If combat mode, specific new rotation based on mouse direction.
-        if standard_character_component.combat_mode {
+        if standard_character_component.combat_mode &&  !player_input_component.sprinting{
 
             let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
 
@@ -224,7 +224,7 @@ pub fn move_standard_characters(
             }
             false => {
 
-                if standard_character_component.combat_mode == false {
+                if standard_character_component.combat_mode == false   ||  player_input_component.sprinting{
                     rigid_body_position.rotation = UnitQuaternion::from_quaternion(movement_rotations.rotations[movement_index]); 
                     rigid_body_position_component.position = rigid_body_position;
                 }
