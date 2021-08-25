@@ -32,6 +32,7 @@ pub enum ReliableClientMessage {
     TakeOffItem(String),
     ConsoleCommand(String, Vec<ConsoleCommandVariantValues>),
     ToggleCombatModeInput,
+    InputMouseAction(bool),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

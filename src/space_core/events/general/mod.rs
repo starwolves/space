@@ -16,3 +16,4 @@ pub mod take_off_item;
 pub mod console_command;
 pub mod input_toggle_combat_mode;
 pub mod mouse_direction_update;
+pub mod input_mouse_action;
