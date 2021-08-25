@@ -67,7 +67,7 @@ pub enum ReliableServerMessage {
     SwitchHands,
     EquippedWornItem(String, u64, String),
     ConsoleWriteLine(String),
-    PlaySound(String, f32, f32),
+    PlaySound(String, f32, f32, Option<Vec3>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
