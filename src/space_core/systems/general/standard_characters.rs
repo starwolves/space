@@ -1,16 +1,16 @@
 use std::f32::consts::PI;
 
-use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Query, Res, warn}};
+use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::net::net_unload_entity::NetUnloadEntity, functions::converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::input_mouse_action::InputMouseAction, net::net_unload_entity::NetUnloadEntity}, functions::converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
 
 pub fn move_standard_characters(
     mut query : Query<(
         Entity,
-        &PlayerInput,
+        &mut PlayerInput,
         &mut RigidBodyPosition,
         &mut RigidBodyVelocity,
         &mut RigidBodyMassProps,
@@ -30,8 +30,24 @@ pub fn move_standard_characters(
     movement_rotations: Res<PlayerYAxisRotations>,
     handle_to_entity: Res<HandleToEntity>,
     mut commands : Commands,
-    mut net_unload_entity : EventWriter<NetUnloadEntity>
+    mut net_unload_entity : EventWriter<NetUnloadEntity>,
+    mut input_mouse_action_events : EventReader<InputMouseAction>,
 ) {
+
+    for event in input_mouse_action_events.iter() {
+
+        match query.get_component_mut::<PlayerInput>(event.entity) {
+            Ok(mut standard_character_component) => {
+
+                standard_character_component.is_mouse_action_pressed = event.pressed;
+
+            },
+            Err(_rr) => {
+                warn!("Couldn't find standard_character_component belonging to entity of InputMouseAction.");
+            },
+        }
+
+    }
 
     for (
         entity,

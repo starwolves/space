@@ -7,7 +7,7 @@ pub mod ui_input_event;
 pub mod ui_input_transmit_data_event;
 pub mod visible_checker;
 pub mod player_input_event;
-pub mod move_standard_characters;
+pub mod standard_characters;
 pub mod build_graphics_event;
 pub mod physics_events;
 pub mod tick_timers;

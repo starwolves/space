@@ -1,9 +1,9 @@
 use bevy::math::Vec2;
 
-#[allow(dead_code)]
 pub struct PlayerInput {
     pub movement_vector : Vec2,
-    pub sprinting : bool
+    pub sprinting : bool,
+    pub is_mouse_action_pressed : bool,
 }
 
 
@@ -12,6 +12,7 @@ impl Default for PlayerInput {
         Self {
             movement_vector : Vec2::ZERO,
             sprinting : false,
+            is_mouse_action_pressed : false,
         }
     }
 }
