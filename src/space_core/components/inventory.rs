@@ -2,7 +2,7 @@ use bevy::prelude::Entity;
 
 pub struct Inventory {
     pub slots : Vec<Slot>,
-    pub pickup_slot : String,
+    pub active_slot : String,
 }
 
 #[derive(Debug)]
@@ -17,7 +17,7 @@ impl Default for Inventory {
     fn default() -> Self {
         Self {
             slots: vec![],
-            pickup_slot: "".to_string(),
+            active_slot: "".to_string(),
         }
     }
 }

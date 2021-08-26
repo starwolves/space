@@ -2,12 +2,13 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::{math::Vec2, prelude::{Changed, Entity, Query}};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, pawn::Pawn, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, resources::network_messages::EntityUpdateData};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, resources::network_messages::EntityUpdateData};
 
 use vector2math::*;
 
 pub fn standard_character_update(
-    mut updated_humans: Query<(Entity,Option<&Pawn>, &StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
+    mut updated_humans: Query<(Entity,Option<&Pawn>, &StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, &Inventory, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
+    inventory_items : Query<&InventoryItem>,
 ) {
 
     for (
@@ -16,6 +17,7 @@ pub fn standard_character_update(
         standard_character_component,
         mut entity_updates_component,
         persistent_player_data_component,
+        inventory_component,
         connected_player_component_option,
         showcase_component_option
     ) in updated_humans.iter_mut() {
@@ -24,23 +26,32 @@ pub fn standard_character_update(
         
         let lower_body_animation_state : String;
 
-        let upper_body_animation_state : String;
+        let mut upper_body_animation_state : String;
         
         let mut animation_tree1_upper_blend = HashMap::new();
         let mut animation_tree1_lower_body_jogging_strafe_blend_position = HashMap::new();
+
+        
 
         if standard_character_component.combat_mode {
 
             // Here we can set upper body animations to certain combat state, eg boxing stance, melee weapon stances, projectile weapon stances etc.
 
-            match standard_character_component.current_animation_state {
+            let mut upper_body_blend_amount = 1.;
+
+            match standard_character_component.current_lower_animation_state {
                 crate::space_core::components::standard_character::CharacterAnimationState::Idle => {
-                    upper_body_animation_state = "Idle".to_string();
+                    upper_body_animation_state = "Idle Heightened".to_string();
                     lower_body_animation_state = "Idle".to_string();
                 }
                 crate::space_core::components::standard_character::CharacterAnimationState::Jogging => {
-                    upper_body_animation_state = "Jogging".to_string();
+                    upper_body_animation_state = "Idle Heightened".to_string();
                     lower_body_animation_state = "JoggingStrafe".to_string();
+
+                    if !standard_character_component.is_attacking {
+                        upper_body_blend_amount=0.;
+                    }
+                    
 
                     let mut strafe_jogging_blend_position;
 
@@ -114,24 +125,79 @@ pub fn standard_character_update(
 
                 }
                 crate::space_core::components::standard_character::CharacterAnimationState::Sprinting => {
-                    upper_body_animation_state = "Sprinting".to_string();
+                    upper_body_animation_state = "Idle Heightened".to_string();
                     lower_body_animation_state = "Sprinting".to_string();
+                    upper_body_blend_amount=0.;
                 },
             }
 
-            
-            // 0 for now.
+            if standard_character_component.is_attacking {
+
+                // Get current active inventory item and animation state
+                // Then based on if its left or right handed change upper_body_animation_state.
+
+                let mut combat_item = None;
+
+                let is_left_handed;
+
+                if inventory_component.active_slot == "left_hand" {
+                    is_left_handed=true;
+                } else {
+                    is_left_handed=false;
+                }  
+
+                for slot in inventory_component.slots.iter() {
+
+                    if slot.slot_name == inventory_component.active_slot {
+
+                        combat_item = slot.slot_item;
+                        break;
+
+                    }
+
+                }
+
+
+                match combat_item {
+                    Some(entity) => {
+                        let inventory_item = inventory_items.get(entity).unwrap();
+
+                        match inventory_item.combat_animation {
+                            crate::space_core::components::inventory_item::CombatAnimation::OneHandedMeleePunch => {
+
+                                if is_left_handed {
+                                    upper_body_animation_state = "Punching Left".to_string();
+                                } else {
+                                    upper_body_animation_state = "Punching Right".to_string();
+                                }
+
+                            },
+                        }
+
+                    },
+                    None => {
+                        if is_left_handed {
+                            upper_body_animation_state = "Punching Left".to_string();
+                        } else {
+                            upper_body_animation_state = "Punching Right".to_string();
+                        }
+                    },
+                }
+                
+                
+
+            }
             animation_tree1_upper_blend.insert(
                 "blend_amount".to_string(),
-                EntityUpdateData::Float(0.)
+                EntityUpdateData::Float(upper_body_blend_amount)
             );
 
         } else {
 
-            match standard_character_component.current_animation_state {
+            match standard_character_component.current_lower_animation_state {
                 crate::space_core::components::standard_character::CharacterAnimationState::Idle => {
                     lower_body_animation_state = "Idle".to_string();
-                    upper_body_animation_state = "Idle".to_string();
+                    upper_body_animation_state = "Idle Heightened".to_string();
                 }
                 crate::space_core::components::standard_character::CharacterAnimationState::Jogging => {
                     lower_body_animation_state = "Jogging".to_string();
@@ -139,7 +205,7 @@ pub fn standard_character_update(
                 }
                 crate::space_core::components::standard_character::CharacterAnimationState::Sprinting => {
                     lower_body_animation_state = "Sprinting".to_string();
-                    upper_body_animation_state = "Sprinting".to_string();
+                    upper_body_animation_state = "Idle Heightened".to_string();
                 },
             }
 

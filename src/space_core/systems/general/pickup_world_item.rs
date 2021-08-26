@@ -36,7 +36,7 @@ pub fn pickup_world_item(
 
         let mut pickuper_inventory = pickuper_components;
 
-        let pickup_slot = pickuper_inventory.pickup_slot.clone();
+        let pickup_slot = pickuper_inventory.active_slot.clone();
 
         let pickup_slot = pickuper_inventory.get_slot_mut(&pickup_slot);
 

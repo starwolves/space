@@ -33,7 +33,7 @@ pub fn take_off_item(
 
 
         let mut carrier_inventory = carrier_components;
-        let pickup_slot_name = carrier_inventory.pickup_slot.clone();
+        let pickup_slot_name = carrier_inventory.active_slot.clone();
 
         let mut pickup_slot_option = None;
         let mut take_off_slot_option = None;
