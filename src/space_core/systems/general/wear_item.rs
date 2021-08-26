@@ -33,7 +33,7 @@ pub fn wear_item(
 
         let mut wearer_inventory = wearer_components;
 
-        let pickup_slot_name = wearer_inventory.pickup_slot.clone();
+        let pickup_slot_name = wearer_inventory.active_slot.clone();
 
         let mut pickup_slot_option = None;
         let mut wear_slot_option = None;

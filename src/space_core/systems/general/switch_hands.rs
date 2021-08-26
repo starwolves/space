@@ -28,10 +28,10 @@ pub fn switch_hands(
 
         let mut hand_switcher_inventory = hand_switcher_components;
 
-        if hand_switcher_inventory.pickup_slot == "left_hand" {
-            hand_switcher_inventory.pickup_slot = "right_hand".to_string();
+        if hand_switcher_inventory.active_slot == "left_hand" {
+            hand_switcher_inventory.active_slot = "right_hand".to_string();
         } else {
-            hand_switcher_inventory.pickup_slot = "left_hand".to_string();
+            hand_switcher_inventory.active_slot = "left_hand".to_string();
         }
         
 

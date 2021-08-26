@@ -187,7 +187,7 @@ impl HumanMalePawnBundle {
                     slot_attachment: Some("Smoothing/pawn/humanMale/rig/humanMale".to_string()),
                 },
             ],
-            pickup_slot: "left_hand".to_string(),
+            active_slot: "left_hand".to_string(),
         };
 
         let examine_text = "".to_string();

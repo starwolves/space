@@ -10,4 +10,9 @@ pub struct InventoryItem {
     pub drop_transform : Transform,
     pub slot_type : SlotType,
     pub is_attached_when_worn : bool,
+    pub combat_animation: CombatAnimation,
+}
+
+pub enum CombatAnimation {
+    OneHandedMeleePunch
 }
