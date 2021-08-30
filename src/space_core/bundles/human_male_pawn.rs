@@ -62,7 +62,7 @@ impl HumanMalePawnBundle {
             collider_type: ColliderType::Solid,
             mass_properties: ColliderMassProps::Density(1.0),
             material: ColliderMaterial {
-                friction: 3.2,
+                friction: 5.,
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 ..Default::default()
             },
