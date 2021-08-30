@@ -102,6 +102,7 @@ pub fn build_main_gridmap(
                     collider_type: ColliderType::Solid,
                     material: ColliderMaterial {
                         friction_combine_rule:  CoefficientCombineRule::Min,
+                        friction: 0.,
                         ..Default::default()
                     },
                     flags: ColliderFlags {
