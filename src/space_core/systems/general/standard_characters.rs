@@ -183,8 +183,14 @@ pub fn move_standard_characters(
         }
 
         pawn_component.facing_direction = facing_direction;
+
+        let current_linear_velocity : Vec3 = rigid_body_velocity_component.linvel.into();
+
         
-        match idle {
+        
+        match (standard_character_component.combat_mode && idle && current_linear_velocity.length() < 0.05) || 
+        (standard_character_component.combat_mode == false && idle)
+        {
             true => {
 
                 if matches!(standard_character_component.current_lower_animation_state, CharacterAnimationState::Jogging) {
@@ -367,7 +373,10 @@ pub fn move_standard_characters(
             }
         }
         
-        rigid_body_velocity_component.linvel = rapier_vector;
+        if player_input_component.movement_vector.x != 0. || player_input_component.movement_vector.y != 0. {
+            rigid_body_velocity_component.linvel = rapier_vector;
+        }
+        
 
     }
 
