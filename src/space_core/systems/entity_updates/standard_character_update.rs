@@ -31,7 +31,26 @@ pub fn standard_character_update(
         let mut animation_tree1_upper_blend = HashMap::new();
         let mut animation_tree1_lower_body_jogging_strafe_blend_position = HashMap::new();
 
-        
+        let mut upper_body_left_punch_time_scale = HashMap::new();
+        let mut upper_body_right_punch_time_scale = HashMap::new();
+
+        upper_body_left_punch_time_scale.insert(
+            "time_scale".to_string(),
+            EntityUpdateData::Float(2.)
+        );
+        upper_body_right_punch_time_scale.insert(
+            "time_scale".to_string(),
+            EntityUpdateData::Float(2.)
+        );
+
+        entity_updates_component.updates.insert(
+            "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/Punching Left/TimeScale/scale".to_string(),
+            upper_body_left_punch_time_scale
+        );
+        entity_updates_component.updates.insert(
+            "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/Punching Right/TimeScale/scale".to_string(),
+            upper_body_right_punch_time_scale
+        );
 
         if standard_character_component.combat_mode {
 
@@ -45,16 +64,10 @@ pub fn standard_character_update(
                     lower_body_animation_state = "Idle".to_string();
                 }
                 crate::space_core::components::standard_character::CharacterAnimationState::Jogging => {
-                    upper_body_animation_state = "Idle Heightened".to_string();
+                    upper_body_animation_state = "JoggingStrafe".to_string();
                     lower_body_animation_state = "JoggingStrafe".to_string();
 
-                    if !standard_character_component.is_attacking {
-                        upper_body_blend_amount=0.;
-                    }
-                    
-
                     let mut strafe_jogging_blend_position;
-
 
                     match pawn_component_option.as_ref().unwrap().facing_direction {
                         crate::space_core::components::pawn::FacingDirection::UpLeft => {
