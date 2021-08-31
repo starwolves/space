@@ -58,10 +58,6 @@ pub fn inventory_update(
             None => {},
         }
 
-
-
-        
-
         for slot in &inventory_component.slots {
 
             let attachment_slot;
@@ -88,7 +84,7 @@ pub fn inventory_update(
 
                     match attachment_transform_option {
                         Some(attachment_transform) => {
-    
+                            
                             update_map.insert("attachedItem".to_string(), EntityUpdateData::AttachedItem(item.to_bits(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
     
                             update_map.insert("wornItems".to_string(), EntityUpdateData::WornItem(slot.slot_name.clone(), item.to_bits(), pickupable_components.1.entity_type.clone(), attachment_transform.translation, attachment_transform.rotation, attachment_transform.scale));
@@ -125,9 +121,8 @@ pub fn inventory_update(
             &entity_updates_component.updates
         );
 
-        entity_updates_component.updates_difference = difference_updates;
+        entity_updates_component.updates_difference.push(difference_updates);
 
     }
 
 }
-

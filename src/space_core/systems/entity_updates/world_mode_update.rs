@@ -40,7 +40,7 @@ pub fn world_mode_update(
             &entity_updates_component.updates
         );
 
-        entity_updates_component.updates_difference = difference_updates;
+        entity_updates_component.updates_difference.push(difference_updates);
 
     }
 
