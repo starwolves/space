@@ -56,7 +56,7 @@ pub fn gi_probe_update(
             &entity_updates_component.updates
         );
 
-        entity_updates_component.updates_difference = difference_updates;
+        entity_updates_component.updates_difference.push(difference_updates);
 
     }
 

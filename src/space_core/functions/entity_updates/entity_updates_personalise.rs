@@ -6,7 +6,7 @@ pub fn personalise (
     updates_data : &mut HashMap<String,HashMap<String, EntityUpdateData>>,
     player_handle : u32,
     entity_updates_component: &EntityUpdates,
-) -> HashMap<String,HashMap<String, EntityUpdateData>> {
+) {
 
     let mut to_be_removed_parameters = vec![];
 
@@ -23,7 +23,5 @@ pub fn personalise (
         updates_data.remove(&parameter);
 
     }
-
-    updates_data.clone()
 
 }

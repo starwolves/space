@@ -5,7 +5,7 @@ use crate::space_core::resources::network_messages::EntityUpdateData;
 
 pub struct EntityUpdates {
     pub updates : HashMap<String,HashMap<String, EntityUpdateData>>,
-    pub updates_difference : HashMap<String,HashMap<String, EntityUpdateData>>,
+    pub updates_difference : Vec<HashMap<String,HashMap<String, EntityUpdateData>>>,
     pub changed_parameters : Vec<String>,
     pub excluded_handles : HashMap<String, Vec<u32>>
 }
@@ -19,7 +19,7 @@ impl Default for EntityUpdates {
             updates: entity_updates_map,
             changed_parameters: vec![],
             excluded_handles:HashMap::new(),
-            updates_difference: HashMap::new(),
+            updates_difference: vec![],
         }
     }
 }

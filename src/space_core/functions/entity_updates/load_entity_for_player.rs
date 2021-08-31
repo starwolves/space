@@ -25,7 +25,7 @@ pub fn load_entity(
 
         hash_map = entity_updates.clone();
 
-        hash_map = entity_updates_personalise::personalise(
+        entity_updates_personalise::personalise(
             &mut hash_map,
             player_handle,
             entity_updates_component
