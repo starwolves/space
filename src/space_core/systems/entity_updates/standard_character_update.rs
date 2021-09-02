@@ -30,6 +30,7 @@ pub fn standard_character_update(
         
         let mut animation_tree1_upper_blend = HashMap::new();
         let mut animation_tree1_lower_body_jogging_strafe_blend_position = HashMap::new();
+        let mut animation_tree1_upper_body_jogging_strafe_blend_position = HashMap::new();
 
         let mut upper_body_left_punch_time_scale = HashMap::new();
         let mut upper_body_right_punch_time_scale = HashMap::new();
@@ -132,6 +133,11 @@ pub fn standard_character_update(
                     }
 
                     animation_tree1_lower_body_jogging_strafe_blend_position.insert(
+                        "blend_position".to_string(),
+                        EntityUpdateData::Vec2(Vec2::new(strafe_jogging_blend_position.x(),strafe_jogging_blend_position.y())),
+                    );
+
+                    animation_tree1_upper_body_jogging_strafe_blend_position.insert(
                         "blend_position".to_string(),
                         EntityUpdateData::Vec2(Vec2::new(strafe_jogging_blend_position.x(),strafe_jogging_blend_position.y())),
                     );
@@ -259,6 +265,11 @@ pub fn standard_character_update(
         entity_updates_component.updates.insert(
             "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/JoggingStrafe/BlendSpace2D/blend_position".to_string(),
             animation_tree1_lower_body_jogging_strafe_blend_position
+        );
+
+        entity_updates_component.updates.insert(
+            "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/JoggingStrafe/BlendSpace2D/blend_position".to_string(),
+            animation_tree1_upper_body_jogging_strafe_blend_position
         );
         
 
