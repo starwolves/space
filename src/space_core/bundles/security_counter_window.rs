@@ -2,7 +2,7 @@
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{components::{counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}};
+use crate::space_core::{components::{counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}};
 
 pub struct SecurityCounterWindowBundle;
 
@@ -58,10 +58,10 @@ impl SecurityCounterWindowBundle {
             ..Default::default()
         };
 
-        let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]*******\n"
+        let examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
         + "An airtight security window. It will only grant access to those authorised to use it."
-        + "[font=" + FURTHER_ITALIC_FONT + "]\n\nIt is in perfect shape and fully operational.[/font]"
-        + "\n*******[/font]";
+        + "[font=" + FURTHER_ITALIC_FONT + "]\n\n[color=#3cff00]It is in perfect shape and fully operational.[/color][/font]"
+        + "\n" + ASTRIX + "[/font]";
 
         let parent = commands.spawn_bundle(window_rigid_body_component).insert_bundle(window_collider_component).insert_bundle((
             static_transform_component,

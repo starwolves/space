@@ -39,7 +39,7 @@ const FAR_MACHINE_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCod
 const _FAR_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicBoldDynaSmaller.tres";
 
 
-
+pub const ASTRIX : &str = "[color=#bdbdbd]*******[/color]";
 
 const TALK_STYLE_STANDARD_STANDARD : &str = "says";
 const TALK_STYLE_STANDARD_EXCLAIMS : &str = "exclaims";

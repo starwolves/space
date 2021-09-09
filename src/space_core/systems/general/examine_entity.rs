@@ -26,7 +26,7 @@ pub fn examine_entity(
 
                 if sensable_component.sensed_by.contains(entity) {
 
-                    text = examinable_component.description.clone();
+                    text = examinable_component.description.clone() + "\n";
 
                 } else {
 

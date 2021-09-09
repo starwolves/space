@@ -25,7 +25,7 @@ pub fn examine_map(
         }
 
 
-        let examine_text;
+        let mut examine_text;
 
         let coords = to_doryen_coordinates(examine_event.gridmap_cell_id.x, examine_event.gridmap_cell_id.z);
         if !examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
@@ -90,7 +90,9 @@ pub fn examine_map(
         }
 
         
-    
+        
+        examine_text = examine_text + "\n";
+
         net_new_chat_message_event.send(NetChatMessage {
             handle: examine_event.handle,
             message: ReliableServerMessage::ChatMessage(examine_text),
