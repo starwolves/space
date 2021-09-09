@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_sprinting::InputSprinting, input_toggle_combat_mode::InputToggleCombatMode, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
 
 pub fn handle_network_messages(
 
@@ -28,6 +28,8 @@ pub fn handle_network_messages(
         EventWriter<InputToggleCombatMode>,
         EventWriter<MouseDirectionUpdate>,
         EventWriter<InputMouseAction>,
+        EventWriter<InputSelectBodyPart>,
+        EventWriter<InputToggleAutoMove>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -58,6 +60,8 @@ pub fn handle_network_messages(
         mut input_toggle_combat_mode,
         mut mouse_direction_update,
         mut input_mouse_action,
+        mut input_select_body_part,
+        mut input_toggle_auto_move,
     )
     = tuple1;
 
@@ -290,6 +294,37 @@ pub fn handle_network_messages(
                         },
                         None => {
                             warn!("Couldn't find player_entity belonging to input_mouse_action sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::SelectBodyPart(body_part) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_select_body_part.send(InputSelectBodyPart {
+                                handle: *handle,
+                                entity: *player_entity,
+                                body_part,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::ToggleAutoMove => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_toggle_auto_move.send(InputToggleAutoMove {
+                                handle: *handle,
+                                entity: *player_entity,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to InputToggleAutoMove sender handle.");
                         },
                     }
 

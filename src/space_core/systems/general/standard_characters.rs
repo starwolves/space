@@ -1,9 +1,9 @@
 use std::f32::consts::PI;
 
-use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
+use bevy::{math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, info, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::input_mouse_action::InputMouseAction, net::net_unload_entity::NetUnloadEntity}, functions::converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 const JOG_SPEED : f32 = 13.;
 const RUN_SPEED : f32 = 18.;
@@ -33,6 +33,8 @@ pub fn move_standard_characters(
     mut commands : Commands,
     mut net_unload_entity : EventWriter<NetUnloadEntity>,
     mut input_mouse_action_events : EventReader<InputMouseAction>,
+    mut input_select_body_part : EventReader<InputSelectBodyPart>,
+    mut input_toggle_auto_move : EventReader<InputToggleAutoMove>,
 ) {
 
     for event in input_mouse_action_events.iter() {
@@ -50,6 +52,28 @@ pub fn move_standard_characters(
 
     }
 
+    for event in input_select_body_part.iter() {
+
+        match query.get_component_mut::<PlayerInput>(event.entity) {
+            Ok(mut player_input_component) => {
+                player_input_component.targetted_limb = event.body_part.clone();
+            },
+            Err(_rr) => {warn!("Couldnt find PlayerInput entity for input_select_body_part");},
+        }
+
+    }
+
+    for event in input_toggle_auto_move.iter() {
+
+        match query.get_component_mut::<PlayerInput>(event.entity) {
+            Ok(mut player_input_component) => {
+                player_input_component.auto_move_enabled = !player_input_component.auto_move_enabled;
+            },
+            Err(_rr) => {warn!("Couldnt find PlayerInput entity for input_toggle_auto_move");},
+        }
+
+    }
+
     for (
         entity,
         mut player_input_component,
@@ -62,6 +86,16 @@ pub fn move_standard_characters(
         linked_footsteps_sprinting_option,
         mut pawn_component,
     ) in query.iter_mut() {
+
+        if player_input_component.auto_move_enabled { 
+            if player_input_component.movement_vector.length() > 0.1 {
+                player_input_component.auto_move_direction = player_input_component.movement_vector.clone();
+            }
+        } else {
+            player_input_component.auto_move_direction = Vec2::ZERO;
+        }
+
+
 
         if standard_character_component.combat_mode == false {
 
@@ -77,16 +111,31 @@ pub fn move_standard_characters(
             speed_factor = RUN_SPEED;
         }
 
-        if player_input_component.movement_vector.x.abs() == 1. && player_input_component.movement_vector.y.abs() == 1. {
+        let player_input_movement_vector;
+
+        if player_input_component.auto_move_enabled && player_input_component.movement_vector.length() < 0.1 {
+            if player_input_component.auto_move_direction.length () < 0.1 {
+                info!("I should be getting my direction from facing direction now!");
+                player_input_movement_vector = facing_direction_to_direction(&pawn_component.facing_direction);
+                player_input_component.auto_move_direction = player_input_movement_vector;
+            } else {
+                player_input_movement_vector = player_input_component.auto_move_direction;
+            }
+            
+        } else {
+            player_input_movement_vector = player_input_component.movement_vector;
+        }
+
+        if player_input_movement_vector.x.abs() == 1. && player_input_movement_vector.y.abs() == 1. {
             speed_factor*=0.665;
         }
 
         //speed_factor*=time.delta_seconds();
 
         let rapier_vector : Vector<Real> = Vec3::new(
-            player_input_component.movement_vector.x * -speed_factor,
+            player_input_movement_vector.x * -speed_factor,
             -1.0,
-            player_input_component.movement_vector.y * speed_factor,
+            player_input_movement_vector.y * speed_factor,
         ).into();
 
 
@@ -139,47 +188,47 @@ pub fn move_standard_characters(
         
 
         // Moving up.
-        if player_input_component.movement_vector.y == 1. && player_input_component.movement_vector.x == 0. {
+        if player_input_movement_vector.y == 1. && player_input_movement_vector.x == 0. {
             movement_index = 0;
             facing_direction = FacingDirection::Up;
         }
         // Moving down.
-        else if player_input_component.movement_vector.y == -1. && player_input_component.movement_vector.x == 0. {
+        else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == 0. {
             movement_index = 4;
             facing_direction = FacingDirection::Down;
         }
         // Moving left.
-        else if player_input_component.movement_vector.y == 0. && player_input_component.movement_vector.x == -1. {
+        else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == -1. {
             movement_index = 2;
             facing_direction = FacingDirection::Left;
         }
         // Moving right.
-        else if player_input_component.movement_vector.y == 0. && player_input_component.movement_vector.x == 1. {
+        else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == 1. {
             movement_index = 6;
             facing_direction = FacingDirection::Right;
         }
         // Moving up left.
-        else if player_input_component.movement_vector.y == 1. && player_input_component.movement_vector.x == -1. {
+        else if player_input_movement_vector.y == 1. && player_input_movement_vector.x == -1. {
             movement_index = 1;
             facing_direction = FacingDirection::UpLeft;
         }
         // Moving up right.
-        else if player_input_component.movement_vector.y == 1. && player_input_component.movement_vector.x == 1. {
+        else if player_input_movement_vector.y == 1. && player_input_movement_vector.x == 1. {
             movement_index = 7;
             facing_direction = FacingDirection::UpRight;
         }
         // Moving down left.
-        else if player_input_component.movement_vector.y == -1. && player_input_component.movement_vector.x == -1. {
+        else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == -1. {
             movement_index = 5;
             facing_direction = FacingDirection::DownLeft;
         }
         // Moving down right.
-        else if player_input_component.movement_vector.y == -1. && player_input_component.movement_vector.x == 1. {
+        else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == 1. {
             movement_index = 3;
             facing_direction = FacingDirection::DownRight;
         }
         
-        else if player_input_component.movement_vector.y == 0. && player_input_component.movement_vector.x == 0. {
+        else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == 0. {
             idle=true;
         }
 
@@ -374,7 +423,7 @@ pub fn move_standard_characters(
             }
         }
         
-        if player_input_component.movement_vector.x != 0. || player_input_component.movement_vector.y != 0. {
+        if player_input_movement_vector.x != 0. || player_input_movement_vector.y != 0. {
             rigid_body_velocity_component.linvel = rapier_vector;
         }
         

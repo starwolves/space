@@ -10,7 +10,7 @@ use bevy_networking_turbulence::{NetworkingPlugin};
 
 mod space_core;
 
-use space_core::{events::{general::{input_mouse_action::InputMouseAction, input_toggle_combat_mode::InputToggleCombatMode, mouse_direction_update::MouseDirectionUpdate, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, net::{
+use space_core::{events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, mouse_direction_update::MouseDirectionUpdate, scene_ready::SceneReady, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText}, net::{
             net_done_boarding::NetDoneBoarding,
             net_on_boarding::NetOnBoarding, 
             net_on_new_player_connection::NetOnNewPlayerConnection, 
@@ -58,7 +58,7 @@ fn main() {
         .add_plugin(TransformPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(NetworkingPlugin {
-            idle_timeout_ms: Some(10000),
+            idle_timeout_ms: Some(4000),
             ..Default::default()
         })
         .add_plugin(DiagnosticsPlugin::default())
@@ -117,6 +117,8 @@ fn main() {
         .add_event::<InputToggleCombatMode>()
         .add_event::<MouseDirectionUpdate>()
         .add_event::<InputMouseAction>()
+        .add_event::<InputSelectBodyPart>()
+        .add_event::<InputToggleAutoMove>()
         .add_startup_system(launch_server.system())
         .add_system_to_stage(PreUpdate, 
             handle_network_events.system()

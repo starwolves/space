@@ -1,5 +1,5 @@
 
-use crate::space_core::{functions::entity::new_chat_message::FURTHER_NORMAL_FONT, resources::{gridmap_main::CellData, network_messages::GridMapType}};
+use crate::space_core::{functions::entity::new_chat_message::{ASTRIX, FURTHER_NORMAL_FONT}, resources::{gridmap_main::CellData, network_messages::GridMapType}};
 
 
 const EXAMINATION_MAIN : [&str;13] = [
@@ -57,16 +57,16 @@ pub fn examine_ship_cell(
         examine_text = EXAMINATION_EMPTY;
     }
 
-    let message = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + "*******\n"
+    let message = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
     + examine_text
-    + "\n*******[/font]";
+    + "\n" + ASTRIX + "[/font]";
 
     message
 
 }
 
 pub fn get_empty_cell_message() -> String {
-    "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + "*******\n"
+    "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
     + EXAMINATION_EMPTY
-    + "\n*******[/font]"
+    + "\n" + ASTRIX + "[/font]"
 }

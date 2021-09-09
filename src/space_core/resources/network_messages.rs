@@ -33,6 +33,8 @@ pub enum ReliableClientMessage {
     ConsoleCommand(String, Vec<ConsoleCommandVariantValues>),
     ToggleCombatModeInput,
     InputMouseAction(bool),
+    SelectBodyPart(String),
+    ToggleAutoMove,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

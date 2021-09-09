@@ -31,7 +31,7 @@ impl FootstepsSprintingSfxBundle {
             ..Default::default()
         },
         RepeatingSfx {
-            unit_db: 18.0,
+            unit_db: 12.0,
             unit_size: 1.,
             stream_id: "concrete_sprinting_footsteps".to_string(),
             auto_destroy : true,
