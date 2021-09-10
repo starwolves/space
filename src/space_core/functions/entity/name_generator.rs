@@ -1,4 +1,4 @@
-use bevy::prelude::Res;
+use bevy::prelude::{Res, ResMut};
 use rand::seq::SliceRandom;
 
 use crate::space_core::resources::{
@@ -235,5 +235,15 @@ pub fn get_full_name(gender : bool, unique : bool, used_names : &Res<UsedNames>)
     }
 
     full_name
+
+}
+
+pub fn get_dummy_name(used_names : &mut ResMut<UsedNames>) -> String {
+
+    let return_name = "Dummy ".to_string() + &used_names.dummy_i.to_string();
+
+    used_names.dummy_i +=1;
+
+    return_name
 
 }

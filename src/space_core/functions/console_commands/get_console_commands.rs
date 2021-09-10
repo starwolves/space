@@ -21,7 +21,7 @@ pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleComman
         ),
         (
             "spawn_entity".to_string(),
-            "For server administrators only. Spawn in entities in your proximity.".to_string(),
+            "For server administrators only. Spawn in entities in proximity.".to_string(),
             vec![
                 (
                     "entity_name".to_string(),
@@ -33,6 +33,16 @@ pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleComman
                 ),
             ]
         ),
+        (
+            "spawn_held_entity".to_string(),
+            "For server administrators only. Spawn in held entities in hands or in proximity.".to_string(),
+            vec![
+                (
+                    "entity_name".to_string(),
+                    ConsoleCommandVariant::String
+                ),
+            ]
+        )
     ]
 
 }

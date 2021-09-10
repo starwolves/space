@@ -28,9 +28,11 @@ pub fn on_spawning(
             spawning_component.transform,
             &mut commands,
             persistent_player_data_component,
-            connected_player_component,
+            Some(connected_player_component),
             passed_inventory_setup,
             false,
+            false,
+            None,
             None,
             true,
         );
