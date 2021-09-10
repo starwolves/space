@@ -46,9 +46,11 @@ pub fn on_setupui (
             Transform::identity(),
             &mut commands,
             persistent_player_data_component,
-            connected_player_component,
+            Some(connected_player_component),
             passed_inventory_setup,
             true,
+            false,
+            None,
             Some(&mut net_showcase),
             true,
         );

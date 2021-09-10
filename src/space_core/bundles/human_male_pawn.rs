@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Vec3}, prelude::{Commands, Entity, EventWriter, Query, Transform}};
+use bevy::{math::{Vec3}, prelude::{Commands, Entity, EventWriter, Query, ResMut, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, humanoid_health::HumanoidHealth, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, humanoid_health::HumanoidHealth, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 pub struct HumanMalePawnBundle;
 
@@ -13,9 +13,11 @@ impl HumanMalePawnBundle {
         passed_transform : Transform,
         commands : &mut Commands,
         persistent_player_data_component : &PersistentPlayerData,
-        connected_player_component : &ConnectedPlayer,
+        connected_player_component : Option<&ConnectedPlayer>,
         passed_inventory_setup : Vec<(String,String)>,
         showcase_instance : bool,
+        dummy_instance : bool,
+        used_names : Option<&mut ResMut<UsedNames>>,
         mut net_showcase : Option<&mut EventWriter<NetShowcase>>,
 
         correct_transform : bool,
@@ -28,6 +30,18 @@ impl HumanMalePawnBundle {
         if correct_transform {
 
             this_transform.rotation = default_transform.rotation;
+
+        }
+
+        let character_name;
+
+        if dummy_instance {
+
+            character_name = get_dummy_name(used_names.unwrap());
+
+        } else {
+
+            character_name = persistent_player_data_component.character_name.clone();
 
         }
         
@@ -91,12 +105,12 @@ impl HumanMalePawnBundle {
                 mode : WorldModes::Kinematic
             },
             StandardCharacter {
-                character_name: persistent_player_data_component.character_name.clone(),
+                character_name: character_name.clone(),
                 ..Default::default()
             },
             CachedBroadcastTransform::default(),
             PersistentPlayerData {
-                character_name: persistent_player_data_component.character_name.clone(),
+                character_name: character_name.clone(),
             },
             DefaultTransform::default(),
             InterpolationPriority {
@@ -110,16 +124,34 @@ impl HumanMalePawnBundle {
 
         for (slot_name, item_name) in passed_inventory_setup.iter() {
 
-            let entity = spawn_held_entity(
-                item_name.to_string(),
-                commands, 
-                human_male_entity,
-                showcase_instance,
-                Some(connected_player_component.handle),
-                &mut net_showcase,
-            );
+            let entity_option;
 
-            slot_entities.insert(slot_name.to_string(),entity);
+            if showcase_instance {
+                entity_option = spawn_held_entity(
+                    item_name.to_string(),
+                    commands, 
+                    human_male_entity,
+                    showcase_instance,
+                    Some(connected_player_component.unwrap().handle),
+                    &mut net_showcase,
+                );
+            } else {
+                entity_option = spawn_held_entity(
+                    item_name.to_string(),
+                    commands, 
+                    human_male_entity,
+                    showcase_instance,
+                    None,
+                    &mut net_showcase,
+                );
+            }
+
+            match entity_option {
+                Some(entity) => {
+                    slot_entities.insert(slot_name.to_string(),entity);
+                },
+                None => {},
+            }
 
         }
 
@@ -206,12 +238,12 @@ impl HumanMalePawnBundle {
         if showcase_instance {
             entity_commands.insert(
                 Showcase {
-                    handle: connected_player_component.handle,
+                    handle: connected_player_component.unwrap().handle,
                 }
             );
             let entity_updates = HashMap::new();
             net_showcase.unwrap().send(NetShowcase{
-                handle: connected_player_component.handle,
+                handle: connected_player_component.unwrap().handle,
                 message: ReliableServerMessage::LoadEntity(
                     "entity".to_string(),
                     "humanMale".to_string(),
@@ -228,11 +260,6 @@ impl HumanMalePawnBundle {
             entity_commands.insert_bundle((
                 Senser::default(),
                 Sensable::default(),
-                ConnectedPlayer {
-                    handle: connected_player_component.handle,
-                    authid: connected_player_component.authid,
-                    ..Default::default()
-                },
                 Radio {
                     listen_access: vec![RadioChannel::Common, RadioChannel::Security],
                     speak_access: vec![RadioChannel::Common, RadioChannel::Security],
@@ -241,13 +268,26 @@ impl HumanMalePawnBundle {
                     access : vec![SpaceAccessEnum::Security]
                 },
                 Pawn {
-                    name: persistent_player_data_component.character_name.clone(),
+                    name: character_name.clone(),
                     job: SpaceJobsEnum::Security,
                     ..Default::default()
                 },
                 PlayerInput::default(),
                 HumanoidHealth::default(),
             ));
+
+            if !dummy_instance {
+
+                entity_commands.insert_bundle((
+                    ConnectedPlayer {
+                        handle: connected_player_component.unwrap().handle,
+                        authid: connected_player_component.unwrap().authid,
+                        ..Default::default()
+                    },
+                ));
+
+            }
+
         }
 
         human_male_entity

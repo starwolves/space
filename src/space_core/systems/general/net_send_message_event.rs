@@ -334,9 +334,4 @@ pub fn net_send_message_event(
 
     }
     
-
-    
-    
-
-
 }

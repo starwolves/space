@@ -1,7 +1,7 @@
-use bevy::prelude::{Commands, Entity, EventWriter, Query, Res};
+use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::{pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::{converters::isometry_to_transform::isometry_to_transform, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, spawn_entity::spawn_entity}}, resources::{gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::{converters::isometry_to_transform::isometry_to_transform, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, spawn_entity::spawn_entity}}, resources::{gridmap_main::GridmapMain, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 
 pub fn rcon_spawn_entity(
@@ -13,6 +13,7 @@ pub fn rcon_spawn_entity(
     rigid_body_positions : &mut Query<(&RigidBodyPosition, &Pawn)>,
     net_console_commands : &mut EventWriter<NetConsoleCommands>,
     gridmap_main : &Res<GridmapMain>,
+    used_names : &mut ResMut<UsedNames>,
 ) {
 
     let player_position;
@@ -63,6 +64,7 @@ pub fn rcon_spawn_entity(
             spawn_position,
             commands,
             true,
+            used_names,
         );
 
     }
