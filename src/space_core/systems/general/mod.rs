@@ -34,3 +34,4 @@ pub mod net_send_message_event;
 pub mod senser_update_fov;
 pub mod toggle_combat_mode;
 pub mod mouse_direction_update;
+pub mod ooc_name;

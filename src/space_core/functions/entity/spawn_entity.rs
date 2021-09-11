@@ -29,6 +29,7 @@ pub fn spawn_entity(
 
         let persistent_player_data_component = PersistentPlayerData {
             character_name: "".to_string(),
+            ooc_name: "unknownSpawnEntityAssigned".to_string()
         };
 
         return_entity = Some(HumanMalePawnBundle::spawn( 
@@ -42,6 +43,7 @@ pub fn spawn_entity(
             Some(used_names),
             None,
             true,
+            None,
         ));
 
 

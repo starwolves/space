@@ -3,7 +3,7 @@ use crate::space_core::{components::{
         connected_player::ConnectedPlayer,
         persistent_player_data::PersistentPlayerData,
         soft_player::SoftPlayer,
-    }, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate}, systems::general::console_commands::get_console_commands};
+    }, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}, systems::general::console_commands::get_console_commands};
 
 
 pub fn on_new_player_connection(
@@ -15,7 +15,8 @@ pub fn on_new_player_connection(
     server_id : &Res<ServerId>,
     all_ordered_cells : &Res<AllOrderedCells>,
     handle_to_entity : &mut ResMut<HandleToEntity>,
-    commands: &mut Commands
+    commands: &mut Commands,
+    used_names : &mut ResMut<UsedNames>,
 ) {
     
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
@@ -162,8 +163,11 @@ pub fn on_new_player_connection(
     let soft_connected_component = SoftPlayer;
 
     let persistent_player_data = PersistentPlayerData {
-        character_name: "".to_string()
+        character_name: "".to_string(),
+        ooc_name: "Wolf".to_string() + &used_names.player_i.to_string(),
     };
+
+    used_names.player_i+=1;
 
     auth_id_i.i+=1;
 

@@ -1,11 +1,11 @@
 
 use std::collections::HashMap;
 
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error}};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 use const_format::concatcp;
 
-use crate::space_core::{bundles::{play_sound_proximity_message::PlaySoundProximityMessage, play_sound_radio_message::PlaySoundRadioMessage}, components::{pawn::SpaceJobsEnum, radio::{Radio, RadioChannel}}, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, ReliableServerMessage}}};
+use crate::space_core::{bundles::{play_sound_proximity_message::PlaySoundProximityMessage, play_sound_radio_message::PlaySoundRadioMessage}, components::{connected_player::ConnectedPlayer, pawn::SpaceJobsEnum, persistent_player_data::PersistentPlayerData, radio::{Radio, RadioChannel}}, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, ReliableServerMessage}}};
 
 const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
 const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
@@ -154,7 +154,7 @@ const _TALK_TYPE_MACHINE_FAR_START : &str = "[i]";
 const _TALK_TYPE_MACHINE_FAR_END : &str = "[/i]";
 
 
-
+const TALK_SPACE_OOC_CHATPREFIX : &str = "/ooc"; 
 
 const TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX : &str = "/me";
 const TALK_SPACE_PROXIMITY_EMOTE_PREFIXBBSTART : &str = "[color=#dbdbdb]";
@@ -252,7 +252,12 @@ fn get_talk_space(message : String) -> (RadioChannel, String, bool, bool) {
     let mut exclusive_proximity = false;
     let mut is_emote = false;
 
-    if message.starts_with(TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX) {
+    if message.starts_with(TALK_SPACE_OOC_CHATPREFIX) {
+
+        radio_channel = RadioChannel::OOC;
+        content = message.split(TALK_SPACE_OOC_CHATPREFIX).collect();
+
+    } else if message.starts_with(TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX) {
 
         radio_channel = RadioChannel::ProximityEmote;
         content = message.split(TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX).collect();
@@ -286,9 +291,9 @@ fn get_talk_space(message : String) -> (RadioChannel, String, bool, bool) {
 
 }
 
-pub fn escape_bb(string : String, partially : bool) -> String {
+pub fn escape_bb(string : String, partially : bool, escape_special_chars : bool) -> String {
 
-    let mut new_string = string.trim().escape_default().to_string();
+    let mut new_string = string.escape_default().to_string();
 
     new_string = new_string.replace("[", "(");
     new_string = new_string.replace("]", ")");
@@ -307,7 +312,55 @@ pub fn escape_bb(string : String, partially : bool) -> String {
         }
     }
 
-    new_string
+    if escape_special_chars {
+
+        new_string = str::replace(&new_string, "`", "");
+        new_string = str::replace(&new_string, "~", "");
+        new_string = str::replace(&new_string, "!", "");
+        new_string = str::replace(&new_string, "@", "");
+        new_string = str::replace(&new_string, "#", "");
+        new_string = str::replace(&new_string, "$", "");
+        new_string = str::replace(&new_string, "%", "");
+        new_string = str::replace(&new_string, "^", "");
+        new_string = str::replace(&new_string, "&", "");
+        new_string = str::replace(&new_string, "*", "");
+        new_string = str::replace(&new_string, "(", "");
+        new_string = str::replace(&new_string, ")", "");
+        new_string = str::replace(&new_string, "-", "");
+        new_string = str::replace(&new_string, "+", "");
+        new_string = str::replace(&new_string, "_", "");
+        new_string = str::replace(&new_string, "{", "");
+        new_string = str::replace(&new_string, "}", "");
+        new_string = str::replace(&new_string, "\\", "");
+        new_string = str::replace(&new_string, "|", "");
+
+    }
+
+    new_string.trim().to_string()
+
+}
+
+pub fn new_ooc_message(
+    persistent_player_data_component : &PersistentPlayerData,
+    ooc_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
+    net_new_chat_message_event : &mut EventWriter<NetChatMessage>,
+    send_message : String,
+) {
+    
+    let message = persistent_player_data_component.ooc_name.clone() + ": " + &send_message;
+
+    for (connected_player_component , _persistent) in ooc_listeners.iter() {
+
+        if connected_player_component.connected == false {
+            continue;
+        }
+
+        net_new_chat_message_event.send(NetChatMessage{
+            handle: connected_player_component.handle,
+            message: ReliableServerMessage::ChatMessage(message.clone()),
+        });
+
+    }
 
 }
 
@@ -322,12 +375,13 @@ pub fn new_chat_message(
     mut raw_message : String,
     communicator : Communicator,
     exclusive_radio : bool,
-    radio_pawns : &Query<(Entity, &Radio, &RigidBodyPosition)>,
+    radio_pawns : &Query<(Entity, &Radio, &RigidBodyPosition, &PersistentPlayerData)>,
+    ooc_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
     messenger_entity_option : Option<&Entity>,
     mut net_send_entity_updates_option: Option<&mut EventWriter<NetSendEntityUpdates>>,
 ) {
 
-    raw_message = escape_bb(raw_message, true);
+    raw_message = escape_bb(raw_message, false, false);
 
     let (
         mut radio_channel
@@ -336,7 +390,29 @@ pub fn new_chat_message(
           is_emote
     ) = get_talk_space(raw_message);
 
-    message = escape_bb(message, true);
+    message = escape_bb(message, false, false);
+
+    if matches!(radio_channel, RadioChannel::OOC) {
+
+        match radio_pawns.get(*messenger_entity_option.unwrap()) {
+            Ok((_entity, _radio_component, _rigid_body_handle_component, persistent_player_data_component)) => {
+
+                new_ooc_message(
+                    persistent_player_data_component,
+                    ooc_listeners,
+                    net_new_chat_message_event,
+                    message,
+                );
+
+            },
+            Err(_rr) => {
+                warn!("Couldnt find components of OOC messenger.");
+            },
+        }
+
+        
+        return;
+    }
 
     if is_emote {
 
@@ -416,7 +492,11 @@ pub fn new_chat_message(
                 talk_space_prefix_bb_end = TALK_SPACE_SPECIALOPS_PREFIXBBEND;
                 talk_space_message_bb_start=TALK_SPACE_SPECIALOPS_MESSAGEBBSTART;
                 talk_space_message_bb_end=TALK_SPACE_SPECIALOPS_MESSAGEBBEND;
-            }
+            },
+            RadioChannel::OOC => {
+                warn!("Processing OOC chat while we shouldn't?");
+                return;
+            },
         }
 
 
@@ -892,7 +972,7 @@ pub fn new_chat_message(
                 let messenger_components_result = radio_pawns.get(*entity);
 
                 match messenger_components_result {
-                    Ok((_entity, radio_component, _rigid_body_handle_component)) => {
+                    Ok((_entity, radio_component, _rigid_body_handle_component, _persistent_player_data_component)) => {
 
                         if radio_component.speak_access.contains(&radio_channel) {
 
@@ -912,7 +992,7 @@ pub fn new_chat_message(
         if has_radio_permission {
 
 
-            for (entity, radio_component, _rigid_body_handle_component) in radio_pawns.iter() {
+            for (entity, radio_component, _rigid_body_handle_component, _persistent_player_data_component) in radio_pawns.iter() {
 
                 if radio_component.listen_access.contains(&radio_channel) {
 
@@ -973,7 +1053,7 @@ pub fn new_chat_message(
             let sensed_by_entity_components_result = radio_pawns.get(entity);
 
             match sensed_by_entity_components_result {
-                Ok((entity, _radio_component, rigid_body_position)) => {
+                Ok((entity, _radio_component, rigid_body_position, _persistent_player_data_component)) => {
                     let listener_handle_result = handle_to_entity.inv_map.get(&entity);
 
                     match listener_handle_result {

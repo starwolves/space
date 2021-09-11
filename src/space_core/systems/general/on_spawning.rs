@@ -33,6 +33,7 @@ pub fn on_spawning(
             None,
             None,
             true,
+            Some(persistent_player_data_component.ooc_name.clone()),
         );
 
 

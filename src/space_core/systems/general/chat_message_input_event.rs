@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{components::{pawn::Pawn, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::entity::new_chat_message::{Communicator, new_chat_message}, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::Pawn, persistent_player_data::PersistentPlayerData, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::entity::new_chat_message::{Communicator, escape_bb, new_chat_message, new_ooc_message}, resources::handle_to_entity::HandleToEntity};
 
 pub fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
@@ -11,9 +11,11 @@ pub fn chat_message_input_event(
         &RigidBodyPosition,
         &Sensable,
     )>,
-    radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition)>,
+    radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition, &PersistentPlayerData)>,
+    
     mut net_new_chat_message_event : EventWriter<NetChatMessage>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
+    ooc_listeners : Query<(&ConnectedPlayer, &PersistentPlayerData)>,
 ) {
 
     for chat_message_input_event in chat_message_input_events.iter() {
@@ -61,22 +63,35 @@ pub fn chat_message_input_event(
                     Communicator::Standard,
                     false,
                     &radio_pawns,
+                    &ooc_listeners,
                     Some(&player_pawn_entity),
                     Some(&mut net_send_entity_updates),
                 );
 
             },
             Err(_) => {
-                warn!("Couldn't find player player_components_result with query.get().");
-                continue;
+                // Assume ooc
+
+                let persistent_player_data_component;
+
+                match ooc_listeners.get(*player_pawn_entity) {
+                    Ok((_connected, persistent_data)) => {
+                        persistent_player_data_component = persistent_data;
+                    },
+                    Err(_rr) => {
+                        warn!("Couldnt find components for SoftConnected player with assumed ooc message.");
+                        continue;
+                    },
+                }
+
+                new_ooc_message(
+                    &persistent_player_data_component,
+                    &ooc_listeners,
+                    &mut net_new_chat_message_event,
+                    escape_bb(chat_message_input_event.message.clone(), false, false)
+                );
             },
         }
-
-
-        
-        
-
-
 
     }
 
