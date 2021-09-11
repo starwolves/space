@@ -73,10 +73,12 @@ pub fn rcon_spawn_entity(
             &standard_character_component.facing_direction,
             gridmap_main,
         );
+
+        let mut final_result = None;
         
         for _i in 0..spawn_amount {
     
-            spawn_entity(
+            final_result = spawn_entity(
                 entity_name.clone(),
                 spawn_position,
                 commands,
@@ -84,6 +86,22 @@ pub fn rcon_spawn_entity(
                 used_names,
             );
     
+        }
+
+        if spawn_amount > 0 {
+
+            match final_result {
+                Some(_) => todo!(),
+                None => {
+                    net_console_commands.send(NetConsoleCommands {
+                        handle: command_executor_handle,
+                        message: ReliableServerMessage::ConsoleWriteLine(
+                            "[color=#ff6600]Unknown entity name \"".to_string() + &entity_name + " \" was provided.[/color]"
+                        ),
+                    });
+                },
+            }
+
         }
 
         if spawn_amount == 1 {
