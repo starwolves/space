@@ -15,3 +15,4 @@ pub mod gridmap_main;
 pub mod gridmap_details1;
 pub mod network_messages;
 pub mod doryen_fov;
+pub mod motd;
