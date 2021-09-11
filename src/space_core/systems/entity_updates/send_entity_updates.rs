@@ -59,9 +59,11 @@ pub fn send_entity_updates(
 
                     }
 
-                    entity_updates_component.updates_difference.clear();
+                    
         
                 }
+
+                entity_updates_component.updates_difference.clear();
 
             },
             None => {},
