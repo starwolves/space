@@ -100,7 +100,14 @@ pub fn rcon_spawn_held_entity(
                         });
                         
                     },
-                    None => {},
+                    None => {
+                        net_console_commands.send(NetConsoleCommands {
+                            handle: command_executor_handle,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=#ff6600]Unknown entity name \"".to_string() + &entity_name + " \" was provided.[/color]"
+                            ),
+                        });
+                    },
                 }
     
                 
