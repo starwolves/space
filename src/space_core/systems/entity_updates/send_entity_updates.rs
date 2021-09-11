@@ -1,4 +1,4 @@
-use bevy::prelude::{Changed, Entity, EventWriter, Query, Res, info};
+use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, sensable::Sensable, showcase::Showcase}, events::net::net_send_entity_updates::NetSendEntityUpdates, functions::entity_updates::entity_updates_personalise, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
@@ -91,10 +91,6 @@ pub fn send_entity_updates(
                 if updates_data.len() == 0 {
                     continue;
                 }
-                
-                info!("{:?}", updates_data);
-                info!("{}", showcase_component.handle);
-                info!("");
 
                 net_send_entity_updates.send(NetSendEntityUpdates {
                     handle: showcase_component.handle,
