@@ -4,6 +4,8 @@ use bevy::prelude::{Entity, EventWriter, Local, Query};
 
 use crate::space_core::{components::connected_player::ConnectedPlayer, events::net::net_console_commands::NetConsoleCommands, resources::network_messages::ReliableServerMessage};
 
+use super::{CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR};
+
 const RCON_PASSWORD  : &str = "KA-BAR";
 
 
@@ -31,8 +33,7 @@ pub fn rcon_authorization(
         net_console_commands.send(NetConsoleCommands {
             handle: client_handle,
             message: ReliableServerMessage::ConsoleWriteLine(
-                "[color=#ff0000]Too many past attempts, blacklisted.[/color]"
-                .to_string()
+                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]Too many past attempts, blacklisted.[/color]"
             ),
         });
         return;
@@ -48,8 +49,7 @@ pub fn rcon_authorization(
         net_console_commands.send(NetConsoleCommands {
             handle: client_handle,
             message: ReliableServerMessage::ConsoleWriteLine(
-                "[color=#3cff00]RCON status granted![/color]"
-                .to_string()
+                "[color=".to_string() + CONSOLE_SUCCESS_COLOR + "]RCON status granted![/color]"
             ),
         });
 
@@ -70,8 +70,7 @@ pub fn rcon_authorization(
         net_console_commands.send(NetConsoleCommands {
             handle: client_handle,
             message: ReliableServerMessage::ConsoleWriteLine(
-                "[color=#ff6600]Wrong password.[/color]"
-                .to_string()
+                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]Wrong password.[/color]"
             ),
         });
 
