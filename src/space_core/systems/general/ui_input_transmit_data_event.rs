@@ -6,7 +6,7 @@ pub fn ui_input_transmit_data_event(
     mut event : EventReader<UIInputTransmitText>,
     mut boarding_player_event : EventWriter<BoardingPlayer>,
     handle_to_entity: Res<HandleToEntity>,
-    mut used_names : ResMut<UsedNames>,
+    used_names : ResMut<UsedNames>,
     mut query : Query<(&mut PersistentPlayerData, &ConnectedPlayer)>,
     mut commands : Commands
 ) {
@@ -31,15 +31,26 @@ pub fn ui_input_transmit_data_event(
                 
                 persistent_player_data.character_name = escape_bb(new_event.input_text.clone(), true);
 
-                if used_names.names.contains(&persistent_player_data.character_name) {
+                let mut name_in_use = false;
+
+                for name in used_names.names.keys() {
+
+                    if name.to_lowercase() == persistent_player_data.character_name.to_lowercase() {
+                        // Character name of player is already in-use.
+                        name_in_use=true;
+                        break;
+                    }
+
+                }
+
+                if name_in_use {
                     // Character name of player is already in-use.
                     continue;
                 }
+
                 if persistent_player_data.character_name.len() < 3 {
                     continue;
                 }
-
-                used_names.names.push(persistent_player_data.character_name.clone());
 
                 commands.entity(*player_entity).remove::<Boarding>();
 

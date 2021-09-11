@@ -1,7 +1,7 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query, Res, ResMut, warn};
+use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query, Res, ResMut};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, inventory::Inventory, pawn::Pawn}, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::console_commands::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_spawn_held_entity::rcon_spawn_held_entity, rcon_status::rcon_status}, resources::{gridmap_main::GridmapMain, network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, inventory::Inventory, pawn::Pawn}, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::console_commands::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_spawn_held_entity::rcon_spawn_held_entity, rcon_status::rcon_status}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{ConsoleCommandVariant, ReliableServerMessage}, used_names::UsedNames}};
 
 pub fn console_commands(
     mut console_commands_events : EventReader<ConsoleCommand>,
@@ -15,6 +15,7 @@ pub fn console_commands(
 
     gridmap_main : Res<GridmapMain>,
     mut used_names : ResMut<UsedNames>,
+    handle_to_entity : Res<HandleToEntity>,
 
 ) {
 
@@ -73,25 +74,41 @@ pub fn console_commands(
                 },
             }
 
+            let spawn_amount;
 
             match &console_command_event.command_arguments[1] {
                 crate::space_core::resources::network_messages::ConsoleCommandVariantValues::Int(value) => {
-                    rcon_spawn_entity(
-                        entity_name.to_string(),
-                        *value,
-                        &mut commands,
-                        console_command_event.entity,
-                        console_command_event.handle,
-                        &mut rigid_body_positions,
-                        &mut net_console_commands,
-                        &gridmap_main,
-                        &mut used_names
-                    );
+                    spawn_amount = *value;
                 },
                 _=> {
                     return;
                 },
             }
+
+            let player_selector;
+
+            match &console_command_event.command_arguments[2] {
+                crate::space_core::resources::network_messages::ConsoleCommandVariantValues::String(value) => {
+                    player_selector = value;
+                },
+                _=> {
+                    return;
+                },
+            }
+
+            rcon_spawn_entity(
+                entity_name.to_string(),
+                player_selector.to_string(),
+                spawn_amount,
+                &mut commands,
+                console_command_event.entity,
+                console_command_event.handle,
+                &mut rigid_body_positions,
+                &mut net_console_commands,
+                &gridmap_main,
+                &mut used_names,
+                &handle_to_entity
+            );
 
         } else if console_command_event.command_name == "spawn_held_entity" {
 
@@ -106,25 +123,88 @@ pub fn console_commands(
                 },
             }
 
-            match inventory_components.get_mut(console_command_event.entity) {
-                Ok(mut inventory) => {
-                    rcon_spawn_held_entity(
-                        entity_name.to_string(),
-                        &mut commands,
-                        console_command_event.entity,
-                        console_command_event.handle,
-                        &mut net_console_commands,
-                        &mut inventory,
-                        &mut rigid_body_positions,
-                        &gridmap_main,
-                        &mut used_names
-                    );
+            let player_selector;
+
+            match &console_command_event.command_arguments[1] {
+                crate::space_core::resources::network_messages::ConsoleCommandVariantValues::String(value) => {
+                    player_selector = value;
                 },
-                Err(_rr) => {warn!("Couldnt find inventory component of player who executed spawn_held_entity command.");return;},
+                _=> {
+                    return;
+                },
             }
+
+            rcon_spawn_held_entity(
+                entity_name.to_string(),
+                player_selector.to_string(),
+                &mut commands,
+                console_command_event.entity,
+                console_command_event.handle,
+                &mut net_console_commands,
+                &mut inventory_components,
+                &mut rigid_body_positions,
+                &gridmap_main,
+                &mut used_names,
+                &handle_to_entity,
+            );
 
         }
 
     }
+
+}
+
+
+pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)> {
+
+    vec![
+        (
+            "rcon".to_string(),
+            "For server administrators only. Obtaining rcon status allows for usage of rcon_* commands".to_string(),
+            vec![
+                (   
+                    "password".to_string(),
+                    ConsoleCommandVariant::String
+                ),
+            ]
+        ),
+        (
+            "rcon_status".to_string(),
+            "For server administrators only. Check if the server has granted you the RCON status.".to_string(),
+            vec![]
+        ),
+        (
+            "spawn_entity".to_string(),
+            "For server administrators only. Spawn in entities in proximity.".to_string(),
+            vec![
+                (
+                    "entity_name".to_string(),
+                    ConsoleCommandVariant::String
+                ),
+                (
+                    "amount".to_string(),
+                    ConsoleCommandVariant::Int
+                ),
+                (
+                    "player_selector".to_string(),
+                    ConsoleCommandVariant::String
+                ),
+            ]
+        ),
+        (
+            "spawn_held_entity".to_string(),
+            "For server administrators only. Spawn in held entities in hands or in proximity.".to_string(),
+            vec![
+                (
+                    "entity_name".to_string(),
+                    ConsoleCommandVariant::String
+                ),
+                (
+                    "player_selector".to_string(),
+                    ConsoleCommandVariant::String
+                ),
+            ]
+        )
+    ]
 
 }
