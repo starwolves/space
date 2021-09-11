@@ -19,3 +19,4 @@ pub mod mouse_direction_update;
 pub mod input_mouse_action;
 pub mod input_select_body_part;
 pub mod input_toggle_auto_move;
+pub mod input_ooc_name;

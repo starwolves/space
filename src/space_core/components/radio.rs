@@ -7,6 +7,7 @@ pub struct Radio {
 pub enum RadioChannel {
     Proximity,
     ProximityEmote,
+    OOC,
     Common,
     Security,
     SpecialOps

@@ -19,8 +19,8 @@ impl HumanMalePawnBundle {
         dummy_instance : bool,
         used_names : Option<&mut ResMut<UsedNames>>,
         mut net_showcase : Option<&mut EventWriter<NetShowcase>>,
-
         correct_transform : bool,
+        default_ooc_name_option : Option<String>,
     ) -> Entity {
 
         let default_transform = Transform::identity();
@@ -91,6 +91,17 @@ impl HumanMalePawnBundle {
         
 
         let mut entity_builder = commands.spawn_bundle(rigid_body_component);
+
+        let ooc_name;
+
+        match default_ooc_name_option {
+            Some(name) => {
+                ooc_name = name;
+            },
+            None => {
+                ooc_name = "unkown".to_string();
+            },
+        }
         
         entity_builder.insert_bundle(
             collider_component,
@@ -111,6 +122,7 @@ impl HumanMalePawnBundle {
             CachedBroadcastTransform::default(),
             PersistentPlayerData {
                 character_name: character_name.clone(),
+                ooc_name: ooc_name,
             },
             DefaultTransform::default(),
             InterpolationPriority {

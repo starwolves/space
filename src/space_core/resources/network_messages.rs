@@ -35,6 +35,7 @@ pub enum ReliableClientMessage {
     InputMouseAction(bool),
     SelectBodyPart(String),
     ToggleAutoMove,
+    OocName(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
