@@ -17,7 +17,7 @@ use space_core::{events::{general::{input_mouse_action::InputMouseAction, input_
             net_on_setupui::NetOnSetupUI,
             net_load_entity::NetLoadEntity, 
             net_send_entity_updates::NetSendEntityUpdates
-        }}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, doryen_fov::{DoryenMap}, handle_to_entity::HandleToEntity, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoints}, tick_rate::TickRate, used_names::UsedNames, world_environments::{WorldEnvironment}}, systems::{entity_updates::{
+        }}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, doryen_fov::{DoryenMap}, handle_to_entity::HandleToEntity, motd::MOTD, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoints}, tick_rate::TickRate, used_names::UsedNames, world_environments::{WorldEnvironment}}, systems::{entity_updates::{
             omni_light_update::omni_light_update,
             send_entity_updates::send_entity_updates
         }, general::{broadcast_interpolation_transforms::BROADCAST_INTERPOLATION_TRANSFORM_RATE, done_boarding::done_boarding, mouse_direction_update::mouse_direction_update, on_boarding::on_boarding, on_setupui::on_setupui, on_spawning::on_spawning, scene_ready_event::scene_ready_event, toggle_combat_mode::toggle_combat_mode, ui_input_event::ui_input_event, ui_input_transmit_data_event::ui_input_transmit_data_event, visible_checker::visible_checker}}};
@@ -79,6 +79,7 @@ fn main() {
         .init_resource::<SfxAutoDestroyTimers>()
         .init_resource::<AsanaBoardingAnnouncements>()
         .init_resource::<DoryenMap>()
+        .init_resource::<MOTD>()
         .add_event::<UIInput>()
         .add_event::<SceneReady>()
         .add_event::<UIInputTransmitText>()

@@ -41,6 +41,8 @@ const _FAR_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/S
 
 pub const ASTRIX : &str = "[color=#bdbdbd]*******[/color]";
 
+pub const COMMUNITY_HREF_COLOR : &str = "#d154ff";
+
 const TALK_STYLE_STANDARD_STANDARD : &str = "says";
 const TALK_STYLE_STANDARD_EXCLAIMS : &str = "exclaims";
 const TALK_STYLE_STANDARD_SHOUTS : &str = "shouts";
