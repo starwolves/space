@@ -314,25 +314,9 @@ pub fn escape_bb(string : String, partially : bool, escape_special_chars : bool)
 
     if escape_special_chars {
 
-        new_string = str::replace(&new_string, "`", "");
-        new_string = str::replace(&new_string, "~", "");
-        new_string = str::replace(&new_string, "!", "");
-        new_string = str::replace(&new_string, "@", "");
-        new_string = str::replace(&new_string, "#", "");
-        new_string = str::replace(&new_string, "$", "");
-        new_string = str::replace(&new_string, "%", "");
-        new_string = str::replace(&new_string, "^", "");
-        new_string = str::replace(&new_string, "&", "");
-        new_string = str::replace(&new_string, "*", "");
-        new_string = str::replace(&new_string, "(", "");
-        new_string = str::replace(&new_string, ")", "");
-        new_string = str::replace(&new_string, "-", "");
-        new_string = str::replace(&new_string, "+", "");
-        new_string = str::replace(&new_string, "_", "");
-        new_string = str::replace(&new_string, "{", "");
-        new_string = str::replace(&new_string, "}", "");
-        new_string = str::replace(&new_string, "\\", "");
-        new_string = str::replace(&new_string, "|", "");
+        new_string = new_string.replace("`", "").replace( "~", "").replace( "!", "").replace( "@", "").replace( "#", "").replace( "$", "").replace( "%", "")
+        .replace( "^", "").replace( "&", "").replace( "*", "").replace( "(", "").replace( ")", "").replace( "-", "").replace( "+", "")
+        .replace( "_", "").replace( "{", "").replace( "}", "").replace( "\\", "").replace( "|", "");
 
     }
 
