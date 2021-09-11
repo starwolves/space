@@ -229,7 +229,7 @@ pub fn get_full_name(gender : bool, unique : bool, used_names : &Res<UsedNames>)
     let full_name : String = first_name.to_owned() + " " + LAST_NAMES.choose(rng2).unwrap();
 
     if unique == true {
-        if used_names.names.contains(&full_name) {
+        if used_names.names.contains_key(&full_name) {
             get_full_name(gender, unique, used_names);
         }
     }

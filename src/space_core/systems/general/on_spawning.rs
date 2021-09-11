@@ -1,15 +1,13 @@
 use bevy::{prelude::{Added, Commands, Entity, EventWriter, Query, ResMut}};
 
-use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, spawning::Spawning}, events::{net::net_on_spawning::NetOnSpawning}, resources::{handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}}};
-
-
-
+use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, spawning::Spawning}, events::{net::net_on_spawning::NetOnSpawning}, resources::{handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, used_names::UsedNames}};
 
 pub fn on_spawning(
     mut net_on_new_player_connection : EventWriter<NetOnSpawning>,
     query : Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData),Added<Spawning>>,
     mut commands : Commands,
     mut handle_to_entity : ResMut<HandleToEntity>,
+    mut used_names : ResMut<UsedNames>,
 ) {
     
     for (
@@ -46,6 +44,8 @@ pub fn on_spawning(
         handle_to_entity.map.remove(&handle);
         handle_to_entity.map.insert(handle, new_entity);
 
+        used_names.names.insert(persistent_player_data_component.character_name.clone(), new_entity);
+
         commands.entity(entity_id).despawn();
         
         net_on_new_player_connection.send(NetOnSpawning{
@@ -56,6 +56,4 @@ pub fn on_spawning(
 
     }
 
-    
-    
 }

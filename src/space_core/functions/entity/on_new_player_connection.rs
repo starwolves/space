@@ -3,7 +3,7 @@ use crate::space_core::{components::{
         connected_player::ConnectedPlayer,
         persistent_player_data::PersistentPlayerData,
         soft_player::SoftPlayer,
-    }, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::console_commands::get_console_commands::get_console_commands, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate}};
+    }, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate}, systems::general::console_commands::get_console_commands};
 
 
 pub fn on_new_player_connection(
