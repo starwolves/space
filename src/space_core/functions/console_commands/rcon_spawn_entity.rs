@@ -91,7 +91,7 @@ pub fn rcon_spawn_entity(
         if spawn_amount > 0 {
 
             match final_result {
-                Some(_) => todo!(),
+                Some(_) => {},
                 None => {
                     net_console_commands.send(NetConsoleCommands {
                         handle: command_executor_handle,
