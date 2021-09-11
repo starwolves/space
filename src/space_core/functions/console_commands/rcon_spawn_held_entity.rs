@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::RigidBodyPosition;
 
 use crate::space_core::{components::{inventory::Inventory, pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::entity::spawn_entity::spawn_held_entity, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
-use super::{player_selector_to_entities::player_selector_to_entities, rcon_spawn_entity::rcon_spawn_entity};
+use super::{CONSOLE_ERROR_COLOR, player_selector_to_entities::player_selector_to_entities, rcon_spawn_entity::rcon_spawn_entity};
 
 pub fn rcon_spawn_held_entity(
     entity_name : String,
@@ -34,8 +34,7 @@ pub fn rcon_spawn_held_entity(
                 net_console_commands.send(NetConsoleCommands {
                     handle: command_executor_handle,
                     message: ReliableServerMessage::ConsoleWriteLine(
-                        "[color=#ff6600]An error occured when executing your command, please report this.[/color]"
-                        .to_string()
+                        "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
                     ),
                 });
                 continue;
@@ -52,8 +51,7 @@ pub fn rcon_spawn_held_entity(
                 net_console_commands.send(NetConsoleCommands {
                     handle: command_executor_handle,
                     message: ReliableServerMessage::ConsoleWriteLine(
-                        "[color=#ff6600]An error occured when executing your command, please report this.[/color]"
-                        .to_string()
+                        "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
                     ),
                 });
                 warn!("spawn_held_entity console command couldn't find handle belonging to target entity.");
@@ -104,7 +102,7 @@ pub fn rcon_spawn_held_entity(
                         net_console_commands.send(NetConsoleCommands {
                             handle: command_executor_handle,
                             message: ReliableServerMessage::ConsoleWriteLine(
-                                "[color=#ff6600]Unknown entity name \"".to_string() + &entity_name + " \" was provided.[/color]"
+                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]Unknown entity name \"" + &entity_name + " \" was provided.[/color]"
                             ),
                         });
                     },

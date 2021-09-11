@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::RigidBodyPosition;
 
 use crate::space_core::{components::{pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::{converters::isometry_to_transform::isometry_to_transform, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, spawn_entity::spawn_entity}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
-use super::player_selector_to_entities::player_selector_to_entities;
+use super::{CONSOLE_ERROR_COLOR, player_selector_to_entities::player_selector_to_entities};
 
 
 pub fn rcon_spawn_entity(
@@ -20,7 +20,7 @@ pub fn rcon_spawn_entity(
     handle_to_entity : &Res<HandleToEntity>,
 ) {
 
-    if spawn_amount > 5{
+    if spawn_amount > 5 {
         spawn_amount = 5;
         net_console_commands.send(NetConsoleCommands {
             handle: command_executor_handle,
@@ -57,8 +57,7 @@ pub fn rcon_spawn_entity(
                 net_console_commands.send(NetConsoleCommands {
                     handle: command_executor_handle,
                     message: ReliableServerMessage::ConsoleWriteLine(
-                        "[color=#ff6600]An error occured when executing your command, please report this.[/color]"
-                        .to_string()
+                        "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
                     ),
                 });
                 continue;
@@ -96,7 +95,7 @@ pub fn rcon_spawn_entity(
                     net_console_commands.send(NetConsoleCommands {
                         handle: command_executor_handle,
                         message: ReliableServerMessage::ConsoleWriteLine(
-                            "[color=#ff6600]Unknown entity name \"".to_string() + &entity_name + " \" was provided.[/color]"
+                            "[color=".to_string() + CONSOLE_ERROR_COLOR + "]Unknown entity name \"" + &entity_name + " \" was provided.[/color]"
                         ),
                     });
                 },

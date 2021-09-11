@@ -1,6 +1,6 @@
 [package]
 name = "space"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["Nikita Ramses Abdoelrahman <nikitaab98@gmail.com>"]
 description="A high performance multi-threaded ECS game server."
 homepage="https://github.com/nikitavondel/space"

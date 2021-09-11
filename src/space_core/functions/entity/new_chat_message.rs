@@ -13,7 +13,7 @@ const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/Robo
 const NEARBY_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularBoldDyna.tres";
 const _NEARBY_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumItDyna.tres";
 const _NEARBY_NORMAL_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatRegularMediumDyna.tres";
-const NEARBY_SHOUT_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatShoutBoldDyna.tres";
+pub const NEARBY_SHOUT_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatShoutBoldDyna.tres";
 const _NEARBY_MACHINE_MEDIUM_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightMediumDyna.tres";
 const _NEARBY_MACHINE_ITALIC_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightItalicDyna.tres";
 const _NEARBY_MACHINE_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/SourceCodePro-ChatLightBoldDyna.tres";
@@ -41,7 +41,6 @@ const _FAR_MACHINE_ITALIC_BOLD_FONT : &str = "res://assets/fonts/SourceCodePro/S
 
 pub const ASTRIX : &str = "[color=#bdbdbd]*******[/color]";
 
-pub const COMMUNITY_HREF_COLOR : &str = "#d154ff";
 
 const TALK_STYLE_STANDARD_STANDARD : &str = "says";
 const TALK_STYLE_STANDARD_EXCLAIMS : &str = "exclaims";
