@@ -392,6 +392,10 @@ pub fn new_chat_message(
     messaging_player_state : &MessagingPlayerState,
 ) {
 
+    if raw_message.len() > 500 {
+        raw_message = raw_message[..500].to_string();
+    }
+
     raw_message = escape_bb(raw_message, false, false);
 
     let mut radio_channel;
