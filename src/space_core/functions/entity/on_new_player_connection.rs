@@ -158,14 +158,26 @@ pub fn on_new_player_connection(
 
     let soft_connected_component = SoftPlayer;
 
+    let mut default_name = "Wolf".to_string() + &used_names.player_i.to_string();
+
+    used_names.player_i+=1;
+
+    while used_names.ooc_names.contains_key(&default_name) {
+
+        used_names.player_i+=1;
+        default_name = "Wolf".to_string() + &used_names.player_i.to_string();
+        
+
+    }
+
     let persistent_player_data = PersistentPlayerData {
         character_name: "".to_string(),
-        ooc_name: "Wolf".to_string() + &used_names.player_i.to_string(),
+        ooc_name: default_name,
     };
 
     let player_input = PlayerInput::default();
 
-    used_names.player_i+=1;
+    
 
     auth_id_i.i+=1;
 
