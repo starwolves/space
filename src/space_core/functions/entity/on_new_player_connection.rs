@@ -170,9 +170,10 @@ pub fn on_new_player_connection(
 
     }
 
+
     let persistent_player_data = PersistentPlayerData {
         character_name: "".to_string(),
-        ooc_name: default_name,
+        ooc_name: default_name.clone(),
     };
 
     let player_input = PlayerInput::default();
@@ -187,6 +188,9 @@ pub fn on_new_player_connection(
         persistent_player_data,
         player_input
     )).id();
+
+    
+    used_names.ooc_names.insert(default_name, player_entity_id);
     
     handle_to_entity.map.insert(*handle, player_entity_id);
     handle_to_entity.inv_map.insert(player_entity_id, *handle);
