@@ -244,6 +244,27 @@ fn is_asking(message : &str) -> bool {
     message.ends_with("?!")
 }
 
+// Updates chat ButtonOption list for clients.
+pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
+
+    vec![
+        ("OOC".to_string(), TALK_SPACE_OOC_CHATPREFIX.to_string()),
+    ]
+
+}
+
+pub fn get_talk_spaces() -> Vec<(String, String)> {
+
+    vec![
+        ("Local".to_string(), "".to_string()),
+        ("Me".to_string(), TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX.to_string()),
+        ("Common".to_string(), TALK_SPACE_COMMON_CHATPREFIX.to_string()),
+        ("Security".to_string(), TALK_SPACE_SECURITY_CHATPREFIX.to_string()),
+        ("Spec-Ops".to_string(), TALK_SPACE_SPECIALOPS_CHATPREFIX.to_string()),
+        ("OOC".to_string(), TALK_SPACE_OOC_CHATPREFIX.to_string()),
+    ]
+
+}
 
 fn get_talk_space(message : String) -> (RadioChannel, String, bool, bool) {
 
@@ -348,6 +369,11 @@ pub fn new_ooc_message(
 
 }
 
+pub enum MessagingPlayerState {
+    SoftConnected,
+    Alive,
+}
+
 pub fn new_chat_message(
     net_new_chat_message_event : &mut EventWriter<NetChatMessage>,
     handle_to_entity : &Res<HandleToEntity>,
@@ -363,23 +389,61 @@ pub fn new_chat_message(
     ooc_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
     messenger_entity_option : Option<&Entity>,
     mut net_send_entity_updates_option: Option<&mut EventWriter<NetSendEntityUpdates>>,
+    messaging_player_state : &MessagingPlayerState,
 ) {
 
     raw_message = escape_bb(raw_message, false, false);
 
-    let (
-        mut radio_channel
-        ,mut message,
-         mut exclusive_proximity,
-          is_emote
-    ) = get_talk_space(raw_message);
+    let mut radio_channel;
+    let mut message;
+    let mut exclusive_proximity;
+    let mut is_emote;
+
+    let result = get_talk_space(raw_message.clone());
+    radio_channel = result.0;
+    message = result.1;
+    exclusive_proximity = result.2;
+    is_emote = result.3;
 
     message = escape_bb(message, false, false);
 
+    let mut prev_was_proximity;
+
+    if matches!(radio_channel, RadioChannel::Proximity) {
+        prev_was_proximity=true;
+    } else {
+        prev_was_proximity=false;
+    }
+
+    while !prev_was_proximity {
+
+    
+
+        let result = get_talk_space(message.clone());
+        
+
+        if matches!(result.0, RadioChannel::Proximity) {
+            prev_was_proximity=true;
+        } else {
+            prev_was_proximity=false;
+            radio_channel = result.0;
+            message = result.1;
+            exclusive_proximity = result.2;
+            is_emote = result.3;
+        
+            message = escape_bb(message, false, false);
+        }
+
+    }
+
+    if matches!(messaging_player_state, &MessagingPlayerState::SoftConnected) {
+        radio_channel = RadioChannel::OOC;
+    }
+
     if matches!(radio_channel, RadioChannel::OOC) {
 
-        match radio_pawns.get(*messenger_entity_option.unwrap()) {
-            Ok((_entity, _radio_component, _rigid_body_handle_component, persistent_player_data_component)) => {
+        match ooc_listeners.get(*messenger_entity_option.unwrap()) {
+            Ok((_connected, persistent_player_data_component)) => {
 
                 new_ooc_message(
                     persistent_player_data_component,
@@ -397,6 +461,10 @@ pub fn new_chat_message(
         
         return;
     }
+
+    /*if matches!(messaging_player_state, &MessagingPlayerState::SoftConnected) {
+        return;
+    }*/
 
     if is_emote {
 

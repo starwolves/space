@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::Pawn, persistent_player_data::PersistentPlayerData, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::entity::new_chat_message::{Communicator, escape_bb, new_chat_message, new_ooc_message}, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::{Pawn, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::entity::new_chat_message::{Communicator, MessagingPlayerState, new_chat_message}, resources::handle_to_entity::HandleToEntity};
 
 pub fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
@@ -66,11 +66,12 @@ pub fn chat_message_input_event(
                     &ooc_listeners,
                     Some(&player_pawn_entity),
                     Some(&mut net_send_entity_updates),
+                    &MessagingPlayerState::Alive,
                 );
 
             },
             Err(_) => {
-                // Assume ooc
+                // Soft connected chat
 
                 let persistent_player_data_component;
 
@@ -84,11 +85,22 @@ pub fn chat_message_input_event(
                     },
                 }
 
-                new_ooc_message(
-                    &persistent_player_data_component,
-                    &ooc_listeners,
+                new_chat_message(
                     &mut net_new_chat_message_event,
-                    escape_bb(chat_message_input_event.message.clone(), false, false)
+                    &handle_to_entity,
+                    &vec![],
+                    &vec![],
+                    Vec3::ZERO,
+                    persistent_player_data_component.ooc_name.clone(),
+                    SpaceJobsEnum::Security,
+                    chat_message_input_event.message.clone(),
+                    Communicator::Standard,
+                    false,
+                    &radio_pawns,
+                    &ooc_listeners,
+                    Some(&player_pawn_entity),
+                    Some(&mut net_send_entity_updates),
+                    &MessagingPlayerState::SoftConnected,
                 );
             },
         }
