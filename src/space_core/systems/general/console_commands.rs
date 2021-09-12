@@ -33,6 +33,7 @@ pub fn console_commands(
                         &mut net_console_commands,
                         value.to_string(),
                     );
+                    return;
                 },
                 _=>(),
             }
@@ -45,6 +46,7 @@ pub fn console_commands(
                 console_command_event.entity,
                 &mut net_console_commands,
             );
+            return;
 
         }
 
