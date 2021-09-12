@@ -1,4 +1,4 @@
-use bevy::{math::Vec2, prelude::{Query, ResMut}};
+use bevy::{math::Vec2, prelude::{Query, ResMut, info}};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput}, resources::{handle_to_entity::HandleToEntity, used_names::UsedNames}};
 
@@ -8,6 +8,8 @@ pub fn on_player_disconnect(
     connected_players : &mut Query<(&mut PersistentPlayerData, &mut ConnectedPlayer, &mut PlayerInput)>,
     used_names : &mut ResMut<UsedNames>,
 ) {
+
+    info!("[{}] disconnected!", handle);
 
     let mut entity = None;
 
