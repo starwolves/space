@@ -65,7 +65,6 @@ pub fn handle_network_events(
             }
             
             NetworkEvent::Disconnected(handle) => {
-                info!("[{}] disconnected!", handle);
                 on_player_disconnect(
                     *handle,
                     &mut handle_to_entity,

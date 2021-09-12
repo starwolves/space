@@ -1,9 +1,5 @@
 use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::EventWriter};
-use crate::space_core::{components::{
-        connected_player::ConnectedPlayer,
-        persistent_player_data::PersistentPlayerData,
-        soft_player::SoftPlayer,
-    }, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}, systems::general::console_commands::get_console_commands};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, soft_player::SoftPlayer}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}, systems::general::console_commands::get_console_commands};
 
 
 pub fn on_new_player_connection(
@@ -167,6 +163,8 @@ pub fn on_new_player_connection(
         ooc_name: "Wolf".to_string() + &used_names.player_i.to_string(),
     };
 
+    let player_input = PlayerInput::default();
+
     used_names.player_i+=1;
 
     auth_id_i.i+=1;
@@ -174,7 +172,8 @@ pub fn on_new_player_connection(
     let player_entity_id = commands.spawn().insert_bundle((
         connected_player_component,
         soft_connected_component,
-        persistent_player_data
+        persistent_player_data,
+        player_input
     )).id();
     
     handle_to_entity.map.insert(*handle, player_entity_id);
