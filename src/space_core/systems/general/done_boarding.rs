@@ -1,6 +1,6 @@
 use bevy::{core::Timer, prelude::{Commands, EventReader, EventWriter, ResMut, info}};
 
-use crate::space_core::{components::{ on_board::OnBoard,  setup_phase::SetupPhase, soft_player::SoftPlayer, spawning::Spawning}, events::{general::boarding_player::BoardingPlayer, net::{net_done_boarding::NetDoneBoarding}}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, network_messages::{ReliableServerMessage, ServerConfigMessage}, spawn_points::SpawnPoints}};
+use crate::space_core::{components::{ on_board::OnBoard,  setup_phase::SetupPhase, soft_player::SoftPlayer, spawning::Spawning}, events::{general::boarding_player::BoardingPlayer, net::{net_done_boarding::NetDoneBoarding}}, functions::entity::new_chat_message::{get_talk_spaces}, resources::{asana_boarding_announcements::AsanaBoardingAnnouncements, network_messages::{ReliableServerMessage, ServerConfigMessage}, spawn_points::SpawnPoints}};
 
 pub fn done_boarding(
     mut spawn_points : ResMut<SpawnPoints>,
@@ -36,6 +36,13 @@ pub fn done_boarding(
         net_done_boarding.send(NetDoneBoarding {
             handle : player_handle,
             message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(true, "main".to_string()))
+        });
+
+        let talk_spaces = get_talk_spaces();
+
+        net_done_boarding.send(NetDoneBoarding{
+            handle: player_handle,
+            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::TalkSpaces(talk_spaces))
         });
 
         asana_boarding_announcements.announcements.push((

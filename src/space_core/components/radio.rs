@@ -3,7 +3,7 @@ pub struct Radio {
     pub speak_access : Vec<RadioChannel>
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum RadioChannel {
     Proximity,
     ProximityEmote,

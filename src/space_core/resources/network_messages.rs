@@ -112,6 +112,7 @@ pub enum ServerConfigMessage {
     RepeatingSFX(String, Vec<String>),
     FinishedInitialization,
     ConsoleCommands(Vec<(String,String, Vec<(String, ConsoleCommandVariant)>)>),
+    TalkSpaces(Vec<(String, String)>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
