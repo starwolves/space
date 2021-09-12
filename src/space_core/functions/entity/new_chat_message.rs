@@ -331,7 +331,7 @@ pub fn new_ooc_message(
     send_message : String,
 ) {
     
-    let message = persistent_player_data_component.ooc_name.clone() + ": " + &send_message;
+    let message =persistent_player_data_component.ooc_name.clone() +  "[b][color=#322bff](OOC)[/color][/b]: " + &send_message;
 
     for (connected_player_component , _persistent) in ooc_listeners.iter() {
 
