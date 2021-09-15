@@ -421,12 +421,39 @@ pub fn new_chat_message(
         prev_was_proximity=false;
     }
 
+    let mut proximity_emote_included;
+
+    if matches!(radio_channel, RadioChannel::ProximityEmote) {
+        proximity_emote_included=true;
+    } else {
+        proximity_emote_included=false;
+    }
+
+    let mut radio_command_included;
+    let mut included_radio_channel;
+
+    if !matches!(radio_channel, RadioChannel::Proximity) && !matches!(radio_channel, RadioChannel::ProximityEmote) {
+        radio_command_included = true;
+        included_radio_channel = Some(radio_channel.clone());
+    } else {
+        radio_command_included = false;
+        included_radio_channel = None;
+    }
+
     while !prev_was_proximity {
 
     
 
         let result = get_talk_space(message.clone());
         
+        if matches!(result.0, RadioChannel::ProximityEmote) {
+            proximity_emote_included=true;
+        }
+
+        if !matches!(radio_channel, RadioChannel::Proximity) && !matches!(radio_channel, RadioChannel::ProximityEmote) {
+            radio_command_included = true;
+            included_radio_channel = Some(radio_channel.clone());
+        }
 
         if matches!(result.0, RadioChannel::Proximity) {
             prev_was_proximity=true;
@@ -440,12 +467,33 @@ pub fn new_chat_message(
             message = escape_bb(message, false, false);
         }
 
-    }
-
-    message = case::capitalize(&message, false);
+    } 
 
     if matches!(messaging_player_state, &MessagingPlayerState::SoftConnected) {
         radio_channel = RadioChannel::OOC;
+    }
+
+    // Emote over Radio channel for the memes.
+    if !matches!(radio_channel, RadioChannel::ProximityEmote) {
+
+        if proximity_emote_included {
+            is_emote=true;
+            exclusive_proximity=false;
+        } else {
+            message = case::capitalize(&message, false);
+        }
+    } else {
+
+        if radio_command_included {
+            is_emote=true;
+            exclusive_proximity=false;
+            radio_channel = included_radio_channel.unwrap();
+
+            if matches!(radio_channel, RadioChannel::OOC) {
+                message = case::capitalize(&message, false);
+            }
+
+        }
     }
 
     if matches!(radio_channel, RadioChannel::OOC) {
@@ -468,21 +516,6 @@ pub fn new_chat_message(
 
         
         return;
-    }
-
-    /*if matches!(messaging_player_state, &MessagingPlayerState::SoftConnected) {
-        return;
-    }*/
-
-    if is_emote {
-
-        let result = get_talk_space(message);
-
-        radio_channel = result.0;
-        message = result.1;
-        exclusive_proximity = result.2;
-    
-
     }
 
     if exclusive_radio == true {
@@ -607,10 +640,14 @@ pub fn new_chat_message(
 
 
         if is_emote {
-            radio_message = radio_message + talk_space_prefix_bb_start + "[" + talk_space_word + "][" + rank_word + "] " + talk_space_prefix_bb_end;
-            radio_message = radio_message + talk_space_message_bb_start + talk_font_nearby_start;
-            radio_message = radio_message + &message;
-            radio_message = radio_message + talk_font_nearby_end + talk_space_message_bb_end;
+            radio_message = radio_message + talk_space_prefix_bb_start;
+            radio_message = radio_message + talk_font_nearby_start;
+            radio_message = radio_message + &name + " [" + talk_space_word + "][" + rank_word + "] ";
+            radio_message = radio_message + talk_font_nearby_end + talk_space_prefix_bb_end;
+            radio_message = radio_message + talk_space_message_bb_start;
+
+            radio_message = radio_message + talk_font_nearby_start_1 + &message + talk_font_nearby_end_1;
+            radio_message = radio_message + talk_space_message_bb_end;
         } else {
             radio_message = radio_message + talk_space_prefix_bb_start;
             radio_message = radio_message + talk_font_nearby_start;
