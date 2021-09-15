@@ -6,7 +6,7 @@ pub struct MOTD {
     pub message : String,
 }
 
-const COMMUNITY_HREF_COLOR : &str = "#fc4aff";
+const COMMUNITY_HREF_COLOR : &str = "#5c4aff";
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 

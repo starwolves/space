@@ -5,6 +5,8 @@ use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 use const_format::concatcp;
 
+use voca_rs::*;
+
 use crate::space_core::{bundles::{play_sound_proximity_message::PlaySoundProximityMessage, play_sound_radio_message::PlaySoundRadioMessage}, components::{connected_player::ConnectedPlayer, pawn::SpaceJobsEnum, persistent_player_data::PersistentPlayerData, radio::{Radio, RadioChannel}}, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, ReliableServerMessage}}};
 
 const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
@@ -440,6 +442,8 @@ pub fn new_chat_message(
 
     }
 
+    message = case::capitalize(&message, false);
+
     if matches!(messaging_player_state, &MessagingPlayerState::SoftConnected) {
         radio_channel = RadioChannel::OOC;
     }
@@ -568,8 +572,8 @@ pub fn new_chat_message(
                 talk_font_nearby_end=TALK_DATA_STANDARD_B_NEARBY_END;
 
                 
-                talk_font_nearby_start_1 = TALK_TYPE_MACHINE_NEARBY_START;
-                talk_font_nearby_end_1=TALK_TYPE_MACHINE_NEARBY_END;
+                talk_font_nearby_start_1 = TALK_TYPE_STANDARD_NEARBY_START;
+                talk_font_nearby_end_1=TALK_TYPE_STANDARD_NEARBY_END;
                 
                 match talk_style_variation {
                     TalkStyleVariant::Standard => {talk_style_variation_word=TALK_STYLE_STANDARD_STANDARD;},
