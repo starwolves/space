@@ -6,7 +6,6 @@ use crate::space_core::components::{ambience_sfx_timer::AmbienceSfxTimer, entity
 pub struct AmbienceSfxBundle;
 
 pub const AMBIENCE_SFX_PLAY_BACK_DURATION : f32 = 424. + 1.;
-// pub const PLAY_BACK_DURATION : f32 = 12. + 1.;
 
 impl AmbienceSfxBundle {
     
@@ -19,8 +18,6 @@ impl AmbienceSfxBundle {
         AmbienceSfxTimer
     ) {
 
-
-        
 
         (StaticTransform {
             transform: passed_transform,
@@ -39,6 +36,7 @@ impl AmbienceSfxBundle {
             stream_id: "spaceshipAmbientSound".to_string(),
             play_back_position: 0.,
             play_back_duration: AMBIENCE_SFX_PLAY_BACK_DURATION,
+            auto_destroy : false,
             ..Default::default()
         },
         EntityUpdates::default(),

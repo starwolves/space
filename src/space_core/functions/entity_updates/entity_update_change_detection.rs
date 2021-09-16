@@ -16,7 +16,7 @@ pub fn entity_update_changed_detection(
     let has_changed ;
     match get {
         Some(value) => {
-            has_changed = entity_data_is_matching(value, &set);
+            has_changed = !entity_data_is_matching(value, &set);
         },
         None => {
             has_changed=true;

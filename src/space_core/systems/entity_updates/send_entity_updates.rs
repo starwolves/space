@@ -18,6 +18,7 @@ pub fn send_entity_updates(
 
         if entity_updates_component.changed_parameters.len() == 1 &&
         entity_updates_component.changed_parameters.contains(&"play_back_position".to_string()) {
+            entity_updates_component.updates_difference.clear();
             continue;
         }
 
@@ -29,6 +30,7 @@ pub fn send_entity_updates(
                     let mut updates_data_vec = entity_updates_component.updates_difference.clone();
                     
                     for updates_data in updates_data_vec.iter_mut() {
+
 
                         match connected_player_component_option {
                             Some(connected_player_component) => {
@@ -42,6 +44,8 @@ pub fn send_entity_updates(
                             },
                             None => {},
                         }
+
+                        
             
                         if updates_data.len() == 0 {
                             continue;

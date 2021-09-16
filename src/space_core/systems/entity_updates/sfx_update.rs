@@ -160,7 +160,7 @@ pub fn sfx_update(
         entity_update_changed_detection(
             &mut changed_parameters,
             entity_updates,
-            EntityUpdateData::Bool(sfx_component.sfx_replay),
+            EntityUpdateData::Bool(sfx_component.sfx_replay.clone()),
             "sfx_replay".to_string()
         );
 
@@ -182,7 +182,6 @@ pub fn sfx_update(
             old_entity_updates,
             &entity_updates_component.updates
         );
-
         entity_updates_component.updates_difference.push(difference_updates);
 
     }
