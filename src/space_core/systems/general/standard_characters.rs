@@ -154,7 +154,7 @@ pub fn move_standard_characters(
 
             let mut angle = standard_character_component.facing_direction;
 
-            //angle+=0.14*PI;
+            angle+=0.14*PI;
 
             if angle > 0. && angle < 0.1 {
                 angle = 0.1;
@@ -164,13 +164,14 @@ pub fn move_standard_characters(
                 angle = PI-0.1;
             }
 
-            if angle < 0. {
+            if angle > PI {
+                angle = -(angle-PI);
+            } else if angle < 0. {
                 angle = -(PI - angle.abs());
             }
 
             angle+=0.5*PI;
-
-            //warn!("{}", angle);
+            
 
             let end_rotation = Quat::from_axis_angle(
                 Vec3::new(0.,1.,0.),
