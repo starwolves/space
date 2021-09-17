@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use bevy::{math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
+use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
 use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
@@ -27,7 +27,7 @@ pub fn move_standard_characters(
         Option<&FootstepsSprinting>,
         &mut StaticTransform
     )>,
-    //time: Res<Time>,
+    time: Res<Time>,
     movement_rotations: Res<PlayerYAxisRotations>,
     handle_to_entity: Res<HandleToEntity>,
     mut commands : Commands,
@@ -147,6 +147,11 @@ pub fn move_standard_characters(
         let mut facing_direction = pawn_component.facing_direction.clone();
 
 
+        
+        standard_character_component.next_attack_timer.tick(time.delta());
+        let ready_to_attack_this_frame = standard_character_component.next_attack_timer.finished();
+
+
         // If combat mode, specific new rotation based on mouse direction.
         if standard_character_component.combat_mode &&  !player_input_component.sprinting{
 
@@ -184,7 +189,20 @@ pub fn move_standard_characters(
             rigid_body_position_component.position = transform_to_isometry(rigid_body_transform);
 
 
+            
+            let mut attacking_this_frame = false;
+
             if player_input_component.is_mouse_action_pressed {
+                if ready_to_attack_this_frame {
+                    attacking_this_frame=true;
+                }
+                if ready_to_attack_this_frame {
+                    standard_character_component.next_attack_timer.reset()
+                }
+                if standard_character_component.next_attack_timer.paused() {
+                    standard_character_component.next_attack_timer.unpause();
+                    standard_character_component.next_attack_timer.reset();
+                }
                 if !standard_character_component.is_attacking {
                     standard_character_component.is_attacking=true;
                 }
@@ -194,6 +212,10 @@ pub fn move_standard_characters(
                     standard_character_component.is_attacking=false;
                 }
 
+            }
+
+            if attacking_this_frame {
+                // Get used inventory item and attack mode enum. Then on match execute directPreciseRayCastMeleeAttack
             }
 
         }
