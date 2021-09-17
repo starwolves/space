@@ -152,17 +152,29 @@ pub fn move_standard_characters(
 
             let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
 
-            if standard_character_component.facing_direction > 0. && standard_character_component.facing_direction < 0.1 {
-                standard_character_component.facing_direction = 0.1;
+            let mut angle = standard_character_component.facing_direction;
+
+            //angle+=0.14*PI;
+
+            if angle > 0. && angle < 0.1 {
+                angle = 0.1;
             }
 
-            if standard_character_component.facing_direction > PI-0.1 && standard_character_component.facing_direction < PI {
-                standard_character_component.facing_direction = PI-0.1;
+            if angle > PI-0.1 && angle < PI {
+                angle = PI-0.1;
             }
+
+            if angle < 0. {
+                angle = -(PI - angle.abs());
+            }
+
+            angle+=0.5*PI;
+
+            //warn!("{}", angle);
 
             let end_rotation = Quat::from_axis_angle(
-                Vec3::new(0.,1.,0.), 
-            standard_character_component.facing_direction + 0.5*PI,
+                Vec3::new(0.,1.,0.),
+                angle,
             );
 
             // Should slerp, but sometime uses longest path between quats and am unsure how to resolve that.
