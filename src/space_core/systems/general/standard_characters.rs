@@ -1,15 +1,18 @@
 use std::f32::consts::PI;
 
-use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
+use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, info, warn}};
+use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, helmet::Helmet, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, jumpsuit::Jumpsuit, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+
+use bevy_rapier3d::physics::IntoEntity;
 
 const JOG_SPEED : f32 = 13.;
 const RUN_SPEED : f32 = 18.;
+const MELEE_FISTS_REACH : f32 = 1.2;
 
 pub fn move_standard_characters(
-    mut query : Query<(
+    mut standard_character_query : Query<(
         Entity,
         &mut PlayerInput,
         &mut RigidBodyPosition,
@@ -20,7 +23,9 @@ pub fn move_standard_characters(
         Option<&LinkedFootstepsWalking>,
         Option<&LinkedFootstepsSprinting>,
         &mut Pawn,
+        &Inventory,
     )>,
+    inventory_items_query : Query<&InventoryItem>,
     mut footsteps_query : Query<(
         &mut Sensable,
         Option<&FootstepsWalking>,
@@ -35,11 +40,18 @@ pub fn move_standard_characters(
     mut input_mouse_action_events : EventReader<InputMouseAction>,
     mut input_select_body_part : EventReader<InputSelectBodyPart>,
     mut input_toggle_auto_move : EventReader<InputToggleAutoMove>,
+    query_pipeline: Res<QueryPipeline>,
+    collider_query: QueryPipelineColliderComponentsQuery,
+
+
+    helmet_query : Query<&Helmet>,
+    jumpsuit_query : Query<&Jumpsuit>,
+
 ) {
 
     for event in input_mouse_action_events.iter() {
 
-        match query.get_component_mut::<PlayerInput>(event.entity) {
+        match standard_character_query.get_component_mut::<PlayerInput>(event.entity) {
             Ok(mut played_input_component) => {
 
                 played_input_component.is_mouse_action_pressed = event.pressed;
@@ -54,7 +66,7 @@ pub fn move_standard_characters(
 
     for event in input_select_body_part.iter() {
 
-        match query.get_component_mut::<PlayerInput>(event.entity) {
+        match standard_character_query.get_component_mut::<PlayerInput>(event.entity) {
             Ok(mut player_input_component) => {
                 player_input_component.targetted_limb = event.body_part.clone();
             },
@@ -65,7 +77,7 @@ pub fn move_standard_characters(
 
     for event in input_toggle_auto_move.iter() {
 
-        match query.get_component_mut::<PlayerInput>(event.entity) {
+        match standard_character_query.get_component_mut::<PlayerInput>(event.entity) {
             Ok(mut player_input_component) => {
                 player_input_component.auto_move_enabled = !player_input_component.auto_move_enabled;
             },
@@ -85,7 +97,8 @@ pub fn move_standard_characters(
         linked_footsteps_walking_option,
         linked_footsteps_sprinting_option,
         mut pawn_component,
-    ) in query.iter_mut() {
+        inventory_component,
+    ) in standard_character_query.iter_mut() {
 
         if player_input_component.auto_move_enabled { 
             if player_input_component.movement_vector.length() > 0.1 {
@@ -151,11 +164,13 @@ pub fn move_standard_characters(
         standard_character_component.next_attack_timer.tick(time.delta());
         let ready_to_attack_this_frame = standard_character_component.next_attack_timer.finished();
 
+        
+
 
         // If combat mode, specific new rotation based on mouse direction.
         if standard_character_component.combat_mode &&  !player_input_component.sprinting{
 
-            let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
+            
 
             let mut angle = standard_character_component.facing_direction;
 
@@ -182,6 +197,8 @@ pub fn move_standard_characters(
                 Vec3::new(0.,1.,0.),
                 angle,
             );
+
+            let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
 
             // Should slerp, but sometime uses longest path between quats and am unsure how to resolve that.
             rigid_body_transform.rotation = end_rotation;
@@ -216,6 +233,90 @@ pub fn move_standard_characters(
 
             if attacking_this_frame {
                 // Get used inventory item and attack mode enum. Then on match execute directPreciseRayCastMeleeAttack
+
+                let active_slot = inventory_component.get_slot(&inventory_component.active_slot);
+
+                let mut combat_type = &CombatType::MeleeDirect;
+
+                match active_slot.slot_item {
+                    Some(item_entity) => {
+
+                        match inventory_items_query.get(item_entity) {
+                            Ok(inventory_item_component) => {
+                                combat_type = &inventory_item_component.combat_type;
+                            },
+                            Err(_rr) => {
+                                warn!("Couldn't find inventory_item belonging to used inventory slot of attack.");
+                            },
+                        }
+
+                    },
+                    None => {},
+                }
+
+                match combat_type {
+                    CombatType::MeleeDirect => {
+
+                        let collider_groups = get_bit_masks(ColliderGroup::Standard);
+                        let interaction_groups = InteractionGroups::new(collider_groups.0,collider_groups.1);
+
+                        let mut angle = standard_character_component.facing_direction;
+
+                        if angle < 0. {
+                            angle = -PI - angle;
+                        } else {
+                            angle = PI - angle;
+                        }
+
+                        let additive = Vec3::new(
+                            -angle.cos(),
+                            0.,
+                            angle.sin(),
+                        ) * MELEE_FISTS_REACH;
+
+                        query_pipeline.intersections_with_shape(
+                            &QueryPipelineColliderComponentsSet(&collider_query),
+                            &(
+                                Vec3::new(
+                                    rigid_body_position_component.position.translation.x, 
+                                    1.0, 
+                                    rigid_body_position_component.position.translation.z,
+                                )
+                                -
+                                additive,
+                                Quat::from_rotation_y(angle)).into(),
+                            &Cuboid::new(Vec3::new(MELEE_FISTS_REACH, 1.0, 0.3).into()),
+                            interaction_groups,
+                            None, 
+                            |collider_handle| {
+
+                                
+
+                                let collider_entity = collider_handle.entity();
+                                
+
+                                match helmet_query.get(collider_entity) {
+                                    Ok(_helmet_component) => {
+                                        info!("Hit helmet {:?}", collider_entity);
+                                    },
+                                    Err(_rr) => {},
+                                }
+
+                                match jumpsuit_query.get(collider_entity) {
+                                    Ok(_jumpsuit_component) => {
+                                        info!("Hit jumpsuit {:?}", collider_entity);
+                                    },
+                                    Err(_rr) => {},
+                                }
+
+                                true
+
+                            }
+                        )
+
+                    },
+                }
+
             }
 
         }

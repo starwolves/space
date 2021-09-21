@@ -11,8 +11,13 @@ pub struct InventoryItem {
     pub slot_type : SlotType,
     pub is_attached_when_worn : bool,
     pub combat_animation: CombatAnimation,
+    pub combat_type: CombatType,
 }
 
 pub enum CombatAnimation {
     OneHandedMeleePunch
+}
+
+pub enum CombatType {
+    MeleeDirect,
 }
