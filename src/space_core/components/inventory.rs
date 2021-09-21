@@ -45,6 +45,23 @@ impl Inventory {
 
         }
 
+        return_slot_option.expect("inventory.rs get_slot_mut() couldn't find slot")
+
+    }
+
+    pub fn get_slot(&self, slot_name : &str) -> &Slot {
+
+        let mut return_slot_option = None;
+
+        for slot in self.slots.iter() {
+
+            if slot.slot_name == slot_name {
+                return_slot_option = Some(slot);
+                break;
+            }
+
+        }
+
         return_slot_option.expect("inventory.rs get_slot() couldn't find slot")
 
     }
