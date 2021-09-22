@@ -48,4 +48,4 @@ pub mod showcase;
 pub mod default_transform;
 pub mod interpolation_priority;
 pub mod jumpsuit;
-pub mod humanoid_health;
+pub mod health;
