@@ -2,6 +2,8 @@ use std::time::Duration;
 
 use bevy::core::Timer;
 
+use super::health::DamageModel;
+
 pub struct StandardCharacter {
     pub current_lower_animation_state : CharacterAnimationState,
     pub character_name : String,
@@ -9,6 +11,7 @@ pub struct StandardCharacter {
     pub facing_direction : f32,
     pub is_attacking : bool,
     pub next_attack_timer : Timer,
+    pub default_melee_damage_model : DamageModel,
 }
 
 pub enum CharacterAnimationState {
@@ -30,6 +33,10 @@ impl Default for StandardCharacter {
             facing_direction : 0.,
             is_attacking : false,
             next_attack_timer : t,
+            default_melee_damage_model: DamageModel {
+                brute: 5.,
+                ..Default::default()
+            }
         }
     }
 }
