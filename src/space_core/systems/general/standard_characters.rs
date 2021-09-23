@@ -44,7 +44,7 @@ pub fn move_standard_characters(
     collider_query: QueryPipelineColliderComponentsQuery,
 
 
-    health_query : Query<&Health>,
+    mut health_query : Query<&mut Health>,
 
 ) {
 
@@ -86,7 +86,7 @@ pub fn move_standard_characters(
     }
 
     for (
-        entity,
+        standard_character_entity,
         mut player_input_component,
         mut rigid_body_position_component,
         mut rigid_body_velocity_component,
@@ -292,11 +292,24 @@ pub fn move_standard_characters(
                                 
 
                                 let collider_entity = collider_handle.entity();
+
+                                if collider_entity == standard_character_entity {
+                                    return true;
+                                }
                                 
 
-                                match health_query.get(collider_entity) {
-                                    Ok(_health_component) => {
+                                match health_query.get_mut(collider_entity) {
+                                    Ok(mut health_component) => {
+                                        
                                         info!("Hit entity with health component {:?}", collider_entity);
+
+                                        health_component.apply_damage(&player_input_component.targetted_limb, &standard_character_component.default_melee_damage_model);
+
+                                        match &health_component.health_container {
+                                            crate::space_core::components::health::HealthContainer::Humanoid(humanoid_health) => {
+                                                info!("{:?}", humanoid_health);
+                                            },
+                                        }
                                     },
                                     Err(_rr) => {},
                                 }
@@ -386,7 +399,7 @@ pub fn move_standard_characters(
                                 &handle_to_entity
                             );
 
-                            commands.entity(entity).remove::<LinkedFootstepsWalking>();
+                            commands.entity(standard_character_entity).remove::<LinkedFootstepsWalking>();
 
                             commands.entity(linked_footsteps_walking_component.entity).despawn();
                             
@@ -413,7 +426,7 @@ pub fn move_standard_characters(
                                 &handle_to_entity
                             );
 
-                            commands.entity(entity).remove::<LinkedFootstepsSprinting>();
+                            commands.entity(standard_character_entity).remove::<LinkedFootstepsSprinting>();
 
                             commands.entity(linked_footsteps_sprinting_component.entity).despawn();
                             
@@ -447,7 +460,7 @@ pub fn move_standard_characters(
                                     &handle_to_entity
                                 );
     
-                                commands.entity(entity).remove::<LinkedFootstepsSprinting>();
+                                commands.entity(standard_character_entity).remove::<LinkedFootstepsSprinting>();
     
                                 commands.entity(linked_footsteps_sprinting_component.entity).despawn();
                                 
@@ -463,7 +476,7 @@ pub fn move_standard_characters(
 
                     let repeating_sfx_id = commands.spawn_bundle(FootstepsWalkingSfxBundle::new(isometry_to_transform(rigid_body_position))).id();
                     
-                    commands.entity(entity).insert(LinkedFootstepsWalking{
+                    commands.entity(standard_character_entity).insert(LinkedFootstepsWalking{
                         entity: repeating_sfx_id
                     });
 
@@ -503,7 +516,7 @@ pub fn move_standard_characters(
                                     &handle_to_entity
                                 );
     
-                                commands.entity(entity).remove::<LinkedFootstepsWalking>();
+                                commands.entity(standard_character_entity).remove::<LinkedFootstepsWalking>();
     
                                 commands.entity(linked_footsteps_walking_component.entity).despawn();
                                 
@@ -519,7 +532,7 @@ pub fn move_standard_characters(
 
                     let repeating_sfx_id = commands.spawn_bundle(FootstepsSprintingSfxBundle::new(isometry_to_transform(rigid_body_position))).id();
                     
-                    commands.entity(entity).insert(LinkedFootstepsSprinting{
+                    commands.entity(standard_character_entity).insert(LinkedFootstepsSprinting{
                         entity: repeating_sfx_id
                     });
 
