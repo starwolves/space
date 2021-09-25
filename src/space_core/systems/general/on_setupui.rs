@@ -36,6 +36,7 @@ pub fn on_setupui (
                 server_id.id.to_bits(),
                 hash_map_path,
                 false,
+                "main".to_string(),
             )
         });
 

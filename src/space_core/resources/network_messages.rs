@@ -35,7 +35,7 @@ pub enum ReliableClientMessage {
     InputMouseAction(bool),
     SelectBodyPart(String),
     ToggleAutoMove,
-    OocName(String),
+    UserName(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -59,7 +59,7 @@ pub enum UIInputAction {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
-    EntityUpdate(u64, HashMap<String, HashMap<String, EntityUpdateData>>, bool),
+    EntityUpdate(u64, HashMap<String, HashMap<String, EntityUpdateData>>, bool, String),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
     LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u64, bool, String, String, bool),

@@ -151,6 +151,7 @@ pub fn drop_current_item(
                                     entity_id.to_bits(),
                                     root_entity_update.clone(),
                                     false,
+                                    "main".to_string(),
                                 )
                             });
 

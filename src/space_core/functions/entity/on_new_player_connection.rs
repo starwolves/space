@@ -162,7 +162,7 @@ pub fn on_new_player_connection(
 
     used_names.player_i+=1;
 
-    while used_names.ooc_names.contains_key(&default_name) {
+    while used_names.user_names.contains_key(&default_name) {
 
         used_names.player_i+=1;
         default_name = "Wolf".to_string() + &used_names.player_i.to_string();
@@ -173,7 +173,7 @@ pub fn on_new_player_connection(
 
     let persistent_player_data = PersistentPlayerData {
         character_name: "".to_string(),
-        ooc_name: default_name.clone(),
+        user_name: default_name.clone(),
     };
 
     let player_input = PlayerInput::default();
@@ -190,7 +190,7 @@ pub fn on_new_player_connection(
     )).id();
 
     
-    used_names.ooc_names.insert(default_name, player_entity_id);
+    used_names.user_names.insert(default_name, player_entity_id);
     
     handle_to_entity.map.insert(*handle, player_entity_id);
     handle_to_entity.inv_map.insert(player_entity_id, *handle);
