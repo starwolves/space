@@ -156,7 +156,7 @@ const _TALK_TYPE_MACHINE_FAR_START : &str = "[i]";
 const _TALK_TYPE_MACHINE_FAR_END : &str = "[/i]";
 
 
-const TALK_SPACE_OOC_CHATPREFIX : &str = "/ooc"; 
+const TALK_SPACE_GLOBAL_CHATPREFIX : &str = "/global"; 
 
 const TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX : &str = "/me";
 const TALK_SPACE_PROXIMITY_EMOTE_PREFIXBBSTART : &str = "[color=#dbdbdb]";
@@ -250,7 +250,7 @@ fn is_asking(message : &str) -> bool {
 pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
 
     vec![
-        ("OOC".to_string(), TALK_SPACE_OOC_CHATPREFIX.to_string()),
+        ("Global".to_string(), TALK_SPACE_GLOBAL_CHATPREFIX.to_string()),
     ]
 
 }
@@ -263,7 +263,7 @@ pub fn get_talk_spaces() -> Vec<(String, String)> {
         ("Common".to_string(), TALK_SPACE_COMMON_CHATPREFIX.to_string()),
         ("Security".to_string(), TALK_SPACE_SECURITY_CHATPREFIX.to_string()),
         ("Spec-Ops".to_string(), TALK_SPACE_SPECIALOPS_CHATPREFIX.to_string()),
-        ("OOC".to_string(), TALK_SPACE_OOC_CHATPREFIX.to_string()),
+        ("Global".to_string(), TALK_SPACE_GLOBAL_CHATPREFIX.to_string()),
     ]
 
 }
@@ -275,10 +275,10 @@ fn get_talk_space(message : String) -> (RadioChannel, String, bool, bool) {
     let mut exclusive_proximity = false;
     let mut is_emote = false;
 
-    if message.starts_with(TALK_SPACE_OOC_CHATPREFIX) {
+    if message.starts_with(TALK_SPACE_GLOBAL_CHATPREFIX) {
 
-        radio_channel = RadioChannel::OOC;
-        content = message.split(TALK_SPACE_OOC_CHATPREFIX).collect();
+        radio_channel = RadioChannel::Global;
+        content = message.split(TALK_SPACE_GLOBAL_CHATPREFIX).collect();
 
     } else if message.starts_with(TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX) {
 
@@ -347,16 +347,16 @@ pub fn escape_bb(string : String, partially : bool, escape_special_chars : bool)
 
 }
 
-pub fn new_ooc_message(
+pub fn new_global_message(
     persistent_player_data_component : &PersistentPlayerData,
-    ooc_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
+    global_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
     net_new_chat_message_event : &mut EventWriter<NetChatMessage>,
     send_message : String,
 ) {
     
-    let message =persistent_player_data_component.ooc_name.clone() +  "[b][color=#322bff](OOC)[/color][/b]: " + &send_message;
+    let message =persistent_player_data_component.user_name.clone() +  "[b][color=#322bff](Global)[/color][/b]: " + &send_message;
 
-    for (connected_player_component , _persistent) in ooc_listeners.iter() {
+    for (connected_player_component , _persistent) in global_listeners.iter() {
 
         if connected_player_component.connected == false {
             continue;
@@ -388,7 +388,7 @@ pub fn new_chat_message(
     communicator : Communicator,
     exclusive_radio : bool,
     radio_pawns : &Query<(Entity, &Radio, &RigidBodyPosition, &PersistentPlayerData)>,
-    ooc_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
+    global_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
     messenger_entity_option : Option<&Entity>,
     mut net_send_entity_updates_option: Option<&mut EventWriter<NetSendEntityUpdates>>,
     messaging_player_state : &MessagingPlayerState,
@@ -470,7 +470,7 @@ pub fn new_chat_message(
     } 
 
     if matches!(messaging_player_state, &MessagingPlayerState::SoftConnected) {
-        radio_channel = RadioChannel::OOC;
+        radio_channel = RadioChannel::Global;
     }
 
     // Emote over Radio channel for the memes.
@@ -489,28 +489,28 @@ pub fn new_chat_message(
             exclusive_proximity=false;
             radio_channel = included_radio_channel.unwrap();
 
-            if matches!(radio_channel, RadioChannel::OOC) {
+            if matches!(radio_channel, RadioChannel::Global) {
                 message = case::capitalize(&message, false);
             }
 
         }
     }
 
-    if matches!(radio_channel, RadioChannel::OOC) {
+    if matches!(radio_channel, RadioChannel::Global) {
 
-        match ooc_listeners.get(*messenger_entity_option.unwrap()) {
+        match global_listeners.get(*messenger_entity_option.unwrap()) {
             Ok((_connected, persistent_player_data_component)) => {
 
-                new_ooc_message(
+                new_global_message(
                     persistent_player_data_component,
-                    ooc_listeners,
+                    global_listeners,
                     net_new_chat_message_event,
                     message,
                 );
 
             },
             Err(_rr) => {
-                warn!("Couldnt find components of OOC messenger.");
+                warn!("Couldnt find components of global messenger.");
             },
         }
 
@@ -586,8 +586,8 @@ pub fn new_chat_message(
                 talk_space_message_bb_start=TALK_SPACE_SPECIALOPS_MESSAGEBBSTART;
                 talk_space_message_bb_end=TALK_SPACE_SPECIALOPS_MESSAGEBBEND;
             },
-            RadioChannel::OOC => {
-                warn!("Processing OOC chat while we shouldn't?");
+            RadioChannel::Global => {
+                warn!("Processing global chat while we shouldn't?");
                 return;
             },
         }
@@ -1206,7 +1206,7 @@ pub fn new_chat_message(
                                         Some(messenger_entity) => {
                                             net_send_entity_updates.send(NetSendEntityUpdates {
                                                 handle: *listener_handle,
-                                                message: ReliableServerMessage::EntityUpdate(messenger_entity.to_bits(), billboard_entity_update.clone(), false)
+                                                message: ReliableServerMessage::EntityUpdate(messenger_entity.to_bits(), billboard_entity_update.clone(), false, "main".to_string())
                                             });
                                             handles_direct_proximity.push(*listener_handle);
                                         },

@@ -26,8 +26,8 @@ pub fn on_player_disconnect(
                     player_input_component.auto_move_enabled = false;
 
                     // When reconnecting works remove this.
-                    used_names.ooc_names.remove(&persistent_player_data.ooc_name);
-                    persistent_player_data.ooc_name = "disconnectedOoc".to_string();
+                    used_names.user_names.remove(&persistent_player_data.user_name);
+                    persistent_player_data.user_name = "disconnectedUser".to_string();
 
                 },
                 Err(_rr) => {},

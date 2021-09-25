@@ -15,7 +15,7 @@ pub fn chat_message_input_event(
     
     mut net_new_chat_message_event : EventWriter<NetChatMessage>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
-    ooc_listeners : Query<(&ConnectedPlayer, &PersistentPlayerData)>,
+    global_listeners : Query<(&ConnectedPlayer, &PersistentPlayerData)>,
 ) {
 
     for chat_message_input_event in chat_message_input_events.iter() {
@@ -63,7 +63,7 @@ pub fn chat_message_input_event(
                     Communicator::Standard,
                     false,
                     &radio_pawns,
-                    &ooc_listeners,
+                    &global_listeners,
                     Some(&player_pawn_entity),
                     Some(&mut net_send_entity_updates),
                     &MessagingPlayerState::Alive,
@@ -75,12 +75,12 @@ pub fn chat_message_input_event(
 
                 let persistent_player_data_component;
 
-                match ooc_listeners.get(*player_pawn_entity) {
+                match global_listeners.get(*player_pawn_entity) {
                     Ok((_connected, persistent_data)) => {
                         persistent_player_data_component = persistent_data;
                     },
                     Err(_rr) => {
-                        warn!("Couldnt find components for SoftConnected player with assumed ooc message.");
+                        warn!("Couldnt find components for SoftConnected player with assumed global message.");
                         continue;
                     },
                 }
@@ -91,13 +91,13 @@ pub fn chat_message_input_event(
                     &vec![],
                     &vec![],
                     Vec3::ZERO,
-                    persistent_player_data_component.ooc_name.clone(),
+                    persistent_player_data_component.user_name.clone(),
                     SpaceJobsEnum::Security,
                     chat_message_input_event.message.clone(),
                     Communicator::Standard,
                     false,
                     &radio_pawns,
-                    &ooc_listeners,
+                    &global_listeners,
                     Some(&player_pawn_entity),
                     Some(&mut net_send_entity_updates),
                     &MessagingPlayerState::SoftConnected,

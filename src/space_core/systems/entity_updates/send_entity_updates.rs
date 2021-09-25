@@ -55,7 +55,7 @@ pub fn send_entity_updates(
                             Some(handle) => {
                                 net_send_entity_updates.send(NetSendEntityUpdates {
                                     handle: *handle,
-                                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data.clone(), false)
+                                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data.clone(), false, "main".to_string())
                                 });
                             },
                             None => {},
@@ -98,7 +98,7 @@ pub fn send_entity_updates(
 
                 net_send_entity_updates.send(NetSendEntityUpdates {
                     handle: showcase_component.handle,
-                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data, false)
+                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data, false, "main".to_string())
                 });
 
             },

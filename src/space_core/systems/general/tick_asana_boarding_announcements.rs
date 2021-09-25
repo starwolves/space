@@ -9,7 +9,7 @@ pub fn tick_asana_boarding_announcements(
     radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition, &PersistentPlayerData)>,
     mut asana_boarding_announcements : ResMut<AsanaBoardingAnnouncements>,
     time: Res<Time>,
-    ooc_listeners : Query<(&ConnectedPlayer, &PersistentPlayerData)>,
+    global_listeners : Query<(&ConnectedPlayer, &PersistentPlayerData)>,
 ) {
 
     let mut done_messages : Vec<usize> = vec![];
@@ -34,7 +34,7 @@ pub fn tick_asana_boarding_announcements(
                 Communicator::Machine,
                 true,
                 &radio_pawns,
-                &ooc_listeners,
+                &global_listeners,
                 None,
                 None,
                 &MessagingPlayerState::Alive,

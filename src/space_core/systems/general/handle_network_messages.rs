@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_ooc_name::InputOocName, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_user_name::InputUserName, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
 
 pub fn handle_network_messages(
 
@@ -30,7 +30,7 @@ pub fn handle_network_messages(
         EventWriter<InputMouseAction>,
         EventWriter<InputSelectBodyPart>,
         EventWriter<InputToggleAutoMove>,
-        EventWriter<InputOocName>,
+        EventWriter<InputUserName>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -63,7 +63,7 @@ pub fn handle_network_messages(
         mut input_mouse_action,
         mut input_select_body_part,
         mut input_toggle_auto_move,
-        mut input_ooc_name,
+        mut input_global_name,
     )
     = tuple1;
 
@@ -331,18 +331,18 @@ pub fn handle_network_messages(
                     }
 
                 },
-                ReliableClientMessage::OocName(input_name) => {
+                ReliableClientMessage::UserName(input_name) => {
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            input_ooc_name.send(InputOocName {
+                            input_global_name.send(InputUserName {
                                 handle: *handle,
                                 entity: *player_entity,
                                 input_name,
                             });
                         },
                         None => {
-                            warn!("Couldn't find player_entity belonging to InputOocName sender handle.");
+                            warn!("Couldn't find player_entity belonging to InputUserName sender handle.");
                         },
                     }
 
