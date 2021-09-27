@@ -10,4 +10,4 @@ pub mod counter_window_update;
 pub mod repeating_sfx_update;
 pub mod inventory_update;
 pub mod inventory_item_update;
-pub mod health_update;
+pub mod health_ui_update;
