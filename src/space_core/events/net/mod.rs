@@ -17,3 +17,4 @@ pub mod net_showcase;
 pub mod net_console_commands;
 pub mod net_user_name;
 pub mod net_ui_input_transmit_data;
+pub mod net_health_update;
