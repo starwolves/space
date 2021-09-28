@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, ResMut};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use crate::space_core::{functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain}, non_blocking_cells_list::NonBlockingCellsList}};
+use crate::space_core::{functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth}, non_blocking_cells_list::NonBlockingCellsList}};
 
 
 
@@ -35,6 +35,7 @@ pub fn build_main_gridmap(
         CellData {
             item: cell_data.item,
             orientation: cell_data.orientation,
+            health : StructureHealth::default(),
         });
 
 
@@ -141,6 +142,7 @@ pub fn build_details1_gridmap(
         CellData {
             item: cell_data.item,
             orientation: cell_data.orientation,
+            health : StructureHealth::default(),
         });
 
 
