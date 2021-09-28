@@ -236,6 +236,7 @@ pub fn move_standard_characters(
                 let active_slot = inventory_component.get_slot(&inventory_component.active_slot);
 
                 let mut combat_type = &CombatType::MeleeDirect;
+                let mut combat_damage_model = &standard_character_component.default_melee_damage_model;
 
                 match active_slot.slot_item {
                     Some(item_entity) => {
@@ -243,6 +244,7 @@ pub fn move_standard_characters(
                         match inventory_items_query.get(item_entity) {
                             Ok(inventory_item_component) => {
                                 combat_type = &inventory_item_component.combat_type;
+                                combat_damage_model = &inventory_item_component.combat_damage_model;
                             },
                             Err(_rr) => {
                                 warn!("Couldn't find inventory_item belonging to used inventory slot of attack.");
@@ -301,7 +303,7 @@ pub fn move_standard_characters(
                                 match health_query.get_mut(collider_entity) {
                                     Ok(mut health_component) => {
                                         
-                                        health_component.apply_damage(&player_input_component.targetted_limb, &standard_character_component.default_melee_damage_model);
+                                        health_component.apply_damage(&player_input_component.targetted_limb, combat_damage_model);
 
                                     },
                                     Err(_rr) => {},
