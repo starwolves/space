@@ -13,6 +13,7 @@ pub struct InventoryItem {
     pub combat_animation: CombatAnimation,
     pub combat_type: CombatType,
     pub combat_damage_model : DamageModel,
+    pub combat_sound_set : MeleeCombatSoundSet,
 }
 
 pub enum CombatAnimation {
@@ -21,4 +22,16 @@ pub enum CombatAnimation {
 
 pub enum CombatType {
     MeleeDirect,
+}
+
+pub struct MeleeCombatSoundSet {
+    pub miss : String,
+    pub hit_soft : String,
+    pub hit_metaloid : String,
+}
+
+#[allow(dead_code)]
+pub enum HitSoundSurface {
+    Soft,
+    Metaloid,
 }

@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::core::Timer;
 
-use super::health::DamageModel;
+use super::{health::DamageModel, inventory_item::MeleeCombatSoundSet};
 
 pub struct StandardCharacter {
     pub current_lower_animation_state : CharacterAnimationState,
@@ -12,6 +12,7 @@ pub struct StandardCharacter {
     pub is_attacking : bool,
     pub next_attack_timer : Timer,
     pub default_melee_damage_model : DamageModel,
+    pub default_melee_sound_set : MeleeCombatSoundSet,
 }
 
 pub enum CharacterAnimationState {
@@ -36,6 +37,11 @@ impl Default for StandardCharacter {
             default_melee_damage_model: DamageModel {
                 brute: 5.,
                 ..Default::default()
+            },
+            default_melee_sound_set: MeleeCombatSoundSet {
+                miss: "".to_string(),
+                hit_soft: "".to_string(),
+                hit_metaloid: "".to_string(),
             }
         }
     }
