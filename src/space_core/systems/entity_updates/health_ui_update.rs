@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Color, Entity, EventWriter, Local, Query};
+use bevy::prelude::{Changed, Color, Entity, EventWriter, Local, Query, info};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, health::Health}, events::net::net_health_update::NetHealthUpdate, resources::network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}};
 
@@ -59,6 +59,8 @@ pub fn health_ui_update(
         connected_player_component,
         health_component
     ) in updated_player_health_entities.iter_mut() {
+
+        info!("0");
 
         match &health_component.health_container {
             crate::space_core::components::health::HealthContainer::Humanoid(humanoid_health) => {
@@ -546,6 +548,7 @@ pub fn health_ui_update(
 
 
                 if new_update {
+                    info!("1");
                     net_health_update.send(NetHealthUpdate {
                         handle: connected_player_component.handle,
                         message: ReliableServerMessage::EntityUpdate(0, entity_updates_map, false, EntityWorldType::HealthUI)

@@ -305,11 +305,11 @@ pub fn move_standard_characters(
 
                                         health_component.apply_damage(&player_input_component.targetted_limb, &standard_character_component.default_melee_damage_model);
 
-                                        match &health_component.health_container {
+                                        /*match &health_component.health_container {
                                             crate::space_core::components::health::HealthContainer::Humanoid(humanoid_health) => {
                                                 info!("{:?}", humanoid_health);
                                             },
-                                        }
+                                        }*/
                                     },
                                     Err(_rr) => {},
                                 }
