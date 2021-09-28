@@ -1,16 +1,20 @@
 use std::{collections::HashMap};
 
+use super::inventory_item::HitSoundSurface;
+
 pub struct Health {
 
     pub health_container : HealthContainer,
     pub health_flags : HashMap<u32, HealthFlag>,
     pub raegent_container : RaegentContainer,
-
+    pub hit_sound_surface : HitSoundSurface,
 }
+
 
 #[allow(dead_code)]
 pub enum HealthFlag {
-    TorsoBruteArmor(f32),
+    HeadBruteDefence(f32),
+    TorsoBruteDefence(f32),
 }
 
 pub enum HealthContainer {
@@ -161,7 +165,8 @@ impl Default for Health {
             health_flags: HashMap::new(),
             raegent_container : RaegentContainer {
                 raegents: HashMap::new(),
-            }
+            },
+            hit_sound_surface: HitSoundSurface::Soft,
         }
     }
 }
