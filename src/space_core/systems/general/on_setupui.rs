@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Added, Commands, EventWriter, Query, Res, Transform};
 
-use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, setup_phase::SetupPhase}, events::net::{net_on_setupui::NetOnSetupUI, net_showcase::NetShowcase}, functions::entity::name_generator, resources::{motd::MOTD, network_messages::{EntityUpdateData, ReliableServerMessage}, server_id::ServerId, used_names::UsedNames}};
+use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, setup_phase::SetupPhase}, events::net::{net_on_setupui::NetOnSetupUI, net_showcase::NetShowcase}, functions::entity::name_generator, resources::{motd::MOTD, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}, server_id::ServerId, used_names::UsedNames}};
 
 pub fn on_setupui (
     used_names : Res<UsedNames>,
@@ -36,7 +36,7 @@ pub fn on_setupui (
                 server_id.id.to_bits(),
                 hash_map_path,
                 false,
-                "main".to_string(),
+                EntityWorldType::Main,
             )
         });
 

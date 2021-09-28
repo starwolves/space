@@ -59,7 +59,7 @@ pub enum UIInputAction {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
-    EntityUpdate(u64, HashMap<String, HashMap<String, EntityUpdateData>>, bool, String),
+    EntityUpdate(u64, HashMap<String, HashMap<String, EntityUpdateData>>, bool, EntityWorldType),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
     LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u64, bool, String, String, bool),
@@ -71,6 +71,12 @@ pub enum ReliableServerMessage {
     EquippedWornItem(String, u64, String),
     ConsoleWriteLine(String),
     PlaySound(String, f32, f32, Option<Vec3>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum EntityWorldType {
+    Main,
+    HealthUI,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
