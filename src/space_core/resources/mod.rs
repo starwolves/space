@@ -16,3 +16,4 @@ pub mod gridmap_details1;
 pub mod network_messages;
 pub mod doryen_fov;
 pub mod motd;
+pub mod client_health_ui_cache;
