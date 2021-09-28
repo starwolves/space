@@ -11,21 +11,22 @@
 
   
 
-A moddable multi-threaded sci-fi community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/).
-This game server is designed to run on modern processors that have multiple CPU cores.
+A moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/).
+This game server is designed to run well on modern processors that have multiple CPU cores.
   
 ### Features
 * Parallelized ECS (Entity Component System) architecture. 🐆
 * High player & entity counts support for matches.
 * Server-side moddable map support with sizes up to 1km by 1km with 100k+ dynamic ship cells that make up the map.
-* Server-side moddable inventory support.
+* Server-side moddable inventory system support.
+* Server-side moddable combat system support.
+* Server-side moddable advanced chat, with support for radio and proximity channels.
 * Server-side moddable console commands, including rcon admin commands.
-* Server-side moddable proximity and radio chat.
 * Built with the concurrent [Rapier 3D Physics engine](https://rapier.rs/).
 * Interpolation throttling on a per client basis to meet bandwidth usage quotas.
 * Built from the ground up to support safe and secure server-side modding with content folders. 
 * Fearless multi-threading and resource access across multiple threads.
-* A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) algorithm.
+* A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) (field of view) algorithm.
 
 ## Getting Started
 
