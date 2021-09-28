@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, info, warn}};
+use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
 use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{Health}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
@@ -301,7 +301,7 @@ pub fn move_standard_characters(
                                 match health_query.get_mut(collider_entity) {
                                     Ok(mut health_component) => {
                                         
-                                        info!("Hit entity with health component {:?}", collider_entity);
+                                        //info!("Hit entity with health component {:?}", collider_entity);
 
                                         health_component.apply_damage(&player_input_component.targetted_limb, &standard_character_component.default_melee_damage_model);
 
