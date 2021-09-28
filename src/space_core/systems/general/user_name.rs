@@ -24,7 +24,7 @@ pub fn user_name(
 
                 if used_names.user_names.contains_key(&user_name) {
                     //Already exists.
-                    warn!("User provided an user_name that is already in-use.");
+                    //warn!("User provided an user_name that is already in-use.");
 
                     net_user_name_event.send(NetUserName{
                         handle: event.handle,

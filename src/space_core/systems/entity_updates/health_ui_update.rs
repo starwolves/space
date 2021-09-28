@@ -1,35 +1,12 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Color, Entity, EventWriter, Local, Query};
+use bevy::prelude::{Changed, Color, Entity, EventWriter, Query, ResMut};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, health::Health}, events::net::net_health_update::NetHealthUpdate, resources::network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, health::Health}, events::net::net_health_update::NetHealthUpdate, resources::{client_health_ui_cache::{ClientHealthUI, ClientHealthUICache, DamageType}, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 
 
-#[derive(Default)]
-pub struct ClientHealthUICache {
 
-    cache : HashMap<Entity, ClientHealthUI>
-
-}
-
-struct ClientHealthUI {
-
-    head_damage : DamageType,
-    torso_damage : DamageType,
-    left_arm_damage : DamageType,
-    right_arm_damage : DamageType,
-    left_leg_damage : DamageType,
-    right_leg_damage : DamageType,
-
-}
-
-enum DamageType {
-    None,
-    Light,
-    Moderate,
-    Heavy,
-}
 
 const UI_ALPHA : f32 = 146.;
 const NONE_UI_RED : f32 = 102.;
@@ -46,11 +23,11 @@ const MODERATE_UI_BLUE : f32 = 0.;
 
 const HEAVY_UI_RED : f32 = 255.;
 const HEAVY_UI_GREEN : f32 = 0.;
-const HEAVY_UI_BLUE : f32 = 124.;
+const HEAVY_UI_BLUE : f32 = 60.;
 
 pub fn health_ui_update(
     mut updated_player_health_entities: Query<(Entity, &ConnectedPlayer, &Health), Changed<Health>>,
-    mut client_health_ui_cache : Local<ClientHealthUICache>,
+    mut client_health_ui_cache : ResMut<ClientHealthUICache>,
     mut net_health_update : EventWriter<NetHealthUpdate>,
 ) {
 

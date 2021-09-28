@@ -1,12 +1,13 @@
 use bevy::{math::Vec2, prelude::{Query, ResMut, info}};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput}, resources::{handle_to_entity::HandleToEntity, used_names::UsedNames}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput}, resources::{client_health_ui_cache::ClientHealthUICache, handle_to_entity::HandleToEntity, used_names::UsedNames}};
 
 pub fn on_player_disconnect(
     handle : u32,
     handle_to_entity : &mut ResMut<HandleToEntity>,
     connected_players : &mut Query<(&mut PersistentPlayerData, &mut ConnectedPlayer, &mut PlayerInput)>,
     used_names : &mut ResMut<UsedNames>,
+    client_health_ui_cache : &mut ResMut<ClientHealthUICache>,
 ) {
 
     info!("[{}] disconnected!", handle);
@@ -40,6 +41,7 @@ pub fn on_player_disconnect(
     match entity {
         Some(ent) => {
             handle_to_entity.inv_map.remove(&ent);
+            client_health_ui_cache.cache.remove(&ent);
         },
         None => {},
     }
