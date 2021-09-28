@@ -266,7 +266,7 @@ pub fn health_ui_update(
                              UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_arm".to_string(),
+                            "leftArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -283,7 +283,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_arm".to_string(),
+                            "leftArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -300,7 +300,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_arm".to_string(),
+                            "leftArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -317,7 +317,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_arm".to_string(),
+                            "leftArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -341,7 +341,7 @@ pub fn health_ui_update(
                              UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_arm".to_string(),
+                            "rightArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -358,7 +358,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_arm".to_string(),
+                            "rightArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -375,7 +375,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_arm".to_string(),
+                            "rightArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -392,7 +392,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_arm".to_string(),
+                            "rightArm".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -413,7 +413,7 @@ pub fn health_ui_update(
                              UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_leg".to_string(),
+                            "leftLeg".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -430,7 +430,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_leg".to_string(),
+                            "leftLeg".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -447,7 +447,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_leg".to_string(),
+                            "leftLeg".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -464,7 +464,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "left_leg".to_string(),
+                            "leftLeg".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -485,7 +485,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_leg".to_string(),
+                            "rightLeg".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -502,7 +502,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_leg".to_string(),
+                            "rightLeg".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -519,7 +519,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_leg".to_string(),
+                            "rightLeg".to_string(),
                             head_data
                         );
                         new_update = true;
@@ -536,7 +536,7 @@ pub fn health_ui_update(
                             UI_ALPHA / 255.,
                         )));
                         entity_updates_map.insert(
-                            "right_leg".to_string(),
+                            "rightLeg".to_string(),
                             head_data
                         );
                         new_update = true;
