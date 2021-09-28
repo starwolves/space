@@ -10,7 +10,7 @@ impl Default for ConnectedPlayer {
         Self {
             handle: 0,
             authid: 0,
-            rcon : false,
+            rcon : true,
             connected : true,
         }
     }
