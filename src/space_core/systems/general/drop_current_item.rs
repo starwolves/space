@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, ReliableServerMessage}}};
+use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem, net_send_entity_updates::NetSendEntityUpdates}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 pub fn drop_current_item(
     mut drop_current_item_events : EventReader<DropCurrentItem>,
@@ -151,7 +151,7 @@ pub fn drop_current_item(
                                     entity_id.to_bits(),
                                     root_entity_update.clone(),
                                     false,
-                                    "main".to_string(),
+                                    EntityWorldType::Main,
                                 )
                             });
 

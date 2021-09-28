@@ -7,7 +7,7 @@ use const_format::concatcp;
 
 use voca_rs::*;
 
-use crate::space_core::{bundles::{play_sound_proximity_message::PlaySoundProximityMessage, play_sound_radio_message::PlaySoundRadioMessage}, components::{connected_player::ConnectedPlayer, pawn::SpaceJobsEnum, persistent_player_data::PersistentPlayerData, radio::{Radio, RadioChannel}}, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, ReliableServerMessage}}};
+use crate::space_core::{bundles::{play_sound_proximity_message::PlaySoundProximityMessage, play_sound_radio_message::PlaySoundRadioMessage}, components::{connected_player::ConnectedPlayer, pawn::SpaceJobsEnum, persistent_player_data::PersistentPlayerData, radio::{Radio, RadioChannel}}, events::net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
 const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
@@ -1206,7 +1206,7 @@ pub fn new_chat_message(
                                         Some(messenger_entity) => {
                                             net_send_entity_updates.send(NetSendEntityUpdates {
                                                 handle: *listener_handle,
-                                                message: ReliableServerMessage::EntityUpdate(messenger_entity.to_bits(), billboard_entity_update.clone(), false, "main".to_string())
+                                                message: ReliableServerMessage::EntityUpdate(messenger_entity.to_bits(), billboard_entity_update.clone(), false, EntityWorldType::Main)
                                             });
                                             handles_direct_proximity.push(*listener_handle);
                                         },

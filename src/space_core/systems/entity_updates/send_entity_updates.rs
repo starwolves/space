@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, sensable::Sensable, showcase::Showcase}, events::net::net_send_entity_updates::NetSendEntityUpdates, functions::entity_updates::entity_updates_personalise, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, sensable::Sensable, showcase::Showcase}, events::net::net_send_entity_updates::NetSendEntityUpdates, functions::entity_updates::entity_updates_personalise, resources::{handle_to_entity::HandleToEntity, network_messages::{EntityWorldType, ReliableServerMessage}}};
 
 pub fn send_entity_updates(
     mut updated_entity_updates: Query<(Entity, Option<&Sensable>, &mut EntityUpdates, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<EntityUpdates>>,
@@ -55,7 +55,7 @@ pub fn send_entity_updates(
                             Some(handle) => {
                                 net_send_entity_updates.send(NetSendEntityUpdates {
                                     handle: *handle,
-                                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data.clone(), false, "main".to_string())
+                                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data.clone(), false, EntityWorldType::Main)
                                 });
                             },
                             None => {},
@@ -98,7 +98,7 @@ pub fn send_entity_updates(
 
                 net_send_entity_updates.send(NetSendEntityUpdates {
                     handle: showcase_component.handle,
-                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data, false, "main".to_string())
+                    message: ReliableServerMessage::EntityUpdate(visible_entity.to_bits(), updates_data, false, EntityWorldType::Main)
                 });
 
             },
