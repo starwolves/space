@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Entity, Transform};
 
-use super::inventory::SlotType;
+use super::{health::DamageModel, inventory::SlotType};
 
 pub struct InventoryItem {
     pub in_inventory_of_entity : Option<Entity>,
@@ -12,6 +12,7 @@ pub struct InventoryItem {
     pub is_attached_when_worn : bool,
     pub combat_animation: CombatAnimation,
     pub combat_type: CombatType,
+    pub combat_damage_model : DamageModel,
 }
 
 pub enum CombatAnimation {
