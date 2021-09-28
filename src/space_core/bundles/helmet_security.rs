@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAnimation, CombatType, InventoryItem}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, health::DamageModel, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAnimation, CombatType, InventoryItem}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}}}, resources::network_messages::ReliableServerMessage};
 
 
 pub struct HelmetSecurityBundle;
@@ -240,6 +240,10 @@ Vec3::new(0.,0.355, 0.)
             is_attached_when_worn : true,
             combat_animation : CombatAnimation::OneHandedMeleePunch,
             combat_type: CombatType::MeleeDirect,
+            combat_damage_model : DamageModel {
+                brute: 9.,
+                ..Default::default()
+            }
         },
         DefaultTransform {
             transform: default_transform,
