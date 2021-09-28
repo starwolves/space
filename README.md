@@ -16,17 +16,17 @@ This game server is designed to run well on modern processors that have multiple
   
 ### Features
 * Parallelized ECS (Entity Component System) architecture. 🐆
-* High player & entity counts support for matches.
+* Pure Rust. No garbage collection & high execution speeds.
+* Fearless multi-threading and resource access across multiple threads.
+* Built with the concurrent [Rapier 3D Physics engine](https://rapier.rs/).
+* Interpolation throttling on a per client basis to meet bandwidth usage quotas.
+* Built from the ground up to support safe and secure server-side modding with content folders. 
+* A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) (field of view) algorithm for all pawns.
 * Server-side moddable map support with sizes up to 1km by 1km with 100k+ dynamic ship cells that make up the map.
 * Server-side moddable inventory system support.
 * Server-side moddable combat system support.
 * Server-side moddable advanced chat, with support for radio and proximity channels.
 * Server-side moddable console commands, including rcon admin commands.
-* Built with the concurrent [Rapier 3D Physics engine](https://rapier.rs/).
-* Interpolation throttling on a per client basis to meet bandwidth usage quotas.
-* Built from the ground up to support safe and secure server-side modding with content folders. 
-* Fearless multi-threading and resource access across multiple threads.
-* A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) (field of view) algorithm.
 
 ## Getting Started
 
