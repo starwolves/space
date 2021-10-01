@@ -1,8 +1,8 @@
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
 use bevy::core::Timer;
 
-use super::{health::DamageModel, inventory_item::MeleeCombatSoundSet};
+use super::{health::{DamageFlag, DamageModel}, inventory_item::MeleeCombatSoundSet};
 
 pub struct StandardCharacter {
     pub current_lower_animation_state : CharacterAnimationState,
@@ -26,6 +26,8 @@ const FIRST_MELEE_TIME : u64 = 433;
 impl Default for StandardCharacter {
     fn default() -> Self {
         let mut t = Timer::new(Duration::from_millis(FIRST_MELEE_TIME), false);
+        let mut first_damage_flags = HashMap::new();
+        first_damage_flags.insert(0, DamageFlag::SoftDamage);
         t.tick(Duration::from_millis(FIRST_MELEE_TIME));
         Self {
             current_lower_animation_state : CharacterAnimationState::Idle,
@@ -36,13 +38,10 @@ impl Default for StandardCharacter {
             next_attack_timer : t,
             default_melee_damage_model: DamageModel {
                 brute: 5.,
+                damage_flags : first_damage_flags,
                 ..Default::default()
             },
-            default_melee_sound_set: MeleeCombatSoundSet {
-                miss: "".to_string(),
-                hit_soft: "".to_string(),
-                hit_metaloid: "".to_string(),
-            }
+            default_melee_sound_set: MeleeCombatSoundSet::default(),
         }
     }
 }

@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use bevy::prelude::{Commands, ResMut};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use crate::space_core::{functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth}, non_blocking_cells_list::NonBlockingCellsList}};
+use crate::space_core::{components::cell::Cell, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth, StructureHealthFlag}, non_blocking_cells_list::NonBlockingCellsList}};
 
 
 
@@ -19,6 +21,11 @@ pub fn build_main_gridmap(
     non_fov_blocking_cells : &mut ResMut<NonBlockingCellsList>,
 ) {
 
+    let mut health_flags = HashMap::new();
+
+    health_flags.insert(0, StructureHealthFlag::ArmourPlated);
+
+
     for cell_data in current_map_main_data.iter() {
         
         let cell_id = string_vec3_to_vec3(&cell_data.id);
@@ -35,7 +42,10 @@ pub fn build_main_gridmap(
         CellData {
             item: cell_data.item,
             orientation: cell_data.orientation,
-            health : StructureHealth::default(),
+            health : StructureHealth {
+                health_flags: health_flags.clone(),
+                ..Default::default()
+            },
         });
 
 
@@ -68,7 +78,7 @@ pub fn build_main_gridmap(
                     ..Default::default()
                 },
                 ..Default::default()
-            }).insert_bundle(
+            }).insert_bundle((
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 0.5, 0.5),
                     collider_type: ColliderType::Solid,
@@ -82,8 +92,11 @@ pub fn build_main_gridmap(
                         ..Default::default()
                     },
                     ..Default::default()
+                },
+                Cell {
+                    id: cell_id_int,
                 }
-            );
+            ));
 
         } else {
             
@@ -97,7 +110,7 @@ pub fn build_main_gridmap(
                     ..Default::default()
                 },
                 ..Default::default()
-            },).insert_bundle(
+            },).insert_bundle((
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 1., 1.),
                     collider_type: ColliderType::Solid,
@@ -111,8 +124,11 @@ pub fn build_main_gridmap(
                         ..Default::default()
                     },
                     ..Default::default()
+                },
+                Cell {
+                    id: cell_id_int,
                 }
-            );
+            ));
 
         }
 

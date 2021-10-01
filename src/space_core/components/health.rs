@@ -18,7 +18,8 @@ pub enum HealthFlag {
 }
 
 pub enum HealthContainer {
-    Humanoid(HumanoidHealth)
+    Humanoid(HumanoidHealth),
+    Entity(EntityContainer),
 }
 
 #[allow(dead_code)]
@@ -27,7 +28,9 @@ pub struct RaegentContainer {
 }
 
 #[allow(dead_code)]
+#[derive(PartialEq)]
 pub enum DamageFlag {
+    SoftDamage, //Ie fists.
     Stun(f32),
     Floor(f32),
 }
@@ -59,6 +62,14 @@ pub struct HumanoidHealth {
     pub left_leg_brute : f32,
     pub left_leg_burn : f32,
     pub left_leg_toxin : f32,
+
+}
+
+pub struct EntityContainer {
+
+    pub brute : f32,
+    pub burn : f32,
+    pub toxin : f32,
 
 }
 
@@ -122,46 +133,23 @@ impl Health {
                 }
 
             },
+            HealthContainer::Entity(item) => {
+
+                item.brute+=brute_damage;
+                item.burn+=burn_damage;
+                item.toxin+=toxin_damage;
+
+            },
         }
 
-        
-
     }
-
-    /*pub fn tick(&mut self) {
-        
-    }*/
 
 }
 
 impl Default for Health {
     fn default() -> Self {
         Self {
-            health_container : HealthContainer::Humanoid(HumanoidHealth {
-                head_brute : 0.,
-                head_burn: 0.,
-                head_toxin: 0.,
-
-                torso_brute: 0.,
-                torso_burn: 0.,
-                torso_toxin: 0.,
-
-                left_arm_brute : 0.,
-                left_arm_burn : 0.,
-                left_arm_toxin : 0.,
-
-                right_arm_brute : 0.,
-                right_arm_burn : 0.,
-                right_arm_toxin : 0.,
-
-                right_leg_brute : 0.,
-                right_leg_burn : 0.,
-                right_leg_toxin : 0.,
-
-                left_leg_brute : 0.,
-                left_leg_burn : 0.,
-                left_leg_toxin : 0.,
-            }),
+            health_container : HealthContainer::Humanoid(HumanoidHealth::default()),
             health_flags: HashMap::new(),
             raegent_container : RaegentContainer {
                 raegents: HashMap::new(),
@@ -169,4 +157,48 @@ impl Default for Health {
             hit_sound_surface: HitSoundSurface::Soft,
         }
     }
+}
+
+impl Default for EntityContainer {
+    fn default() -> Self {
+        Self {
+            brute:0.,
+            burn:0.,
+            toxin:0.,
+        }
+    }
+}
+
+impl Default for HumanoidHealth {
+
+    fn default() -> Self {
+        Self {
+        
+            head_brute : 0.,
+            head_burn: 0.,
+            head_toxin: 0.,
+
+            torso_brute: 0.,
+            torso_burn: 0.,
+            torso_toxin: 0.,
+
+            left_arm_brute : 0.,
+            left_arm_burn : 0.,
+            left_arm_toxin : 0.,
+
+            right_arm_brute : 0.,
+            right_arm_burn : 0.,
+            right_arm_toxin : 0.,
+
+            right_leg_brute : 0.,
+            right_leg_burn : 0.,
+            right_leg_toxin : 0.,
+
+            left_leg_brute : 0.,
+            left_leg_burn : 0.,
+            left_leg_toxin : 0.,
+            
+        }
+    }
+
 }

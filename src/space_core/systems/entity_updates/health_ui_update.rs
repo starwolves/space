@@ -534,6 +534,7 @@ pub fn health_ui_update(
 
 
             },
+            _ => (),
         }
 
         
