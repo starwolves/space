@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use bevy::prelude::{FromWorld, World};
 use serde::{Deserialize};
 
-use crate::space_core::components::inventory_item::HitSoundSurface;
+use crate::space_core::components::{health::{DamageFlag, DamageModel}, inventory_item::HitSoundSurface};
 
 use super::doryen_fov::Vec3Int;
 
@@ -24,6 +24,8 @@ pub struct CellData {
     pub health : StructureHealth,
 }
 
+
+#[derive(Clone)]
 pub struct StructureHealth {
     pub brute : f32,
     pub burn : f32,
@@ -44,10 +46,42 @@ impl Default for StructureHealth {
     }
 }
 
+impl StructureHealth {
 
-#[allow(dead_code)]
+    pub fn apply_damage(&mut self, _body_part : &str, damage_model : &DamageModel) {
+
+        let mut damager_flags = vec![];
+
+        for damage_flag in damage_model.damage_flags.values() {
+            damager_flags.push(damage_flag);
+        }
+
+        let mut structure_health_flags = vec![];
+
+        for stucture_health_flag in self.health_flags.values() {
+            structure_health_flags.push(stucture_health_flag);
+        }
+
+        let mut brute_damage = damage_model.brute;
+        let burn_damage = damage_model.burn;
+        let toxin_damage = damage_model.toxin;
+
+        if damager_flags.contains(&&DamageFlag::SoftDamage) && structure_health_flags.contains(&&StructureHealthFlag::ArmourPlated)  {
+            brute_damage = 0.;
+        }
+
+        self.brute+=brute_damage;
+        self.burn+=burn_damage;
+        self.toxin+=toxin_damage;
+
+    }
+
+}
+
+
+#[derive(Clone, PartialEq)]
 pub enum StructureHealthFlag {
-    Armored,
+    ArmourPlated,
 }
 
 impl FromWorld for GridmapMain {

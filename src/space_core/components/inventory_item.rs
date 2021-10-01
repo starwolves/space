@@ -25,12 +25,53 @@ pub enum CombatType {
 }
 
 pub struct MeleeCombatSoundSet {
-    pub miss : String,
-    pub hit_soft : String,
-    pub hit_metaloid : String,
+    pub miss : Vec<String>,
+    pub hit_soft : Vec<String>,
+    pub hit_blocked : Vec<String>,
 }
 
-#[allow(dead_code)]
+/*
+impl MeleeCombatSoundSet {
+
+    pub fn spawn_miss_sfx() {
+
+    }
+
+    pub fn spawn_hit_sfx() {
+
+    }
+
+    pub fn spawn_hit_blocked() {
+
+    }
+}
+*/
+
+impl Default for MeleeCombatSoundSet {
+    fn default() -> Self {
+        Self {
+            miss: vec![
+                "swing1".to_string(),
+                "swing2".to_string(),
+                "swing3".to_string(),
+                "swing4".to_string(),
+            ],
+            hit_soft: vec![
+                "punch1".to_string(),
+                "punch2".to_string(),
+                "punch3".to_string(),
+                "punch4".to_string(),
+            ],
+            hit_blocked: vec![
+                "block1".to_string(),
+                "block2".to_string(),
+                "block3".to_string(),
+            ],
+        }
+    }
+}
+
+#[derive(Clone)]
 pub enum HitSoundSurface {
     Soft,
     Metaloid,

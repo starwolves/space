@@ -49,3 +49,4 @@ pub mod default_transform;
 pub mod interpolation_priority;
 pub mod jumpsuit;
 pub mod health;
+pub mod cell;
