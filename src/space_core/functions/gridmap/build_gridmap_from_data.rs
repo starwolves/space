@@ -78,7 +78,7 @@ pub fn build_main_gridmap(
                     ..Default::default()
                 },
                 ..Default::default()
-            }).insert_bundle((
+            }).insert_bundle(
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 0.5, 0.5),
                     collider_type: ColliderType::Solid,
@@ -93,10 +93,11 @@ pub fn build_main_gridmap(
                     },
                     ..Default::default()
                 },
+            ).insert(
                 Cell {
                     id: cell_id_int,
                 }
-            ));
+            );
 
         } else {
             
@@ -110,7 +111,7 @@ pub fn build_main_gridmap(
                     ..Default::default()
                 },
                 ..Default::default()
-            },).insert_bundle((
+            },).insert_bundle(
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 1., 1.),
                     collider_type: ColliderType::Solid,
@@ -124,11 +125,11 @@ pub fn build_main_gridmap(
                         ..Default::default()
                     },
                     ..Default::default()
-                },
-                Cell {
-                    id: cell_id_int,
                 }
-            ));
+            ).insert(
+            Cell {
+                id: cell_id_int,
+            });
 
         }
 

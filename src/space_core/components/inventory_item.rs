@@ -30,7 +30,7 @@ pub struct MeleeCombatSoundSet {
     pub hit_blocked : Vec<String>,
 }
 
-/*
+
 impl MeleeCombatSoundSet {
 
     pub fn spawn_miss_sfx() {
@@ -45,7 +45,7 @@ impl MeleeCombatSoundSet {
 
     }
 }
-*/
+
 
 impl Default for MeleeCombatSoundSet {
     fn default() -> Self {
