@@ -245,6 +245,8 @@ pub fn move_standard_characters(
 
             }
 
+            
+
             if attacking_this_frame {
                 // Get used inventory item and attack mode enum. Then on match execute directPreciseRayCastMeleeAttack
 
@@ -252,6 +254,7 @@ pub fn move_standard_characters(
 
                 let mut combat_type = &CombatType::MeleeDirect;
                 let mut combat_damage_model = &standard_character_component.default_melee_damage_model;
+                let mut melee_combat_sound_set = &standard_character_component.default_melee_sound_set;
 
                 match active_slot.slot_item {
                     Some(item_entity) => {
@@ -260,6 +263,7 @@ pub fn move_standard_characters(
                             Ok(inventory_item_component) => {
                                 combat_type = &inventory_item_component.combat_type;
                                 combat_damage_model = &inventory_item_component.combat_damage_model;
+                                melee_combat_sound_set = &inventory_item_component.combat_sound_set;
                             },
                             Err(_rr) => {
                                 warn!("Couldn't find inventory_item belonging to used inventory slot of attack.");
@@ -316,6 +320,15 @@ pub fn move_standard_characters(
                                     return true;
                                 }
 
+                                match active_slot.slot_item {
+                                    Some(slot_entity) => {
+                                        if collider_entity == slot_entity {
+                                            return true;
+                                        }
+                                    },
+                                    None => {},
+                                }
+
                                 let mut hit_target = false;
                                 let mut hit_result = HitResult::Missed;
 
@@ -351,10 +364,10 @@ pub fn move_standard_characters(
                                 
                                 match hit_result {
                                     crate::space_core::components::health::HitResult::HitSoft => {
-                                        standard_character_component.default_melee_sound_set.spawn_hit_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
+                                        melee_combat_sound_set.spawn_hit_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
                                     },
                                     crate::space_core::components::health::HitResult::Blocked => {
-                                        standard_character_component.default_melee_sound_set.spawn_hit_blocked(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
+                                        melee_combat_sound_set.spawn_hit_blocked(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
                                     },
                                     crate::space_core::components::health::HitResult::Missed => {},
                                 }
@@ -369,7 +382,7 @@ pub fn move_standard_characters(
                         );
 
                         if !hit_anything {
-                            standard_character_component.default_melee_sound_set.spawn_miss_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
+                            melee_combat_sound_set.spawn_miss_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
                         }
 
                     },
