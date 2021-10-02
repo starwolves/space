@@ -128,6 +128,7 @@ impl HumanMalePawnBundle {
             InterpolationPriority {
                 priority: InterpolationPriorityStatus::High,
             },
+            Health::default(),
         ));
 
         let human_male_entity =  entity_builder.id();
@@ -285,7 +286,6 @@ impl HumanMalePawnBundle {
                     ..Default::default()
                 },
                 PlayerInput::default(),
-                Health::default(),
             ));
 
             if !dummy_instance {
@@ -312,12 +312,90 @@ pub fn generate_human_examine_text(
     character_name : &str,
     inventory_component_option : Option<&Inventory>,
     examinable_items_option : Option<&Query<&Examinable>>,
+    health_component : &Health,
 ) -> String {
 
     let mut examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n\n"
     + character_name + ", a Security Officer.\n"
-    + "He is human.\n"
-    + "[font=" + FURTHER_ITALIC_FONT + "][color=#3cff00]He is in perfect shape.[/color][/font]\n";
+    + "He is human.\n";
+
+
+    match &health_component.health_container {
+        crate::space_core::components::health::HealthContainer::Humanoid(humanoid_container) => {
+
+            let head_damage = humanoid_container.head_brute+humanoid_container.head_burn+humanoid_container.head_toxin;
+            let torso_damage = humanoid_container.torso_brute+humanoid_container.torso_burn+humanoid_container.torso_toxin;
+            let left_arm_damage = humanoid_container.left_arm_brute+humanoid_container.left_arm_burn+humanoid_container.left_arm_toxin;
+            let right_arm_damage = humanoid_container.right_arm_brute+humanoid_container.right_arm_burn+humanoid_container.right_arm_toxin;
+            let left_leg_damage = humanoid_container.left_leg_brute+humanoid_container.left_leg_burn+humanoid_container.left_leg_toxin;
+            let right_leg_damage = humanoid_container.right_leg_brute+humanoid_container.right_leg_burn+humanoid_container.right_leg_toxin;
+
+            if head_damage < 25. && torso_damage < 25. && left_arm_damage < 25. && right_arm_damage < 25. && left_leg_damage < 25. && right_leg_damage < 25. {
+
+                examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#3cff00]He is in perfect shape.[/color][/font]\n";
+
+            } else {
+
+                if humanoid_container.head_brute > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His head is heavily injured.[/color][/font]\n";
+                } else if humanoid_container.head_brute > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His head is injured.[/color][/font]\n";
+                } else if humanoid_container.head_brute > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His head is bruised.[/color][/font]\n";
+                }
+
+
+                if humanoid_container.torso_brute > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His torso is heavily injured.[/color][/font]\n";
+                } else if humanoid_container.torso_brute > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His torso is injured.[/color][/font]\n";
+                } else if humanoid_container.torso_brute > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His torso is bruised.[/color][/font]\n";
+                }
+
+
+                if humanoid_container.left_arm_brute > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left arm is heavily injured.[/color][/font]\n";
+                } else if humanoid_container.left_arm_brute > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left arm is injured.[/color][/font]\n";
+                } else if humanoid_container.left_arm_brute > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left arm is bruised.[/color][/font]\n";
+                }
+
+
+                if humanoid_container.right_arm_brute > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right arm is heavily injured.[/color][/font]\n";
+                } else if humanoid_container.right_arm_brute > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right arm is injured.[/color][/font]\n";
+                } else if humanoid_container.right_arm_brute > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right arm is bruised.[/color][/font]\n";
+                }
+
+                if humanoid_container.left_leg_brute > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left leg is heavily injured.[/color][/font]\n";
+                } else if humanoid_container.left_leg_brute > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left leg is injured.[/color][/font]\n";
+                } else if humanoid_container.left_leg_brute > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left leg is bruised.[/color][/font]\n";
+                }
+
+                if humanoid_container.right_leg_brute > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right leg is heavily injured.[/color][/font]\n";
+                } else if humanoid_container.right_leg_brute > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right leg is injured.[/color][/font]\n";
+                } else if humanoid_container.right_leg_brute > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right leg is bruised.[/color][/font]\n";
+                }
+
+
+
+            }
+
+        },
+        _=>(),
+    }
+
+    
 
     match inventory_component_option {
         Some(inventory_component) => {

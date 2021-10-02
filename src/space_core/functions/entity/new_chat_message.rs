@@ -376,6 +376,32 @@ pub enum MessagingPlayerState {
     Alive,
 }
 
+pub fn new_proximity_message(
+    net_new_chat_message_event : &mut EventWriter<NetChatMessage>,
+    handle_to_entity : &Res<HandleToEntity>,
+    sensed_by : &Vec<Entity>,
+    _sensed_by_distance : &Vec<Entity>,
+    _position : Vec3,
+    message : String,
+) {
+
+    for entity in sensed_by {
+
+        match handle_to_entity.inv_map.get(entity) {
+            Some(handle) => {
+
+                net_new_chat_message_event.send(NetChatMessage {
+                    handle: *handle,
+                    message: ReliableServerMessage::ChatMessage(message.clone()),
+                })
+
+            },
+            None => {},
+        }
+    }
+
+}
+
 pub fn new_chat_message(
     net_new_chat_message_event : &mut EventWriter<NetChatMessage>,
     handle_to_entity : &Res<HandleToEntity>,

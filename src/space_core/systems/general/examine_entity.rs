@@ -1,10 +1,10 @@
 use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res, warn};
 
-use crate::space_core::{components::{examinable::Examinable, sensable::Sensable}, events::{general::examine_entity::ExamineEntity, net::net_chat_message::NetChatMessage}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{examinable::Examinable, sensable::Sensable}, events::{general::examine_entity::ExamineEntity, net::{net_examine_entity::NetExamineEntity}}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
 pub fn examine_entity(
     mut examine_entity_events : EventReader<ExamineEntity>,
-    mut net_new_chat_message_event : EventWriter<NetChatMessage>,
+    mut net_new_chat_message_event : EventWriter<NetExamineEntity>,
     examinable_entities : Query<(&Examinable, &Sensable)>,
     handle_to_entity : Res<HandleToEntity>,
 ) {
@@ -34,7 +34,7 @@ pub fn examine_entity(
 
                 }
 
-                net_new_chat_message_event.send(NetChatMessage {
+                net_new_chat_message_event.send(NetExamineEntity {
                     handle: examine_event.handle,
                     message: ReliableServerMessage::ChatMessage(text),
                 });

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Entity, Query, QuerySet, warn};
+use bevy::prelude::{Changed, Entity, Or, Query, QuerySet, warn};
 
-use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{entity_data::EntityData, entity_updates::EntityUpdates, examinable::Examinable, inventory::Inventory, inventory_item::InventoryItem, standard_character::StandardCharacter}, functions::{entity_updates::get_entity_update_difference::get_entity_update_difference}, resources::network_messages::EntityUpdateData};
+use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{entity_data::EntityData, entity_updates::EntityUpdates, examinable::Examinable, health::Health, inventory::Inventory, inventory_item::InventoryItem, standard_character::StandardCharacter}, functions::{entity_updates::get_entity_update_difference::get_entity_update_difference}, resources::network_messages::EntityUpdateData};
 
 pub fn inventory_update(
     mut updated_entities: Query
@@ -10,9 +10,10 @@ pub fn inventory_update(
         Entity, 
         &Inventory, 
         &mut EntityUpdates, 
-        Option<&StandardCharacter>
+        Option<&StandardCharacter>,
+        Option<&Health>,
     ), 
-        Changed<Inventory>
+        Or<(Changed<Inventory>, Changed<Health>)>
     >,
     pickupables : Query<(
         &InventoryItem,
@@ -27,7 +28,8 @@ pub fn inventory_update(
     for (updated_entity, 
         inventory_component, 
         mut entity_updates_component, 
-        standard_character_option
+        standard_character_option,
+        health_option,
     ) in updated_entities.iter_mut() {
         
         let old_entity_updates = entity_updates_component.updates.clone();
@@ -39,7 +41,8 @@ pub fn inventory_update(
                 new_examine_text_option = Some(generate_human_examine_text(
                     &standard_character_component.character_name,
                     Some(inventory_component),
-                    Some(query_set.q1_mut())
+                    Some(query_set.q1_mut()),
+                    health_option.unwrap(),
                 ));
             },
             None => {},
