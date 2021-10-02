@@ -82,6 +82,7 @@ pub struct DamageModel {
 }
 
 impl Default for DamageModel {
+   
     fn default() -> Self {
         Self {
             brute: 0.,
