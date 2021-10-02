@@ -1,10 +1,11 @@
 use std::collections::HashMap;
-use bevy::prelude::{FromWorld, World};
+use bevy::{math::Vec3, prelude::{Entity, EventWriter, FromWorld, Res, World}};
+use rand::prelude::SliceRandom;
 use serde::{Deserialize};
 
-use crate::space_core::components::{health::{DamageFlag, DamageModel, HitResult}, inventory_item::HitSoundSurface};
+use crate::space_core::{components::{health::{DamageFlag, DamageModel, HitResult, MELEE_STRIKE_WORDS}, inventory_item::HitSoundSurface}, events::net::net_chat_message::NetChatMessage, functions::entity::new_chat_message::{new_proximity_message}};
 
-use super::doryen_fov::Vec3Int;
+use super::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity};
 
 
 pub struct GridmapMain {
@@ -48,7 +49,18 @@ impl Default for StructureHealth {
 
 impl StructureHealth {
 
-    pub fn apply_damage(&mut self, _body_part : &str, damage_model : &DamageModel) -> HitResult {
+    pub fn apply_damage(
+        &mut self, 
+        _body_part : &str, 
+        damage_model : &DamageModel,
+        net_new_chat_message_event: &mut EventWriter<NetChatMessage>,
+        handle_to_entity: &Res<HandleToEntity>, 
+        sensed_by: &Vec<Entity>, 
+        sensed_by_distance: &Vec<Entity>, 
+        position: Vec3,
+        attacker_name : &str,
+        cell_name : &str,
+    ) -> HitResult {
 
         let mut hit_result = HitResult::HitSoft;
 
@@ -76,6 +88,19 @@ impl StructureHealth {
         self.brute+=brute_damage;
         self.burn+=burn_damage;
         self.toxin+=toxin_damage;
+
+        let strike_word = MELEE_STRIKE_WORDS.choose(&mut rand::thread_rng()).unwrap();
+
+        let message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + cell_name + "![/color]";
+
+        new_proximity_message(
+            net_new_chat_message_event,
+            handle_to_entity,
+            sensed_by,
+            sensed_by_distance,
+            position,
+            message,
+        );
 
         hit_result
 

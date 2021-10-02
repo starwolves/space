@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{cell::Cell, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{Health, HitResult}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{cell::Cell, examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{Health, HitResult}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_chat_message::NetChatMessage, net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::get_cell_name::get_cell_name}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}};
 
 use bevy_rapier3d::physics::IntoEntity;
 
@@ -11,7 +11,7 @@ const JOG_SPEED : f32 = 13.;
 const RUN_SPEED : f32 = 18.;
 const MELEE_FISTS_REACH : f32 = 1.2;
 
-pub fn move_standard_characters(
+pub fn standard_characters(
     mut standard_character_query : Query<(
         Entity,
         &mut PlayerInput,
@@ -27,32 +27,30 @@ pub fn move_standard_characters(
     )>,
     inventory_items_query : Query<&InventoryItem>,
     mut footsteps_query : Query<(
-        &mut Sensable,
         Option<&FootstepsWalking>,
         Option<&FootstepsSprinting>,
         &mut StaticTransform
     )>,
+    mut sensable_entities : Query<&mut Sensable>,
     time: Res<Time>,
     movement_rotations: Res<PlayerYAxisRotations>,
     handle_to_entity: Res<HandleToEntity>,
     mut commands : Commands,
 
-    events : (
+    mut net_new_chat_message_event: EventWriter<NetChatMessage>, 
+
+    tuple0 : (
         EventWriter<NetUnloadEntity>,
         EventReader<InputMouseAction>,
         EventReader<InputSelectBodyPart>,
         EventReader<InputToggleAutoMove>,
+        Res<QueryPipeline>,
+        QueryPipelineColliderComponentsQuery,
+        Query<(&mut Health, &Examinable)>,
+        ResMut<GridmapMain>,
+        Query<&Cell>,
+        ResMut<SfxAutoDestroyTimers>,
     ),
-    
-    query_pipeline: Res<QueryPipeline>,
-    collider_query: QueryPipelineColliderComponentsQuery,
-
-
-    mut health_query : Query<&mut Health>,
-    mut world_cells : ResMut<GridmapMain>,
-    physics_cells : Query<&Cell>,
-
-    mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
 
 ) {
 
@@ -61,7 +59,13 @@ pub fn move_standard_characters(
         mut input_mouse_action_events,
         mut input_select_body_part,
         mut input_toggle_auto_move,
-    ) = events;
+        query_pipeline,
+        collider_query,
+        mut health_query,
+        mut world_cells,
+        physics_cells,
+        mut sfx_auto_destroy_timers,
+    ) = tuple0;
 
     for event in input_mouse_action_events.iter() {
 
@@ -332,18 +336,32 @@ pub fn move_standard_characters(
                                 let mut hit_target = false;
                                 let mut hit_result = HitResult::Missed;
 
+                                let sensable_component = sensable_entities.get_mut(standard_character_entity).unwrap();
+
                                 match health_query.get_mut(collider_entity) {
-                                    Ok(mut health_component) => {
+                                    Ok((mut health_component, examinable_component)) => {
 
                                         hit_target = true;
 
-                                        hit_result = health_component.apply_damage(&player_input_component.targetted_limb, combat_damage_model);
+                                        hit_result = health_component.apply_damage(
+                                            &player_input_component.targetted_limb, 
+                                            combat_damage_model,
+                                            &mut net_new_chat_message_event,
+                                                &handle_to_entity,
+                                                &sensable_component.sensed_by,
+                                            &sensable_component.sensed_by_cached,
+                                            rigid_body_position_component.position.translation.into(),
+                                                &standard_character_component.character_name,
+                                                &examinable_component.name,
+                                        );
 
                                         
 
                                     },
                                     Err(_rr) => {},
                                 }
+
+                                
 
                                 if !hit_target {
                                     match physics_cells.get(collider_entity) {
@@ -353,7 +371,17 @@ pub fn move_standard_characters(
     
                                             let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
     
-                                            hit_result = cell_data.health.apply_damage(&player_input_component.targetted_limb, combat_damage_model);
+                                            hit_result = cell_data.health.apply_damage(
+                                      &player_input_component.targetted_limb, 
+                                                combat_damage_model,
+                                                &mut net_new_chat_message_event,
+                                                &handle_to_entity,
+                                                &sensable_component.sensed_by,
+                               &sensable_component.sensed_by_cached,
+                                        rigid_body_position_component.position.translation.into(),
+                                                &standard_character_component.character_name,
+                                                &get_cell_name(cell_data),
+                                            );
     
     
                                             
@@ -457,7 +485,7 @@ pub fn move_standard_characters(
                     match linked_footsteps_walking_option {
                         Some(linked_footsteps_walking_component) => {
 
-                            let mut sensable_component = footsteps_query.get_component_mut::<Sensable>(linked_footsteps_walking_component.entity).unwrap();
+                            let mut sensable_component = sensable_entities.get_mut(linked_footsteps_walking_component.entity).unwrap();
 
                             sensable_component.despawn(
                                 linked_footsteps_walking_component.entity,
@@ -484,7 +512,7 @@ pub fn move_standard_characters(
                     match linked_footsteps_sprinting_option {
                         Some(linked_footsteps_sprinting_component) => {
 
-                            let mut sensable_component = footsteps_query.get_component_mut::<Sensable>(linked_footsteps_sprinting_component.entity).unwrap();
+                            let mut sensable_component = sensable_entities.get_mut(linked_footsteps_sprinting_component.entity).unwrap();
 
                             sensable_component.despawn(
                                 linked_footsteps_sprinting_component.entity,
@@ -518,7 +546,7 @@ pub fn move_standard_characters(
                         match linked_footsteps_sprinting_option {
                             Some(linked_footsteps_sprinting_component) => {
     
-                                let mut sensable_component = footsteps_query.get_component_mut::<Sensable>(linked_footsteps_sprinting_component.entity).unwrap();
+                                let mut sensable_component = sensable_entities.get_mut(linked_footsteps_sprinting_component.entity).unwrap();
     
                                 sensable_component.despawn(
                                     linked_footsteps_sprinting_component.entity,
@@ -554,7 +582,7 @@ pub fn move_standard_characters(
 
                             let linked_footsteps_walking = footsteps_query.get_mut(linked_footsteps_walking_component.entity);
                             match linked_footsteps_walking {
-                                Ok((_sensable, _footsteps_walking_component, _footsteps_sprinting_component, mut static_transform_component)) => {
+                                Ok((_footsteps_walking_component, _footsteps_sprinting_component, mut static_transform_component)) => {
 
                                     static_transform_component.transform = isometry_to_transform(rigid_body_position);
 
@@ -574,7 +602,7 @@ pub fn move_standard_characters(
                         match linked_footsteps_walking_option {
                             Some(linked_footsteps_walking_component) => {
     
-                                let mut sensable_component = footsteps_query.get_component_mut::<Sensable>(linked_footsteps_walking_component.entity).unwrap();
+                                let mut sensable_component = sensable_entities.get_mut(linked_footsteps_walking_component.entity).unwrap();
     
                                 sensable_component.despawn(
                                     linked_footsteps_walking_component.entity,
@@ -610,7 +638,7 @@ pub fn move_standard_characters(
 
                             let linked_footsteps_sprinting = footsteps_query.get_mut(linked_footsteps_sprinting_component.entity);
                             match linked_footsteps_sprinting {
-                                Ok((_sensable, _footsteps_walking_component, _footsteps_sprinting_component, mut static_transform_component)) => {
+                                Ok((_footsteps_walking_component, _footsteps_sprinting_component, mut static_transform_component)) => {
 
                                     static_transform_component.transform = isometry_to_transform(rigid_body_position);
 
