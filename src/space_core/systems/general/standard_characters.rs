@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{cell::Cell, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{Health}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{cell::Cell, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{Health, HitResult}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::net_unload_entity::NetUnloadEntity}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}};
 
 use bevy_rapier3d::physics::IntoEntity;
 
@@ -36,10 +36,14 @@ pub fn move_standard_characters(
     movement_rotations: Res<PlayerYAxisRotations>,
     handle_to_entity: Res<HandleToEntity>,
     mut commands : Commands,
-    mut net_unload_entity : EventWriter<NetUnloadEntity>,
-    mut input_mouse_action_events : EventReader<InputMouseAction>,
-    mut input_select_body_part : EventReader<InputSelectBodyPart>,
-    mut input_toggle_auto_move : EventReader<InputToggleAutoMove>,
+
+    events : (
+        EventWriter<NetUnloadEntity>,
+        EventReader<InputMouseAction>,
+        EventReader<InputSelectBodyPart>,
+        EventReader<InputToggleAutoMove>,
+    ),
+    
     query_pipeline: Res<QueryPipeline>,
     collider_query: QueryPipelineColliderComponentsQuery,
 
@@ -48,7 +52,16 @@ pub fn move_standard_characters(
     mut world_cells : ResMut<GridmapMain>,
     physics_cells : Query<&Cell>,
 
+    mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
+
 ) {
+
+    let (
+        mut net_unload_entity,
+        mut input_mouse_action_events,
+        mut input_select_body_part,
+        mut input_toggle_auto_move,
+    ) = events;
 
     for event in input_mouse_action_events.iter() {
 
@@ -277,6 +290,8 @@ pub fn move_standard_characters(
                             angle.sin(),
                         ) * MELEE_FISTS_REACH;
 
+                        let mut hit_anything = false;
+
                         query_pipeline.intersections_with_shape(
                             &QueryPipelineColliderComponentsSet(&collider_query),
                             &(
@@ -302,13 +317,14 @@ pub fn move_standard_characters(
                                 }
 
                                 let mut hit_target = false;
+                                let mut hit_result = HitResult::Missed;
 
                                 match health_query.get_mut(collider_entity) {
                                     Ok(mut health_component) => {
 
                                         hit_target = true;
 
-                                        health_component.apply_damage(&player_input_component.targetted_limb, combat_damage_model);
+                                        hit_result = health_component.apply_damage(&player_input_component.targetted_limb, combat_damage_model);
 
                                         
 
@@ -316,23 +332,45 @@ pub fn move_standard_characters(
                                     Err(_rr) => {},
                                 }
 
-                                match physics_cells.get(collider_entity) {
-                                    Ok(cell_component) => {
-
-                                        hit_target = true;
-
-                                        let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
-
-                                        cell_data.health.apply_damage(&player_input_component.targetted_limb, combat_damage_model);
-                                        
+                                if !hit_target {
+                                    match physics_cells.get(collider_entity) {
+                                        Ok(cell_component) => {
+    
+                                            hit_target = true;
+    
+                                            let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
+    
+                                            hit_result = cell_data.health.apply_damage(&player_input_component.targetted_limb, combat_damage_model);
+    
+    
+                                            
+                                        },
+                                        Err(_rr) => {},
+                                    }
+                                }
+                                
+                                match hit_result {
+                                    crate::space_core::components::health::HitResult::HitSoft => {
+                                        standard_character_component.default_melee_sound_set.spawn_hit_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
                                     },
-                                    Err(_rr) => {},
+                                    crate::space_core::components::health::HitResult::Blocked => {
+                                        standard_character_component.default_melee_sound_set.spawn_hit_blocked(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
+                                    },
+                                    crate::space_core::components::health::HitResult::Missed => {},
+                                }
+
+                                if hit_target {
+                                    hit_anything = true;
                                 }
 
                                 !hit_target
 
                             }
-                        )
+                        );
+
+                        if !hit_anything {
+                            standard_character_component.default_melee_sound_set.spawn_miss_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
+                        }
 
                     },
                 }

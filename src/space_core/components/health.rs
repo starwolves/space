@@ -94,10 +94,16 @@ impl Default for DamageModel {
 }
 
 
+#[allow(dead_code)]
+pub enum HitResult {
+    HitSoft,
+    Blocked,
+    Missed,
+}
 
 impl Health {
 
-    pub fn apply_damage(&mut self, body_part : &str, damage_model : &DamageModel) {
+    pub fn apply_damage(&mut self, body_part : &str, damage_model : &DamageModel) -> HitResult {
 
         let brute_damage = damage_model.brute;
         let burn_damage = damage_model.burn;
@@ -141,6 +147,8 @@ impl Health {
 
             },
         }
+
+        HitResult::HitSoft
 
     }
 

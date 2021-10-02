@@ -1,13 +1,12 @@
+use bevy::prelude::Transform;
 
-use bevy::prelude::{Transform};
+use crate::space_core::components::{entity_data::EntityData, entity_updates::EntityUpdates, sensable::Sensable, sfx::{Sfx, get_random_pitch_scale}, static_transform::StaticTransform};
 
-use crate::space_core::components::{entity_data::{EntityData}, entity_updates::EntityUpdates, sensable::Sensable, sfx::{Sfx, get_random_pitch_scale}, static_transform::StaticTransform};
+pub struct Block2SfxBundle;
 
-pub struct AirLockClosedSfxBundle;
+pub const BLOCK2_PLAY_BACK_DURATION : f32 = 0.5 + 1.;
 
-pub const PLAY_BACK_DURATION : f32 = 1.5 + 1.;
-
-impl AirLockClosedSfxBundle {
+impl Block2SfxBundle {
     
     pub fn new(passed_transform : Transform) -> (
         StaticTransform,
@@ -30,10 +29,10 @@ impl AirLockClosedSfxBundle {
             ..Default::default()
         },
         Sfx {
-            unit_db: 19.,
+            unit_db: 15.,
             unit_size: 1.,
-            stream_id: "doorCloseCompression".to_string(),
-            play_back_duration: PLAY_BACK_DURATION,
+            stream_id: "block2".to_string(),
+            play_back_duration: BLOCK2_PLAY_BACK_DURATION,
             pitch_scale: get_random_pitch_scale(1.0),
             ..Default::default()
         },

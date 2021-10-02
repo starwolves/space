@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use bevy::prelude::{FromWorld, World};
 use serde::{Deserialize};
 
-use crate::space_core::components::{health::{DamageFlag, DamageModel}, inventory_item::HitSoundSurface};
+use crate::space_core::components::{health::{DamageFlag, DamageModel, HitResult}, inventory_item::HitSoundSurface};
 
 use super::doryen_fov::Vec3Int;
 
@@ -48,7 +48,9 @@ impl Default for StructureHealth {
 
 impl StructureHealth {
 
-    pub fn apply_damage(&mut self, _body_part : &str, damage_model : &DamageModel) {
+    pub fn apply_damage(&mut self, _body_part : &str, damage_model : &DamageModel) -> HitResult {
+
+        let mut hit_result = HitResult::HitSoft;
 
         let mut damager_flags = vec![];
 
@@ -68,11 +70,14 @@ impl StructureHealth {
 
         if damager_flags.contains(&&DamageFlag::SoftDamage) && structure_health_flags.contains(&&StructureHealthFlag::ArmourPlated)  {
             brute_damage = 0.;
+            hit_result = HitResult::Blocked;
         }
 
         self.brute+=brute_damage;
         self.burn+=burn_damage;
         self.toxin+=toxin_damage;
+
+        hit_result
 
     }
 
