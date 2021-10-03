@@ -22,8 +22,9 @@ This game server is designed to run well on modern processors that have multiple
 * Netcoded 3D positions are broadcasted, rates dynamically throttled on a per client basis to meet bandwidth usage quotas.
 * A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) (field of view) algorithm for all pawns.
 * Moddable and cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic ship cells as map size is currently bottlenecked by the FOV algorithm. 
-* Character meshes and and animations are fully moddable and integrated with [Mixamo](https://www.mixamo.com/) for rigging.
-* Entities are loaded from an external content folder for the client. Allowing modders to create new entities such as items, characters, sounds, ship cells and more. 
+* Character meshes and animations are fully moddable and integrated with [Mixamo](https://www.mixamo.com/) for rigging.
+* Entities are loaded from an external content folder for the client. Allowing modders to create new entities such as items, characters, sounds, ship cells and more.
+* Godot Addressable references are used for efficient and dynamic netcode that will works well with custom content.
 * Data-oriented & modular, everything is its own entity with components in a strict and extremely fast ECS database-like approach. It is easy to add and remove systems, components and to turn them into plugins and more.
 * Inventory system, pick up, wear, attach and equip items with character entities.
 * Melee combat system, damage players, ship walls or items.
