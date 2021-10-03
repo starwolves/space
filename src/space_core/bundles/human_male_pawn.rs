@@ -238,7 +238,7 @@ impl HumanMalePawnBundle {
         let examine_text = "".to_string();
 
         let examinable_component = Examinable {
-            description: examine_text,
+            examinable_text: examine_text,
             name: "a male human".to_string(),
         };
 

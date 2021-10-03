@@ -231,7 +231,7 @@ Vec3::new(0.,0.355, 0.)
         },
         CachedBroadcastTransform::default(),
         Examinable {
-            description: examine_text,
+            examinable_text: examine_text,
             name: "a security helmet".to_string()
         },
         Helmet,
