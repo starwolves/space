@@ -88,9 +88,13 @@ impl HumanMalePawnBundle {
         };
 
 
-        
+        let mut entity_builder;
 
-        let mut entity_builder = commands.spawn_bundle(rigid_body_component);
+        if !showcase_instance {
+            entity_builder = commands.spawn_bundle(rigid_body_component);
+        } else {
+            entity_builder = commands.spawn();
+        }
 
         let user_name;
 
@@ -103,9 +107,11 @@ impl HumanMalePawnBundle {
             },
         }
         
-        entity_builder.insert_bundle(
-            collider_component,
-        ).insert_bundle((
+        if !showcase_instance {
+            entity_builder.insert_bundle(collider_component);
+        }
+        
+        entity_builder.insert_bundle((
             EntityData {
                 entity_class : "entity".to_string(),
                 entity_type : "humanMale".to_string(),
