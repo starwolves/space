@@ -16,17 +16,20 @@ This game server is designed to run well on modern processors that have multiple
   
 ### Features
 * Parallelized ECS (Entity Component System) architecture. 🐆
-* Pure Rust. No garbage collection & high execution speeds.
+* Pure Rust. No garbage collection & high parallel game logic execution speeds.
 * Fearless multi-threading and resource access across multiple threads.
-* Built with the concurrent [Rapier 3D Physics engine](https://rapier.rs/).
-* Interpolation throttling on a per client basis to meet bandwidth usage quotas.
+* Built with the cutting-edge & concurrent [Rapier 3D Physics engine](https://rapier.rs/).
+* Netcoded 3D positions are broadcasted, rates dynamically throttled on a per client basis to meet bandwidth usage quotas.
 * Built from the ground up to support safe and secure server-side modding with content folders. 
 * A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) (field of view) algorithm for all pawns.
-* Server-side moddable map support with sizes up to 1km by 1km with 100k+ dynamic ship cells that make up the map.
-* Server-side moddable inventory system support.
-* Server-side moddable combat system support.
-* Server-side moddable advanced chat, with support for radio and proximity channels.
-* Server-side moddable console commands, including rcon admin commands.
+* Moddable and cell based map support including a GUI map-maker editor with support for sizes up to 1km by 1km with 100k+ dynamic ship cells. (1km because map size is bottlenecked by the FOV algorithm)
+* Character meshes and and animations are fully moddable and integrated with Mixamo for rigging.
+* Entities are loaded from an external content folder for the client. Allowing modders to create new entities, aka items, characters, sounds, ship cells and more. 
+* Data-oriented & modular, everything is its own entity with components in a strict and extremely fast ECS database-like approach. It is easy to add and remove systems, components and to turn them into plugins and more.
+* Modular inventory system, pick up, wear, attach and equip items with character entities.
+* Melee combat system, damage players, ship walls or items.
+* Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
+* Modular console commands, including rcon admin commands.
 
 ## Getting Started
 
