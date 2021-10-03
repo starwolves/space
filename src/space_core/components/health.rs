@@ -23,7 +23,9 @@ pub const MELEE_STRIKE_WORDS : [&str; 3] = [
 ];
 
 #[allow(dead_code)]
+#[derive(PartialEq, Clone)]
 pub enum HealthFlag {
+    ArmourPlated,
     HeadBruteDefence(f32),
     TorsoBruteDefence(f32),
 }
@@ -225,7 +227,7 @@ impl Health {
 impl Default for Health {
     fn default() -> Self {
         Self {
-            health_container : HealthContainer::Humanoid(HumanoidHealth::default()),
+            health_container : HealthContainer::Entity(EntityContainer::default()),//HealthContainer::Humanoid(HumanoidHealth::default()),
             health_flags: HashMap::new(),
             raegent_container : RaegentContainer {
                 raegents: HashMap::new(),
