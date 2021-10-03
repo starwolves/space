@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Entity, Query, QuerySet, warn};
+use bevy::prelude::{Entity, Query, QuerySet, Without, warn};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::components::rigidbody_link_transform::RigidBodyLinkTransform;
+use crate::space_core::components::{rigidbody_link_transform::RigidBodyLinkTransform, showcase::Showcase};
 
 pub fn rigidbody_link_transform(
     mut rigidbodies_set: QuerySet<(
-        Query<(Entity, &RigidBodyLinkTransform, &mut RigidBodyPosition)>,
-        Query<&RigidBodyPosition>,
+        Query<(Entity, &RigidBodyLinkTransform, &mut RigidBodyPosition), Without<Showcase>>,
+        Query<&RigidBodyPosition, Without<Showcase>>,
     )>,
 ) {
 
