@@ -1,5 +1,5 @@
 
-use crate::space_core::{functions::entity::new_chat_message::{ASTRIX, FURTHER_NORMAL_FONT}, resources::{gridmap_main::CellData, network_messages::GridMapType}};
+use crate::space_core::{functions::entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, resources::{gridmap_main::CellData, network_messages::GridMapType}};
 
 
 const EXAMINATION_MAIN : [&str;13] = [
@@ -57,9 +57,26 @@ pub fn examine_ship_cell(
         examine_text = EXAMINATION_EMPTY;
     }
 
-    let message = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
-    + examine_text
-    + "\n" + ASTRIX + "[/font]";
+    let mut message = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
+    + examine_text;
+
+    if ship_cell.health.brute < 25. && ship_cell.health.burn < 25. && ship_cell.health.toxin < 25. {
+
+        message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + HEALTHY_COLOR + "]\n\nIt is in perfect shape.[/color][/font]";
+
+    } else {
+
+        if ship_cell.health.brute > 75. {
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is heavily damaged.[/color][/font]";
+        } else if ship_cell.health.brute > 50. {
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is damaged.[/color][/font]";
+        } else if ship_cell.health.brute > 25. {
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is slightly damaged.[/color][/font]";
+        }
+
+    }
+
+    message = message + "\n" + ASTRIX + "[/font]";
 
     message
 

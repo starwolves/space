@@ -78,7 +78,8 @@ impl SecurityCounterWindowBundle {
             EntityUpdates::default(),
             Examinable {
                 examinable_text: examine_text,
-                name: "a security counter window".to_string()
+                name: "a security counter window".to_string(),
+                ..Default::default()
             }
         )).id();
 

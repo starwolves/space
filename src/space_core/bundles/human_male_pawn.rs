@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Vec3}, prelude::{Commands, Entity, EventWriter, Query, ResMut, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, health::Health, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, health::Health, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 pub struct HumanMalePawnBundle;
 
@@ -240,6 +240,8 @@ impl HumanMalePawnBundle {
         let examinable_component = Examinable {
             examinable_text: examine_text,
             name: "a male human".to_string(),
+            custom_generator : true,
+            ..Default::default()
         };
 
 
@@ -332,59 +334,59 @@ pub fn generate_human_examine_text(
 
             if head_damage < 25. && torso_damage < 25. && left_arm_damage < 25. && right_arm_damage < 25. && left_leg_damage < 25. && right_leg_damage < 25. {
 
-                examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#3cff00]He is in perfect shape.[/color][/font]\n";
+                examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + HEALTHY_COLOR + "]He is in perfect shape.[/color][/font]\n";
 
             } else {
 
                 if humanoid_container.head_brute > 75. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His head is heavily injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His head is heavily injured.[/color][/font]\n";
                 } else if humanoid_container.head_brute > 50. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His head is injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His head is injured.[/color][/font]\n";
                 } else if humanoid_container.head_brute > 25. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His head is bruised.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His head is bruised.[/color][/font]\n";
                 }
 
 
                 if humanoid_container.torso_brute > 75. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His torso is heavily injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His torso is heavily injured.[/color][/font]\n";
                 } else if humanoid_container.torso_brute > 50. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His torso is injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His torso is injured.[/color][/font]\n";
                 } else if humanoid_container.torso_brute > 25. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His torso is bruised.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His torso is bruised.[/color][/font]\n";
                 }
 
 
                 if humanoid_container.left_arm_brute > 75. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left arm is heavily injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left arm is heavily injured.[/color][/font]\n";
                 } else if humanoid_container.left_arm_brute > 50. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left arm is injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left arm is injured.[/color][/font]\n";
                 } else if humanoid_container.left_arm_brute > 25. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left arm is bruised.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left arm is bruised.[/color][/font]\n";
                 }
 
 
                 if humanoid_container.right_arm_brute > 75. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right arm is heavily injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right arm is heavily injured.[/color][/font]\n";
                 } else if humanoid_container.right_arm_brute > 50. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right arm is injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right arm is injured.[/color][/font]\n";
                 } else if humanoid_container.right_arm_brute > 25. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right arm is bruised.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right arm is bruised.[/color][/font]\n";
                 }
 
                 if humanoid_container.left_leg_brute > 75. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left leg is heavily injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left leg is heavily injured.[/color][/font]\n";
                 } else if humanoid_container.left_leg_brute > 50. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left leg is injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left leg is injured.[/color][/font]\n";
                 } else if humanoid_container.left_leg_brute > 25. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His left leg is bruised.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left leg is bruised.[/color][/font]\n";
                 }
 
                 if humanoid_container.right_leg_brute > 75. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right leg is heavily injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right leg is heavily injured.[/color][/font]\n";
                 } else if humanoid_container.right_leg_brute > 50. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right leg is injured.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right leg is injured.[/color][/font]\n";
                 } else if humanoid_container.right_leg_brute > 25. {
-                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=#ff003c]His right leg is bruised.[/color][/font]\n";
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right leg is bruised.[/color][/font]\n";
                 }
 
 
@@ -411,6 +413,10 @@ pub fn generate_human_examine_text(
                             examine_text = examine_text + "He is holding " + &examinable.name + " in his left hand.\n";
                         } else if slot.slot_name == "right_hand" {
                             examine_text = examine_text + "He is holding " + &examinable.name + " in his right hand.\n";
+                        } else if slot.slot_name == "helmet" {
+                            examine_text = examine_text + "He is wearing " + &examinable.name + " on his head.\n";
+                        } else if slot.slot_name == "jumpsuit" {
+                            examine_text = examine_text + "He is wearing " + &examinable.name + " on his body.\n";
                         } else {
                             examine_text = examine_text + "He is wearing " + &examinable.name + ".\n";
                         }
