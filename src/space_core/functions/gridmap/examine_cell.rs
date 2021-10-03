@@ -62,16 +62,16 @@ pub fn examine_ship_cell(
 
     if ship_cell.health.brute < 25. && ship_cell.health.burn < 25. && ship_cell.health.toxin < 25. {
 
-        message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + HEALTHY_COLOR + "]\n\nIt is in perfect shape.[/color][/font]";
+        message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + HEALTHY_COLOR + "]\nIt is in perfect shape.[/color][/font]";
 
     } else {
 
         if ship_cell.health.brute > 75. {
-            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is heavily damaged.[/color][/font]";
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt is heavily damaged.[/color][/font]";
         } else if ship_cell.health.brute > 50. {
-            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is damaged.[/color][/font]";
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt is damaged.[/color][/font]";
         } else if ship_cell.health.brute > 25. {
-            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is slightly damaged.[/color][/font]";
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt is slightly damaged.[/color][/font]";
         }
 
     }

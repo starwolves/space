@@ -3,7 +3,7 @@ use bevy::{math::Vec3, prelude::{Entity, EventWriter, FromWorld, Res, World}};
 use rand::prelude::SliceRandom;
 use serde::{Deserialize};
 
-use crate::space_core::{components::{health::{DamageFlag, DamageModel, HealthFlag, HitResult, MELEE_STRIKE_WORDS}, inventory_item::HitSoundSurface}, events::net::net_chat_message::NetChatMessage, functions::entity::new_chat_message::{new_proximity_message}};
+use crate::space_core::{components::{health::{DamageModel, HealthFlag, HitResult, MELEE_STRIKE_WORDS, calculate_damage}, inventory_item::HitSoundSurface}, events::net::net_chat_message::NetChatMessage, functions::entity::new_chat_message::{new_proximity_message}};
 
 use super::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity};
 
@@ -62,28 +62,18 @@ impl StructureHealth {
         cell_name : &str,
     ) -> HitResult {
 
-        let mut hit_result = HitResult::HitSoft;
-
-        let mut damager_flags = vec![];
-
-        for damage_flag in damage_model.damage_flags.values() {
-            damager_flags.push(damage_flag);
-        }
-
-        let mut structure_health_flags = vec![];
-
-        for stucture_health_flag in self.health_flags.values() {
-            structure_health_flags.push(stucture_health_flag);
-        }
-
-        let mut brute_damage = damage_model.brute;
-        let burn_damage = damage_model.burn;
-        let toxin_damage = damage_model.toxin;
-
-        if damager_flags.contains(&&DamageFlag::SoftDamage) && structure_health_flags.contains(&&HealthFlag::ArmourPlated)  {
-            brute_damage = 0.;
-            hit_result = HitResult::Blocked;
-        }
+        let (
+            brute_damage,
+            burn_damage,
+            toxin_damage,
+            hit_result,
+        ) = calculate_damage(
+            &self.health_flags,
+            &damage_model.damage_flags,
+            damage_model.brute,
+            damage_model.burn,
+            damage_model.toxin
+        );
 
         self.brute+=brute_damage;
         self.burn+=burn_damage;

@@ -1,10 +1,10 @@
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use bevy::{math::Vec3, prelude::{Commands, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{components::{air_lock::{AirLock}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, health::{Health, HealthFlag}, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}};
+use crate::space_core::{components::{air_lock::{AirLock}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, health::{Health, HealthFlag}, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}};
 
 pub struct SecurityAirlockBundle;
 
@@ -40,9 +40,9 @@ impl SecurityAirlockBundle {
             ..Default::default()
         };
 
-        let template_examine_text = "A security air lock. It will only grant access to those authorised to use it.".to_string();
-        let mut examine_map = HashMap::new();
-        examine_map.insert(0, template_examine_text);
+        let mut examine_map = BTreeMap::new();
+        examine_map.insert(0, "A security air lock. It will only grant access to those authorised to use it.".to_string());
+        examine_map.insert(1, "[font=".to_string() + FURTHER_ITALIC_FONT + "][color=" + HEALTHY_COLOR + "]It is fully operational.[/color][/font]");
 
         let mut health_flags = HashMap::new();
 

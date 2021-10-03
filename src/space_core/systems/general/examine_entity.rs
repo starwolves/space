@@ -52,20 +52,21 @@ pub fn examine_entity(
                             let mut examinable_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n";
                             for (_text_id, assigned_text) in examinable_component.assigned_texts.iter() {
                                 examinable_text = examinable_text + assigned_text;
+                                examinable_text = examinable_text + "\n";
                             }
             
                             if entity_container.brute < 25. && entity_container.burn < 25. && entity_container.toxin < 25. {
             
-                                examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + HEALTHY_COLOR + "]\n\nIt is in perfect shape.[/color][/font]";
+                                examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + HEALTHY_COLOR + "]It is in perfect shape.[/color][/font]";
             
                             } else {
             
                                 if entity_container.brute > 75. {
-                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is heavily damaged.[/color][/font]";
+                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]It is heavily damaged.[/color][/font]";
                                 } else if entity_container.brute > 50. {
-                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is damaged.[/color][/font]";
+                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]It is damaged.[/color][/font]";
                                 } else if entity_container.brute > 25. {
-                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\n\nIt is slightly damaged.[/color][/font]";
+                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]It is slightly damaged.[/color][/font]";
                                 }
             
                             }

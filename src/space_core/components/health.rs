@@ -115,6 +115,40 @@ pub enum HitResult {
     Missed,
 }
 
+pub fn calculate_damage(
+
+    health_flags : &HashMap<u32,HealthFlag>,
+    damage_flags : &HashMap<u32,DamageFlag>,
+
+    mut brute : f32,
+    burn : f32,
+    toxin : f32,
+
+) -> (f32,f32,f32, HitResult){
+
+    let mut hit_result = HitResult::HitSoft;
+
+    let mut damager_flags = vec![];
+
+    for damage_flag in damage_flags.values() {
+        damager_flags.push(damage_flag);
+    }
+
+    let mut structure_health_flags = vec![];
+
+    for stucture_health_flag in health_flags.values() {
+        structure_health_flags.push(stucture_health_flag);
+    }
+
+    if damager_flags.contains(&&DamageFlag::SoftDamage) && structure_health_flags.contains(&&HealthFlag::ArmourPlated)  {
+        brute = 0.;
+        hit_result = HitResult::Blocked;
+    }
+
+    (brute,burn,toxin,hit_result)
+
+}
+
 impl Health {
 
     pub fn apply_damage(
@@ -130,9 +164,18 @@ impl Health {
         entity_name : &str,
     ) -> HitResult {
 
-        let brute_damage = damage_model.brute;
-        let burn_damage = damage_model.burn;
-        let toxin_damage = damage_model.toxin;
+        let (
+            brute_damage,
+            burn_damage,
+            toxin_damage,
+            hit_result,
+        ) = calculate_damage(
+            &self.health_flags,
+            &damage_model.damage_flags,
+            damage_model.brute,
+            damage_model.burn,
+            damage_model.toxin
+        );
 
         match &mut self.health_container {
             HealthContainer::Humanoid(humanoid_health) => {
@@ -218,7 +261,7 @@ impl Health {
             },
         }
 
-        HitResult::HitSoft
+        hit_result
 
     }
 
@@ -227,7 +270,7 @@ impl Health {
 impl Default for Health {
     fn default() -> Self {
         Self {
-            health_container : HealthContainer::Entity(EntityContainer::default()),//HealthContainer::Humanoid(HumanoidHealth::default()),
+            health_container : HealthContainer::Entity(EntityContainer::default()),
             health_flags: HashMap::new(),
             raegent_container : RaegentContainer {
                 raegents: HashMap::new(),
