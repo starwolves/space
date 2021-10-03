@@ -1,65 +1,29 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Entity, Or, Query, QuerySet, warn};
+use bevy::prelude::{Changed, Query, warn};
 
-use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{entity_data::EntityData, entity_updates::EntityUpdates, examinable::Examinable, health::Health, inventory::Inventory, inventory_item::InventoryItem, standard_character::StandardCharacter}, functions::{entity_updates::get_entity_update_difference::get_entity_update_difference}, resources::network_messages::EntityUpdateData};
+use crate::space_core::{components::{entity_data::EntityData, entity_updates::EntityUpdates, inventory::Inventory, inventory_item::InventoryItem}, functions::{entity_updates::get_entity_update_difference::get_entity_update_difference}, resources::network_messages::EntityUpdateData};
 
 pub fn inventory_update(
     mut updated_entities: Query
     <(
-        Entity, 
         &Inventory, 
         &mut EntityUpdates, 
-        Option<&StandardCharacter>,
-        Option<&Health>,
     ), 
-        Or<(Changed<Inventory>, Changed<Health>)>
+        Changed<Inventory>,
     >,
     pickupables : Query<(
         &InventoryItem,
         &EntityData
     )>,
-    mut query_set: QuerySet<(
-        Query<&mut Examinable>,
-        Query<&Examinable>,
-    )>,
 ) {
     
-    for (updated_entity, 
+    for ( 
         inventory_component, 
-        mut entity_updates_component, 
-        standard_character_option,
-        health_option,
+        mut entity_updates_component,
     ) in updated_entities.iter_mut() {
         
         let old_entity_updates = entity_updates_component.updates.clone();
-
-        let mut new_examine_text_option = None;
-
-        match standard_character_option {
-            Some(standard_character_component) => {
-                new_examine_text_option = Some(generate_human_examine_text(
-                    &standard_character_component.character_name,
-                    Some(inventory_component),
-                    Some(query_set.q1_mut()),
-                    health_option.unwrap(),
-                ));
-            },
-            None => {},
-        }
-
-        
-
-        match new_examine_text_option {
-            Some(new_examine_text) => {
-
-                let mut examinable_entity_component = query_set.q0_mut().get_mut(updated_entity).unwrap();
-
-                examinable_entity_component.description = new_examine_text;
-
-            },
-            None => {},
-        }
 
         for slot in &inventory_component.slots {
 
