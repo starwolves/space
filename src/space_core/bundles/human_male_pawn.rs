@@ -317,7 +317,7 @@ pub fn generate_human_examine_text(
     health_component : &Health,
 ) -> String {
 
-    let mut examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n\n"
+    let mut examine_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
     + character_name + ", a Security Officer.\n"
     + "He is human.\n";
 
@@ -425,7 +425,6 @@ pub fn generate_human_examine_text(
                     None => {},
                 }
             }
-            examine_text = examine_text + "\n";
         },
         None => {},
     }
