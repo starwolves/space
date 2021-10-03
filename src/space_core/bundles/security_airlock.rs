@@ -57,7 +57,7 @@ impl SecurityAirlockBundle {
             },
             EntityUpdates::default(),
             Examinable {
-                description: examine_text,
+                examinable_text: examine_text,
                 name : "a security airlock".to_string()
             }
         ));

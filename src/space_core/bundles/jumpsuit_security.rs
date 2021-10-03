@@ -223,7 +223,7 @@ fn spawn(
         EntityUpdates::default(),
         CachedBroadcastTransform::default(),
         Examinable {
-            description: examine_text,
+            examinable_text: examine_text,
             name: "a security jumpsuit".to_string()
         },
         Jumpsuit,

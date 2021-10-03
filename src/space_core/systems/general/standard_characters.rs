@@ -700,7 +700,7 @@ pub fn standard_character_examinable_update(
     for (entity, examine_text) in new_descriptions.iter() {
 
         let mut examinable_component = q.q2_mut().get_mut(*entity).unwrap();
-        examinable_component.description = examine_text.to_string();
+        examinable_component.examinable_text = examine_text.to_string();
 
     }
 

@@ -1,12 +1,12 @@
 pub struct Examinable {
-    pub description : String,
+    pub examinable_text : String,
     pub name : String,
 }
 
 impl Default for Examinable {
     fn default() -> Self {
         Self {
-            description : "".to_string(),
+            examinable_text : "".to_string(),
             name : "".to_string(),
         }
     }
