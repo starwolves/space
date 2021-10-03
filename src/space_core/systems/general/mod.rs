@@ -35,4 +35,3 @@ pub mod senser_update_fov;
 pub mod toggle_combat_mode;
 pub mod mouse_direction_update;
 pub mod user_name;
-pub mod basic_examinable_text;

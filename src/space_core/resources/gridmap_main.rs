@@ -3,7 +3,7 @@ use bevy::{math::Vec3, prelude::{Entity, EventWriter, FromWorld, Res, World}};
 use rand::prelude::SliceRandom;
 use serde::{Deserialize};
 
-use crate::space_core::{components::{health::{DamageFlag, DamageModel, HitResult, MELEE_STRIKE_WORDS}, inventory_item::HitSoundSurface}, events::net::net_chat_message::NetChatMessage, functions::entity::new_chat_message::{new_proximity_message}};
+use crate::space_core::{components::{health::{DamageFlag, DamageModel, HealthFlag, HitResult, MELEE_STRIKE_WORDS}, inventory_item::HitSoundSurface}, events::net::net_chat_message::NetChatMessage, functions::entity::new_chat_message::{new_proximity_message}};
 
 use super::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity};
 
@@ -31,7 +31,7 @@ pub struct StructureHealth {
     pub brute : f32,
     pub burn : f32,
     pub toxin : f32,
-    pub health_flags : HashMap<u32, StructureHealthFlag>,
+    pub health_flags : HashMap<u32, HealthFlag>,
     pub hit_sound_surface : HitSoundSurface,
 }
 
@@ -80,7 +80,7 @@ impl StructureHealth {
         let burn_damage = damage_model.burn;
         let toxin_damage = damage_model.toxin;
 
-        if damager_flags.contains(&&DamageFlag::SoftDamage) && structure_health_flags.contains(&&StructureHealthFlag::ArmourPlated)  {
+        if damager_flags.contains(&&DamageFlag::SoftDamage) && structure_health_flags.contains(&&HealthFlag::ArmourPlated)  {
             brute_damage = 0.;
             hit_result = HitResult::Blocked;
         }
@@ -106,12 +106,6 @@ impl StructureHealth {
 
     }
 
-}
-
-
-#[derive(Clone, PartialEq)]
-pub enum StructureHealthFlag {
-    ArmourPlated,
 }
 
 impl FromWorld for GridmapMain {

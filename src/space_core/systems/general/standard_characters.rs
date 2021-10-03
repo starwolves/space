@@ -1,9 +1,9 @@
 use std::{f32::consts::PI};
 
-use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Changed, Commands, Entity, EventReader, EventWriter, Or, Query, QuerySet, Res, ResMut, warn}};
+use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle, human_male_pawn::generate_human_examine_text}, components::{cell::Cell, examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{Health, HitResult}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_chat_message::NetChatMessage, net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::get_cell_name::get_cell_name}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{cell::Cell, examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{Health, HitResult}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_chat_message::NetChatMessage, net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::get_cell_name::get_cell_name}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}};
 
 use bevy_rapier3d::physics::IntoEntity;
 
@@ -661,46 +661,6 @@ pub fn standard_characters(
             rigid_body_velocity_component.linvel = rapier_vector;
         }
         
-
-    }
-
-}
-
-pub fn standard_character_examinable_update(
-
-    mut q: QuerySet<(
-        Query
-    <(
-        Entity,
-        &Inventory, 
-        &StandardCharacter,
-        &Health
-    ), 
-        Or<(Changed<Inventory>, Changed<Health>)>
-    >,
-        Query<&Examinable>,
-        Query<&mut Examinable>,
-    )>,
-
-) {
-
-    let mut new_descriptions = vec![];
-
-    for (entity, inventory_component, standard_character_component, health_component) in q.q0().iter() {
-
-        new_descriptions.push((entity, generate_human_examine_text(
-            &standard_character_component.character_name,
-            Some(inventory_component),
-            &q.q1(),
-            health_component,
-        )));
-
-    }
-
-    for (entity, examine_text) in new_descriptions.iter() {
-
-        let mut examinable_component = q.q2_mut().get_mut(*entity).unwrap();
-        examinable_component.examinable_text = examine_text.to_string();
 
     }
 
