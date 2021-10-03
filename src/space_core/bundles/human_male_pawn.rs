@@ -311,7 +311,7 @@ impl HumanMalePawnBundle {
 pub fn generate_human_examine_text(
     character_name : &str,
     inventory_component_option : Option<&Inventory>,
-    examinable_items_option : Option<&Query<&Examinable>>,
+    examinables : &Query<&Examinable>,
     health_component : &Health,
 ) -> String {
 
@@ -400,7 +400,6 @@ pub fn generate_human_examine_text(
     match inventory_component_option {
         Some(inventory_component) => {
             examine_text = examine_text + "\n";
-            let examinables = examinable_items_option.unwrap();
             for slot in inventory_component.slots.iter() {
                 match slot.slot_item {
                     Some(slot_item_entity) => {
