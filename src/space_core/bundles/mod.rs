@@ -28,3 +28,4 @@ pub mod swing4_sfx;
 pub mod block1_sfx;
 pub mod block2_sfx;
 pub mod block3_sfx;
+pub mod pistol_l1;

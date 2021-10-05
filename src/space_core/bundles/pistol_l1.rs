@@ -3,13 +3,14 @@ use std::collections::{BTreeMap, HashMap};
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, health::{DamageFlag, DamageModel, Health}, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAnimation, CombatType, InventoryItem, MeleeCombatSoundSet}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAnimation, CombatType, InventoryItem, MeleeCombatSoundSet}, pistol_l1::PistolL1, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::network_messages::ReliableServerMessage};
 
-pub const STANDARD_BODY_FRICTION : f32 = 1.5;
+use super::helmet_security::STANDARD_BODY_FRICTION;
 
-pub struct HelmetSecurityBundle;
 
-impl HelmetSecurityBundle {
+pub struct PistolL1Bundle;
+
+impl PistolL1Bundle {
 
     pub fn spawn_held(
         commands : &mut Commands,
@@ -77,7 +78,7 @@ fn spawn_entity(
     let default_transform = Transform::from_matrix(
     Mat4::from_scale_rotation_translation(
 Vec3::new(1.,1.,1.),
-Quat::from_axis_angle(Vec3::new(-0.0394818427,0.00003351599,1.), 3.124470974),
+    Quat::from_axis_angle(Vec3::new(0.6271655, 0.62689656, -0.4622381), 4.0116787),
 Vec3::new(0.,0.355, 0.)
     ),);
 
@@ -97,13 +98,13 @@ Vec3::new(0.,0.355, 0.)
     let rigid_body_component;
     let collider_component;
 
-    let shape = ColliderShape::cuboid(
-        0.208,
-        0.277,
-        0.213,
+    let shape  = ColliderShape::cuboid(
+        0.047,
+        0.196,
+        0.229,
     );
 
-    let collider_position : ColliderPosition = Vec3::new(0., 0.011, -0.004).into();
+    let collider_position : ColliderPosition = Vec3::new(0., 0.002, -0.08).into();
 
     if held == false {
 
@@ -176,7 +177,7 @@ Vec3::new(0.,0.355, 0.)
     }
 
 
-    let template_examine_text = "A standard issue helmet used by Security Officers.".to_string();
+    let template_examine_text = "A standard issue laser pistol. It is a lethal weapon.".to_string();
     let mut examine_map = BTreeMap::new();
     examine_map.insert(0, template_examine_text);
     
@@ -201,14 +202,6 @@ Vec3::new(0.,0.355, 0.)
         )
     ));
 
-    attachment_transforms.insert("helmet".to_string(), Transform::from_matrix(
-        Mat4::from_scale_rotation_translation(
-        Vec3::new(0.5,0.5,0.5),
-      Quat::from_axis_angle(Vec3::new(1.,0.,0.), -1.41617761),
-   Vec3::new(0.,0.132, 0.05)
-        )
-    ));
-
 
     let mut builder = commands.spawn_bundle(rigid_body_component);
 
@@ -222,7 +215,7 @@ Vec3::new(0.,0.355, 0.)
     ).insert_bundle((
         EntityData {
             entity_class : "entity".to_string(),
-            entity_type : "helmetSecurity".to_string(),
+            entity_type : "pistolL1".to_string(),
             ..Default::default()
         },
         EntityUpdates::default(),
@@ -232,15 +225,15 @@ Vec3::new(0.,0.355, 0.)
         CachedBroadcastTransform::default(),
         Examinable {
             assigned_texts: examine_map,
-            name: "a security helmet".to_string(),
+            name: "a laser pistol".to_string(),
             ..Default::default()
         },
-        Helmet,
+        PistolL1,
         InventoryItem {
             in_inventory_of_entity: holder_entity_option,
             attachment_transforms: attachment_transforms,
             drop_transform: default_transform,
-            slot_type: SlotType::Helmet,
+            slot_type: SlotType::Generic,
             is_attached_when_worn : true,
             combat_animation : CombatAnimation::OneHandedMeleePunch,
             combat_type: CombatType::MeleeDirect,
@@ -269,7 +262,7 @@ Vec3::new(0.,0.355, 0.)
             handle: handle,
             message: ReliableServerMessage::LoadEntity(
                 "entity".to_string(),
-                "helmetSecurity".to_string(),
+                "pistolL1".to_string(),
                 entity_updates,
                 entity_id.to_bits(),
                 true,

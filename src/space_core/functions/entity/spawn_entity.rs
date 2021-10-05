@@ -1,6 +1,6 @@
 use bevy::prelude::{Commands, Entity, EventWriter, ResMut, Transform, warn};
 
-use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle}, components::persistent_player_data::PersistentPlayerData, events::net::net_showcase::NetShowcase, resources::used_names::UsedNames};
+use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle, pistol_l1::PistolL1Bundle}, components::persistent_player_data::PersistentPlayerData, events::net::net_showcase::NetShowcase, resources::used_names::UsedNames};
 
 pub fn spawn_entity(
     entity_name : String,
@@ -47,6 +47,10 @@ pub fn spawn_entity(
         ));
 
 
+    } else if entity_name == "pistolL1" {
+
+        return_entity = Some(PistolL1Bundle::spawn(transform, commands, correct_transform));
+
     } else {
         warn!("Attempted to spawn an unknown entity.");
         return_entity = None;
@@ -74,6 +78,10 @@ pub fn spawn_held_entity(
     } else if entity_name == "helmetSecurity" {
 
         return_entity = Some(HelmetSecurityBundle::spawn_held(commands, holder_entity, showcase_instance, showcase_handle_option, net_showcase));
+
+    } else if entity_name == "pistolL1" {
+
+        return_entity = Some(PistolL1Bundle::spawn_held(commands, holder_entity, showcase_instance, showcase_handle_option, net_showcase));
 
     } else {
         warn!("Attempted to spawn an unknown entity.");

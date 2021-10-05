@@ -1,9 +1,11 @@
 use std::collections::{BTreeMap, HashMap};
 
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
 use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAnimation, CombatType, InventoryItem, MeleeCombatSoundSet}, jumpsuit::Jumpsuit, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::network_messages::ReliableServerMessage};
+
+use super::helmet_security::STANDARD_BODY_FRICTION;
 
 pub struct JumpsuitSecurityBundle;
 
@@ -100,6 +102,14 @@ fn spawn(
     let rigid_body_component;
     let collider_component;
 
+    let collision_shape = ColliderShape::cuboid(
+        0.269,
+        0.377,
+        0.098,
+    );
+
+    let collider_position : ColliderPosition = Vec3::new(0., -0.021, -0.011).into();
+
     if held == false {
 
         rigid_body_component = RigidBodyBundle {
@@ -117,14 +127,10 @@ fn spawn(
     
         collider_component = ColliderBundle {
             
-            shape: ColliderShape::cuboid(
-                0.269,
-                0.377,
-                0.098,
-            ),
-            position: Vec3::new(0., -0.021, -0.011).into(),
+            shape: collision_shape,
+            position: collider_position,
             material: ColliderMaterial {
-                friction: 0.75,
+                friction: STANDARD_BODY_FRICTION,
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 ..Default::default()
             },
@@ -160,14 +166,10 @@ fn spawn(
     
         collider_component = ColliderBundle {
             
-            shape: ColliderShape::cuboid(
-                0.269,
-                0.377,
-                0.098,
-            ),
-            position: Vec3::new(0., -0.021, -0.011).into(),
+            shape: collision_shape,
+            position: collider_position,
             material: ColliderMaterial {
-                friction: 0.75,
+                friction: STANDARD_BODY_FRICTION,
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 ..Default::default()
             },
