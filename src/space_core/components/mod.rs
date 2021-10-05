@@ -50,3 +50,4 @@ pub mod interpolation_priority;
 pub mod jumpsuit;
 pub mod health;
 pub mod cell;
+pub mod pistol_l1;
