@@ -78,7 +78,7 @@ fn spawn_entity(
     let default_transform = Transform::from_matrix(
     Mat4::from_scale_rotation_translation(
 Vec3::new(1.,1.,1.),
-    Quat::from_axis_angle(Vec3::new(0.6271655, 0.62689656, -0.4622381), 4.0116787),
+    Quat::from_axis_angle(Vec3::new(0.07410704, 0.07611039, -0.99434173), 4.7049665),
 Vec3::new(0.,0.355, 0.)
     ),);
 
@@ -100,11 +100,11 @@ Vec3::new(0.,0.355, 0.)
 
     let shape  = ColliderShape::cuboid(
         0.047,
-        0.196,
-        0.229,
+        0.219,
+        0.199,
     );
 
-    let collider_position : ColliderPosition = Vec3::new(0., 0.002, -0.08).into();
+    let collider_position : ColliderPosition = Vec3::new(0., 0.087, 0.).into();
 
     if held == false {
 
@@ -186,19 +186,16 @@ Vec3::new(0.,0.355, 0.)
     attachment_transforms.insert("left_hand".to_string(), Transform::from_matrix(
         Mat4::from_scale_rotation_translation(
         Vec3::new(0.5,0.5,0.5),
-      Quat::from_axis_angle(Vec3::new(1.,0.,0.), 3.111607897),
-   Vec3::new(0.,-0.003, -0.108)
+      Quat::from_axis_angle(Vec3::new(0.4647392, 0.8599459, -0.210975 ), 2.5530127),
+   Vec3::new(-0.031,0.033, 0.011)
         )
     ));
-
-    let right_hand_rotation = Vec3::new(0.11473795,0.775676679,0.);
-    let right_hand_rotation_length = right_hand_rotation.length();
 
     attachment_transforms.insert("right_hand".to_string(), Transform::from_matrix(
         Mat4::from_scale_rotation_translation(
         Vec3::new(0.5,0.5,0.5),
-      Quat::from_axis_angle(Vec3::new(0.11473795,0.775676679,0.).normalize(), right_hand_rotation_length),
-   Vec3::new(0.064,-0.019, 0.065)
+        Quat::from_xyzw(0.611671 , 0.396847 , 0.530651 , 0.432181),
+   Vec3::new(0.077,-0.067, -0.045)
         )
     ));
 
