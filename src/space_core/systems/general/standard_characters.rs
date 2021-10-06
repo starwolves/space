@@ -188,32 +188,9 @@ pub fn standard_characters(
         // If combat mode, specific new rotation based on mouse direction.
         if standard_character_component.combat_mode &&  !player_input_component.sprinting{
 
-            
-
-            let mut angle = standard_character_component.facing_direction;
-
-            angle+=0.14*PI;
-
-            if angle > 0. && angle < 0.1 {
-                angle = 0.1;
-            }
-
-            if angle > PI-0.1 && angle < PI {
-                angle = PI-0.1;
-            }
-
-            if angle > PI {
-                angle = -(angle-PI);
-            } else if angle < 0. {
-                angle = -(PI - angle.abs());
-            }
-
-            angle+=0.5*PI;
-            
-
             let end_rotation = Quat::from_axis_angle(
                 Vec3::new(0.,1.,0.),
-                angle,
+                -standard_character_component.facing_direction - 0.5*PI - 0.1*PI,
             );
 
             let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
@@ -453,13 +430,13 @@ pub fn standard_characters(
         }
         // Moving down left.
         else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == -1. {
-            movement_index = 5;
-            facing_direction = FacingDirection::DownLeft;
+            movement_index = 3;
+            facing_direction = FacingDirection::DownRight;
         }
         // Moving down right.
         else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == 1. {
-            movement_index = 3;
-            facing_direction = FacingDirection::DownRight;
+            movement_index = 5;
+            facing_direction = FacingDirection::DownLeft;
         }
         
         else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == 0. {

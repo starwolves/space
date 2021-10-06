@@ -1,6 +1,6 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use bevy::{math::Vec2, prelude::{Changed, Entity, Query}};
+use bevy::{math::Vec2, prelude::{Changed, Entity, Query, warn}};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, resources::network_messages::EntityUpdateData};
 
@@ -84,13 +84,13 @@ pub fn standard_character_update(
                             strafe_jogging_blend_position = [1.,0.];
                         },
                         crate::space_core::components::pawn::FacingDirection::DownRight => {
-                            strafe_jogging_blend_position = [1.,-1.];
+                            strafe_jogging_blend_position = [-1.,-1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::Down => {
                             strafe_jogging_blend_position = [0.,-1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::DownLeft => {
-                            strafe_jogging_blend_position = [-1.,-1.];
+                            strafe_jogging_blend_position = [1.,-1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::Left => {
                             strafe_jogging_blend_position = [-1.,0.];
@@ -99,37 +99,21 @@ pub fn standard_character_update(
 
                     // Further rotate this Vec2 with mouse_direction.
                     if standard_character_component.facing_direction > 0.75*PI {
-                        // Left down
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.75*PI);
-
-                    } else if standard_character_component.facing_direction > 0.5*PI {
-                        // Down
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-1.*PI);
-
-                    } else if standard_character_component.facing_direction > 0.25*PI {
-                        // Right down
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.75*PI);
-
-                    } else if standard_character_component.facing_direction > 0. {
-                        // Right
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.5*PI);
-
-                    } else if standard_character_component.facing_direction > -0.25*PI {
-                        // Left
                         strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.5*PI);
-
+                    } else if standard_character_component.facing_direction > 0.5*PI {
+                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.75*PI);
+                    } else if standard_character_component.facing_direction > 0.25*PI {
+                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(1.*PI);
+                    } else if standard_character_component.facing_direction > 0. {
+                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.75*PI);
+                    } else if standard_character_component.facing_direction > -0.25*PI {
+                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.5*PI);
                     } else if standard_character_component.facing_direction > -0.5*PI {
-                        // Left up
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.25*PI);
-
-                    } else if standard_character_component.facing_direction > -0.75*PI {
-                        //Up
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.);
-
-                    } else if standard_character_component.facing_direction > -1.*PI {
-                        //Right Up
                         strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.25*PI);
-
+                    } else if standard_character_component.facing_direction > -0.75*PI {
+                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.);
+                    } else if standard_character_component.facing_direction > -1.*PI {
+                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.25*PI);
                     }
 
                     animation_tree1_lower_body_jogging_strafe_blend_position.insert(
