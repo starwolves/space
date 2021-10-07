@@ -13,14 +13,21 @@ pub struct InventoryItem {
     pub drop_transform : Transform,
     pub slot_type : SlotType,
     pub is_attached_when_worn : bool,
-    pub combat_animation: CombatAnimation,
+    pub combat_standard_animation : CombatStandardAnimation,
+    pub combat_attack_animation: CombatAttackAnimation,
     pub combat_type: CombatType,
     pub combat_damage_model : DamageModel,
     pub combat_sound_set : MeleeCombatSoundSet,
 }
 
-pub enum CombatAnimation {
-    OneHandedMeleePunch
+pub enum CombatStandardAnimation {
+    StandardStance,
+    PistolStance,
+}
+
+pub enum CombatAttackAnimation {
+    OneHandedMeleePunch,
+    PistolShot,
 }
 
 pub enum CombatType {

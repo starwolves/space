@@ -53,6 +53,36 @@ pub fn standard_character_update(
             upper_body_right_punch_time_scale
         );
 
+        let mut active_item_entity = None;
+
+        let is_left_handed;
+
+        if inventory_component.active_slot == "left_hand" {
+            is_left_handed=true;
+        } else {
+            is_left_handed=false;
+        }  
+
+        let mut inventory_item_option = None;
+
+        for slot in inventory_component.slots.iter() {
+
+            if slot.slot_name == inventory_component.active_slot {
+
+                active_item_entity = slot.slot_item;
+                match active_item_entity {
+                    Some(ent) => {
+                        inventory_item_option = Some(inventory_items.get(ent).unwrap());
+                    },
+                    None => {},
+                }
+                
+                break;
+
+            }
+
+        }
+
         if standard_character_component.combat_mode {
 
             // Here we can set upper body animations to certain combat state, eg boxing stance, melee weapon stances, projectile weapon stances etc.
@@ -61,12 +91,54 @@ pub fn standard_character_update(
 
             match standard_character_component.current_lower_animation_state {
                 crate::space_core::components::standard_character::CharacterAnimationState::Idle => {
-                    upper_body_animation_state = "Idle Heightened".to_string();
-                    lower_body_animation_state = "Idle".to_string();
+                    
+
+                    match inventory_item_option {
+                        Some(inventory_item_component) => {
+
+                            match inventory_item_component.combat_standard_animation {
+                                crate::space_core::components::inventory_item::CombatStandardAnimation::StandardStance => {
+                                    upper_body_animation_state = "Idle Heightened".to_string();
+                                    lower_body_animation_state = "Idle".to_string();
+                                },
+                                crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
+                                    upper_body_animation_state = "Pistol Idle".to_string();
+                                    lower_body_animation_state = "Pistol Idle".to_string();
+                                },
+                            }
+
+                        },
+                        None => {
+                            upper_body_animation_state = "Idle Heightened".to_string();
+                            lower_body_animation_state = "Idle".to_string();
+                        }
+                    }
+                    
                 }
                 crate::space_core::components::standard_character::CharacterAnimationState::Jogging => {
-                    upper_body_animation_state = "JoggingStrafe".to_string();
-                    lower_body_animation_state = "JoggingStrafe".to_string();
+
+                    // Get active item in hand and check its AnimationEnum type. If StandardMelee its JoggingStrafe, if Pistol it's PistolStrafe.
+
+                    match inventory_item_option {
+                        Some(inventory_item_component) => {
+                            
+                            match inventory_item_component.combat_standard_animation {
+                                crate::space_core::components::inventory_item::CombatStandardAnimation::StandardStance => {
+                                    upper_body_animation_state = "JoggingStrafe".to_string();
+                                    lower_body_animation_state = "JoggingStrafe".to_string();
+                                },
+                                crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
+                                    upper_body_animation_state = "PistolStrafe".to_string();
+                                    lower_body_animation_state = "PistolStrafe".to_string();
+                                },
+                            }
+
+                        },
+                        None => {
+                            upper_body_animation_state = "JoggingStrafe".to_string();
+                            lower_body_animation_state = "JoggingStrafe".to_string();
+                        },
+                    }
 
                     let mut strafe_jogging_blend_position;
 
@@ -136,37 +208,11 @@ pub fn standard_character_update(
 
             if standard_character_component.is_attacking {
 
-                // Get current active inventory item and animation state
-                // Then based on if its left or right handed change upper_body_animation_state.
+                match active_item_entity {
+                    Some(_entity) => {
 
-                let mut combat_item = None;
-
-                let is_left_handed;
-
-                if inventory_component.active_slot == "left_hand" {
-                    is_left_handed=true;
-                } else {
-                    is_left_handed=false;
-                }  
-
-                for slot in inventory_component.slots.iter() {
-
-                    if slot.slot_name == inventory_component.active_slot {
-
-                        combat_item = slot.slot_item;
-                        break;
-
-                    }
-
-                }
-
-
-                match combat_item {
-                    Some(entity) => {
-                        let inventory_item = inventory_items.get(entity).unwrap();
-
-                        match inventory_item.combat_animation {
-                            crate::space_core::components::inventory_item::CombatAnimation::OneHandedMeleePunch => {
+                        match inventory_item_option.unwrap().combat_attack_animation {
+                            crate::space_core::components::inventory_item::CombatAttackAnimation::OneHandedMeleePunch => {
 
                                 if is_left_handed {
                                     upper_body_animation_state = "Punching Left".to_string();
@@ -175,6 +221,7 @@ pub fn standard_character_update(
                                 }
 
                             },
+                            crate::space_core::components::inventory_item::CombatAttackAnimation::PistolShot => {},
                         }
 
                     },
