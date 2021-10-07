@@ -391,9 +391,22 @@ pub fn standard_characters(
                         }
 
                     },
-                    CombatType::Projectile => {
+                    CombatType::Projectile(projectile_type) => {
 
+                        // Implement new netcode enum and Networkhound adjustments that makes its own gdscript call to spawn in DirectionalParticle with color, height, radius, start_pos, stop_pos.
+                        // Setup hardcoded client-side laser emissive capsule laser DirectionalParticle with color, height, radius, start_pos, stop_pos.
                         
+                        // Perform ray_cast and obtain start and stop position for this projectile all sensed_by netcode call.
+                        
+
+                        match projectile_type{
+                            crate::space_core::components::inventory_item::ProjectileType::Laser(color, height, radius) => {
+
+
+
+                            },
+                            crate::space_core::components::inventory_item::ProjectileType::Ballistic => {},
+                        }
 
                     },
                 }

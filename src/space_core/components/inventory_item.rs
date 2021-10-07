@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Commands, Entity, ResMut, Transform};
+use bevy::prelude::{Color, Commands, Entity, ResMut, Transform};
 use rand::prelude::SliceRandom;
 
 use crate::space_core::{bundles::{block1_sfx::{BLOCK1_PLAY_BACK_DURATION, Block1SfxBundle}, block2_sfx::{BLOCK2_PLAY_BACK_DURATION, Block2SfxBundle}, block3_sfx::{BLOCK3_PLAY_BACK_DURATION, Block3SfxBundle}, punch1_sfx::{PUNCH1_PLAY_BACK_DURATION, Punch1SfxBundle}, punch2_sfx::{PUNCH2_PLAY_BACK_DURATION, Punch2SfxBundle}, punch3_sfx::{PUNCH3_PLAY_BACK_DURATION, Punch3SfxBundle}, punch4_sfx::{PUNCH4_PLAY_BACK_DURATION, Punch4SfxBundle}, swing1_sfx::{SWING1_PLAY_BACK_DURATION, Swing1SfxBundle}, swing2_sfx::{SWING2_PLAY_BACK_DURATION, Swing2SfxBundle}, swing3_sfx::{SWING3_PLAY_BACK_DURATION, Swing3SfxBundle}, swing4_sfx::{SWING4_PLAY_BACK_DURATION, Swing4SfxBundle}}, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
@@ -30,9 +30,15 @@ pub enum CombatAttackAnimation {
     PistolShot,
 }
 
+#[allow(dead_code)]
+pub enum ProjectileType {
+    Laser(Color, f32, f32),
+    Ballistic,
+}
+
 pub enum CombatType {
     MeleeDirect,
-    Projectile,
+    Projectile(ProjectileType),
 }
 
 pub struct MeleeCombatSoundSet {
