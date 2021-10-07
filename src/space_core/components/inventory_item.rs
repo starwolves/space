@@ -32,6 +32,7 @@ pub enum CombatAttackAnimation {
 
 pub enum CombatType {
     MeleeDirect,
+    Projectile,
 }
 
 pub struct MeleeCombatSoundSet {

@@ -233,7 +233,7 @@ Vec3::new(0.,0.355, 0.)
             slot_type: SlotType::Generic,
             is_attached_when_worn : true,
             combat_attack_animation : CombatAttackAnimation::PistolShot,
-            combat_type: CombatType::MeleeDirect,
+            combat_type: CombatType::Projectile,
             combat_damage_model : DamageModel {
                 brute: 9.,
                 damage_flags: first_damage_flags,

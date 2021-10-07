@@ -391,6 +391,11 @@ pub fn standard_characters(
                         }
 
                     },
+                    CombatType::Projectile => {
+
+                        
+
+                    },
                 }
 
             }
