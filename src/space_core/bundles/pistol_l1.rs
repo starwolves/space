@@ -205,8 +205,11 @@ Vec3::new(0.,0.355, 0.)
 
     let entity_id = builder.id();
 
-    let mut first_damage_flags = HashMap::new();
-    first_damage_flags.insert(0, DamageFlag::SoftDamage);
+    let mut melee_damage_flags = HashMap::new();
+    melee_damage_flags.insert(0, DamageFlag::SoftDamage);
+
+    let mut projectile_damage_flags = HashMap::new();
+    projectile_damage_flags.insert(0, DamageFlag::WeakLethalLaser);
     
     builder.insert_bundle(
         collider_component,
@@ -237,11 +240,12 @@ Vec3::new(0.,0.355, 0.)
             combat_type: CombatType::Projectile(ProjectileType::Laser(Color::RED, 0.14, 0.025, PISTOL_L1_PROJECTILE_RANGE)),
             combat_melee_damage_model : DamageModel {
                 brute: 9.,
-                damage_flags: first_damage_flags,
+                damage_flags: melee_damage_flags,
                 ..Default::default()
             },
             combat_projectile_damage_model : Some(DamageModel {
                 burn: 15.,
+                damage_flags: projectile_damage_flags,
                 ..Default::default()
             }),
             combat_sound_set: CombatSoundSet::default(),
