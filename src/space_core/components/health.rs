@@ -41,7 +41,7 @@ pub struct RaegentContainer {
 }
 
 #[allow(dead_code)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub enum DamageFlag {
     SoftDamage, //Ie fists.
     Stun(f32),
@@ -86,7 +86,7 @@ pub struct EntityContainer {
 
 }
 
-
+#[derive(Clone)]
 pub struct DamageModel {
     pub brute : f32,
     pub burn : f32,

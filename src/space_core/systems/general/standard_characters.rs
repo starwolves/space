@@ -1,11 +1,11 @@
 use std::{f32::consts::PI};
 
-use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, warn}};
-use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
+use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
+use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{cell::Cell, examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, health::{DamageType, Health, HitResult}, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_chat_message::NetChatMessage, net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::get_cell_name::get_cell_name}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
-use bevy_rapier3d::physics::IntoEntity;
+
 
 const JOG_SPEED : f32 = 13.;
 const RUN_SPEED : f32 = 18.;
@@ -16,15 +16,13 @@ pub fn standard_characters(
         Entity,
         &mut PlayerInput,
         &mut RigidBodyVelocity,
-        &mut RigidBodyMassProps,
-        &mut RigidBodyForces,
         &mut StandardCharacter,
+        &mut RigidBodyPosition,
         Option<&LinkedFootstepsWalking>,
         Option<&LinkedFootstepsSprinting>,
         &mut Pawn,
         &Inventory,
     )>,
-    mut rigid_body_positions_mut : Query<&mut RigidBodyPosition>,
     inventory_items_query : Query<&InventoryItem>,
     mut footsteps_query : Query<(
         Option<&FootstepsWalking>,
@@ -37,19 +35,13 @@ pub fn standard_characters(
     handle_to_entity: Res<HandleToEntity>,
     mut commands : Commands,
 
-    mut net_message_event: EventWriter<NetChatMessage>, 
+    mut attack_event_writer : EventWriter<Attack>,
 
     tuple0 : (
         EventWriter<NetUnloadEntity>,
         EventReader<InputMouseAction>,
         EventReader<InputSelectBodyPart>,
         EventReader<InputToggleAutoMove>,
-        Res<QueryPipeline>,
-        QueryPipelineColliderComponentsQuery,
-        Query<(&mut Health, &Examinable)>,
-        ResMut<GridmapMain>,
-        Query<&Cell>,
-        ResMut<SfxAutoDestroyTimers>,
     ),
 
 ) {
@@ -59,12 +51,6 @@ pub fn standard_characters(
         mut input_mouse_action_events,
         mut input_select_body_part,
         mut input_toggle_auto_move,
-        query_pipeline,
-        collider_query,
-        mut health_query,
-        mut world_cells,
-        physics_cells,
-        mut sfx_auto_destroy_timers,
     ) = tuple0;
 
     for event in input_mouse_action_events.iter() {
@@ -108,16 +94,14 @@ pub fn standard_characters(
         standard_character_entity,
         mut player_input_component,
         mut rigid_body_velocity_component,
-        mut _rigid_body_massprops_component,
-        mut _rigid_body_force_component,
         mut standard_character_component,
+        mut rigid_body_position_component,
         linked_footsteps_walking_option,
         linked_footsteps_sprinting_option,
         mut pawn_component,
         inventory_component,
     ) in standard_character_query.iter_mut() {
 
-        let mut rigid_body_position_component = rigid_body_positions_mut.get_mut(standard_character_entity).unwrap();
 
         if player_input_component.auto_move_enabled { 
             if player_input_component.movement_vector.length() > 0.1 {
@@ -236,7 +220,7 @@ pub fn standard_characters(
 
                 let mut combat_type = &CombatType::MeleeDirect;
                 let mut combat_damage_model = &standard_character_component.default_melee_damage_model;
-                let mut standard_character_combat_sound_set = &standard_character_component.default_melee_sound_set;
+                let mut combat_sound_set = &standard_character_component.default_melee_sound_set;
 
                 match active_slot.slot_item {
                     Some(item_entity) => {
@@ -245,7 +229,7 @@ pub fn standard_characters(
                             Ok(inventory_item_component) => {
                                 combat_type = &inventory_item_component.combat_type;
                                 combat_damage_model = &inventory_item_component.combat_melee_damage_model;
-                                standard_character_combat_sound_set = &inventory_item_component.combat_sound_set;
+                                combat_sound_set = &inventory_item_component.combat_sound_set;
                             },
                             Err(_rr) => {
                                 warn!("Couldn't find inventory_item belonging to used inventory slot of attack.");
@@ -264,271 +248,28 @@ pub fn standard_characters(
                     angle = PI - angle;
                 }
 
-                let direction_additive = Vec3::new(
-                    -angle.cos(),
-                    0.,
-                    angle.sin(),
-                );
+                let sensable_component = sensable_entities.get_mut(standard_character_entity).unwrap();
 
-                match combat_type {
-                    CombatType::MeleeDirect => {
+                attack_event_writer.send(Attack {
+                    attacker_entity: standard_character_entity,
+                    weapon_entity: active_slot.slot_item,
+                    position: Vec3::new(
+                        rigid_body_position_component.position.translation.x, 
+                        1.0, 
+                        rigid_body_position_component.position.translation.z,
+                    ),
+                    angle: angle,
+                    damage_model: combat_damage_model.clone(),
+                    range: MELEE_FISTS_REACH,
+                    combat_type: combat_type.clone(),
+                    targetted_limb : player_input_component.targetted_limb.clone(),
+                    attacker_name : standard_character_component.character_name.clone(),
+                    combat_sound_set : combat_sound_set.clone(),
+                    attacker_sensed_by : sensable_component.sensed_by.clone(),
+                    attacker_sensed_by_cached: sensable_component.sensed_by_cached.clone(),
+                });
 
-                        let collider_groups = get_bit_masks(ColliderGroup::Standard);
-                        let interaction_groups = InteractionGroups::new(collider_groups.0,collider_groups.1);
-
-                        let additive = direction_additive * MELEE_FISTS_REACH;
-
-                        let mut hit_anything = false;
-
-                        query_pipeline.intersections_with_shape(
-                            &QueryPipelineColliderComponentsSet(&collider_query),
-                            &(
-                                Vec3::new(
-                                    rigid_body_position_component.position.translation.x, 
-                                    1.0, 
-                                    rigid_body_position_component.position.translation.z,
-                                )
-                                -
-                                additive,
-                                Quat::from_rotation_y(angle)).into(),
-                            &Cuboid::new(Vec3::new(MELEE_FISTS_REACH, 1.0, 0.3).into()),
-                            interaction_groups,
-                            None, 
-                            |collider_handle| {
-
-
-                                let collider_entity = collider_handle.entity();
-
-                                if collider_entity == standard_character_entity {
-                                    return true;
-                                }
-
-                                match active_slot.slot_item {
-                                    Some(slot_entity) => {
-                                        if collider_entity == slot_entity {
-                                            return true;
-                                        }
-                                    },
-                                    None => {},
-                                }
-
-                                let mut hit_target = false;
-                                let mut hit_result = HitResult::Missed;
-
-                                let sensable_component = sensable_entities.get_mut(standard_character_entity).unwrap();
-
-                                match health_query.get_mut(collider_entity) {
-                                    Ok((mut health_component, examinable_component)) => {
-
-                                        hit_target = true;
-
-                                        hit_result = health_component.apply_damage(
-                                            &player_input_component.targetted_limb, 
-                                            combat_damage_model,
-                                            &mut net_message_event,
-                                                &handle_to_entity,
-                                                &sensable_component.sensed_by,
-                                            &sensable_component.sensed_by_cached,
-                                            rigid_body_position_component.position.translation.into(),
-                                                &standard_character_component.character_name,
-                                                &examinable_component.name,
-                                                &DamageType::Melee,
-                                        );
-
-                                        
-
-                                    },
-                                    Err(_rr) => {},
-                                }
-
-                                if !hit_target {
-                                    match physics_cells.get(collider_entity) {
-                                        Ok(cell_component) => {
-    
-                                            hit_target = true;
-    
-                                            let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
-    
-                                            hit_result = cell_data.health.apply_damage(
-                                      &player_input_component.targetted_limb, 
-                                                combat_damage_model,
-                                                &mut net_message_event,
-                                                &handle_to_entity,
-                                                &sensable_component.sensed_by,
-                               &sensable_component.sensed_by_cached,
-                                        rigid_body_position_component.position.translation.into(),
-                                                &standard_character_component.character_name,
-                                                &get_cell_name(cell_data),
-                                                &DamageType::Melee,
-                                            );
-    
-    
-                                            
-                                        },
-                                        Err(_rr) => {},
-                                    }
-                                }
-                                
-                                match hit_result {
-                                    crate::space_core::components::health::HitResult::HitSoft => {
-                                        standard_character_combat_sound_set.spawn_hit_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
-                                    },
-                                    crate::space_core::components::health::HitResult::Blocked => {
-                                        standard_character_combat_sound_set.spawn_hit_blocked(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
-                                    },
-                                    crate::space_core::components::health::HitResult::Missed => {},
-                                }
-
-                                if hit_target {
-                                    hit_anything = true;
-                                }
-
-                                !hit_target
-
-                            }
-                        );
-
-                        if !hit_anything {
-                            standard_character_combat_sound_set.spawn_miss_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
-                        }
-
-                    },
-                    CombatType::Projectile(projectile_type) => {
-                        match projectile_type {
-                            crate::space_core::components::inventory_item::ProjectileType::Laser(_color, _height, _radius, range) => {
-                                // Perform ray_cast and obtain start and stop position for this projectile all sensed_by netcode call.
-                                // Setup hardcoded client-side laser emissive capsule laser DirectionalParticle with color, height, radius, start_pos, stop_pos.
-
-                                let collider_groups = get_bit_masks(ColliderGroup::Standard);
-                                let interaction_groups = InteractionGroups::new(collider_groups.0,collider_groups.1);
-
-                                let additive = direction_additive * *range;
-
-                                let mut hit_entity = None;
-
-                                query_pipeline.intersections_with_shape(
-                                    &QueryPipelineColliderComponentsSet(&collider_query),
-                                    &(
-                                        Vec3::new(
-                                            rigid_body_position_component.position.translation.x, 
-                                            1.0, 
-                                            rigid_body_position_component.position.translation.z,
-                                        )
-                                        -
-                                        additive,
-                                        Quat::from_rotation_y(angle)).into(),
-                                    &Cuboid::new(Vec3::new(*range, 1.0, 0.3).into()),
-                                    interaction_groups,
-                                    None, 
-                                    |collider_handle| {
-
-                                        let collider_entity = collider_handle.entity();
-
-                                        if collider_entity == standard_character_entity {
-                                            return true;
-                                        }
-
-                                        let projectile_weapon_entity = active_slot.slot_item.unwrap();
-
-                                        if collider_entity == projectile_weapon_entity {
-                                            return true;
-                                        }
-
-                                        let mut hit_target = false;
-                                        let mut hit_result = HitResult::Missed;
-
-                                        let sensable_component = sensable_entities.get_mut(standard_character_entity).unwrap();
-
-                                        let projectile_inventory_item_component = inventory_items_query.get(projectile_weapon_entity).unwrap();
-
-                                        // combat_damage_model Needs to be inventory_item_component projectile damage model.
-                                        match health_query.get_mut(collider_entity) {
-                                            Ok((mut health_component, examinable_component)) => {
-
-                                                hit_target = true;
-
-                                                hit_result = health_component.apply_damage(
-                                                    &player_input_component.targetted_limb, 
-                                                    combat_damage_model,
-                                                    &mut net_message_event,
-                                                        &handle_to_entity,
-                                                        &sensable_component.sensed_by,
-                                                    &sensable_component.sensed_by_cached,
-                                                    rigid_body_position_component.position.translation.into(),
-                                                        &standard_character_component.character_name,
-                                                        &examinable_component.name,
-                                                        &DamageType::Projectile,
-                                                );
-
-                                                
-
-                                            },
-                                            Err(_rr) => {},
-                                        }
-
-                                        // combat_damage_model Needs to be inventory_item_component projectile damage model.
-                                        if !hit_target {
-                                            match physics_cells.get(collider_entity) {
-                                                Ok(cell_component) => {
-            
-                                                    hit_target = true;
-            
-                                                    let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
-            
-                                                    hit_result = cell_data.health.apply_damage(
-                                            &player_input_component.targetted_limb, 
-                                                        combat_damage_model,
-                                                        &mut net_message_event,
-                                                        &handle_to_entity,
-                                                        &sensable_component.sensed_by,
-                                    &sensable_component.sensed_by_cached,
-                                                rigid_body_position_component.position.translation.into(),
-                                                        &standard_character_component.character_name,
-                                                        &get_cell_name(cell_data),
-                                                        &DamageType::Projectile,
-                                                    );
-            
-            
-                                                    
-                                                },
-                                                Err(_rr) => {},
-                                            }
-                                        }
-                                        
-                                        match hit_result {
-                                            crate::space_core::components::health::HitResult::HitSoft => {
-                                                projectile_inventory_item_component.combat_sound_set.spawn_hit_sfx(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
-                                            },
-                                            crate::space_core::components::health::HitResult::Blocked => {
-                                                projectile_inventory_item_component.combat_sound_set.spawn_hit_blocked(&mut commands, rigid_body_transform, &mut sfx_auto_destroy_timers);
-                                            },
-                                            crate::space_core::components::health::HitResult::Missed => {},
-                                        }
-
-                                        if hit_target {
-                                            hit_entity=Some(collider_entity);
-                                        }
-
-                                        !hit_target
-                                        
-                                    }
-                                );
-
-                                match hit_entity {
-                                    Some(_collider_entity) => {
-
-                                        //let collider_position = rigid_body_positions_mut.get_mut(collider_entity).unwrap();
-
-
-                                    },
-                                    None => {},
-                                }
-
-                            },
-                            crate::space_core::components::inventory_item::ProjectileType::Ballistic => {},
-                        }
-                    },
-                }
+                
 
             }
 
