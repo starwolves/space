@@ -187,7 +187,7 @@ Vec3::new(0.,0.355, 0.)
     attachment_transforms.insert("left_hand".to_string(), Transform::from_matrix(
         Mat4::from_scale_rotation_translation(
         Vec3::new(0.5,0.5,0.5),
-      Quat::from_axis_angle(Vec3::new(0.4647392, 0.8599459, -0.210975 ), 2.5530127),
+      Quat::from_axis_angle(Vec3::new(-0.5695359, -0.7159382, 0.4038085 ), 2.4144572),
    Vec3::new(-0.031,0.033, 0.011)
         )
     ));
