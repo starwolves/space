@@ -44,6 +44,7 @@ pub struct RaegentContainer {
 #[derive(PartialEq, Clone)]
 pub enum DamageFlag {
     SoftDamage, //Ie fists.
+    WeakLethalLaser,
     Stun(f32),
     Floor(f32),
 }
@@ -120,11 +121,15 @@ pub fn calculate_damage(
     health_flags : &HashMap<u32,HealthFlag>,
     damage_flags : &HashMap<u32,DamageFlag>,
 
-    mut brute : f32,
-    burn : f32,
-    toxin : f32,
+    brute : &f32,
+    burn : &f32,
+    toxin : &f32,
 
 ) -> (f32,f32,f32, HitResult){
+
+    let mut output_brute = brute.clone();
+    let mut output_burn = burn.clone();
+    let output_toxin = toxin.clone();
 
     let mut hit_result = HitResult::HitSoft;
 
@@ -140,12 +145,17 @@ pub fn calculate_damage(
         structure_health_flags.push(stucture_health_flag);
     }
 
-    if damager_flags.contains(&&DamageFlag::SoftDamage) && structure_health_flags.contains(&&HealthFlag::ArmourPlated)  {
-        brute = 0.;
+    let is_armour_plated = structure_health_flags.contains(&&HealthFlag::ArmourPlated);
+
+    if damager_flags.contains(&&DamageFlag::SoftDamage) && is_armour_plated  {
+        output_brute = 0.;
+        hit_result = HitResult::Blocked;
+    } else if damager_flags.contains(&&DamageFlag::WeakLethalLaser) && is_armour_plated {
+        output_burn *= 0.05;
         hit_result = HitResult::Blocked;
     }
 
-    (brute,burn,toxin,hit_result)
+    (output_brute,output_burn,output_toxin,hit_result)
 
 }
 
@@ -178,9 +188,9 @@ impl Health {
         ) = calculate_damage(
             &self.health_flags,
             &damage_model.damage_flags,
-            damage_model.brute,
-            damage_model.burn,
-            damage_model.toxin
+            &damage_model.brute,
+            &damage_model.burn,
+            &damage_model.toxin
         );
 
         match &mut self.health_container {

@@ -71,9 +71,9 @@ impl StructureHealth {
         ) = calculate_damage(
             &self.health_flags,
             &damage_model.damage_flags,
-            damage_model.brute,
-            damage_model.burn,
-            damage_model.toxin
+            &damage_model.brute,
+            &damage_model.burn,
+            &damage_model.toxin
         );
 
         self.brute+=brute_damage;

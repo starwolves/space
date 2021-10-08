@@ -214,8 +214,8 @@ Vec3::new(0.,0.355, 0.)
 
     let entity_id = builder.id();
 
-    let mut first_damage_flags = HashMap::new();
-    first_damage_flags.insert(0, DamageFlag::SoftDamage);
+    let mut melee_damage_flags = HashMap::new();
+    melee_damage_flags.insert(0, DamageFlag::SoftDamage);
     
     builder.insert_bundle(
         collider_component,
@@ -246,7 +246,7 @@ Vec3::new(0.,0.355, 0.)
             combat_type: CombatType::MeleeDirect,
             combat_melee_damage_model : DamageModel {
                 brute: 9.,
-                damage_flags: first_damage_flags,
+                damage_flags: melee_damage_flags,
                 ..Default::default()
             },
             combat_projectile_damage_model : None,

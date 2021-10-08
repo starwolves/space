@@ -212,8 +212,8 @@ fn spawn(
         )
     ));
 
-    let mut first_damage_flags = HashMap::new();
-    first_damage_flags.insert(0, DamageFlag::SoftDamage);
+    let mut melee_damage_flags = HashMap::new();
+    melee_damage_flags.insert(0, DamageFlag::SoftDamage);
 
     let rest = (
         EntityData {
@@ -239,7 +239,7 @@ fn spawn(
             combat_type: CombatType::MeleeDirect,
             combat_melee_damage_model : DamageModel {
                 brute: 5.,
-                damage_flags: first_damage_flags,
+                damage_flags: melee_damage_flags,
                 ..Default::default()
             },
             combat_projectile_damage_model : None,
