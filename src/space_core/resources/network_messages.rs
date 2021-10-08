@@ -56,6 +56,13 @@ pub enum UIInputAction {
     Pressed
 }
 
+#[allow(dead_code)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum NetProjectileType {
+    Laser(Color, f32, f32, Vec3, Vec3),
+    Ballistic,
+}
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
@@ -71,6 +78,7 @@ pub enum ReliableServerMessage {
     EquippedWornItem(String, u64, String),
     ConsoleWriteLine(String),
     PlaySound(String, f32, f32, Option<Vec3>),
+    FireProjectile(NetProjectileType),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

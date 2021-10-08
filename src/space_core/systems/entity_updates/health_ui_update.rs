@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Color, Entity, EventWriter, Query, ResMut};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, health::Health}, events::net::net_health_update::NetHealthUpdate, resources::{client_health_ui_cache::{ClientHealthUI, ClientHealthUICache, DamageType}, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, health::Health}, events::net::net_health_update::NetHealthUpdate, resources::{client_health_ui_cache::{ClientHealthUI, ClientHealthUICache, UIDamageType}, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 
 
@@ -58,12 +58,12 @@ pub fn health_ui_update(
 
                 if matches!(client_health_ui_option, None) {
                     client_health_ui_cache.cache.insert(entity, ClientHealthUI {
-                        head_damage: DamageType::None,
-                        torso_damage: DamageType::None,
-                        left_arm_damage: DamageType::None,
-                        right_arm_damage: DamageType::None,
-                        left_leg_damage: DamageType::None,
-                        right_leg_damage: DamageType::None,
+                        head_damage: UIDamageType::None,
+                        torso_damage: UIDamageType::None,
+                        left_arm_damage: UIDamageType::None,
+                        right_arm_damage: UIDamageType::None,
+                        left_leg_damage: UIDamageType::None,
+                        right_leg_damage: UIDamageType::None,
                     });
                     client_health_ui_option = Some(client_health_ui_cache.cache.get_mut(&entity).unwrap());
                 }
@@ -83,8 +83,8 @@ pub fn health_ui_update(
 
                 // Head
                 if total_head_damage > 75. {
-                    if !matches!(client_health_ui.head_damage, DamageType::Heavy) {
-                        client_health_ui.head_damage = DamageType::Heavy;
+                    if !matches!(client_health_ui.head_damage, UIDamageType::Heavy) {
+                        client_health_ui.head_damage = UIDamageType::Heavy;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -100,8 +100,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_head_damage > 50. {
-                    if !matches!(client_health_ui.head_damage, DamageType::Moderate) {
-                        client_health_ui.head_damage = DamageType::Moderate;
+                    if !matches!(client_health_ui.head_damage, UIDamageType::Moderate) {
+                        client_health_ui.head_damage = UIDamageType::Moderate;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -117,8 +117,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_head_damage > 25. {
-                    if !matches!(client_health_ui.head_damage, DamageType::Light) {
-                        client_health_ui.head_damage = DamageType::Light;
+                    if !matches!(client_health_ui.head_damage, UIDamageType::Light) {
+                        client_health_ui.head_damage = UIDamageType::Light;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -134,8 +134,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else {
-                    if !matches!(client_health_ui.head_damage, DamageType::None) {
-                        client_health_ui.head_damage = DamageType::None;
+                    if !matches!(client_health_ui.head_damage, UIDamageType::None) {
+                        client_health_ui.head_damage = UIDamageType::None;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -156,8 +156,8 @@ pub fn health_ui_update(
 
                 // Torso
                 if total_torso_damage > 75. {
-                    if !matches!(client_health_ui.torso_damage, DamageType::Heavy) {
-                        client_health_ui.torso_damage = DamageType::Heavy;
+                    if !matches!(client_health_ui.torso_damage, UIDamageType::Heavy) {
+                        client_health_ui.torso_damage = UIDamageType::Heavy;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -173,8 +173,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_torso_damage > 50. {
-                    if !matches!(client_health_ui.torso_damage, DamageType::Moderate) {
-                        client_health_ui.torso_damage = DamageType::Moderate;
+                    if !matches!(client_health_ui.torso_damage, UIDamageType::Moderate) {
+                        client_health_ui.torso_damage = UIDamageType::Moderate;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -190,8 +190,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_torso_damage > 25. {
-                    if !matches!(client_health_ui.torso_damage, DamageType::Light) {
-                        client_health_ui.torso_damage = DamageType::Light;
+                    if !matches!(client_health_ui.torso_damage, UIDamageType::Light) {
+                        client_health_ui.torso_damage = UIDamageType::Light;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -207,8 +207,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else {
-                    if !matches!(client_health_ui.torso_damage, DamageType::None) {
-                        client_health_ui.torso_damage = DamageType::None;
+                    if !matches!(client_health_ui.torso_damage, UIDamageType::None) {
+                        client_health_ui.torso_damage = UIDamageType::None;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -232,8 +232,8 @@ pub fn health_ui_update(
 
                 // LeftArm
                 if total_left_arm_damage > 75. {
-                    if !matches!(client_health_ui.left_arm_damage, DamageType::Heavy) {
-                        client_health_ui.left_arm_damage = DamageType::Heavy;
+                    if !matches!(client_health_ui.left_arm_damage, UIDamageType::Heavy) {
+                        client_health_ui.left_arm_damage = UIDamageType::Heavy;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -249,8 +249,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_left_arm_damage > 50. {
-                    if !matches!(client_health_ui.left_arm_damage, DamageType::Moderate) {
-                        client_health_ui.left_arm_damage = DamageType::Moderate;
+                    if !matches!(client_health_ui.left_arm_damage, UIDamageType::Moderate) {
+                        client_health_ui.left_arm_damage = UIDamageType::Moderate;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -266,8 +266,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_left_arm_damage > 25. {
-                    if !matches!(client_health_ui.left_arm_damage, DamageType::Light) {
-                        client_health_ui.left_arm_damage = DamageType::Light;
+                    if !matches!(client_health_ui.left_arm_damage, UIDamageType::Light) {
+                        client_health_ui.left_arm_damage = UIDamageType::Light;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -283,8 +283,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else {
-                    if !matches!(client_health_ui.left_arm_damage, DamageType::None) {
-                        client_health_ui.left_arm_damage = DamageType::None;
+                    if !matches!(client_health_ui.left_arm_damage, UIDamageType::None) {
+                        client_health_ui.left_arm_damage = UIDamageType::None;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -307,8 +307,8 @@ pub fn health_ui_update(
 
                 // RightArm
                 if total_right_arm_damage > 75. {
-                    if !matches!(client_health_ui.right_arm_damage, DamageType::Heavy) {
-                        client_health_ui.right_arm_damage = DamageType::Heavy;
+                    if !matches!(client_health_ui.right_arm_damage, UIDamageType::Heavy) {
+                        client_health_ui.right_arm_damage = UIDamageType::Heavy;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -324,8 +324,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_right_arm_damage > 50. {
-                    if !matches!(client_health_ui.right_arm_damage, DamageType::Moderate) {
-                        client_health_ui.right_arm_damage = DamageType::Moderate;
+                    if !matches!(client_health_ui.right_arm_damage, UIDamageType::Moderate) {
+                        client_health_ui.right_arm_damage = UIDamageType::Moderate;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -341,8 +341,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_right_arm_damage > 25. {
-                    if !matches!(client_health_ui.right_arm_damage, DamageType::Light) {
-                        client_health_ui.right_arm_damage = DamageType::Light;
+                    if !matches!(client_health_ui.right_arm_damage, UIDamageType::Light) {
+                        client_health_ui.right_arm_damage = UIDamageType::Light;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -358,8 +358,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else {
-                    if !matches!(client_health_ui.right_arm_damage, DamageType::None) {
-                        client_health_ui.right_arm_damage = DamageType::None;
+                    if !matches!(client_health_ui.right_arm_damage, UIDamageType::None) {
+                        client_health_ui.right_arm_damage = UIDamageType::None;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -379,8 +379,8 @@ pub fn health_ui_update(
 
                  // LeftLeg
                  if total_left_leg_damage > 75. {
-                    if !matches!(client_health_ui.left_leg_damage, DamageType::Heavy) {
-                        client_health_ui.left_leg_damage = DamageType::Heavy;
+                    if !matches!(client_health_ui.left_leg_damage, UIDamageType::Heavy) {
+                        client_health_ui.left_leg_damage = UIDamageType::Heavy;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -396,8 +396,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_left_leg_damage > 50. {
-                    if !matches!(client_health_ui.left_leg_damage, DamageType::Moderate) {
-                        client_health_ui.left_leg_damage = DamageType::Moderate;
+                    if !matches!(client_health_ui.left_leg_damage, UIDamageType::Moderate) {
+                        client_health_ui.left_leg_damage = UIDamageType::Moderate;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -413,8 +413,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_left_leg_damage > 25. {
-                    if !matches!(client_health_ui.left_leg_damage, DamageType::Light) {
-                        client_health_ui.left_leg_damage = DamageType::Light;
+                    if !matches!(client_health_ui.left_leg_damage, UIDamageType::Light) {
+                        client_health_ui.left_leg_damage = UIDamageType::Light;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -430,8 +430,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else {
-                    if !matches!(client_health_ui.left_leg_damage, DamageType::None) {
-                        client_health_ui.left_leg_damage = DamageType::None;
+                    if !matches!(client_health_ui.left_leg_damage, UIDamageType::None) {
+                        client_health_ui.left_leg_damage = UIDamageType::None;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -451,8 +451,8 @@ pub fn health_ui_update(
 
                 // RightLeg
                 if total_right_leg_damage > 75. {
-                    if !matches!(client_health_ui.right_leg_damage, DamageType::Heavy) {
-                        client_health_ui.right_leg_damage = DamageType::Heavy;
+                    if !matches!(client_health_ui.right_leg_damage, UIDamageType::Heavy) {
+                        client_health_ui.right_leg_damage = UIDamageType::Heavy;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -468,8 +468,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_right_leg_damage > 50. {
-                    if !matches!(client_health_ui.right_leg_damage, DamageType::Moderate) {
-                        client_health_ui.right_leg_damage = DamageType::Moderate;
+                    if !matches!(client_health_ui.right_leg_damage, UIDamageType::Moderate) {
+                        client_health_ui.right_leg_damage = UIDamageType::Moderate;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -485,8 +485,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else if total_right_leg_damage > 25. {
-                    if !matches!(client_health_ui.right_leg_damage, DamageType::Light) {
-                        client_health_ui.right_leg_damage = DamageType::Light;
+                    if !matches!(client_health_ui.right_leg_damage, UIDamageType::Light) {
+                        client_health_ui.right_leg_damage = UIDamageType::Light;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(
@@ -502,8 +502,8 @@ pub fn health_ui_update(
                         new_update = true;
                     }
                 } else {
-                    if !matches!(client_health_ui.right_leg_damage, DamageType::None) {
-                        client_health_ui.right_leg_damage = DamageType::None;
+                    if !matches!(client_health_ui.right_leg_damage, UIDamageType::None) {
+                        client_health_ui.right_leg_damage = UIDamageType::None;
                         let mut head_data = HashMap::new();
                         head_data.insert("control_color".to_string(),
                         EntityUpdateData::Color(Color::rgba(

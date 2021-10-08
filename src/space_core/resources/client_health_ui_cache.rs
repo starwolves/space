@@ -22,17 +22,17 @@ impl FromWorld for ClientHealthUICache {
 
 pub struct ClientHealthUI {
 
-    pub head_damage : DamageType,
-    pub torso_damage : DamageType,
-    pub left_arm_damage : DamageType,
-    pub right_arm_damage : DamageType,
-    pub left_leg_damage : DamageType,
-    pub right_leg_damage : DamageType,
+    pub head_damage : UIDamageType,
+    pub torso_damage : UIDamageType,
+    pub left_arm_damage : UIDamageType,
+    pub right_arm_damage : UIDamageType,
+    pub left_leg_damage : UIDamageType,
+    pub right_leg_damage : UIDamageType,
 
 }
 
 
-pub enum DamageType {
+pub enum UIDamageType {
     None,
     Light,
     Moderate,

@@ -88,20 +88,30 @@ pub struct EntityContainer {
 
 
 pub struct DamageModel {
-    pub brute : f32,
-    pub burn : f32,
-    pub toxin : f32,
-    pub damage_flags : HashMap<u32, DamageFlag>,
+    pub melee_brute : f32,
+    pub melee_burn : f32,
+    pub melee_toxin : f32,
+    pub melee_damage_flags : HashMap<u32, DamageFlag>,
+
+    pub projectile_brute : f32,
+    pub projectile_burn : f32,
+    pub projectile_toxin : f32,
+    pub projectile_damage_flags : HashMap<u32, DamageFlag>,
 }
 
 impl Default for DamageModel {
    
     fn default() -> Self {
         Self {
-            brute: 0.,
-            burn: 0.,
-            toxin: 0.,
-            damage_flags: HashMap::new(),
+            melee_brute: 0.,
+            melee_burn: 0.,
+            melee_toxin: 0.,
+            melee_damage_flags: HashMap::new(),
+
+            projectile_brute: 0.,
+            projectile_burn: 0.,
+            projectile_toxin: 0.,
+            projectile_damage_flags: HashMap::new(),
         }
 
     }
@@ -149,6 +159,11 @@ pub fn calculate_damage(
 
 }
 
+pub enum DamageType {
+    Melee,
+    Projectile,
+}
+
 impl Health {
 
     pub fn apply_damage(
@@ -162,20 +177,38 @@ impl Health {
         position: Vec3,
         attacker_name : &str,
         entity_name : &str,
+        damage_type : &DamageType,
     ) -> HitResult {
+
+        let result;
+
+        match damage_type {
+            DamageType::Melee => {
+                result = calculate_damage(
+                    &self.health_flags,
+                    &damage_model.melee_damage_flags,
+                    damage_model.melee_brute,
+                    damage_model.melee_burn,
+                    damage_model.melee_toxin
+                );
+            },
+            DamageType::Projectile => {
+                result = calculate_damage(
+                    &self.health_flags,
+                    &damage_model.projectile_damage_flags,
+                    damage_model.projectile_brute,
+                    damage_model.projectile_burn,
+                    damage_model.projectile_toxin
+                );
+            },
+        }
 
         let (
             brute_damage,
             burn_damage,
             toxin_damage,
             hit_result,
-        ) = calculate_damage(
-            &self.health_flags,
-            &damage_model.damage_flags,
-            damage_model.brute,
-            damage_model.burn,
-            damage_model.toxin
-        );
+        ) = result;
 
         match &mut self.health_container {
             HealthContainer::Humanoid(humanoid_health) => {
