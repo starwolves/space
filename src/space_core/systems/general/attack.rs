@@ -1,16 +1,23 @@
-use bevy::{math::{Quat, Vec3}, prelude::{Commands, EventReader, EventWriter, Query, Res, ResMut, Transform}};
-use bevy_rapier3d::prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet};
+use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform}};
+use bevy_rapier3d::prelude::{Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, RigidBodyPosition};
 
-use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}}, events::{general::attack::Attack, net::net_chat_message::NetChatMessage}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::get_cell_name::get_cell_name}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
+use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}}, events::{general::attack::Attack, net::net_chat_message::NetChatMessage}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::cell_id_to_world}}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 use bevy_rapier3d::physics::IntoEntity;
+
+
+struct AttackResult {
+    entity_option : Option<Entity>,
+    cell_id_option: Option<Vec3Int>,
+    distance: f32,
+}
 
 pub fn attack(
 
     mut attack_events : EventReader<Attack>,
     query_pipeline: Res<QueryPipeline>,
     collider_query: QueryPipelineColliderComponentsQuery,
-    mut health_query : Query<(&mut Health, &Examinable)>,
+    mut rigidbody_query : Query<(&mut Health, &Examinable, &RigidBodyPosition)>,
     mut world_cells : ResMut<GridmapMain>,
     physics_cells : Query<&Cell>,
     mut net_message_event: EventWriter<NetChatMessage>,
@@ -38,7 +45,7 @@ pub fn attack(
 
                 let additive = direction_additive * attack_event.range;
 
-                let mut hit_anything = false;
+                let mut hit_entities : Vec<AttackResult> = vec![];
 
                 query_pipeline.intersections_with_shape(
                     &QueryPipelineColliderComponentsSet(&collider_query),
@@ -72,82 +79,112 @@ pub fn attack(
                             None => {},
                         }
 
-                        let mut hit_target = false;
-                        let mut hit_result = HitResult::Missed;
-
-                        match health_query.get_mut(collider_entity) {
-                            Ok((mut health_component, examinable_component)) => {
-
-                                hit_target = true;
-
-                                hit_result = health_component.apply_damage(
-                                    &attack_event.targetted_limb, 
-                                    &attack_event.damage_model,
-                                    &mut net_message_event,
-                                        &handle_to_entity,
-                                        &attack_event.attacker_sensed_by,
-                                    &attack_event.attacker_sensed_by_cached,
-                                    attack_event.position.into(),
-                                        &attack_event.attacker_name,
-                                        &examinable_component.name,
-                                        &DamageType::Melee,
-                                );
-
-                                
-
+                        match rigidbody_query.get_mut(collider_entity) {
+                            Ok((mut _health_component, _examinable_component, rigid_body_position_component)) => {
+                                hit_entities.push(AttackResult{
+                                    entity_option: Some(collider_entity),
+                                    cell_id_option: None,
+                                    distance: attack_event.position.distance(
+                                        Vec3::new(
+                                            rigid_body_position_component.position.translation.x,
+                                            rigid_body_position_component.position.translation.y,
+                                            rigid_body_position_component.position.translation.z
+                                        )
+                                    ),
+                                });
                             },
                             Err(_rr) => {},
                         }
 
-                        if !hit_target {
-                            match physics_cells.get(collider_entity) {
-                                Ok(cell_component) => {
-
-                                    hit_target = true;
-
-                                    let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
-
-                                    hit_result = cell_data.health.apply_damage(
-                              &attack_event.targetted_limb, 
-                                &attack_event.damage_model,
-                                        &mut net_message_event,
-                                        &handle_to_entity,
-                                        &attack_event.attacker_sensed_by,
-                                        &attack_event.attacker_sensed_by_cached,
-                       attack_event.position.into(),
-                                        &attack_event.attacker_name,
-                                        &get_cell_name(cell_data),
-                                        &DamageType::Melee,
-                                    );
-
-
-                                    
-                                },
-                                Err(_rr) => {},
-                            }
+                        match physics_cells.get(collider_entity) {
+                            Ok(cell_component) => {
+                                hit_entities.push(AttackResult{
+                                    entity_option: None,
+                                    cell_id_option: Some(cell_component.id),
+                                    distance: attack_event.position.distance(
+                                        cell_id_to_world(cell_component.id)
+                                    ),
+                                });
+                            },
+                            Err(_rr) => {},
                         }
                         
-                        match hit_result {
-                            crate::space_core::components::health::HitResult::HitSoft => {
-                                attack_event.combat_sound_set.spawn_hit_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
-                            },
-                            crate::space_core::components::health::HitResult::Blocked => {
-                                attack_event.combat_sound_set.spawn_hit_blocked(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
-                            },
-                            crate::space_core::components::health::HitResult::Missed => {},
-                        }
+                        
+                        
 
-                        if hit_target {
-                            hit_anything = true;
-                        }
-
-                        !hit_target
+                        true
 
                     }
                 );
 
-                if !hit_anything {
-                    attack_event.combat_sound_set.spawn_miss_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                hit_entities.sort_by(|a, b| b.distance.partial_cmp(&a.distance).unwrap());
+                hit_entities.reverse();
+
+                let mut hit_result =  HitResult::Missed;
+
+                match hit_entities.first() {
+                    Some(attack_result) => {
+
+                        match attack_result.entity_option {
+                            Some(collider_entity) => {
+
+                                match rigidbody_query.get_mut(collider_entity) {
+                                    Ok((mut health_component, examinable_component, _rigid_body_position_component)) => {
+        
+        
+                                        hit_result = health_component.apply_damage(
+                                            &attack_event.targetted_limb, 
+                                            &attack_event.damage_model,
+                                            &mut net_message_event,
+                                                &handle_to_entity,
+                                                &attack_event.attacker_sensed_by,
+                                            &attack_event.attacker_sensed_by_cached,
+                                            attack_event.position.into(),
+                                                &attack_event.attacker_name,
+                                                &examinable_component.name,
+                                                &DamageType::Melee,
+                                        );
+        
+                                    },
+                                    Err(_rr) => {},
+                                }
+
+                            },
+                            None => {
+
+                                let cell_id = attack_result.cell_id_option.unwrap();
+                                let cell_data = world_cells.data.get_mut(&cell_id).unwrap();
+
+                                hit_result = cell_data.health.apply_damage(
+                            &attack_event.targetted_limb, 
+                            &attack_event.damage_model,
+                                    &mut net_message_event,
+                                    &handle_to_entity,
+                                    &attack_event.attacker_sensed_by,
+                                    &attack_event.attacker_sensed_by_cached,
+                    attack_event.position.into(),
+                                    &attack_event.attacker_name,
+                                    &get_cell_name(cell_data),
+                                    &DamageType::Melee,
+                                );
+
+                            },
+                        }
+
+                    },
+                    None => {},
+                }
+
+                match hit_result {
+                    crate::space_core::components::health::HitResult::HitSoft => {
+                        attack_event.combat_sound_set.spawn_hit_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                    },
+                    crate::space_core::components::health::HitResult::Blocked => {
+                        attack_event.combat_sound_set.spawn_hit_blocked(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                    },
+                    crate::space_core::components::health::HitResult::Missed => {
+                        attack_event.combat_sound_set.spawn_miss_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                    },
                 }
 
             },
@@ -162,20 +199,20 @@ pub fn attack(
 
                         let additive = direction_additive * *range;
 
-                        let mut hit_entity = None;
+                        let mut hit_entities : Vec<AttackResult> = vec![];
 
                         query_pipeline.intersections_with_shape(
                             &QueryPipelineColliderComponentsSet(&collider_query),
                             &(
                                 Vec3::new(
                                     attack_event.position.x, 
-                                    1.0,
+                                    1.5,
                                     attack_event.position.z,
                                 )
                                 -
                                 additive,
                                 Quat::from_rotation_y(attack_event.angle)).into(),
-                            &Cuboid::new(Vec3::new(*range, 1.0, 0.3).into()),
+                            &Cuboid::new(Vec3::new(*range, 0.1, 0.1).into()),
                             interaction_groups,
                             None, 
                             |collider_handle| {
@@ -192,16 +229,85 @@ pub fn attack(
                                     return true;
                                 }
 
-                                let mut hit_target = false;
-                                let mut hit_result = HitResult::Missed;
+                                match rigidbody_query.get_mut(collider_entity) {
+                                    Ok((mut _health_component, _examinable_component, rigid_body_position_component)) => {
 
-                                // combat_damage_model Needs to be inventory_item_component projectile damage model.
-                                match health_query.get_mut(collider_entity) {
-                                    Ok((mut health_component, examinable_component)) => {
+                                        hit_entities.push(AttackResult{
+                                            entity_option: Some(collider_entity),
+                                            cell_id_option: None,
+                                            distance: attack_event.position.distance(
+                                                Vec3::new(
+                                                    rigid_body_position_component.position.translation.x,
+                                                    rigid_body_position_component.position.translation.y,
+                                                    rigid_body_position_component.position.translation.z
+                                                )
+                                            ),
+                                        });
+                                        
+                                    },
+                                    Err(_rr) => {},
+                                }
 
-                                        hit_target = true;
+                                match physics_cells.get(collider_entity) {
+                                    Ok(cell_component) => {
+                                        hit_entities.push(AttackResult{
+                                            entity_option: None,
+                                            cell_id_option: Some(cell_component.id),
+                                            distance: attack_event.position.distance(
+                                                cell_id_to_world(cell_component.id)
+                                            ),
+                                        }
+                                    );
+                                    
+                                    },
+                                    Err(_rr) => {},
+                                }
+                                
+                                
+                                
 
-                                        hit_result = health_component.apply_damage(
+                                true
+                            }
+                        );
+
+                        hit_entities.sort_by(|a, b| b.distance.partial_cmp(&a.distance).unwrap());
+                        hit_entities.reverse();
+
+                        let mut hit_result = HitResult::Missed;
+
+                        match hit_entities.first() {
+                            Some(attack_result) => {
+
+                                match attack_result.entity_option {
+                                    Some(collider_entity) => {
+        
+                                        match rigidbody_query.get_mut(collider_entity) {
+                                            Ok((mut health_component,examinable_component,_rigid_body_position_component)) => {
+        
+                                                hit_result = health_component.apply_damage(
+                                                    &attack_event.targetted_limb, 
+                                                    &attack_event.damage_model,
+                                                    &mut net_message_event,
+                                                        &handle_to_entity,
+                                                        &attack_event.attacker_sensed_by,
+                                                    &attack_event.attacker_sensed_by_cached,
+                                                    attack_event.position.into(),
+                                                        &attack_event.attacker_name,
+                                                        &examinable_component.name,
+                                                        &DamageType::Projectile,
+                                                );
+        
+                                            },
+                                            Err(_rr) => {},
+                                        }
+        
+                                    },
+                                    None => {
+        
+                                        let cell_id = attack_result.cell_id_option.unwrap();
+                                        let cell_data = world_cells.data.get_mut(&cell_id).unwrap();
+        
+                                        hit_result = cell_data.health.apply_damage(
                                             &attack_event.targetted_limb, 
                                             &attack_event.damage_model,
                                             &mut net_message_event,
@@ -210,73 +316,28 @@ pub fn attack(
                                             &attack_event.attacker_sensed_by_cached,
                                             attack_event.position.into(),
                                                 &attack_event.attacker_name,
-                                                &examinable_component.name,
-                                                &DamageType::Projectile,
-                                        );
-
-                                        
-
-                                    },
-                                    Err(_rr) => {},
-                                }
-
-                                // combat_damage_model Needs to be inventory_item_component projectile damage model.
-                                if !hit_target {
-                                    match physics_cells.get(collider_entity) {
-                                        Ok(cell_component) => {
-    
-                                            hit_target = true;
-    
-                                            let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
-    
-                                            hit_result = cell_data.health.apply_damage(
-                                    &attack_event.targetted_limb, 
-                                    &attack_event.damage_model,
-                                                &mut net_message_event,
-                                                &handle_to_entity,
-                                                &attack_event.attacker_sensed_by,
-                                                &attack_event.attacker_sensed_by_cached,
-                            attack_event.position.into(),
-                                                &attack_event.attacker_name,
                                                 &get_cell_name(cell_data),
                                                 &DamageType::Projectile,
-                                            );
-    
-    
-                                            
-                                        },
-                                        Err(_rr) => {},
-                                    }
-                                }
-                                
-                                match hit_result {
-                                    crate::space_core::components::health::HitResult::HitSoft => {
-                                        attack_event.combat_sound_set.spawn_hit_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                                        );
+        
                                     },
-                                    crate::space_core::components::health::HitResult::Blocked => {
-                                        attack_event.combat_sound_set.spawn_hit_blocked(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
-                                    },
-                                    crate::space_core::components::health::HitResult::Missed => {},
                                 }
-
-                                if hit_target {
-                                    hit_entity=Some(collider_entity);
-                                }
-
-                                !hit_target
-                                
-                            }
-                        );
-
-                        match hit_entity {
-                            Some(_collider_entity) => {
-
-                                //let collider_position = rigid_body_positions_mut.get_mut(collider_entity).unwrap();
-
 
                             },
                             None => {},
                         }
+
+                    
+                        match hit_result {
+                            crate::space_core::components::health::HitResult::HitSoft => {
+                                attack_event.combat_sound_set.spawn_hit_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                            },
+                            crate::space_core::components::health::HitResult::Blocked => {
+                                attack_event.combat_sound_set.spawn_hit_blocked(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                            },
+                            crate::space_core::components::health::HitResult::Missed => {},
+                        }
+                        
 
                     },
                     crate::space_core::components::inventory_item::ProjectileType::Ballistic => {},

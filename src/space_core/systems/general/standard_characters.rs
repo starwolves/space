@@ -145,8 +145,6 @@ pub fn standard_characters(
             speed_factor*=0.665;
         }
 
-        //speed_factor*=time.delta_seconds();
-
         let rapier_vector : Vector<Real> = Vec3::new(
             player_input_movement_vector.x * -speed_factor,
             -1.0,
@@ -173,9 +171,46 @@ pub fn standard_characters(
         // If combat mode, specific new rotation based on mouse direction.
         if standard_character_component.combat_mode &&  !player_input_component.sprinting{
 
+            let active_slot = inventory_component.get_slot(&inventory_component.active_slot);
+
+            let mut rotation_offset = - 0.1*PI;
+
+            if &inventory_component.active_slot == "right_hand" {
+                rotation_offset = 0.11*PI;
+            }
+
+            let mut inventory_item_component_option = None;
+
+            match active_slot.slot_item {
+                Some(item_entity) => {
+                    match inventory_items_query.get(item_entity) {
+                        Ok(item_component) => {
+                            inventory_item_component_option = Some(item_component);
+                            match item_component.combat_standard_animation {
+                                crate::space_core::components::inventory_item::CombatStandardAnimation::StandardStance => {},
+                                crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
+
+                                    if player_input_movement_vector.x != 0. || player_input_movement_vector.y != 0. {
+                                        rotation_offset = - 0.05*PI;
+                                    } else {
+                                        rotation_offset = - 0.22*PI;
+                                    }
+
+                                    
+                                },
+                            }
+                        },
+                        Err(_rr)=>{
+                            warn!("Couldn't find inventory_item belonging to used inventory slot of attack.");
+                        },
+                    }
+                },
+                None => {},
+            }
+
             let end_rotation = Quat::from_axis_angle(
                 Vec3::new(0.,1.,0.),
-                -standard_character_component.facing_direction - 0.5*PI - 0.1*PI,
+                -standard_character_component.facing_direction - 0.5*PI + rotation_offset,
             );
 
             let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
@@ -214,31 +249,22 @@ pub fn standard_characters(
             
 
             if attacking_this_frame {
+
                 // Get used inventory item and attack mode enum. Then on match execute directPreciseRayCastMeleeAttack
-
-                let active_slot = inventory_component.get_slot(&inventory_component.active_slot);
-
                 let mut combat_type = &CombatType::MeleeDirect;
                 let mut combat_damage_model = &standard_character_component.default_melee_damage_model;
                 let mut combat_sound_set = &standard_character_component.default_melee_sound_set;
-
-                match active_slot.slot_item {
-                    Some(item_entity) => {
-
-                        match inventory_items_query.get(item_entity) {
-                            Ok(inventory_item_component) => {
-                                combat_type = &inventory_item_component.combat_type;
-                                combat_damage_model = &inventory_item_component.combat_melee_damage_model;
-                                combat_sound_set = &inventory_item_component.combat_sound_set;
-                            },
-                            Err(_rr) => {
-                                warn!("Couldn't find inventory_item belonging to used inventory slot of attack.");
-                            },
-                        }
-
+                
+                match inventory_item_component_option {
+                    Some(inventory_item_component) => {
+                        combat_type = &inventory_item_component.combat_type;
+                        combat_damage_model = &inventory_item_component.combat_melee_damage_model;
+                        combat_sound_set = &inventory_item_component.combat_sound_set;
                     },
                     None => {},
                 }
+                    
+                
 
                 let mut angle = standard_character_component.facing_direction;
 
