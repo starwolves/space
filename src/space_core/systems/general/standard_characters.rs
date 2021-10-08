@@ -244,7 +244,7 @@ pub fn standard_characters(
                         match inventory_items_query.get(item_entity) {
                             Ok(inventory_item_component) => {
                                 combat_type = &inventory_item_component.combat_type;
-                                combat_damage_model = &inventory_item_component.combat_damage_model;
+                                combat_damage_model = &inventory_item_component.combat_melee_damage_model;
                                 standard_character_combat_sound_set = &inventory_item_component.combat_sound_set;
                             },
                             Err(_rr) => {
@@ -395,7 +395,7 @@ pub fn standard_characters(
                     },
                     CombatType::Projectile(projectile_type) => {
                         match projectile_type {
-                            crate::space_core::components::inventory_item::ProjectileType::Laser(color, height, radius, range) => {
+                            crate::space_core::components::inventory_item::ProjectileType::Laser(_color, _height, _radius, range) => {
                                 // Perform ray_cast and obtain start and stop position for this projectile all sensed_by netcode call.
                                 // Setup hardcoded client-side laser emissive capsule laser DirectionalParticle with color, height, radius, start_pos, stop_pos.
 
@@ -441,6 +441,7 @@ pub fn standard_characters(
 
                                         let projectile_inventory_item_component = inventory_items_query.get(projectile_weapon_entity).unwrap();
 
+                                        // combat_damage_model Needs to be inventory_item_component projectile damage model.
                                         match health_query.get_mut(collider_entity) {
                                             Ok((mut health_component, examinable_component)) => {
 
@@ -465,6 +466,7 @@ pub fn standard_characters(
                                             Err(_rr) => {},
                                         }
 
+                                        // combat_damage_model Needs to be inventory_item_component projectile damage model.
                                         if !hit_target {
                                             match physics_cells.get(collider_entity) {
                                                 Ok(cell_component) => {
@@ -513,7 +515,7 @@ pub fn standard_characters(
                                 );
 
                                 match hit_entity {
-                                    Some(collider_entity) => {
+                                    Some(_collider_entity) => {
 
                                         //let collider_position = rigid_body_positions_mut.get_mut(collider_entity).unwrap();
 

@@ -17,7 +17,8 @@ pub struct InventoryItem {
     pub combat_standard_animation : CombatStandardAnimation,
     pub combat_attack_animation: CombatAttackAnimation,
     pub combat_type: CombatType,
-    pub combat_damage_model : DamageModel,
+    pub combat_melee_damage_model : DamageModel,
+    pub combat_projectile_damage_model: Option<DamageModel>,
     pub combat_sound_set : CombatSoundSet,
 }
 

@@ -244,11 +244,12 @@ Vec3::new(0.,0.355, 0.)
             is_attached_when_worn : true,
             combat_attack_animation : CombatAttackAnimation::OneHandedMeleePunch,
             combat_type: CombatType::MeleeDirect,
-            combat_damage_model : DamageModel {
-                melee_brute: 9.,
-                melee_damage_flags: first_damage_flags,
+            combat_melee_damage_model : DamageModel {
+                brute: 9.,
+                damage_flags: first_damage_flags,
                 ..Default::default()
             },
+            combat_projectile_damage_model : None,
             combat_sound_set: CombatSoundSet::default(),
             combat_standard_animation : CombatStandardAnimation::StandardStance,
         },

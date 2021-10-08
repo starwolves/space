@@ -37,8 +37,8 @@ impl Default for StandardCharacter {
             is_attacking : false,
             next_attack_timer : t,
             default_melee_damage_model: DamageModel {
-                melee_brute: 5.,
-                melee_damage_flags : first_damage_flags,
+                brute: 5.,
+                damage_flags : first_damage_flags,
                 ..Default::default()
             },
             default_melee_sound_set: CombatSoundSet::default(),
