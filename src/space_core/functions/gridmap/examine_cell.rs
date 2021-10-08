@@ -74,6 +74,14 @@ pub fn examine_ship_cell(
             message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt is slightly damaged.[/color][/font]";
         }
 
+        if ship_cell.health.burn > 75. {
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt has suffered from heavy burn damage.[/color][/font]";
+        } else if ship_cell.health.burn > 50. {
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt has suffered burn damage.[/color][/font]";
+        } else if ship_cell.health.burn > 25. {
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt is has slight burn damage.[/color][/font]";
+        }
+
     }
 
     message = message + "\n" + ASTRIX + "[/font]";

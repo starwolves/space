@@ -68,6 +68,14 @@ pub fn examine_entity(
                                 } else if entity_container.brute > 25. {
                                     examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]It is slightly damaged.[/color][/font]";
                                 }
+
+                                if entity_container.burn > 75. {
+                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt has suffered from heavy burn damage.[/color][/font]";
+                                } else if entity_container.burn > 50. {
+                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt has suffered burn damage.[/color][/font]";
+                                } else if entity_container.burn > 25. {
+                                    examinable_text = examinable_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt is has slight burn damage.[/color][/font]";
+                                }
             
                             }
                             

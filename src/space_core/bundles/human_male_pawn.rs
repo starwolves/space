@@ -396,6 +396,57 @@ pub fn generate_human_examine_text(
                 }
 
 
+                if humanoid_container.head_burn > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His head has visible third degree burns, ouch![/color][/font]\n";
+                } else if humanoid_container.head_burn > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His head has visible second degree burns.[/color][/font]\n";
+                } else if humanoid_container.head_burn > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His head has visible first degree burns.[/color][/font]\n";
+                }
+                
+                
+                if humanoid_container.torso_burn > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His torso has visible third degree burns, ouch![/color][/font]\n";
+                } else if humanoid_container.torso_burn > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His torso has visible second degree burns.[/color][/font]\n";
+                } else if humanoid_container.torso_burn > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His torso has visible first degree burns.[/color][/font]\n";
+                }
+                
+                
+                if humanoid_container.left_arm_burn > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left arm has visible third degree burns, ouch![/color][/font]\n";
+                } else if humanoid_container.left_arm_burn > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left arm has visible second degree burns.[/color][/font]\n";
+                } else if humanoid_container.left_arm_burn > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left arm has visible first degree burns.[/color][/font]\n";
+                }
+                
+                
+                if humanoid_container.right_arm_burn > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right arm has visible third degree burns, ouch![/color][/font]\n";
+                } else if humanoid_container.right_arm_burn > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right arm has visible second degree burns.[/color][/font]\n";
+                } else if humanoid_container.right_arm_burn > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right arm has visible first degree burns.[/color][/font]\n";
+                }
+                
+                if humanoid_container.left_leg_burn > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left leg has visible third degree burns, ouch![/color][/font]\n";
+                } else if humanoid_container.left_leg_burn > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left leg has visible second degree burns.[/color][/font]\n";
+                } else if humanoid_container.left_leg_burn > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His left leg has visible first degree burns.[/color][/font]\n";
+                }
+                
+                if humanoid_container.right_leg_burn > 75. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right leg has visible third degree burns, ouch![/color][/font]\n";
+                } else if humanoid_container.right_leg_burn > 50. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right leg has visible second degree burns.[/color][/font]\n";
+                } else if humanoid_container.right_leg_burn > 25. {
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]His right leg has visible first degree burns.[/color][/font]\n";
+                }
+                
 
             }
 

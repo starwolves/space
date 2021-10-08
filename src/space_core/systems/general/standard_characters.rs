@@ -258,7 +258,14 @@ pub fn standard_characters(
                 match inventory_item_component_option {
                     Some(inventory_item_component) => {
                         combat_type = &inventory_item_component.combat_type;
-                        combat_damage_model = &inventory_item_component.combat_melee_damage_model;
+                        match combat_type {
+                            CombatType::MeleeDirect => {
+                                combat_damage_model = &inventory_item_component.combat_melee_damage_model;
+                            },
+                            CombatType::Projectile(_projecttile_type) => {
+                                combat_damage_model = &inventory_item_component.combat_projectile_damage_model.as_ref().unwrap();
+                            },
+                        }
                         combat_sound_set = &inventory_item_component.combat_sound_set;
                     },
                     None => {},
