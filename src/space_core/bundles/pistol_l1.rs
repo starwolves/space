@@ -235,12 +235,15 @@ Vec3::new(0.,0.355, 0.)
             is_attached_when_worn : true,
             combat_attack_animation : CombatAttackAnimation::PistolShot,
             combat_type: CombatType::Projectile(ProjectileType::Laser(Color::RED, 0.14, 0.025, PISTOL_L1_PROJECTILE_RANGE)),
-            combat_damage_model : DamageModel {
-                melee_brute: 9.,
-                melee_damage_flags: first_damage_flags,
-                projectile_burn: 15.,
+            combat_melee_damage_model : DamageModel {
+                brute: 9.,
+                damage_flags: first_damage_flags,
                 ..Default::default()
             },
+            combat_projectile_damage_model : Some(DamageModel {
+                burn: 15.,
+                ..Default::default()
+            }),
             combat_sound_set: CombatSoundSet::default(),
             combat_standard_animation : CombatStandardAnimation::PistolStance,
         },

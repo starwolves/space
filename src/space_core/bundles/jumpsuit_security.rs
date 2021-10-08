@@ -237,11 +237,12 @@ fn spawn(
             is_attached_when_worn : false,
             combat_attack_animation : CombatAttackAnimation::OneHandedMeleePunch,
             combat_type: CombatType::MeleeDirect,
-            combat_damage_model : DamageModel {
-                melee_brute: 5.,
-                melee_damage_flags: first_damage_flags,
+            combat_melee_damage_model : DamageModel {
+                brute: 5.,
+                damage_flags: first_damage_flags,
                 ..Default::default()
             },
+            combat_projectile_damage_model : None,
             combat_sound_set: CombatSoundSet::default(),
             combat_standard_animation : CombatStandardAnimation::StandardStance,
         },

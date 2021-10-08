@@ -60,38 +60,21 @@ impl StructureHealth {
         position: Vec3,
         attacker_name : &str,
         cell_name : &str,
-        damage_type : &DamageType,
+        _damage_type : &DamageType,
     ) -> HitResult {
-
-        let result;
-
-        match damage_type {
-            DamageType::Melee => {
-                result = calculate_damage(
-                    &self.health_flags,
-                    &damage_model.melee_damage_flags,
-                    damage_model.melee_brute,
-                    damage_model.melee_burn,
-                    damage_model.melee_toxin
-                );
-            },
-            DamageType::Projectile => {
-                result = calculate_damage(
-                    &self.health_flags,
-                    &damage_model.projectile_damage_flags,
-                    damage_model.projectile_brute,
-                    damage_model.projectile_burn,
-                    damage_model.projectile_toxin
-                );
-            },
-        }
 
         let (
             brute_damage,
             burn_damage,
             toxin_damage,
             hit_result,
-        ) = result;
+        ) = calculate_damage(
+            &self.health_flags,
+            &damage_model.damage_flags,
+            damage_model.brute,
+            damage_model.burn,
+            damage_model.toxin
+        );
 
         self.brute+=brute_damage;
         self.burn+=burn_damage;
