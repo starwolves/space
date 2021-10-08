@@ -32,17 +32,20 @@ pub enum CombatAttackAnimation {
     PistolShot,
 }
 
+#[derive(Clone)]
 pub enum CombatType {
     MeleeDirect,
     Projectile(ProjectileType),
 }
 
 #[allow(dead_code)]
+#[derive(Clone)]
 pub enum ProjectileType {
     Laser(Color, f32, f32, f32),
     Ballistic,
 }
 
+#[derive(Clone)]
 pub struct CombatSoundSet {
     pub melee_miss : Vec<CombatSound>,
     pub melee_hit_soft : Vec<CombatSound>,
@@ -125,6 +128,7 @@ impl CombatSoundSet {
     }
 }
 
+#[derive(Clone)]
 pub enum CombatSound {
     Swing1,
     Swing2,
