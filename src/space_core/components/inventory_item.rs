@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use bevy::prelude::{Color, Commands, Entity, ResMut, Transform};
 use rand::prelude::SliceRandom;
 
-use crate::space_core::{bundles::{block1_sfx::{BLOCK1_PLAY_BACK_DURATION, Block1SfxBundle}, block2_sfx::{BLOCK2_PLAY_BACK_DURATION, Block2SfxBundle}, block3_sfx::{BLOCK3_PLAY_BACK_DURATION, Block3SfxBundle}, punch1_sfx::{PUNCH1_PLAY_BACK_DURATION, Punch1SfxBundle}, punch2_sfx::{PUNCH2_PLAY_BACK_DURATION, Punch2SfxBundle}, punch3_sfx::{PUNCH3_PLAY_BACK_DURATION, Punch3SfxBundle}, punch4_sfx::{PUNCH4_PLAY_BACK_DURATION, Punch4SfxBundle}, swing1_sfx::{SWING1_PLAY_BACK_DURATION, Swing1SfxBundle}, swing2_sfx::{SWING2_PLAY_BACK_DURATION, Swing2SfxBundle}, swing3_sfx::{SWING3_PLAY_BACK_DURATION, Swing3SfxBundle}, swing4_sfx::{SWING4_PLAY_BACK_DURATION, Swing4SfxBundle}}, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
+use crate::space_core::{bundles::{block1_sfx::{BLOCK1_PLAY_BACK_DURATION, Block1SfxBundle}, block2_sfx::{BLOCK2_PLAY_BACK_DURATION, Block2SfxBundle}, block3_sfx::{BLOCK3_PLAY_BACK_DURATION, Block3SfxBundle}, punch1_sfx::{PUNCH1_PLAY_BACK_DURATION, Punch1SfxBundle}, punch2_sfx::{PUNCH2_PLAY_BACK_DURATION, Punch2SfxBundle}, punch3_sfx::{PUNCH3_PLAY_BACK_DURATION, Punch3SfxBundle}, punch4_sfx::{PUNCH4_PLAY_BACK_DURATION, Punch4SfxBundle}, swing1_sfx::{SWING1_PLAY_BACK_DURATION, Swing1SfxBundle}, swing2_sfx::{SWING2_PLAY_BACK_DURATION, Swing2SfxBundle}, swing3_sfx::{SWING3_PLAY_BACK_DURATION, Swing3SfxBundle}, swing4_sfx::{SWING4_PLAY_BACK_DURATION, Swing4SfxBundle}}, resources::{sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 use super::{health::DamageModel, inventory::SlotType, sfx::sfx_auto_destroy};
+
 
 pub struct InventoryItem {
     pub in_inventory_of_entity : Option<Entity>,
@@ -17,7 +18,7 @@ pub struct InventoryItem {
     pub combat_attack_animation: CombatAttackAnimation,
     pub combat_type: CombatType,
     pub combat_damage_model : DamageModel,
-    pub combat_sound_set : MeleeCombatSoundSet,
+    pub combat_sound_set : CombatSoundSet,
 }
 
 pub enum CombatStandardAnimation {
@@ -30,30 +31,33 @@ pub enum CombatAttackAnimation {
     PistolShot,
 }
 
-#[allow(dead_code)]
-pub enum ProjectileType {
-    Laser(Color, f32, f32),
-    Ballistic,
-}
-
 pub enum CombatType {
     MeleeDirect,
     Projectile(ProjectileType),
 }
 
-pub struct MeleeCombatSoundSet {
-    pub miss : Vec<CombatSound>,
-    pub hit_soft : Vec<CombatSound>,
-    pub hit_blocked : Vec<CombatSound>,
+#[allow(dead_code)]
+pub enum ProjectileType {
+    Laser(Color, f32, f32, f32),
+    Ballistic,
+}
+
+pub struct CombatSoundSet {
+    pub melee_miss : Vec<CombatSound>,
+    pub melee_hit_soft : Vec<CombatSound>,
+    pub melee_hit_blocked : Vec<CombatSound>,
+
+    pub projectile_hit_soft : Vec<CombatSound>,
+    pub projectile_hit_blocked : Vec<CombatSound>,
 }
 
 
-impl MeleeCombatSoundSet {
+impl CombatSoundSet {
 
     pub fn spawn_miss_sfx(&self, commands : &mut Commands, transform : Transform, auto_destroy_timers : &mut ResMut<SfxAutoDestroyTimers>) {
         
 
-        match self.miss.choose(&mut rand::thread_rng()).unwrap() {
+        match self.melee_miss.choose(&mut rand::thread_rng()).unwrap() {
             CombatSound::Swing1 => {
                 let sfx_entity = commands.spawn().insert_bundle(Swing1SfxBundle::new(transform)).id();
                 sfx_auto_destroy(sfx_entity,auto_destroy_timers,SWING1_PLAY_BACK_DURATION);
@@ -77,7 +81,7 @@ impl MeleeCombatSoundSet {
 
     pub fn spawn_hit_sfx(&self, commands : &mut Commands, transform : Transform, auto_destroy_timers : &mut ResMut<SfxAutoDestroyTimers>) {
 
-        match self.hit_soft.choose(&mut rand::thread_rng()).unwrap() {
+        match self.melee_hit_soft.choose(&mut rand::thread_rng()).unwrap() {
             CombatSound::Punch1 => {
                 let sfx_entity = commands.spawn().insert_bundle(Punch1SfxBundle::new(transform)).id();
                 sfx_auto_destroy(sfx_entity,auto_destroy_timers,PUNCH1_PLAY_BACK_DURATION);
@@ -101,7 +105,7 @@ impl MeleeCombatSoundSet {
 
     pub fn spawn_hit_blocked(&self, commands : &mut Commands, transform : Transform, auto_destroy_timers : &mut ResMut<SfxAutoDestroyTimers>) {
 
-        match self.hit_blocked.choose(&mut rand::thread_rng()).unwrap() {
+        match self.melee_hit_blocked.choose(&mut rand::thread_rng()).unwrap() {
             CombatSound::Block1 => {
                 let sfx_entity = commands.spawn().insert_bundle(Block1SfxBundle::new(transform)).id();
                 sfx_auto_destroy(sfx_entity,auto_destroy_timers,BLOCK1_PLAY_BACK_DURATION);
@@ -134,25 +138,32 @@ pub enum CombatSound {
     Block3,
 }
 
-impl Default for MeleeCombatSoundSet {
+impl Default for CombatSoundSet {
     fn default() -> Self {
         Self {
-            miss: vec![
+            melee_miss: vec![
                 CombatSound::Swing1,
                 CombatSound::Swing2,
                 CombatSound::Swing3,
                 CombatSound::Swing4,
             ],
-            hit_soft: vec![
+            melee_hit_soft: vec![
                 CombatSound::Punch1,
                 CombatSound::Punch2,
                 CombatSound::Punch3,
                 CombatSound::Punch4,
             ],
-            hit_blocked: vec![
+            melee_hit_blocked: vec![
                 CombatSound::Block1,
                 CombatSound::Block2,
                 CombatSound::Block3,
+            ],
+
+            projectile_hit_soft: vec![
+
+            ],
+            projectile_hit_blocked: vec![
+
             ],
         }
     }
