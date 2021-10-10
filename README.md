@@ -24,10 +24,10 @@ This game server is designed to run well on modern processors that have multiple
 * Moddable and cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic ship cells as map size is currently bottlenecked by the FOV algorithm. 
 * Character meshes and animations are fully moddable and integrated with [Mixamo](https://www.mixamo.com/) for rigging.
 * Entities are loaded from an external content folder for the client. Allowing modders to create new entities such as items, characters, sounds, ship cells and more.
-* Godot Addressable references are used for efficient and dynamic netcode that will works well with custom content.
-* Data-oriented & modular, everything is its own entity with components in a strict and extremely fast ECS database-like approach. It is easy to add and remove systems, components and to turn them into plugins and more.
+* Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
+* Data-oriented & modular, everything is its own entity with components in a strictly compiled and extremely fast ECS database-like approach. It is easy to add and remove systems, components and to turn them into plugins and more.
 * Inventory system, pick up, wear, attach and equip items with character entities.
-* Melee combat system, damage players, ship walls or items.
+* Melee & projectile combat system, damage players, ship walls or other entities.
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
 * Configurable console commands, including rcon admin commands.
 
