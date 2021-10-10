@@ -10,7 +10,7 @@ use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfx
 const JOG_SPEED : f32 = 13.;
 const RUN_SPEED : f32 = 18.;
 const MELEE_FISTS_REACH : f32 = 1.2;
-const COMBAT_ROTATION_SPEED : f32 = 14.;
+const COMBAT_ROTATION_SPEED : f32 = 18.;
 
 pub fn standard_characters(
     mut standard_character_query : Query<(
