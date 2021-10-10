@@ -108,9 +108,6 @@ pub fn attack(
                             },
                             Err(_rr) => {},
                         }
-                        
-                        
-                        
 
                         true
 
