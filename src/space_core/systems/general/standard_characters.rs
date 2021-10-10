@@ -10,6 +10,7 @@ use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfx
 const JOG_SPEED : f32 = 13.;
 const RUN_SPEED : f32 = 18.;
 const MELEE_FISTS_REACH : f32 = 1.2;
+const COMBAT_ROTATION_SPEED : f32 = 14.;
 
 pub fn standard_characters(
     mut standard_character_query : Query<(
@@ -160,9 +161,9 @@ pub fn standard_characters(
 
         let mut facing_direction = pawn_component.facing_direction.clone();
 
-
+        let delta_time = time.delta();
         
-        standard_character_component.next_attack_timer.tick(time.delta());
+        standard_character_component.next_attack_timer.tick(delta_time);
         let ready_to_attack_this_frame = standard_character_component.next_attack_timer.finished();
 
         
@@ -191,9 +192,9 @@ pub fn standard_characters(
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
 
                                     if player_input_movement_vector.x != 0. || player_input_movement_vector.y != 0. {
-                                        rotation_offset = - 0.05*PI;
+                                        rotation_offset = - 0.0675*PI;
                                     } else {
-                                        rotation_offset = - 0.22*PI;
+                                        rotation_offset = - 0.24*PI;
                                     }
 
                                     
@@ -215,8 +216,16 @@ pub fn standard_characters(
 
             let mut rigid_body_transform = isometry_to_transform(rigid_body_position_component.position);
 
-            // Should slerp, but sometime uses longest path between quats and am unsure how to resolve that.
-            rigid_body_transform.rotation = end_rotation;
+            let slerp_rotation;
+
+            if rigid_body_transform.rotation.dot(end_rotation) > 0. {
+                slerp_rotation = rigid_body_transform.rotation.slerp(end_rotation, delta_time.as_secs_f32()*COMBAT_ROTATION_SPEED);
+            } else {
+                let start_rotation = -rigid_body_transform.rotation.clone();
+                slerp_rotation = start_rotation.slerp(end_rotation, delta_time.as_secs_f32()*COMBAT_ROTATION_SPEED);
+            }
+
+            rigid_body_transform.rotation = slerp_rotation;
 
             rigid_body_position_component.position = transform_to_isometry(rigid_body_transform);
 

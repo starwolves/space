@@ -29,8 +29,8 @@ pub fn standard_character_update(
         let mut upper_body_animation_state : String;
         
         let mut animation_tree1_upper_blend = HashMap::new();
-        let mut animation_tree1_lower_body_jogging_strafe_blend_position = HashMap::new();
-        let mut animation_tree1_upper_body_jogging_strafe_blend_position = HashMap::new();
+        let mut animation_tree1_lower_body_strafe_blend_position = HashMap::new();
+        let mut animation_tree1_upper_body_strafe_blend_position = HashMap::new();
 
         let mut upper_body_left_punch_time_scale = HashMap::new();
         let mut upper_body_right_punch_time_scale = HashMap::new();
@@ -83,6 +83,11 @@ pub fn standard_character_update(
 
         }
 
+        let mut lower_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/JoggingStrafe/BlendSpace2D/blend_position".to_string();
+        let upper_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/JoggingStrafe/BlendSpace2D/blend_position".to_string();
+
+        let mut update_upper_body = true;
+
         if standard_character_component.combat_mode {
 
             // Here we can set upper body animations to certain combat state, eg boxing stance, melee weapon stances, projectile weapon stances etc.
@@ -130,6 +135,9 @@ pub fn standard_character_update(
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
                                     upper_body_animation_state = "PistolStrafe".to_string();
                                     lower_body_animation_state = "PistolStrafe".to_string();
+                                    //upper_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
+                                    lower_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
+                                    update_upper_body=false;
                                 },
                             }
 
@@ -140,62 +148,62 @@ pub fn standard_character_update(
                         },
                     }
 
-                    let mut strafe_jogging_blend_position;
+                    let mut strafe_blend_position;
 
                     match pawn_component_option.as_ref().unwrap().facing_direction {
                         crate::space_core::components::pawn::FacingDirection::UpLeft => {
-                            strafe_jogging_blend_position = [-1.,1.];
+                            strafe_blend_position = [-1.,1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::Up => {
-                            strafe_jogging_blend_position = [0.,1.];
+                            strafe_blend_position = [0.,1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::UpRight => {
-                            strafe_jogging_blend_position = [1.,1.];
+                            strafe_blend_position = [1.,1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::Right => {
-                            strafe_jogging_blend_position = [1.,0.];
+                            strafe_blend_position = [1.,0.];
                         },
                         crate::space_core::components::pawn::FacingDirection::DownRight => {
-                            strafe_jogging_blend_position = [-1.,-1.];
+                            strafe_blend_position = [-1.,-1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::Down => {
-                            strafe_jogging_blend_position = [0.,-1.];
+                            strafe_blend_position = [0.,-1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::DownLeft => {
-                            strafe_jogging_blend_position = [1.,-1.];
+                            strafe_blend_position = [1.,-1.];
                         },
                         crate::space_core::components::pawn::FacingDirection::Left => {
-                            strafe_jogging_blend_position = [-1.,0.];
+                            strafe_blend_position = [-1.,0.];
                         },
                     }
 
                     // Further rotate this Vec2 with mouse_direction.
                     if standard_character_component.facing_direction > 0.75*PI {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.5*PI);
+                        strafe_blend_position = strafe_blend_position.rotate(-0.5*PI);
                     } else if standard_character_component.facing_direction > 0.5*PI {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.75*PI);
+                        strafe_blend_position = strafe_blend_position.rotate(-0.75*PI);
                     } else if standard_character_component.facing_direction > 0.25*PI {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(1.*PI);
+                        strafe_blend_position = strafe_blend_position.rotate(1.*PI);
                     } else if standard_character_component.facing_direction > 0. {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.75*PI);
+                        strafe_blend_position = strafe_blend_position.rotate(0.75*PI);
                     } else if standard_character_component.facing_direction > -0.25*PI {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.5*PI);
+                        strafe_blend_position = strafe_blend_position.rotate(0.5*PI);
                     } else if standard_character_component.facing_direction > -0.5*PI {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.25*PI);
+                        strafe_blend_position = strafe_blend_position.rotate(0.25*PI);
                     } else if standard_character_component.facing_direction > -0.75*PI {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(0.);
+                        strafe_blend_position = strafe_blend_position.rotate(0.);
                     } else if standard_character_component.facing_direction > -1.*PI {
-                        strafe_jogging_blend_position = strafe_jogging_blend_position.rotate(-0.25*PI);
+                        strafe_blend_position = strafe_blend_position.rotate(-0.25*PI);
                     }
 
-                    animation_tree1_lower_body_jogging_strafe_blend_position.insert(
+                    animation_tree1_lower_body_strafe_blend_position.insert(
                         "blend_position".to_string(),
-                        EntityUpdateData::Vec2(Vec2::new(strafe_jogging_blend_position.x(),strafe_jogging_blend_position.y())),
+                        EntityUpdateData::Vec2(Vec2::new(strafe_blend_position.x(),strafe_blend_position.y())),
                     );
 
-                    animation_tree1_upper_body_jogging_strafe_blend_position.insert(
+                    animation_tree1_upper_body_strafe_blend_position.insert(
                         "blend_position".to_string(),
-                        EntityUpdateData::Vec2(Vec2::new(strafe_jogging_blend_position.x(),strafe_jogging_blend_position.y())),
+                        EntityUpdateData::Vec2(Vec2::new(strafe_blend_position.x(),strafe_blend_position.y())),
                     );
 
                 }
@@ -294,14 +302,17 @@ pub fn standard_character_update(
         );
 
         entity_updates_component.updates.insert(
-            "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/JoggingStrafe/BlendSpace2D/blend_position".to_string(),
-            animation_tree1_lower_body_jogging_strafe_blend_position
+            lower_body_strafe_blendspace2d_path.clone(),
+            animation_tree1_lower_body_strafe_blend_position
         );
 
-        entity_updates_component.updates.insert(
-            "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/JoggingStrafe/BlendSpace2D/blend_position".to_string(),
-            animation_tree1_upper_body_jogging_strafe_blend_position
-        );
+        if update_upper_body {
+            entity_updates_component.updates.insert(
+                upper_body_strafe_blendspace2d_path,
+                animation_tree1_upper_body_strafe_blend_position
+            );
+        }
+        
         
 
         match showcase_component_option {
