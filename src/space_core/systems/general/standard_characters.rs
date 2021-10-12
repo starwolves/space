@@ -297,7 +297,7 @@ pub fn standard_characters(
                     weapon_entity: active_slot.slot_item,
                     position: Vec3::new(
                         rigid_body_position_component.position.translation.x, 
-                        1.0, 
+                        1.0,
                         rigid_body_position_component.position.translation.z,
                     ),
                     angle: angle,

@@ -59,7 +59,7 @@ pub enum UIInputAction {
 #[allow(dead_code)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum NetProjectileType {
-    Laser(Color, f32, f32, Vec3, Vec3),
+    Laser(Color, f32, Vec3, Vec3),
     Ballistic,
 }
 
