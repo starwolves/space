@@ -200,7 +200,7 @@ pub fn attack(
             },
             CombatType::Projectile(projectile_type) => {
                 match projectile_type {
-                    crate::space_core::components::inventory_item::ProjectileType::Laser(laser_color, laser_radius, laser_range) => {
+                    crate::space_core::components::inventory_item::ProjectileType::Laser(laser_color, laser_height, laser_radius, laser_range) => {
                         // Perform ray_cast and obtain start and stop position for this projectile all sensed_by netcode call.
                         // Setup hardcoded client-side laser emissive capsule laser DirectionalParticle with color, height, radius, start_pos, stop_pos.
 
@@ -391,6 +391,7 @@ pub fn attack(
                                                     handle: *handle,
                                                     message: ReliableServerMessage::FireProjectile(NetProjectileType::Laser(
                                                         *laser_color,
+                                                        *laser_height,
                                                         *laser_radius,
                                                         projectile_start_position - (direction_additive * 0.5),
                                                         hit_point,

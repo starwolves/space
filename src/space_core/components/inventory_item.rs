@@ -41,7 +41,7 @@ pub enum CombatType {
 #[allow(dead_code)]
 #[derive(Clone)]
 pub enum ProjectileType {
-    Laser(Color, f32, f32),
+    Laser(Color, f32, f32, f32),
     Ballistic,
 }
 
