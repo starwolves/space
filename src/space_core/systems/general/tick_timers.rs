@@ -1,6 +1,6 @@
-use bevy::{core::{Time, Timer}, prelude::{Commands, Entity, EventWriter, Query, Res, ResMut}};
+use bevy::{core::{Time, Timer}, prelude::{Commands, Entity, Query, Res, ResMut}};
 
-use crate::space_core::{components::{air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer, sensable::Sensable, sfx::Sfx}, events::net::net_unload_entity::NetUnloadEntity, resources::{handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
+use crate::space_core::{components::{air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer}, resources::{sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 pub fn tick_timers(
     time: Res<Time>, 
@@ -14,9 +14,6 @@ pub fn tick_timers(
     
     
     mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
-    mut sfx_entities : Query<(&Sfx, &mut Sensable)>,
-    handle_to_entity : Res<HandleToEntity>,
-    mut net_unload_entity : EventWriter<NetUnloadEntity>,
     mut commands : Commands
 ) {
     for mut timer in query_timer.iter_mut() {
@@ -43,12 +40,11 @@ pub fn tick_timers(
 
     let mut expired_sfx_entities : Vec<Entity> =  vec![];
 
-    for (sfx_entity, timer) in &mut sfx_auto_destroy_timers.timers {
+    for (sfx_entity, incremental) in &mut sfx_auto_destroy_timers.timers {
 
-        if timer.tick(time.delta()).just_finished() {
-
+        *incremental+=1;
+        if incremental >= &mut 2 {
             expired_sfx_entities.push(*sfx_entity);
-
         }
 
     }
@@ -66,8 +62,6 @@ pub fn tick_timers(
         }
 
         sfx_auto_destroy_timers.timers.remove(j);
-
-        sfx_entities.get_mut(this_entity_id).unwrap().1.despawn(this_entity_id, &mut net_unload_entity, &handle_to_entity);
 
         commands.entity(this_entity_id).despawn();
 
