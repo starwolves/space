@@ -1,7 +1,7 @@
 use bevy::prelude::{EventReader, ResMut, warn};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::events::net::{net_attack::NetAttack, net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_examine_entity::NetExamineEntity, net_health_update::NetHealthUpdate, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_send_entity_updates::NetSendEntityUpdates, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_takeoff_item::NetTakeOffItem, net_ui_input_transmit_data::NetUIInputTransmitData, net_unload_entity::NetUnloadEntity, net_user_name::NetUserName, net_wear_item::NetWearItem};
+use crate::space_core::events::net::{net_projectile_fov::NetProjectileFOV, net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_examine_entity::NetExamineEntity, net_health_update::NetHealthUpdate, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_send_entity_updates::NetSendEntityUpdates, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_takeoff_item::NetTakeOffItem, net_ui_input_transmit_data::NetUIInputTransmitData, net_unload_entity::NetUnloadEntity, net_user_name::NetUserName, net_wear_item::NetWearItem};
 
 
 pub fn net_send_message_event(
@@ -30,7 +30,7 @@ pub fn net_send_message_event(
         EventReader<NetUIInputTransmitData>,
         EventReader<NetHealthUpdate>,
         EventReader<NetExamineEntity>,
-        EventReader<NetAttack>,
+        EventReader<NetProjectileFOV>,
     )
 ) {
 
@@ -62,7 +62,7 @@ pub fn net_send_message_event(
         mut net_ui_input_transmit_data,
         mut net_health_update,
         mut net_examine_entity,
-        mut net_attack,
+        mut net_projectile_fov,
     )
     = tuple1;
 
@@ -408,7 +408,7 @@ pub fn net_send_message_event(
 
     }
 
-    for new_event in net_attack.iter() {
+    for new_event in net_projectile_fov.iter() {
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {

@@ -1,7 +1,7 @@
 use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform, warn}};
 use bevy_rapier3d::prelude::{ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray, RigidBodyPosition};
 
-use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}}, events::{general::attack::Attack, net::{net_attack::NetAttack, net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::cell_id_to_world}}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType, ReliableServerMessage}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
+use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}}, events::{general::{attack::Attack, projectile_fov::ProjectileFOV}, net::{net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::cell_id_to_world}}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 use bevy_rapier3d::physics::IntoEntity;
 
@@ -28,7 +28,7 @@ pub fn attack(
     handle_to_entity: Res<HandleToEntity>,
     mut commands : Commands,
     mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
-    mut net_attack : EventWriter<NetAttack>,
+    mut projectile_fov : EventWriter<ProjectileFOV>,
 
 ) {
 
@@ -386,7 +386,7 @@ pub fn attack(
                                         crate::space_core::components::health::HitResult::Missed => {},
                                     }
 
-                                    for entity in attack_event.attacker_sensed_by.iter() {
+                                    /*for entity in attack_event.attacker_sensed_by.iter() {
                                         match handle_to_entity.inv_map.get(entity) {
                                             Some(handle) => {
                                                 net_attack.send(NetAttack {
@@ -402,7 +402,17 @@ pub fn attack(
                                             },
                                             None => {},
                                         }
-                                    }
+                                    }*/
+
+                                    projectile_fov.send(ProjectileFOV {
+                                        laser_projectile: NetProjectileType::Laser(
+                                            *laser_color,
+                                            *laser_height,
+                                            *laser_radius,
+                                            projectile_start_position - (direction_additive * 0.5),
+                                            hit_point,
+                                        ),
+                                    });
 
 
 
