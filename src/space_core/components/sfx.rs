@@ -1,4 +1,4 @@
-use bevy::{core::Timer, prelude::{Entity, ResMut}};
+use bevy::{prelude::{Entity, ResMut}};
 use rand::Rng;
 
 use crate::space_core::resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers;
@@ -29,9 +29,9 @@ pub struct Sfx {
     pub play_back_duration : f32
 }
 
-pub fn sfx_auto_destroy(entity : Entity, sfx_auto_destroy_timers : &mut ResMut<SfxAutoDestroyTimers>, play_back_duration : f32) {
+pub fn sfx_auto_destroy(entity : Entity, sfx_auto_destroy_timers : &mut ResMut<SfxAutoDestroyTimers>) {
 
-    sfx_auto_destroy_timers.timers.push((entity, Timer::from_seconds(play_back_duration, false)));
+    sfx_auto_destroy_timers.timers.push((entity, 0));
 
 }
 

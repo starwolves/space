@@ -3,7 +3,7 @@
 use bevy::{prelude::{Commands, Entity, EventReader, Query, ResMut}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{bundles::{air_lock_closed_sfx::{AirLockClosedSfxBundle, PLAY_BACK_DURATION as CLOSED_PLAY_BACK_DURATION}, air_lock_denied_sfx::{AirLockDeniedSfxBundle, PLAY_BACK_DURATION as DENIED_PLAY_BACK_DURATION}, air_lock_open_sfx::{AirLockOpenSfxBundle, PLAY_BACK_DURATION as OPEN_PLAY_BACK_DURATION}}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, entity_data::{EntityGroup}, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::air_lock_collision::AirLockCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
+use crate::space_core::{bundles::{air_lock_closed_sfx::{AirLockClosedSfxBundle}, air_lock_denied_sfx::{AirLockDeniedSfxBundle}, air_lock_open_sfx::{AirLockOpenSfxBundle}}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, entity_data::{EntityGroup}, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::air_lock_collision::AirLockCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
 
 pub fn air_lock_events(
     mut air_lock_collisions : EventReader<AirLockCollision>,
@@ -64,7 +64,7 @@ pub fn air_lock_events(
                     air_lock_component.access_lights = AccessLightsStatus::Neutral;
 
                     let sfx_entity = commands.spawn().insert_bundle(AirLockClosedSfxBundle::new(static_transform_component.transform)).id();
-                    sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,CLOSED_PLAY_BACK_DURATION);
+                    sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers);
                     
 
                 }
@@ -172,7 +172,7 @@ pub fn air_lock_events(
             commands.entity(air_lock_entity).insert(AirLockOpenTimer::default());
 
             let sfx_entity = commands.spawn().insert_bundle(AirLockOpenSfxBundle::new(air_lock_static_transform_component.transform)).id();
-            sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,OPEN_PLAY_BACK_DURATION);
+            sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers);
 
         } else {
             air_lock_component.access_lights = AccessLightsStatus::Denied;
@@ -180,7 +180,7 @@ pub fn air_lock_events(
             commands.entity(air_lock_entity).insert(AirLockDeniedTimer::default());
 
             let sfx_entity = commands.spawn().insert_bundle(AirLockDeniedSfxBundle::new(air_lock_static_transform_component.transform)).id();
-            sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers,DENIED_PLAY_BACK_DURATION);
+            sfx_auto_destroy(sfx_entity,&mut auto_destroy_timers);
 
         }
 

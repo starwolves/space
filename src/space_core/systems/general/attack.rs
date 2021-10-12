@@ -193,7 +193,7 @@ pub fn attack(
                         attack_event.combat_sound_set.spawn_hit_blocked(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
                     },
                     crate::space_core::components::health::HitResult::Missed => {
-                        attack_event.combat_sound_set.spawn_miss_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
+                        attack_event.combat_sound_set.spawn_default_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
                     },
                 }
 
@@ -203,6 +203,8 @@ pub fn attack(
                     crate::space_core::components::inventory_item::ProjectileType::Laser(laser_color, laser_height, laser_radius, laser_range) => {
                         // Perform ray_cast and obtain start and stop position for this projectile all sensed_by netcode call.
                         // Setup hardcoded client-side laser emissive capsule laser DirectionalParticle with color, height, radius, start_pos, stop_pos.
+
+                        attack_event.combat_sound_set.spawn_default_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
 
                         let collider_groups = get_bit_masks(ColliderGroup::Standard);
                         let interaction_groups = InteractionGroups::new(collider_groups.0,collider_groups.1);
@@ -226,7 +228,7 @@ pub fn attack(
                                 -
                                 additive,
                                 Quat::from_rotation_y(attack_event.angle)).into(),
-                            &Cuboid::new(Vec3::new(*laser_range, 0.1, 0.1).into()),
+                            &Cuboid::new(Vec3::new(*laser_range, 0.1, 0.6).into()),
                             interaction_groups,
                             None, 
                             |collider_handle| {
@@ -402,7 +404,7 @@ pub fn attack(
                                         }
                                     }
 
-                                    
+
 
                                 } else {
                                     warn!("Exclusive collider_handle projectile ray_intersect had no results.");
