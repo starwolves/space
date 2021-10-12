@@ -21,3 +21,4 @@ pub mod input_select_body_part;
 pub mod input_toggle_auto_move;
 pub mod input_user_name;
 pub mod attack;
+pub mod projectile_fov;
