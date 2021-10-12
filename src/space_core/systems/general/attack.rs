@@ -392,7 +392,7 @@ pub fn attack(
                                                     message: ReliableServerMessage::FireProjectile(NetProjectileType::Laser(
                                                         *laser_color,
                                                         *laser_radius,
-                                                        projectile_start_position - (additive * 0.5),
+                                                        projectile_start_position - (direction_additive * 0.5),
                                                         hit_point,
                                                     )),
                                                 });
