@@ -243,8 +243,9 @@ fn spawn(
                 ..Default::default()
             },
             combat_projectile_damage_model : None,
-            combat_sound_set: CombatSoundSet::default(),
+            combat_melee_sound_set: CombatSoundSet::default(),
             combat_standard_animation : CombatStandardAnimation::StandardStance,
+            combat_projectile_sound_set: None,
         },
         DefaultTransform {
             transform: default_transform,

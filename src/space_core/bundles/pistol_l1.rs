@@ -248,8 +248,9 @@ Vec3::new(0.,0.355, 0.)
                 damage_flags: projectile_damage_flags,
                 ..Default::default()
             }),
-            combat_sound_set: CombatSoundSet::default(),
+            combat_melee_sound_set: CombatSoundSet::default(),
             combat_standard_animation : CombatStandardAnimation::PistolStance,
+            combat_projectile_sound_set: Some(CombatSoundSet::default_laser_projectiles()),
         },
         DefaultTransform {
             transform: default_transform,
