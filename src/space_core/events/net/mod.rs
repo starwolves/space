@@ -19,3 +19,4 @@ pub mod net_user_name;
 pub mod net_ui_input_transmit_data;
 pub mod net_health_update;
 pub mod net_examine_entity;
+pub mod net_attack;
