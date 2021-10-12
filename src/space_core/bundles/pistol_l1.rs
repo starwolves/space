@@ -237,7 +237,7 @@ Vec3::new(0.,0.355, 0.)
             slot_type: SlotType::Generic,
             is_attached_when_worn : true,
             combat_attack_animation : CombatAttackAnimation::PistolShot,
-            combat_type: CombatType::Projectile(ProjectileType::Laser(Color::RED, 0.025, PISTOL_L1_PROJECTILE_RANGE)),
+            combat_type: CombatType::Projectile(ProjectileType::Laser(Color::RED, 3., 0.025, PISTOL_L1_PROJECTILE_RANGE)),
             combat_melee_damage_model : DamageModel {
                 brute: 9.,
                 damage_flags: melee_damage_flags,
