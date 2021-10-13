@@ -292,8 +292,6 @@ pub fn attack(
                                     Err(_rr) => {},
                                 }
                                 
-                                
-                                
 
                                 true
                             }
@@ -386,24 +384,6 @@ pub fn attack(
                                         crate::space_core::components::health::HitResult::Missed => {},
                                     }
 
-                                    /*for entity in attack_event.attacker_sensed_by.iter() {
-                                        match handle_to_entity.inv_map.get(entity) {
-                                            Some(handle) => {
-                                                net_attack.send(NetAttack {
-                                                    handle: *handle,
-                                                    message: ReliableServerMessage::FireProjectile(NetProjectileType::Laser(
-                                                        *laser_color,
-                                                        *laser_height,
-                                                        *laser_radius,
-                                                        projectile_start_position - (direction_additive * 0.5),
-                                                        hit_point,
-                                                    )),
-                                                });
-                                            },
-                                            None => {},
-                                        }
-                                    }*/
-
                                     projectile_fov.send(ProjectileFOV {
                                         laser_projectile: NetProjectileType::Laser(
                                             *laser_color,
@@ -423,9 +403,6 @@ pub fn attack(
                             },
                             None => {},
                         }
-
-                    
-                        
                         
 
                     },
