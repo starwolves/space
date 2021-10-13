@@ -3,7 +3,7 @@ use bevy::{prelude::{Entity, EventWriter, FromWorld, Query, Res, World}};
 use rand::prelude::SliceRandom;
 use serde::{Deserialize};
 
-use crate::space_core::{components::{health::{DamageModel, DamageType, HealthFlag, HitResult, MELEE_STRIKE_WORDS, calculate_damage}, inventory_item::HitSoundSurface, senser::Senser}, events::net::net_chat_message::NetChatMessage};
+use crate::space_core::{components::{health::{DamageModel, DamageType, HealthFlag, HitResult, calculate_damage}, inventory_item::HitSoundSurface, senser::Senser}, events::net::net_chat_message::NetChatMessage};
 
 use super::{doryen_fov::{Vec3Int, to_doryen_coordinates}, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage};
 
@@ -62,6 +62,9 @@ impl StructureHealth {
         cell_name : &str,
         _damage_type : &DamageType,
         weapon_name : &str,
+        weapon_a_name : &str,
+        offense_words : &Vec<String>,
+        trigger_words : &Vec<String>,
     ) -> HitResult {
 
         let (
@@ -88,7 +91,7 @@ impl StructureHealth {
 
             let mut message = "".to_string();
 
-            let strike_word = MELEE_STRIKE_WORDS.choose(&mut rand::thread_rng()).unwrap();
+            let strike_word = offense_words.choose(&mut rand::thread_rng()).unwrap();
 
             let attacker_is_visible;
 
@@ -107,11 +110,12 @@ impl StructureHealth {
             }
 
             if attacker_is_visible && attacked_is_visible {
-                message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + cell_name + " with " + weapon_name + "![/color]";
+                message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + cell_name + " with " + weapon_a_name + "![/color]";
             } else if attacker_is_visible && !attacked_is_visible {
-                message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " his " + weapon_name + "![/color]";
+                let trigger_word = trigger_words.choose(&mut rand::thread_rng()).unwrap();
+                message = "[color=#ff003c]".to_string() + attacker_name + " has " + trigger_word + " his " + weapon_name + "![/color]";
             } else if !attacker_is_visible && attacked_is_visible {
-                message = "[color=#ff003c]".to_string() + cell_name + " has been " + strike_word + " with " + weapon_name + "![/color]";
+                message = "[color=#ff003c]".to_string() + cell_name + " has been " + strike_word + " with " + weapon_a_name + "![/color]";
             }
 
             match handle_to_entity.inv_map.get(&entity) {

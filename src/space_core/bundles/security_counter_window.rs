@@ -78,7 +78,8 @@ impl SecurityCounterWindowBundle {
             },
             EntityUpdates::default(),
             Examinable {
-                name: "a security counter window".to_string(),
+                a_name: "a security counter window".to_string(),
+                name : "security counter window".to_string(),
                 assigned_texts: examine_map,
                 ..Default::default()
             },

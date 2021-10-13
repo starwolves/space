@@ -10,6 +10,7 @@ pub struct Attack {
     pub attacker_name : String,
     pub weapon_entity : Option<Entity>,
     pub weapon_name : String,
+    pub weapon_a_name : String,
     pub targetted_limb : String,
     pub attacker_position : Vec3,
     pub angle : f32,
@@ -17,5 +18,6 @@ pub struct Attack {
     pub range : f32,
     pub combat_type : CombatType,
     pub combat_sound_set : CombatSoundSet,
-
+    pub offense_words : Vec<String>,
+    pub trigger_words : Vec<String>,
 }

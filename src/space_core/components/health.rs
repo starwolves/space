@@ -14,13 +14,6 @@ pub struct Health {
     pub hit_sound_surface : HitSoundSurface,
 }
 
-
-pub const MELEE_STRIKE_WORDS : [&str; 3] = [
-    "hit",
-    "struck",
-    "striked"
-];
-
 #[allow(dead_code)]
 #[derive(PartialEq, Clone)]
 pub enum HealthFlag {
@@ -178,6 +171,9 @@ impl Health {
         entity_name : &str,
         _damage_type : &DamageType,
         weapon_name : &str,
+        weapon_a_name : &str,
+        offense_words : &Vec<String>,
+        trigger_words : &Vec<String>,
     ) -> HitResult {
 
         let (
@@ -203,7 +199,7 @@ impl Health {
 
                     let mut message = "".to_string();
 
-                    let strike_word = MELEE_STRIKE_WORDS.choose(&mut rand::thread_rng()).unwrap();
+                    let strike_word = offense_words.choose(&mut rand::thread_rng()).unwrap();
 
                     let attacker_is_visible;
 
@@ -230,7 +226,7 @@ impl Health {
                             humanoid_health.head_burn+=burn_damage;
                             humanoid_health.head_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the head with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the head with " + weapon_a_name + "![/color]";
     
                         
                         } else if body_part == "torso" {
@@ -238,34 +234,34 @@ impl Health {
                             humanoid_health.torso_burn+=burn_damage;
                             humanoid_health.torso_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the torso with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the torso with " + weapon_a_name + "![/color]";
     
                         } else if body_part == "right_arm" {
                             humanoid_health.right_arm_brute+=brute_damage;
                             humanoid_health.right_arm_burn+=burn_damage;
                             humanoid_health.right_arm_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the right arm with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the right arm with " + weapon_a_name + "![/color]";
                         } else if body_part == "left_arm" {
                             humanoid_health.left_arm_brute+=brute_damage;
                             humanoid_health.left_arm_burn+=burn_damage;
                             humanoid_health.left_arm_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the left arm with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the left arm with " + weapon_a_name + "![/color]";
     
                         } else if body_part == "right_leg" {
                             humanoid_health.right_leg_brute+=brute_damage;
                             humanoid_health.right_leg_burn+=burn_damage;
                             humanoid_health.right_leg_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the right leg with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the right leg with " + weapon_a_name + "![/color]";
     
                         } else if body_part == "left_leg" {
                             humanoid_health.left_leg_brute+=brute_damage;
                             humanoid_health.left_leg_burn+=burn_damage;
                             humanoid_health.left_leg_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the left leg with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " in the left leg with " + weapon_a_name + "![/color]";
     
                         }
 
@@ -273,7 +269,8 @@ impl Health {
 
                     } else if attacker_is_visible && !attacked_is_visible {
                         send_message=true;
-                        message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " his " + weapon_name + "![/color]";
+                        let trigger_word = trigger_words.choose(&mut rand::thread_rng()).unwrap();
+                        message = "[color=#ff003c]".to_string() + attacker_name + " has " + trigger_word + " his " + weapon_name + "![/color]";
                     } else if !attacker_is_visible && attacked_is_visible {
                         send_message=true;
                         if body_part == "head" {
@@ -281,7 +278,7 @@ impl Health {
                             humanoid_health.head_burn+=burn_damage;
                             humanoid_health.head_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the head with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the head with " + weapon_a_name + "![/color]";
     
                         
                         } else if body_part == "torso" {
@@ -289,34 +286,34 @@ impl Health {
                             humanoid_health.torso_burn+=burn_damage;
                             humanoid_health.torso_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the torso with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the torso with " + weapon_a_name + "![/color]";
     
                         } else if body_part == "right_arm" {
                             humanoid_health.right_arm_brute+=brute_damage;
                             humanoid_health.right_arm_burn+=burn_damage;
                             humanoid_health.right_arm_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the right arm with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the right arm with " + weapon_a_name + "![/color]";
                         } else if body_part == "left_arm" {
                             humanoid_health.left_arm_brute+=brute_damage;
                             humanoid_health.left_arm_burn+=burn_damage;
                             humanoid_health.left_arm_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the left arm with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the left arm with " + weapon_a_name + "![/color]";
     
                         } else if body_part == "right_leg" {
                             humanoid_health.right_leg_brute+=brute_damage;
                             humanoid_health.right_leg_burn+=burn_damage;
                             humanoid_health.right_leg_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the right leg with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the right leg with " + weapon_a_name + "![/color]";
     
                         } else if body_part == "left_leg" {
                             humanoid_health.left_leg_brute+=brute_damage;
                             humanoid_health.left_leg_burn+=burn_damage;
                             humanoid_health.left_leg_toxin+=toxin_damage;
     
-                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the left leg with " + weapon_name + "![/color]";
+                            message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " in the left leg with " + weapon_a_name + "![/color]";
     
                         }
                     }
@@ -347,7 +344,7 @@ impl Health {
 
                     let mut message = "".to_string();
 
-                    let strike_word = MELEE_STRIKE_WORDS.choose(&mut rand::thread_rng()).unwrap();
+                    let strike_word = offense_words.choose(&mut rand::thread_rng()).unwrap();
 
                     let attacker_is_visible;
 
@@ -366,11 +363,12 @@ impl Health {
                     }
 
                     if attacker_is_visible && attacked_is_visible {
-                        message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " with " + weapon_name + "![/color]";
+                        message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + entity_name + " with " + weapon_a_name + "![/color]";
                     } else if attacker_is_visible && !attacked_is_visible {
-                        message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " his " + weapon_name + "![/color]";
+                        let trigger_word = trigger_words.choose(&mut rand::thread_rng()).unwrap();
+                        message = "[color=#ff003c]".to_string() + attacker_name + " has " + trigger_word + " his " + weapon_a_name + "![/color]";
                     } else if !attacker_is_visible && attacked_is_visible {
-                        message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " with " + weapon_name + "![/color]";
+                        message = "[color=#ff003c]".to_string() + entity_name + " has been " + strike_word + " with " + weapon_a_name + "![/color]";
                     }
 
                     match handle_to_entity.inv_map.get(&entity) {

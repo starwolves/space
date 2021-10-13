@@ -62,7 +62,8 @@ impl SecurityAirlockBundle {
             },
             EntityUpdates::default(),
             Examinable {
-                name : "a security airlock".to_string(),
+                a_name : "a security airlock".to_string(),
+                name : "security airlock".to_string(),
                 assigned_texts: examine_map,
                 ..Default::default()
             },

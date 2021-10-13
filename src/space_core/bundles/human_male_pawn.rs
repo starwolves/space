@@ -246,7 +246,8 @@ impl HumanMalePawnBundle {
 
 
         let examinable_component = Examinable {
-            name: "a male human".to_string(),
+            a_name: character_name.clone(),
+            name: character_name.clone(),
             ..Default::default()
         };
 
@@ -467,15 +468,15 @@ pub fn generate_human_examine_text(
                         .expect("inventory_update.rs::generate_human_examine_text couldn't find inventory_item_component of an item from passed inventory.");
 
                         if slot.slot_name == "left_hand"  {
-                            examine_text = examine_text + "He is holding " + &examinable.name + " in his left hand.\n";
+                            examine_text = examine_text + "He is holding " + &examinable.a_name + " in his left hand.\n";
                         } else if slot.slot_name == "right_hand" {
-                            examine_text = examine_text + "He is holding " + &examinable.name + " in his right hand.\n";
+                            examine_text = examine_text + "He is holding " + &examinable.a_name + " in his right hand.\n";
                         } else if slot.slot_name == "helmet" {
-                            examine_text = examine_text + "He is wearing " + &examinable.name + " on his head.\n";
+                            examine_text = examine_text + "He is wearing " + &examinable.a_name + " on his head.\n";
                         } else if slot.slot_name == "jumpsuit" {
-                            examine_text = examine_text + "He is wearing " + &examinable.name + " on his body.\n";
+                            examine_text = examine_text + "He is wearing " + &examinable.a_name + " on his body.\n";
                         } else {
-                            examine_text = examine_text + "He is wearing " + &examinable.name + ".\n";
+                            examine_text = examine_text + "He is wearing " + &examinable.a_name + ".\n";
                         }
 
                     },
