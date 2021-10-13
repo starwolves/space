@@ -1,13 +1,15 @@
 use std::collections::HashMap;
 
-use bevy::{math::Vec3, prelude::{EventReader, EventWriter, Query}};
+use bevy::{math::Vec3, prelude::{EventReader, EventWriter, Query, Res}};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, senser::Senser}, events::{general::projectile_fov::ProjectileFOV, net::net_projectile_fov::NetProjectileFOV}, functions::gridmap::gridmap_functions::world_to_cell_id, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, network_messages::{NetProjectileType, ReliableServerMessage}}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, senser::Senser}, events::{general::projectile_fov::ProjectileFOV, net::net_projectile_fov::NetProjectileFOV}, functions::gridmap::gridmap_functions::world_to_cell_id, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, gridmap_main::GridmapMain, network_messages::{NetProjectileType, ReliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList}};
 
 pub fn projectile_fov(
     mut projectile_fov_events : EventReader<ProjectileFOV>,
     sensers : Query<(&Senser, &ConnectedPlayer)>,
     mut net_projectile_fov : EventWriter<NetProjectileFOV>,
+    gridmap_main : Res<GridmapMain>,
+    non_blocking_cells_list : Res<NonBlockingCellsList>,
 ) {
 
     let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3)>> = HashMap::new();
@@ -108,7 +110,23 @@ pub fn projectile_fov(
                             let cell_id = world_to_cell_id(new_point);
                             let coords = to_doryen_coordinates(cell_id.x, cell_id.z);
 
-                            match senser_component.fov.is_in_fov(coords.0, coords.1) {
+                            let cell_is_blocked;
+
+                            match gridmap_main.data.get(&cell_id) {
+                                Some(cell_data) => {
+                                    if non_blocking_cells_list.list.contains(&cell_data.item) {
+                                        cell_is_blocked=false;
+                                    } else {
+                                        cell_is_blocked=true;
+                                    }
+                                },
+                                None => {
+                                    cell_is_blocked=false;
+                                },
+                            }
+                            
+
+                            match !cell_is_blocked && senser_component.fov.is_in_fov(coords.0, coords.1) {
                                 true => {
                                     if negative_distance {
                                         adjusted_end_pos = new_point;
