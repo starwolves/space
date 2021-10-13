@@ -3,7 +3,7 @@ use std::{f32::consts::PI};
 use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
 
@@ -24,7 +24,7 @@ pub fn standard_characters(
         &mut Pawn,
         &Inventory,
     )>,
-    inventory_items_query : Query<&InventoryItem>,
+    inventory_items_query : Query<(&InventoryItem, &Examinable)>,
     mut footsteps_query : Query<(
         Option<&FootstepsWalking>,
         Option<&FootstepsSprinting>,
@@ -182,11 +182,15 @@ pub fn standard_characters(
 
             let mut inventory_item_component_option = None;
 
+            let mut inventory_item_slot_name = "his fists".to_string();
+
             match active_slot.slot_item {
                 Some(item_entity) => {
                     match inventory_items_query.get(item_entity) {
-                        Ok(item_component) => {
+                        Ok((item_component, examinable_component)) => {
                             inventory_item_component_option = Some(item_component);
+                            inventory_item_slot_name = examinable_component.name.clone();
+
                             match item_component.combat_standard_animation {
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::StandardStance => {},
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
@@ -297,7 +301,8 @@ pub fn standard_characters(
                 attack_event_writer.send(Attack {
                     attacker_entity: standard_character_entity,
                     weapon_entity: active_slot.slot_item,
-                    position: Vec3::new(
+                    weapon_name : inventory_item_slot_name,
+                    attacker_position: Vec3::new(
                         rigid_body_position_component.position.translation.x, 
                         1.0,
                         rigid_body_position_component.position.translation.z,

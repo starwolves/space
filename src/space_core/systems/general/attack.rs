@@ -1,7 +1,7 @@
 use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform, warn}};
 use bevy_rapier3d::prelude::{ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray, RigidBodyPosition};
 
-use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}}, events::{general::{attack::Attack, projectile_fov::ProjectileFOV}, net::{net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::cell_id_to_world}}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
+use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}, senser::Senser}, events::{general::{attack::Attack, projectile_fov::ProjectileFOV}, net::{net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::{cell_id_to_world, world_to_cell_id}}}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 use bevy_rapier3d::physics::IntoEntity;
 
@@ -29,6 +29,7 @@ pub fn attack(
     mut commands : Commands,
     mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
     mut projectile_fov : EventWriter<ProjectileFOV>,
+    sensers : Query<(Entity, &Senser)>,
 
 ) {
 
@@ -40,7 +41,9 @@ pub fn attack(
             attack_event.angle.sin(),
         );
 
-        let mut sound_transform = Transform{ translation: attack_event.position, rotation: Quat::IDENTITY, scale: Vec3::ONE };
+        let attacker_cell_id = world_to_cell_id(attack_event.attacker_position);
+
+        let mut sound_transform = Transform{ translation: attack_event.attacker_position, rotation: Quat::IDENTITY, scale: Vec3::ONE };
 
         match &attack_event.combat_type {
             CombatType::MeleeDirect => {
@@ -56,9 +59,9 @@ pub fn attack(
                     &QueryPipelineColliderComponentsSet(&collider_query),
                     &(
                         Vec3::new(
-                            attack_event.position.x, 
+                            attack_event.attacker_position.x, 
                             1.0, 
-                            attack_event.position.z,
+                            attack_event.attacker_position.z,
                         )
                         -
                         additive,
@@ -96,7 +99,7 @@ pub fn attack(
                                 hit_entities.push(AttackResult{
                                     entity_option: Some(collider_entity),
                                     cell_id_option: None,
-                                    distance: attack_event.position.distance(position),
+                                    distance: attack_event.attacker_position.distance(position),
                                     rigid_body_position : position,
                                     collider_handle,
                                 });
@@ -112,7 +115,7 @@ pub fn attack(
                                 hit_entities.push(AttackResult{
                                     entity_option: None,
                                     cell_id_option: Some(cell_component.id),
-                                    distance: attack_event.position.distance(
+                                    distance: attack_event.attacker_position.distance(
                                         position
                                     ),
                                     rigid_body_position : position,
@@ -139,20 +142,23 @@ pub fn attack(
                             Some(collider_entity) => {
 
                                 match rigidbody_query.get_mut(collider_entity) {
-                                    Ok((mut health_component, examinable_component, _rigid_body_position_component)) => {
+                                    Ok((mut health_component, examinable_component, rigid_body_position_component)) => {
         
-        
+                                        
+                                        let attacked_cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+
                                         hit_result = health_component.apply_damage(
                                             &attack_event.targetted_limb, 
                                             &attack_event.damage_model,
                                             &mut net_message_event,
                                                 &handle_to_entity,
-                                                &attack_event.attacker_sensed_by,
-                                            &attack_event.attacker_sensed_by_cached,
-                                            attack_event.position.into(),
+                                                &attacker_cell_id,
+                                                &attacked_cell_id,
+                                                            &sensers,
                                                 &attack_event.attacker_name,
                                                 &examinable_component.name,
                                                 &DamageType::Melee,
+                                                &attack_event.weapon_name,
                                         );
         
                                     },
@@ -162,20 +168,21 @@ pub fn attack(
                             },
                             None => {
 
-                                let cell_id = attack_result.cell_id_option.unwrap();
-                                let cell_data = world_cells.data.get_mut(&cell_id).unwrap();
+                                let attacked_cell_id = attack_result.cell_id_option.unwrap();
+                                let cell_data = world_cells.data.get_mut(&attacked_cell_id).unwrap();
 
                                 hit_result = cell_data.health.apply_damage(
                             &attack_event.targetted_limb, 
                             &attack_event.damage_model,
                                     &mut net_message_event,
                                     &handle_to_entity,
-                                    &attack_event.attacker_sensed_by,
-                                    &attack_event.attacker_sensed_by_cached,
-                    attack_event.position.into(),
+                                    &attacker_cell_id,
+                                    &attacked_cell_id,
+                                    &sensers,
                                     &attack_event.attacker_name,
                                     &get_cell_name(cell_data),
                                     &DamageType::Melee,
+                                    &attack_event.weapon_name,
                                 );
 
                             },
@@ -210,9 +217,9 @@ pub fn attack(
                         let interaction_groups = InteractionGroups::new(collider_groups.0,collider_groups.1);
 
                         let projectile_start_position = Vec3::new(
-                            attack_event.position.x, 
+                            attack_event.attacker_position.x, 
                             PROJECTILE_WEAPON_HEIGHT,
-                            attack_event.position.z,
+                            attack_event.attacker_position.z,
                         );
 
                         let additive = direction_additive * *laser_range;
@@ -259,7 +266,7 @@ pub fn attack(
                                         hit_entities.push(AttackResult{
                                             entity_option: Some(collider_entity),
                                             cell_id_option: None,
-                                            distance: attack_event.position.distance(
+                                            distance: attack_event.attacker_position.distance(
                                                 position
                                             ),
                                             rigid_body_position: position,
@@ -280,7 +287,7 @@ pub fn attack(
                                         hit_entities.push(AttackResult{
                                             entity_option: None,
                                             cell_id_option: Some(cell_component.id),
-                                            distance: attack_event.position.distance(
+                                            distance: attack_event.attacker_position.distance(
                                                 position
                                             ),
                                             rigid_body_position: position,
@@ -333,19 +340,22 @@ pub fn attack(
                                         Some(collider_entity) => {
             
                                             match rigidbody_query.get_mut(collider_entity) {
-                                                Ok((mut health_component,examinable_component,_rigid_body_position_component)) => {
-            
+                                                Ok((mut health_component,examinable_component,rigid_body_position_component)) => {
+                                                    
+                                                    let attacked_cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+
                                                     hit_result = health_component.apply_damage(
                                                         &attack_event.targetted_limb, 
                                                         &attack_event.damage_model,
                                                         &mut net_message_event,
                                                             &handle_to_entity,
-                                                            &attack_event.attacker_sensed_by,
-                                                        &attack_event.attacker_sensed_by_cached,
-                                                        attack_event.position.into(),
+                                                            &attacker_cell_id,
+                                                            &attacked_cell_id,
+                                                            &sensers,
                                                             &attack_event.attacker_name,
                                                             &examinable_component.name,
                                                             &DamageType::Projectile,
+                                                            &attack_event.weapon_name,
                                                     );
             
                                                 },
@@ -355,20 +365,21 @@ pub fn attack(
                                         },
                                         None => {
             
-                                            let cell_id = attack_result.cell_id_option.unwrap();
-                                            let cell_data = world_cells.data.get_mut(&cell_id).unwrap();
+                                            let attacked_cell_id = attack_result.cell_id_option.unwrap();
+                                            let cell_data = world_cells.data.get_mut(&attacked_cell_id).unwrap();
             
                                             hit_result = cell_data.health.apply_damage(
                                                 &attack_event.targetted_limb, 
                                                 &attack_event.damage_model,
                                                 &mut net_message_event,
                                                     &handle_to_entity,
-                                                    &attack_event.attacker_sensed_by,
-                                                &attack_event.attacker_sensed_by_cached,
-                                                attack_event.position.into(),
+                                                    &attacker_cell_id,
+                                                    &attacked_cell_id,
+                                                    &sensers,
                                                     &attack_event.attacker_name,
                                                     &get_cell_name(cell_data),
                                                     &DamageType::Projectile,
+                                                    &attack_event.weapon_name,
                                             );
             
                                         },

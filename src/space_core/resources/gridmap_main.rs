@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use bevy::{math::Vec3, prelude::{Entity, EventWriter, FromWorld, Res, World}};
+use bevy::{prelude::{Entity, EventWriter, FromWorld, Query, Res, World}};
 use rand::prelude::SliceRandom;
 use serde::{Deserialize};
 
-use crate::space_core::{components::{health::{DamageModel, DamageType, HealthFlag, HitResult, MELEE_STRIKE_WORDS, calculate_damage}, inventory_item::HitSoundSurface}, events::net::net_chat_message::NetChatMessage, functions::entity::new_chat_message::{new_proximity_message}};
+use crate::space_core::{components::{health::{DamageModel, DamageType, HealthFlag, HitResult, MELEE_STRIKE_WORDS, calculate_damage}, inventory_item::HitSoundSurface, senser::Senser}, events::net::net_chat_message::NetChatMessage};
 
-use super::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity};
+use super::{doryen_fov::{Vec3Int, to_doryen_coordinates}, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage};
 
 
 pub struct GridmapMain {
@@ -55,12 +55,13 @@ impl StructureHealth {
         damage_model : &DamageModel,
         net_new_chat_message_event: &mut EventWriter<NetChatMessage>,
         handle_to_entity: &Res<HandleToEntity>, 
-        sensed_by: &Vec<Entity>, 
-        sensed_by_distance: &Vec<Entity>, 
-        position: Vec3,
+        attacker_cell_id: &Vec3Int,
+        attacked_cell_id : &Vec3Int,
+        sensers : &Query<(Entity, &Senser)>,
         attacker_name : &str,
         cell_name : &str,
         _damage_type : &DamageType,
+        weapon_name : &str,
     ) -> HitResult {
 
         let (
@@ -76,22 +77,54 @@ impl StructureHealth {
             &damage_model.toxin
         );
 
+        let attacker_cell_id_doryen = to_doryen_coordinates(attacker_cell_id.x, attacker_cell_id.z);
+        let attacked_cell_id_doryen = to_doryen_coordinates(attacked_cell_id.x, attacked_cell_id.z);
+
         self.brute+=brute_damage;
         self.burn+=burn_damage;
         self.toxin+=toxin_damage;
 
-        let strike_word = MELEE_STRIKE_WORDS.choose(&mut rand::thread_rng()).unwrap();
+        for (entity, senser) in sensers.iter() {
 
-        let message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + cell_name + "![/color]";
+            let mut message = "".to_string();
 
-        new_proximity_message(
-            net_new_chat_message_event,
-            handle_to_entity,
-            sensed_by,
-            sensed_by_distance,
-            position,
-            message,
-        );
+            let strike_word = MELEE_STRIKE_WORDS.choose(&mut rand::thread_rng()).unwrap();
+
+            let attacker_is_visible;
+
+            if senser.fov.is_in_fov(attacker_cell_id_doryen.0 as usize, attacker_cell_id_doryen.1 as usize) {
+                attacker_is_visible=true;
+            } else {
+                attacker_is_visible=false;
+            }
+
+            let attacked_is_visible;
+
+            if senser.fov.is_in_fov(attacked_cell_id_doryen.0 as usize, attacked_cell_id_doryen.1 as usize) {
+                attacked_is_visible=true;
+            } else {
+                attacked_is_visible=false;
+            }
+
+            if attacker_is_visible && attacked_is_visible {
+                message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + cell_name + " with " + weapon_name + "![/color]";
+            } else if attacker_is_visible && !attacked_is_visible {
+                message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " his " + weapon_name + "![/color]";
+            } else if !attacker_is_visible && attacked_is_visible {
+                message = "[color=#ff003c]".to_string() + cell_name + " has been " + strike_word + " with " + weapon_name + "![/color]";
+            }
+
+            match handle_to_entity.inv_map.get(&entity) {
+                Some(handle) => {
+                    net_new_chat_message_event.send(NetChatMessage {
+                        handle: *handle,
+                        message: ReliableServerMessage::ChatMessage(message.clone()),
+                    });
+                },
+                None => {},
+            }
+
+        }
 
         hit_result
 
