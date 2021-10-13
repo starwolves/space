@@ -183,12 +183,15 @@ pub fn standard_characters(
             let mut inventory_item_component_option = None;
 
             let mut inventory_item_slot_name = "his fists".to_string();
+            let mut inventory_item_slot_a_name = "his fists".to_string();
 
             match active_slot.slot_item {
                 Some(item_entity) => {
                     match inventory_items_query.get(item_entity) {
                         Ok((item_component, examinable_component)) => {
                             inventory_item_component_option = Some(item_component);
+                            
+                            inventory_item_slot_a_name = examinable_component.a_name.clone();
                             inventory_item_slot_name = examinable_component.name.clone();
 
                             match item_component.combat_standard_animation {
@@ -204,6 +207,9 @@ pub fn standard_characters(
                                     
                                 },
                             }
+
+                            
+
                         },
                         Err(_rr)=>{
                             warn!("Couldn't find inventory_item belonging to used inventory slot of attack.");
@@ -268,6 +274,10 @@ pub fn standard_characters(
                 let mut combat_damage_model = &standard_character_component.default_melee_damage_model;
                 let mut combat_sound_set = &standard_character_component.default_melee_sound_set;
                 
+
+                let offense_words;
+                let trigger_words;
+
                 match inventory_item_component_option {
                     Some(inventory_item_component) => {
                         combat_type = &inventory_item_component.combat_type;
@@ -275,15 +285,22 @@ pub fn standard_characters(
                             CombatType::MeleeDirect => {
                                 combat_damage_model = &inventory_item_component.combat_melee_damage_model;
                                 combat_sound_set = &inventory_item_component.combat_melee_sound_set;
+                                offense_words = inventory_item_component.combat_melee_text_set.clone();
+                                trigger_words = inventory_item_component.trigger_melee_text_set.clone();
                             },
                             CombatType::Projectile(_projecttile_type) => {
                                 combat_damage_model = &inventory_item_component.combat_projectile_damage_model.as_ref().unwrap();
                                 combat_sound_set = &inventory_item_component.combat_projectile_sound_set.as_ref().unwrap();
+                                offense_words = inventory_item_component.combat_projectile_text_set.as_ref().unwrap().clone();
+                                trigger_words = inventory_item_component.trigger_projectile_text_set.as_ref().unwrap().clone();
                             },
                         }
                         
                     },
-                    None => {},
+                    None => {
+                        offense_words = InventoryItem::get_default_fists_words();
+                        trigger_words = InventoryItem::get_default_trigger_fists_words();
+                    },
                 }
                     
                 
@@ -316,6 +333,9 @@ pub fn standard_characters(
                     combat_sound_set : combat_sound_set.clone(),
                     attacker_sensed_by : sensable_component.sensed_by.clone(),
                     attacker_sensed_by_cached: sensable_component.sensed_by_cached.clone(),
+                    weapon_a_name : inventory_item_slot_a_name,
+                    offense_words: offense_words,
+                    trigger_words : trigger_words,
                 });
 
                 

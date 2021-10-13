@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, HashMap};
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Color, Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatStandardAnimation, CombatType, InventoryItem, CombatSoundSet, ProjectileType}, pistol_l1::PistolL1, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::network_messages::{ReliableServerMessage}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::Examinable, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem, ProjectileType}, pistol_l1::PistolL1, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::network_messages::{ReliableServerMessage}};
 
 use super::helmet_security::STANDARD_BODY_FRICTION;
 
@@ -226,7 +226,8 @@ Vec3::new(0.,0.355, 0.)
         CachedBroadcastTransform::default(),
         Examinable {
             assigned_texts: examine_map,
-            name: "a laser pistol".to_string(),
+            a_name: "a laser pistol".to_string(),
+            name: "laser pistol".to_string(),
             ..Default::default()
         },
         PistolL1,
@@ -251,6 +252,10 @@ Vec3::new(0.,0.355, 0.)
             combat_melee_sound_set: CombatSoundSet::default(),
             combat_standard_animation : CombatStandardAnimation::PistolStance,
             combat_projectile_sound_set: Some(CombatSoundSet::default_laser_projectiles()),
+            combat_melee_text_set : InventoryItem::get_default_strike_words(),
+            combat_projectile_text_set : Some(InventoryItem::get_default_laser_words()),
+            trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
+            trigger_projectile_text_set: Some(InventoryItem::get_default_trigger_weapon_words()),
         },
         DefaultTransform {
             transform: default_transform,

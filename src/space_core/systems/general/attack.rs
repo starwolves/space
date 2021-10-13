@@ -156,9 +156,12 @@ pub fn attack(
                                                 &attacked_cell_id,
                                                             &sensers,
                                                 &attack_event.attacker_name,
-                                                &examinable_component.name,
+                                                &examinable_component.a_name,
                                                 &DamageType::Melee,
                                                 &attack_event.weapon_name,
+                                                &attack_event.weapon_a_name,
+                                                &attack_event.offense_words,
+                                                &attack_event.trigger_words,
                                         );
         
                                     },
@@ -183,6 +186,9 @@ pub fn attack(
                                     &get_cell_name(cell_data),
                                     &DamageType::Melee,
                                     &attack_event.weapon_name,
+                                    &attack_event.weapon_a_name,
+                                    &attack_event.offense_words,
+                                    &attack_event.trigger_words,
                                 );
 
                             },
@@ -353,9 +359,12 @@ pub fn attack(
                                                             &attacked_cell_id,
                                                             &sensers,
                                                             &attack_event.attacker_name,
-                                                            &examinable_component.name,
+                                                            &examinable_component.a_name,
                                                             &DamageType::Projectile,
                                                             &attack_event.weapon_name,
+                                                            &attack_event.weapon_a_name,
+                                                            &attack_event.offense_words,
+                                                            &attack_event.trigger_words,
                                                     );
             
                                                 },
@@ -380,6 +389,9 @@ pub fn attack(
                                                     &get_cell_name(cell_data),
                                                     &DamageType::Projectile,
                                                     &attack_event.weapon_name,
+                                                    &attack_event.weapon_a_name,
+                                                    &attack_event.offense_words,
+                                                    &attack_event.trigger_words,
                                             );
             
                                         },

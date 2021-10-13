@@ -21,6 +21,51 @@ pub struct InventoryItem {
     pub combat_projectile_damage_model: Option<DamageModel>,
     pub combat_melee_sound_set : CombatSoundSet,
     pub combat_projectile_sound_set : Option<CombatSoundSet>,
+    pub combat_melee_text_set : Vec<String>,
+    pub combat_projectile_text_set: Option<Vec<String>>,
+    pub trigger_melee_text_set : Vec<String>,
+    pub trigger_projectile_text_set : Option<Vec<String>>,
+}
+
+impl InventoryItem {
+    pub fn get_default_strike_words() -> Vec<String> {
+        vec![
+            "hit".to_string(),
+            "struck".to_string(),
+            "striked".to_string(),
+        ]
+    }
+    pub fn get_default_laser_words() -> Vec<String> {
+        vec![
+            "shot".to_string(),
+            "hit".to_string(),
+            "beamed".to_string(),
+        ]
+    }
+    pub fn get_default_trigger_weapon_words() -> Vec<String> {
+        vec![
+            "fired".to_string(),
+            "shot".to_string(),
+        ]
+    }
+    pub fn get_default_trigger_fists_words() -> Vec<String> {
+        vec![
+            "swung".to_string(),
+            "thrown".to_string(),
+        ]
+    }
+    pub fn get_default_trigger_melee_words() -> Vec<String> {
+        vec![
+            "swung".to_string(),
+        ]
+    }
+    pub fn get_default_fists_words() -> Vec<String> {
+        vec![
+            "punched".to_string(),
+            "hit".to_string(),
+            "swung at".to_string(),
+        ]
+    }
 }
 
 pub enum CombatStandardAnimation {
