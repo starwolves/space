@@ -136,6 +136,7 @@ impl HumanMalePawnBundle {
             },
             Health {
                 health_container :HealthContainer::Humanoid(HumanoidHealth::default()),
+                is_obstacle: true,
                 ..Default::default()
             }
         ));

@@ -12,9 +12,10 @@ struct AttackResult {
     distance: f32,
     rigid_body_position : Vec3,
     collider_handle : ColliderHandle,
+    is_obstacle : bool,
 }
 
-const PROJECTILE_WEAPON_HEIGHT : f32 = 1.6;
+const ATTACK_HEIGHT : f32 = 1.6;
 
 pub fn attack(
 
@@ -55,18 +56,33 @@ pub fn attack(
 
                 let mut hit_entities : Vec<AttackResult> = vec![];
 
+                let attack_height; 
+                let cast_vertical_extents;
+
+                if attack_event.weapon_entity.is_none() || !attack_event.targetted_entity.is_none() {
+
+                    attack_height = 1.;
+                    cast_vertical_extents = 1.;
+
+                } else {
+
+                    attack_height = ATTACK_HEIGHT;
+                    cast_vertical_extents = 0.1;
+
+                }
+
                 query_pipeline.intersections_with_shape(
                     &QueryPipelineColliderComponentsSet(&collider_query),
                     &(
                         Vec3::new(
                             attack_event.attacker_position.x, 
-                            1.0, 
+                            attack_height, 
                             attack_event.attacker_position.z,
                         )
                         -
                         additive,
                         Quat::from_rotation_y(attack_event.angle)).into(),
-                    &Cuboid::new(Vec3::new(attack_event.range, 1.0, 0.3).into()),
+                    &Cuboid::new(Vec3::new(attack_event.range, cast_vertical_extents, 0.3).into()),
                     interaction_groups,
                     None, 
                     |collider_handle| {
@@ -88,7 +104,7 @@ pub fn attack(
                         }
 
                         match rigidbody_query.get_mut(collider_entity) {
-                            Ok((mut _health_component, _examinable_component, rigid_body_position_component)) => {
+                            Ok((health_component, _examinable_component, rigid_body_position_component)) => {
 
                                 let position = Vec3::new(
                                     rigid_body_position_component.position.translation.x,
@@ -102,6 +118,7 @@ pub fn attack(
                                     distance: attack_event.attacker_position.distance(position),
                                     rigid_body_position : position,
                                     collider_handle,
+                                    is_obstacle: health_component.is_obstacle,
                                 });
                             },
                             Err(_rr) => {},
@@ -120,6 +137,7 @@ pub fn attack(
                                     ),
                                     rigid_body_position : position,
                                     collider_handle,
+                                    is_obstacle : true,
                                 });
                             },
                             Err(_rr) => {},
@@ -135,7 +153,34 @@ pub fn attack(
 
                 let mut hit_result =  HitResult::Missed;
 
-                match hit_entities.first() {
+                let mut hit_entity = None;
+
+                match attack_event.targetted_entity {
+                    Some(targetted_entity) => {
+                        for attack_result in hit_entities.iter() {
+
+                            match attack_result.entity_option {
+                                Some(entity) => {
+                                    if targetted_entity == entity {
+                                        hit_entity = Some(attack_result);
+                                        break;
+                                    }
+                                },
+                                None => {},
+                            }
+
+                            if attack_result.is_obstacle {
+                                break;
+                            }
+
+                        }
+                    },
+                    None => {
+                        hit_entity = hit_entities.first();
+                    },
+                }
+
+                match hit_entity {
                     Some(attack_result) => {
 
                         match attack_result.entity_option {
@@ -222,17 +267,34 @@ pub fn attack(
                         let collider_groups = get_bit_masks(ColliderGroup::Standard);
                         let interaction_groups = InteractionGroups::new(collider_groups.0,collider_groups.1);
 
-                        let projectile_start_position = Vec3::new(
-                            attack_event.attacker_position.x, 
-                            PROJECTILE_WEAPON_HEIGHT,
-                            attack_event.attacker_position.z,
-                        );
+                        
 
                         let additive = direction_additive * *laser_range;
 
                         let mut hit_entities : Vec<AttackResult> = vec![];
 
                         let colliders = &QueryPipelineColliderComponentsSet(&collider_query);
+
+                        let attack_height; 
+                        let cast_vertical_extents;
+
+                        if attack_event.weapon_entity.is_none() || !attack_event.targetted_entity.is_none() {
+
+                            attack_height = 1.;
+                            cast_vertical_extents = 1.;
+
+                        } else {
+
+                            attack_height = ATTACK_HEIGHT;
+                            cast_vertical_extents = 0.1;
+
+                        }
+
+                        let projectile_start_position = Vec3::new(
+                            attack_event.attacker_position.x, 
+                            attack_height,
+                            attack_event.attacker_position.z,
+                        );
 
                         query_pipeline.intersections_with_shape(
                             colliders,
@@ -241,7 +303,7 @@ pub fn attack(
                                 -
                                 additive,
                                 Quat::from_rotation_y(attack_event.angle)).into(),
-                            &Cuboid::new(Vec3::new(*laser_range, 0.1, 0.6).into()),
+                            &Cuboid::new(Vec3::new(*laser_range, cast_vertical_extents, 0.6).into()),
                             interaction_groups,
                             None, 
                             |collider_handle| {
@@ -259,7 +321,7 @@ pub fn attack(
                                 }
 
                                 match rigidbody_query.get_mut(collider_entity) {
-                                    Ok((mut _health_component, _examinable_component, rigid_body_position_component)) => {
+                                    Ok((health_component, _examinable_component, rigid_body_position_component)) => {
 
                                         let position = Vec3::new(
                                             rigid_body_position_component.position.translation.x,
@@ -276,7 +338,8 @@ pub fn attack(
                                                 position
                                             ),
                                             rigid_body_position: position,
-                                            collider_handle
+                                            collider_handle,
+                                            is_obstacle : health_component.is_obstacle,
                                         });
                                         
                                     },
@@ -297,7 +360,8 @@ pub fn attack(
                                                 position
                                             ),
                                             rigid_body_position: position,
-                                            collider_handle
+                                            collider_handle,
+                                            is_obstacle: true,
                                         }
                                     );
                                     
@@ -315,7 +379,39 @@ pub fn attack(
 
                         let mut hit_result = HitResult::Missed;
 
-                        match hit_entities.first() {
+                        let mut hit_entity = None;
+
+                        match attack_event.targetted_entity {
+                            Some(targetted_entity) => {
+                                let mut found = false;
+                                for attack_result in hit_entities.iter() {
+
+                                    match attack_result.entity_option {
+                                        Some(entity) => {
+                                            if targetted_entity == entity {
+                                                hit_entity = Some(attack_result);
+                                                found=true;
+                                                break;
+                                            }
+                                        },
+                                        None => {},
+                                    }
+
+                                    if attack_result.is_obstacle {
+                                        break;
+                                    }
+
+                                }
+                                if !found {
+                                    hit_entity = hit_entities.first();
+                                }
+                            },
+                            None => {
+                                hit_entity = hit_entities.first();
+                            },
+                        }
+
+                        match hit_entity {
                             Some(attack_result) => {
 
                                 let ray = Ray::new(projectile_start_position.into(), (attack_result.rigid_body_position - projectile_start_position).into());
@@ -336,7 +432,7 @@ pub fn attack(
                                     match attack_result.entity_option {
                                         Some(_) => {},
                                         None => {
-                                            hit_point.y = PROJECTILE_WEAPON_HEIGHT;
+                                            hit_point.y = ATTACK_HEIGHT;
                                         },
                                     }
 

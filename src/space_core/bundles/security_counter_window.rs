@@ -83,7 +83,10 @@ impl SecurityCounterWindowBundle {
                 assigned_texts: examine_map,
                 ..Default::default()
             },
-            Health::default(),
+            Health {
+                is_obstacle : true,
+                ..Default::default()
+            },
         )).id();
 
 
