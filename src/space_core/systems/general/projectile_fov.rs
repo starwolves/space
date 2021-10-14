@@ -12,7 +12,7 @@ pub fn projectile_fov(
     non_blocking_cells_list : Res<NonBlockingCellsList>,
 ) {
 
-    let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3)>> = HashMap::new();
+    let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3, f32)>> = HashMap::new();
     let mut projectiles = vec![];
     let mut projectiles_i : usize = 0;
 
@@ -37,12 +37,12 @@ pub fn projectile_fov(
 
                     match cell_ids_with_projectiles.get_mut(&cell_id) {
                         Some(list) => {
-                            list.push((projectiles_i, point));
+                            list.push((projectiles_i, point, distance));
                         },
                         None => {
                             cell_ids_with_projectiles.insert(
                                 cell_id,
-                                vec![(projectiles_i, point)]
+                                vec![(projectiles_i, point, distance)]
                             );
                         },
                     }
@@ -59,7 +59,9 @@ pub fn projectile_fov(
 
     }
 
-
+    if cell_ids_with_projectiles.len() == 0 {
+        return;
+    }
 
     for (senser_component, connected_player_component) in sensers.iter() {
 
@@ -72,7 +74,7 @@ pub fn projectile_fov(
             match senser_component.fov.is_in_fov(coords.0, coords.1) {
                 true => {
 
-                    for (projectile_i, point) in projectiles_i_list.iter() {
+                    for (projectile_i, point, distance) in projectiles_i_list.iter() {
 
                         if used_projectiles_i.contains(projectile_i) {
                             continue;
@@ -106,27 +108,29 @@ pub fn projectile_fov(
                                 iterated_distance+=2.;
                             }
 
+                            let too_far = !(iterated_distance.abs() < *distance);
+
+                            let mut cell_is_blocked = true;
                             let new_point = *point + (iterated_distance * *direction);
                             let cell_id = world_to_cell_id(new_point);
                             let coords = to_doryen_coordinates(cell_id.x, cell_id.z);
 
-                            let cell_is_blocked;
-
-                            match gridmap_main.data.get(&cell_id) {
-                                Some(cell_data) => {
-                                    if non_blocking_cells_list.list.contains(&cell_data.item) {
+                            if !too_far {
+                                match gridmap_main.data.get(&cell_id) {
+                                    Some(cell_data) => {
+                                        if non_blocking_cells_list.list.contains(&cell_data.item) {
+                                            cell_is_blocked=false;
+                                        } else {
+                                            cell_is_blocked=true;
+                                        }
+                                    },
+                                    None => {
                                         cell_is_blocked=false;
-                                    } else {
-                                        cell_is_blocked=true;
-                                    }
-                                },
-                                None => {
-                                    cell_is_blocked=false;
-                                },
+                                    },
+                                }
                             }
-                            
 
-                            match !cell_is_blocked && senser_component.fov.is_in_fov(coords.0, coords.1) {
+                            match (!too_far) && (!cell_is_blocked && senser_component.fov.is_in_fov(coords.0, coords.1)) {
                                 true => {
                                     if negative_distance {
                                         adjusted_end_pos = new_point;

@@ -1,4 +1,4 @@
-use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform, warn}};
+use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform}};
 use bevy_rapier3d::prelude::{ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray, RigidBodyPosition};
 
 use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}, senser::Senser}, events::{general::{attack::Attack, projectile_fov::ProjectileFOV}, net::{net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::{cell_id_to_world, world_to_cell_id}}}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
@@ -296,12 +296,12 @@ pub fn attack(
                             attack_event.attacker_position.z,
                         );
 
+                        let projectile_rough_end_position = projectile_start_position-additive;
+
                         query_pipeline.intersections_with_shape(
                             colliders,
                             &(
-                                projectile_start_position
-                                -
-                                additive,
+                                projectile_rough_end_position,
                                 Quat::from_rotation_y(attack_event.angle)).into(),
                             &Cuboid::new(Vec3::new(*laser_range, cast_vertical_extents, 0.6).into()),
                             interaction_groups,
@@ -411,33 +411,36 @@ pub fn attack(
                             },
                         }
 
+                        let mut hit_point : Vec3;
+
                         match hit_entity {
                             Some(attack_result) => {
 
                                 let ray = Ray::new(projectile_start_position.into(), (attack_result.rigid_body_position - projectile_start_position).into());
+                                let max_toi = attack_result.distance * 1.2;
 
                                 if let Some((_hit_collider_handle, hit_toi)) = query_pipeline.cast_ray(
                                     colliders,
                                     &ray,
-                                    attack_result.distance * 1.2,
+                                    max_toi,
                                     true,
                                     interaction_groups,
                                     Some(&|collider_handle| {
                                         collider_handle == attack_result.collider_handle
                                     }),
                                 ) {
-
-                                    let mut hit_point : Vec3 = ray.point_at(hit_toi).into();
-
+                                    
+                                    hit_point = ray.point_at(hit_toi).into();
+        
                                     match attack_result.entity_option {
                                         Some(_) => {},
                                         None => {
                                             hit_point.y = ATTACK_HEIGHT;
                                         },
                                     }
-
+        
                                     sound_transform.translation = hit_point;
-
+        
                                     match attack_result.entity_option {
                                         Some(collider_entity) => {
             
@@ -445,7 +448,7 @@ pub fn attack(
                                                 Ok((mut health_component,examinable_component,rigid_body_position_component)) => {
                                                     
                                                     let attacked_cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
-
+        
                                                     hit_result = health_component.apply_damage(
                                                         &attack_event.targetted_limb, 
                                                         &attack_event.damage_model,
@@ -492,7 +495,7 @@ pub fn attack(
             
                                         },
                                     }
-
+        
                                     match hit_result {
                                         crate::space_core::components::health::HitResult::HitSoft => {
                                             attack_event.combat_sound_set.spawn_hit_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
@@ -502,27 +505,28 @@ pub fn attack(
                                         },
                                         crate::space_core::components::health::HitResult::Missed => {},
                                     }
-
-                                    projectile_fov.send(ProjectileFOV {
-                                        laser_projectile: NetProjectileType::Laser(
-                                            *laser_color,
-                                            *laser_height,
-                                            *laser_radius,
-                                            projectile_start_position - (direction_additive * 0.5),
-                                            hit_point,
-                                        ),
-                                    });
-
-
-
                                 } else {
-                                    warn!("Exclusive collider_handle projectile ray_intersect had no results.");
+                                    hit_point = attack_result.rigid_body_position;
                                 };
 
                             },
-                            None => {},
+                            None => {
+                                hit_point = projectile_rough_end_position;
+                            },
                         }
                         
+                        
+
+                        projectile_fov.send(ProjectileFOV {
+                            laser_projectile: NetProjectileType::Laser(
+                                *laser_color,
+                                *laser_height,
+                                *laser_radius,
+                                projectile_start_position - (direction_additive * 0.5),
+                                hit_point,
+                            ),
+                        });
+
 
                     },
                     crate::space_core::components::inventory_item::ProjectileType::Ballistic => {},
