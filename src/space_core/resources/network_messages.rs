@@ -36,6 +36,7 @@ pub enum ReliableClientMessage {
     SelectBodyPart(String),
     ToggleAutoMove,
     UserName(String),
+    AttackEntity(u64),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -1,4 +1,4 @@
-use bevy::math::Vec2;
+use bevy::{math::Vec2, prelude::Entity};
 
 pub struct PlayerInput {
     pub movement_vector : Vec2,
@@ -7,6 +7,7 @@ pub struct PlayerInput {
     pub targetted_limb : String,
     pub auto_move_enabled : bool,
     pub auto_move_direction : Vec2,
+    pub combat_targetted_entity : Option<Entity>,
 }
 
 
@@ -19,6 +20,7 @@ impl Default for PlayerInput {
             targetted_limb : "torso".to_string(),
             auto_move_enabled : false,
             auto_move_direction : Vec2::ZERO,
+            combat_targetted_entity: None,
         }
     }
 }

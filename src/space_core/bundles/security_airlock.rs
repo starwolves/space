@@ -68,7 +68,7 @@ impl SecurityAirlockBundle {
                 ..Default::default()
             },
             Health {
-                health_flags: health_flags,
+                is_obstacle : true,
                 ..Default::default()
             },
         ));

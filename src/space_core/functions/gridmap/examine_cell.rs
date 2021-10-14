@@ -75,11 +75,11 @@ pub fn examine_ship_cell(
         }
 
         if ship_cell.health.burn > 75. {
-            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt has suffered from heavy burn damage.[/color][/font]";
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt suffers from heavy burn damage.[/color][/font]";
         } else if ship_cell.health.burn > 50. {
-            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt has suffered burn damage.[/color][/font]";
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt suffers burn damage.[/color][/font]";
         } else if ship_cell.health.burn > 25. {
-            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt is has slight burn damage.[/color][/font]";
+            message = message + "[font=" + FURTHER_ITALIC_FONT + "][color=" + UNHEALTHY_COLOR + "]\nIt has slight burn damage.[/color][/font]";
         }
 
     }

@@ -22,3 +22,4 @@ pub mod input_toggle_auto_move;
 pub mod input_user_name;
 pub mod attack;
 pub mod projectile_fov;
+pub mod input_attack_entity;
