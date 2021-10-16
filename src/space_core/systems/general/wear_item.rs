@@ -99,37 +99,7 @@ pub fn wear_item(
             },
         }
 
-        // Matches!() doesn't work so this is a work around.
-
-        let wearable_wearable_match_index;
-
-        match wearable_wearable.slot_type {
-            crate::space_core::components::inventory::SlotType::Generic => {
-                wearable_wearable_match_index = 1;
-            },
-            crate::space_core::components::inventory::SlotType::Helmet => {
-                wearable_wearable_match_index = 2;
-            },
-            crate::space_core::components::inventory::SlotType::Jumpsuit => {
-                wearable_wearable_match_index = 3;
-            },
-        }
-
-        let wear_slot_match_index;
-
-        match wear_slot.slot_type {
-            crate::space_core::components::inventory::SlotType::Generic => {
-                wear_slot_match_index = 1;
-            },
-            crate::space_core::components::inventory::SlotType::Helmet => {
-                wear_slot_match_index = 2;
-            },
-            crate::space_core::components::inventory::SlotType::Jumpsuit => {
-                wear_slot_match_index = 3;
-            },
-        }
-
-        if wearable_wearable_match_index != wear_slot_match_index {
+        if wearable_wearable.slot_type != wear_slot.slot_type {
             continue;
         }
 
@@ -141,10 +111,6 @@ pub fn wear_item(
             handle: event.handle,
             message: ReliableServerMessage::PickedUpItem(wearable_components.2.entity_type.clone(), wearable_entity.to_bits(), wear_slot.slot_name.clone()),
         });
-
-
-
-
 
 
     }    
