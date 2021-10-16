@@ -214,6 +214,15 @@ impl HumanMalePawnBundle {
                 jumpsuit_hand_item = None;
             },
         }
+        let holster_hand_item;
+        match slot_entities.get(&"holster".to_string()) {
+            Some(entity) => {
+                holster_hand_item = Some(*entity);
+            },
+            None => {
+                holster_hand_item = None;
+            },
+        }
 
         let inventory_component = Inventory {
             slots: vec![
@@ -240,6 +249,12 @@ impl HumanMalePawnBundle {
                     slot_name: "jumpsuit".to_string(),
                     slot_item: jumpsuit_hand_item,
                     slot_attachment: Some("Smoothing/pawn/humanMale/rig/humanMale".to_string()),
+                },
+                Slot {
+                    slot_type: SlotType::Holster,
+                    slot_name: "holster".to_string(),
+                    slot_item: holster_hand_item,
+                    slot_attachment: Some("Smoothing/pawn/humanMale/rig/holster/Position3D".to_string()),
                 },
             ],
             active_slot: "left_hand".to_string(),
@@ -476,6 +491,8 @@ pub fn generate_human_examine_text(
                             examine_text = examine_text + "He is wearing " + &examinable.a_name + " on his head.\n";
                         } else if slot.slot_name == "jumpsuit" {
                             examine_text = examine_text + "He is wearing " + &examinable.a_name + " on his body.\n";
+                        } else if slot.slot_name == "holster" {
+                            examine_text = examine_text + &examinable.a_name + "is attached to his holster.\n";
                         } else {
                             examine_text = examine_text + "He is wearing " + &examinable.a_name + ".\n";
                         }

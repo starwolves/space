@@ -20,6 +20,7 @@ pub fn on_spawning(
         let passed_inventory_setup = vec![
             ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
             ("helmet".to_string(), "helmetSecurity".to_string()),
+            ("holster".to_string(), "pistolL1".to_string()),
         ];
 
         let new_entity = HumanMalePawnBundle::spawn(

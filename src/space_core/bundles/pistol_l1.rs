@@ -200,6 +200,14 @@ Vec3::new(0.,0.355, 0.)
         )
     ));
 
+    attachment_transforms.insert("holster".to_string(), Transform::from_matrix(
+        Mat4::from_scale_rotation_translation(
+        Vec3::new(0.5,0.5,0.5),
+      Quat::from_axis_angle(Vec3::new(0.004467, 0.0995011, -0.9950274 ), 3.0523109),
+   Vec3::new(0.,0.132, 0.05)
+        )
+    ));
+
 
     let mut builder = commands.spawn_bundle(rigid_body_component);
 
@@ -235,7 +243,7 @@ Vec3::new(0.,0.355, 0.)
             in_inventory_of_entity: holder_entity_option,
             attachment_transforms: attachment_transforms,
             drop_transform: default_transform,
-            slot_type: SlotType::Generic,
+            slot_type: SlotType::Holster,
             is_attached_when_worn : true,
             combat_attack_animation : CombatAttackAnimation::PistolShot,
             combat_type: CombatType::Projectile(ProjectileType::Laser(Color::RED, 3., 0.025, PISTOL_L1_PROJECTILE_RANGE)),

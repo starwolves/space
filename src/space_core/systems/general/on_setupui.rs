@@ -47,6 +47,7 @@ pub fn on_setupui (
 
         let passed_inventory_setup = vec![
             ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
+            ("holster".to_string(), "pistolL1".to_string()),
         ];
 
         HumanMalePawnBundle::spawn(
