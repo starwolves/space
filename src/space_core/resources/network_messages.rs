@@ -37,6 +37,7 @@ pub enum ReliableClientMessage {
     ToggleAutoMove,
     UserName(String),
     AttackEntity(u64),
+    AltItemAttack,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
