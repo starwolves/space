@@ -37,4 +37,3 @@ pub mod mouse_direction_update;
 pub mod user_name;
 pub mod attack;
 pub mod projectile_fov;
-pub mod alt_item_attack;

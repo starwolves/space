@@ -4,7 +4,7 @@ use std::collections::{BTreeMap};
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{components::{counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, health::Health, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}};
+use crate::space_core::{components::{counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::Health, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}};
 
 pub struct SecurityCounterWindowBundle;
 
@@ -78,8 +78,11 @@ impl SecurityCounterWindowBundle {
             },
             EntityUpdates::default(),
             Examinable {
-                a_name: "a security counter window".to_string(),
-                name : "security counter window".to_string(),
+                name : RichName {
+                    name: "security counter window".to_string(),
+                    n: false,
+                    ..Default::default()
+                },
                 assigned_texts: examine_map,
                 ..Default::default()
             },

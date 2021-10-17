@@ -2,12 +2,12 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::{math::Vec2, prelude::{Changed, Entity, Query}};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, persistent_player_data::PersistentPlayerData, showcase::Showcase, standard_character::{StandardCharacter}}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, resources::network_messages::EntityUpdateData};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, entity_updates::EntityUpdates, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, showcase::Showcase, standard_character::{StandardCharacter}}, functions::entity_updates::get_entity_update_difference::get_entity_update_difference, resources::network_messages::EntityUpdateData};
 
 use vector2math::*;
 
 pub fn standard_character_update(
-    mut updated_humans: Query<(Entity,Option<&Pawn>, &StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, &Inventory, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
+    mut updated_humans: Query<(Entity,Option<&Pawn>, &StandardCharacter, &mut EntityUpdates, &PersistentPlayerData, &Inventory, Option<&PlayerInput>, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<StandardCharacter>>,
     inventory_items : Query<&InventoryItem>,
 ) {
 
@@ -18,6 +18,7 @@ pub fn standard_character_update(
         mut entity_updates_component,
         persistent_player_data_component,
         inventory_component,
+        player_input_option,
         connected_player_component_option,
         showcase_component_option
     ) in updated_humans.iter_mut() {
@@ -88,6 +89,8 @@ pub fn standard_character_update(
 
         let mut update_upper_body = true;
 
+        let mut alt_attack_mode = false;
+
         if standard_character_component.combat_mode {
 
             // Here we can set upper body animations to certain combat state, eg boxing stance, melee weapon stances, projectile weapon stances etc.
@@ -101,14 +104,36 @@ pub fn standard_character_update(
                     match inventory_item_option {
                         Some(inventory_item_component) => {
 
+                            match player_input_option {
+                                Some(player_input_component) => {
+
+                                    if player_input_component.alt_attack_mode && inventory_item_component.combat_projectile_damage_model.is_some() {
+                                        
+                                        alt_attack_mode = true;
+
+                                    }
+
+                                },
+                                None => {
+
+                                },
+                            }
+
                             match inventory_item_component.combat_standard_animation {
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::StandardStance => {
                                     upper_body_animation_state = "Idle Heightened".to_string();
                                     lower_body_animation_state = "Idle".to_string();
                                 },
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
-                                    upper_body_animation_state = "Pistol Idle".to_string();
-                                    lower_body_animation_state = "Pistol Idle".to_string();
+                                    
+                                    if !alt_attack_mode {
+                                        upper_body_animation_state = "Pistol Idle".to_string();
+                                        lower_body_animation_state = "Pistol Idle".to_string();
+                                    } else {
+                                        upper_body_animation_state = "Idle Heightened".to_string();
+                                        lower_body_animation_state = "Idle".to_string();
+                                    }
+                                    
                                 },
                             }
 
@@ -126,6 +151,21 @@ pub fn standard_character_update(
 
                     match inventory_item_option {
                         Some(inventory_item_component) => {
+
+                            match player_input_option {
+                                Some(player_input_component) => {
+
+                                    if player_input_component.alt_attack_mode && inventory_item_component.combat_projectile_damage_model.is_some() {
+                                        
+                                        alt_attack_mode = true;
+
+                                    }
+
+                                },
+                                None => {
+
+                                },
+                            }
                             
                             match inventory_item_component.combat_standard_animation {
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::StandardStance => {
@@ -133,11 +173,20 @@ pub fn standard_character_update(
                                     lower_body_animation_state = "JoggingStrafe".to_string();
                                 },
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
-                                    upper_body_animation_state = "PistolStrafe".to_string();
-                                    lower_body_animation_state = "PistolStrafe".to_string();
-                                    //upper_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
-                                    lower_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
-                                    update_upper_body=false;
+
+
+                                    if !alt_attack_mode {
+                                        upper_body_animation_state = "PistolStrafe".to_string();
+                                        lower_body_animation_state = "PistolStrafe".to_string();
+                                        //upper_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
+                                        lower_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
+                                        update_upper_body=false;
+                                    } else {
+                                        upper_body_animation_state = "JoggingStrafe".to_string();
+                                        lower_body_animation_state = "JoggingStrafe".to_string();
+                                    }
+
+                                    
                                 },
                             }
 
@@ -229,7 +278,17 @@ pub fn standard_character_update(
                                 }
 
                             },
-                            crate::space_core::components::inventory_item::CombatAttackAnimation::PistolShot => {},
+                            crate::space_core::components::inventory_item::CombatAttackAnimation::PistolShot => {
+
+                                if alt_attack_mode {
+                                    if is_left_handed {
+                                        upper_body_animation_state = "Punching Left".to_string();
+                                    } else {
+                                        upper_body_animation_state = "Punching Right".to_string();
+                                    }
+                                }
+
+                            },
                         }
 
                     },
