@@ -9,7 +9,6 @@ pub struct PlayerInput {
     pub auto_move_direction : Vec2,
     pub combat_targetted_entity : Option<Entity>,
     pub alt_attack_mode : bool,
-    pub throw_item_pressed : bool,
 }
 
 
@@ -24,7 +23,6 @@ impl Default for PlayerInput {
             auto_move_direction : Vec2::ZERO,
             combat_targetted_entity: None,
             alt_attack_mode: false,
-            throw_item_pressed : false,
         }
     }
 }
