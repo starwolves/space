@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity};
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, player_input::PlayerInput, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::net_throw_item::NetThrowItem}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
+use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem,rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::net_throw_item::NetThrowItem}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 pub fn throw_item(
 
@@ -12,7 +12,6 @@ pub fn throw_item(
     mut inventory_entities : Query<(
         &mut Inventory,
         &Sensable,
-        &mut PlayerInput,
     )>,
     mut pickupable_entities : Query<(
         &mut InventoryItem,
