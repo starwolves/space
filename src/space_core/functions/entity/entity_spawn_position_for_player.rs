@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::{math::Vec3, prelude::{Res, Transform}};
 
 use crate::space_core::{components::pawn::FacingDirection, functions::gridmap::gridmap_functions::world_to_cell_id, resources::gridmap_main::GridmapMain};
@@ -6,7 +8,8 @@ use crate::space_core::{components::pawn::FacingDirection, functions::gridmap::g
 
 pub fn entity_spawn_position_for_player(
     player_transform : Transform,
-    player_facing_direction : &FacingDirection,
+    player_facing_direction_option : Option<&FacingDirection>,
+    angle_option : Option<f32>,
     gridmap_main : &Res<GridmapMain>,
 ) -> Transform {
 
@@ -18,9 +21,38 @@ pub fn entity_spawn_position_for_player(
 
     let mut new_transform = original_transform.clone();
 
-    
+    let facing_direction;
 
-    new_transform.translation += get_offset(player_facing_direction, OFFSET_CHECK);
+    match player_facing_direction_option {
+        Some(player_facing_direction) => {
+            facing_direction = player_facing_direction;
+        },
+        None => {
+
+            let angle = angle_option.unwrap();
+
+            if angle < -PI + (0.25 * PI) {
+                facing_direction = &FacingDirection::UpLeft;
+            } else if angle < -PI + (0.5 * PI) {
+                facing_direction = &FacingDirection::Left;
+            } else if angle < -PI + (0.75 * PI) {
+                facing_direction = &FacingDirection::UpRight;
+            } else if angle < -PI + (1. * PI) {
+                facing_direction = &FacingDirection::Right;
+            } else if angle < -PI + (1.25 * PI) {
+                facing_direction = &FacingDirection::DownRight;
+            } else if angle < -PI + (1.5 * PI) {
+                facing_direction = &FacingDirection::Down;
+            } else if angle < -PI + (1.75 * PI) {
+                facing_direction = &FacingDirection::DownLeft;
+            } else {
+                facing_direction = &FacingDirection::Left;
+            }
+
+        },
+    }
+
+    new_transform.translation += get_offset(facing_direction, OFFSET_CHECK);
 
     let cell_id = world_to_cell_id(new_transform.translation);
 
@@ -82,7 +114,7 @@ pub fn entity_spawn_position_for_player(
                 if found_correct_spawn == false {
 
                     new_transform = original_transform.clone();
-                    new_transform.translation += 0.1 * get_offset(player_facing_direction, OFFSET_FROM_PLAYER);
+                    new_transform.translation += 0.1 * get_offset(facing_direction, OFFSET_FROM_PLAYER);
 
                 }
 
@@ -93,7 +125,7 @@ pub fn entity_spawn_position_for_player(
         },
         None => {
             new_transform = original_transform.clone();
-            new_transform.translation += get_offset(player_facing_direction, OFFSET_FROM_PLAYER);
+            new_transform.translation += get_offset(facing_direction, OFFSET_FROM_PLAYER);
         },
     }
     

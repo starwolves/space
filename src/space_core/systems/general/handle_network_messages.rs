@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_alt_item_attack::InputAltItemAttack, input_attack_entity::InputAttackEntity, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, input_user_name::InputUserName, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
+use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_alt_item_attack::InputAltItemAttack, input_attack_entity::InputAttackEntity, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_throw_item::InputThrowItem, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, input_user_name::InputUserName, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
 
 pub fn handle_network_messages(
 
@@ -33,6 +33,7 @@ pub fn handle_network_messages(
         EventWriter<InputUserName>,
         EventWriter<InputAttackEntity>,
         EventWriter<InputAltItemAttack>,
+        EventWriter<InputThrowItem>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -68,6 +69,7 @@ pub fn handle_network_messages(
         mut input_global_name,
         mut input_attack_entity,
         mut input_alt_item_attack,
+        mut input_throw_item,
     )
     = tuple1;
 
@@ -378,6 +380,23 @@ pub fn handle_network_messages(
                         },
                         None => {
                             warn!("Couldn't find player_entity belonging to AltItemAttack sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::ThrowItem(position, angle) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_throw_item.send(InputThrowItem {
+                                handle: *handle,
+                                entity: *player_entity,
+                                position,
+                                angle
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to InputThrowItem sender handle.");
                         },
                     }
 

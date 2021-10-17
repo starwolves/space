@@ -38,6 +38,7 @@ pub enum ReliableClientMessage {
     UserName(String),
     AttackEntity(u64),
     AltItemAttack,
+    ThrowItem(Vec3, f32),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -69,7 +69,8 @@ pub fn rcon_spawn_entity(
         isometry_to_transform(
         player_position,
             ),
-            &standard_character_component.facing_direction,
+            Some(&standard_character_component.facing_direction),
+            None,
             gridmap_main,
         );
 
