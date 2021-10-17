@@ -24,3 +24,4 @@ pub mod attack;
 pub mod projectile_fov;
 pub mod input_attack_entity;
 pub mod input_alt_item_attack;
+pub mod input_throw_item;

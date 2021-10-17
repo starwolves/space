@@ -1,17 +1,17 @@
 use std::collections::HashMap;
 
-use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res}};
-use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
+use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res, warn}};
+use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity};
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
+use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::net_throw_item::NetThrowItem}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
-pub fn drop_current_item(
-    mut drop_current_item_events : EventReader<DropCurrentItem>,
+pub fn throw_item(
+
+    mut throw_item_events : EventReader<InputThrowItem>,
     mut rigidbody_positions : Query<&mut RigidBodyPosition>,
     mut inventory_entities : Query<(
         &mut Inventory,
         &Sensable,
-        &Pawn,
     )>,
     mut pickupable_entities : Query<(
         &mut InventoryItem,
@@ -20,16 +20,19 @@ pub fn drop_current_item(
         &mut ColliderFlags,
         &mut RigidBodyForces,
         &mut RigidBodyLinkTransform,
+        &mut RigidBodyVelocity,
+        &RigidBodyMassProps,
     )>,
     mut commands : Commands,
-    mut net_drop_current_item : EventWriter<NetDropCurrentItem>,
-    handle_to_entity : Res<HandleToEntity>,
+    mut net_throw_item : EventWriter<NetThrowItem>,
     gridmap_main : Res<GridmapMain>,
+    handle_to_entity : Res<HandleToEntity>,
+
 ) {
 
-    for event in drop_current_item_events.iter() {
+    for event in throw_item_events.iter() {
 
-        let pickuper_components_option = inventory_entities.get_mut(event.pickuper_entity);
+        let pickuper_components_option = inventory_entities.get_mut(event.entity);
         let pickuper_components;
 
         match pickuper_components_option {
@@ -65,6 +68,8 @@ pub fn drop_current_item(
             mut pickupable_rigidbody_collider_flags,
             mut pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
+            mut pickupable_rigidbody_velocity,
+            pickupable_rigidbody_props,
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
 
@@ -87,8 +92,6 @@ pub fn drop_current_item(
         commands.entity(pickupable_entity).remove::<RigidBodyLinkTransform>();
 
         let new_position;
-
-        let pawn_component = pickuper_components.2;
         
         match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
             Ok(mut position) => {
@@ -97,10 +100,12 @@ pub fn drop_current_item(
 
                 new_pickupable_transform = entity_spawn_position_for_player(
                     new_pickupable_transform,
-                    Some(&pawn_component.facing_direction),
                     None,
+                    Some(event.angle),
                     &gridmap_main
                 );
+
+                new_pickupable_transform.translation.y = 1.5;
 
                 new_pickupable_transform.rotation = inventory_item_component.drop_transform.rotation;
 
@@ -110,11 +115,24 @@ pub fn drop_current_item(
 
             },
             Err(_rr) => {
+                warn!("Couldn't find RigidBodyPosition of entity that is dropped.");
                 continue;
             },
         }
         
-        
+        let mut impulse = (event.position - new_position.translation).normalize()  * 0.025;
+
+        let mut distance = event.position.distance(new_position.translation);
+
+        if distance > 10.{
+            distance = 10.
+        }
+
+        impulse.y =0.;
+
+        impulse*=distance;
+
+        pickupable_rigidbody_velocity.apply_impulse(pickupable_rigidbody_props, impulse.into());
 
         
         
@@ -145,7 +163,7 @@ pub fn drop_current_item(
                     match handle_option {
                         Some(handle) => {
                             
-                            net_drop_current_item.send(NetDropCurrentItem {
+                            net_throw_item.send(NetThrowItem {
                                 handle: *handle,
                                 message: ReliableServerMessage::EntityUpdate(
                                     entity_id.to_bits(),
@@ -169,10 +187,12 @@ pub fn drop_current_item(
         
 
         // Send UI/Control update to owning client.
-        net_drop_current_item.send(NetDropCurrentItem {
+        net_throw_item.send(NetThrowItem {
             handle: event.handle,
             message: ReliableServerMessage::DropItem(drop_slot.slot_name.clone()),
         });
+
+    
 
     }
 
