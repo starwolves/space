@@ -3,7 +3,7 @@ use std::{f32::consts::PI};
 use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_alt_item_attack::InputAltItemAttack, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
 
@@ -37,13 +37,13 @@ pub fn standard_characters(
     mut commands : Commands,
 
     mut attack_event_writer : EventWriter<Attack>,
-
     tuple0 : (
         EventWriter<NetUnloadEntity>,
         EventReader<InputMouseAction>,
         EventReader<InputSelectBodyPart>,
         EventReader<InputToggleAutoMove>,
         EventReader<InputAttackEntity>,
+        EventReader<InputAltItemAttack>,
     ),
 
 ) {
@@ -54,7 +54,21 @@ pub fn standard_characters(
         mut input_select_body_part,
         mut input_toggle_auto_move,
         mut input_attack_entity,
+        mut alternative_item_attack_events,
     ) = tuple0;
+
+    for event in alternative_item_attack_events.iter() {
+
+        match standard_character_query.get_component_mut::<PlayerInput>(event.entity) {
+            Ok(mut played_input_component) => {
+                played_input_component.alt_attack_mode = !played_input_component.alt_attack_mode;
+            },
+            Err(_rr) => {
+                warn!("Couldn't find standard_character_component belonging to entity of InputAltItemAttack.");
+            },
+        }
+
+    }
 
     for event in input_attack_entity.iter() {
 
@@ -62,7 +76,6 @@ pub fn standard_characters(
             Ok(mut played_input_component) => {
 
                 played_input_component.combat_targetted_entity = Some(Entity::from_bits(event.target_entity_bits));
-                
 
             },
             Err(_rr) => {
@@ -203,9 +216,11 @@ pub fn standard_characters(
             }
 
             let mut inventory_item_component_option = None;
+            let mut alt_attack_mode = false;
 
             let mut inventory_item_slot_name = "his fists".to_string();
             let mut inventory_item_slot_a_name = "his fists".to_string();
+            
 
             match active_slot.slot_item {
                 Some(item_entity) => {
@@ -213,20 +228,23 @@ pub fn standard_characters(
                         Ok((item_component, examinable_component)) => {
                             inventory_item_component_option = Some(item_component);
                             
-                            inventory_item_slot_a_name = examinable_component.a_name.clone();
-                            inventory_item_slot_name = examinable_component.name.clone();
-
+                            inventory_item_slot_a_name = examinable_component.name.get_a_name().clone();
+                            inventory_item_slot_name = examinable_component.name.get_name().to_owned();
+                            
                             match item_component.combat_standard_animation {
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::StandardStance => {},
                                 crate::space_core::components::inventory_item::CombatStandardAnimation::PistolStance => {
 
-                                    if player_input_movement_vector.x != 0. || player_input_movement_vector.y != 0. {
-                                        rotation_offset = - 0.0675*PI;
-                                    } else {
-                                        rotation_offset = - 0.24*PI;
+                                    alt_attack_mode = player_input_component.alt_attack_mode && item_component.combat_projectile_damage_model.is_some();
+
+                                    if  !alt_attack_mode {
+                                        if player_input_movement_vector.x != 0. || player_input_movement_vector.y != 0. {
+                                            rotation_offset = - 0.0675*PI;
+                                        } else {
+                                            rotation_offset = - 0.24*PI;
+                                        }
                                     }
 
-                                    
                                 },
                             }
 
@@ -311,10 +329,19 @@ pub fn standard_characters(
                                 trigger_words = inventory_item_component.trigger_melee_text_set.clone();
                             },
                             CombatType::Projectile(_projecttile_type) => {
-                                combat_damage_model = &inventory_item_component.combat_projectile_damage_model.as_ref().unwrap();
-                                combat_sound_set = &inventory_item_component.combat_projectile_sound_set.as_ref().unwrap();
-                                offense_words = inventory_item_component.combat_projectile_text_set.as_ref().unwrap().clone();
-                                trigger_words = inventory_item_component.trigger_projectile_text_set.as_ref().unwrap().clone();
+                                
+                                if !alt_attack_mode {
+                                    combat_damage_model = &inventory_item_component.combat_projectile_damage_model.as_ref().unwrap();
+                                    combat_sound_set = &inventory_item_component.combat_projectile_sound_set.as_ref().unwrap();
+                                    offense_words = inventory_item_component.combat_projectile_text_set.as_ref().unwrap().clone();
+                                    trigger_words = inventory_item_component.trigger_projectile_text_set.as_ref().unwrap().clone();
+                                } else {
+                                    combat_damage_model = &inventory_item_component.combat_melee_damage_model;
+                                    combat_sound_set = &inventory_item_component.combat_melee_sound_set;
+                                    offense_words = inventory_item_component.combat_melee_text_set.clone();
+                                    trigger_words = inventory_item_component.trigger_melee_text_set.clone();
+                                    combat_type = &CombatType::MeleeDirect;
+                                }
                             },
                         }
                         

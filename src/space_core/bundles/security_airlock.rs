@@ -4,7 +4,7 @@ use std::collections::{BTreeMap, HashMap};
 use bevy::{math::Vec3, prelude::{Commands, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{components::{air_lock::{AirLock}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, health::{Health, HealthFlag}, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}};
+use crate::space_core::{components::{air_lock::{AirLock}, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthFlag}, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}};
 
 pub struct SecurityAirlockBundle;
 
@@ -62,8 +62,11 @@ impl SecurityAirlockBundle {
             },
             EntityUpdates::default(),
             Examinable {
-                a_name : "a security airlock".to_string(),
-                name : "security airlock".to_string(),
+                name : RichName {
+                    name: "security airlock".to_string(),
+                    n: false,
+                    ..Default::default()
+                },
                 assigned_texts: examine_map,
                 ..Default::default()
             },

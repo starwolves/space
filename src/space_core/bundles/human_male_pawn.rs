@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Vec3}, prelude::{Commands, Entity, EventWriter, Query, ResMut, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::Examinable, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity}}, resources::{network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 pub struct HumanMalePawnBundle;
 
@@ -261,11 +261,16 @@ impl HumanMalePawnBundle {
         };
 
 
-        let examinable_component = Examinable {
-            a_name: character_name.clone(),
-            name: character_name.clone(),
+        let examinable_component = Examinable {            
+            name : RichName {
+                name: character_name.clone(),
+                n: false,
+                ..Default::default()
+            },
             ..Default::default()
         };
+
+        
 
 
 
@@ -484,17 +489,17 @@ pub fn generate_human_examine_text(
                         .expect("inventory_update.rs::generate_human_examine_text couldn't find inventory_item_component of an item from passed inventory.");
 
                         if slot.slot_name == "left_hand"  {
-                            examine_text = examine_text + "He is holding " + &examinable.a_name + " in his left hand.\n";
+                            examine_text = examine_text + "He is holding " + &examinable.name.get_a_name() + " in his left hand.\n";
                         } else if slot.slot_name == "right_hand" {
-                            examine_text = examine_text + "He is holding " + &examinable.a_name + " in his right hand.\n";
+                            examine_text = examine_text + "He is holding " + &examinable.name.get_a_name() + " in his right hand.\n";
                         } else if slot.slot_name == "helmet" {
-                            examine_text = examine_text + "He is wearing " + &examinable.a_name + " on his head.\n";
+                            examine_text = examine_text + "He is wearing " + &examinable.name.get_a_name() + " on his head.\n";
                         } else if slot.slot_name == "jumpsuit" {
-                            examine_text = examine_text + "He is wearing " + &examinable.a_name + " on his body.\n";
+                            examine_text = examine_text + "He is wearing " + &examinable.name.get_a_name() + " on his body.\n";
                         } else if slot.slot_name == "holster" {
-                            examine_text = examine_text + &examinable.a_name + "is attached to his holster.\n";
+                            examine_text = examine_text + &examinable.name.get_a_name() + "is attached to his holster.\n";
                         } else {
-                            examine_text = examine_text + "He is wearing " + &examinable.a_name + ".\n";
+                            examine_text = examine_text + "He is wearing " + &examinable.name.get_a_name() + ".\n";
                         }
 
                     },

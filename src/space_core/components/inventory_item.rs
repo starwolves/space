@@ -78,14 +78,14 @@ pub enum CombatAttackAnimation {
     PistolShot,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum CombatType {
     MeleeDirect,
     Projectile(ProjectileType),
 }
 
 #[allow(dead_code)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ProjectileType {
     Laser(Color, f32, f32, f32),
     Ballistic,
