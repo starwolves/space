@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity};
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem,rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::net_throw_item::NetThrowItem}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
+use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, player_input::PlayerInput, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::net_throw_item::NetThrowItem}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 pub fn throw_item(
 
@@ -12,6 +12,9 @@ pub fn throw_item(
     mut inventory_entities : Query<(
         &mut Inventory,
         &Sensable,
+        &mut Pawn,
+        &StandardCharacter,
+        &mut PlayerInput,
     )>,
     mut pickupable_entities : Query<(
         &mut InventoryItem,
@@ -33,7 +36,7 @@ pub fn throw_item(
     for event in throw_item_events.iter() {
 
         let pickuper_components_option = inventory_entities.get_mut(event.entity);
-        let pickuper_components;
+        let mut pickuper_components;
 
         match pickuper_components_option {
             Ok(components) => {
@@ -98,12 +101,25 @@ pub fn throw_item(
 
                 let mut new_pickupable_transform = isometry_to_transform(position.position);
 
-                new_pickupable_transform = entity_spawn_position_for_player(
+                let results = entity_spawn_position_for_player(
                     new_pickupable_transform,
                     None,
                     Some(event.angle),
                     &gridmap_main
                 );
+
+                
+
+                match pickuper_components.3.current_lower_animation_state {
+                    crate::space_core::components::standard_character::CharacterAnimationState::Idle => {
+                        if !pickuper_components.3.combat_mode {
+                            pickuper_components.4.pending_direction = Some(results.1);
+                        }
+                    },
+                    _=>(),
+                }
+
+                new_pickupable_transform = results.0;
 
                 new_pickupable_transform.translation.y = 1.5;
 

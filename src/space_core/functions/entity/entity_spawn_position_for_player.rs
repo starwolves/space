@@ -11,7 +11,7 @@ pub fn entity_spawn_position_for_player(
     player_facing_direction_option : Option<&FacingDirection>,
     angle_option : Option<f32>,
     gridmap_main : &Res<GridmapMain>,
-) -> Transform {
+) -> (Transform, FacingDirection) {
 
     let mut original_transform = player_transform.clone();
 
@@ -129,7 +129,7 @@ pub fn entity_spawn_position_for_player(
         },
     }
     
-    new_transform
+    (new_transform,facing_direction.clone())
 }
 
 

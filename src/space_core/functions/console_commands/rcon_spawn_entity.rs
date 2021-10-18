@@ -80,7 +80,7 @@ pub fn rcon_spawn_entity(
     
             final_result = spawn_entity(
                 entity_name.clone(),
-                spawn_position,
+                spawn_position.0,
                 commands,
                 true,
                 used_names,
