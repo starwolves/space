@@ -95,12 +95,14 @@ pub fn drop_current_item(
 
                 let mut new_pickupable_transform = isometry_to_transform(position.position);
 
-                new_pickupable_transform = entity_spawn_position_for_player(
+                let new_results = entity_spawn_position_for_player(
                     new_pickupable_transform,
                     Some(&pawn_component.facing_direction),
                     None,
                     &gridmap_main
                 );
+
+                new_pickupable_transform = new_results.0;
 
                 new_pickupable_transform.rotation = inventory_item_component.drop_transform.rotation;
 

@@ -1,5 +1,7 @@
 use bevy::{math::Vec2, prelude::Entity};
 
+use super::pawn::FacingDirection;
+
 pub struct PlayerInput {
     pub movement_vector : Vec2,
     pub sprinting : bool,
@@ -9,6 +11,7 @@ pub struct PlayerInput {
     pub auto_move_direction : Vec2,
     pub combat_targetted_entity : Option<Entity>,
     pub alt_attack_mode : bool,
+    pub pending_direction : Option<FacingDirection>,
 }
 
 
@@ -23,6 +26,7 @@ impl Default for PlayerInput {
             auto_move_direction : Vec2::ZERO,
             combat_targetted_entity: None,
             alt_attack_mode: false,
+            pending_direction: None,
         }
     }
 }

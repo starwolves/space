@@ -394,58 +394,92 @@ pub fn standard_characters(
 
         }
         
-
-        // Moving up.
-        if player_input_movement_vector.y == 1. && player_input_movement_vector.x == 0. {
-            movement_index = 0;
-            facing_direction = FacingDirection::Up;
-        }
-        // Moving down.
-        else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == 0. {
-            movement_index = 4;
-            facing_direction = FacingDirection::Down;
-        }
-        // Moving left.
-        else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == -1. {
-            movement_index = 2;
-            facing_direction = FacingDirection::Left;
-        }
-        // Moving right.
-        else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == 1. {
-            movement_index = 6;
-            facing_direction = FacingDirection::Right;
-        }
-        // Moving up left.
-        else if player_input_movement_vector.y == 1. && player_input_movement_vector.x == -1. {
-            movement_index = 1;
-            facing_direction = FacingDirection::UpLeft;
-        }
-        // Moving up right.
-        else if player_input_movement_vector.y == 1. && player_input_movement_vector.x == 1. {
-            movement_index = 7;
-            facing_direction = FacingDirection::UpRight;
-        }
-        // Moving down left.
-        else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == -1. {
-            movement_index = 3;
-            facing_direction = FacingDirection::DownRight;
-        }
-        // Moving down right.
-        else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == 1. {
-            movement_index = 5;
-            facing_direction = FacingDirection::DownLeft;
-        }
         
-        else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == 0. {
-            idle=true;
+
+        match &player_input_component.pending_direction {
+            Some(dir) => {
+                facing_direction = dir.clone();
+                match facing_direction {
+                    FacingDirection::UpLeft => {
+                        movement_index = 1;
+                    },
+                    FacingDirection::Up => {
+                        movement_index = 0;
+                    },
+                    FacingDirection::UpRight => {
+                        movement_index = 7;
+                    },
+                    FacingDirection::Right => {
+                        movement_index = 6;
+                    },
+                    FacingDirection::DownRight => {
+                        movement_index = 3;
+                    },
+                    FacingDirection::Down => {
+                        movement_index = 4;
+                    },
+                    FacingDirection::DownLeft => {
+                        movement_index = 5;
+                    },
+                    FacingDirection::Left => {
+                        movement_index = 2;
+                    },
+                }
+            },
+            None => {
+                // Moving up.
+                if player_input_movement_vector.y == 1. && player_input_movement_vector.x == 0. {
+                    movement_index = 0;
+                    facing_direction = FacingDirection::Up;
+                }
+                // Moving down.
+                else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == 0. {
+                    movement_index = 4;
+                    facing_direction = FacingDirection::Down;
+                }
+                // Moving left.
+                else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == -1. {
+                    movement_index = 2;
+                    facing_direction = FacingDirection::Left;
+                }
+                // Moving right.
+                else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == 1. {
+                    movement_index = 6;
+                    facing_direction = FacingDirection::Right;
+                }
+                // Moving up left.
+                else if player_input_movement_vector.y == 1. && player_input_movement_vector.x == -1. {
+                    movement_index = 1;
+                    facing_direction = FacingDirection::UpLeft;
+                }
+                // Moving up right.
+                else if player_input_movement_vector.y == 1. && player_input_movement_vector.x == 1. {
+                    movement_index = 7;
+                    facing_direction = FacingDirection::UpRight;
+                }
+                // Moving down left.
+                else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == -1. {
+                    movement_index = 3;
+                    facing_direction = FacingDirection::DownRight;
+                }
+                // Moving down right.
+                else if player_input_movement_vector.y == -1. && player_input_movement_vector.x == 1. {
+                    movement_index = 5;
+                    facing_direction = FacingDirection::DownLeft;
+                } else if player_input_movement_vector.y == 0. && player_input_movement_vector.x == 0. {
+                    idle=true;
+                }
+            },
         }
+
+        player_input_component.pending_direction = None;
+        
+        
 
         pawn_component.facing_direction = facing_direction;
 
         let current_linear_velocity : Vec3 = rigid_body_velocity_component.linvel.into();
 
-        
-        
         match (standard_character_component.combat_mode && idle && current_linear_velocity.length() < 0.05) || 
         (standard_character_component.combat_mode == false && idle)
         {
