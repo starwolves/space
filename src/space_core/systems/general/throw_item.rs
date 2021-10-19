@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 
-use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res, warn}};
+use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res, ResMut, warn}};
 use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity};
+use rand::Rng;
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, player_input::PlayerInput, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::net_throw_item::NetThrowItem}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
+use crate::space_core::{bundles::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle}, components::{examinable::Examinable, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, player_input::PlayerInput, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, sfx::sfx_auto_destroy, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::{net_throw_item::NetThrowItem}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 pub fn throw_item(
 
     mut throw_item_events : EventReader<InputThrowItem>,
     mut rigidbody_positions : Query<&mut RigidBodyPosition>,
+    examinables : Query<&Examinable>,
     mut inventory_entities : Query<(
         &mut Inventory,
         &Sensable,
@@ -30,6 +32,7 @@ pub fn throw_item(
     mut net_throw_item : EventWriter<NetThrowItem>,
     gridmap_main : Res<GridmapMain>,
     handle_to_entity : Res<HandleToEntity>,
+    mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
 
 ) {
 
@@ -76,7 +79,8 @@ pub fn throw_item(
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
 
-        
+        let item_examinable_component = examinables.get(pickupable_entity).unwrap();
+        let character_examinable_component = examinables.get(event.entity).unwrap();
 
         drop_slot.slot_item = None;
         pickupable_world_mode_component.mode = WorldModes::Physics;
@@ -94,7 +98,7 @@ pub fn throw_item(
 
         commands.entity(pickupable_entity).remove::<RigidBodyLinkTransform>();
 
-        let new_position;
+        let new_transform;
         
         match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
             Ok(mut position) => {
@@ -125,7 +129,7 @@ pub fn throw_item(
 
                 new_pickupable_transform.rotation = inventory_item_component.drop_transform.rotation;
 
-                new_position = new_pickupable_transform.clone();
+                new_transform = new_pickupable_transform.clone();
                 
                 position.position = transform_to_isometry(new_pickupable_transform);
 
@@ -136,9 +140,9 @@ pub fn throw_item(
             },
         }
         
-        let mut impulse = (event.position - new_position.translation).normalize()  * 0.025;
+        let mut impulse = (event.position - new_transform.translation).normalize()  * 0.025;
 
-        let mut distance = event.position.distance(new_position.translation);
+        let mut distance = event.position.distance(new_transform.translation);
 
         if distance > 10.{
             distance = 10.
@@ -164,9 +168,9 @@ pub fn throw_item(
 
                 entity_update.insert("detachItem".to_string(), EntityUpdateData::AttachedItem(
                     pickupable_entity.to_bits(),
-                    new_position.translation, 
-                    new_position.rotation,
-                    new_position.scale
+                    new_transform.translation, 
+                    new_transform.rotation,
+                    new_transform.scale
                 ));
 
                 root_entity_update.insert(attachment_path.to_string(), entity_update);
@@ -189,6 +193,11 @@ pub fn throw_item(
                                 )
                             });
 
+                            net_throw_item.send(NetThrowItem {
+                                handle: *handle,
+                                message: ReliableServerMessage::ChatMessage(character_examinable_component.name.get_name().to_owned() + " throws " + &item_examinable_component.name.get_a_name() + "!"),
+                            });
+
                         },
                         None => {},
                     }
@@ -199,6 +208,20 @@ pub fn throw_item(
             },
             None => {},
         }
+
+        let mut rng = rand::thread_rng();
+        let random_pick = rng.gen_range(0..2);
+
+        let throw;
+
+        if random_pick == 0 {
+            throw = Throw1SfxBundle::new(new_transform);
+        } else {
+            throw = Throw2SfxBundle::new(new_transform);
+        }
+
+        let sfx_entity = commands.spawn().insert_bundle(throw).id();
+        sfx_auto_destroy(sfx_entity,&mut sfx_auto_destroy_timers);
 
         // Send UI/Control update to owning client.
         net_throw_item.send(NetThrowItem {
