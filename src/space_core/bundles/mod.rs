@@ -41,3 +41,5 @@ pub mod laser_light_hit1_sfx;
 pub mod laser_light_hit2_sfx;
 pub mod laser_light_hit3_sfx;
 pub mod laser_light_hit4_sfx;
+pub mod throw1_sfx;
+pub mod throw2_sfx;
