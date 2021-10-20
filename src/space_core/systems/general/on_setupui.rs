@@ -4,7 +4,9 @@ use bevy::prelude::{Added, Commands, EventWriter, Query, Res, Transform};
 
 use crate::space_core::{bundles::human_male_pawn::HumanMalePawnBundle, components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, setup_phase::SetupPhase}, events::net::{net_on_setupui::NetOnSetupUI, net_showcase::NetShowcase}, functions::entity::name_generator, resources::{motd::MOTD, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}, server_id::ServerId, used_names::UsedNames}};
 
-pub const INPUT_NAME_PATH : &str = "setupUI::background/characterSettingsPopup/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName";
+pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
+pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
+pub const ENTITY_SPAWN_PARENT : &str = "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial";
 
 pub fn on_setupui (
     used_names : Res<UsedNames>,
@@ -27,7 +29,7 @@ pub fn on_setupui (
         let mut hash_map_path = HashMap::new();
 
         hash_map_path.insert(
-            INPUT_NAME_PATH.to_string(),
+            INPUT_NAME_PATH_FULL.to_string(),
             hash_map_data
         );
 

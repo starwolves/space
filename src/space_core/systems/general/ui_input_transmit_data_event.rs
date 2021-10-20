@@ -2,6 +2,8 @@ use bevy::prelude::{Commands, EventReader, EventWriter, Query, Res, ResMut};
 
 use crate::space_core::{components::{boarding::Boarding, connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData}, events::{general::{boarding_player::BoardingPlayer, ui_input_transmit_text::UIInputTransmitText}, net::net_ui_input_transmit_data::NetUIInputTransmitData}, functions::{console_commands::CONSOLE_ERROR_COLOR, entity::new_chat_message::escape_bb}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
+use super::on_setupui::INPUT_NAME_PATH;
+
 pub fn ui_input_transmit_data_event(
     mut event : EventReader<UIInputTransmitText>,
     mut boarding_player_event : EventWriter<BoardingPlayer>,
@@ -27,7 +29,7 @@ pub fn ui_input_transmit_data_event(
         if new_event.ui_type == "setupUI" {
 
             if new_event.node_path == 
-            "background/characterSettingsPopup/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName" {
+            INPUT_NAME_PATH {
                 // In the future check if we have recieved all requested data sets and THEN remove Boarding component.
                 
                 persistent_player_data.character_name = escape_bb(new_event.input_text.to_string(), true, true);

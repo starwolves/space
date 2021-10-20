@@ -514,15 +514,13 @@ pub fn attack(
                                 hit_point = projectile_rough_end_position;
                             },
                         }
-                        
-                        
 
                         projectile_fov.send(ProjectileFOV {
                             laser_projectile: NetProjectileType::Laser(
                                 *laser_color,
                                 *laser_height,
                                 *laser_radius,
-                                projectile_start_position - (direction_additive * 0.5),
+                                projectile_start_position,
                                 hit_point,
                             ),
                         });

@@ -2,7 +2,7 @@
 use crate::space_core::{functions::entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, resources::{gridmap_main::CellData, network_messages::GridMapType}};
 
 
-const EXAMINATION_MAIN : [&str;13] = [
+const EXAMINATION_MAIN : [&str;15] = [
     "An Aluminum floor. This one is painted with security department colors.",
     "An Aluminum wall. This one is painted with security department colors.",
     "You cannot see what is there.",
@@ -16,6 +16,8 @@ const EXAMINATION_MAIN : [&str;13] = [
     "An Aluminum wall. This one is painted with security department colors.",
     "An Aluminum wall.",
     "You cannot see what is there.",
+    "A decorated security table",
+    "A decorated security table. You can place items ontop of it.",
 ];
 
 const EXAMINATION_DETAILS1 : [&str;13] = [

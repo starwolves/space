@@ -5,6 +5,8 @@ use crate::space_core::{components::{
         connected_player::ConnectedPlayer
     }, events::net::net_on_boarding::NetOnBoarding, resources::network_messages::ReliableServerMessage};
 
+use super::on_setupui::INPUT_NAME_PATH;
+
 pub fn on_boarding(
     query : Query<&ConnectedPlayer,Added<Boarding>>,
     mut net_on_boarding: EventWriter<NetOnBoarding>
@@ -16,7 +18,7 @@ pub fn on_boarding(
             handle: connected_player_component.handle,
             message: ReliableServerMessage::UIRequestInput(
                 "setupUI".to_string(),
-                "background/characterSettingsPopup/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName".to_string()
+                INPUT_NAME_PATH.to_string()
             )
         });
 

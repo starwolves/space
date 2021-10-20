@@ -12,7 +12,7 @@ pub fn projectile_fov(
     non_blocking_cells_list : Res<NonBlockingCellsList>,
 ) {
 
-    let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3, f32)>> = HashMap::new();
+    let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3, f32, Vec3, Vec3)>> = HashMap::new();
     let mut projectiles = vec![];
     let mut projectiles_i : usize = 0;
 
@@ -37,12 +37,12 @@ pub fn projectile_fov(
 
                     match cell_ids_with_projectiles.get_mut(&cell_id) {
                         Some(list) => {
-                            list.push((projectiles_i, point, distance));
+                            list.push((projectiles_i, point, distance, start_pos, end_pos));
                         },
                         None => {
                             cell_ids_with_projectiles.insert(
                                 cell_id,
-                                vec![(projectiles_i, point, distance)]
+                                vec![(projectiles_i, point, distance, start_pos, end_pos)]
                             );
                         },
                     }
@@ -74,7 +74,7 @@ pub fn projectile_fov(
             match senser_component.fov.is_in_fov(coords.0, coords.1) {
                 true => {
 
-                    for (projectile_i, point, distance) in projectiles_i_list.iter() {
+                    for (projectile_i, point, distance, start_pos, end_pos) in projectiles_i_list.iter() {
 
                         if used_projectiles_i.contains(projectile_i) {
                             continue;
@@ -150,12 +150,48 @@ pub fn projectile_fov(
 
                         }
 
+                        /*info!("start_pos: {}", start_pos);
+                        info!("end_pos: {}", end_pos);
+                        info!("adjusted_start_pos: {}", adjusted_start_pos);
+                        info!("adjusted_end_pos: {}", adjusted_end_pos);
+                        info!("distance: {}", distance);
+                        info!("Cdistance: {}", end_pos.distance(adjusted_start_pos));
+                        info!("");*/
+
                         if adjusted_start_pos == adjusted_end_pos {
 
                             adjusted_start_pos+= *direction;
                             adjusted_end_pos-= *direction;
 
                         }
+
+                        let min_pos_x;
+                        let max_pos_x;
+                        let min_pos_y;
+                        let max_pos_y;
+
+                        if start_pos.x > end_pos.x {
+                            min_pos_x = end_pos.x;
+                            max_pos_x = start_pos.x;
+                        } else {
+                            min_pos_x = start_pos.x;
+                            max_pos_x = end_pos.x;
+                        }
+
+                        if start_pos.y > end_pos.y {
+                            min_pos_y = end_pos.y;
+                            max_pos_y = start_pos.y;
+                        } else {
+                            min_pos_y = start_pos.y;
+                            max_pos_y = end_pos.y;
+                        }
+
+
+                        if adjusted_start_pos.x < min_pos_x || adjusted_start_pos.x > max_pos_x
+                        || adjusted_start_pos.y < min_pos_y || adjusted_start_pos.y > max_pos_y {
+                            adjusted_start_pos = *start_pos;
+                        }
+                        
 
                         net_projectile_fov.send( NetProjectileFOV {
                             handle: connected_player_component.handle,

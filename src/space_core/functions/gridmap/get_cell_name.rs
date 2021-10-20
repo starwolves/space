@@ -1,6 +1,6 @@
 use crate::space_core::resources::{gridmap_main::CellData};
 
-const NAMES_MAIN : [&str;13] = [
+const NAMES_MAIN : [&str;14] = [
     "an aluminum floor",
     "an aluminum wall",
     "INVISIBLECELL",
@@ -14,6 +14,7 @@ const NAMES_MAIN : [&str;13] = [
     "an aluminum wall",
     "an aluminum wall",
     "INVISIBLECELL2",
+    "a decorated security table"
 ];
 
 pub fn get_cell_name(
