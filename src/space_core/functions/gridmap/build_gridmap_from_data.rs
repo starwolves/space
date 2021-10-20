@@ -113,7 +113,7 @@ pub fn build_main_gridmap(
                 ..Default::default()
             }).insert_bundle(
                 ColliderBundle {
-                    shape: ColliderShape::cuboid(1., 1.5, 1.),
+                    shape: ColliderShape::cuboid(1., 0.5, 1.),
                     collider_type: ColliderType::Solid,
                     material: ColliderMaterial {
                         friction_combine_rule:  CoefficientCombineRule::Min,
