@@ -27,7 +27,7 @@ pub fn ui_input_transmit_data_event(
         if new_event.ui_type == "setupUI" {
 
             if new_event.node_path == 
-            "HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName" {
+            "background/characterSettingsPopup/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName" {
                 // In the future check if we have recieved all requested data sets and THEN remove Boarding component.
                 
                 persistent_player_data.character_name = escape_bb(new_event.input_text.to_string(), true, true);

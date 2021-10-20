@@ -294,7 +294,7 @@ impl HumanMalePawnBundle {
                     human_male_entity.to_bits(),
                     true,
                     "main".to_string(),
-                    "HBoxContainer/Control2/ViewportContainer/Viewport/Spatial".to_string(),
+                    "background/3dviewportPopup/Control/ViewportContainer/Viewport/Spatial".to_string(),
                     false,
                 )
             });

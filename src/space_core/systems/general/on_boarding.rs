@@ -16,7 +16,7 @@ pub fn on_boarding(
             handle: connected_player_component.handle,
             message: ReliableServerMessage::UIRequestInput(
                 "setupUI".to_string(),
-                "HBoxContainer/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName".to_string()
+                "background/characterSettingsPopup/Control/TabContainer/Character/VBoxContainer/vBoxNameInput/Control/inputName".to_string()
             )
         });
 
