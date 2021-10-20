@@ -108,10 +108,10 @@ pub fn projectile_fov(
                                 iterated_distance+=2.;
                             }
 
-                            let too_far = !(iterated_distance.abs() < *distance);
+                            let too_far = !(iterated_distance.abs() <= *distance);
 
                             let mut cell_is_blocked = true;
-                            let new_point = *point + (iterated_distance * *direction);
+                            let new_point = *start_pos + (iterated_distance * *direction);
                             let cell_id = world_to_cell_id(new_point);
                             let coords = to_doryen_coordinates(cell_id.x, cell_id.z);
 
@@ -150,48 +150,12 @@ pub fn projectile_fov(
 
                         }
 
-                        /*info!("start_pos: {}", start_pos);
-                        info!("end_pos: {}", end_pos);
-                        info!("adjusted_start_pos: {}", adjusted_start_pos);
-                        info!("adjusted_end_pos: {}", adjusted_end_pos);
-                        info!("distance: {}", distance);
-                        info!("Cdistance: {}", end_pos.distance(adjusted_start_pos));
-                        info!("");*/
-
                         if adjusted_start_pos == adjusted_end_pos {
 
                             adjusted_start_pos+= *direction;
                             adjusted_end_pos-= *direction;
 
                         }
-
-                        let min_pos_x;
-                        let max_pos_x;
-                        let min_pos_y;
-                        let max_pos_y;
-
-                        if start_pos.x > end_pos.x {
-                            min_pos_x = end_pos.x;
-                            max_pos_x = start_pos.x;
-                        } else {
-                            min_pos_x = start_pos.x;
-                            max_pos_x = end_pos.x;
-                        }
-
-                        if start_pos.y > end_pos.y {
-                            min_pos_y = end_pos.y;
-                            max_pos_y = start_pos.y;
-                        } else {
-                            min_pos_y = start_pos.y;
-                            max_pos_y = end_pos.y;
-                        }
-
-
-                        if adjusted_start_pos.x < min_pos_x || adjusted_start_pos.x > max_pos_x
-                        || adjusted_start_pos.y < min_pos_y || adjusted_start_pos.y > max_pos_y {
-                            adjusted_start_pos = *start_pos;
-                        }
-                        
 
                         net_projectile_fov.send( NetProjectileFOV {
                             handle: connected_player_component.handle,
