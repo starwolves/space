@@ -12,7 +12,7 @@ pub fn projectile_fov(
     non_blocking_cells_list : Res<NonBlockingCellsList>,
 ) {
 
-    let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3, f32, Vec3, Vec3)>> = HashMap::new();
+    let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3, f32, Vec3)>> = HashMap::new();
     let mut projectiles = vec![];
     let mut projectiles_i : usize = 0;
 
@@ -37,12 +37,12 @@ pub fn projectile_fov(
 
                     match cell_ids_with_projectiles.get_mut(&cell_id) {
                         Some(list) => {
-                            list.push((projectiles_i, point, distance, start_pos, end_pos));
+                            list.push((projectiles_i, point, distance, start_pos));
                         },
                         None => {
                             cell_ids_with_projectiles.insert(
                                 cell_id,
-                                vec![(projectiles_i, point, distance, start_pos, end_pos)]
+                                vec![(projectiles_i, point, distance, start_pos)]
                             );
                         },
                     }
@@ -74,7 +74,7 @@ pub fn projectile_fov(
             match senser_component.fov.is_in_fov(coords.0, coords.1) {
                 true => {
 
-                    for (projectile_i, point, distance, start_pos, end_pos) in projectiles_i_list.iter() {
+                    for (projectile_i, point, distance, start_pos) in projectiles_i_list.iter() {
 
                         if used_projectiles_i.contains(projectile_i) {
                             continue;
