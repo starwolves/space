@@ -64,9 +64,9 @@ pub fn build_main_gridmap(
             continue;
         }
         
-        
+        let name = &all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize];
 
-        if all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize] == "securityCounter1" {
+        if name == "securityCounter1" {
 
             let masks = get_bit_masks(ColliderGroup::Standard);
 
@@ -81,6 +81,39 @@ pub fn build_main_gridmap(
             }).insert_bundle(
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 0.5, 0.5),
+                    collider_type: ColliderType::Solid,
+                    material: ColliderMaterial {
+                        friction_combine_rule:  CoefficientCombineRule::Min,
+                        friction: 0.,
+                        ..Default::default()
+                    },
+                    flags: ColliderFlags {
+                        collision_groups: InteractionGroups::new(masks.0,masks.1),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            ).insert(
+                Cell {
+                    id: cell_id_int,
+                }
+            );
+
+        } else if name == "securityDecoratedTable" {
+
+            let masks = get_bit_masks(ColliderGroup::Standard);
+
+            commands.spawn_bundle(RigidBodyBundle {
+                body_type: RigidBodyType::Static,
+                position: world_position.into(),
+                ccd: RigidBodyCcd {
+                    ccd_enabled: false,
+                    ..Default::default()
+                },
+                ..Default::default()
+            }).insert_bundle(
+                ColliderBundle {
+                    shape: ColliderShape::cuboid(1., 1.5, 1.),
                     collider_type: ColliderType::Solid,
                     material: ColliderMaterial {
                         friction_combine_rule:  CoefficientCombineRule::Min,
