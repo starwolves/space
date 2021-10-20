@@ -109,23 +109,30 @@ impl StructureHealth {
                 attacked_is_visible=false;
             }
 
+            let mut should_send = false;
+
             if attacker_is_visible && attacked_is_visible {
                 message = "[color=#ff003c]".to_string() + attacker_name + " has " + strike_word + " " + cell_name + " with " + weapon_a_name + "![/color]";
+                should_send=true;
             } else if attacker_is_visible && !attacked_is_visible {
                 let trigger_word = trigger_words.choose(&mut rand::thread_rng()).unwrap();
                 message = "[color=#ff003c]".to_string() + attacker_name + " has " + trigger_word + " his " + weapon_name + "![/color]";
+                should_send=true;
             } else if !attacker_is_visible && attacked_is_visible {
                 message = "[color=#ff003c]".to_string() + cell_name + " has been " + strike_word + " with " + weapon_a_name + "![/color]";
+                should_send=true;
             }
 
-            match handle_to_entity.inv_map.get(&entity) {
-                Some(handle) => {
-                    net_new_chat_message_event.send(NetChatMessage {
-                        handle: *handle,
-                        message: ReliableServerMessage::ChatMessage(message.clone()),
-                    });
-                },
-                None => {},
+            if should_send {
+                match handle_to_entity.inv_map.get(&entity) {
+                    Some(handle) => {
+                        net_new_chat_message_event.send(NetChatMessage {
+                            handle: *handle,
+                            message: ReliableServerMessage::ChatMessage(message.clone()),
+                        });
+                    },
+                    None => {},
+                }
             }
 
         }
