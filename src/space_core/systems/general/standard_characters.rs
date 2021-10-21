@@ -3,7 +3,7 @@ use std::{f32::consts::PI};
 use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
-use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_alt_item_attack::InputAltItemAttack, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
+use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
 
@@ -44,6 +44,7 @@ pub fn standard_characters(
         EventReader<InputToggleAutoMove>,
         EventReader<InputAttackEntity>,
         EventReader<InputAltItemAttack>,
+        EventReader<InputAttackCell>,
     ),
 
 ) {
@@ -55,6 +56,7 @@ pub fn standard_characters(
         mut input_toggle_auto_move,
         mut input_attack_entity,
         mut alternative_item_attack_events,
+        mut input_attack_cell,
     ) = tuple0;
 
     for event in alternative_item_attack_events.iter() {
@@ -65,6 +67,21 @@ pub fn standard_characters(
             },
             Err(_rr) => {
                 warn!("Couldn't find standard_character_component belonging to entity of InputAltItemAttack.");
+            },
+        }
+
+    }
+
+    for event in input_attack_cell.iter() {
+
+        match standard_character_query.get_component_mut::<PlayerInput>(event.entity) {
+            Ok(mut played_input_component) => {
+
+                played_input_component.combat_targetted_cell = Some(event.id);
+
+            },
+            Err(_rr) => {
+                warn!("Couldn't find standard_character_component belonging to entity of input_attack_cell.");
             },
         }
 
@@ -94,6 +111,7 @@ pub fn standard_characters(
 
                 if !event.pressed {
                     played_input_component.combat_targetted_entity = None;
+                    played_input_component.combat_targetted_cell = None;
                 }
 
             },
@@ -385,10 +403,9 @@ pub fn standard_characters(
                     weapon_a_name : inventory_item_slot_a_name,
                     offense_words: offense_words,
                     trigger_words : trigger_words,
-                    targetted_entity: player_input_component.combat_targetted_entity,
+                    targetted_entity: player_input_component.combat_targetted_entity.clone(),
+                    targetted_cell : player_input_component.combat_targetted_cell.clone(),
                 });
-
-                
 
             }
 

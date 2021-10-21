@@ -88,6 +88,7 @@ impl SecurityCounterWindowBundle {
             },
             Health {
                 is_obstacle : true,
+                is_laser_obstacle: false,
                 ..Default::default()
             },
         )).id();

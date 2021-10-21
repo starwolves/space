@@ -1,6 +1,6 @@
 use bevy::{math::Vec3, prelude::Entity};
 
-use crate::space_core::components::{health::DamageModel, inventory_item::{CombatSoundSet, CombatType}};
+use crate::space_core::{components::{health::DamageModel, inventory_item::{CombatSoundSet, CombatType}}, resources::doryen_fov::Vec3Int};
 
 pub struct Attack {
     pub attacker_entity : Entity,
@@ -20,4 +20,5 @@ pub struct Attack {
     pub offense_words : Vec<String>,
     pub trigger_words : Vec<String>,
     pub targetted_entity : Option<Entity>,
+    pub targetted_cell : Option<Vec3Int>,
 }

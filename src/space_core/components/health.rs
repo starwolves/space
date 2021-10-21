@@ -13,6 +13,7 @@ pub struct Health {
     pub raegent_container : RaegentContainer,
     pub hit_sound_surface : HitSoundSurface,
     pub is_obstacle : bool,
+    pub is_laser_obstacle : bool,
 }
 
 #[allow(dead_code)]
@@ -410,6 +411,7 @@ impl Default for Health {
             },
             hit_sound_surface: HitSoundSurface::Soft,
             is_obstacle: false,
+            is_laser_obstacle: false,
         }
     }
 }
