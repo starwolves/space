@@ -62,7 +62,7 @@ impl HumanMalePawnBundle {
         };
 
 
-        let r = 0.25;
+        let r = 0.5;
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         let collider_component = ColliderBundle {
