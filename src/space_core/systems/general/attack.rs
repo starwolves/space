@@ -86,7 +86,7 @@ pub fn attack(
                         -
                         additive,
                         Quat::from_rotation_y(attack_event.angle)).into(),
-                    &Cuboid::new(Vec3::new(attack_event.range, cast_vertical_extents, 0.3).into()),
+                    &Cuboid::new(Vec3::new(attack_event.range, cast_vertical_extents, 0.1).into()),
                     interaction_groups,
                     None, 
                     |collider_handle| {
@@ -308,8 +308,6 @@ pub fn attack(
             CombatType::Projectile(projectile_type) => {
                 match projectile_type {
                     crate::space_core::components::inventory_item::ProjectileType::Laser(laser_color, laser_height, laser_radius, laser_range) => {
-                        // Perform ray_cast and obtain start and stop position for this projectile all sensed_by netcode call.
-                        // Setup hardcoded client-side laser emissive capsule laser DirectionalParticle with color, height, radius, start_pos, stop_pos.
 
                         attack_event.combat_sound_set.spawn_default_sfx(&mut commands, sound_transform, &mut sfx_auto_destroy_timers);
 
@@ -352,7 +350,7 @@ pub fn attack(
                             &(
                                 projectile_rough_end_position,
                                 Quat::from_rotation_y(attack_event.angle)).into(),
-                            &Cuboid::new(Vec3::new(*laser_range, cast_vertical_extents, 0.6).into()),
+                            &Cuboid::new(Vec3::new(*laser_range, cast_vertical_extents, 0.1).into()),
                             interaction_groups,
                             None, 
                             |collider_handle| {
@@ -615,7 +613,7 @@ pub fn attack(
                                 *laser_color,
                                 *laser_height,
                                 *laser_radius,
-                                projectile_start_position /*- (direction_additive * 0.5)*/,
+                                projectile_start_position - (direction_additive * 0.5),
                                 hit_point,
                             ),
                         });
