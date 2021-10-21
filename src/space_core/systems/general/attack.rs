@@ -608,15 +608,21 @@ pub fn attack(
                             },
                         }
 
-                        projectile_fov.send(ProjectileFOV {
-                            laser_projectile: NetProjectileType::Laser(
-                                *laser_color,
-                                *laser_height,
-                                *laser_radius,
-                                projectile_start_position - (direction_additive * 0.5),
-                                hit_point,
-                            ),
-                        });
+                        let c_start_pos = projectile_start_position - (direction_additive * 0.5);
+
+                        if c_start_pos.distance(hit_point) > 0.8 {
+                            projectile_fov.send(ProjectileFOV {
+                                laser_projectile: NetProjectileType::Laser(
+                                    *laser_color,
+                                    *laser_height,
+                                    *laser_radius,
+                                    c_start_pos,
+                                    hit_point,
+                                ),
+                            });
+                        }
+
+                        
 
 
                     },
