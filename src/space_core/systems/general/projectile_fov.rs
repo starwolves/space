@@ -2,14 +2,14 @@ use std::collections::HashMap;
 
 use bevy::{math::Vec3, prelude::{EventReader, EventWriter, Query, Res}};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, senser::Senser}, events::{general::projectile_fov::ProjectileFOV, net::net_projectile_fov::NetProjectileFOV}, functions::gridmap::gridmap_functions::world_to_cell_id, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, gridmap_main::GridmapMain, network_messages::{NetProjectileType, ReliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, senser::Senser}, events::{general::projectile_fov::ProjectileFOV, net::net_projectile_fov::NetProjectileFOV}, functions::gridmap::gridmap_functions::world_to_cell_id, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, gridmap_main::GridmapMain, network_messages::{NetProjectileType, ReliableServerMessage}, gridmap_data::GridmapData}};
 
 pub fn projectile_fov(
     mut projectile_fov_events : EventReader<ProjectileFOV>,
     sensers : Query<(&Senser, &ConnectedPlayer)>,
     mut net_projectile_fov : EventWriter<NetProjectileFOV>,
     gridmap_main : Res<GridmapMain>,
-    non_blocking_cells_list : Res<NonBlockingCellsList>,
+    non_blocking_cells_list : Res<GridmapData>,
 ) {
 
     let mut cell_ids_with_projectiles : HashMap<Vec3Int, Vec<(usize, Vec3, f32, Vec3)>> = HashMap::new();
@@ -118,7 +118,7 @@ pub fn projectile_fov(
                             if !too_far {
                                 match gridmap_main.data.get(&cell_id) {
                                     Some(cell_data) => {
-                                        if non_blocking_cells_list.list.contains(&cell_data.item) {
+                                        if non_blocking_cells_list.non_blocking_cells_list.contains(&cell_data.item) {
                                             cell_is_blocked=false;
                                         } else {
                                             cell_is_blocked=true;

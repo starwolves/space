@@ -1,11 +1,13 @@
 use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform}};
 use bevy_rapier3d::prelude::{ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray, RigidBodyPosition};
 
-use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}, senser::Senser}, events::{general::{attack::Attack, projectile_fov::ProjectileFOV}, net::{net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::{cell_id_to_world, world_to_cell_id}}}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
+use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}, senser::Senser}, events::{general::{attack::Attack, projectile_fov::ProjectileFOV}, net::{net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::{cell_id_to_world, world_to_cell_id}}}, resources::{doryen_fov::Vec3Int, gridmap_data::GridmapData, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
 use bevy_rapier3d::physics::IntoEntity;
 
 
+
+#[derive(Debug)]
 struct AttackResult {
     entity_option : Option<Entity>,
     cell_id_option: Option<Vec3Int>,
@@ -13,6 +15,7 @@ struct AttackResult {
     rigid_body_position : Vec3,
     collider_handle : ColliderHandle,
     is_obstacle : bool,
+    is_laser_obstacle : bool,
 }
 
 const ATTACK_HEIGHT : f32 = 1.6;
@@ -31,6 +34,7 @@ pub fn attack(
     mut sfx_auto_destroy_timers : ResMut<SfxAutoDestroyTimers>,
     mut projectile_fov : EventWriter<ProjectileFOV>,
     sensers : Query<(Entity, &Senser)>,
+    gridmap_data : Res<GridmapData>,
 
 ) {
 
@@ -59,7 +63,7 @@ pub fn attack(
                 let attack_height; 
                 let cast_vertical_extents;
 
-                if attack_event.weapon_entity.is_none() || !attack_event.targetted_entity.is_none() {
+                if attack_event.weapon_entity.is_none() || !attack_event.targetted_entity.is_none() || !attack_event.targetted_cell.is_none() {
 
                     attack_height = 1.;
                     cast_vertical_extents = 1.;
@@ -119,6 +123,7 @@ pub fn attack(
                                     rigid_body_position : position,
                                     collider_handle,
                                     is_obstacle: health_component.is_obstacle,
+                                    is_laser_obstacle: health_component.is_laser_obstacle,
                                 });
                             },
                             Err(_rr) => {},
@@ -129,6 +134,8 @@ pub fn attack(
 
                                 let position = cell_id_to_world(cell_component.id);
 
+                                let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
+
                                 hit_entities.push(AttackResult{
                                     entity_option: None,
                                     cell_id_option: Some(cell_component.id),
@@ -137,7 +144,8 @@ pub fn attack(
                                     ),
                                     rigid_body_position : position,
                                     collider_handle,
-                                    is_obstacle : true,
+                                    is_obstacle : !gridmap_data.non_obstacle_cells_list.contains(&cell_data.item),
+                                    is_laser_obstacle : !gridmap_data.non_laser_obstacle_cells_list.contains(&cell_data.item),
                                 });
                             },
                             Err(_rr) => {},
@@ -176,7 +184,48 @@ pub fn attack(
                         }
                     },
                     None => {
-                        hit_entity = hit_entities.first();
+
+                        match attack_event.targetted_cell {
+                            Some(targetted_cell) => {
+
+                                let mut found = false;
+                                let mut first_blocker = None;
+                                for attack_result in hit_entities.iter() {
+
+                                    match attack_result.cell_id_option {
+                                        Some(cell_id) => {
+                                            if targetted_cell == cell_id {
+                                                hit_entity = Some(attack_result);
+                                                found=true;
+                                                break;
+                                            }
+                                        },
+                                        None => {},
+                                    }
+
+                                    if attack_result.is_obstacle {
+                                        first_blocker = Some(attack_result);
+                                        break;
+                                    }
+
+                                }
+                                if !found {
+                                    match first_blocker {
+                                        Some(ff) => {
+                                            hit_entity = Some(ff);
+                                        },
+                                        None => {
+                                            hit_entity = hit_entities.first();
+                                        },
+                                    }
+                                }
+
+                            },
+                            None => {
+                                hit_entity = hit_entities.first();
+                            },
+                        }
+                        
                     },
                 }
 
@@ -278,7 +327,7 @@ pub fn attack(
                         let attack_height; 
                         let cast_vertical_extents;
 
-                        if attack_event.weapon_entity.is_none() || !attack_event.targetted_entity.is_none() {
+                        if attack_event.weapon_entity.is_none() || !attack_event.targetted_entity.is_none() || !attack_event.targetted_cell.is_none() {
 
                             attack_height = 1.;
                             cast_vertical_extents = 1.;
@@ -340,6 +389,7 @@ pub fn attack(
                                             rigid_body_position: position,
                                             collider_handle,
                                             is_obstacle : health_component.is_obstacle,
+                                            is_laser_obstacle : health_component.is_laser_obstacle,
                                         });
                                         
                                     },
@@ -353,17 +403,21 @@ pub fn attack(
 
                                         sound_transform.translation = position;
 
-                                        hit_entities.push(AttackResult{
+                                        let cell_data = world_cells.data.get_mut(&cell_component.id).unwrap();
+
+                                        let r = AttackResult{
                                             entity_option: None,
                                             cell_id_option: Some(cell_component.id),
                                             distance: attack_event.attacker_position.distance(
                                                 position
                                             ),
-                                            rigid_body_position: position,
+                                            rigid_body_position : position,
                                             collider_handle,
-                                            is_obstacle: true,
-                                        }
-                                    );
+                                            is_obstacle : !gridmap_data.non_obstacle_cells_list.contains(&cell_data.item),
+                                            is_laser_obstacle : !gridmap_data.non_laser_obstacle_cells_list.contains(&cell_data.item),
+                                        };
+
+                                        hit_entities.push(r);
                                     
                                     },
                                     Err(_rr) => {},
@@ -397,7 +451,7 @@ pub fn attack(
                                         None => {},
                                     }
 
-                                    if attack_result.is_obstacle {
+                                    if attack_result.is_obstacle && attack_result.is_laser_obstacle {
                                         break;
                                     }
 
@@ -407,7 +461,48 @@ pub fn attack(
                                 }
                             },
                             None => {
-                                hit_entity = hit_entities.first();
+
+
+                                match attack_event.targetted_cell {
+                                    Some(targetted_cell) => {
+
+                                        let mut found = false;
+                                        let mut first_blocker = None;
+                                        for attack_result in hit_entities.iter() {
+                                            match attack_result.cell_id_option {
+                                                Some(cell_id) => {
+                                                    if targetted_cell == cell_id {
+                                                        hit_entity = Some(attack_result);
+                                                        found=true;
+                                                        break;
+                                                    }
+                                                },
+                                                None => {},
+                                            }
+
+                                            if attack_result.is_obstacle && attack_result.is_laser_obstacle {
+                                                first_blocker = Some(attack_result);
+                                                break;
+                                            }
+
+                                        }
+                                        if !found {
+                                            match first_blocker {
+                                                Some(ff) => {
+                                                    hit_entity = Some(ff);
+                                                },
+                                                None => {
+                                                    hit_entity = hit_entities.first();
+                                                },
+                                            }
+                                        }
+
+                                    },
+                                    None => {
+                                        hit_entity = hit_entities.first();
+                                    },
+                                }
+                                
                             },
                         }
 
@@ -520,7 +615,7 @@ pub fn attack(
                                 *laser_color,
                                 *laser_height,
                                 *laser_radius,
-                                projectile_start_position,
+                                projectile_start_position /*- (direction_additive * 0.5)*/,
                                 hit_point,
                             ),
                         });

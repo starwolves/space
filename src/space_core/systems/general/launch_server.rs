@@ -4,7 +4,7 @@ use bevy_networking_turbulence::{ConnectionChannelsBuilder, MessageChannelMode, 
 
 use std::{ fs, net::{SocketAddr}, path::Path, time::Duration};
 
-use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, }}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, doryen_fov::{ DoryenMap}, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}, non_blocking_cells_list::NonBlockingCellsList, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
+use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity, }}, resources::{all_ordered_cells::AllOrderedCells, blackcells_data::BlackcellsData, doryen_fov::{ DoryenMap}, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}, gridmap_data::GridmapData, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
 
 
 const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -73,7 +73,7 @@ pub fn launch_server(
     mut all_ordered_cells : ResMut<AllOrderedCells>,
     mut map_environment : ResMut<WorldEnvironment>,
     mut blackcells_data_res : ResMut<BlackcellsData>,
-    mut non_blocking_cells : ResMut<NonBlockingCellsList>,
+    mut gridmap_data : ResMut<GridmapData>,
     mut spawn_points_res : ResMut<SpawnPoints>,
     mut fov_map : ResMut<DoryenMap>,
     mut commands: Commands
@@ -97,8 +97,22 @@ pub fn launch_server(
     let blocking_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonblockinglist.json");
     let current_map_blocking_cells_raw_json : String = fs::read_to_string(&blocking_cells_json_location).expect("main.rs main() Error reading map nonblockinglist.json from drive.");
     let current_map_blocking_cells_data : Vec<i64> = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs main() Error parsing map nonblockinglist.json String.");
+    gridmap_data.non_blocking_cells_list = current_map_blocking_cells_data;
 
-    non_blocking_cells.list = current_map_blocking_cells_data;
+
+
+    let obstacle_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonobstaclelist.json");
+    let current_map_obstacle_cells_raw_json : String = fs::read_to_string(&obstacle_cells_json_location).expect("main.rs main() Error reading map nonobstaclelist.json from drive.");
+    let current_map_obstacle_cells_data : Vec<i64> = serde_json::from_str(&current_map_obstacle_cells_raw_json).expect("main.rs main() Error parsing map nonobstaclelist.json String.");
+    gridmap_data.non_obstacle_cells_list = current_map_obstacle_cells_data;
+
+
+    let laser_obstacle_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonlaserobstaclelist.json");
+    let current_map_laser_obstacle_cells_raw_json : String = fs::read_to_string(&laser_obstacle_cells_json_location).expect("main.rs main() Error reading map nonlaserobstaclelist.json from drive.");
+    let current_map_laser_obstacle_cells_data : Vec<i64> = serde_json::from_str(&current_map_laser_obstacle_cells_raw_json).expect("main.rs main() Error parsing map nonlaserobstaclelist.json String.");
+    gridmap_data.non_laser_obstacle_cells_list = current_map_laser_obstacle_cells_data;
+
+
 
     let mainordered_cells_json = Path::new("content").join("maps").join("bullseye").join("mainordered.json");
     let current_map_mainordered_cells_raw_json : String = fs::read_to_string(mainordered_cells_json).expect("main.rs main() Error reading map mainordered.json drive.");
@@ -152,7 +166,7 @@ pub fn launch_server(
         &all_ordered_cells,
         &mut gridmap_main,
         &mut fov_map,
-        &mut non_blocking_cells,
+        &mut gridmap_data,
     );
 
     let details1_json = Path::new("content").join("maps").join("bullseye").join("details1.json");
