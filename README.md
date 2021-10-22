@@ -25,9 +25,9 @@ This game server is designed to run well on modern processors that have multiple
 * Character meshes and animations are fully moddable and integrated with [Mixamo](https://www.mixamo.com/) for rigging.
 * Entities are loaded from an external content folder for the client. Allowing modders to create new entities such as items, characters, sounds, ship cells and more.
 * Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
-* Data-oriented & modular, everything is its own entity with components in a strictly compiled and extremely fast ECS database-like approach. It is easy to add and remove systems, components and to turn them into plugins and more.
-* Inventory system, pick up, wear, attach and equip items with character entities.
-* Melee & projectile combat systems, damage players, ship walls or other entities.
+* Data-oriented & modular, everything is its own entity with components with a thread-safe strict compiler combined with an extremely fast ECS database-like approach. It is easy to add and remove systems, components and to turn them into plugins and more.
+* Inventory system, pick up, wear, attach, place and equip items with character entities.
+* Melee & projectile combat systems, damage player, ship walls or other entities with various types of damage and the ability to target specific body parts.
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
 * Configurable console commands, including rcon admin commands.
 
