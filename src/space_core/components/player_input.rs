@@ -15,6 +15,7 @@ pub struct PlayerInput {
     pub combat_targetted_cell : Option<Vec3Int>,
     pub alt_attack_mode : bool,
     pub pending_direction : Option<FacingDirection>,
+    pub movement_interp : f32,
 }
 
 
@@ -31,6 +32,7 @@ impl Default for PlayerInput {
             combat_targetted_cell: None,
             alt_attack_mode: false,
             pending_direction: None,
+            movement_interp: 0.,
         }
     }
 }

@@ -6,11 +6,13 @@ use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyPosition, RigidBody
 use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
 
+const JOG_SPEED : f32 = 16.2;
+const RUN_SPEED : f32 = 21.;
+const MOVEMENT_SMOOTHNESS : f32 = 0.020;
 
-const JOG_SPEED : f32 = 13.;
-const RUN_SPEED : f32 = 18.;
 const MELEE_FISTS_REACH : f32 = 1.2;
 const COMBAT_ROTATION_SPEED : f32 = 18.;
+
 
 pub fn standard_characters(
     mut standard_character_query : Query<(
@@ -198,6 +200,16 @@ pub fn standard_characters(
         if player_input_movement_vector.x.abs() == 1. && player_input_movement_vector.y.abs() == 1. {
             speed_factor*=0.665;
         }
+
+        if player_input_movement_vector.length() == 0. {
+            player_input_component.movement_interp = 0.;
+        } else {
+            if player_input_component.movement_interp < 1. {
+                player_input_component.movement_interp+=MOVEMENT_SMOOTHNESS;
+            }
+        }
+
+        speed_factor*=player_input_component.movement_interp;
 
         let rapier_vector : Vector<Real> = Vec3::new(
             player_input_movement_vector.x * -speed_factor,

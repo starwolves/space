@@ -1,5 +1,5 @@
 use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::EventWriter};
-use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, soft_player::SoftPlayer}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::entity::new_chat_message::get_talk_spaces_setupui, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}, systems::general::console_commands::get_console_commands};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, soft_player::SoftPlayer}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::entity::new_chat_message::get_talk_spaces_setupui, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, gridmap_data::GridmapData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}, systems::general::console_commands::get_console_commands};
 
 
 pub fn on_new_player_connection(
@@ -13,6 +13,7 @@ pub fn on_new_player_connection(
     handle_to_entity : &mut ResMut<HandleToEntity>,
     commands: &mut Commands,
     used_names : &mut ResMut<UsedNames>,
+    gridmap_data : &Res<GridmapData>,
 ) {
     
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
@@ -218,5 +219,16 @@ pub fn on_new_player_connection(
         handle: *handle,
         message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::FinishedInitialization)
     });
+
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::PlaceableItemsSurfaces(gridmap_data.placeable_items_cells_list.clone()))
+    });
     
+    net_on_new_player_connection.send(NetOnNewPlayerConnection{
+        handle: *handle,
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::NonBlockingCells(gridmap_data.non_fov_blocking_cells_list.clone()))
+    });
+
+
 }

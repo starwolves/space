@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::Commands};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use crate::space_core::functions::entity::collider_interaction_groups::{ColliderGroup, get_bit_masks};
+use crate::space_core::{bundles::human_male_pawn::CHARACTER_FLOOR_FRICTION, functions::entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}};
 
 pub fn build_gridmap_floor(
     commands : &mut Commands,
@@ -23,7 +23,7 @@ pub fn build_gridmap_floor(
             collider_type: ColliderType::Solid,
             material: ColliderMaterial {
                 friction_combine_rule:  CoefficientCombineRule::Average,
-                friction: 0.5,
+                friction: CHARACTER_FLOOR_FRICTION,
                 ..Default::default()
             },
             flags: ColliderFlags {

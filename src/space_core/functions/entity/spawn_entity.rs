@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, Entity, EventWriter, ResMut, Transform, warn};
+use bevy::prelude::{Commands, Entity, EventWriter, ResMut, Transform};
 
 use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle, pistol_l1::PistolL1Bundle}, components::persistent_player_data::PersistentPlayerData, events::net::net_showcase::NetShowcase, resources::used_names::UsedNames};
 
@@ -52,7 +52,6 @@ pub fn spawn_entity(
         return_entity = Some(PistolL1Bundle::spawn(transform, commands, correct_transform));
 
     } else {
-        warn!("Attempted to spawn an unknown entity.");
         return_entity = None;
     }
 
@@ -84,7 +83,6 @@ pub fn spawn_held_entity(
         return_entity = Some(PistolL1Bundle::spawn_held(commands, holder_entity, showcase_instance, showcase_handle_option, net_showcase));
 
     } else {
-        warn!("Attempted to spawn an unknown entity.");
         return_entity = None;
     }
 

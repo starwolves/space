@@ -127,7 +127,7 @@ Vec3::new(0.,0.355, 0.)
             position: collider_position,
             material: ColliderMaterial {
                 friction: STANDARD_BODY_FRICTION,
-                friction_combine_rule:  CoefficientCombineRule::Average,
+                friction_combine_rule:  CoefficientCombineRule::Multiply,
                 ..Default::default()
             },
             flags: ColliderFlags {

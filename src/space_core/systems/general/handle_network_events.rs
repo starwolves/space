@@ -1,7 +1,7 @@
 use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, EventWriter, Query, info}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::entity::{on_new_player_connection::on_new_player_connection, on_player_disconnect::on_player_disconnect}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, client_health_ui_cache::ClientHealthUICache, handle_to_entity::HandleToEntity, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::entity::{on_new_player_connection::on_new_player_connection, on_player_disconnect::on_player_disconnect}, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, client_health_ui_cache::ClientHealthUICache, gridmap_data::GridmapData, handle_to_entity::HandleToEntity, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}};
 
 pub fn handle_network_events(
     mut net: ResMut<NetworkResource>,
@@ -17,6 +17,7 @@ pub fn handle_network_events(
     mut connected_players : Query<(&mut PersistentPlayerData, &mut ConnectedPlayer, &mut PlayerInput)>,
     mut used_names : ResMut<UsedNames>,
     mut client_health_ui_cache : ResMut<ClientHealthUICache>,
+    gridmap_data : Res<GridmapData>,
 ) {
 
     for event in reader.iter() {
@@ -59,7 +60,8 @@ pub fn handle_network_events(
                     &all_ordered_cells,
                     &mut handle_to_entity,
                     &mut commands,
-                    &mut used_names
+                    &mut used_names,
+                    &gridmap_data,
                 );
 
 

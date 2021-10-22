@@ -5,7 +5,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFla
 
 use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::network_messages::ReliableServerMessage};
 
-pub const STANDARD_BODY_FRICTION : f32 = 1.5;
+pub const STANDARD_BODY_FRICTION : f32 = 0.18;
 
 pub struct HelmetSecurityBundle;
 
@@ -125,7 +125,7 @@ Vec3::new(0.,0.355, 0.)
             position: collider_position,
             material: ColliderMaterial {
                 friction: STANDARD_BODY_FRICTION,
-                friction_combine_rule:  CoefficientCombineRule::Average,
+                friction_combine_rule:  CoefficientCombineRule::Multiply,
                 ..Default::default()
             },
             flags: ColliderFlags {
@@ -260,7 +260,7 @@ Vec3::new(0.,0.355, 0.)
             combat_melee_text_set : InventoryItem::get_default_strike_words(),
             combat_projectile_text_set : None,
             trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
-            trigger_projectile_text_set: None,
+            trigger_projectile_text_set: None
         },
         DefaultTransform {
             transform: default_transform,

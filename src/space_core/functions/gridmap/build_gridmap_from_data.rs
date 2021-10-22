@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Commands, ResMut};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
 use crate::space_core::{components::{cell::Cell, health::HealthFlag}, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth}, gridmap_data::GridmapData}};
 
@@ -18,7 +18,7 @@ pub fn build_main_gridmap(
     all_ordered_cells : &AllOrderedCells,
     gridmap_main : &mut ResMut<GridmapMain>,
     fov_map : &mut ResMut<DoryenMap>,
-    non_fov_blocking_cells : &mut ResMut<GridmapData>,
+    gridmap_data : &mut ResMut<GridmapData>,
 ) {
 
     let mut health_flags = HashMap::new();
@@ -52,7 +52,7 @@ pub fn build_main_gridmap(
         if cell_id_int.y == 0 {
             // Wall
 
-            if !non_fov_blocking_cells.non_blocking_cells_list.contains(&cell_data.item) {
+            if !gridmap_data.non_fov_blocking_cells_list.contains(&cell_data.item) {
                 let coords = to_doryen_coordinates(cell_id_int.x, cell_id_int.z);
                 fov_map.map.set_transparent(coords.0, coords.1, false);
             }
@@ -66,9 +66,24 @@ pub fn build_main_gridmap(
         
         let name = &all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize];
 
-        if name == "securityCounter1" {
+        let friction;
+        let friction_combine_rule;
 
+        if gridmap_data.placeable_items_cells_list.contains(&cell_data.item) {
+            friction = 0.2;
+            friction_combine_rule = CoefficientCombineRule::Min;
+        } else {
+            friction_combine_rule = CoefficientCombineRule::Average;
+            friction = 0.;
+        }
+
+        if name == "securityCounter1" {
+            
             let masks = get_bit_masks(ColliderGroup::Standard);
+
+            let mut default_isometry = ColliderPosition::identity();
+
+            default_isometry.translation.y = -0.5;
 
             commands.spawn_bundle(RigidBodyBundle {
                 body_type: RigidBodyType::Static,
@@ -81,10 +96,11 @@ pub fn build_main_gridmap(
             }).insert_bundle(
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 0.5, 0.5),
+                    position: default_isometry,
                     collider_type: ColliderType::Solid,
                     material: ColliderMaterial {
-                        friction_combine_rule:  CoefficientCombineRule::Min,
-                        friction: 0.,
+                        friction_combine_rule:  friction_combine_rule,
+                        friction: friction,
                         ..Default::default()
                     },
                     flags: ColliderFlags {
@@ -103,6 +119,10 @@ pub fn build_main_gridmap(
 
             let masks = get_bit_masks(ColliderGroup::Standard);
 
+            let mut default_isometry = ColliderPosition::identity();
+
+            default_isometry.translation.y = -0.5;
+
             commands.spawn_bundle(RigidBodyBundle {
                 body_type: RigidBodyType::Static,
                 position: world_position.into(),
@@ -114,10 +134,11 @@ pub fn build_main_gridmap(
             }).insert_bundle(
                 ColliderBundle {
                     shape: ColliderShape::cuboid(1., 0.5, 1.),
+                    position: default_isometry,
                     collider_type: ColliderType::Solid,
                     material: ColliderMaterial {
-                        friction_combine_rule:  CoefficientCombineRule::Min,
-                        friction: 0.,
+                        friction_combine_rule:  friction_combine_rule,
+                        friction: friction,
                         ..Default::default()
                     },
                     flags: ColliderFlags {
@@ -149,8 +170,8 @@ pub fn build_main_gridmap(
                     shape: ColliderShape::cuboid(1., 1., 1.),
                     collider_type: ColliderType::Solid,
                     material: ColliderMaterial {
-                        friction_combine_rule:  CoefficientCombineRule::Min,
-                        friction: 0.,
+                        friction_combine_rule:  friction_combine_rule,
+                        friction: friction,
                         ..Default::default()
                     },
                     flags: ColliderFlags {

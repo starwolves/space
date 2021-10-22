@@ -97,14 +97,14 @@ pub fn launch_server(
     let blocking_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonblockinglist.json");
     let current_map_blocking_cells_raw_json : String = fs::read_to_string(&blocking_cells_json_location).expect("main.rs main() Error reading map nonblockinglist.json from drive.");
     let current_map_blocking_cells_data : Vec<i64> = serde_json::from_str(&current_map_blocking_cells_raw_json).expect("main.rs main() Error parsing map nonblockinglist.json String.");
-    gridmap_data.non_blocking_cells_list = current_map_blocking_cells_data;
+    gridmap_data.non_fov_blocking_cells_list = current_map_blocking_cells_data;
 
 
 
     let obstacle_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonobstaclelist.json");
     let current_map_obstacle_cells_raw_json : String = fs::read_to_string(&obstacle_cells_json_location).expect("main.rs main() Error reading map nonobstaclelist.json from drive.");
     let current_map_obstacle_cells_data : Vec<i64> = serde_json::from_str(&current_map_obstacle_cells_raw_json).expect("main.rs main() Error parsing map nonobstaclelist.json String.");
-    gridmap_data.non_obstacle_cells_list = current_map_obstacle_cells_data;
+    gridmap_data.non_combat_obstacle_cells_list = current_map_obstacle_cells_data;
 
 
     let laser_obstacle_cells_json_location = Path::new("content").join("maps").join("bullseye").join("nonlaserobstaclelist.json");
@@ -112,6 +112,10 @@ pub fn launch_server(
     let current_map_laser_obstacle_cells_data : Vec<i64> = serde_json::from_str(&current_map_laser_obstacle_cells_raw_json).expect("main.rs main() Error parsing map nonlaserobstaclelist.json String.");
     gridmap_data.non_laser_obstacle_cells_list = current_map_laser_obstacle_cells_data;
 
+    let placeable_items_cells_json_location = Path::new("content").join("maps").join("bullseye").join("placeableitemsurfaces.json");
+    let placeable_items_cells_raw_json : String = fs::read_to_string(&placeable_items_cells_json_location).expect("main.rs main() Error reading map placeableitemsurfaces.json from drive.");
+    let placeable_items_cells_data : Vec<i64> = serde_json::from_str(&placeable_items_cells_raw_json).expect("main.rs main() Error parsing map placeableitemsurfaces.json String.");
+    gridmap_data.placeable_items_cells_list = placeable_items_cells_data;
 
 
     let mainordered_cells_json = Path::new("content").join("maps").join("bullseye").join("mainordered.json");
