@@ -2,7 +2,7 @@
 use std::collections::{BTreeMap};
 
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands, Transform}};
-use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
+use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
 use crate::space_core::{components::{counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::Health, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}};
 
@@ -31,9 +31,14 @@ impl SecurityCounterWindowBundle {
 
         let window_collider_component = ColliderBundle {
             shape: ColliderShape::cuboid(0.1,0.593,1.),
-            position: Vec3::new(0., -1., 1.).into(),
+            position: Vec3::new(0., 0., 1.).into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
+                ..Default::default()
+            },
+            material: ColliderMaterial {
+                friction: 0.,
+                friction_combine_rule:  CoefficientCombineRule::Average,
                 ..Default::default()
             },
             ..Default::default()
@@ -87,8 +92,9 @@ impl SecurityCounterWindowBundle {
                 ..Default::default()
             },
             Health {
-                is_obstacle : true,
+                is_combat_obstacle : true,
                 is_laser_obstacle: false,
+                is_reach_obstacle: true,
                 ..Default::default()
             },
         )).id();

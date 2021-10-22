@@ -7,6 +7,8 @@ use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcast
 
 pub struct HumanMalePawnBundle;
 
+pub const CHARACTER_FLOOR_FRICTION : f32 = 6.;
+
 impl HumanMalePawnBundle {
 
     pub fn spawn(
@@ -76,8 +78,8 @@ impl HumanMalePawnBundle {
             collider_type: ColliderType::Solid,
             mass_properties: ColliderMassProps::Density(1.0),
             material: ColliderMaterial {
-                friction: 7.,
-                friction_combine_rule:  CoefficientCombineRule::Average,
+                friction: CHARACTER_FLOOR_FRICTION,
+                friction_combine_rule:  CoefficientCombineRule::Min,
                 ..Default::default()
             },
             flags: ColliderFlags {
@@ -136,7 +138,7 @@ impl HumanMalePawnBundle {
             },
             Health {
                 health_container :HealthContainer::Humanoid(HumanoidHealth::default()),
-                is_obstacle: true,
+                is_combat_obstacle: true,
                 ..Default::default()
             }
         ));

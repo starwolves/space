@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res}};
-use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
+use bevy::{math::Vec3, prelude::{Commands, EventReader, EventWriter, Query, QuerySet, Res, Transform, warn}};
+use bevy_rapier3d::prelude::{ColliderFlags, QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
-use crate::space_core::{components::{inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
+use crate::space_core::{components::{cell::Cell, health::Health, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::DropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{can_reach_entity::{REACH_DISTANCE, can_reach_entity}, entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_data::GridmapData, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 pub fn drop_current_item(
     mut drop_current_item_events : EventReader<DropCurrentItem>,
@@ -13,18 +13,25 @@ pub fn drop_current_item(
         &Sensable,
         &Pawn,
     )>,
-    mut pickupable_entities : Query<(
-        &mut InventoryItem,
-        &mut WorldMode,
-        &mut RigidBodyActivation,
-        &mut ColliderFlags,
-        &mut RigidBodyForces,
-        &mut RigidBodyLinkTransform,
+    mut inventory_items_query : Query<&mut InventoryItem>,
+    health_query : Query<&Health>,
+    cell_query : Query<&Cell>,
+    mut q: QuerySet<(
+        Query<(
+            &mut WorldMode,
+            &mut RigidBodyActivation,
+            &mut ColliderFlags,
+            &mut RigidBodyForces,
+            &mut RigidBodyLinkTransform,
+        )>,
+        QueryPipelineColliderComponentsQuery,
     )>,
     mut commands : Commands,
     mut net_drop_current_item : EventWriter<NetDropCurrentItem>,
     handle_to_entity : Res<HandleToEntity>,
     gridmap_main : Res<GridmapMain>,
+    gridmap_data : Res<GridmapData>,
+    query_pipeline: Res<QueryPipeline>,
 ) {
 
     for event in drop_current_item_events.iter() {
@@ -58,18 +65,127 @@ pub fn drop_current_item(
             },
         }
 
+        
+
+        let inventory_item_component_prev = inventory_items_query.get_component_mut::<InventoryItem>(pickupable_entity)
+        .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
+
+
+        let mut new_position;
+
+        let pawn_component = pickuper_components.2;
+        
+        let pickuper_position : Vec3;
+
+        match event.input_position_option {
+            Some(placing_position) => {
+                
+                match rigidbody_positions.get_component_mut::<RigidBodyPosition>(event.pickuper_entity) {
+                    Ok(pickuper_position_rapier) => {
+                        
+                        pickuper_position = pickuper_position_rapier.position.translation.into();
+                        
+                        if pickuper_position.distance(placing_position) > REACH_DISTANCE {
+                            continue;
+                        }
+
+                        new_position = Transform {
+                            translation: placing_position,
+                            rotation: inventory_item_component_prev.drop_transform.rotation,
+                            scale: inventory_item_component_prev.drop_transform.scale,
+                        };
+
+                    },
+                    Err(_) => {
+                        warn!("Couldn't find position of pickuper entity (2)!");
+                        continue;
+                    },
+                }
+
+            },
+            None => {
+                match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
+                    Ok(pickupable_rigidbody_position) => {
+        
+                        
+        
+                        let mut new_pickupable_transform = isometry_to_transform(pickupable_rigidbody_position.position);
+        
+                        let new_results = entity_spawn_position_for_player(
+                            new_pickupable_transform,
+                            Some(&pawn_component.facing_direction),
+                            None,
+                            &gridmap_main
+                        );
+        
+                        new_pickupable_transform = new_results.0;
+        
+                        new_pickupable_transform.rotation = inventory_item_component_prev.drop_transform.rotation;
+        
+                        new_position = new_pickupable_transform.clone();
+                        
+                        match rigidbody_positions.get_component_mut::<RigidBodyPosition>(event.pickuper_entity) {
+                            Ok(rigidbody_pos) => {
+                                pickuper_position = rigidbody_pos.position.translation.into();
+                            },
+                            Err(_rr) => {
+                                warn!("Couldn't find position of pickuper entity (3)!");
+                                continue;
+                            },
+                        }
+        
+                    },
+                    Err(_rr) => {
+                        warn!("Couldn't find rigidbodyposition of pickupable_entity!");
+                        continue;
+                    },
+                }
+            },
+        }
+
+
+        if event.input_position_option.is_some() {
+            if !can_reach_entity(
+                &query_pipeline,
+                &q.q1_mut(),
+                pickuper_position,
+                event.input_position_option.unwrap(),
+                &pickupable_entity,
+                &event.pickuper_entity,
+                &health_query,
+                &cell_query,
+                &gridmap_main,
+                &gridmap_data,
+                true
+            ) {
+                continue;
+            }
+        }
+
+        match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
+            Ok(mut rigidbody_pos) => {
+                new_position.translation.y+=0.25;
+                rigidbody_pos.position = transform_to_isometry(new_position);
+            },
+            Err(_rr) => {
+                warn!("Couldn't find position of pickuper entity (3)!");
+                continue;
+            },
+        }
+        
+
+        let mut inventory_item_component = inventory_items_query.get_mut(pickupable_entity)
+        .expect("drop_current_item.rs couldnt find InventoryItem component of pickupable_entity from query.");
+
         let (
-            mut inventory_item_component,
             mut pickupable_world_mode_component,
             mut pickupable_rigidbody_activation,
             mut pickupable_rigidbody_collider_flags,
             mut pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
-        ) = pickupable_entities.get_mut(pickupable_entity)
+        ) = q.q0_mut().get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
-
         
-
         drop_slot.slot_item = None;
         pickupable_world_mode_component.mode = WorldModes::Physics;
         inventory_item_component.in_inventory_of_entity = None;
@@ -85,39 +201,6 @@ pub fn drop_current_item(
         pickupable_rigidbody_link_transform_component.active = false;
 
         commands.entity(pickupable_entity).remove::<RigidBodyLinkTransform>();
-
-        let new_position;
-
-        let pawn_component = pickuper_components.2;
-        
-        match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
-            Ok(mut position) => {
-
-                let mut new_pickupable_transform = isometry_to_transform(position.position);
-
-                let new_results = entity_spawn_position_for_player(
-                    new_pickupable_transform,
-                    Some(&pawn_component.facing_direction),
-                    None,
-                    &gridmap_main
-                );
-
-                new_pickupable_transform = new_results.0;
-
-                new_pickupable_transform.rotation = inventory_item_component.drop_transform.rotation;
-
-                new_position = new_pickupable_transform.clone();
-                
-                position.position = transform_to_isometry(new_pickupable_transform);
-
-            },
-            Err(_rr) => {
-                continue;
-            },
-        }
-        
-        
-
         
         
 

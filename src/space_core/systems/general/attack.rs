@@ -122,7 +122,7 @@ pub fn attack(
                                     distance: attack_event.attacker_position.distance(position),
                                     rigid_body_position : position,
                                     collider_handle,
-                                    is_obstacle: health_component.is_obstacle,
+                                    is_obstacle: health_component.is_combat_obstacle,
                                     is_laser_obstacle: health_component.is_laser_obstacle,
                                 });
                             },
@@ -144,7 +144,7 @@ pub fn attack(
                                     ),
                                     rigid_body_position : position,
                                     collider_handle,
-                                    is_obstacle : !gridmap_data.non_obstacle_cells_list.contains(&cell_data.item),
+                                    is_obstacle : !gridmap_data.non_combat_obstacle_cells_list.contains(&cell_data.item),
                                     is_laser_obstacle : !gridmap_data.non_laser_obstacle_cells_list.contains(&cell_data.item),
                                 });
                             },
@@ -386,7 +386,7 @@ pub fn attack(
                                             ),
                                             rigid_body_position: position,
                                             collider_handle,
-                                            is_obstacle : health_component.is_obstacle,
+                                            is_obstacle : health_component.is_combat_obstacle,
                                             is_laser_obstacle : health_component.is_laser_obstacle,
                                         });
                                         
@@ -411,7 +411,7 @@ pub fn attack(
                                             ),
                                             rigid_body_position : position,
                                             collider_handle,
-                                            is_obstacle : !gridmap_data.non_obstacle_cells_list.contains(&cell_data.item),
+                                            is_obstacle : !gridmap_data.non_combat_obstacle_cells_list.contains(&cell_data.item),
                                             is_laser_obstacle : !gridmap_data.non_laser_obstacle_cells_list.contains(&cell_data.item),
                                         };
 

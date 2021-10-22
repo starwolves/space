@@ -26,7 +26,7 @@ pub enum ReliableClientMessage {
     ExamineEntity(u64),
     ExamineMap(GridMapType, i16,i16,i16),
     UseWorldItem(u64),
-    DropCurrentItem,
+    DropCurrentItem(Option<Vec3>),
     SwitchHands,
     WearItem(u64, String),
     TakeOffItem(String),
@@ -131,6 +131,8 @@ pub enum ServerConfigMessage {
     FinishedInitialization,
     ConsoleCommands(Vec<(String,String, Vec<(String, ConsoleCommandVariant)>)>),
     TalkSpaces(Vec<(String, String)>),
+    PlaceableItemsSurfaces(Vec<i64>),
+    NonBlockingCells(Vec<i64>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

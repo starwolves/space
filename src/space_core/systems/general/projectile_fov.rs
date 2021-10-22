@@ -118,7 +118,7 @@ pub fn projectile_fov(
                             if !too_far {
                                 match gridmap_main.data.get(&cell_id) {
                                     Some(cell_data) => {
-                                        if non_blocking_cells_list.non_blocking_cells_list.contains(&cell_data.item) {
+                                        if non_blocking_cells_list.non_fov_blocking_cells_list.contains(&cell_data.item) {
                                             cell_is_blocked=false;
                                         } else {
                                             cell_is_blocked=true;

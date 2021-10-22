@@ -187,13 +187,14 @@ pub fn handle_network_messages(
                     
 
                 },
-                ReliableClientMessage::DropCurrentItem => {
+                ReliableClientMessage::DropCurrentItem(position_option) => {
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             drop_current_item.send(DropCurrentItem {
                                 handle: *handle,
-                                pickuper_entity : *player_entity
+                                pickuper_entity : *player_entity,
+                                input_position_option: position_option,
                             });
                         },
                         None => {

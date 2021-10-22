@@ -131,7 +131,7 @@ fn spawn(
             position: collider_position,
             material: ColliderMaterial {
                 friction: STANDARD_BODY_FRICTION,
-                friction_combine_rule:  CoefficientCombineRule::Average,
+                friction_combine_rule:  CoefficientCombineRule::Multiply,
                 ..Default::default()
             },
             flags: ColliderFlags {
@@ -253,7 +253,7 @@ fn spawn(
             combat_melee_text_set : InventoryItem::get_default_strike_words(),
             combat_projectile_text_set : None,
             trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
-            trigger_projectile_text_set: None,
+            trigger_projectile_text_set: None
         },
         DefaultTransform {
             transform: default_transform,

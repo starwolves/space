@@ -12,8 +12,9 @@ pub struct Health {
     pub health_flags : HashMap<u32, HealthFlag>,
     pub raegent_container : RaegentContainer,
     pub hit_sound_surface : HitSoundSurface,
-    pub is_obstacle : bool,
+    pub is_combat_obstacle : bool,
     pub is_laser_obstacle : bool,
+    pub is_reach_obstacle : bool,
 }
 
 #[allow(dead_code)]
@@ -410,8 +411,9 @@ impl Default for Health {
                 raegents: HashMap::new(),
             },
             hit_sound_surface: HitSoundSurface::Soft,
-            is_obstacle: false,
+            is_combat_obstacle: false,
             is_laser_obstacle: false,
+            is_reach_obstacle: false,
         }
     }
 }
