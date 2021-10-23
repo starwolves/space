@@ -17,6 +17,23 @@ pub struct Health {
     pub is_reach_obstacle : bool,
 }
 
+
+impl Default for Health {
+    fn default() -> Self {
+        Self {
+            health_container : HealthContainer::Entity(EntityContainer::default()),
+            health_flags: HashMap::new(),
+            raegent_container : RaegentContainer {
+                raegents: HashMap::new(),
+            },
+            hit_sound_surface: HitSoundSurface::Soft,
+            is_combat_obstacle: false,
+            is_laser_obstacle: true,
+            is_reach_obstacle: false,
+        }
+    }
+}
+
 #[allow(dead_code)]
 #[derive(PartialEq, Clone)]
 pub enum HealthFlag {
@@ -400,22 +417,6 @@ impl Health {
 
     }
 
-}
-
-impl Default for Health {
-    fn default() -> Self {
-        Self {
-            health_container : HealthContainer::Entity(EntityContainer::default()),
-            health_flags: HashMap::new(),
-            raegent_container : RaegentContainer {
-                raegents: HashMap::new(),
-            },
-            hit_sound_surface: HitSoundSurface::Soft,
-            is_combat_obstacle: false,
-            is_laser_obstacle: false,
-            is_reach_obstacle: false,
-        }
-    }
 }
 
 impl Default for EntityContainer {

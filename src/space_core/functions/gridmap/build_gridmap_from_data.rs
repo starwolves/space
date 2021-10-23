@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::{Commands, ResMut};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
 
-use crate::space_core::{components::{cell::Cell, health::HealthFlag}, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{all_ordered_cells::AllOrderedCells, doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth}, gridmap_data::GridmapData}};
+use crate::space_core::{components::{cell::Cell, health::HealthFlag}, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth}, gridmap_data::GridmapData}};
 
 
 
@@ -15,7 +15,6 @@ use crate::space_core::{components::{cell::Cell, health::HealthFlag}, functions:
 pub fn build_main_gridmap(
     current_map_main_data : &Vec<CellDataWID>, 
     commands : &mut Commands, 
-    all_ordered_cells : &AllOrderedCells,
     gridmap_main : &mut ResMut<GridmapMain>,
     fov_map : &mut ResMut<DoryenMap>,
     gridmap_data : &mut ResMut<GridmapData>,
@@ -38,9 +37,12 @@ pub fn build_main_gridmap(
 
         let world_position = cell_id_to_world(cell_id_int);
 
+        
+        let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
+
         gridmap_main.data.insert(cell_id_int,
         CellData {
-            item: cell_data.item,
+            item: cell_item_id,
             orientation: cell_data.orientation,
             health : StructureHealth {
                 health_flags: health_flags.clone(),
@@ -52,7 +54,7 @@ pub fn build_main_gridmap(
         if cell_id_int.y == 0 {
             // Wall
 
-            if !gridmap_data.non_fov_blocking_cells_list.contains(&cell_data.item) {
+            if !gridmap_data.non_fov_blocking_cells_list.contains(&cell_item_id) {
                 let coords = to_doryen_coordinates(cell_id_int.x, cell_id_int.z);
                 fov_map.map.set_transparent(coords.0, coords.1, false);
             }
@@ -64,12 +66,12 @@ pub fn build_main_gridmap(
             continue;
         }
         
-        let name = &all_ordered_cells.main[((all_ordered_cells.main.len()-1) - cell_data.item as usize) as usize];
+        let name = &gridmap_data.ordered_main_names[((gridmap_data.ordered_main_names.len()-1) - cell_item_id as usize) as usize];
 
         let friction;
         let friction_combine_rule;
 
-        if gridmap_data.placeable_items_cells_list.contains(&cell_data.item) {
+        if gridmap_data.placeable_items_cells_list.contains(&cell_item_id) {
             friction = 0.2;
             friction_combine_rule = CoefficientCombineRule::Min;
         } else {
@@ -197,6 +199,7 @@ pub fn build_main_gridmap(
 pub fn build_details1_gridmap(
     current_map_details1_data : &Vec<CellDataWID>, 
     gridmap_details1 : &mut ResMut<GridmapDetails1>,
+    gridmap_data : &mut ResMut<GridmapData>,
 ) {
     
     for cell_data in current_map_details1_data.iter() {
@@ -211,7 +214,7 @@ pub fn build_details1_gridmap(
 
         gridmap_details1.data.insert(cell_id_int,
         CellData {
-            item: cell_data.item,
+            item: *gridmap_data.details1_name_id_map.get(&cell_data.item).unwrap(),
             orientation: cell_data.orientation,
             health : StructureHealth::default(),
         });

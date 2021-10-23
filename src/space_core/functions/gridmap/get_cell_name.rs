@@ -1,26 +1,14 @@
-use crate::space_core::resources::{gridmap_main::CellData};
 
-const NAMES_MAIN : [&str;14] = [
-    "an aluminum floor",
-    "an aluminum wall",
-    "INVISIBLECELL",
-    "an aluminum floor",
-    "an aluminum wall",
-    "an aluminum floor",
-    "an aluminum floor",
-    "an aluminum floor",
-    "an aluminum security counter",
-    "an aluminum wall",
-    "an aluminum wall",
-    "an aluminum wall",
-    "INVISIBLECELL2",
-    "a decorated security table"
-];
+use bevy::prelude::Res;
+
+use crate::space_core::resources::{gridmap_data::GridmapData, gridmap_main::CellData};
+
 
 pub fn get_cell_name(
     ship_cell : &CellData,
+    gridmap_data : &Res<GridmapData>,
 ) -> String {
 
-    NAMES_MAIN[ship_cell.item as usize].to_string()
+    gridmap_data.main_text_names.get(&ship_cell.item).unwrap().to_string()
 
 }

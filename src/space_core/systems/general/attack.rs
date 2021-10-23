@@ -14,7 +14,7 @@ struct AttackResult {
     distance: f32,
     rigid_body_position : Vec3,
     collider_handle : ColliderHandle,
-    is_obstacle : bool,
+    is_combat_obstacle : bool,
     is_laser_obstacle : bool,
 }
 
@@ -122,7 +122,7 @@ pub fn attack(
                                     distance: attack_event.attacker_position.distance(position),
                                     rigid_body_position : position,
                                     collider_handle,
-                                    is_obstacle: health_component.is_combat_obstacle,
+                                    is_combat_obstacle: health_component.is_combat_obstacle,
                                     is_laser_obstacle: health_component.is_laser_obstacle,
                                 });
                             },
@@ -144,7 +144,7 @@ pub fn attack(
                                     ),
                                     rigid_body_position : position,
                                     collider_handle,
-                                    is_obstacle : !gridmap_data.non_combat_obstacle_cells_list.contains(&cell_data.item),
+                                    is_combat_obstacle : !gridmap_data.non_combat_obstacle_cells_list.contains(&cell_data.item),
                                     is_laser_obstacle : !gridmap_data.non_laser_obstacle_cells_list.contains(&cell_data.item),
                                 });
                             },
@@ -165,27 +165,42 @@ pub fn attack(
 
                 match attack_event.targetted_entity {
                     Some(targetted_entity) => {
+                        //melee hit and targetting an entity.
+                        let mut found = false;
+                        let mut first_blocker = None;
                         for attack_result in hit_entities.iter() {
 
                             match attack_result.entity_option {
                                 Some(entity) => {
                                     if targetted_entity == entity {
                                         hit_entity = Some(attack_result);
+                                        found=true;
                                         break;
                                     }
                                 },
                                 None => {},
                             }
 
-                            if attack_result.is_obstacle {
+                            if attack_result.is_combat_obstacle {
+                                first_blocker = Some(attack_result);
                                 break;
                             }
 
                         }
+                        if !found {
+                            match first_blocker {
+                                Some(ff) => {
+                                    hit_entity = Some(ff);
+                                },
+                                None => {
+                                    
+                                },
+                            }
+                        }
                     },
                     None => {
-
                         match attack_event.targetted_cell {
+                            // melee hit targetting a cell.
                             Some(targetted_cell) => {
 
                                 let mut found = false;
@@ -203,7 +218,7 @@ pub fn attack(
                                         None => {},
                                     }
 
-                                    if attack_result.is_obstacle {
+                                    if attack_result.is_combat_obstacle {
                                         first_blocker = Some(attack_result);
                                         break;
                                     }
@@ -215,14 +230,23 @@ pub fn attack(
                                             hit_entity = Some(ff);
                                         },
                                         None => {
-                                            hit_entity = hit_entities.first();
+
                                         },
                                     }
                                 }
 
                             },
                             None => {
-                                hit_entity = hit_entities.first();
+                                //melee hit without a specific target.
+                                for res in hit_entities.iter() {
+                                    if res.is_combat_obstacle {
+                                        hit_entity = Some(res);
+                                        break;
+                                    }
+                                }
+                                if hit_entity.is_none() {
+                                    hit_entity = hit_entities.first();
+                                }
                             },
                         }
                         
@@ -277,7 +301,7 @@ pub fn attack(
                                     &attacked_cell_id,
                                     &sensers,
                                     &attack_event.attacker_name,
-                                    &get_cell_name(cell_data),
+                                    &get_cell_name(cell_data, &gridmap_data),
                                     &DamageType::Melee,
                                     &attack_event.weapon_name,
                                     &attack_event.weapon_a_name,
@@ -386,7 +410,7 @@ pub fn attack(
                                             ),
                                             rigid_body_position: position,
                                             collider_handle,
-                                            is_obstacle : health_component.is_combat_obstacle,
+                                            is_combat_obstacle : health_component.is_combat_obstacle,
                                             is_laser_obstacle : health_component.is_laser_obstacle,
                                         });
                                         
@@ -411,7 +435,7 @@ pub fn attack(
                                             ),
                                             rigid_body_position : position,
                                             collider_handle,
-                                            is_obstacle : !gridmap_data.non_combat_obstacle_cells_list.contains(&cell_data.item),
+                                            is_combat_obstacle : !gridmap_data.non_combat_obstacle_cells_list.contains(&cell_data.item),
                                             is_laser_obstacle : !gridmap_data.non_laser_obstacle_cells_list.contains(&cell_data.item),
                                         };
 
@@ -434,8 +458,10 @@ pub fn attack(
                         let mut hit_entity = None;
 
                         match attack_event.targetted_entity {
+                            //projectile fired and targetted an entity.
                             Some(targetted_entity) => {
                                 let mut found = false;
+                                let mut first_blocker = None;
                                 for attack_result in hit_entities.iter() {
 
                                     match attack_result.entity_option {
@@ -449,19 +475,28 @@ pub fn attack(
                                         None => {},
                                     }
 
-                                    if attack_result.is_obstacle && attack_result.is_laser_obstacle {
+                                    if attack_result.is_combat_obstacle && attack_result.is_laser_obstacle {
+                                        first_blocker = Some(attack_result);
                                         break;
                                     }
 
                                 }
                                 if !found {
-                                    hit_entity = hit_entities.first();
+                                    match first_blocker {
+                                        Some(ff) => {
+                                            hit_entity = Some(ff);
+                                        },
+                                        None => {
+
+                                        },
+                                    }
                                 }
                             },
                             None => {
 
 
                                 match attack_event.targetted_cell {
+                                    // Projectile fired and targetted a cell.
                                     Some(targetted_cell) => {
 
                                         let mut found = false;
@@ -478,7 +513,7 @@ pub fn attack(
                                                 None => {},
                                             }
 
-                                            if attack_result.is_obstacle && attack_result.is_laser_obstacle {
+                                            if attack_result.is_combat_obstacle && attack_result.is_laser_obstacle {
                                                 first_blocker = Some(attack_result);
                                                 break;
                                             }
@@ -490,20 +525,25 @@ pub fn attack(
                                                     hit_entity = Some(ff);
                                                 },
                                                 None => {
-                                                    hit_entity = hit_entities.first();
+                                                    
                                                 },
                                             }
                                         }
 
                                     },
                                     None => {
-                                        hit_entity = hit_entities.first();
+                                        // Projectile fired without targetting
+                                        for res in hit_entities.iter() {
+                                            if res.is_combat_obstacle && res.is_laser_obstacle {
+                                                hit_entity = Some(res);
+                                                break;
+                                            }
+                                        }
                                     },
                                 }
                                 
                             },
                         }
-
                         let mut hit_point : Vec3;
 
                         match hit_entity {
@@ -578,7 +618,7 @@ pub fn attack(
                                                     &attacked_cell_id,
                                                     &sensers,
                                                     &attack_event.attacker_name,
-                                                    &get_cell_name(cell_data),
+                                                    &get_cell_name(cell_data, &gridmap_data),
                                                     &DamageType::Projectile,
                                                     &attack_event.weapon_name,
                                                     &attack_event.weapon_a_name,
