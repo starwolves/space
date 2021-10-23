@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{FromWorld, World};
-use serde::{Deserialize};
 
-#[derive(Deserialize)]
+use crate::space_core::systems::general::startup_init_gridmap_cells::MainCellProperties;
+
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
     pub non_combat_obstacle_cells_list: Vec<i64>,
@@ -20,7 +20,8 @@ pub struct GridmapData {
     pub main_text_examine_desc : HashMap<i64, String>,
     pub details1_text_examine_desc : HashMap<i64, String>,
     pub blackcell_id : i64,
-    pub blackcell_blocking_id : i64
+    pub blackcell_blocking_id : i64,
+    pub main_cell_properties : HashMap<i64, MainCellProperties>,
 }
 
 impl FromWorld for GridmapData {
@@ -42,6 +43,7 @@ impl FromWorld for GridmapData {
             details1_text_examine_desc : HashMap::new(),
             blackcell_id : 0,
             blackcell_blocking_id : 0,
+            main_cell_properties: HashMap::new(),
         }
     }
 }

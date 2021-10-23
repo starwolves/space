@@ -1,6 +1,56 @@
-use bevy::prelude::ResMut;
+use bevy::prelude::{ResMut};
+use bevy_rapier3d::prelude::{ColliderPosition, ColliderShape};
 
-use crate::space_core::{resources::gridmap_data::GridmapData, systems::general::startup_init_misc_data::{Details1CellProperties, MainCellProperties}};
+use crate::space_core::{resources::gridmap_data::GridmapData};
+
+
+
+#[derive(Clone)]
+pub struct MainCellProperties {
+    pub id : i64,
+    pub name : String,
+    pub description : String,
+    pub non_fov_blocker : bool,
+    pub combat_obstacle : bool,
+    pub placeable_item_surface : bool,
+    pub laser_combat_obstacle : bool,
+    pub collider_shape : ColliderShape,
+    pub collider_position : ColliderPosition,
+}
+
+impl Default for MainCellProperties {
+    fn default() -> Self {
+        Self {
+            id : 0,
+            name : "".to_string(),
+            description : "".to_string(),
+            non_fov_blocker : false,
+            combat_obstacle : true,
+            placeable_item_surface : false,
+            laser_combat_obstacle: true,
+            collider_shape : ColliderShape::cuboid(1., 1., 1.),
+            collider_position: ColliderPosition::identity(),
+        }
+    }
+}
+
+
+#[allow(dead_code)]
+pub struct Details1CellProperties {
+    pub id : i64,
+    pub name : String,
+    pub description : String,
+}
+
+impl Default for Details1CellProperties {
+    fn default() -> Self {
+        Self {
+            id : 0,
+            name : "".to_string(),
+            description : "".to_string(),
+        }
+    }
+}
 
 pub fn startup_init_gridmap_cells(
     mut gridmap_data : ResMut<GridmapData>,
@@ -12,6 +62,10 @@ pub fn startup_init_gridmap_cells(
 
     let mut main_cells_data = vec![];
 
+    let mut default_isometry = ColliderPosition::identity();
+
+    default_isometry.translation.y = -0.5;
+
     main_cells_data.push(
         MainCellProperties {
             id: *gridmap_data.main_name_id_map.get("securityDecoratedTable").unwrap(),
@@ -20,6 +74,8 @@ pub fn startup_init_gridmap_cells(
             non_fov_blocker:true,
             combat_obstacle:false,
             placeable_item_surface:true,
+            collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
+            collider_position: default_isometry,
             ..Default::default()
         }
     );
@@ -56,6 +112,10 @@ pub fn startup_init_gridmap_cells(
             ..Default::default()
         }
     );
+
+    let mut default_isometry = ColliderPosition::identity();
+    default_isometry.translation.y = -0.5;
+
     main_cells_data.push(
         MainCellProperties {
             id: *gridmap_data.main_name_id_map.get("securityCounter1").unwrap(),
@@ -64,9 +124,12 @@ pub fn startup_init_gridmap_cells(
             non_fov_blocker:true,
             combat_obstacle:false,
             placeable_item_surface:true,
+            collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
+            collider_position: default_isometry,
             ..Default::default()
         }
     );
+
     main_cells_data.push(
         MainCellProperties {
             id: *gridmap_data.main_name_id_map.get("securityFloorColored").unwrap(),
@@ -153,6 +216,8 @@ pub fn startup_init_gridmap_cells(
         if !cell_properties.laser_combat_obstacle {
             gridmap_data.non_laser_obstacle_cells_list.push(cell_properties.id);
         }
+
+        gridmap_data.main_cell_properties.insert(cell_properties.id, cell_properties.clone());
 
     }
 
