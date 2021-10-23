@@ -5,47 +5,6 @@ use std::{ fs, path::Path};
 
 use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, resources::{gridmap_data::GridmapData, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
 
-pub struct MainCellProperties {
-    pub id : i64,
-    pub name : String,
-    pub description : String,
-    pub non_fov_blocker : bool,
-    pub combat_obstacle : bool,
-    pub placeable_item_surface : bool,
-    pub laser_combat_obstacle : bool,
-}
-
-impl Default for MainCellProperties {
-    fn default() -> Self {
-        Self {
-            id : 0,
-            name : "".to_string(),
-            description : "".to_string(),
-            non_fov_blocker : false,
-            combat_obstacle : true,
-            placeable_item_surface : false,
-            laser_combat_obstacle: true,
-        }
-    }
-}
-
-
-#[allow(dead_code)]
-pub struct Details1CellProperties {
-    pub id : i64,
-    pub name : String,
-    pub description : String,
-}
-
-impl Default for Details1CellProperties {
-    fn default() -> Self {
-        Self {
-            id : 0,
-            name : "".to_string(),
-            description : "".to_string(),
-        }
-    }
-}
 
 pub fn startup_init_misc_data(
     mut server_id : ResMut<ServerId>,
