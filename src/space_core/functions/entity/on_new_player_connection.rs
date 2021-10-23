@@ -1,15 +1,13 @@
 use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::EventWriter};
-use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, soft_player::SoftPlayer}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::entity::new_chat_message::get_talk_spaces_setupui, resources::{all_ordered_cells::AllOrderedCells, authid_i::AuthidI, blackcells_data::BlackcellsData, gridmap_data::GridmapData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}, systems::general::console_commands::get_console_commands};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, soft_player::SoftPlayer}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::entity::new_chat_message::get_talk_spaces_setupui, resources::{authid_i::AuthidI, gridmap_data::GridmapData, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage, ServerConfigMessage}, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}, systems::general::console_commands::get_console_commands};
 
 
 pub fn on_new_player_connection(
     net_on_new_player_connection : &mut EventWriter<NetOnNewPlayerConnection>,
     handle : &u32, 
     tick_rate: &Res<TickRate>,
-    blackcells_data: &Res<BlackcellsData>,
     auth_id_i : &mut ResMut<AuthidI>,
     server_id : &Res<ServerId>,
-    all_ordered_cells : &Res<AllOrderedCells>,
     handle_to_entity : &mut ResMut<HandleToEntity>,
     commands: &mut Commands,
     used_names : &mut ResMut<UsedNames>,
@@ -30,17 +28,17 @@ pub fn on_new_player_connection(
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,
-        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::BlackCellID(blackcells_data.blackcell_id, blackcells_data.blackcell_blocking_id))
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::BlackCellID(gridmap_data.blackcell_id, gridmap_data.blackcell_blocking_id))
     });
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,
-        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsMain(all_ordered_cells.main.clone()))
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsMain(gridmap_data.ordered_main_names.clone()))
     });
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{
         handle: *handle,
-        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsDetails1(all_ordered_cells.details1.clone()))
+        message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::OrderedCellsDetails1(gridmap_data.ordered_details1_names.clone()))
     });
 
     net_on_new_player_connection.send(NetOnNewPlayerConnection{

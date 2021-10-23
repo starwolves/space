@@ -1,6 +1,6 @@
 use bevy::{prelude::{EventReader, EventWriter, Query, Res, warn}};
 
-use crate::space_core::{components::senser::Senser, events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::senser::Senser, events::{general::examine_map::ExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
 pub fn examine_map(
     mut examine_map_events : EventReader<ExamineMap>,
@@ -8,6 +8,7 @@ pub fn examine_map(
     gridmap_main : Res<GridmapMain>,
     gridmap_details1 : Res<GridmapDetails1>,
     senser_entities : Query<&Senser>,
+    gridmap_data : Res<GridmapData>,
 ) {
 
     for examine_event in examine_map_events.iter() {
@@ -81,7 +82,7 @@ pub fn examine_map(
 
             match ship_cell_option {
                 Some(ship_cell) => {
-                    examine_text = examine_ship_cell(ship_cell, gridmap_type);
+                    examine_text = examine_ship_cell(ship_cell, gridmap_type,&gridmap_data);
                 },
                 None => {
                     examine_text = get_empty_cell_message();

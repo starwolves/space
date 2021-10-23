@@ -15,7 +15,7 @@ pub struct GridmapMain {
 #[derive(Deserialize)]
 pub struct CellDataWID {
     pub id: String,
-    pub item: i64,
+    pub item: String,
     pub orientation: i64
 }
 
