@@ -9,9 +9,36 @@ pub fn build_gridmap_floor(
 
     let masks = get_bit_masks(ColliderGroup::Standard);
 
+    //Floor
     commands.spawn_bundle(RigidBodyBundle {
         body_type: RigidBodyType::Static,
         position: Vec3::new(0.,-1.,0.).into(),
+        ccd: RigidBodyCcd {
+            ccd_enabled: false,
+            ..Default::default()
+        },
+        ..Default::default()
+    }).insert_bundle(
+        ColliderBundle {
+            shape: ColliderShape::cuboid(500., 1., 500.),
+            collider_type: ColliderType::Solid,
+            material: ColliderMaterial {
+                friction_combine_rule:  CoefficientCombineRule::Average,
+                friction: CHARACTER_FLOOR_FRICTION,
+                ..Default::default()
+            },
+            flags: ColliderFlags {
+                collision_groups: InteractionGroups::new(masks.0,masks.1),
+                ..Default::default()
+            },
+            ..Default::default()
+        }
+    );
+
+    //Roof
+    commands.spawn_bundle(RigidBodyBundle {
+        body_type: RigidBodyType::Static,
+        position: Vec3::new(0.,3.,0.).into(),
         ccd: RigidBodyCcd {
             ccd_enabled: false,
             ..Default::default()
