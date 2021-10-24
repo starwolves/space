@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, ResMut, Transform, warn}};
+use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, persistent_player_data::PersistentPlayerData, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::{entity_data_resource::EntityDataResource, network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::ReliableServerMessage}};
 
 pub const STANDARD_BODY_FRICTION : f32 = 0.18;
 
@@ -15,27 +15,18 @@ impl HelmetSecurityBundle {
         passed_transform : Transform,
         commands : &mut Commands,
         correct_transform: bool,
-        _pawn_data_option : Option<(
-            &PersistentPlayerData,
-            Option<&ConnectedPlayer>,
-            Vec<(String,String)>,
-            bool,
-            bool,
-            Option<&mut ResMut<UsedNames>>,
-            Option<&mut EventWriter<NetShowcase>>,
-            Option<String>,
-            &ResMut<EntityDataResource>,
-        )>,
-        held_data_option : Option<(
-            Entity,
-            bool,
-            Option<u32>,
-            &mut Option<&mut EventWriter<NetShowcase>>,
-        )>,
+        _pawn_data_option : Option<SpawnPawnData>,
+        held_data_option : Option<SpawnHeldData>,
     ) -> Entity {
 
         match held_data_option {
-            Some((holder_entity, showcase_instance, showcase_handle_option, net_showcase)) => {
+            Some(held_data) => {
+                let (
+                    holder_entity,
+                    showcase_instance,
+                    showcase_handle_option,
+                    net_showcase
+                ) = held_data.data;
                 spawn_entity(
                     commands,
         

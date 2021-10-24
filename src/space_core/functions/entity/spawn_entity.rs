@@ -1,6 +1,6 @@
 use bevy::prelude::{Commands, Entity, EventWriter, ResMut, Transform};
 
-use crate::space_core::{components::persistent_player_data::PersistentPlayerData, events::net::net_showcase::NetShowcase, resources::{entity_data_resource::EntityDataResource, used_names::UsedNames}};
+use crate::space_core::{components::persistent_player_data::PersistentPlayerData, events::net::net_showcase::NetShowcase, resources::{entity_data_resource::{EntityDataResource, SpawnHeldData, SpawnPawnData}, used_names::UsedNames}};
 
 pub fn spawn_entity(
     entity_name : String,
@@ -28,24 +28,39 @@ pub fn spawn_entity(
 
             let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
 
+            let held;
+
+            match held_data_option {
+                Some(data) => {
+                    held = Some(SpawnHeldData{data});
+                },
+                None => {
+                    held = None;
+                },
+            }
+
+
             match pawn_data_option {
-                Some(pawn_data) => {
-                    return_entity = Some((*entity_properties.spawn_function)
-                        (transform,
-                        commands,
-                        correct_transform,
-                        Some((
-                            &pawn_data.1,
+                Some(data) => {
+                    let pawn = Some(SpawnPawnData{
+                        data: (
+                            &data.1,
                             None,
-                            pawn_data.0,
+                            data.0,
                             false,
                             true,
                             Some(used_names_option.unwrap()),
                             None,
                             None,
                             &entity_data,
-                        )),
-                        held_data_option,
+                        )
+                    });
+                    return_entity = Some((*entity_properties.spawn_function)(
+                        transform,
+                        commands,
+                        correct_transform,
+                        pawn,
+                        held
                     ));
                 },
                 None => {
@@ -54,10 +69,12 @@ pub fn spawn_entity(
                         commands,
                         correct_transform,
                         None,
-                        held_data_option
+                        held
                     ));
                 },
             }
+
+            
 
         },
         None => {
@@ -91,7 +108,9 @@ pub fn spawn_held_entity(
                 commands,
                 false,
                 None,
-                Some((holder_entity, showcase_instance, showcase_handle_option, net_showcase))
+                Some(SpawnHeldData{
+                    data: (holder_entity, showcase_instance, showcase_handle_option, net_showcase)
+                })
             ));
 
         },

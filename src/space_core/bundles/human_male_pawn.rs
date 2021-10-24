@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Vec3}, prelude::{Commands, Entity, EventWriter, Query, ResMut, Transform}};
+use bevy::{math::{Vec3}, prelude::{Commands, Entity, Query, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity}}, resources::{entity_data_resource::EntityDataResource, network_messages::ReliableServerMessage, used_names::UsedNames}, systems::general::on_setupui::ENTITY_SPAWN_PARENT};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::ReliableServerMessage}, systems::general::on_setupui::ENTITY_SPAWN_PARENT};
 
 pub struct HumanMalePawnBundle;
 
@@ -15,23 +15,8 @@ impl HumanMalePawnBundle {
         passed_transform : Transform,
         commands : &mut Commands,
         correct_transform : bool,
-        pawn_data_option : Option<(
-            &PersistentPlayerData,
-            Option<&ConnectedPlayer>,
-            Vec<(String,String)>,
-            bool,
-            bool,
-            Option<&mut ResMut<UsedNames>>,
-            Option<&mut EventWriter<NetShowcase>>,
-            Option<String>,
-            &ResMut<EntityDataResource>,
-        )>,
-        _held_data_option : Option<(
-            Entity,
-            bool,
-            Option<u32>,
-            &mut Option<&mut EventWriter<NetShowcase>>,
-        )>,
+        pawn_data_option : Option<SpawnPawnData>,
+        _held_data_option : Option<SpawnHeldData>,
     ) -> Entity {
 
         let (
@@ -44,7 +29,7 @@ impl HumanMalePawnBundle {
             mut net_showcase,
             default_user_name_option,
             entity_data
-        ) = pawn_data_option.unwrap();
+        ) = pawn_data_option.unwrap().data;
 
         let default_transform = Transform::identity();
 
