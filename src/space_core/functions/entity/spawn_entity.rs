@@ -15,6 +15,10 @@ pub fn spawn_entity(
         Option<u32>,
         &mut Option<&mut EventWriter<NetShowcase>>,
     )>,
+    pawn_data_option : Option<(
+        Vec<(String,String)>,
+        PersistentPlayerData,
+    )>
 ) -> Option<Entity> {
 
     let return_entity;
@@ -24,41 +28,35 @@ pub fn spawn_entity(
 
             let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
 
-            if entity_name == "humanDummy" {
-                let passed_inventory_setup = vec![
-                    ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
-                    ("helmet".to_string(), "helmetSecurity".to_string()),
-                ];
-
-                let persistent_player_data_component = PersistentPlayerData {
-                    character_name: "".to_string(),
-                    user_name: "unknownSpawnEntityAssigned".to_string()
-                };
-                return_entity = Some((*entity_properties.spawn_function)
-                    (transform,
-                    commands,
-                    correct_transform,
-                    Some((
-                        &persistent_player_data_component,
+            match pawn_data_option {
+                Some(pawn_data) => {
+                    return_entity = Some((*entity_properties.spawn_function)
+                        (transform,
+                        commands,
+                        correct_transform,
+                        Some((
+                            &pawn_data.1,
+                            None,
+                            pawn_data.0,
+                            false,
+                            true,
+                            Some(used_names_option.unwrap()),
+                            None,
+                            None,
+                            &entity_data,
+                        )),
+                        held_data_option,
+                    ));
+                },
+                None => {
+                    return_entity = Some((*entity_properties.spawn_function)(
+                        transform,
+                        commands,
+                        correct_transform,
                         None,
-                        passed_inventory_setup,
-                        false,
-                        true,
-                        Some(used_names_option.unwrap()),
-                        None,
-                        None,
-                        &entity_data,
-                    )),
-                    held_data_option,
-                ));
-            } else {
-                return_entity = Some((*entity_properties.spawn_function)(
-                    transform,
-                    commands,
-                    correct_transform,
-                    None,
-                    held_data_option
-                ));
+                        held_data_option
+                    ));
+                },
             }
 
         },

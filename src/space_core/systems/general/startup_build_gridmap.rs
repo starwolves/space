@@ -37,6 +37,6 @@ pub fn startup_build_gridmap(
         &mut gridmap_data,
     );
     
-    info!("Loaded {} cells.", current_map_main_data.len()+current_map_details1_data.len());
+    info!("Loaded {} map cells.", current_map_main_data.len()+current_map_details1_data.len());
 
 }
