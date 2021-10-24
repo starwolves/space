@@ -1,10 +1,10 @@
 
 use std::collections::{BTreeMap};
 
-use bevy::{math::Vec3, prelude::{BuildChildren, Commands, Transform}};
+use bevy::{math::Vec3, prelude::{BuildChildren, Commands, Entity, EventWriter, ResMut, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{components::{counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::Health, pawn::SpaceAccessEnum, sensable::Sensable, static_transform::StaticTransform}, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, counter_window::{CounterWindow}, counter_window_sensor::CounterWindowSensor, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::Health, pawn::SpaceAccessEnum, persistent_player_data::PersistentPlayerData, sensable::Sensable, static_transform::StaticTransform}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}}, resources::{entity_data_resource::EntityDataResource, used_names::UsedNames}};
 
 pub struct SecurityCounterWindowBundle;
 
@@ -14,7 +14,24 @@ impl SecurityCounterWindowBundle {
         entity_transform : Transform,
         commands : &mut Commands,
         _correct_transform : bool,
-    ) {
+        _pawn_data_option : Option<(
+            &PersistentPlayerData,
+            Option<&ConnectedPlayer>,
+            Vec<(String,String)>,
+            bool,
+            bool,
+            Option<&mut ResMut<UsedNames>>,
+            Option<&mut EventWriter<NetShowcase>>,
+            Option<String>,
+            &ResMut<EntityDataResource>,
+        )>,
+        _held_data_option : Option<(
+            Entity,
+            bool,
+            Option<u32>,
+            &mut Option<&mut EventWriter<NetShowcase>>,
+        )>
+    ) -> Entity {
 
         let static_transform_component = StaticTransform {
             transform: entity_transform
@@ -113,6 +130,8 @@ impl SecurityCounterWindowBundle {
         )).id();
 
         commands.entity(parent).push_children(&[child]);
+
+        parent
 
     }
 

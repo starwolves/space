@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
+use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, ResMut, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, jumpsuit::Jumpsuit, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, jumpsuit::Jumpsuit, persistent_player_data::PersistentPlayerData, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::{entity_data_resource::EntityDataResource, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 use super::helmet_security::STANDARD_BODY_FRICTION;
 
@@ -11,54 +11,66 @@ pub struct JumpsuitSecurityBundle;
 
 impl JumpsuitSecurityBundle {
 
-    pub fn spawn_held(
-        commands : &mut Commands,
-        holder_entity : Entity,
-        showcase_instance : bool,
-        showcase_handle_option : Option<u32>,
-        net_showcase : &mut Option<&mut EventWriter<NetShowcase>>,
-    ) -> Entity {
-        
-        spawn(
-            commands,
-
-            None,
-        
-            true,
-            Some(holder_entity),
-            showcase_instance,
-            showcase_handle_option,
-            net_showcase,
-            false
-        )
-
-    }
-
     pub fn spawn(
         passed_transform : Transform,
         commands : &mut Commands,
         correct_transform : bool,
+        _pawn_data_option : Option<(
+            &PersistentPlayerData,
+            Option<&ConnectedPlayer>,
+            Vec<(String,String)>,
+            bool,
+            bool,
+            Option<&mut ResMut<UsedNames>>,
+            Option<&mut EventWriter<NetShowcase>>,
+            Option<String>,
+            &ResMut<EntityDataResource>,
+        )>,
+        held_data_option : Option<(
+            Entity,
+            bool,
+            Option<u32>,
+            &mut Option<&mut EventWriter<NetShowcase>>,
+        )>,
     ) -> Entity{
 
 
-        spawn(
-            commands,
-
-            Some(passed_transform),
+        match held_data_option {
+            Some((holder_entity, showcase_instance, showcase_handle_option, net_showcase)) => {
+                spawn_entity(
+                    commands,
         
-            false,
-            None,
-            false,
-            None,
-            &mut None,
-            correct_transform,
-        )
+                    None,
+                
+                    true,
+                    Some(holder_entity),
+                    showcase_instance,
+                    showcase_handle_option,
+                    net_showcase,
+                    false,
+                )
+            },
+            None => {
+                spawn_entity(
+                    commands,
+        
+                    Some(passed_transform),
+                
+                    false,
+                    None,
+                    false,
+                    None,
+                    &mut None,
+                    correct_transform,
+                )
+            },
+        }
 
     }
 
 }
 
-fn spawn(
+fn spawn_entity(
     commands : &mut Commands,
 
     passed_transform_option : Option<Transform>,

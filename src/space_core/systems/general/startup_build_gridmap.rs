@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use bevy::prelude::{Commands, ResMut, info};
 
-use crate::space_core::{functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity}}, resources::{doryen_fov::DoryenMap, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}}};
+use crate::space_core::{functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}}, resources::{doryen_fov::DoryenMap, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}}};
 
 pub fn startup_build_gridmap(
     mut gridmap_main : ResMut<GridmapMain>,
@@ -36,13 +36,7 @@ pub fn startup_build_gridmap(
         &mut gridmap_details1,
         &mut gridmap_data,
     );
-
-    let entities_json = Path::new("content").join("maps").join("bullseye").join("entities.json");
-    let current_map_entities_raw_json : String = fs::read_to_string(entities_json).expect("main.rs launch_server() Error reading map entities.json file from drive.");
-    let current_map_entities_data : Vec<RawEntity> = serde_json::from_str(&current_map_entities_raw_json).expect("main.rs launch_server() Error parsing map entities.json String.");
     
-    load_raw_map_entities(&current_map_entities_data, &mut commands);
+    info!("Loaded {} cells.", current_map_main_data.len()+current_map_details1_data.len());
 
-    info!("Loaded map bullseye with {} cells(main) and {} entities.", current_map_main_data.len(), current_map_entities_data.len());
-    
 }

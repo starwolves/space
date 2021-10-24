@@ -1,14 +1,15 @@
-use bevy::{prelude::{Commands}};
+use bevy::{prelude::{Commands, ResMut}};
 
 
-use crate::space_core::{bundles::{gi_probe::GIProbeBundle, helmet_security::HelmetSecurityBundle, jumpsuit_security::JumpsuitSecurityBundle, omni_light::OmniLightBundle, reflection_probe::ReflectionProbeBundle, security_airlock::SecurityAirlockBundle, security_counter_window::SecurityCounterWindowBundle}, functions::{converters::{string_to_type_converters::string_transform_to_transform}, process_content::{gi_probe, omni_light, reflection_probe}}};
+use crate::space_core::{bundles::{gi_probe::GIProbeBundle, omni_light::OmniLightBundle, reflection_probe::ReflectionProbeBundle}, functions::{converters::{string_to_type_converters::string_transform_to_transform}, process_content::{gi_probe, omni_light, reflection_probe}}, resources::entity_data_resource::EntityDataResource};
 
 use super::raw_entity::RawEntity;
 
 
 pub fn load_raw_map_entities(
     raw_entities : &Vec<RawEntity>,
-    commands : &mut Commands
+    commands : &mut Commands,
+    entity_data : &ResMut<EntityDataResource>,
 ) {
 
     for raw_entity in raw_entities.iter() {
@@ -57,29 +58,24 @@ pub fn load_raw_map_entities(
                 reflection_probe_component,
             );
 
-        } else if raw_entity.entity_type == "securityAirLock1" {
+        } else {
 
-            SecurityAirlockBundle::spawn(
-                entity_transform,
-                commands,
-                false
-            );
+            match entity_data.name_to_id.get(&raw_entity.entity_type) {
+                Some(entity_type_id) => {
+                    let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
+                    Some((*entity_properties.spawn_function)
+                        (entity_transform,
+                        commands,
+                        false,
+                        None,
+                        None,
+                    ));
+                },
+                None => {
 
-        } else if raw_entity.entity_type == "securityCounterWindow" {
+                },
+            }
 
-            SecurityCounterWindowBundle::spawn(
-                entity_transform,
-                commands,
-                false
-            );
-
-        } else if raw_entity.entity_type == "helmetSecurity" {
-
-            HelmetSecurityBundle::spawn(entity_transform, commands, false);
-
-        }  else if raw_entity.entity_type == "jumpsuitSecurity" {
-
-            JumpsuitSecurityBundle::spawn(entity_transform, commands, false);
 
         }
 

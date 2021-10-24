@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, warn};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::{inventory::Inventory, pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::entity::spawn_entity::spawn_held_entity, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{inventory::Inventory, pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::entity::spawn_entity::spawn_held_entity, resources::{entity_data_resource::EntityDataResource, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 use super::{CONSOLE_ERROR_COLOR, player_selector_to_entities::player_selector_to_entities, rcon_spawn_entity::rcon_spawn_entity};
 
@@ -17,6 +17,7 @@ pub fn rcon_spawn_held_entity(
     gridmap_main : &Res<GridmapMain>,
     mut used_names : &mut ResMut<UsedNames>,
     handle_to_entity : &Res<HandleToEntity>,
+    entity_data : &mut ResMut<EntityDataResource>,
 ) {
 
     for target_entity in player_selector_to_entities(command_executor_entity, command_executor_handle, &target_selector, used_names, net_console_commands).iter() {
@@ -81,6 +82,7 @@ pub fn rcon_spawn_held_entity(
                     false,
                     None,
                     &mut None,
+                    &entity_data,
                 );
     
                 match entity_option {
@@ -124,7 +126,8 @@ pub fn rcon_spawn_held_entity(
                     &mut net_console_commands,
                     &gridmap_main,
                     &mut used_names,
-                    handle_to_entity
+                    handle_to_entity,
+                    &entity_data,
                 );
     
             },

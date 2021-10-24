@@ -1,59 +1,71 @@
 use bevy::prelude::{Commands, Entity, EventWriter, ResMut, Transform};
 
-use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle, pistol_l1::PistolL1Bundle}, components::persistent_player_data::PersistentPlayerData, events::net::net_showcase::NetShowcase, resources::used_names::UsedNames};
+use crate::space_core::{components::persistent_player_data::PersistentPlayerData, events::net::net_showcase::NetShowcase, resources::{entity_data_resource::EntityDataResource, used_names::UsedNames}};
 
 pub fn spawn_entity(
     entity_name : String,
     transform : Transform,
     commands: &mut Commands,
     correct_transform : bool,
-    used_names : &mut ResMut<UsedNames>,
+    used_names_option : Option<&mut ResMut<UsedNames>>,
+    entity_data : &ResMut<EntityDataResource>,
+    held_data_option : Option<(
+        Entity,
+        bool,
+        Option<u32>,
+        &mut Option<&mut EventWriter<NetShowcase>>,
+    )>,
 ) -> Option<Entity> {
 
     let return_entity;
 
-    if entity_name == "jumpsuitSecurity" {
+    match entity_data.name_to_id.get(&entity_name) {
+        Some(entity_type_id) => {
 
-        return_entity = Some(JumpsuitSecurityBundle::spawn(transform,commands, correct_transform));
+            let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
 
-    } else if entity_name == "helmetSecurity" {
+            if entity_name == "humanDummy" {
+                let passed_inventory_setup = vec![
+                    ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
+                    ("helmet".to_string(), "helmetSecurity".to_string()),
+                ];
 
-        return_entity = Some(HelmetSecurityBundle::spawn(transform,commands, correct_transform));
+                let persistent_player_data_component = PersistentPlayerData {
+                    character_name: "".to_string(),
+                    user_name: "unknownSpawnEntityAssigned".to_string()
+                };
+                return_entity = Some((*entity_properties.spawn_function)
+                    (transform,
+                    commands,
+                    correct_transform,
+                    Some((
+                        &persistent_player_data_component,
+                        None,
+                        passed_inventory_setup,
+                        false,
+                        true,
+                        Some(used_names_option.unwrap()),
+                        None,
+                        None,
+                        &entity_data,
+                    )),
+                    held_data_option,
+                ));
+            } else {
+                return_entity = Some((*entity_properties.spawn_function)(
+                    transform,
+                    commands,
+                    correct_transform,
+                    None,
+                    held_data_option
+                ));
+            }
 
-    } else if entity_name == "humanDummy" {
-
-        let passed_inventory_setup = vec![
-            ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
-            ("helmet".to_string(), "helmetSecurity".to_string()),
-        ];
-
-        let persistent_player_data_component = PersistentPlayerData {
-            character_name: "".to_string(),
-            user_name: "unknownSpawnEntityAssigned".to_string()
-        };
-
-        return_entity = Some(HumanMalePawnBundle::spawn( 
-            transform,
-            commands,
-            &persistent_player_data_component,
-            None,
-            passed_inventory_setup,
-            false,
-            true,
-            Some(used_names),
-            None,
-            true,
-            None,
-        ));
-
-
-    } else if entity_name == "pistolL1" {
-
-        return_entity = Some(PistolL1Bundle::spawn(transform, commands, correct_transform));
-
-    } else {
-        return_entity = None;
-    }
+        },
+        None => {
+            return_entity = None;
+        },
+    };
 
     return_entity
 
@@ -66,24 +78,28 @@ pub fn spawn_held_entity(
     showcase_instance : bool,
     showcase_handle_option : Option<u32>,
     net_showcase : &mut Option<&mut EventWriter<NetShowcase>>,
+    entity_data : &ResMut<EntityDataResource>,
 ) -> Option<Entity> {
 
     let return_entity;
 
-    if entity_name == "jumpsuitSecurity" {
+    match entity_data.name_to_id.get(&entity_name) {
+        Some(entity_type_id) => {
 
-        return_entity = Some(JumpsuitSecurityBundle::spawn_held(commands, holder_entity, showcase_instance, showcase_handle_option, net_showcase));
+            let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
 
-    } else if entity_name == "helmetSecurity" {
+            return_entity = Some((*entity_properties.spawn_function)(
+                Transform::identity(),
+                commands,
+                false,
+                None,
+                Some((holder_entity, showcase_instance, showcase_handle_option, net_showcase))
+            ));
 
-        return_entity = Some(HelmetSecurityBundle::spawn_held(commands, holder_entity, showcase_instance, showcase_handle_option, net_showcase));
-
-    } else if entity_name == "pistolL1" {
-
-        return_entity = Some(PistolL1Bundle::spawn_held(commands, holder_entity, showcase_instance, showcase_handle_option, net_showcase));
-
-    } else {
-        return_entity = None;
+        },
+        None => {
+            return_entity = None;
+        }
     }
 
     return_entity
