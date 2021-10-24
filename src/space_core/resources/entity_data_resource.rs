@@ -32,29 +32,36 @@ impl FromWorld for EntityDataResource {
     }
 }
 
+pub struct SpawnPawnData<'a, 'b> {
+    pub data: (
+        &'a PersistentPlayerData,
+        Option<&'a ConnectedPlayer>,
+        Vec<(String,String)>,
+        bool,
+        bool,
+        Option<&'a mut ResMut<'b, UsedNames>>,
+        Option<&'a mut EventWriter<'b, NetShowcase>>,
+        Option<String>,
+        &'a ResMut<'a, EntityDataResource>,
+    )
+}
+
+pub struct SpawnHeldData<'a, 'b, 'c> {
+    pub data: (
+        Entity,
+        bool,
+        Option<u32>,
+        &'c mut Option<&'b mut EventWriter<'a, NetShowcase>>,
+    )
+}
 
 pub struct EntityDataProperties {
     pub spawn_function: Box<dyn Fn(
         Transform,
         &mut Commands,
         bool,
-        Option<(
-            &PersistentPlayerData,
-            Option<&ConnectedPlayer>,
-            Vec<(String,String)>,
-            bool,
-            bool,
-            Option<&mut ResMut<UsedNames>>,
-            Option<&mut EventWriter<NetShowcase>>,
-            Option<String>,
-            &ResMut<EntityDataResource>,
-        )>,
-        Option<(
-            Entity,
-            bool,
-            Option<u32>,
-            &mut Option<&mut EventWriter<NetShowcase>>,
-        )>,
+        Option<SpawnPawnData>,
+        Option<SpawnHeldData>,
     ) -> Entity + Sync + Send>,
     pub name : String,
     pub id : usize,
