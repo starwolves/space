@@ -41,3 +41,4 @@ pub mod throw_item;
 pub mod startup_init_gridmap_cells;
 pub mod startup_build_gridmap;
 pub mod startup_launch_server;
+pub mod startup_init_entities;

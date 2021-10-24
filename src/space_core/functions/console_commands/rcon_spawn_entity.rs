@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, warn};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::{pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::{converters::isometry_to_transform::isometry_to_transform, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, spawn_entity::spawn_entity}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::{converters::isometry_to_transform::isometry_to_transform, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, spawn_entity::spawn_entity}}, resources::{entity_data_resource::EntityDataResource, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 use super::{CONSOLE_ERROR_COLOR, player_selector_to_entities::player_selector_to_entities};
 
@@ -18,6 +18,7 @@ pub fn rcon_spawn_entity(
     gridmap_main : &Res<GridmapMain>,
     used_names : &mut ResMut<UsedNames>,
     handle_to_entity : &Res<HandleToEntity>,
+    entity_data : &ResMut<EntityDataResource>,
 ) {
 
     if spawn_amount > 5 {
@@ -83,7 +84,9 @@ pub fn rcon_spawn_entity(
                 spawn_position.0,
                 commands,
                 true,
-                used_names,
+                Some(used_names),
+                entity_data,
+                None,
             );
     
         }
