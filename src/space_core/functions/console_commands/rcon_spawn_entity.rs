@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, warn};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::{pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::{converters::isometry_to_transform::isometry_to_transform, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, spawn_entity::spawn_entity}}, resources::{entity_data_resource::EntityDataResource, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{pawn::Pawn, persistent_player_data::PersistentPlayerData}, events::net::net_console_commands::NetConsoleCommands, functions::{converters::isometry_to_transform::isometry_to_transform, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, spawn_entity::spawn_entity}}, resources::{entity_data_resource::EntityDataResource, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 use super::{CONSOLE_ERROR_COLOR, player_selector_to_entities::player_selector_to_entities};
 
@@ -76,6 +76,16 @@ pub fn rcon_spawn_entity(
         );
 
         let mut final_result = None;
+
+        let passed_inventory_setup = vec![
+            ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
+            ("helmet".to_string(), "helmetSecurity".to_string()),
+        ];
+
+        let persistent_player_data_component = PersistentPlayerData {
+            character_name: "".to_string(),
+            user_name: "unknownSpawnEntityAssigned".to_string()
+        };
         
         for _i in 0..spawn_amount {
     
@@ -87,6 +97,7 @@ pub fn rcon_spawn_entity(
                 Some(used_names),
                 entity_data,
                 None,
+                Some((passed_inventory_setup.clone(),persistent_player_data_component.clone())),
             );
     
         }
