@@ -1,4 +1,4 @@
-use bevy::prelude::{ResMut};
+use bevy::prelude::{ResMut, info};
 use bevy_rapier3d::prelude::{ColliderPosition, ColliderShape};
 
 use crate::space_core::{resources::gridmap_data::GridmapData};
@@ -321,6 +321,8 @@ pub fn startup_init_gridmap_cells(
         gridmap_data.details1_text_examine_desc.insert(cell_properties.id, cell_properties.description.clone());
 
     }
+
+    info!("Loaded {} different map cell types.", main_cells_data.len()+details1_cells_data.len());
 
 
 }

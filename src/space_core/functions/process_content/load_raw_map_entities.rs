@@ -1,4 +1,4 @@
-use bevy::{prelude::{Commands, ResMut}};
+use bevy::{prelude::{Commands, Res}};
 
 
 use crate::space_core::{bundles::{gi_probe::GIProbeBundle, omni_light::OmniLightBundle, reflection_probe::ReflectionProbeBundle}, functions::{converters::{string_to_type_converters::string_transform_to_transform}, process_content::{gi_probe, omni_light, reflection_probe}}, resources::entity_data_resource::EntityDataResource};
@@ -9,7 +9,7 @@ use super::raw_entity::RawEntity;
 pub fn load_raw_map_entities(
     raw_entities : &Vec<RawEntity>,
     commands : &mut Commands,
-    entity_data : &ResMut<EntityDataResource>,
+    entity_data : &Res<EntityDataResource>,
 ) {
 
     for raw_entity in raw_entities.iter() {

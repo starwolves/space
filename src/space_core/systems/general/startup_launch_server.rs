@@ -88,5 +88,5 @@ pub fn startup_launch_server(
 
     net.listen(socket_address, None, None);
 
-    info!("Server is ready.");
+    info!("Server is live.");
 }
