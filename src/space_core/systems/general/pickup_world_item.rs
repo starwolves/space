@@ -1,10 +1,10 @@
 use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query, QuerySet, Res, warn}};
 use bevy_rapier3d::prelude::{ColliderFlags, QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
 
-use crate::space_core::{components::{cell::Cell, entity_data::EntityData, health::Health, inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::UseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::entity::{can_reach_entity::{REACH_DISTANCE, can_reach_entity}, toggle_rigidbody::disable_rigidbody}, resources::{gridmap_data::GridmapData, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::{cell::Cell, entity_data::EntityData, health::Health, inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::InputUseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::entity::{can_reach_entity::{REACH_DISTANCE, can_reach_entity}, toggle_rigidbody::disable_rigidbody}, resources::{gridmap_data::GridmapData, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
 pub fn pickup_world_item(
-    mut use_world_item_events : EventReader<UseWorldItem>,
+    mut use_world_item_events : EventReader<InputUseWorldItem>,
     mut inventory_entities : Query<&mut Inventory>,
     mut inventory_items_query : Query<&mut InventoryItem>,
     health_query : Query<&Health>,

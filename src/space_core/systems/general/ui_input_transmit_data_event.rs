@@ -1,11 +1,11 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, Query, Res, ResMut};
 
-use crate::space_core::{components::{boarding::Boarding, connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData}, events::{general::{boarding_player::BoardingPlayer, ui_input_transmit_text::UIInputTransmitText}, net::net_ui_input_transmit_data::NetUIInputTransmitData}, functions::{console_commands::CONSOLE_ERROR_COLOR, entity::new_chat_message::escape_bb}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
+use crate::space_core::{components::{boarding::Boarding, connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData}, events::{general::{boarding_player::BoardingPlayer, ui_input_transmit_text::InputUIInputTransmitText}, net::net_ui_input_transmit_data::NetUIInputTransmitData}, functions::{console_commands::CONSOLE_ERROR_COLOR, entity::new_chat_message::escape_bb}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
 use super::on_setupui::INPUT_NAME_PATH;
 
 pub fn ui_input_transmit_data_event(
-    mut event : EventReader<UIInputTransmitText>,
+    mut event : EventReader<InputUIInputTransmitText>,
     mut boarding_player_event : EventWriter<BoardingPlayer>,
     handle_to_entity: Res<HandleToEntity>,
     used_names : ResMut<UsedNames>,

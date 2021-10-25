@@ -1,6 +1,6 @@
 use bevy::{ prelude::Entity};
 
-pub struct MouseDirectionUpdate {
+pub struct InputMouseDirectionUpdate {
     pub handle : u32,
     pub entity : Entity,
     pub direction : f32,

@@ -2,7 +2,7 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::prelude::{Entity, EventReader, Local, Query};
 
-use crate::space_core::{components::standard_character::StandardCharacter, events::general::mouse_direction_update::MouseDirectionUpdate};
+use crate::space_core::{components::standard_character::StandardCharacter, events::general::mouse_direction_update::InputMouseDirectionUpdate};
 
 #[derive(Default)]
 pub struct TimeStampPerEntity {
@@ -10,7 +10,7 @@ pub struct TimeStampPerEntity {
 }
 
 pub fn mouse_direction_update(
-    mut update_events : EventReader<MouseDirectionUpdate>,
+    mut update_events : EventReader<InputMouseDirectionUpdate>,
     mut standard_characters : Query<&mut StandardCharacter>,
     mut time_stamp_per_entity : Local<TimeStampPerEntity>,
 ) {
