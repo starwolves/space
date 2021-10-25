@@ -1,15 +1,16 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::{Commands, ResMut, info};
+use bevy::prelude::{Commands, Res, ResMut, info};
 
-use crate::space_core::{functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}}, resources::{doryen_fov::DoryenMap, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}}};
+use crate::space_core::{functions::{gridmap::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap}}, process_content::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity}}, resources::{doryen_fov::DoryenMap, entity_data_resource::EntityDataResource, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::{CellDataWID, GridmapMain}}};
 
-pub fn startup_build_gridmap(
+pub fn startup_build_map(
     mut gridmap_main : ResMut<GridmapMain>,
     mut gridmap_details1 : ResMut<GridmapDetails1>,
     mut gridmap_data : ResMut<GridmapData>,
+    entity_data : Res<EntityDataResource>,
     mut fov_map : ResMut<DoryenMap>,
-    mut commands: Commands
+    mut commands: Commands,
 ) {
 
     // Load map json data into real static bodies.
@@ -37,6 +38,14 @@ pub fn startup_build_gridmap(
         &mut gridmap_data,
     );
     
-    info!("Loaded {} map cells.", current_map_main_data.len()+current_map_details1_data.len());
+    info!("Spawned {} map cells.", current_map_main_data.len()+current_map_details1_data.len());
+
+    let entities_json = Path::new("content").join("maps").join("bullseye").join("entities.json");
+    let current_map_entities_raw_json : String = fs::read_to_string(entities_json).expect("main.rs launch_server() Error reading map entities.json file from drive.");
+    let current_map_entities_data : Vec<RawEntity> = serde_json::from_str(&current_map_entities_raw_json).expect("main.rs launch_server() Error parsing map entities.json String.");
+    
+    load_raw_map_entities(&current_map_entities_data, &mut commands, &entity_data);
+
+    info!("Spawned {} entities.", current_map_entities_data.len());
 
 }

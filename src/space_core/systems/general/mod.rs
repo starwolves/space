@@ -39,6 +39,6 @@ pub mod attack;
 pub mod projectile_fov;
 pub mod throw_item;
 pub mod startup_init_gridmap_cells;
-pub mod startup_build_gridmap;
+pub mod startup_build_map;
 pub mod startup_launch_server;
 pub mod startup_init_entities;
