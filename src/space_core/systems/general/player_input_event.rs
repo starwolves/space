@@ -1,9 +1,9 @@
 use bevy::prelude::{EventReader, Query, Res, warn};
 
-use crate::space_core::{components::player_input::PlayerInput, events::general::{input_sprinting::InputSprinting, movement_input::MovementInput}, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::player_input::PlayerInput, events::general::{input_sprinting::InputSprinting, movement_input::InputMovementInput}, resources::handle_to_entity::HandleToEntity};
 
 pub fn player_input_event(
-    mut movement_input_event : EventReader<MovementInput>,
+    mut movement_input_event : EventReader<InputMovementInput>,
     mut sprinting_input_event : EventReader<InputSprinting>,
     handle_to_entity: Res<HandleToEntity>,
     mut query : Query<&mut PlayerInput>

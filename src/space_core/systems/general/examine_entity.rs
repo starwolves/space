@@ -1,9 +1,9 @@
 use bevy::prelude::{Entity, EventReader, EventWriter, Query, QuerySet, Res, warn};
 
-use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{examinable::Examinable, health::Health, inventory::Inventory, sensable::Sensable, standard_character::StandardCharacter}, events::{general::examine_entity::ExamineEntity, net::{net_examine_entity::NetExamineEntity}}, functions::entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
+use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{examinable::Examinable, health::Health, inventory::Inventory, sensable::Sensable, standard_character::StandardCharacter}, events::{general::examine_entity::InputExamineEntity, net::{net_examine_entity::NetExamineEntity}}, functions::entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
 pub fn examine_entity(
-    mut examine_entity_events : EventReader<ExamineEntity>,
+    mut examine_entity_events : EventReader<InputExamineEntity>,
     mut net_new_chat_message_event : EventWriter<NetExamineEntity>,
     q: QuerySet<(
         Query<(&Examinable, &Sensable, &Health)>,

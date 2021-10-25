@@ -1,4 +1,4 @@
-pub struct UIInputTransmitText {
+pub struct InputUIInputTransmitText {
     pub handle: u32,
     pub ui_type: String,
     pub node_path: String,

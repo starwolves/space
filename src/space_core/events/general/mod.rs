@@ -26,3 +26,6 @@ pub mod input_attack_entity;
 pub mod input_alt_item_attack;
 pub mod input_throw_item;
 pub mod input_attack_cell;
+pub mod tab_data_entity;
+pub mod tab_data_map;
+pub mod input_tab_action;

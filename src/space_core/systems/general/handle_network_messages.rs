@@ -1,32 +1,32 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::BuildGraphics, console_command::ConsoleCommand, drop_current_item::DropCurrentItem, examine_entity::ExamineEntity, examine_map::ExamineMap, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_throw_item::InputThrowItem, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, input_user_name::InputUserName, mouse_direction_update::MouseDirectionUpdate, movement_input::MovementInput, scene_ready::SceneReady, switch_hands::SwitchHands, take_off_item::TakeOffItem, ui_input::UIInput, ui_input_transmit_text::UIInputTransmitText, use_world_item::UseWorldItem, wear_item::WearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
+use crate::space_core::{events::general::{build_graphics::InputBuildGraphics, console_command::InputConsoleCommand, drop_current_item::InputDropCurrentItem, examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_tab_action::InputTabAction, input_throw_item::InputThrowItem, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, input_user_name::InputUserName, mouse_direction_update::InputMouseDirectionUpdate, movement_input::InputMovementInput, scene_ready::InputSceneReady, switch_hands::InputSwitchHands, tab_data_entity::InputTabDataEntity, tab_data_map::InputTabDataMap, take_off_item::InputTakeOffItem, ui_input::InputUIInput, ui_input_transmit_text::InputUIInputTransmitText, use_world_item::InputUseWorldItem, wear_item::InputWearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
 
 pub fn handle_network_messages(
 
     tuple0 : (
         ResMut<NetworkResource>,
-        EventWriter<UIInput>,
-        EventWriter<SceneReady>,
-        EventWriter<UIInputTransmitText>,
-        EventWriter<MovementInput>,
-        EventWriter<BuildGraphics>,
+        EventWriter<InputUIInput>,
+        EventWriter<InputSceneReady>,
+        EventWriter<InputUIInputTransmitText>,
+        EventWriter<InputMovementInput>,
+        EventWriter<InputBuildGraphics>,
         EventWriter<InputChatMessage>,
         EventWriter<InputSprinting>,
-        EventWriter<ExamineEntity>,
-        EventWriter<ExamineMap>,
-        EventWriter<UseWorldItem>,
-        EventWriter<DropCurrentItem>,
-        EventWriter<SwitchHands>,
-        EventWriter<WearItem>,
-        EventWriter<TakeOffItem>,
+        EventWriter<InputExamineEntity>,
+        EventWriter<InputExamineMap>,
+        EventWriter<InputUseWorldItem>,
+        EventWriter<InputDropCurrentItem>,
+        EventWriter<InputSwitchHands>,
+        EventWriter<InputWearItem>,
+        EventWriter<InputTakeOffItem>,
     ),
 
     tuple1 : (
-        EventWriter<ConsoleCommand>,
+        EventWriter<InputConsoleCommand>,
         EventWriter<InputToggleCombatMode>,
-        EventWriter<MouseDirectionUpdate>,
+        EventWriter<InputMouseDirectionUpdate>,
         EventWriter<InputMouseAction>,
         EventWriter<InputSelectBodyPart>,
         EventWriter<InputToggleAutoMove>,
@@ -35,6 +35,9 @@ pub fn handle_network_messages(
         EventWriter<InputAltItemAttack>,
         EventWriter<InputThrowItem>,
         EventWriter<InputAttackCell>,
+        EventWriter<InputTabDataEntity>,
+        EventWriter<InputTabDataMap>,
+        EventWriter<InputTabAction>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -72,6 +75,9 @@ pub fn handle_network_messages(
         mut input_alt_item_attack,
         mut input_throw_item,
         mut input_attack_cell,
+        mut tab_data_entity,
+        mut tab_data_map,
+        mut input_tab_action,
     )
     = tuple1;
 
@@ -92,7 +98,7 @@ pub fn handle_network_messages(
                     node_name,
                     ui_type
                 ) => {
-                    ui_input_event.send(UIInput{
+                    ui_input_event.send(InputUIInput{
                         handle : *handle,
                         node_class: node_class,
                         action: action,
@@ -101,13 +107,13 @@ pub fn handle_network_messages(
                     });
                 }
                 ReliableClientMessage::SceneReady(scene_type) => {
-                    scene_ready_event.send(SceneReady{
+                    scene_ready_event.send(InputSceneReady{
                         handle: *handle,
                         scene_type: scene_type
                     });
                 }
                 ReliableClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
-                    ui_input_transmit_text.send(UIInputTransmitText{
+                    ui_input_transmit_text.send(InputUIInputTransmitText{
                         handle: *handle,
                         ui_type:ui_type,
                         node_path:node_path,
@@ -115,13 +121,13 @@ pub fn handle_network_messages(
                     });
                 }
                 ReliableClientMessage::MovementInput(movement_input) => {
-                    movement_input_event.send(MovementInput{
+                    movement_input_event.send(InputMovementInput{
                         handle: *handle,
                         vector: movement_input
                     });
                 }
                 ReliableClientMessage::BuildGraphics => {
-                    build_graphics_event.send(BuildGraphics{
+                    build_graphics_event.send(InputBuildGraphics{
                         handle: *handle
                     });
                 }
@@ -141,7 +147,7 @@ pub fn handle_network_messages(
                 },
                 ReliableClientMessage::ExamineEntity(entity_id) => {
 
-                    examine_entity.send(ExamineEntity{
+                    examine_entity.send(InputExamineEntity{
                         handle: *handle,
                         examine_entity_bits: entity_id,
                     });
@@ -151,7 +157,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            examine_map.send(ExamineMap{
+                            examine_map.send(InputExamineMap{
                                 handle: *handle,
                                 entity: *player_entity,
                                 gridmap_type: grid_map_type,
@@ -173,7 +179,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            use_world_item.send(UseWorldItem {
+                            use_world_item.send(InputUseWorldItem {
                                 handle: *handle,
                                 pickuper_entity: *player_entity,
                                 pickupable_entity_bits: entity_id,
@@ -191,7 +197,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            drop_current_item.send(DropCurrentItem {
+                            drop_current_item.send(InputDropCurrentItem {
                                 handle: *handle,
                                 pickuper_entity : *player_entity,
                                 input_position_option: position_option,
@@ -210,7 +216,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            switch_hands.send(SwitchHands {
+                            switch_hands.send(InputSwitchHands {
                                 handle: *handle,
                                 entity : *player_entity
                             });
@@ -226,7 +232,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            wear_items.send(WearItem {
+                            wear_items.send(InputWearItem {
                                 handle: *handle,
                                 wearer_entity: *player_entity,
                                 wearable_id_bits: item_id,
@@ -243,7 +249,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            take_off_item.send(TakeOffItem {
+                            take_off_item.send(InputTakeOffItem {
                                 handle: *handle,
                                 entity: *player_entity,
                                 slot_name: slot_name,
@@ -261,7 +267,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            console_command.send(ConsoleCommand {
+                            console_command.send(InputConsoleCommand {
                                 handle: *handle,
                                 entity: *player_entity,
                                 command_name: command_name,
@@ -420,6 +426,64 @@ pub fn handle_network_messages(
                     }
 
                 },
+                ReliableClientMessage::TabDataEntity(entity_id_bits) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            tab_data_entity.send(InputTabDataEntity{
+                                handle: *handle,
+                                player_entity: *player_entity,
+                                examine_entity_bits: entity_id_bits,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to TabDataEntity sender handle.");
+                        },
+                    }
+
+                    
+
+                },
+                ReliableClientMessage::TabDataMap(gridmap_type, idx, idy, idz) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            tab_data_map.send(InputTabDataMap{
+                                handle: *handle,
+                                player_entity: *player_entity,
+                                gridmap_type: gridmap_type,
+                                gridmap_cell_id: Vec3Int {
+                                    x: idx,
+                                    y: idy,
+                                    z: idz,
+                                },
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::TabPressed(tab_id, entity_option, cell_option) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_tab_action.send(InputTabAction {
+                                handle: *handle,
+                                tab_id,
+                                player_entity: *player_entity,
+                                target_entity_option: entity_option,
+                                target_cell_option: cell_option,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to InputTabAction sender handle.");
+                        },
+                    }
+
+                
+                },
             }
 
         }
@@ -431,7 +495,7 @@ pub fn handle_network_messages(
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            mouse_direction_update.send(MouseDirectionUpdate {
+                            mouse_direction_update.send(InputMouseDirectionUpdate {
                                 handle: *handle,
                                 entity: *player_entity,
                                 direction: mouse_direction,

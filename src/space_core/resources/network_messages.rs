@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use bevy::{math::{Quat, Vec2, Vec3}, prelude::Color};
+use bevy::{math::{Quat, Vec2, Vec3}, prelude::{Color}};
 use serde::{Serialize, Deserialize};
 
 use crate::space_core::{resources::world_environments::WorldEnvironment};
+
 
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
@@ -25,6 +26,8 @@ pub enum ReliableClientMessage {
     InputChatMessage(String),
     ExamineEntity(u64),
     ExamineMap(GridMapType, i16,i16,i16),
+    TabDataEntity(u64),
+    TabDataMap(GridMapType, i16,i16,i16),
     UseWorldItem(u64),
     DropCurrentItem(Option<Vec3>),
     SwitchHands,
@@ -40,6 +43,7 @@ pub enum ReliableClientMessage {
     AltItemAttack,
     ThrowItem(Vec3, f32),
     AttackCell(i16,i16,i16),
+    TabPressed(String, Option<u64>, Option<(GridMapType, i16,i16,i16)>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -83,6 +87,16 @@ pub enum ReliableServerMessage {
     ConsoleWriteLine(String),
     PlaySound(String, f32, f32, Option<Vec3>),
     FireProjectile(NetProjectileType),
+    TabData(Vec<NetTabAction>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NetTabAction {
+    pub id : String,
+    pub text : String,
+    pub tab_list_priority : u8,
+    pub entity_option: Option<u64>,
+    pub cell_option : Option<(GridMapType, i16,i16,i16)>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

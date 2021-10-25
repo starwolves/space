@@ -7,3 +7,4 @@ pub mod name_generator;
 pub mod new_chat_message;
 pub mod on_player_disconnect;
 pub mod can_reach_entity;
+pub mod get_tab_action;

@@ -2,7 +2,7 @@ use bevy::prelude::Entity;
 
 use crate::space_core::resources::network_messages::ConsoleCommandVariantValues;
 
-pub struct ConsoleCommand {
+pub struct InputConsoleCommand {
     pub handle : u32,
     pub entity : Entity,
     pub command_name : String,

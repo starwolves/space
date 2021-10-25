@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, EventReader, Res};
 
 use crate::space_core::{
-    events::general::ui_input::UIInput,
+    events::general::ui_input::InputUIInput,
     resources::handle_to_entity::HandleToEntity,
     resources::network_messages::{
         UIInputAction, 
@@ -13,7 +13,7 @@ use crate::space_core::{
 };
 
 pub fn ui_input_event(
-    mut event : EventReader<UIInput>,
+    mut event : EventReader<InputUIInput>,
     handle_to_entity: Res<HandleToEntity>,
     mut commands : Commands
 ) {

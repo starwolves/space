@@ -1,9 +1,9 @@
 use bevy::prelude::{EventReader, EventWriter, Query};
 
-use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, inventory_item::InventoryItem, world_mode::{WorldMode, WorldModes}}, events::{general::take_off_item::TakeOffItem, net::net_takeoff_item::NetTakeOffItem}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::{entity_data::EntityData, inventory::Inventory, inventory_item::InventoryItem, world_mode::{WorldMode, WorldModes}}, events::{general::take_off_item::InputTakeOffItem, net::net_takeoff_item::NetTakeOffItem}, resources::network_messages::ReliableServerMessage};
 
 pub fn take_off_item(
-    mut take_off_item_events : EventReader<TakeOffItem>,
+    mut take_off_item_events : EventReader<InputTakeOffItem>,
     mut inventory_entities : Query<
         &mut Inventory,
     >,

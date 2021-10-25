@@ -1,9 +1,9 @@
 use bevy::prelude::{EventReader, EventWriter, Query};
 
-use crate::space_core::{components::inventory::Inventory, events::{general::switch_hands::SwitchHands, net::net_switch_hands::NetSwitchHands}, resources::network_messages::ReliableServerMessage};
+use crate::space_core::{components::inventory::Inventory, events::{general::switch_hands::InputSwitchHands, net::net_switch_hands::NetSwitchHands}, resources::network_messages::ReliableServerMessage};
 
 pub fn switch_hands(
-    mut switch_hands_events : EventReader<SwitchHands>,
+    mut switch_hands_events : EventReader<InputSwitchHands>,
     mut inventory_entities : Query<
         &mut Inventory,
     >,

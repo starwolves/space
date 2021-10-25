@@ -1,10 +1,10 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query, Res, ResMut};
 use bevy_rapier3d::prelude::RigidBodyPosition;
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, inventory::Inventory, pawn::Pawn}, events::{general::console_command::ConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::console_commands::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_spawn_held_entity::rcon_spawn_held_entity, rcon_status::rcon_status}, resources::{entity_data_resource::EntityDataResource, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{ConsoleCommandVariant, ReliableServerMessage}, used_names::UsedNames}};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, inventory::Inventory, pawn::Pawn}, events::{general::console_command::InputConsoleCommand, net::net_console_commands::NetConsoleCommands}, functions::console_commands::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_spawn_entity::rcon_spawn_entity, rcon_spawn_held_entity::rcon_spawn_held_entity, rcon_status::rcon_status}, resources::{entity_data_resource::EntityDataResource, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{ConsoleCommandVariant, ReliableServerMessage}, used_names::UsedNames}};
 
 pub fn console_commands(
-    mut console_commands_events : EventReader<ConsoleCommand>,
+    mut console_commands_events : EventReader<InputConsoleCommand>,
     mut rcon_bruteforce_protection : Local<BruteforceProtection>,
     mut connected_players : Query<&mut ConnectedPlayer>,
     mut rigid_body_positions : Query<(&RigidBodyPosition, &Pawn)>,

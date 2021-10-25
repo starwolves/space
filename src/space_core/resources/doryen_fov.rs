@@ -2,6 +2,7 @@ use bevy::prelude::{FromWorld, World};
 use doryen_fov::{MapData};
 
 use crate::space_core::components::senser::{FOV_MAP_HEIGHT, FOV_MAP_WIDTH};
+use serde::{Serialize, Deserialize};
 
 pub struct DoryenMap {
 
@@ -34,7 +35,7 @@ pub struct Vec2Int {
     pub x : i16,
     pub y : i16,   
 }
-#[derive(PartialEq,Eq, Hash, Copy, Clone, Debug)]
+#[derive(PartialEq,Eq, Hash, Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct Vec3Int {
     pub x : i16,
     pub y : i16,  
