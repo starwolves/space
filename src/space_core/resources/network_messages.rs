@@ -95,6 +95,7 @@ pub struct NetTabAction {
     pub id : String,
     pub text : String,
     pub tab_list_priority : u8,
+    pub item_name : String,
     pub entity_option: Option<u64>,
     pub cell_option : Option<(GridMapType, i16,i16,i16)>
 }

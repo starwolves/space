@@ -24,6 +24,8 @@ impl Default for RichName {
     }
 }
 
+
+#[derive(Clone, Debug)]
 pub struct RichName {
     pub name : String,
     pub n : bool,

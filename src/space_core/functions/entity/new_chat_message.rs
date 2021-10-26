@@ -266,7 +266,6 @@ pub fn get_talk_spaces() -> Vec<(String, String)> {
         ("Me".to_string(), TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX.to_string()),
         ("Common".to_string(), TALK_SPACE_COMMON_CHATPREFIX.to_string()),
         ("Security".to_string(), TALK_SPACE_SECURITY_CHATPREFIX.to_string()),
-        ("Spec-Ops".to_string(), TALK_SPACE_SPECIALOPS_CHATPREFIX.to_string()),
         ("Global".to_string(), TALK_SPACE_GLOBAL_CHATPREFIX.to_string()),
     ]
 
