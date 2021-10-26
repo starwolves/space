@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{FromWorld, World};
 
-use crate::space_core::systems::general::startup_init_gridmap_cells::MainCellProperties;
+use crate::space_core::{components::examinable::RichName, systems::general::startup_init_gridmap_cells::MainCellProperties};
 
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
@@ -15,8 +15,8 @@ pub struct GridmapData {
     pub main_id_name_map : HashMap<i64, String>,
     pub details1_name_id_map: HashMap<String, i64>,
     pub details1_id_name_map: HashMap<i64,String>,
-    pub main_text_names : HashMap<i64, String>,
-    pub details1_text_names  : HashMap<i64, String>,
+    pub main_text_names : HashMap<i64, RichName>,
+    pub details1_text_names  : HashMap<i64, RichName>,
     pub main_text_examine_desc : HashMap<i64, String>,
     pub details1_text_examine_desc : HashMap<i64, String>,
     pub blackcell_id : i64,

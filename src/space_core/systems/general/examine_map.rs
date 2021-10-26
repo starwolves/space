@@ -1,6 +1,6 @@
 use bevy::{prelude::{EventReader, EventWriter, Query, Res, warn}};
 
-use crate::space_core::{components::senser::Senser, events::{general::examine_map::InputExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::senser::Senser, events::{general::examine_map::InputExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{to_doryen_coordinates}, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
 pub fn examine_map(
     mut examine_map_events : EventReader<InputExamineMap>,
@@ -35,7 +35,7 @@ pub fn examine_map(
 
             let gridmap_type = &examine_event.gridmap_type;
 
-            let mut gridmap_result;
+            let gridmap_result;
 
             match examine_event.gridmap_type{
                 crate::space_core::resources::network_messages::GridMapType::Main => {
@@ -44,27 +44,6 @@ pub fn examine_map(
                 crate::space_core::resources::network_messages::GridMapType::Details1 => {
                     gridmap_result = gridmap_details1.data.get(&examine_event.gridmap_cell_id);
                 },
-            }
-
-            if matches!(gridmap_result, None) {
-
-                match examine_event.gridmap_type{
-                    crate::space_core::resources::network_messages::GridMapType::Main => {
-                        gridmap_result = gridmap_main.data.get(&Vec3Int {
-                            x: examine_event.gridmap_cell_id.x,
-                            y: examine_event.gridmap_cell_id.y-1,
-                            z: examine_event.gridmap_cell_id.z,
-                        });
-                    },
-                    crate::space_core::resources::network_messages::GridMapType::Details1 => {
-                        gridmap_result = gridmap_details1.data.get(&Vec3Int {
-                            x: examine_event.gridmap_cell_id.x,
-                            y: examine_event.gridmap_cell_id.y-1,
-                            z: examine_event.gridmap_cell_id.z,
-                        });
-                    },
-                }
-
             }
 
 

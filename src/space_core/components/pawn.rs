@@ -1,7 +1,9 @@
 
+use std::collections::HashMap;
+
 use bevy::{math::Vec2};
 
-use crate::space_core::resources::{network_messages::{GridMapType, NetTabAction}};
+use crate::space_core::{functions::entity::get_tab_action::get_tab_action, resources::{network_messages::{GridMapType, NetTabAction}}};
 
 pub struct TabAction {
     pub id : String,
@@ -14,13 +16,14 @@ pub struct TabAction {
 }
 
 impl TabAction {
-    pub fn into_net(&self, entity_option : Option<u64>, cell_option : Option<(GridMapType, i16,i16,i16)>) -> NetTabAction {
+    pub fn into_net(&self, item_name : &str, entity_option : Option<u64>, cell_option : Option<(GridMapType, i16,i16,i16)>) -> NetTabAction {
         NetTabAction {
             id: self.id.clone(),
             text: self.text.clone(),
             tab_list_priority: self.tab_list_priority,
             entity_option : entity_option,
             cell_option,
+            item_name : item_name.to_string(),
         }
     }
 }
@@ -30,18 +33,18 @@ pub struct Pawn {
     pub name : String,
     pub job : SpaceJobsEnum,
     pub facing_direction : FacingDirection,
-    pub tab_actions : Vec<TabAction>,
-    pub just_spawned : bool,
+    pub tab_actions : HashMap<u16, TabAction>,
 }
 
 impl Default for Pawn {
     fn default() -> Self {
+        let mut s = HashMap::new();
+        s.insert(0,get_tab_action("examine").unwrap());
         Self {
             name: "".to_string(),
             job: SpaceJobsEnum::Security,
             facing_direction: FacingDirection::Up,
-            tab_actions : Default::default(),
-            just_spawned: true,
+            tab_actions : s,
         }
     }
 }

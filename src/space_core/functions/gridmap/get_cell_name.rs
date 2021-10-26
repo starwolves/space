@@ -9,6 +9,6 @@ pub fn get_cell_name(
     gridmap_data : &Res<GridmapData>,
 ) -> String {
 
-    gridmap_data.main_text_names.get(&ship_cell.item).unwrap().to_string()
+    gridmap_data.main_text_names.get(&ship_cell.item).unwrap().get_a_name()
 
 }
