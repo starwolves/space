@@ -1,6 +1,6 @@
 use bevy::prelude::{ResMut, info};
 
-use crate::space_core::{bundles::{helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle, pistol_l1::PistolL1Bundle, security_airlock::SecurityAirlockBundle, security_counter_window::SecurityCounterWindowBundle}, resources::entity_data_resource::{EntityDataProperties, EntityDataResource}};
+use crate::space_core::{bundles::{construction_tool::ConstructionToolBundle, helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle, pistol_l1::PistolL1Bundle, security_airlock::SecurityAirlockBundle, security_counter_window::SecurityCounterWindowBundle}, resources::entity_data_resource::{EntityDataProperties, EntityDataResource}};
 
 
 
@@ -44,6 +44,12 @@ pub fn startup_init_entities(
         name: "securityCounterWindow".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityCounterWindowBundle::spawn),
+    });
+
+    entities.push(EntityDataProperties {
+        name: "constructionTool".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(ConstructionToolBundle::spawn),
     });
 
     info!("Loaded {} different entity types.", entities.len());

@@ -51,3 +51,4 @@ pub mod jumpsuit;
 pub mod health;
 pub mod cell;
 pub mod pistol_l1;
+pub mod construction_tool;
