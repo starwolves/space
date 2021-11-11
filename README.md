@@ -60,7 +60,7 @@ cargo run --release
 Pushed code, feedback, suggestions and critique are very much appreciated.
 You can get in contact with the developers through a [Matrix client](https://matrix.to/#/#live:comms.starwolves.io) that interfaces with the decentralized communication server of Star Wolves.
 
-Matrix is like a decentralized Discord, where data & community sovereignty matters.
+[Matrix](https://matrix.org) is like a decentralized Discord, where data & community sovereignty matters.
 
 
 ### Space Frontiers client
