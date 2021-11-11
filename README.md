@@ -58,7 +58,7 @@ cargo run --release
 
 ### Contributions
 Contributions in the form of pushed code, feedback, suggestions and critique are very much appreciated.
-
+You can get in contact with the developers through [the decentralized StarWolves communications server](https://matrix.to/#/#live:comms.starwolves.io).
 
 
 ### Space Frontiers client
@@ -73,4 +73,4 @@ When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 
 
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a brand new **sovereign gaming community** that will pioneer the game Space Frontiers by hosting official servers for it and more.
-It stays true to the sovereignty Space Frontiers gives communities in that it allows each community of players to compile and host a server istance themselves.
+It stays true to the sovereignty Space Frontiers gives communities in that it allows each community of players to compile and host a server istance themselves meaning the i/o gameplay data will remain private.
