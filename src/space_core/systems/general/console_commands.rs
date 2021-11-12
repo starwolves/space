@@ -51,7 +51,15 @@ pub fn console_commands(
 
         }
 
-        let player_entity = connected_players.get_mut(console_command_event.entity).unwrap();
+        let player_entity;
+        match connected_players.get_mut(console_command_event.entity) {
+            Ok(s) => {
+                player_entity = s;
+            },
+            Err(_rr) => {
+                continue;
+            },
+        }
 
         if player_entity.rcon == false{
             net_console_commands.send(NetConsoleCommands {

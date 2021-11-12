@@ -417,12 +417,12 @@ pub fn net_send_message_event(
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
-                    warn!("net_send_message_event.rs was unable to send net_attack message: {:?}", msg);
+                    warn!("net_send_message_event.rs was unable to send net_projectile_fov message: {:?}", msg);
                 }
                 None => {}
             },
             Err(err) => {
-                warn!("net_send_message_event.rs was unable to send net_attack message (1): {:?}", err);
+                warn!("net_send_message_event.rs was unable to send net_projectile_fov message (1): {:?}", err);
             }
         };
 

@@ -157,6 +157,10 @@ pub fn projectile_fov(
 
                         }
 
+                        if !connected_player_component.connected {
+                            continue;
+                        }
+
                         net_projectile_fov.send( NetProjectileFOV {
                             handle: connected_player_component.handle,
                             message: ReliableServerMessage::FireProjectile(NetProjectileType::Laser(

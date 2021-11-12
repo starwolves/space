@@ -1,11 +1,12 @@
-use bevy::prelude::{Commands, EventReader, Res};
+use bevy::prelude::{Commands, EventReader, Query, Res, Without};
 
-use crate::space_core::{components::setup_phase::SetupPhase, events::general::scene_ready::InputSceneReady, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::{boarding::Boarding, setup_phase::SetupPhase, soft_player::SoftPlayer}, events::general::scene_ready::InputSceneReady, resources::handle_to_entity::HandleToEntity};
 
 pub fn scene_ready_event(
     mut event : EventReader<InputSceneReady>,
     handle_to_entity: Res<HandleToEntity>,
-    mut commands : Commands
+    criteria_query : Query<&SoftPlayer, Without<Boarding>>,
+    mut commands : Commands,
 ) {
 
     for new_event in event.iter() {
@@ -13,6 +14,13 @@ pub fn scene_ready_event(
         let player_entity = handle_to_entity.map.get(&new_event.handle)
         .expect("scene_ready_event.rs could not find components for player that just got done boarding.");
 
+        //Safety check.
+        match criteria_query.get(*player_entity) {
+            Ok(_) => {},
+            Err(_rr) => {
+                continue;
+            },
+        }
 
         if new_event.scene_type == "setupUI" {
 

@@ -16,6 +16,10 @@ pub fn user_name(
         match persistent_player_data_query.get_mut(event.entity) {
             Ok(mut persistent_player_data_component) => {
 
+                if persistent_player_data_component.user_name_is_set {
+                    continue;
+                }
+
                 let mut user_name = escape_bb((&event.input_name).to_string(), true, true);
 
                 if user_name.len() > 16 {
@@ -44,6 +48,8 @@ pub fn user_name(
                 persistent_player_data_component.user_name = user_name.to_string();
 
                 used_names.user_names.insert(user_name, event.entity);
+
+                persistent_player_data_component.user_name_is_set = true;
 
             },
             Err(_rr) => {

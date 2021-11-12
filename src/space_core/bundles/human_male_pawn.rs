@@ -138,6 +138,7 @@ impl HumanMalePawnBundle {
             PersistentPlayerData {
                 character_name: character_name.clone(),
                 user_name,
+                ..Default::default()
             },
             DefaultTransform::default(),
             InterpolationPriority {

@@ -11,7 +11,16 @@ pub fn rcon_status(
     net_console_commands : &mut EventWriter<NetConsoleCommands>,
 ) {
 
-    let connected_player_component = connected_players.get_mut(client_entity).unwrap();
+    let connected_player_component;
+
+    match connected_players.get_mut(client_entity) {
+        Ok(s) => {
+            connected_player_component = s;
+        },
+        Err(_rr) => {
+            return;
+        },
+    }
 
     if connected_player_component.rcon {
 

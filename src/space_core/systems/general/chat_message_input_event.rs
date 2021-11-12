@@ -1,7 +1,7 @@
 use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
 use bevy_rapier3d::{prelude::RigidBodyPosition};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::{Pawn, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, radio::Radio, sensable::Sensable}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::entity::new_chat_message::{Communicator, MessagingPlayerState, new_chat_message}, resources::handle_to_entity::HandleToEntity};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::{Pawn, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, radio::Radio, sensable::Sensable, soft_player::SoftPlayer}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::entity::new_chat_message::{Communicator, MessagingPlayerState, new_chat_message}, resources::handle_to_entity::HandleToEntity};
 
 pub fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
@@ -12,7 +12,7 @@ pub fn chat_message_input_event(
         &Sensable,
     )>,
     radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition, &PersistentPlayerData)>,
-    
+    soft_player_query : Query<&SoftPlayer>,
     mut net_new_chat_message_event : EventWriter<NetChatMessage>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
     global_listeners : Query<(&ConnectedPlayer, &PersistentPlayerData)>,
@@ -74,6 +74,12 @@ pub fn chat_message_input_event(
                 // Soft connected chat
 
                 let persistent_player_data_component;
+
+                //Safety check.
+                match soft_player_query.get(*player_pawn_entity) {
+                    Ok(_) => {},
+                    Err(_rr) => {continue;},
+                }
 
                 match global_listeners.get(*player_pawn_entity) {
                     Ok((_connected, persistent_data)) => {
