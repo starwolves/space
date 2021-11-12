@@ -24,11 +24,10 @@ pub fn user_name(
 
                 if used_names.user_names.contains_key(&user_name) {
                     //Already exists.
-                    //warn!("User provided an user_name that is already in-use.");
 
                     net_user_name_event.send(NetUserName{
                         handle: event.handle,
-                        message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name in /content/init.json is already in-use, please change the name in the file and restart your game.[/color]"),
+                        message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is already in-use, please change the name in the file and restart your game.[/color]"),
                     });
 
                     continue;
@@ -37,7 +36,7 @@ pub fn user_name(
                 if user_name.len() < 3 {
                     net_user_name_event.send(NetUserName {
                         handle: event.handle,
-                        message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters aren't registered.[/color]"),
+                        message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters and whitespaces are not registered.[/color]"),
                     });
                     continue;
                 }
