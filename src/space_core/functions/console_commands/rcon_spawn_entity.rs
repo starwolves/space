@@ -84,7 +84,8 @@ pub fn rcon_spawn_entity(
 
         let persistent_player_data_component = PersistentPlayerData {
             character_name: "".to_string(),
-            user_name: "unknownSpawnEntityAssigned".to_string()
+            user_name: "unknownSpawnEntityAssigned".to_string(),
+            ..Default::default()
         };
         
         for _i in 0..spawn_amount {

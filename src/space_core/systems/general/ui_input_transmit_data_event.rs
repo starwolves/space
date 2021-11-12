@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, Query, Res, ResMut};
+use bevy::prelude::{Commands, EventReader, EventWriter, Query, Res, ResMut, warn};
 
 use crate::space_core::{components::{boarding::Boarding, connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData}, events::{general::{boarding_player::BoardingPlayer, ui_input_transmit_text::InputUIInputTransmitText}, net::net_ui_input_transmit_data::NetUIInputTransmitData}, functions::{console_commands::CONSOLE_ERROR_COLOR, entity::new_chat_message::escape_bb}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
@@ -9,7 +9,7 @@ pub fn ui_input_transmit_data_event(
     mut boarding_player_event : EventWriter<BoardingPlayer>,
     handle_to_entity: Res<HandleToEntity>,
     used_names : ResMut<UsedNames>,
-    mut query : Query<(&mut PersistentPlayerData, &ConnectedPlayer)>,
+    mut query : Query<(&mut PersistentPlayerData, &Boarding, &ConnectedPlayer)>,
     mut commands : Commands,
     mut net_ui_input_transmit_data_event : EventWriter<NetUIInputTransmitData>,
 ) {
@@ -20,11 +20,20 @@ pub fn ui_input_transmit_data_event(
         let player_entity = handle_to_entity.map.get(&new_event.handle)
         .expect("ui_input_transmit_text_event.rs could not find entity belonging to player handle.");
 
-        let player_components = query.get_mut(*player_entity)
-        .expect("ui_input_transmit_text_event.rs could not find components belonging to player.");
+        let player_components;
+
+        match query.get_mut(*player_entity) {
+            Ok(s) => {
+                player_components = s;
+            },
+            Err(_rr) => {
+                warn!("ui_input_transmit_text_event.rs could not find components belonging to player.");
+                continue;
+            },
+        }
 
         let mut persistent_player_data = player_components.0;
-        let connected_player_component = player_components.1;
+        let connected_player_component = player_components.2;
 
         if new_event.ui_type == "setupUI" {
 

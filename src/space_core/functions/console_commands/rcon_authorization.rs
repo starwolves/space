@@ -42,7 +42,14 @@ pub fn rcon_authorization(
 
     if input_password == RCON_PASSWORD {
 
-        let mut connected_player_component = connected_players.get_mut(client_entity).unwrap();
+        let mut connected_player_component;
+
+        match connected_players.get_mut(client_entity) {
+            Ok(s) => {
+                connected_player_component = s;
+            },
+            Err(_rr) => {return;},
+        }
 
         connected_player_component.rcon = true;
 

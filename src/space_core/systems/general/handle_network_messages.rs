@@ -88,7 +88,6 @@ pub fn handle_network_messages(
         
 
         while let Some(client_message) = channels.recv::<ReliableClientMessage>() {
-            //info!("ReliableClientMessage received on [{}]: {:?}",handle, client_message);
 
             match client_message {
                 ReliableClientMessage::Awoo => {},
@@ -137,6 +136,7 @@ pub fn handle_network_messages(
                         message: message
                     });
                 },
+                
                 ReliableClientMessage::SprintInput(is_sprinting) => {
 
                     input_sprinting_event.send(InputSprinting {
@@ -147,10 +147,20 @@ pub fn handle_network_messages(
                 },
                 ReliableClientMessage::ExamineEntity(entity_id) => {
 
-                    examine_entity.send(InputExamineEntity{
-                        handle: *handle,
-                        examine_entity_bits: entity_id,
-                    });
+                    
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            examine_entity.send(InputExamineEntity{
+                                handle: *handle,
+                                examine_entity_bits: entity_id,
+                                entity : *player_entity,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to ExamineEntity sender handle.");
+                        },
+                    }
 
                 },
                 ReliableClientMessage::ExamineMap(grid_map_type, cell_id_x,cell_id_y,cell_id_z) => {
@@ -260,9 +270,10 @@ pub fn handle_network_messages(
                         },
                     }
                     
-
-                },
-                ReliableClientMessage::HeartBeat => {},
+                   //                                    |
+                },// Where the souls of the players are  |
+                //   while they're connected.            V
+                ReliableClientMessage::HeartBeat => {/* <3 */},
                 ReliableClientMessage::ConsoleCommand(command_name, variant_arguments) => {
 
                     match handle_to_entity.map.get(handle) {
@@ -440,8 +451,6 @@ pub fn handle_network_messages(
                             warn!("Couldn't find player_entity belonging to TabDataEntity sender handle.");
                         },
                     }
-
-                    
 
                 },
                 ReliableClientMessage::TabDataMap(gridmap_type, idx, idy, idz) => {

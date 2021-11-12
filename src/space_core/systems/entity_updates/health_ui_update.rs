@@ -522,7 +522,7 @@ pub fn health_ui_update(
 
 
 
-                if new_update {
+                if new_update && connected_player_component.connected {
                     net_health_update.send(NetHealthUpdate {
                         handle: connected_player_component.handle,
                         message: ReliableServerMessage::EntityUpdate(entity.to_bits(), entity_updates_map, false, EntityWorldType::HealthUI)

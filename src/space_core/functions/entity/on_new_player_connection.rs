@@ -173,6 +173,7 @@ pub fn on_new_player_connection(
     let persistent_player_data = PersistentPlayerData {
         character_name: "".to_string(),
         user_name: default_name.clone(),
+        ..Default::default()
     };
 
     let player_input = PlayerInput::default();
