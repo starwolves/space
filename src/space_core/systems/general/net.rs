@@ -1,7 +1,7 @@
 use bevy::prelude::{EventReader, ResMut, warn};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::events::net::{net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_examine_entity::NetExamineEntity, net_health_update::NetHealthUpdate, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_projectile_fov::NetProjectileFOV, net_send_entity_updates::NetSendEntityUpdates, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_tab_data_entity::NetTabData, net_takeoff_item::NetTakeOffItem, net_throw_item::NetThrowItem, net_ui_input_transmit_data::NetUIInputTransmitData, net_unload_entity::NetUnloadEntity, net_user_name::NetUserName, net_wear_item::NetWearItem};
+use crate::space_core::events::net::{net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_examine_entity::NetExamineEntity, net_health_update::NetHealthUpdate, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_projectile_fov::NetProjectileFOV, net_send_entity_updates::NetSendEntityUpdates, net_send_server_time::NetSendServerTime, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_tab_data_entity::NetTabData, net_takeoff_item::NetTakeOffItem, net_throw_item::NetThrowItem, net_ui_input_transmit_data::NetUIInputTransmitData, net_unload_entity::NetUnloadEntity, net_update_player_count::NetUpdatePlayerCount, net_user_name::NetUserName, net_wear_item::NetWearItem};
 
 
 pub fn net_send_message_event(
@@ -33,6 +33,8 @@ pub fn net_send_message_event(
         EventReader<NetProjectileFOV>,
         EventReader<NetThrowItem>,
         EventReader<NetTabData>,
+        EventReader<NetSendServerTime>,
+        EventReader<NetUpdatePlayerCount>,
     )
 ) {
 
@@ -67,6 +69,8 @@ pub fn net_send_message_event(
         mut net_projectile_fov,
         mut net_throw_item,
         mut net_tab_data,
+        mut net_send_server_time,
+        mut net_update_player_count,
     )
     = tuple1;
 
@@ -461,6 +465,40 @@ pub fn net_send_message_event(
     }
     
     
+    for new_event in net_send_server_time.iter() {
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_send_server_time message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_send_server_time message (1): {:?}", err);
+            }
+        };
+
+    }
+
+
+    for new_event in net_update_player_count.iter() {
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_update_player_count message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_update_player_count message (1): {:?}", err);
+            }
+        };
+
+    }
     
+
     
+
 }

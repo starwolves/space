@@ -135,6 +135,8 @@ pub enum EntityUpdateData {
 pub enum ServerConfigMessage {
     Awoo,
     WorldEnvironment(WorldEnvironment),
+    ServerTime(u128),
+    ConnectedPlayers(u16),
     TickRate(u8),
     EntityId(u64),
     BlackCellID(i64, i64),

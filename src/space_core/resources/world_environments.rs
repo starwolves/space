@@ -80,7 +80,8 @@ pub struct WorldEnvironment {
     pub ssao_radius2 : f32,
     pub tone_map_exposure : f32,
     pub tone_mapper : u8,
-    pub tone_map_white : f32
+    pub tone_map_white : f32,
+    pub glow_high_quality : bool,
 }
 
 impl WorldEnvironment {
@@ -159,6 +160,7 @@ impl WorldEnvironment {
         map_environment.tone_map_exposure= self.tone_map_exposure;
         map_environment.tone_mapper=self.tone_mapper;
         map_environment.tone_map_white= self.tone_map_white;
+        map_environment.glow_high_quality= self.glow_high_quality;
     }
 
     pub fn new(raw : WorldEnvironmentRaw) -> WorldEnvironment {
@@ -237,7 +239,8 @@ impl WorldEnvironment {
             ssao_radius2 : raw.ssao_radius2,
             tone_map_exposure : raw.tone_map_exposure,
             tone_mapper : raw.tone_mapper,
-            tone_map_white : raw.tone_map_white
+            tone_map_white : raw.tone_map_white,
+            glow_high_quality : raw.glow_high_quality,
         }
 
 
@@ -322,7 +325,8 @@ pub struct WorldEnvironmentRaw {
     ssao_radius2 : f32,
     tone_map_exposure : f32,
     tone_mapper : u8,
-    tone_map_white : f32
+    tone_map_white : f32,
+    glow_high_quality : bool,
 }
 
 
@@ -402,6 +406,7 @@ impl FromWorld for WorldEnvironment {
             tone_map_exposure: 0.,
             tone_mapper: 0,
             tone_map_white: 0.,
+            glow_high_quality: false,
         }
     }
 }
