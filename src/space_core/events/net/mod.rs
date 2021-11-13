@@ -22,3 +22,5 @@ pub mod net_examine_entity;
 pub mod net_projectile_fov;
 pub mod net_throw_item;
 pub mod net_tab_data_entity;
+pub mod net_send_server_time;
+pub mod net_update_player_count;

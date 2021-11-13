@@ -71,5 +71,6 @@
 	"ssao_radius2": 0,
 	"tone_map_exposure": 1,
 	"tone_mapper": 3,
-	"tone_map_white": 1
+	"tone_map_white": 1,
+	"glow_high_quality": true
 }

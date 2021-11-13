@@ -22,7 +22,7 @@ pub fn handle_network_events(
         
         match event {
             NetworkEvent::Packet(_handle, _packet) => {
-                info!("New Packet!");
+                
             },
             NetworkEvent::Connected(handle) => {
                 
