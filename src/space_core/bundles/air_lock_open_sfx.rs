@@ -30,7 +30,7 @@ impl AirLockOpenSfxBundle {
             ..Default::default()
         },
         Sfx {
-            unit_db: 17.,
+            unit_db: 13.,
             stream_id: "doorOpen".to_string(),
             play_back_duration: PLAY_BACK_DURATION,
             pitch_scale: get_random_pitch_scale(1.6),

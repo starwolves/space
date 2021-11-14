@@ -31,14 +31,13 @@ impl CounterWindowOpenSfxBundle {
         },
         Sfx {
            
-            unit_db: 19.0,
+            unit_db: 15.0,
             stream_id: "windowOpen".to_string(),
             play_back_duration: PLAY_BACK_DURATION,
             pitch_scale: get_random_pitch_scale(1.0),
             ..Default::default()
         },
-        EntityUpdates::default(),
-    )
+        EntityUpdates::default(),)
 
     }
 
