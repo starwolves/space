@@ -135,7 +135,7 @@ pub enum EntityUpdateData {
 pub enum ServerConfigMessage {
     Awoo,
     WorldEnvironment(WorldEnvironment),
-    ServerTime(u128),
+    ServerTime,
     ConnectedPlayers(u16),
     TickRate(u8),
     EntityId(u64),
