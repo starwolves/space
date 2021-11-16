@@ -51,6 +51,7 @@ const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 fn main() {
 
     App::build()
+        .insert_resource(DefaultTaskPoolOptions::with_num_threads(2))
         .add_plugins(MinimalPlugins)
         .add_plugin(LogPlugin::default())
         .add_plugin(TransformPlugin::default())
