@@ -34,7 +34,8 @@ This game server is designed to run well on modern processors that have multiple
 
 ## Getting Started
 
-  
+### License
+This project has a non-standard and non-commercial license, please check it out [here](https://github.com/nikitavondel/space/blob/master/LICENSE).
 
 ### Dependencies
 
@@ -56,15 +57,19 @@ This game server is designed to run well on modern processors that have multiple
 cargo run --release
 ```
 
+### Documentation
+Find the documentation of this project [here](https://docs.starwolves.io).
+
 ### Contributions
-Pushed code, feedback, suggestions and critique are very much appreciated.
+Pushed code, feedback, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 You can get in contact with the developers through a [Matrix client](https://matrix.to/#/#live:comms.starwolves.io) that interfaces with the decentralized communication server of Star Wolves.
 
 [Matrix](https://matrix.org) is like a decentralized Discord, where data & community sovereignty matters.
 
 
 ### Space Frontiers client
-You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server. There are no public releases of the client and its content folder yet.
+You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server.
+You can find the latest stable releases of the clients at [Star Wolves](https://starwolves.io)
 
 The client is built on top of the latest stable Godot 3 release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
 However, most devices made for video-games should expect no such problems.
