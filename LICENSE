@@ -1,7 +1,7 @@
 Copyright (c) 2021 Nikita Ramses Abdoelrahman.
 Copyright of utilized 3rd party FOSS Software (c) 2021 To each their respective owners and terms-of-service and/or copyright agreements.
 
-The above copyright notice and this permission notice shall be included in all
+The above copyright notice and this entire permission notice shall be included in all
 copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -12,8 +12,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-You may not use this work for commercial reasons.
-You may not redistribute this work or share it with others.
-You need to keep this software private and to yourself. Its contents should remain secret.
+Definitions
+"Licensor" means the individual or entity that offers the Work under the terms of this License.
+"Original Author" means the individual or entity who created the Work.
+"Work" means the copyrightable work of authorship offered under the terms of this License.
+"You" means an individual or entity exercising rights under this License who has not previously violated the terms of this License with respect to the Work, or who has received express permission from the Licensor to exercise rights under this License despite a previous violation.
 
-When modifying the software please ensure only the official Space Frontiers clients can connect to the software/server, do not support 3rd party clients directly or indirectly without explicit agreements.
+Subject to the terms and conditions of this License, Licensor hereby grants You a worldwide and non-exclusive license to exercise the rights in the Work as stated in this license.
+
+You may not use this Work for commercial purposes.
+You may not sell this Work.
+
+When modifying the software please ensure only the official Space Frontiers client can connect to this software/server, do not support 3rd party clients directly or indirectly without explicit agreements.
+The act of redistributing, modifying and sharing this Work is only allowed when it is done with the intention to exclusively support official Space Frontier clients for this copyrighted Work.
+Do not repurpose this software outside of the scope of wanting to Work with the official Space Frontiers client without explicit agreements.
+
+When sharing this Work with others, ensure they are aware of this particular LICENSE.
+
+When using this Work: you may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+If you remix, transform, or build upon this Work, you must distribute your contributions under the same license as the original.
+
+This License and the rights granted hereunder will terminate automatically upon any breach by You of the terms of this License.
+
+Licensor reserves the right to release the Work under different license terms or to stop distributing the Work at any time
+
+You must keep intact all copyright notices for the Work and give the Original Author credit reasonable to the medium or means You are utilizing by conveying the name (or pseudonym if applicable) of the Original Author if supplied; the title of the Work if supplied; to the extent reasonably practicable.
