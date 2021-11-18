@@ -34,7 +34,7 @@ This game server is designed to run well on modern processors that have multiple
 
 ## Getting Started
 
-### License
+### [License](https://github.com/nikitavondel/space/blob/master/LICENSE)
 This project has a non-standard and non-commercial license, please read it and agree to it before you continue. Find the license [here](https://github.com/nikitavondel/space/blob/master/LICENSE).
 
 ### Dependencies
