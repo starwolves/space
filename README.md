@@ -57,7 +57,7 @@ This project has a non-standard and non-commercial license, please check it out 
 cargo run --release
 ```
 
-### Documentation
+### [Documentation](https://docs.starwolves.io)
 Find the documentation of this project [here](https://docs.starwolves.io).
 
 ### Contributions
