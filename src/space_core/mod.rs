@@ -5,7 +5,7 @@ pub mod components;
 pub mod events;
 pub mod bundles;
 
-use bevy::{MinimalPlugins, core::{DefaultTaskPoolOptions, FixedTimestep}, log::LogPlugin, prelude::{AppBuilder, IntoSystem, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet}, transform::TransformPlugin};
+use bevy::{MinimalPlugins, core::{FixedTimestep}, log::LogPlugin, prelude::{AppBuilder, IntoSystem, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet}, transform::TransformPlugin};
 use bevy_networking_turbulence::NetworkingPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 
@@ -51,7 +51,7 @@ const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 impl Plugin for SpaceCore {
     fn build(&self, app: &mut AppBuilder) {
 
-        app.insert_resource(DefaultTaskPoolOptions::with_num_threads(2))
+        app
         .add_plugins(MinimalPlugins)
         .add_plugin(LogPlugin::default())
         .add_plugin(TransformPlugin::default())
