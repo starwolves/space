@@ -139,9 +139,9 @@ impl Plugin for SpaceCore {
         .add_event::<NetUpdatePlayerCount>()
         .add_startup_system(startup_init_misc_data.system().label(StartupLabels::Launch))
         .add_startup_system(startup_init_gridmap_cells.system().label(StartupLabels::InitDefaultGridmapData).after(StartupLabels::Launch))
+        .add_startup_system(startup_init_entities.system().before(StartupLabels::BuildGridmap))
         .add_startup_system(startup_build_map.system().label(StartupLabels::BuildGridmap).after(StartupLabels::InitDefaultGridmapData))
         .add_startup_system(startup_launch_server.system().after(StartupLabels::BuildGridmap))
-        .add_startup_system(startup_init_entities.system())
         .add_system_to_stage(PreUpdate, 
             handle_network_events.system()
             .label(PreUpdateLabels::NetEvents)
