@@ -35,7 +35,7 @@ This game server is designed to run well on modern processors that have multiple
 ## Getting Started
 
 ### [License](https://github.com/starwolves/space/blob/master/LICENSE)
-This project has a non-standard and non-commercial license, please read it and agree to it before you continue. Find the license [here](https://github.com/starwolves/space/blob/master/LICENSE).
+This server-side project has a non-standard and non-commercial license, please read it and agree to it before you continue. Find the license [here](https://github.com/starwolves/space/blob/master/LICENSE).
 
 ### Dependencies
 
@@ -61,7 +61,7 @@ cargo run --release
 Find the documentation of this project [here](https://docs.starwolves.io).
 
 ### Contributions
-Pushed code, feedback, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
+Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 You can get in contact with the developers through a [Matrix client](https://matrix.to/#/#live:comms.starwolves.io) that interfaces with the decentralized communication server of Star Wolves.
 
 [Matrix](https://matrix.org) is like a decentralized Discord, where data & community sovereignty matters.
