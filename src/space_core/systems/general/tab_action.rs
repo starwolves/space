@@ -19,12 +19,9 @@ pub fn tab_action(
                 continue;
             },
         }
-
         if event.tab_id == "examine" {
-
             match event.target_entity_option {
                 Some(entity_bits) => {
-
                     event_examine_entity.send(InputExamineEntity{
                         handle: event.handle,
                         examine_entity_bits: entity_bits,
@@ -33,7 +30,6 @@ pub fn tab_action(
 
                 },
                 None => {
-
                     match &event.target_cell_option {
                         Some((gridmap_type, idx, idy, idz)) => {
 
