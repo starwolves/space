@@ -41,13 +41,11 @@ pub fn examine_entity(
                     message: ReliableServerMessage::ChatMessage(text),
                 });
 
-            },
-            Err(_rr) => {
                 continue;
+
             },
+            Err(_rr) => {},
         }
-
-
 
         match q.q0().get(entity_reference) {
             Ok((examinable_component, sensable_component, health_component)) => {
@@ -112,7 +110,7 @@ pub fn examine_entity(
 
             },
             Err(_rr) => {
-                warn!("Couldn't find examinable entity.");
+                warn!("Couldn't find user input requested examinable entity.");
             },
         }
 
