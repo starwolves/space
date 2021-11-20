@@ -78,7 +78,7 @@ However, most devices made for video-games should expect no such problems.
 When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
 
 ### Media
-You can see Space Frontiers in action [here](https://youtu.be/Qa-Y_PxzeiI).
+You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_PxzeiI).
 
 ### Testing the game
 Please make sure you download and compile the latest stable branch of Space Frontiers server and not from the master branch. Also make sure that the stable server version matches the version of the Space Frontiers client that you have acquired at [comms.starwolves.io](https://comms.starwolves.io).
