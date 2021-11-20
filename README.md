@@ -70,6 +70,7 @@ You can get in contact with the developers through a [Matrix client](https://mat
 ### Space Frontiers client
 You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server.
 You can find the latest stable releases of the client at [Star Wolves](https://starwolves.io).
+Ensure you select the right branch of the server that has the same version number as the client you have obtained.
 
 The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
 However, most devices made for video-games should expect no such problems.
