@@ -74,7 +74,7 @@ pub fn build_main_gridmap(
             friction = 0.2;
             friction_combine_rule = CoefficientCombineRule::Min;
         } else {
-            friction_combine_rule = CoefficientCombineRule::Average;
+            friction_combine_rule = CoefficientCombineRule::Min;
             friction = 0.;
         }
 

@@ -7,7 +7,7 @@ use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcast
 
 pub struct HumanMalePawnBundle;
 
-pub const CHARACTER_FLOOR_FRICTION : f32 = 6.;
+pub const CHARACTER_FLOOR_FRICTION : f32 = 7.2;
 
 impl HumanMalePawnBundle {
 
