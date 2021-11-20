@@ -5,7 +5,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFla
 
 use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, helmet::Helmet, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::ReliableServerMessage}};
 
-pub const STANDARD_BODY_FRICTION : f32 = 0.20;
+pub const STANDARD_BODY_FRICTION : f32 = 0.125;
 
 pub struct HelmetSecurityBundle;
 
