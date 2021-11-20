@@ -265,9 +265,10 @@ pub fn standard_character_update(
 
             if standard_character_component.is_attacking {
 
+                
+
                 match active_item_entity {
                     Some(_entity) => {
-
                         match inventory_item_option.unwrap().combat_attack_animation {
                             crate::space_core::components::inventory_item::CombatAttackAnimation::OneHandedMeleePunch => {
 
@@ -300,8 +301,6 @@ pub fn standard_character_update(
                         }
                     },
                 }
-                
-                
 
             }
             animation_tree1_upper_blend.insert(
