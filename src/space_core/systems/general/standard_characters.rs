@@ -1,24 +1,31 @@
 use std::{f32::consts::PI};
 
 use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
+use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyForces, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
 
 use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
-
-const JOG_SPEED : f32 = 16.2;
-const RUN_SPEED : f32 = 21.;
-const MOVEMENT_SMOOTHNESS : f32 = 0.020;
+const JOG_SPEED : f32 = 132.;
+const MAX_JOG_SPEED : f32 = 10.;
+const MAX_RUN_SPEED: f32 = 14.;
+const RUN_SPEED : f32 = 132.;
+const MOVEMENT_SMOOTHNESS : f32 = 1.;
 
 const MELEE_FISTS_REACH : f32 = 1.2;
 const COMBAT_ROTATION_SPEED : f32 = 18.;
 
+enum CharacterMovementState {
+    None,
+    Jogging,
+    Sprinting,
+}
 
 pub fn standard_characters(
     mut standard_character_query : Query<(
         Entity,
         &mut PlayerInput,
-        &mut RigidBodyVelocity,
+        &RigidBodyVelocity,
+        &mut RigidBodyForces,
         &mut StandardCharacter,
         &mut RigidBodyPosition,
         Option<&LinkedFootstepsWalking>,
@@ -149,7 +156,8 @@ pub fn standard_characters(
     for (
         standard_character_entity,
         mut player_input_component,
-        mut rigid_body_velocity_component,
+        rigid_body_velocity_component,
+        mut rigid_body_forces,
         mut standard_character_component,
         mut rigid_body_position_component,
         linked_footsteps_walking_option,
@@ -157,6 +165,8 @@ pub fn standard_characters(
         mut pawn_component,
         inventory_component,
     ) in standard_character_query.iter_mut() {
+
+        let character_movement_state;
 
         if player_input_component.auto_move_enabled { 
             if player_input_component.movement_vector.length() > 0.1 {
@@ -200,10 +210,18 @@ pub fn standard_characters(
 
         if player_input_movement_vector.length() == 0. {
             player_input_component.movement_interp = 0.;
+            character_movement_state = CharacterMovementState::None;
         } else {
-            if player_input_component.movement_interp < 1. {
+            if player_input_component.movement_interp < 0.99 {
                 player_input_component.movement_interp+=MOVEMENT_SMOOTHNESS;
             }
+            
+            if player_input_component.sprinting {
+                character_movement_state = CharacterMovementState::Sprinting;
+            } else {
+                character_movement_state = CharacterMovementState::Jogging;
+            }
+            
         }
 
         speed_factor*=player_input_component.movement_interp;
@@ -691,8 +709,42 @@ pub fn standard_characters(
             }
         }
         
-        if player_input_movement_vector.x != 0. || player_input_movement_vector.y != 0. {
-            rigid_body_velocity_component.linvel = rapier_vector;
+        
+
+        if !matches!(character_movement_state,CharacterMovementState::None) {
+            //rigid_body_velocity_component.linvel = rapier_vector;
+            
+
+            let max_speed;
+
+            match character_movement_state {
+                CharacterMovementState::None => {
+                    max_speed= 0.;
+                },
+                CharacterMovementState::Jogging => {
+                    max_speed= MAX_JOG_SPEED;
+                },
+                CharacterMovementState::Sprinting => {
+                    max_speed = MAX_RUN_SPEED;
+                },
+            }
+
+            let bevy_velocity : Vec3 = rigid_body_velocity_component.linvel.into();
+            let should_apply;
+
+            if bevy_velocity.length() > max_speed {
+                should_apply =false;
+            } else {
+                should_apply=true;
+            }
+
+            
+
+            if should_apply {
+                rigid_body_forces.force = rapier_vector;
+            }
+
+
         }
         
 
