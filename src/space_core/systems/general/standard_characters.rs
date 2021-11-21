@@ -5,10 +5,10 @@ use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyDominance, RigidBod
 
 use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
-const JOG_SPEED : f32 = 131.44;
+const JOG_SPEED : f32 = 131.44*280.;
 const MAX_JOG_SPEED : f32 = 10.;
 const MAX_RUN_SPEED: f32 = 14.;
-const RUN_SPEED : f32 = 131.44;
+const RUN_SPEED : f32 = 131.44*280.;
 const MOVEMENT_SMOOTHNESS : f32 = 1.;
 
 const MELEE_FISTS_REACH : f32 = 1.2;
@@ -207,7 +207,7 @@ pub fn standard_characters(
         }
 
         if player_input_movement_vector.x.abs() == 1. && player_input_movement_vector.y.abs() == 1. {
-            speed_factor*=0.665;
+            speed_factor*=0.75;
         }
 
         if player_input_movement_vector.length() == 0. {
@@ -226,7 +226,11 @@ pub fn standard_characters(
             
         }
 
+        let delta_time = time.delta();
+        let delta_seconds = delta_time.as_secs_f32();
+
         speed_factor*=player_input_component.movement_interp;
+        speed_factor*=delta_seconds;
 
         let rapier_vector : Vector<Real> = Vec3::new(
             player_input_movement_vector.x * -speed_factor,
@@ -242,8 +246,6 @@ pub fn standard_characters(
         let mut idle = false;
 
         let mut facing_direction = pawn_component.facing_direction.clone();
-
-        let delta_time = time.delta();
         
         standard_character_component.next_attack_timer.tick(delta_time);
         let ready_to_attack_this_frame = standard_character_component.next_attack_timer.finished();
@@ -316,10 +318,10 @@ pub fn standard_characters(
             let slerp_rotation;
 
             if rigid_body_transform.rotation.dot(end_rotation) > 0. {
-                slerp_rotation = rigid_body_transform.rotation.slerp(end_rotation, delta_time.as_secs_f32()*COMBAT_ROTATION_SPEED);
+                slerp_rotation = rigid_body_transform.rotation.slerp(end_rotation, delta_seconds*COMBAT_ROTATION_SPEED);
             } else {
                 let start_rotation = -rigid_body_transform.rotation.clone();
-                slerp_rotation = start_rotation.slerp(end_rotation, delta_time.as_secs_f32()*COMBAT_ROTATION_SPEED);
+                slerp_rotation = start_rotation.slerp(end_rotation, delta_seconds*COMBAT_ROTATION_SPEED);
             }
 
             rigid_body_transform.rotation = slerp_rotation;
