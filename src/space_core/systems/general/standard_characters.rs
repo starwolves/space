@@ -9,7 +9,6 @@ const JOG_SPEED : f32 = 131.44;
 const MAX_JOG_SPEED : f32 = 10.;
 const MAX_RUN_SPEED: f32 = 14.;
 const RUN_SPEED : f32 = 131.44;
-const MOVEMENT_SMOOTHNESS : f32 = 1.;
 
 const MELEE_FISTS_REACH : f32 = 1.2;
 const COMBAT_ROTATION_SPEED : f32 = 18.;
@@ -211,12 +210,8 @@ pub fn standard_characters(
         }
 
         if player_input_movement_vector.length() == 0. {
-            player_input_component.movement_interp = 0.;
             character_movement_state = CharacterMovementState::None;
         } else {
-            if player_input_component.movement_interp < 0.99 {
-                player_input_component.movement_interp+=MOVEMENT_SMOOTHNESS;
-            }
             
             if player_input_component.sprinting {
                 character_movement_state = CharacterMovementState::Sprinting;
@@ -228,8 +223,6 @@ pub fn standard_characters(
 
         let delta_time = time.delta();
         let delta_seconds = delta_time.as_secs_f32();
-
-        speed_factor*=player_input_component.movement_interp;
 
         let rapier_vector : Vector<Real> = Vec3::new(
             player_input_movement_vector.x * -speed_factor,
