@@ -5,7 +5,7 @@ pub mod plugins;
 
 
 fn main() {
-
+    
     App::build()
         .insert_resource(DefaultTaskPoolOptions::with_num_threads(2))
         .add_plugin(SpaceCore)

@@ -54,7 +54,7 @@ This server-side project has a non-standard and non-commercial license, please r
 * To compile & run the game server:
 
 ```
-cargo run --release
+cargo run
 ```
 
 ### [Documentation](https://docs.starwolves.io)
