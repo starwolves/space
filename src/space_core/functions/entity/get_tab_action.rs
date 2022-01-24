@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::space_core::{components::pawn::TabAction, resources::{network_messages::GridMapType}};
 
 pub fn get_tab_action(
@@ -12,7 +14,7 @@ pub fn get_tab_action(
             id: id.to_string(),
             text: "Examine".to_string(),
             tab_list_priority: u8::MAX,
-            prerequisite_check: Box::new(examine_tab_prerequisite_check),
+            prerequisite_check: Arc::new(examine_tab_prerequisite_check),
         });
 
     } else {

@@ -5,7 +5,7 @@ use rand::prelude::SliceRandom;
 
 use crate::space_core::{bundles::{block1_sfx::{ Block1SfxBundle}, block2_sfx::{ Block2SfxBundle}, block3_sfx::{ Block3SfxBundle}, laser_light_block1_sfx::{ LaserLightBlock1Bundle}, laser_light_block2_sfx::{ LaserLightBlock2Bundle}, laser_light_block3_sfx::{ LaserLightBlock3Bundle}, laser_light_block4_sfx::{ LaserLightBlock4Bundle}, laser_light_hit1_sfx::{ LaserLightHit1Bundle}, laser_light_hit2_sfx::{ LaserLightHit2Bundle}, laser_light_hit3_sfx::{ LaserLightHit3Bundle}, laser_light_hit4_sfx::{ LaserLightHit4Bundle}, laser_light_shot1_sfx::{ LaserLightShot1Bundle}, laser_light_shot2_sfx::{ LaserLightShot2Bundle}, laser_light_shot3_sfx::{ LaserLightShot3Bundle}, laser_light_shot4_sfx::{ LaserLightShot4Bundle}, punch1_sfx::{ Punch1SfxBundle}, punch2_sfx::{ Punch2SfxBundle}, punch3_sfx::{ Punch3SfxBundle}, punch4_sfx::{ Punch4SfxBundle}, swing1_sfx::{ Swing1SfxBundle}, swing2_sfx::{ Swing2SfxBundle}, swing3_sfx::{ Swing3SfxBundle}, swing4_sfx::{ Swing4SfxBundle}}, resources::{sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
-use super::{health::DamageModel, inventory::SlotType, sfx::sfx_auto_destroy};
+use super::{health::DamageModel, inventory::SlotType, sfx::sfx_auto_destroy, pawn::TabAction};
 
 
 pub struct InventoryItem {
@@ -25,6 +25,7 @@ pub struct InventoryItem {
     pub combat_projectile_text_set: Option<Vec<String>>,
     pub trigger_melee_text_set : Vec<String>,
     pub trigger_projectile_text_set : Option<Vec<String>>,
+    pub active_slot_tab_actions : Vec<TabAction>,
 }
 
 impl InventoryItem {

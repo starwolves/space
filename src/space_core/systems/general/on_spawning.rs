@@ -22,6 +22,7 @@ pub fn on_spawning(
             ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
             ("helmet".to_string(), "helmetSecurity".to_string()),
             ("holster".to_string(), "pistolL1".to_string()),
+            ("left_hand".to_string(), "constructionTool".to_string()),
         ];
 
         let new_entity = HumanMalePawnBundle::spawn(
