@@ -1,12 +1,12 @@
 use bevy::{prelude::{Query, ResMut}};
-use bevy_rapier3d::prelude::RigidBodyPosition;
+use bevy_rapier3d::prelude::{RigidBodyPositionComponent};
 use doryen_fov::FovAlgorithm;
 
 use crate::space_core::{components::senser::Senser, functions::gridmap::gridmap_functions::world_to_cell_id, resources::{doryen_fov::{DoryenMap, Vec2Int, to_doryen_coordinates}}};
 
 
 pub fn senser_update_fov(
-    mut senser_entities : Query<(&mut Senser, &RigidBodyPosition)>,
+    mut senser_entities : Query<(&mut Senser, &RigidBodyPositionComponent)>,
     mut map : ResMut<DoryenMap>,
 ) {
 

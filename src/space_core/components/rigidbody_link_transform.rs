@@ -1,5 +1,6 @@
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Component};
 
+#[derive(Component)]
 pub struct RigidBodyLinkTransform {
 
     pub follow_entity : Entity,

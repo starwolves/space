@@ -1,5 +1,5 @@
-use bevy::prelude::Entity;
-
+use bevy::prelude::{Entity, Component};
+#[derive(Component)]
 pub struct CounterWindowSensor {
 
     pub parent : Entity

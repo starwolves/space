@@ -1,5 +1,5 @@
 use bevy::{prelude::{Commands, Entity, EventReader, Query, ResMut}};
-use bevy_rapier3d::{prelude::RigidBodyPosition};
+use bevy_rapier3d::{prelude::{RigidBodyPositionComponent}};
 
 use crate::space_core::{bundles::{counter_window_closed_sfx::{CounterWindowClosedSfxBundle}, counter_window_denied_sfx::{CounterWindowDeniedSfxBundle}, counter_window_open_sfx::{CounterWindowOpenSfxBundle}}, components::{counter_window::{CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus}, counter_window_closed_timer::CounterWindowClosedTimer, counter_window_denied_timer::CounterWindowDeniedTimer, counter_window_open_timer::CounterWindowOpenTimer, counter_window_sensor::CounterWindowSensor, entity_data::EntityGroup, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::counter_window_sensor_collision::CounterWindowSensorCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
 
@@ -7,7 +7,7 @@ pub fn counter_window_events(
     mut counter_window_sensor_collisions : EventReader<CounterWindowSensorCollision>,
     mut counter_window_query : Query<(
         &mut CounterWindow,
-        &mut RigidBodyPosition,
+        &mut RigidBodyPositionComponent,
         &StaticTransform,
         Option<&mut CounterWindowOpenTimer>,
         Option<&mut CounterWindowDeniedTimer>,

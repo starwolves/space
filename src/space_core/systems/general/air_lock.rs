@@ -1,7 +1,7 @@
 
 
 use bevy::{prelude::{Commands, Entity, EventReader, Query, ResMut}};
-use bevy_rapier3d::{prelude::RigidBodyPosition};
+use bevy_rapier3d::{prelude::{RigidBodyPositionComponent}};
 
 use crate::space_core::{bundles::{air_lock_closed_sfx::{AirLockClosedSfxBundle}, air_lock_denied_sfx::{AirLockDeniedSfxBundle}, air_lock_open_sfx::{AirLockOpenSfxBundle}}, components::{air_lock::{AccessLightsStatus, AirLock, AirLockStatus}, air_lock_closed_timer::AirLockClosedTimer, air_lock_denied_timer::AirLockDeniedTimer, air_lock_open_timer::AirLockOpenTimer, entity_data::{EntityGroup}, pawn::Pawn, sfx::sfx_auto_destroy, space_access::SpaceAccess, static_transform::StaticTransform}, events::physics::air_lock_collision::AirLockCollision, resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers};
 
@@ -9,7 +9,7 @@ pub fn air_lock_events(
     mut air_lock_collisions : EventReader<AirLockCollision>,
     mut air_lock_query : Query<(
         &mut AirLock,
-        &mut RigidBodyPosition,
+        &mut RigidBodyPositionComponent,
         &StaticTransform,
         Option<&mut AirLockOpenTimer>,
         Option<&mut AirLockDeniedTimer>,

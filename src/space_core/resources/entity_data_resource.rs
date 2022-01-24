@@ -40,7 +40,7 @@ pub struct SpawnPawnData<'a, 'b> {
         bool,
         bool,
         Option<&'a mut ResMut<'b, UsedNames>>,
-        Option<&'a mut EventWriter<'b, NetShowcase>>,
+        Option<&'a mut EventWriter<'b, 'a, NetShowcase>>,
         Option<String>,
         &'a ResMut<'a, EntityDataResource>,
     )
@@ -51,7 +51,7 @@ pub struct SpawnHeldData<'a, 'b, 'c> {
         Entity,
         bool,
         Option<u32>,
-        &'c mut Option<&'b mut EventWriter<'a, NetShowcase>>,
+        &'c mut Option<&'b mut EventWriter<'a, 'b, NetShowcase>>,
     )
 }
 

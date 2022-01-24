@@ -1,5 +1,5 @@
 use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{prelude::RigidBodyPosition};
+use bevy_rapier3d::{prelude::{RigidBodyPositionComponent}};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, pawn::{Pawn, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, radio::Radio, sensable::Sensable, soft_player::SoftPlayer}, events::{general::{input_chat_message::InputChatMessage}, net::{net_chat_message::NetChatMessage, net_send_entity_updates::NetSendEntityUpdates}}, functions::entity::new_chat_message::{Communicator, MessagingPlayerState, new_chat_message}, resources::handle_to_entity::HandleToEntity};
 
@@ -8,10 +8,10 @@ pub fn chat_message_input_event(
     handle_to_entity : Res<HandleToEntity>,
     player_pawns : Query<(
         &Pawn,
-        &RigidBodyPosition,
+        &RigidBodyPositionComponent,
         &Sensable,
     )>,
-    radio_pawns : Query<(Entity, &Radio, &RigidBodyPosition, &PersistentPlayerData)>,
+    radio_pawns : Query<(Entity, &Radio, &RigidBodyPositionComponent, &PersistentPlayerData)>,
     soft_player_query : Query<&SoftPlayer>,
     mut net_new_chat_message_event : EventWriter<NetChatMessage>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,

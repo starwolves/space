@@ -1,8 +1,10 @@
 use std::{collections::HashMap, sync::Arc};
 
-use bevy::{math::Vec2, prelude::{Entity}};
+use bevy::{math::Vec2, prelude::{Entity, Component}};
 
 use crate::space_core::{resources::{network_messages::{GridMapType, NetTabAction}}};
+
+use super::inventory::Inventory;
 
 
 #[derive(Clone)]
@@ -13,6 +15,8 @@ pub struct TabAction {
     pub prerequisite_check : Arc<dyn Fn(
         Option<u64>,
         Option<(GridMapType, i16,i16,i16)>,
+        f32,
+        &Inventory,
     ) -> bool + Sync + Send>,
 }
 
@@ -29,6 +33,7 @@ impl TabAction {
     }
 }
 
+#[derive(Component)]
 pub struct Pawn {
     pub name : String,
     pub job : SpaceJobsEnum,

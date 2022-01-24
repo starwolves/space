@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 
+use bevy::prelude::Component;
+
 use crate::space_core::resources::network_messages::EntityUpdateData;
 
 
+#[derive(Component)]
 pub struct EntityUpdates {
     pub updates : HashMap<String,HashMap<String, EntityUpdateData>>,
     pub updates_difference : Vec<HashMap<String,HashMap<String, EntityUpdateData>>>,

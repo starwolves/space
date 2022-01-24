@@ -1,6 +1,9 @@
+use bevy::prelude::Component;
+
 use super::pawn::SpaceAccessEnum;
 
 
+#[derive(Component)]
 pub struct AirLock {
     pub status : AirLockStatus,
     pub access_lights : AccessLightsStatus,

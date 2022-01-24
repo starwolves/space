@@ -1,7 +1,7 @@
 use std::{f32::consts::PI};
 
 use bevy::{core::Time, math::{Quat, Vec2, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyDominance, RigidBodyForces, RigidBodyPosition, RigidBodyVelocity}, rapier::{ math::{Real, Vector}}};
+use bevy_rapier3d::{na::{UnitQuaternion}, prelude::{RigidBodyPositionComponent, RigidBodyForcesComponent, RigidBodyDominanceComponent, RigidBodyVelocityComponent}, rapier::{ math::{Real, Vector}}};
 
 use crate::space_core::{bundles::{footsteps_sprinting_sfx::FootstepsSprintingSfxBundle, footsteps_walking_sfx::FootstepsWalkingSfxBundle}, components::{examinable::Examinable, footsteps_sprinting::FootstepsSprinting, footsteps_walking::FootstepsWalking, inventory::Inventory, inventory_item::{CombatType, InventoryItem}, linked_footsteps_running::LinkedFootstepsSprinting, linked_footsteps_walking::LinkedFootstepsWalking, pawn::{FacingDirection, Pawn, facing_direction_to_direction}, player_input::PlayerInput, sensable::{Sensable}, standard_character::{CharacterAnimationState, StandardCharacter}, static_transform::StaticTransform}, events::{general::{attack::Attack, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_toggle_auto_move::InputToggleAutoMove}, net::{net_unload_entity::NetUnloadEntity}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}}, resources::{handle_to_entity::HandleToEntity, y_axis_rotations::PlayerYAxisRotations}};
 
@@ -23,11 +23,11 @@ pub fn standard_characters(
     mut standard_character_query : Query<(
         Entity,
         &mut PlayerInput,
-        &RigidBodyVelocity,
-        &mut RigidBodyDominance,
-        &mut RigidBodyForces,
+        &RigidBodyVelocityComponent,
+        &mut RigidBodyDominanceComponent,
+        &mut RigidBodyForcesComponent,
         &mut StandardCharacter,
-        &mut RigidBodyPosition,
+        &mut RigidBodyPositionComponent,
         Option<&LinkedFootstepsWalking>,
         Option<&LinkedFootstepsSprinting>,
         &mut Pawn,

@@ -1,5 +1,5 @@
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, warn};
-use bevy_rapier3d::prelude::RigidBodyPosition;
+use bevy_rapier3d::prelude::{RigidBodyPositionComponent};
 
 use crate::space_core::{components::{inventory::Inventory, pawn::Pawn}, events::net::net_console_commands::NetConsoleCommands, functions::entity::spawn_entity::spawn_held_entity, resources::{entity_data_resource::EntityDataResource, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage, used_names::UsedNames}};
 
@@ -13,7 +13,7 @@ pub fn rcon_spawn_held_entity(
     command_executor_handle : u32,
     mut net_console_commands : &mut EventWriter<NetConsoleCommands>,
     player_inventory_query : &mut Query<&mut Inventory>,
-    mut rigid_body_positions : &mut Query<(&RigidBodyPosition, &Pawn)>,
+    mut rigid_body_positions : &mut Query<(&RigidBodyPositionComponent, &Pawn)>,
     gridmap_main : &Res<GridmapMain>,
     mut used_names : &mut ResMut<UsedNames>,
     handle_to_entity : &Res<HandleToEntity>,

@@ -1,12 +1,13 @@
 use std::{collections::HashMap};
 
-use bevy::{prelude::{Entity, EventWriter, Query, Res}};
+use bevy::{prelude::{Entity, EventWriter, Query, Res, Component}};
 use rand::prelude::SliceRandom;
 
 use crate::space_core::{events::net::net_chat_message::NetChatMessage, resources::{doryen_fov::{Vec3Int, to_doryen_coordinates}, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
 use super::{inventory_item::HitSoundSurface, senser::Senser};
 
+#[derive(Component)]
 pub struct Health {
     pub health_container : HealthContainer,
     pub health_flags : HashMap<u32, HealthFlag>,

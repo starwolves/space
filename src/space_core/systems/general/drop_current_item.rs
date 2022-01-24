@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use bevy::{math::Vec3, prelude::{Commands, EventReader, EventWriter, Query, QuerySet, Res, Transform, warn}};
-use bevy_rapier3d::prelude::{ColliderFlags, QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
+use bevy_rapier3d::prelude::{QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyPosition, RigidBodyPositionComponent, RigidBodyForcesComponent, RigidBodyActivationComponent, ColliderFlagsComponent};
 
 use crate::space_core::{components::{cell::Cell, health::Health, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::InputDropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{can_reach_entity::{REACH_DISTANCE, can_reach_entity}, entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_data::GridmapData, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
 pub fn drop_current_item(
     mut drop_current_item_events : EventReader<InputDropCurrentItem>,
-    mut rigidbody_positions : Query<&mut RigidBodyPosition>,
+    mut rigidbody_positions : Query<&mut RigidBodyPositionComponent>,
     mut inventory_entities : Query<(
         &mut Inventory,
         &Sensable,
@@ -19,9 +19,9 @@ pub fn drop_current_item(
     mut q: QuerySet<(
         Query<(
             &mut WorldMode,
-            &mut RigidBodyActivation,
-            &mut ColliderFlags,
-            &mut RigidBodyForces,
+            &mut RigidBodyActivationComponent,
+            &mut ColliderFlagsComponent,
+            &mut RigidBodyForcesComponent,
             &mut RigidBodyLinkTransform,
         )>,
         QueryPipelineColliderComponentsQuery,

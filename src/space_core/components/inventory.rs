@@ -1,5 +1,6 @@
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Component};
 
+#[derive(Component)]
 pub struct Inventory {
     pub slots : Vec<Slot>,
     pub active_slot : String,

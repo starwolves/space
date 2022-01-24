@@ -1,5 +1,6 @@
-use bevy::{math::Vec3, prelude::Color};
+use bevy::{math::Vec3, prelude::{Color, Component}};
 
+#[derive(Component)]
 pub struct ReflectionProbe {
     pub projection_enabled : bool,
     pub cull_mask : i64,

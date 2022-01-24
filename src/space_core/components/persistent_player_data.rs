@@ -1,4 +1,6 @@
-#[derive(Clone)]
+use bevy::prelude::Component;
+
+#[derive(Clone, Component)]
 pub struct PersistentPlayerData {
     pub user_name_is_set : bool,
     pub character_name : String,

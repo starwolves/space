@@ -1,5 +1,6 @@
-use bevy::math::Vec3;
+use bevy::{math::Vec3, prelude::Component};
 
+#[derive(Component)]
 pub struct GIProbe {
     pub bias : f32,
     pub compressed : bool,

@@ -1,9 +1,10 @@
 use std::{collections::HashMap, time::Duration};
 
-use bevy::core::Timer;
+use bevy::{core::Timer, prelude::Component};
 
 use super::{health::{DamageFlag, DamageModel}, inventory_item::CombatSoundSet};
 
+#[derive(Component)]
 pub struct StandardCharacter {
     pub current_lower_animation_state : CharacterAnimationState,
     pub character_name : String,

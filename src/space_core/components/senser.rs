@@ -1,9 +1,10 @@
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Component};
 use doryen_fov::FovRecursiveShadowCasting;
 
 use crate::space_core::resources::doryen_fov::Vec2Int;
 
 
+#[derive(Component)]
 pub struct Senser {
     pub cell_id : Vec2Int,
     pub fov : FovRecursiveShadowCasting,

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{core::{FixedTimesteps, Time}, math::{Quat, Vec3}, prelude::{Entity, Local, Query, Res, ResMut, Transform, Without, warn}};
 use bevy_networking_turbulence::NetworkResource;
-use bevy_rapier3d::{prelude::{RigidBodyPosition, RigidBodyVelocity}};
+use bevy_rapier3d::{prelude::{RigidBodyPositionComponent, RigidBodyVelocityComponent}};
 
 use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, interpolation_priority::InterpolationPriority, rigidbody_disabled::RigidBodyDisabled, sensable::Sensable, senser::Senser, static_transform::StaticTransform}, resources::{handle_to_entity::HandleToEntity, network_messages::UnreliableServerMessage}};
 
@@ -33,8 +33,8 @@ pub fn broadcast_interpolation_transforms (
     mut query_interpolated_entities : Query<(
         Entity,
         &Sensable,
-        &RigidBodyPosition,
-        &RigidBodyVelocity,
+        &RigidBodyPositionComponent,
+        &RigidBodyVelocityComponent,
         &mut CachedBroadcastTransform,
         &InterpolationPriority,
     ),

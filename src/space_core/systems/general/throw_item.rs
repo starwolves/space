@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::{prelude::{Commands, EventReader, EventWriter, Query, Res, ResMut, warn}};
-use bevy_rapier3d::prelude::{ColliderFlags, RigidBodyActivation, RigidBodyForces, RigidBodyMassProps, RigidBodyPosition, RigidBodyVelocity};
+use bevy_rapier3d::prelude::{RigidBodyPosition, RigidBodyPositionComponent, RigidBodyActivationComponent, ColliderFlagsComponent, RigidBodyForcesComponent, RigidBodyVelocityComponent, RigidBodyMassPropsComponent};
 use rand::Rng;
 
 use crate::space_core::{bundles::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle}, components::{examinable::Examinable, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, player_input::PlayerInput, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, sfx::sfx_auto_destroy, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::{general::input_throw_item::InputThrowItem, net::{net_throw_item::NetThrowItem}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
@@ -9,7 +9,7 @@ use crate::space_core::{bundles::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw
 pub fn throw_item(
 
     mut throw_item_events : EventReader<InputThrowItem>,
-    mut rigidbody_positions : Query<&mut RigidBodyPosition>,
+    mut rigidbody_positions : Query<&mut RigidBodyPositionComponent>,
     examinables : Query<&Examinable>,
     mut inventory_entities : Query<(
         &mut Inventory,
@@ -21,12 +21,12 @@ pub fn throw_item(
     mut pickupable_entities : Query<(
         &mut InventoryItem,
         &mut WorldMode,
-        &mut RigidBodyActivation,
-        &mut ColliderFlags,
-        &mut RigidBodyForces,
+        &mut RigidBodyActivationComponent,
+        &mut ColliderFlagsComponent,
+        &mut RigidBodyForcesComponent,
         &mut RigidBodyLinkTransform,
-        &mut RigidBodyVelocity,
-        &RigidBodyMassProps,
+        &mut RigidBodyVelocityComponent,
+        &RigidBodyMassPropsComponent,
     )>,
     mut commands : Commands,
     mut net_throw_item : EventWriter<NetThrowItem>,

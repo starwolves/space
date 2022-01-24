@@ -1,5 +1,5 @@
-use bevy::{math::{Quat, Vec3}, prelude::Transform};
-
+use bevy::{math::{Quat, Vec3}, prelude::{Transform, Component}};
+#[derive(Component)]
 pub struct CachedBroadcastTransform {
     pub transform : Transform,
     pub is_active : bool,
