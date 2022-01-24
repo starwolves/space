@@ -1,3 +1,6 @@
+use bevy::prelude::Component;
+
+#[derive(Component)]
 pub struct InterpolationPriority {
     pub priority : InterpolationPriorityStatus,
 }

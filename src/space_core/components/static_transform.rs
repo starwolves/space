@@ -1,6 +1,6 @@
-use bevy::prelude::Transform;
+use bevy::prelude::{Transform, Component};
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Component)]
 pub struct StaticTransform {
     pub transform : Transform
 }

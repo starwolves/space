@@ -1,5 +1,5 @@
 use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query, QuerySet, Res, warn}};
-use bevy_rapier3d::prelude::{ColliderFlags, QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyActivation, RigidBodyForces, RigidBodyPosition};
+use bevy_rapier3d::prelude::{QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyPositionComponent, RigidBodyForcesComponent, ColliderFlagsComponent, RigidBodyActivationComponent};
 
 use crate::space_core::{components::{cell::Cell, entity_data::EntityData, health::Health, inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::InputUseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::entity::{can_reach_entity::{REACH_DISTANCE, can_reach_entity}, toggle_rigidbody::disable_rigidbody}, resources::{gridmap_data::GridmapData, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
@@ -11,14 +11,14 @@ pub fn pickup_world_item(
     mut q: QuerySet<(
         Query<(
             &mut WorldMode,
-            &mut RigidBodyActivation,
-            &mut ColliderFlags,
-            &mut RigidBodyForces,
+            &mut RigidBodyActivationComponent,
+            &mut ColliderFlagsComponent,
+            &mut RigidBodyForcesComponent,
             &EntityData,
         )>,
         QueryPipelineColliderComponentsQuery,
     )>,
-    rigidbody_positions : Query<&RigidBodyPosition>,
+    rigidbody_positions : Query<&RigidBodyPositionComponent>,
     mut commands : Commands,
     mut net_pickup_world_item : EventWriter<NetPickupWorldItem>,
     query_pipeline: Res<QueryPipeline>,

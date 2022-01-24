@@ -1,5 +1,5 @@
-use bevy::prelude::Color;
-
+use bevy::prelude::{Color, Component};
+#[derive(Component)]
 pub struct OmniLight {
     pub omni_attenuation : f32,
     pub omni_range : f32,

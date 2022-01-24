@@ -1,8 +1,8 @@
-use bevy::{prelude::{Entity, ResMut}};
+use bevy::{prelude::{Entity, ResMut, Component}};
 use rand::Rng;
 
 use crate::space_core::resources::sfx_auto_destroy_timers::SfxAutoDestroyTimers;
-
+#[derive(Component)]
 pub struct Sfx {
     pub area_mask : u8,
     pub attenuation_filter_cutoff_hz : f32,	

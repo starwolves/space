@@ -3,7 +3,7 @@ use std::{collections::{BTreeMap, HashMap}, sync::Arc};
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyCcd, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, construction_tool::ConstructionTool, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::SlotType, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}, pawn::TabAction}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::{ReliableServerMessage, GridMapType}}};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, construction_tool::ConstructionTool, default_transform::DefaultTransform, entity_data::{EntityData}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{DamageFlag, DamageModel, Health}, interpolation_priority::{InterpolationPriority}, inventory::{SlotType, Inventory}, inventory_item::{CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem}, rigidbody_disabled::RigidBodyDisabled, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, showcase::Showcase, world_mode::{WorldMode, WorldModes}, pawn::TabAction}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, can_reach_entity::REACH_DISTANCE}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::{ReliableServerMessage, GridMapType}}};
 
 use super::helmet_security::STANDARD_BODY_FRICTION;
 
@@ -348,14 +348,18 @@ fn spawn_entity(
 
 pub fn construct_action(
     _entity_id_bits_option : Option<u64>,
-    _cell_id_option : Option<(GridMapType, i16,i16,i16)>,
+    cell_id_option : Option<(GridMapType, i16,i16,i16)>,
+    distance : f32,
+    _inventory_component : &Inventory,
 ) -> bool {
-    true
+    distance < REACH_DISTANCE && cell_id_option.is_some()
 }
 
 pub fn deconstruct_action(
     _entity_id_bits_option : Option<u64>,
-    _cell_id_option : Option<(GridMapType, i16,i16,i16)>,
+    cell_id_option : Option<(GridMapType, i16,i16,i16)>,
+    distance : f32,
+    _inventory_component : &Inventory,
 ) -> bool {
-    true
+    distance < REACH_DISTANCE && cell_id_option.is_some()
 }

@@ -1,5 +1,8 @@
 use std::collections::BTreeMap;
 
+use bevy::prelude::Component;
+
+#[derive(Component)]
 pub struct Examinable {
     pub assigned_texts : BTreeMap<u32, String>,
     pub name : RichName,

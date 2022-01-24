@@ -1,6 +1,6 @@
 use bevy::prelude::{EventReader, EventWriter, Query, Without};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction, input_construct::InputConstruct, input_deconstruct::InputDeconstruct}, resources::doryen_fov::Vec3Int};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction, input_construct::InputConstruct, input_deconstruct::InputDeconstruct, use_world_item::InputUseWorldItem}, resources::doryen_fov::Vec3Int};
 
 pub fn tab_action(
 
@@ -9,6 +9,7 @@ pub fn tab_action(
     mut event_examine_map : EventWriter<InputExamineMap>,
     mut event_construct : EventWriter<InputConstruct>,
     mut event_deconstruct : EventWriter<InputDeconstruct>,
+    mut pickup_world_item_event : EventWriter<InputUseWorldItem>,
     criteria_query : Query<&ConnectedPlayer, Without<SoftPlayer>>,
 ) {
 
@@ -65,6 +66,14 @@ pub fn tab_action(
             event_deconstruct.send(InputDeconstruct {
                 handle: event.handle,
                 target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+            });
+
+        } else if event.tab_id == "pickup" {
+
+            pickup_world_item_event.send(InputUseWorldItem {
+                handle: event.handle,
+                pickuper_entity: event.player_entity,
+                pickupable_entity_bits: event.target_entity_option.unwrap(),
             });
 
         }

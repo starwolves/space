@@ -1,4 +1,5 @@
-use bevy::core::Timer;
+use bevy::{core::Timer, prelude::Component};
+#[derive(Component)]
 pub struct AirLockClosedTimer {
     pub timer : Timer
 }

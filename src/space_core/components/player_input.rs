@@ -1,9 +1,10 @@
-use bevy::{math::Vec2, prelude::Entity};
+use bevy::{math::Vec2, prelude::{Entity, Component}};
 
 use crate::space_core::resources::doryen_fov::Vec3Int;
 
 use super::pawn::FacingDirection;
 
+#[derive(Component)]
 pub struct PlayerInput {
     pub movement_vector : Vec2,
     pub sprinting : bool,

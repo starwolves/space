@@ -1,5 +1,5 @@
 use bevy::{math::{Quat, Vec3}, prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform}};
-use bevy_rapier3d::prelude::{ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray, RigidBodyPosition};
+use bevy_rapier3d::prelude::{ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery, QueryPipelineColliderComponentsSet, Ray, RigidBodyPositionComponent};
 
 use crate::space_core::{components::{cell::Cell, examinable::Examinable, health::{DamageType, Health, HitResult}, inventory_item::{CombatType}, senser::Senser}, events::{general::{attack::Attack, projectile_fov::ProjectileFOV}, net::{net_chat_message::NetChatMessage}}, functions::{entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::{get_cell_name::get_cell_name, gridmap_functions::{cell_id_to_world, world_to_cell_id}}}, resources::{doryen_fov::Vec3Int, gridmap_data::GridmapData, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{NetProjectileType}, sfx_auto_destroy_timers::SfxAutoDestroyTimers}};
 
@@ -25,7 +25,7 @@ pub fn attack(
     mut attack_events : EventReader<Attack>,
     query_pipeline: Res<QueryPipeline>,
     collider_query: QueryPipelineColliderComponentsQuery,
-    mut rigidbody_query : Query<(&mut Health, &Examinable, &RigidBodyPosition)>,
+    mut rigidbody_query : Query<(&mut Health, &Examinable, &RigidBodyPositionComponent)>,
     mut world_cells : ResMut<GridmapMain>,
     physics_cells : Query<&Cell>,
     mut net_message_event: EventWriter<NetChatMessage>,

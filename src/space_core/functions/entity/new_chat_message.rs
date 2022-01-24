@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use bevy::{math::Vec3, prelude::{Entity, EventWriter, Query, Res, error, warn}};
-use bevy_rapier3d::{prelude::RigidBodyPosition};
+use bevy_rapier3d::{prelude::{RigidBodyPositionComponent}};
 use const_format::concatcp;
 
 use voca_rs::*;
@@ -390,7 +390,7 @@ pub fn new_chat_message(
     mut raw_message : String,
     communicator : Communicator,
     exclusive_radio : bool,
-    radio_pawns : &Query<(Entity, &Radio, &RigidBodyPosition, &PersistentPlayerData)>,
+    radio_pawns : &Query<(Entity, &Radio, &RigidBodyPositionComponent, &PersistentPlayerData)>,
     global_listeners : &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
     messenger_entity_option : Option<&Entity>,
     mut net_send_entity_updates_option: Option<&mut EventWriter<NetSendEntityUpdates>>,

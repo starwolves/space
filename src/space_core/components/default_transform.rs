@@ -1,5 +1,6 @@
-use bevy::prelude::Transform;
+use bevy::prelude::{Transform, Component};
 
+#[derive(Component)]
 pub struct DefaultTransform {
 
     pub transform : Transform,

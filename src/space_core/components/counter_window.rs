@@ -1,6 +1,8 @@
+use bevy::prelude::Component;
+
 use super::pawn::SpaceAccessEnum;
 
-
+#[derive(Component)]
 pub struct CounterWindow {
     pub status : CounterWindowStatus,
     pub access_lights : CounterWindowAccessLightsStatus,

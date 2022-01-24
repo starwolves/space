@@ -1,4 +1,7 @@
+use bevy::prelude::Component;
 
+
+#[derive(Component)]
 pub struct RepeatingSfx {
     pub area_mask : u8,
     pub attenuation_filter_cutoff_hz : f32,	

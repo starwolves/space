@@ -1,5 +1,5 @@
 use bevy::prelude::{Entity, EventReader, EventWriter, Query};
-use bevy_rapier3d::{prelude::{ContactEvent, IntersectionEvent, IntoEntity, RigidBodyPosition}, rapier::geometry::ColliderHandle};
+use bevy_rapier3d::{prelude::{ContactEvent, IntersectionEvent, IntoEntity, RigidBodyPositionComponent}, rapier::geometry::ColliderHandle};
 
 use crate::space_core::{components::entity_data::{EntityData, EntityGroup}, events::physics::{air_lock_collision::AirLockCollision, counter_window_sensor_collision::CounterWindowSensorCollision}};
 
@@ -9,7 +9,7 @@ pub fn physics_events(
     interesting_entities_query : Query<(
         Entity,
         &EntityData,
-        &RigidBodyPosition
+        &RigidBodyPositionComponent
     )>,
     mut air_lock_collision_event : EventWriter<AirLockCollision>,
     mut counter_window_collision_event : EventWriter<CounterWindowSensorCollision>
@@ -71,7 +71,7 @@ fn process_physics_event(
     interesting_entities_query : &Query<(
         Entity,
         &EntityData,
-        &RigidBodyPosition
+        &RigidBodyPositionComponent
     )>,
     air_lock_collision_event : &mut EventWriter<AirLockCollision>,
     counter_window_collision_event : &mut EventWriter<CounterWindowSensorCollision>
