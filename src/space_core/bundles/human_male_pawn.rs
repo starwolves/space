@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Vec3}, prelude::{Commands, Entity, Query, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMassProps, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyDominance, RigidBodyForces, RigidBodyMassPropsFlags, RigidBodyType};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::ReliableServerMessage}, systems::general::on_setupui::ENTITY_SPAWN_PARENT};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity, get_tab_action::get_tab_action}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::ReliableServerMessage}, systems::general::on_setupui::ENTITY_SPAWN_PARENT};
 
 pub struct HumanMalePawnBundle;
 
@@ -270,6 +270,7 @@ impl HumanMalePawnBundle {
                 },
             ],
             active_slot: "left_hand".to_string(),
+            ..Default::default()
         };
 
 
@@ -312,6 +313,15 @@ impl HumanMalePawnBundle {
             });
         } else {
 
+            let mut pawn_component = Pawn {
+                name: character_name.clone(),
+                job: SpaceJobsEnum::Security,
+                ..Default::default()
+            };
+
+            // Add default "examine" tab action.
+            pawn_component.tab_actions_add("examine", None, get_tab_action("examine").unwrap());
+
             entity_commands.insert_bundle((
                 Senser::default(),
                 Sensable::default(),
@@ -322,11 +332,7 @@ impl HumanMalePawnBundle {
                 SpaceAccess{
                     access : vec![SpaceAccessEnum::Security]
                 },
-                Pawn {
-                    name: character_name.clone(),
-                    job: SpaceJobsEnum::Security,
-                    ..Default::default()
-                },
+                pawn_component,
                 PlayerInput::default(),
             ));
 

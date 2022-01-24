@@ -1,15 +1,16 @@
+use std::{collections::HashMap, sync::Arc};
 
-use std::collections::HashMap;
+use bevy::{math::Vec2, prelude::{Entity}};
 
-use bevy::{math::Vec2};
+use crate::space_core::{resources::{network_messages::{GridMapType, NetTabAction}}};
 
-use crate::space_core::{functions::entity::get_tab_action::get_tab_action, resources::{network_messages::{GridMapType, NetTabAction}}};
 
+#[derive(Clone)]
 pub struct TabAction {
     pub id : String,
     pub text : String,
     pub tab_list_priority : u8,
-    pub prerequisite_check : Box<dyn Fn(
+    pub prerequisite_check : Arc<dyn Fn(
         Option<u64>,
         Option<(GridMapType, i16,i16,i16)>,
     ) -> bool + Sync + Send>,
@@ -29,24 +30,81 @@ impl TabAction {
 }
 
 pub struct Pawn {
-
     pub name : String,
     pub job : SpaceJobsEnum,
     pub facing_direction : FacingDirection,
-    pub tab_actions : HashMap<u16, TabAction>,
+    pub tab_actions : HashMap<u32, TabAction>,
+    pub tab_actions_data : TabActionsData,
+}
+
+pub struct TabActionsData {
+    pub layout : HashMap<Option<Entity>, HashMap<String, u32>>,
+    pub tab_action_i : u32,
+}
+
+impl Default for TabActionsData {
+    fn default() -> Self {
+        Self {
+            layout: HashMap::new(),
+            tab_action_i:0,
+        }
+    }
 }
 
 impl Default for Pawn {
     fn default() -> Self {
-        let mut s = HashMap::new();
-        s.insert(0,get_tab_action("examine").unwrap());
         Self {
             name: "".to_string(),
             job: SpaceJobsEnum::Security,
             facing_direction: FacingDirection::Up,
-            tab_actions : s,
+            tab_actions : HashMap::new(),
+            tab_actions_data: TabActionsData::default(),
         }
     }
+}
+
+impl Pawn {
+
+    pub fn tab_actions_add(&mut self, tab_action_id : &str, entity_option : Option<Entity>, tab_action : TabAction) {
+        
+        let entity_tab_ids;
+
+        match  self.tab_actions_data.layout.contains_key(&entity_option) {
+            true => {
+                entity_tab_ids = self.tab_actions_data.layout.get_mut(&entity_option).unwrap();
+            },
+            false => {
+                self.tab_actions_data.layout.insert(entity_option, HashMap::new());
+                entity_tab_ids = self.tab_actions_data.layout.get_mut(&entity_option).unwrap();
+            },
+        }
+
+        entity_tab_ids.insert(tab_action_id.to_string(), self.tab_actions_data.tab_action_i);
+        self.tab_actions.insert(self.tab_actions_data.tab_action_i, tab_action);
+        self.tab_actions_data.tab_action_i+=1;
+        
+    }
+    pub fn tab_actions_remove_entity(&mut self, entity_option : Option<Entity>) {
+
+        let entity_tab_ids;
+
+        match self.tab_actions_data.layout.get_mut(&entity_option) {
+            Some(s) => {
+                entity_tab_ids=s;
+            },
+            None => {
+                return;
+            },
+        };
+
+        for (_s, hashmap_index) in entity_tab_ids.iter() {
+            self.tab_actions.remove(hashmap_index);
+        }
+
+        self.tab_actions_data.layout.remove(&entity_option);
+
+    }
+
 }
 
 #[derive(Debug, Clone)]

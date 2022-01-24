@@ -29,3 +29,5 @@ pub mod input_attack_cell;
 pub mod tab_data_entity;
 pub mod tab_data_map;
 pub mod input_tab_action;
+pub mod input_construct;
+pub mod input_deconstruct;

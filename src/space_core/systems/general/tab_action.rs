@@ -1,12 +1,14 @@
 use bevy::prelude::{EventReader, EventWriter, Query, Without};
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction}, resources::doryen_fov::Vec3Int};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction, input_construct::InputConstruct, input_deconstruct::InputDeconstruct}, resources::doryen_fov::Vec3Int};
 
 pub fn tab_action(
 
     mut events : EventReader<InputTabAction>,
     mut event_examine_entity : EventWriter<InputExamineEntity>,
     mut event_examine_map : EventWriter<InputExamineMap>,
+    mut event_construct : EventWriter<InputConstruct>,
+    mut event_deconstruct : EventWriter<InputDeconstruct>,
     criteria_query : Query<&ConnectedPlayer, Without<SoftPlayer>>,
 ) {
 
@@ -50,6 +52,20 @@ pub fn tab_action(
 
                 },
             }
+
+        } else if event.tab_id == "construct" {
+
+            event_construct.send(InputConstruct {
+                handle: event.handle,
+                target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+            });
+
+        } else if event.tab_id == "deconstruct" {
+
+            event_deconstruct.send(InputDeconstruct {
+                handle: event.handle,
+                target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+            });
 
         }
 

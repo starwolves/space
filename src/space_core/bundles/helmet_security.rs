@@ -265,7 +265,8 @@ Vec3::new(0.,0.355, 0.)
             combat_melee_text_set : InventoryItem::get_default_strike_words(),
             combat_projectile_text_set : None,
             trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
-            trigger_projectile_text_set: None
+            trigger_projectile_text_set: None,
+            active_slot_tab_actions: vec![],
         },
         DefaultTransform {
             transform: default_transform,

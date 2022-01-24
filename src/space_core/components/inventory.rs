@@ -3,6 +3,7 @@ use bevy::prelude::Entity;
 pub struct Inventory {
     pub slots : Vec<Slot>,
     pub active_slot : String,
+    pub entity_tab_action_option : Option<Entity>,
 }
 
 #[derive(Debug)]
@@ -18,6 +19,7 @@ impl Default for Inventory {
         Self {
             slots: vec![],
             active_slot: "".to_string(),
+            entity_tab_action_option : None,
         }
     }
 }
@@ -32,6 +34,23 @@ pub enum SlotType {
 }
 
 impl Inventory {
+
+    pub fn get_active_slot_entity(&self) -> Option<Entity> {
+
+        let mut return_slot_option = None;
+
+        for slot in self.slots.iter() {
+
+            if slot.slot_name == self.active_slot {
+                return_slot_option = Some(slot);
+                break;
+            }
+
+        }
+
+        return_slot_option.expect("inventory.rs get_active_entity() couldn't find slot").slot_item
+
+    }
 
     pub fn get_slot_mut(&mut self, slot_name : &str) -> &mut Slot {
 
