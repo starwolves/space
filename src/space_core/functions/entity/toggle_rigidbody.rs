@@ -1,14 +1,14 @@
 use bevy::prelude::{Commands, Entity, Mut};
-use bevy_rapier3d::prelude::{ColliderFlags, InteractionGroups, RigidBodyActivation, RigidBodyForces};
+use bevy_rapier3d::prelude::{InteractionGroups, RigidBodyActivationComponent, ColliderFlagsComponent, RigidBodyForcesComponent};
 
 use crate::space_core::components::{rigidbody_disabled::RigidBodyDisabled};
 
 use super::collider_interaction_groups::{ColliderGroup, get_bit_masks};
 
 pub fn disable_rigidbody(
-    rigidbody_activation : &mut Mut<RigidBodyActivation>,
-    collider_flags : &mut Mut<ColliderFlags>,
-    rigidbody_forces : &mut Mut<RigidBodyForces>,
+    rigidbody_activation : &mut Mut<RigidBodyActivationComponent>,
+    collider_flags : &mut Mut<ColliderFlagsComponent>,
+    rigidbody_forces : &mut Mut<RigidBodyForcesComponent>,
     commands : &mut Commands,
     rigidbody_entity : Entity,
 ) {
@@ -26,9 +26,9 @@ pub fn disable_rigidbody(
 }
 
 pub fn enable_rigidbody(
-    rigidbody_activation : &mut Mut<RigidBodyActivation>,
-    collider_flags : &mut Mut<ColliderFlags>,
-    rigidbody_forces : &mut Mut<RigidBodyForces>,
+    rigidbody_activation : &mut Mut<RigidBodyActivationComponent>,
+    collider_flags : &mut Mut<ColliderFlagsComponent>,
+    rigidbody_forces : &mut Mut<RigidBodyForcesComponent>,
     commands : &mut Commands,
     rigidbody_entity : Entity,
 ) {

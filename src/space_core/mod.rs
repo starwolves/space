@@ -5,7 +5,7 @@ pub mod components;
 pub mod events;
 pub mod bundles;
 
-use bevy::{MinimalPlugins, core::{FixedTimestep}, log::LogPlugin, prelude::{App, IntoSystem, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet}, transform::TransformPlugin};
+use bevy::{MinimalPlugins, core::{FixedTimestep}, log::LogPlugin, prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet}, transform::TransformPlugin};
 use bevy_networking_turbulence::NetworkingPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 

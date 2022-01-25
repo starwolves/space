@@ -32,7 +32,8 @@ impl FromWorld for EntityDataResource {
     }
 }
 
-pub struct SpawnPawnData<'a, 'b> {
+
+pub struct SpawnPawnData<'a, 'b, 'c> {
     pub data: (
         &'a PersistentPlayerData,
         Option<&'a ConnectedPlayer>,
@@ -40,18 +41,18 @@ pub struct SpawnPawnData<'a, 'b> {
         bool,
         bool,
         Option<&'a mut ResMut<'b, UsedNames>>,
-        Option<&'a mut EventWriter<'b, 'a, NetShowcase>>,
+        Option<&'a mut EventWriter<'b, 'c, NetShowcase>>,
         Option<String>,
         &'a ResMut<'a, EntityDataResource>,
     )
 }
 
-pub struct SpawnHeldData<'a, 'b, 'c> {
+pub struct SpawnHeldData<'a, 'b, 'c, 'd> {
     pub data: (
         Entity,
         bool,
         Option<u32>,
-        &'c mut Option<&'b mut EventWriter<'a, 'b, NetShowcase>>,
+        &'c mut Option<&'b mut EventWriter<'a, 'd, NetShowcase>>,
     )
 }
 
@@ -78,7 +79,7 @@ impl Default for EntityDataProperties {
                 _,
                 _,
                 | {
-                    Entity::new(0)
+                    Entity::from_raw(0)
                 }
             ),
             name: Default::default(),

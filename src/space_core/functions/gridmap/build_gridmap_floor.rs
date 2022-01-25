@@ -11,52 +11,52 @@ pub fn build_gridmap_floor(
 
     //Floor
     commands.spawn_bundle(RigidBodyBundle {
-        body_type: RigidBodyType::Static,
+        body_type: RigidBodyType::Static.into(),
         position: Vec3::new(0.,-1.,0.).into(),
         ccd: RigidBodyCcd {
             ccd_enabled: false,
             ..Default::default()
-        },
+        }.into(),
         ..Default::default()
     }).insert_bundle(
         ColliderBundle {
-            shape: ColliderShape::cuboid(500., 1., 500.),
-            collider_type: ColliderType::Solid,
+            shape: ColliderShape::cuboid(500., 1., 500.).into(),
+            collider_type: ColliderType::Solid.into(),
             material: ColliderMaterial {
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 friction: CHARACTER_FLOOR_FRICTION,
                 ..Default::default()
-            },
+            }.into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         }
     );
 
     //Roof
     commands.spawn_bundle(RigidBodyBundle {
-        body_type: RigidBodyType::Static,
+        body_type: RigidBodyType::Static.into(),
         position: Vec3::new(0.,3.,0.).into(),
         ccd: RigidBodyCcd {
             ccd_enabled: false,
             ..Default::default()
-        },
+        }.into(),
         ..Default::default()
     }).insert_bundle(
         ColliderBundle {
-            shape: ColliderShape::cuboid(500., 1., 500.),
-            collider_type: ColliderType::Solid,
+            shape: ColliderShape::cuboid(500., 1., 500.).into(),
+            collider_type: ColliderType::Solid.into(),
             material: ColliderMaterial {
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 friction: CHARACTER_FLOOR_FRICTION,
                 ..Default::default()
-            },
+            }.into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         }
     );

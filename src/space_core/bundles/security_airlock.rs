@@ -24,7 +24,7 @@ impl SecurityAirlockBundle {
 
 
         let rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Static,
+            body_type: RigidBodyType::Static.into(),
             position: transform_to_isometry(entity_transform).into(),
             ..Default::default()
         };
@@ -32,13 +32,13 @@ impl SecurityAirlockBundle {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         let collider_component = ColliderBundle {
-            shape: ColliderShape::cuboid(1.,1.,0.2),
+            shape: ColliderShape::cuboid(1.,1.,0.2).into(),
             position: Vec3::new(0., 1., 0.).into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 active_events: (ActiveEvents::CONTACT_EVENTS),
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 

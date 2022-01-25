@@ -55,18 +55,18 @@ impl HumanMalePawnBundle {
         
         
         let rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic,
+            body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(passed_transform).into(),
             forces : RigidBodyForces {
                 gravity_scale: 1.,
                 ..Default::default()
-            },
+            }.into(),
             ccd: RigidBodyCcd {
                 ccd_enabled: false,
                 ..Default::default()
-            },
+            }.into(),
             mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED_X | RigidBodyMassPropsFlags::ROTATION_LOCKED_Y| RigidBodyMassPropsFlags::ROTATION_LOCKED_Z).into(),
-            dominance: RigidBodyDominance(10),
+            dominance: RigidBodyDominance(10).into(),
             ..Default::default()
         };
 
@@ -80,19 +80,19 @@ impl HumanMalePawnBundle {
                 Vec3::new(0.0,0.0+r,0.0).into(),
                 Vec3::new(0.0,1.8-r,0.0).into(),
                 r
-            ),
+            ).into(),
             position: Vec3::new(0., 0., 0.).into(),
-            collider_type: ColliderType::Solid,
-            mass_properties: ColliderMassProps::Density(1.0),
+            collider_type: ColliderType::Solid.into(),
+            mass_properties: ColliderMassProps::Density(1.0).into(),
             material: ColliderMaterial {
                 friction: CHARACTER_FLOOR_FRICTION,
                 friction_combine_rule:  CoefficientCombineRule::Min,
                 ..Default::default()
-            },
+            }.into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 

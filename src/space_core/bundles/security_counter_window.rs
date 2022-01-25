@@ -24,7 +24,7 @@ impl SecurityCounterWindowBundle {
 
 
         let window_rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Static,
+            body_type: RigidBodyType::Static.into(),
             position: transform_to_isometry(entity_transform).into(),
             ..Default::default()
         };
@@ -32,22 +32,22 @@ impl SecurityCounterWindowBundle {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         let window_collider_component = ColliderBundle {
-            shape: ColliderShape::cuboid(0.1,0.593,1.),
+            shape: ColliderShape::cuboid(0.1,0.593,1.).into(),
             position: Vec3::new(0., 0., 1.).into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 ..Default::default()
-            },
+            }.into(),
             material: ColliderMaterial {
                 friction: 0.,
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 
         let sensor_rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Static,
+            body_type: RigidBodyType::Static.into(),
             position: transform_to_isometry(entity_transform).into(),
             ..Default::default()
         };
@@ -56,14 +56,14 @@ impl SecurityCounterWindowBundle {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         let sensor_collider_component = ColliderBundle {
-            collider_type : ColliderType::Sensor,
-            shape: ColliderShape::cuboid(1.,1.,1.),
+            collider_type : ColliderType::Sensor.into(),
+            shape: ColliderShape::cuboid(1.,1.,1.).into(),
             position: Vec3::new(0., -1., 1.).into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 active_events: (ActiveEvents::INTERSECTION_EVENTS),
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 
