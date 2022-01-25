@@ -9,7 +9,7 @@ pub struct CounterWindowSensor {
 impl Default for CounterWindowSensor {
     fn default() -> Self {
         Self {
-            parent : Entity::new(0),
+            parent : Entity::from_raw(0),
         }
     }
 }

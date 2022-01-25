@@ -10,7 +10,7 @@ pub struct RigidBodyLinkTransform {
 impl Default for RigidBodyLinkTransform {
     fn default() -> Self {
         Self {
-            follow_entity : Entity::new(0),
+            follow_entity : Entity::from_raw(0),
             active : true,
         }
     }

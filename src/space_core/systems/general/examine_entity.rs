@@ -1,17 +1,15 @@
-use bevy::prelude::{Entity, EventReader, EventWriter, Query, QuerySet, Res, warn};
+use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res, warn};
 
 use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{examinable::Examinable, health::Health, inventory::Inventory, sensable::Sensable, senser::Senser, standard_character::StandardCharacter}, events::{general::examine_entity::InputExamineEntity, net::{net_examine_entity::NetExamineEntity}}, functions::entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
 pub fn examine_entity(
     mut examine_entity_events : EventReader<InputExamineEntity>,
     mut net_new_chat_message_event : EventWriter<NetExamineEntity>,
-    q: QuerySet<(
-        Query<(&Examinable, &Sensable, &Health)>,
-        Query<(&Examinable, &Sensable, &Health, &Inventory, &StandardCharacter)>,
-        Query<&Examinable>,
-    )>,
     handle_to_entity : Res<HandleToEntity>,
     criteria_query : Query<&Senser>,
+    q0 : Query<(&Examinable, &Sensable, &Health)>,
+    q1 : Query<(&Examinable, &Sensable, &Health, &Inventory, &StandardCharacter)>,
+    q2 : Query<&Examinable>,
 ) {
 
     for examine_event in examine_entity_events.iter() {
@@ -26,13 +24,13 @@ pub fn examine_entity(
             },
         }
 
-        match q.q1().get(entity_reference) {
+        match q1.get(entity_reference) {
             Ok((_examinable_component, _sensable_component, health_component, inventory_component, standard_character_component)) => {
 
                 let text = generate_human_examine_text(
                     &standard_character_component.character_name,
                     Some(inventory_component),
-                    q.q2(),
+                    &q2,
                     health_component,
                 );
 
@@ -47,7 +45,7 @@ pub fn examine_entity(
             Err(_rr) => {},
         }
 
-        match q.q0().get(entity_reference) {
+        match q0.get(entity_reference) {
             Ok((examinable_component, sensable_component, health_component)) => {
                 //found=true;
                 let mut text = "".to_string();

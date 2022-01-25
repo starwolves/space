@@ -11,7 +11,7 @@ pub struct ServerId {
 impl FromWorld for ServerId {
     fn from_world(_world: &mut World) -> Self {
         ServerId {
-           id : Entity::new(0), 
+           id : Entity::from_raw(0), 
         }
     }
 }

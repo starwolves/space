@@ -743,14 +743,15 @@ pub fn standard_characters(
 
         }
 
+        // Change physics dominance based on if moving or not moving.
         if speed > 0.1 {
-            if rigid_body_dominance.0 != 9 {
-                rigid_body_dominance.0=9;
+            if rigid_body_dominance.0.0 != 9 {
+                rigid_body_dominance.0.0=9;
             }
         } else {
 
-            if rigid_body_dominance.0 != 10 {
-                rigid_body_dominance.0=10;
+            if rigid_body_dominance.0.0 != 10 {
+                rigid_body_dominance.0.0=10;
             }
 
         }

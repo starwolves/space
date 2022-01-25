@@ -1,22 +1,27 @@
-use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query, QuerySet, Res, warn}};
-use bevy_rapier3d::prelude::{QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyPositionComponent, RigidBodyForcesComponent, ColliderFlagsComponent, RigidBodyActivationComponent};
+use bevy::{math::Vec3, prelude::{Commands, Entity, EventReader, EventWriter, Query, QuerySet, Res, warn, QueryState}};
+use bevy_rapier3d::prelude::{QueryPipeline, RigidBodyPositionComponent, RigidBodyForcesComponent, ColliderFlagsComponent, RigidBodyActivationComponent, ColliderPositionComponent, ColliderShapeComponent};
 
 use crate::space_core::{components::{cell::Cell, entity_data::EntityData, health::Health, inventory::Inventory, inventory_item::InventoryItem, rigidbody_link_transform::RigidBodyLinkTransform, world_mode::{WorldMode, WorldModes}}, events::{general::use_world_item::InputUseWorldItem, net::net_pickup_world_item::NetPickupWorldItem}, functions::entity::{can_reach_entity::{REACH_DISTANCE, can_reach_entity}, toggle_rigidbody::disable_rigidbody}, resources::{gridmap_data::GridmapData, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
-pub fn pickup_world_item(
+pub fn pickup_world_item<'a>(
     mut use_world_item_events : EventReader<InputUseWorldItem>,
     mut inventory_entities : Query<&mut Inventory>,
     mut inventory_items_query : Query<&mut InventoryItem>,
     health_query : Query<&Health>,
     mut q: QuerySet<(
-        Query<(
+        QueryState<(
             &mut WorldMode,
             &mut RigidBodyActivationComponent,
             &mut ColliderFlagsComponent,
             &mut RigidBodyForcesComponent,
             &EntityData,
         )>,
-        QueryPipelineColliderComponentsQuery,
+        QueryState<(
+            Entity,
+            &'a ColliderPositionComponent,
+            &'a ColliderShapeComponent,
+            &'a ColliderFlagsComponent,
+        )>,
     )>,
     rigidbody_positions : Query<&RigidBodyPositionComponent>,
     mut commands : Commands,
@@ -83,7 +88,7 @@ pub fn pickup_world_item(
 
         if !can_reach_entity(
             &query_pipeline,
-            &q.q1_mut(),
+            &q.q1(),
             pickuper_position,
             pickupable_position,
             &pickupable_entity,
@@ -99,7 +104,9 @@ pub fn pickup_world_item(
 
         let pickupable_entities_components;
 
-        match q.q0_mut().get_mut(pickupable_entity) {
+        let mut q0 = q.q0();
+
+        match q0.get_mut(pickupable_entity) {
             Ok(s) => {  
                 pickupable_entities_components = s;
             },

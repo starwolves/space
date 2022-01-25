@@ -1,20 +1,20 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Entity, Query, QuerySet, Without, warn};
+use bevy::prelude::{Entity, QuerySet, Without, warn, QueryState};
 use bevy_rapier3d::prelude::{RigidBodyPositionComponent};
 
 use crate::space_core::components::{rigidbody_link_transform::RigidBodyLinkTransform, showcase::Showcase};
 
 pub fn rigidbody_link_transform(
     mut rigidbodies_set: QuerySet<(
-        Query<(Entity, &RigidBodyLinkTransform, &mut RigidBodyPositionComponent), Without<Showcase>>,
-        Query<&RigidBodyPositionComponent, Without<Showcase>>,
+        QueryState<(Entity, &RigidBodyLinkTransform, &mut RigidBodyPositionComponent), Without<Showcase>>,
+        QueryState<&RigidBodyPositionComponent, Without<Showcase>>,
     )>,
 ) {
 
     let mut linked_with_following = HashMap::new();
 
-    for (entity, rigid_body_link_transform_component, _rigidbody_position_component) in rigidbodies_set.q0_mut().iter_mut() {
+    for (entity, rigid_body_link_transform_component, _rigidbody_position_component) in rigidbodies_set.q0().iter_mut() {
         if rigid_body_link_transform_component.active {
             linked_with_following.insert(entity, rigid_body_link_transform_component.follow_entity );
         }
@@ -36,7 +36,7 @@ pub fn rigidbody_link_transform(
 
     }
 
-    for (entity, rigid_body_link_transform_component, mut rigidbody_position_component) in rigidbodies_set.q0_mut().iter_mut() {
+    for (entity, rigid_body_link_transform_component, mut rigidbody_position_component) in rigidbodies_set.q0().iter_mut() {
         if rigid_body_link_transform_component.active {
             rigidbody_position_component.position = *linked_with_new_positions.get(&entity).expect("Couldn't find linked entity that we were about to set following transform of.");
         }

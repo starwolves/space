@@ -106,12 +106,12 @@ fn spawn_entity(
     if held == false {
 
         rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic,
+            body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(this_transform).into(),
             ccd: RigidBodyCcd {
                 ccd_enabled: false,
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 
@@ -119,37 +119,37 @@ fn spawn_entity(
 
         collider_component = ColliderBundle {
             
-            shape: shape,
-            position: collider_position,
+            shape: shape.into(),
+            position: collider_position.into(),
             material: ColliderMaterial {
                 friction: STANDARD_BODY_FRICTION,
                 friction_combine_rule:  CoefficientCombineRule::Multiply,
                 ..Default::default()
-            },
+            }.into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 
     } else {
 
         rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic,
+            body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(this_transform).into(),
             ccd: RigidBodyCcd {
                 ccd_enabled: false,
                 ..Default::default()
-            },
+            }.into(),
             forces: RigidBodyForces {
                 gravity_scale: 0.,
                 ..Default::default()
-            },
+            }.into(),
             activation: RigidBodyActivation {
                 sleeping: true,
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 
@@ -157,17 +157,17 @@ fn spawn_entity(
 
         collider_component = ColliderBundle {
             
-            shape: shape,
-            position: collider_position,
+            shape: shape.into(),
+            position: collider_position.into(),
             material: ColliderMaterial {
                 friction: STANDARD_BODY_FRICTION,
                 friction_combine_rule:  CoefficientCombineRule::Average,
                 ..Default::default()
-            },
+            }.into(),
             flags: ColliderFlags {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         };
 

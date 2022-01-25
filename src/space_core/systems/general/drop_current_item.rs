@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use bevy::{math::Vec3, prelude::{Commands, EventReader, EventWriter, Query, QuerySet, Res, Transform, warn}};
-use bevy_rapier3d::prelude::{QueryPipeline, QueryPipelineColliderComponentsQuery, RigidBodyPosition, RigidBodyPositionComponent, RigidBodyForcesComponent, RigidBodyActivationComponent, ColliderFlagsComponent};
+use bevy::{math::Vec3, prelude::{Commands, EventReader, EventWriter, Query, QuerySet, Res, Transform, warn, QueryState, Entity}};
+use bevy_rapier3d::prelude::{QueryPipeline, RigidBodyPositionComponent, RigidBodyForcesComponent, RigidBodyActivationComponent, ColliderFlagsComponent, ColliderPositionComponent, ColliderShapeComponent};
 
 use crate::space_core::{components::{cell::Cell, health::Health, inventory::Inventory, inventory_item::InventoryItem, pawn::Pawn, rigidbody_link_transform::RigidBodyLinkTransform, sensable::Sensable, world_mode::{WorldMode, WorldModes}}, events::{general::drop_current_item::InputDropCurrentItem, net::{net_drop_current_item::NetDropCurrentItem}}, functions::{converters::{isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry}, entity::{can_reach_entity::{REACH_DISTANCE, can_reach_entity}, entity_spawn_position_for_player::entity_spawn_position_for_player, toggle_rigidbody::enable_rigidbody}}, resources::{gridmap_data::GridmapData, gridmap_main::GridmapMain, handle_to_entity::HandleToEntity, network_messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage}}};
 
-pub fn drop_current_item(
+pub fn drop_current_item<'a>(
     mut drop_current_item_events : EventReader<InputDropCurrentItem>,
     mut rigidbody_positions : Query<&mut RigidBodyPositionComponent>,
     mut inventory_entities : Query<(
@@ -17,14 +17,19 @@ pub fn drop_current_item(
     health_query : Query<&Health>,
     cell_query : Query<&Cell>,
     mut q: QuerySet<(
-        Query<(
+        QueryState<(
             &mut WorldMode,
             &mut RigidBodyActivationComponent,
             &mut ColliderFlagsComponent,
             &mut RigidBodyForcesComponent,
             &mut RigidBodyLinkTransform,
         )>,
-        QueryPipelineColliderComponentsQuery,
+        QueryState<(
+            Entity,
+            &'a ColliderPositionComponent,
+            &'a ColliderShapeComponent,
+            &'a ColliderFlagsComponent,
+        )>,
     )>,
     mut commands : Commands,
     mut net_drop_current_item : EventWriter<NetDropCurrentItem>,
@@ -80,7 +85,7 @@ pub fn drop_current_item(
         match event.input_position_option {
             Some(placing_position) => {
                 
-                match rigidbody_positions.get_component_mut::<RigidBodyPosition>(event.pickuper_entity) {
+                match rigidbody_positions.get_component_mut::<RigidBodyPositionComponent>(event.pickuper_entity) {
                     Ok(pickuper_position_rapier) => {
                         
                         pickuper_position = pickuper_position_rapier.position.translation.into();
@@ -104,7 +109,7 @@ pub fn drop_current_item(
 
             },
             None => {
-                match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
+                match rigidbody_positions.get_component_mut::<RigidBodyPositionComponent>(pickupable_entity) {
                     Ok(pickupable_rigidbody_position) => {
         
                         
@@ -124,7 +129,7 @@ pub fn drop_current_item(
         
                         new_position = new_pickupable_transform.clone();
                         
-                        match rigidbody_positions.get_component_mut::<RigidBodyPosition>(event.pickuper_entity) {
+                        match rigidbody_positions.get_component_mut::<RigidBodyPositionComponent>(event.pickuper_entity) {
                             Ok(rigidbody_pos) => {
                                 pickuper_position = rigidbody_pos.position.translation.into();
                             },
@@ -147,7 +152,7 @@ pub fn drop_current_item(
         if event.input_position_option.is_some() {
             if !can_reach_entity(
                 &query_pipeline,
-                &q.q1_mut(),
+                &q.q1(),
                 pickuper_position,
                 event.input_position_option.unwrap(),
                 &pickupable_entity,
@@ -162,7 +167,7 @@ pub fn drop_current_item(
             }
         }
 
-        match rigidbody_positions.get_component_mut::<RigidBodyPosition>(pickupable_entity) {
+        match rigidbody_positions.get_component_mut::<RigidBodyPositionComponent>(pickupable_entity) {
             Ok(mut rigidbody_pos) => {
                 new_position.translation.y+=0.25;
                 rigidbody_pos.position = transform_to_isometry(new_position);
@@ -177,13 +182,15 @@ pub fn drop_current_item(
         let mut inventory_item_component = inventory_items_query.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find InventoryItem component of pickupable_entity from query.");
 
+        let mut q0 = q.q0();
+
         let (
             mut pickupable_world_mode_component,
             mut pickupable_rigidbody_activation,
             mut pickupable_rigidbody_collider_flags,
             mut pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
-        ) = q.q0_mut().get_mut(pickupable_entity)
+        ) = q0.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
         
         drop_slot.slot_item = None;

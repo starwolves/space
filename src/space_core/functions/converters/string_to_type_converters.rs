@@ -173,7 +173,7 @@ pub fn string_transform_to_transform(string_transform : &str) -> Transform {
     );
 
     let mut transform_result = Transform::from_translation(translation);
-    transform_result.rotation = Quat::from_rotation_mat3(&Mat3::from_cols(basis_x, basis_y, basis_z));
+    transform_result.rotation = Quat::from_mat3(&Mat3::from_cols(basis_x, basis_y, basis_z));
     // Hard coding scale, not required for current use case
     transform_result.scale = Vec3::new(1.,1.,1.);
     

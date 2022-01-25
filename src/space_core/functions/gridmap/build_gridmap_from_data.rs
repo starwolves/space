@@ -84,27 +84,27 @@ pub fn build_main_gridmap(
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         commands.spawn_bundle(RigidBodyBundle {
-            body_type: RigidBodyType::Static,
+            body_type: RigidBodyType::Static.into(),
             position: world_position.into(),
             ccd: RigidBodyCcd {
                 ccd_enabled: false,
                 ..Default::default()
-            },
+            }.into(),
             ..Default::default()
         },).insert_bundle(
             ColliderBundle {
-                shape: cell_properties.collider_shape.clone(),
-                position: cell_properties.collider_position,
-                collider_type: ColliderType::Solid,
+                shape: cell_properties.collider_shape.clone().into(),
+                position: cell_properties.collider_position.into(),
+                collider_type: ColliderType::Solid.into(),
                 material: ColliderMaterial {
                     friction_combine_rule:  friction_combine_rule,
                     friction: friction,
                     ..Default::default()
-                },
+                }.into(),
                 flags: ColliderFlags {
                     collision_groups: InteractionGroups::new(masks.0,masks.1),
                     ..Default::default()
-                },
+                }.into(),
                 ..Default::default()
             }
         ).insert(
