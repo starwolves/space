@@ -1,5 +1,5 @@
 use bevy::{math::Vec3, prelude::Commands};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
 use crate::space_core::{bundles::human_male_pawn::CHARACTER_FLOOR_FRICTION, functions::entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}};
 
@@ -13,10 +13,6 @@ pub fn build_gridmap_floor(
     commands.spawn_bundle(RigidBodyBundle {
         body_type: RigidBodyType::Static.into(),
         position: Vec3::new(0.,-1.,0.).into(),
-        ccd: RigidBodyCcd {
-            ccd_enabled: false,
-            ..Default::default()
-        }.into(),
         ..Default::default()
     }).insert_bundle(
         ColliderBundle {
@@ -39,10 +35,6 @@ pub fn build_gridmap_floor(
     commands.spawn_bundle(RigidBodyBundle {
         body_type: RigidBodyType::Static.into(),
         position: Vec3::new(0.,3.,0.).into(),
-        ccd: RigidBodyCcd {
-            ccd_enabled: false,
-            ..Default::default()
-        }.into(),
         ..Default::default()
     }).insert_bundle(
         ColliderBundle {

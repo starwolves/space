@@ -86,10 +86,6 @@ pub fn build_main_gridmap(
         commands.spawn_bundle(RigidBodyBundle {
             body_type: RigidBodyType::Static.into(),
             position: world_position.into(),
-            ccd: RigidBodyCcd {
-                ccd_enabled: false,
-                ..Default::default()
-            }.into(),
             ..Default::default()
         },).insert_bundle(
             ColliderBundle {
