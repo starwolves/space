@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Commands, ResMut};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial,ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyCcd, RigidBodyType};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial,ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
 use crate::space_core::{components::{cell::Cell, health::HealthFlag}, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth}, gridmap_data::GridmapData}};
 

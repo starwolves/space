@@ -59,11 +59,10 @@ impl HumanMalePawnBundle {
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(passed_transform).into(),
-            mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED_X | RigidBodyMassPropsFlags::ROTATION_LOCKED_Y| RigidBodyMassPropsFlags::ROTATION_LOCKED_Z).into(),
+            //mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED_X | RigidBodyMassPropsFlags::ROTATION_LOCKED_Y| RigidBodyMassPropsFlags::ROTATION_LOCKED_Z).into(),
             dominance: RigidBodyDominance(10).into(),
             ..Default::default()
         };
-
         
 
         let r = 0.5;
