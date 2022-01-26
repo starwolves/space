@@ -115,10 +115,6 @@ Vec3::new(0.,0.355, 0.)
         rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(this_transform).into(),
-            ccd: RigidBodyCcd {
-                ccd_enabled: false,
-                ..Default::default()
-            }.into(),
             ..Default::default()
         };
 
@@ -145,10 +141,6 @@ Vec3::new(0.,0.355, 0.)
         rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(this_transform).into(),
-            ccd: RigidBodyCcd {
-                ccd_enabled: false,
-                ..Default::default()
-            }.into(),
             forces: RigidBodyForces {
                 gravity_scale: 0.,
                 ..Default::default()
