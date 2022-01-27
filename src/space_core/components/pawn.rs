@@ -12,7 +12,9 @@ pub struct TabAction {
     pub id : String,
     pub text : String,
     pub tab_list_priority : u8,
+    pub belonging_entity : Option<Entity>,
     pub prerequisite_check : Arc<dyn Fn(
+        Option<Entity>,
         Option<u64>,
         Option<(GridMapType, i16,i16,i16)>,
         f32,
@@ -22,6 +24,17 @@ pub struct TabAction {
 
 impl TabAction {
     pub fn into_net(&self, item_name : &str, entity_option : Option<u64>, cell_option : Option<(GridMapType, i16,i16,i16)>) -> NetTabAction {
+        let self_belonging_entity;
+
+        match self.belonging_entity {
+            Some(rr) => {
+                self_belonging_entity = Some(rr.to_bits());
+            },
+            None => {
+                self_belonging_entity = None;
+            },
+        }
+
         NetTabAction {
             id: self.id.clone(),
             text: self.text.clone(),
@@ -29,6 +42,7 @@ impl TabAction {
             entity_option : entity_option,
             cell_option,
             item_name : item_name.to_string(),
+            belonging_entity: self_belonging_entity,
         }
     }
 }

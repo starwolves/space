@@ -259,18 +259,21 @@ fn spawn_entity(
                     text: "Construct".to_string(),
                     tab_list_priority: 50,
                     prerequisite_check: Arc::new(construct_action),
+                    belonging_entity: Some(entity_id),
                 },
                 TabAction {
                     id: "deconstruct".to_string(),
                     text: "Deconstruct".to_string(),
                     tab_list_priority: 49,
                     prerequisite_check: Arc::new(deconstruct_action),
+                    belonging_entity: Some(entity_id),
                 },
                 TabAction {
                     id: "constructionoptions".to_string(),
                     text: "Construction Options".to_string(),
                     tab_list_priority: 48,
                     prerequisite_check: Arc::new(construction_option_action),
+                    belonging_entity: Some(entity_id),
                 },
             ]
         },
@@ -345,6 +348,7 @@ fn spawn_entity(
 }
 
 pub fn construct_action(
+    _self_tab_entity : Option<Entity>,
     _entity_id_bits_option : Option<u64>,
     cell_id_option : Option<(GridMapType, i16,i16,i16)>,
     distance : f32,
@@ -354,6 +358,7 @@ pub fn construct_action(
 }
 
 pub fn deconstruct_action(
+    _self_tab_entity : Option<Entity>,
     _entity_id_bits_option : Option<u64>,
     cell_id_option : Option<(GridMapType, i16,i16,i16)>,
     distance : f32,
@@ -364,6 +369,7 @@ pub fn deconstruct_action(
 
 
 pub fn construction_option_action(
+    self_tab_entity_option : Option<Entity>,
     entity_id_bits_option : Option<u64>,
     _cell_id_option : Option<(GridMapType, i16,i16,i16)>,
     _distance : f32,
@@ -372,15 +378,26 @@ pub fn construction_option_action(
     
     let is_self;
 
+    
+
     match entity_id_bits_option {
         Some(e) => {
-
+            
             let entity = Entity::from_bits(e);
 
-            if inventory_component.has_item(entity) {
-                is_self=true;
-            } else {
-                is_self=false;
+            match self_tab_entity_option {
+                Some(self_tab_entity) => {
+                    if self_tab_entity != entity {
+                        is_self=false;
+                    } else {
+                        if inventory_component.has_item(entity) {
+                            is_self=true;
+                        } else {
+                            is_self=false;
+                        }
+                    }
+                },
+                None => {is_self=false;},
             }
 
         },

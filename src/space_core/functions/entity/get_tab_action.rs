@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use bevy::prelude::Entity;
+
 use crate::space_core::{components::{pawn::TabAction, inventory::Inventory}, resources::{network_messages::GridMapType}};
 
 use super::can_reach_entity::REACH_DISTANCE;
@@ -17,6 +19,7 @@ pub fn get_tab_action(
             text: "Examine".to_string(),
             tab_list_priority: u8::MAX,
             prerequisite_check: Arc::new(examine_tab_prerequisite_check),
+            belonging_entity: None,
         });
 
     } else if id == "pickup" {
@@ -26,6 +29,7 @@ pub fn get_tab_action(
             text: "Pickup".to_string(),
             tab_list_priority: u8::MAX-1,
             prerequisite_check: Arc::new(pickup_tab_prerequisite_check),
+            belonging_entity: None,
         });
 
     } else {
@@ -37,6 +41,7 @@ pub fn get_tab_action(
 }
 
 pub fn examine_tab_prerequisite_check(
+    _self_tab_entity : Option<Entity>,
     entity_id_bits_option : Option<u64>,
     cell_id_option : Option<(GridMapType, i16,i16,i16)>,
     _distance : f32,
@@ -46,6 +51,7 @@ pub fn examine_tab_prerequisite_check(
 }
 
 pub fn pickup_tab_prerequisite_check(
+    _self_tab_entity : Option<Entity>,
     entity_id_bits_option : Option<u64>,
     _cell_id_option : Option<(GridMapType, i16,i16,i16)>,
     distance : f32,
