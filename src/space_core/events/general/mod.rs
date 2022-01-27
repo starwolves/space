@@ -31,3 +31,4 @@ pub mod tab_data_map;
 pub mod input_tab_action;
 pub mod input_construct;
 pub mod input_deconstruct;
+pub mod input_construction_options;

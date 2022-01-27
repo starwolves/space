@@ -43,7 +43,7 @@ pub enum ReliableClientMessage {
     AltItemAttack,
     ThrowItem(Vec3, f32),
     AttackCell(i16,i16,i16),
-    TabPressed(String, Option<u64>, Option<(GridMapType, i16,i16,i16)>),
+    TabPressed(String, Option<u64>, Option<(GridMapType, i16,i16,i16)>, Option<u64>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -97,7 +97,8 @@ pub struct NetTabAction {
     pub tab_list_priority : u8,
     pub item_name : String,
     pub entity_option: Option<u64>,
-    pub cell_option : Option<(GridMapType, i16,i16,i16)>
+    pub belonging_entity : Option<u64>,
+    pub cell_option : Option<(GridMapType, i16,i16,i16)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

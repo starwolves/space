@@ -47,7 +47,7 @@ pub fn tab_data(
             match examinable_query.get(entity) {
                 Ok((examinable_component, sensable_component, rigid_body_position_component)) => {
                     if sensable_component.sensed_by.contains(&event.player_entity) {
-                        if (tab_action.prerequisite_check)(s, None, pawn_body_position.distance(rigid_body_position_component.position.translation.into()), player_inventory_component) {
+                        if (tab_action.prerequisite_check)(tab_action.belonging_entity, s, None, pawn_body_position.distance(rigid_body_position_component.position.translation.into()), player_inventory_component) {
                             tab_data.push(tab_action.into_net(examinable_component.name.get_name(), s,None));
                         }
                     }
@@ -104,7 +104,7 @@ pub fn tab_data(
                             match gridmap_data.main_text_names.get(&cell_data.item) {
                                 Some(cell_name) => {
                                     if player_senser_component.fov.is_in_fov(doryen_coords.0, doryen_coords.1) {
-                                        if (tab_action.prerequisite_check)(None, s.clone(), player_body_position.distance(cell_world_position), player_inventory_component) {
+                                        if (tab_action.prerequisite_check)(tab_action.belonging_entity, None, s.clone(), player_body_position.distance(cell_world_position), player_inventory_component) {
                                             tab_data.push(tab_action.into_net(cell_name.get_name(), None, s));
                                         }
                                     }
@@ -121,7 +121,7 @@ pub fn tab_data(
                             match gridmap_data.details1_text_names.get(&cell_data.item) {
                                 Some(cell_name) => {
                                     if player_senser_component.fov.is_in_fov(doryen_coords.0, doryen_coords.1) {
-                                        if (tab_action.prerequisite_check)(None, s.clone(), player_body_position.distance(cell_world_position), player_inventory_component) {
+                                        if (tab_action.prerequisite_check)(tab_action.belonging_entity, None, s.clone(), player_body_position.distance(cell_world_position), player_inventory_component) {
                                             tab_data.push(tab_action.into_net(cell_name.get_name(), None, s));
                                         }
                                     }

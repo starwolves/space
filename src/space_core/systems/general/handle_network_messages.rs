@@ -474,7 +474,7 @@ pub fn handle_network_messages(
                     }
 
                 },
-                ReliableClientMessage::TabPressed(tab_id, entity_option, cell_option) => {
+                ReliableClientMessage::TabPressed(tab_id, entity_option, cell_option, belonging_entity) => {
 
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
@@ -484,6 +484,7 @@ pub fn handle_network_messages(
                                 player_entity: *player_entity,
                                 target_entity_option: entity_option,
                                 target_cell_option: cell_option,
+                                belonging_entity 
                             });
                         },
                         None => {
