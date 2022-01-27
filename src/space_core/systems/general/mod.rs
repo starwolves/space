@@ -25,7 +25,7 @@ pub mod switch_hands;
 pub mod wear_item;
 pub mod take_off_item;
 pub mod console_commands;
-pub mod startup_init_misc_data;
+pub mod startup_init_misc_resources;
 pub mod handle_network_events;
 pub mod handle_network_messages;
 pub mod broadcast_position_updates;

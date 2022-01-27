@@ -266,6 +266,12 @@ fn spawn_entity(
                     tab_list_priority: 49,
                     prerequisite_check: Arc::new(deconstruct_action),
                 },
+                TabAction {
+                    id: "constructionoptions".to_string(),
+                    text: "Construction Options".to_string(),
+                    tab_list_priority: 48,
+                    prerequisite_check: Arc::new(construction_option_action),
+                },
             ]
         },
         DefaultTransform {
@@ -354,4 +360,35 @@ pub fn deconstruct_action(
     _inventory_component : &Inventory,
 ) -> bool {
     distance < REACH_DISTANCE && cell_id_option.is_some()
+}
+
+
+pub fn construction_option_action(
+    entity_id_bits_option : Option<u64>,
+    _cell_id_option : Option<(GridMapType, i16,i16,i16)>,
+    _distance : f32,
+    inventory_component : &Inventory,
+) -> bool {
+    
+    let is_self;
+
+    match entity_id_bits_option {
+        Some(e) => {
+
+            let entity = Entity::from_bits(e);
+
+            if inventory_component.has_item(entity) {
+                is_self=true;
+            } else {
+                is_self=false;
+            }
+
+        },
+        None => {
+            is_self=false;
+        },
+    }
+
+    is_self
+
 }

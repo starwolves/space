@@ -1,4 +1,5 @@
 use bevy::{ecs::{system::{Commands, ResMut}}, prelude::{Transform}};
+use bevy_rapier3d::{prelude::{RapierConfiguration, IntegrationParameters}};
 
 
 use std::{ fs, path::Path};
@@ -6,13 +7,19 @@ use std::{ fs, path::Path};
 use crate::space_core::{bundles::ambience_sfx::{AmbienceSfxBundle}, components::{ server::Server}, resources::{gridmap_data::GridmapData, server_id::ServerId, spawn_points::{SpawnPoint, SpawnPointRaw, SpawnPoints}, world_environments::{WorldEnvironment, WorldEnvironmentRaw}}};
 
 
-pub fn startup_init_misc_data(
+pub fn startup_init_misc_resources(
     mut server_id : ResMut<ServerId>,
     mut map_environment : ResMut<WorldEnvironment>,
     mut gridmap_data : ResMut<GridmapData>,
     mut spawn_points_res : ResMut<SpawnPoints>,
+    mut _rapier_configuration : ResMut<RapierConfiguration>,
+    mut _rapier_integration_params : ResMut<IntegrationParameters>,
     mut commands: Commands
 ) {
+
+    // Init Bevy Rapier physics.
+    /*rapier_configuration.timestep_mode = TimestepMode::FixedTimestep;
+    rapier_integration_params.dt = RAPIER_DT;*/
 
 
     let environment_json_location = Path::new("content").join("maps").join("bullseye").join("environment.json");
