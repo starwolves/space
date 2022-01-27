@@ -36,6 +36,28 @@ pub enum SlotType {
 
 impl Inventory {
 
+    pub fn has_item(&self, entity_id : Entity) -> bool {
+
+        let mut has = false;
+
+        for slot in self.slots.iter() {
+
+            match slot.slot_item {
+                Some(item_entity) => {
+                    if item_entity == entity_id {
+                        has=true;
+                        break;
+                    }
+                },
+                None => {},
+            }
+
+        }
+
+        has
+
+    }
+
     pub fn get_active_slot_entity(&self) -> Option<Entity> {
 
         let mut return_slot_option = None;

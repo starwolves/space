@@ -96,42 +96,6 @@ pub fn startup_init_gridmap_cells(
             ..Default::default()
         }
     );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("genericWall1Corner").unwrap(),
-            name: RichName {
-                name: "aluminum wall".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "An aluminum wall.".to_string(),
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityWallEnd").unwrap(),
-            name: RichName {
-                name: "aluminum security wall".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "An aluminum wall. This one is painted with security department colors.".to_string(),
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityWallCorner").unwrap(),
-            name: RichName {
-                name: "aluminum security wall".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "An aluminum wall. This one is painted with security department colors.".to_string(),
-            ..Default::default()
-        }
-    );
 
     let mut default_isometry = ColliderPosition::identity();
     default_isometry.translation.y = -0.5;

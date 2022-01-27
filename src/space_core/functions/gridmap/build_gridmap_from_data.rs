@@ -37,7 +37,6 @@ pub fn build_main_gridmap(
 
         let world_position = cell_id_to_world(cell_id_int);
 
-        
         let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
 
         gridmap_main.data.insert(cell_id_int,
