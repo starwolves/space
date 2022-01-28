@@ -88,6 +88,13 @@ pub enum ReliableServerMessage {
     PlaySound(String, f32, f32, Option<Vec3>),
     FireProjectile(NetProjectileType),
     TabData(Vec<NetTabAction>),
+    TextTreeSelection(String, HashMap<String, TextTreeBit>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum TextTreeBit {
+    Final(Vec<String>),
+    Bit(HashMap<String, TextTreeBit>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

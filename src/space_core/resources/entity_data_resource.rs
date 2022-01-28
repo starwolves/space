@@ -66,6 +66,7 @@ pub struct EntityDataProperties {
     ) -> Entity + Sync + Send>,
     pub name : String,
     pub id : usize,
+    pub constructable : bool,
 }
 
 impl Default for EntityDataProperties {
@@ -83,7 +84,8 @@ impl Default for EntityDataProperties {
                 }
             ),
             name: Default::default(),
-            id: Default::default()
+            id: Default::default(),
+            constructable : false,
         }
     }
 }

@@ -1,7 +1,7 @@
 use bevy::{prelude::{EventReader, EventWriter, Query, Without, warn, Entity}, math::Vec3};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer, pawn::Pawn, inventory::Inventory, inventory_item::InventoryItem}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction, input_construct::InputConstruct, input_deconstruct::InputDeconstruct, use_world_item::InputUseWorldItem, input_construction_options::InputConstructionOptions}, resources::doryen_fov::Vec3Int, functions::gridmap::gridmap_functions::cell_id_to_world};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer, pawn::Pawn, inventory::Inventory}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction, input_construct::InputConstruct, input_deconstruct::InputDeconstruct, use_world_item::InputUseWorldItem, input_construction_options::InputConstructionOptions}, resources::doryen_fov::Vec3Int, functions::gridmap::gridmap_functions::cell_id_to_world};
 
 pub fn tab_action(
 
@@ -15,7 +15,7 @@ pub fn tab_action(
     criteria_query : Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
     pawns : Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
-    inventory_items : Query<(&InventoryItem, &RigidBodyPositionComponent)>,
+    inventory_items : Query<&RigidBodyPositionComponent>,
 ) {
 
     for event in events.iter() {
@@ -52,7 +52,7 @@ pub fn tab_action(
         match event.target_entity_option {
             Some(target_entity) => {
 
-                let (_inventory_item_component,rigid_body_position_component) = inventory_items.get(Entity::from_bits(target_entity)).unwrap();
+                let rigid_body_position_component = inventory_items.get(Entity::from_bits(target_entity)).unwrap();
                 start_pos = rigid_body_position_component.0.position.translation.into();
 
             },

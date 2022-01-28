@@ -14,13 +14,14 @@
 A modular & moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/).
 This game server is designed to run well on modern processors that have multiple CPU cores.
   
-### Features
+### Features (All Moddable & Modular)
 * Parallelized ECS (Entity Component System) architecture. 🐆
 * Pure Rust. No garbage collection & high parallel game logic execution speeds.
 * Data-oriented & modular, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project.
 * Inventory system, pick up, wear, attach, place and equip items with character entities.
 * Melee & projectile combat systems, damage player, ship walls or other entities with various types of damage and the ability to target specific body parts.
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
+* Actions tab menu to easily interact with the world.
 * Configurable console commands, including rcon admin commands.
 * Fearless multi-threading and resource access across multiple threads.
 * Built with the cutting-edge [Rapier 3D Physics engine](https://rapier.rs/).
@@ -58,7 +59,7 @@ cargo run
 ```
 
 ### [Documentation](https://docs.starwolves.io)
-Find the documentation of this project [here](https://docs.starwolves.io).
+Yet to be created.
 
 ### Contributions
 Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
