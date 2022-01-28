@@ -509,7 +509,7 @@ pub fn generate_human_examine_text(
                         } else if slot.slot_name == "jumpsuit" {
                             examine_text = examine_text + "He is wearing " + &examinable.name.get_a_name() + " on his body.\n";
                         } else if slot.slot_name == "holster" {
-                            examine_text = examine_text + &examinable.name.get_a_name() + "is attached to his holster.\n";
+                            examine_text = examine_text + &examinable.name.get_a_name() + " is attached to his holster.\n";
                         } else {
                             examine_text = examine_text + "He is wearing " + &examinable.name.get_a_name() + ".\n";
                         }
