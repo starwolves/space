@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{events::general::{build_graphics::InputBuildGraphics, console_command::InputConsoleCommand, drop_current_item::InputDropCurrentItem, examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_tab_action::InputTabAction, input_throw_item::InputThrowItem, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, input_user_name::InputUserName, mouse_direction_update::InputMouseDirectionUpdate, movement_input::InputMovementInput, scene_ready::InputSceneReady, switch_hands::InputSwitchHands, tab_data_entity::InputTabDataEntity, tab_data_map::InputTabDataMap, take_off_item::InputTakeOffItem, ui_input::InputUIInput, ui_input_transmit_text::InputUIInputTransmitText, use_world_item::InputUseWorldItem, wear_item::InputWearItem}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
+use crate::space_core::{events::general::{build_graphics::InputBuildGraphics, console_command::InputConsoleCommand, drop_current_item::InputDropCurrentItem, examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_alt_item_attack::InputAltItemAttack, input_attack_cell::InputAttackCell, input_attack_entity::InputAttackEntity, input_chat_message::InputChatMessage, input_mouse_action::InputMouseAction, input_select_body_part::InputSelectBodyPart, input_sprinting::InputSprinting, input_tab_action::InputTabAction, input_throw_item::InputThrowItem, input_toggle_auto_move::InputToggleAutoMove, input_toggle_combat_mode::InputToggleCombatMode, input_user_name::InputUserName, mouse_direction_update::InputMouseDirectionUpdate, movement_input::InputMovementInput, scene_ready::InputSceneReady, switch_hands::InputSwitchHands, tab_data_entity::InputTabDataEntity, tab_data_map::InputTabDataMap, take_off_item::InputTakeOffItem, ui_input::InputUIInput, ui_input_transmit_text::InputUIInputTransmitText, use_world_item::InputUseWorldItem, wear_item::InputWearItem, text_tree_input_selection::TextTreeInputSelection}, resources::{doryen_fov::Vec3Int, handle_to_entity::HandleToEntity, network_messages::{ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, UnreliableServerMessage}}};
 
 pub fn handle_network_messages(
 
@@ -38,6 +38,10 @@ pub fn handle_network_messages(
         EventWriter<InputTabDataEntity>,
         EventWriter<InputTabDataMap>,
         EventWriter<InputTabAction>,
+    ),
+
+    tuple2 : (
+        EventWriter<TextTreeInputSelection>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -80,6 +84,10 @@ pub fn handle_network_messages(
         mut input_tab_action,
     )
     = tuple1;
+
+    let 
+        mut text_tree_input_selection
+     = tuple2.0;
 
 
     for (handle, connection) in net.connections.iter_mut() {
@@ -493,6 +501,17 @@ pub fn handle_network_messages(
                     }
 
                 
+                },
+                ReliableClientMessage::TextTreeInput(belonging_entity, tab_action_id, menu_id, input_selection) => { 
+
+                    text_tree_input_selection.send(TextTreeInputSelection {
+                        handle: *handle,
+                        menu_id,
+                        menu_selection: input_selection,
+                        belonging_entity,
+                        tab_action_id,
+                    });
+
                 },
             }
 

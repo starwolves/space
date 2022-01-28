@@ -231,7 +231,7 @@ fn spawn_entity(
             },
             ..Default::default()
         },
-        ConstructionTool,
+        ConstructionTool::default(),
         InventoryItem {
             in_inventory_of_entity: holder_entity_option,
             attachment_transforms: attachment_transforms,

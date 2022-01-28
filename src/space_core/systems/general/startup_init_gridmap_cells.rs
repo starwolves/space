@@ -64,9 +64,6 @@ pub fn startup_init_gridmap_cells(
     gridmap_data.blackcell_blocking_id = *gridmap_data.main_name_id_map.get("blackCellBlocking").unwrap();
     gridmap_data.blackcell_id = *gridmap_data.main_name_id_map.get("blackCell").unwrap();
 
-    info!("blackcell_id: {}", gridmap_data.blackcell_id);
-    info!("blackcell_blocking_id: {}", gridmap_data.blackcell_blocking_id);
-
     let mut main_cells_data = vec![];
 
     let mut default_isometry = ColliderPosition::identity();

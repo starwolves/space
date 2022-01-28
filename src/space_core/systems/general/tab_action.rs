@@ -161,6 +161,7 @@ pub fn tab_action(
 
             event_construction_options.send(InputConstructionOptions {
                 handle: event.handle,
+                belonging_entity: event.belonging_entity.unwrap()
             });
 
         } else if event.tab_id == "pickup" {

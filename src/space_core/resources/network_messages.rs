@@ -44,6 +44,7 @@ pub enum ReliableClientMessage {
     ThrowItem(Vec3, f32),
     AttackCell(i16,i16,i16),
     TabPressed(String, Option<u64>, Option<(GridMapType, i16,i16,i16)>, Option<u64>),
+    TextTreeInput(Option<u64>, String, String, String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -88,7 +89,7 @@ pub enum ReliableServerMessage {
     PlaySound(String, f32, f32, Option<Vec3>),
     FireProjectile(NetProjectileType),
     TabData(Vec<NetTabAction>),
-    TextTreeSelection(String, HashMap<String, TextTreeBit>),
+    TextTreeSelection(Option<u64>, String, String, String, HashMap<String, TextTreeBit>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

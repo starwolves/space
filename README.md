@@ -17,11 +17,11 @@ This game server is designed to run well on modern processors that have multiple
 ### Features (All Moddable & Modular)
 * Parallelized ECS (Entity Component System) architecture. 🐆
 * Pure Rust. No garbage collection & high parallel game logic execution speeds.
-* Data-oriented & modular, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project.
+* Data-oriented, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project.
 * Inventory system, pick up, wear, attach, place and equip items with character entities.
 * Melee & projectile combat systems, damage player, ship walls or other entities with various types of damage and the ability to target specific body parts.
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
-* Actions tab menu to easily interact with the world.
+* Actions and tab menu's to easily interact with the world while also offering protection against cheaters.
 * Configurable console commands, including rcon admin commands.
 * Fearless multi-threading and resource access across multiple threads.
 * Built with the cutting-edge [Rapier 3D Physics engine](https://rapier.rs/).
@@ -29,8 +29,8 @@ This game server is designed to run well on modern processors that have multiple
 * A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) (field of view) algorithm for all pawns.
 * Clients can load in custom entities and custom game data on a per server basis thanks to a traditional content folder approach. Allowing modders to create new entities such as items, characters, sounds, ship cells and MUCH more.
 * Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
-* Moddable and cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic ship cells as map size is currently bottlenecked by the FOV algorithm. 
-* Character meshes and animations are fully moddable and integrated with [Mixamo](https://www.mixamo.com/) for rigging.
+* Cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic ship cells as map size is currently bottlenecked by the FOV algorithm. 
+* Character meshes and animations are fully integrated with [Mixamo](https://www.mixamo.com/) for rigging.
 
 
 ## Getting Started
