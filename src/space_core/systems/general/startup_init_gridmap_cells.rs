@@ -16,6 +16,8 @@ pub struct MainCellProperties {
     pub laser_combat_obstacle : bool,
     pub collider_shape : ColliderShape,
     pub collider_position : ColliderPosition,
+    pub constructable : bool,
+    pub floor_cell : bool,
 }
 
 impl Default for MainCellProperties {
@@ -30,6 +32,8 @@ impl Default for MainCellProperties {
             laser_combat_obstacle: true,
             collider_shape : ColliderShape::cuboid(1., 1., 1.),
             collider_position: ColliderPosition::identity(),
+            constructable : false,
+            floor_cell : false,
         }
     }
 }
@@ -60,6 +64,9 @@ pub fn startup_init_gridmap_cells(
     gridmap_data.blackcell_blocking_id = *gridmap_data.main_name_id_map.get("blackCellBlocking").unwrap();
     gridmap_data.blackcell_id = *gridmap_data.main_name_id_map.get("blackCell").unwrap();
 
+    info!("blackcell_id: {}", gridmap_data.blackcell_id);
+    info!("blackcell_blocking_id: {}", gridmap_data.blackcell_blocking_id);
+
     let mut main_cells_data = vec![];
 
     let mut default_isometry = ColliderPosition::identity();
@@ -80,6 +87,7 @@ pub fn startup_init_gridmap_cells(
             placeable_item_surface:true,
             collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
             collider_position: default_isometry,
+            constructable: true,
             ..Default::default()
         }
     );
@@ -93,6 +101,7 @@ pub fn startup_init_gridmap_cells(
             },
             description: "You cannot see what is there.".to_string(),
             non_fov_blocker: true,
+            constructable: false,
             ..Default::default()
         }
     );
@@ -114,6 +123,7 @@ pub fn startup_init_gridmap_cells(
             placeable_item_surface:true,
             collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
             collider_position: default_isometry,
+            constructable: true,
             ..Default::default()
         }
     );
@@ -127,6 +137,8 @@ pub fn startup_init_gridmap_cells(
                 the: false,
             },
             description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            constructable: true,
+            floor_cell:true,
             ..Default::default()
         }
     );
@@ -139,6 +151,8 @@ pub fn startup_init_gridmap_cells(
                 the: false,
             },
             description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            constructable: true,
+            floor_cell:true,
             ..Default::default()
         }
     );
@@ -151,6 +165,8 @@ pub fn startup_init_gridmap_cells(
                 the: false,
             },
             description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            constructable: true,
+            floor_cell:true,
             ..Default::default()
         }
     );
@@ -163,6 +179,7 @@ pub fn startup_init_gridmap_cells(
                 the: false,
             },
             description: "An aluminum wall.".to_string(),
+            constructable: true,
             ..Default::default()
         }
     );
@@ -175,6 +192,8 @@ pub fn startup_init_gridmap_cells(
                 the: false,
             },
             description: "An aluminum floor.".to_string(),
+            constructable: true,
+            floor_cell:true,
             ..Default::default()
         }
     );
@@ -188,6 +207,7 @@ pub fn startup_init_gridmap_cells(
             },
             description: "You cannot see what is there.".to_string(),
             non_fov_blocker: true,
+            constructable: false,
             ..Default::default()
         }
     );
@@ -200,6 +220,7 @@ pub fn startup_init_gridmap_cells(
                 the: false,
             },
             description: "An aluminum wall. This one is painted with security department colors.".to_string(),
+            constructable: true,
             ..Default::default()
         }
     );
@@ -212,6 +233,8 @@ pub fn startup_init_gridmap_cells(
                 the: false,
             },
             description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            constructable: true,
+            floor_cell:true,
             ..Default::default()
         }
     );

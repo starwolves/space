@@ -14,42 +14,49 @@ pub fn startup_init_entities(
         name: "jumpsuitSecurity".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(JumpsuitSecurityBundle::spawn),
+        constructable: false,
     });
 
     entities.push(EntityDataProperties {
         name: "helmetSecurity".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(HelmetSecurityBundle::spawn),
+        constructable: false,
     });
 
     entities.push(EntityDataProperties {
         name: "pistolL1".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(PistolL1Bundle::spawn),
+        constructable: false,
     });
 
     entities.push(EntityDataProperties {
         name: "humanDummy".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(HumanMalePawnBundle::spawn),
+        constructable: false,
     });
 
     entities.push(EntityDataProperties {
         name: "securityAirLock1".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityAirlockBundle::spawn),
+        constructable: true,
     });
 
     entities.push(EntityDataProperties {
         name: "securityCounterWindow".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityCounterWindowBundle::spawn),
+        constructable: true,
     });
 
     entities.push(EntityDataProperties {
         name: "constructionTool".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(ConstructionToolBundle::spawn),
+        constructable: false,
     });
 
     info!("Loaded {} different entity types.", entities.len());
