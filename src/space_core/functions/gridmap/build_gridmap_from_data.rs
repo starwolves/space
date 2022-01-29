@@ -39,6 +39,14 @@ pub fn build_main_gridmap(
 
         let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
 
+        let mut entity_builder = commands.spawn_bundle(RigidBodyBundle {
+            body_type: RigidBodyType::Static.into(),
+            position: world_position.into(),
+            ..Default::default()
+        },);
+
+        let entity_id = entity_builder.id();
+
         gridmap_main.data.insert(cell_id_int,
         CellData {
             item: cell_item_id,
@@ -47,6 +55,7 @@ pub fn build_main_gridmap(
                 health_flags: health_flags.clone(),
                 ..Default::default()
             },
+            entity: Some(entity_id),
         });
 
 
@@ -82,11 +91,9 @@ pub fn build_main_gridmap(
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        commands.spawn_bundle(RigidBodyBundle {
-            body_type: RigidBodyType::Static.into(),
-            position: world_position.into(),
-            ..Default::default()
-        },).insert_bundle(
+        
+
+        entity_builder.insert_bundle(
             ColliderBundle {
                 shape: cell_properties.collider_shape.clone().into(),
                 position: cell_properties.collider_position.into(),
@@ -137,6 +144,7 @@ pub fn build_details1_gridmap(
             item: *gridmap_data.details1_name_id_map.get(&cell_data.item).unwrap(),
             orientation: cell_data.orientation,
             health : StructureHealth::default(),
+            entity : None,
         });
 
 

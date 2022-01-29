@@ -4,6 +4,7 @@ use doryen_fov::FovAlgorithm;
 
 use crate::space_core::{components::senser::Senser, functions::gridmap::gridmap_functions::world_to_cell_id, resources::{doryen_fov::{DoryenMap, Vec2Int, to_doryen_coordinates}}};
 
+pub const FOV_DISTANCE : usize = 23;
 
 pub fn senser_update_fov(
     mut senser_entities : Query<(&mut Senser, &RigidBodyPositionComponent)>,
@@ -29,7 +30,7 @@ pub fn senser_update_fov(
             // Max map size support is around 4kmx4km but will need a faster FOV algorithm for that.
             senser_component.fov.clear_fov();
             let coords = to_doryen_coordinates(senser_cell_id.x, senser_cell_id.y);
-            senser_component.fov.compute_fov(&mut map.map, coords.0, coords.1, 23, true);
+            senser_component.fov.compute_fov(&mut map.map, coords.0, coords.1, FOV_DISTANCE, true);
             
         }
     }

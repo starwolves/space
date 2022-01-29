@@ -64,9 +64,7 @@ Yet to be created.
 ### Contributions
 Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 You can get in contact with the developers through a [Matrix client](https://matrix.to/#/#live:comms.starwolves.io) that interfaces with the decentralized communication server of Star Wolves.
-
-[Matrix](https://matrix.org) is like a decentralized Discord, where data & community sovereignty matters.
-
+Aditionally you can also get in contact on Discord by contacting STARWOLF#5816 .
 
 ### Space Frontiers client
 You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server.
