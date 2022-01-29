@@ -155,6 +155,7 @@ pub fn tab_action(
             event_deconstruct.send(InputDeconstruct {
                 handle: event.handle,
                 target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+                belonging_entity: event.belonging_entity.unwrap()
             });
 
         } else if event.tab_id == "constructionoptions" {

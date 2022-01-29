@@ -268,7 +268,7 @@ pub fn startup_init_gridmap_cells(
             id: *gridmap_data.details1_name_id_map.get("starboyPoster1").unwrap(),
             name: RichName {
                 name: "pop poster".to_string() ,
-                n: true,
+                n: false,
                 the: false,
             },
             description: "A well-preserved ancient collectible pop music poster, it must be at least a thousand years old. \n\"Starboy\"".to_string()
@@ -312,7 +312,7 @@ pub fn startup_init_gridmap_cells(
             id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster6").unwrap(),
             name: RichName {
                 name: "security poster".to_string() ,
-                n: true,
+                n: false,
                 the: false,
             },
             description: "A Red Dragon poster. Here to remind you that the nation's surveillance systems have never been as effective and important as it is now. \n\"Always\nWatchful\"".to_string()
@@ -334,7 +334,7 @@ pub fn startup_init_gridmap_cells(
             id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster4").unwrap(),
             name: RichName {
                 name: "security poster".to_string() ,
-                n: true,
+                n: false,
                 the: false,
             },
             description: "A Red Dragon poster for security personnel. \n\"I\nServe\"".to_string()
@@ -345,7 +345,7 @@ pub fn startup_init_gridmap_cells(
             id: *gridmap_data.details1_name_id_map.get("redDragonPoster2").unwrap(),
             name: RichName {
                 name: "poster".to_string() ,
-                n: true,
+                n: false,
                 the: false,
             },
             description: "A poster. \n \"Colonise\nSpace\"".to_string()
@@ -356,7 +356,7 @@ pub fn startup_init_gridmap_cells(
             id: *gridmap_data.details1_name_id_map.get("redDragonPoster1").unwrap(),
             name: RichName {
                 name: "poster".to_string() ,
-                n: true,
+                n: false,
                 the: false,
             },
             description: "A glorious Red Dragon poster. \n\"Hail our\nRed\nNation\"".to_string()
@@ -378,7 +378,7 @@ pub fn startup_init_gridmap_cells(
             id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster2").unwrap(),
             name: RichName {
                 name: "security poster".to_string() ,
-                n: true,
+                n: false,
                 the: false,
             },
             description: "A glorious Red Dragon poster for security personnel. A nation to look up to with pride. \n\"Our\nFather\"".to_string()
@@ -389,7 +389,7 @@ pub fn startup_init_gridmap_cells(
             id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster1").unwrap(),
             name: RichName {
                 name: "security poster".to_string() ,
-                n: true,
+                n: false,
                 the: false,
             },
             description: "A glorious Red Dragon poster for security personnel to remind you of the collective's might. \n\"Protect\nControl\nPrevent\nSecure\"".to_string()

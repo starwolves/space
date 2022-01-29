@@ -225,7 +225,7 @@ fn spawn_entity(
         Examinable {
             assigned_texts: examine_map,
             name : RichName {
-                name: "construction tool".to_string(),
+                name: "admin construction tool".to_string(),
                 n: false,
                 ..Default::default()
             },

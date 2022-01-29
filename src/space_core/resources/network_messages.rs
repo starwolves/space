@@ -90,6 +90,7 @@ pub enum ReliableServerMessage {
     FireProjectile(NetProjectileType),
     TabData(Vec<NetTabAction>),
     TextTreeSelection(Option<u64>, String, String, String, HashMap<String, TextTreeBit>),
+    RemoveCell(i16,i16,i16, GridMapType),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -24,6 +24,7 @@ pub struct CellData {
     pub item: i64,
     pub orientation: i64,
     pub health : StructureHealth,
+    pub entity : Option<Entity>,
 }
 
 
