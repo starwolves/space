@@ -48,7 +48,7 @@ pub enum PostUpdateLabels {
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 
-pub const RAPIER_DT : Real = 1. / 32.;
+pub const RAPIER_DT : Real = 1. / 24.;
 
 impl Plugin for SpaceCore {
     fn build(&self, app: &mut App) {
@@ -59,7 +59,7 @@ impl Plugin for SpaceCore {
         .add_plugin(TransformPlugin::default())
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(NetworkingPlugin {
-            idle_timeout_ms: Some(4000),
+            idle_timeout_ms: Some(40000),
             ..Default::default()
         })
         //.insert_resource(ReportExecutionOrderAmbiguities)

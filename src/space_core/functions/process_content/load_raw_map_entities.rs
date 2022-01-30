@@ -59,7 +59,7 @@ pub fn load_raw_map_entities(
             );
 
         } else {
-
+            
             match entity_data.name_to_id.get(&raw_entity.entity_type) {
                 Some(entity_type_id) => {
                     let entity_properties = entity_data.data.get(*entity_type_id).unwrap();

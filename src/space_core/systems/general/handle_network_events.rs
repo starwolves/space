@@ -1,4 +1,4 @@
-use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, EventWriter, Query, info}};
+use bevy::{ecs::{system::{Commands, Res, ResMut}}, prelude::{EventReader, EventWriter, Query, info, warn}};
 use bevy_networking_turbulence::{NetworkEvent, NetworkResource};
 
 use crate::space_core::{components::{connected_player::ConnectedPlayer, persistent_player_data::PersistentPlayerData, player_input::PlayerInput}, events::net::net_on_new_player_connection::NetOnNewPlayerConnection, functions::entity::{on_new_player_connection::on_new_player_connection, on_player_disconnect::on_player_disconnect}, resources::{authid_i::AuthidI, client_health_ui_cache::ClientHealthUICache, gridmap_data::GridmapData, handle_to_entity::HandleToEntity, server_id::ServerId, tick_rate::TickRate, used_names::UsedNames}};
@@ -39,12 +39,12 @@ pub fn handle_network_events(
                                 );
                             }
                             None => {
-                                panic!("handle_network_events.rs NetworkEvent::Connected: new connection with a strange remote_address [{}]", handle);
+                                warn!("handle_network_events.rs NetworkEvent::Connected: new connection with a strange remote_address [{}]", handle);
                             }
                         }
                     }
                     None => {
-                        panic!("handle_network_events.rs NetworkEvent::Connected: got packet for non-existing connection [{}]", handle);
+                        warn!("handle_network_events.rs NetworkEvent::Connected: got packet for non-existing connection [{}]", handle);
                     }
                 }
 

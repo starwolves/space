@@ -19,7 +19,7 @@ pub fn build_main_gridmap(
     fov_map : &mut ResMut<DoryenMap>,
     gridmap_data : &mut ResMut<GridmapData>,
 ) {
-
+    
     let mut health_flags = HashMap::new();
 
     health_flags.insert(0, HealthFlag::ArmourPlated);

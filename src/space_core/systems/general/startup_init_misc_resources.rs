@@ -1,5 +1,5 @@
 use bevy::{ecs::{system::{Commands, ResMut}}, prelude::{Transform}};
-use bevy_rapier3d::{prelude::{RapierConfiguration, IntegrationParameters}};
+    use bevy_rapier3d::{prelude::{RapierConfiguration, IntegrationParameters}};
 
 
 use std::{ fs, path::Path};
@@ -16,10 +16,6 @@ pub fn startup_init_misc_resources(
     mut _rapier_integration_params : ResMut<IntegrationParameters>,
     mut commands: Commands
 ) {
-
-    // Init Bevy Rapier physics.
-    /*rapier_configuration.timestep_mode = TimestepMode::FixedTimestep;
-    rapier_integration_params.dt = RAPIER_DT;*/
 
 
     let environment_json_location = Path::new("content").join("maps").join("bullseye").join("environment.json");
