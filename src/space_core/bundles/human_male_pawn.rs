@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use bevy::{math::{Vec3}, prelude::{Commands, Entity, Query, Transform}};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyDominance, RigidBodyType, ColliderMassProps};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyDominance, RigidBodyType, RigidBodyMassPropsFlags};
 
-use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{converters::transform_to_isometry::transform_to_isometry, entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity, get_tab_action::get_tab_action}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::ReliableServerMessage}, systems::general::on_setupui::ENTITY_SPAWN_PARENT};
+use crate::space_core::{components::{cached_broadcast_transform::CachedBroadcastTransform, connected_player::ConnectedPlayer, default_transform::DefaultTransform, entity_data::{EntityData, EntityGroup}, entity_updates::EntityUpdates, examinable::{Examinable, RichName}, health::{Health, HealthContainer, HumanoidHealth}, interpolation_priority::{InterpolationPriority, InterpolationPriorityStatus}, inventory::{Inventory, Slot, SlotType}, pawn::{Pawn, SpaceAccessEnum, SpaceJobsEnum}, persistent_player_data::PersistentPlayerData, player_input::PlayerInput, radio::{Radio, RadioChannel}, sensable::Sensable, senser::{Senser}, showcase::Showcase, space_access::SpaceAccess, standard_character::{StandardCharacter}, world_mode::{WorldMode, WorldModes}}, events::net::net_showcase::NetShowcase, functions::{entity::{collider_interaction_groups::{ColliderGroup, get_bit_masks}, name_generator::{get_dummy_name}, new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, spawn_entity::spawn_held_entity, get_tab_action::get_tab_action}}, resources::{entity_data_resource::{SpawnHeldData, SpawnPawnData}, network_messages::ReliableServerMessage}, systems::general::on_setupui::ENTITY_SPAWN_PARENT};
 
 pub struct HumanMalePawnBundle;
 
@@ -54,18 +54,21 @@ impl HumanMalePawnBundle {
             character_name = persistent_player_data_component.character_name.clone();
 
         }
-        
+
+        let r = 0.5;
+
+        this_transform.translation.y = 0.9-r;        
         
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic.into(),
-            position: transform_to_isometry(passed_transform).into(),
-            //mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED_X | RigidBodyMassPropsFlags::ROTATION_LOCKED_Y| RigidBodyMassPropsFlags::ROTATION_LOCKED_Z).into(),
+            position: Vec3::new(0.,0.9,0.).into(),
+            mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED).into(),
             dominance: RigidBodyDominance(10).into(),
             ..Default::default()
         };
         
 
-        let r = 0.5;
+        
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         let collider_component = ColliderBundle {
@@ -86,7 +89,6 @@ impl HumanMalePawnBundle {
                 collision_groups: InteractionGroups::new(masks.0,masks.1),
                 ..Default::default()
             }.into(),
-            mass_properties: ColliderMassProps::Density(1.0).into(),
             ..Default::default()
         };
 
