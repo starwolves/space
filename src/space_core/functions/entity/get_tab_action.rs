@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bevy::prelude::Entity;
 
-use crate::space_core::{components::{pawn::TabAction, inventory::Inventory}, resources::{network_messages::GridMapType}};
+use crate::space_core::{components::{pawn::TabAction, inventory::Inventory}, resources::{network_messages::GridMapType, gridmap_main::CellData}};
 
 use super::can_reach_entity::REACH_DISTANCE;
 
@@ -43,7 +43,7 @@ pub fn get_tab_action(
 pub fn examine_tab_prerequisite_check(
     _self_tab_entity : Option<Entity>,
     entity_id_bits_option : Option<u64>,
-    cell_id_option : Option<(GridMapType, i16,i16,i16)>,
+    cell_id_option : Option<(GridMapType, i16,i16,i16, Option<&CellData>)>,
     _distance : f32,
     _inventory_component : &Inventory,
 ) -> bool {
@@ -53,7 +53,7 @@ pub fn examine_tab_prerequisite_check(
 pub fn pickup_tab_prerequisite_check(
     _self_tab_entity : Option<Entity>,
     entity_id_bits_option : Option<u64>,
-    _cell_id_option : Option<(GridMapType, i16,i16,i16)>,
+    _cell_id_option : Option<(GridMapType, i16,i16,i16, Option<&CellData>)>,
     distance : f32,
     inventory_component : &Inventory,
 ) -> bool {

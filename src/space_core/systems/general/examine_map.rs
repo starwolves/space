@@ -1,6 +1,6 @@
 use bevy::{prelude::{EventReader, EventWriter, Query, Res, warn}};
 
-use crate::space_core::{components::senser::Senser, events::{general::examine_map::InputExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_cell::{examine_ship_cell, get_empty_cell_message}}, resources::{doryen_fov::{to_doryen_coordinates}, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
+use crate::space_core::{components::senser::Senser, events::{general::examine_map::InputExamineMap, net::net_chat_message::NetChatMessage}, functions::gridmap::{examine_cell::{examine_ship_cell, get_empty_cell_message, get_space_message}}, resources::{doryen_fov::{to_doryen_coordinates}, gridmap_data::GridmapData, gridmap_details1::GridmapDetails1, gridmap_main::GridmapMain, network_messages::ReliableServerMessage}};
 
 pub fn examine_map(
     mut examine_map_events : EventReader<InputExamineMap>,
@@ -64,7 +64,7 @@ pub fn examine_map(
                     examine_text = examine_ship_cell(ship_cell, gridmap_type,&gridmap_data);
                 },
                 None => {
-                    examine_text = get_empty_cell_message();
+                    examine_text = get_space_message();
                 },
             }
         }

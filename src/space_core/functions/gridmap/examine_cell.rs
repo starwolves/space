@@ -1,5 +1,6 @@
 
 use bevy::prelude::{Res};
+use rand::Rng;
 
 use crate::space_core::{functions::entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, resources::{gridmap_data::GridmapData, gridmap_main::CellData, network_messages::GridMapType}};
 
@@ -12,6 +13,8 @@ pub fn examine_ship_cell(
 ) -> String {
 
     let examine_text : &str;
+    let mut message = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n";
+    message = message + "[font=" + FURTHER_ITALIC_FONT + "]" + "You examine the " + &gridmap_data.main_text_names.get(&ship_cell.item).unwrap().get_name() + ".[/font]\n";
         
     if ship_cell.item != -1 {
         match gridmap_type {
@@ -27,8 +30,7 @@ pub fn examine_ship_cell(
         examine_text = EXAMINATION_EMPTY;
     }
 
-    let mut message = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
-    + examine_text;
+    message = message + examine_text;
 
     if ship_cell.health.brute < 25. && ship_cell.health.burn < 25. && ship_cell.health.toxin < 25. {
 
@@ -64,4 +66,28 @@ pub fn get_empty_cell_message() -> String {
     "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
     + EXAMINATION_EMPTY
     + "\n" + ASTRIX + "[/font]"
+}
+
+
+pub fn get_space_message() -> String {
+
+    let mut rng = rand::thread_rng();
+    let random_pick : i32 = rng.gen_range(0..3);
+
+    let mut msg = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n";
+    msg = msg+ "[font=" + FURTHER_ITALIC_FONT + "]" + "You examine the empty space.[/font]\n";
+     
+
+    if random_pick == 0 {
+        msg = msg+"You are starstruck by the sight of space.";
+    } else if random_pick == 1 {
+        msg = msg+"That certainly looks like space.";
+    } else {
+        msg = msg+"Space.";
+    }
+
+    msg = msg + "\n" + ASTRIX + "[/font]";
+
+    msg.to_string()
+
 }

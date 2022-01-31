@@ -1,7 +1,7 @@
-use bevy::{prelude::{EventReader, EventWriter, Query, Without, warn, Entity}, math::Vec3};
+use bevy::{prelude::{EventReader, EventWriter, Query, Without, warn, Entity, Res}, math::Vec3};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
-use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer, pawn::Pawn, inventory::Inventory}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction, input_construct::InputConstruct, input_deconstruct::InputDeconstruct, use_world_item::InputUseWorldItem, input_construction_options::InputConstructionOptions}, resources::doryen_fov::Vec3Int, functions::gridmap::gridmap_functions::cell_id_to_world};
+use crate::space_core::{components::{connected_player::ConnectedPlayer, soft_player::SoftPlayer, pawn::Pawn, inventory::Inventory}, events::general::{examine_entity::InputExamineEntity, examine_map::InputExamineMap, input_tab_action::InputTabAction, input_construct::InputConstruct, input_deconstruct::InputDeconstruct, use_world_item::InputUseWorldItem, input_construction_options::InputConstructionOptions}, resources::{doryen_fov::Vec3Int, gridmap_main::GridmapMain}, functions::gridmap::gridmap_functions::cell_id_to_world};
 
 pub fn tab_action(
 
@@ -16,6 +16,9 @@ pub fn tab_action(
 
     pawns : Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
     inventory_items : Query<&RigidBodyPositionComponent>,
+
+    gridmap_main_data : Res<GridmapMain>,
+
 ) {
 
     for event in events.iter() {
@@ -95,8 +98,34 @@ pub fn tab_action(
                     None => {self_belonging_entity=None;},
                 }
 
+                
+
+                let mut cell_option = None;
+
+                match &event.target_cell_option {
+                    Some(gridmap_cell_data) => {
+                        let cell_item;
+                        match gridmap_main_data.data.get(&Vec3Int{
+                            x:gridmap_cell_data.1,
+                            y:gridmap_cell_data.2,
+                            z:gridmap_cell_data.3
+                        }) {
+                            Some(x) => {
+                                cell_item = Some(x);
+                            },
+                            None => {
+                                cell_item = None;
+                            },
+                        }
+                        cell_option = Some((gridmap_cell_data.0.clone(), gridmap_cell_data.1, gridmap_cell_data.2, gridmap_cell_data.3, cell_item))
+                    },
+                    None => {},
+                }
+
+                
+
                 // Safety check 2.
-                match (action.prerequisite_check)(self_belonging_entity, event.target_entity_option, event.target_cell_option.clone(), distance, pawn_inventory_component) {
+                match (action.prerequisite_check)(self_belonging_entity, event.target_entity_option, cell_option, distance, pawn_inventory_component) {
                     true => {},
                     false => {
                         continue;
@@ -148,6 +177,7 @@ pub fn tab_action(
             event_construct.send(InputConstruct {
                 handle: event.handle,
                 target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+                belonging_entity: event.belonging_entity.unwrap()
             });
 
         } else if event.tab_id == "deconstruct" {
