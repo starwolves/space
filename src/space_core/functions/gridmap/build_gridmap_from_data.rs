@@ -35,9 +35,34 @@ pub fn build_main_gridmap(
             z: cell_id.z as i16,
         };
 
-        let world_position = cell_id_to_world(cell_id_int);
-
         let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
+
+        if cell_id_int.y == 0 {
+            // Wall
+
+            if !gridmap_data.non_fov_blocking_cells_list.contains(&cell_item_id) {
+                
+                let coords = to_doryen_coordinates(cell_id_int.x, cell_id_int.z);
+                fov_map.map.set_transparent(coords.0, coords.1, false);
+            }
+
+
+        } else {
+            // Floor cells dont have collision. Don't need to be an entity at this moment either.
+            gridmap_main.data.insert(cell_id_int,
+                CellData {
+                    item: cell_item_id,
+                    orientation: cell_data.orientation,
+                    health : StructureHealth {
+                        health_flags: health_flags.clone(),
+                        ..Default::default()
+                    },
+                    entity: None,
+                });
+            continue;
+        }
+
+        let world_position = cell_id_to_world(cell_id_int);
 
         let mut entity_builder = commands.spawn_bundle(RigidBodyBundle {
             body_type: RigidBodyType::Static.into(),
@@ -57,23 +82,6 @@ pub fn build_main_gridmap(
             },
             entity: Some(entity_id),
         });
-
-
-        if cell_id_int.y == 0 {
-            // Wall
-
-            if !gridmap_data.non_fov_blocking_cells_list.contains(&cell_item_id) {
-                
-                let coords = to_doryen_coordinates(cell_id_int.x, cell_id_int.z);
-                fov_map.map.set_transparent(coords.0, coords.1, false);
-            }
-
-
-        } else {
-            // Floor cells dont have collision. Don't need to be an entity at this moment either.
-            // It would add millions of just floor entities in large maps, dont think its ideal to make each cell its own entity and pollute the engine.
-            continue;
-        }
         
         let friction;
         let friction_combine_rule;

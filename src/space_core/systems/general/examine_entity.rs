@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res, warn};
 
-use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{examinable::Examinable, health::Health, inventory::Inventory, sensable::Sensable, senser::Senser, standard_character::StandardCharacter}, events::{general::examine_entity::InputExamineEntity, net::{net_examine_entity::NetExamineEntity}}, functions::entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
+use crate::space_core::{bundles::human_male_pawn::generate_human_examine_text, components::{examinable::Examinable, health::Health, inventory::Inventory, sensable::Sensable, senser::Senser, standard_character::StandardCharacter}, events::{general::examine_entity::InputExamineEntity, net::{net_examine_entity::NetExamineEntity}}, functions::{entity::new_chat_message::{ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, gridmap::examine_cell::EXAMINATION_EMPTY}, resources::{handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage}};
 
 pub fn examine_entity(
     mut examine_entity_events : EventReader<InputExamineEntity>,
@@ -97,7 +97,7 @@ pub fn examine_entity(
 
                 if !sensable_component.sensed_by.contains(entity) {
 
-                    text = "You cannot see what is there.".to_owned();
+                    text = EXAMINATION_EMPTY.to_string();
 
                 }
 

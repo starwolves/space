@@ -1,6 +1,6 @@
 use bevy::prelude::{ResMut, info};
 
-use crate::space_core::{bundles::{admin_construction_tool::ConstructionToolBundle, helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle, pistol_l1::PistolL1Bundle, security_airlock::SecurityAirlockBundle, security_counter_window::SecurityCounterWindowBundle}, resources::entity_data_resource::{EntityDataProperties, EntityDataResource}};
+use crate::space_core::{bundles::{construction_tool_admin::ConstructionToolBundle, helmet_security::HelmetSecurityBundle, human_male_pawn::HumanMalePawnBundle, jumpsuit_security::JumpsuitSecurityBundle, pistol_l1::PistolL1Bundle, security_airlock::SecurityAirlockBundle, security_counter_window::SecurityCounterWindowBundle}, resources::entity_data_resource::{EntityDataProperties, EntityDataResource}};
 
 
 

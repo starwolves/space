@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use bevy::{math::Vec2, prelude::{Entity, Component}};
 
-use crate::space_core::{resources::{network_messages::{GridMapType, NetTabAction}}};
+use crate::space_core::{resources::{network_messages::{GridMapType, NetTabAction}, gridmap_main::CellData}};
 
 use super::inventory::Inventory;
 
@@ -16,7 +16,7 @@ pub struct TabAction {
     pub prerequisite_check : Arc<dyn Fn(
         Option<Entity>,
         Option<u64>,
-        Option<(GridMapType, i16,i16,i16)>,
+        Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
         f32,
         &Inventory,
     ) -> bool + Sync + Send>,

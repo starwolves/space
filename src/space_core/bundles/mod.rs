@@ -43,7 +43,7 @@ pub mod laser_light_hit3_sfx;
 pub mod laser_light_hit4_sfx;
 pub mod throw1_sfx;
 pub mod throw2_sfx;
-pub mod admin_construction_tool;
+pub mod construction_tool_admin;
 pub mod ui_interaction1_sfx;
 pub mod ui_interaction2_sfx;
 pub mod ui_interaction3_sfx;

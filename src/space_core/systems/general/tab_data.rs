@@ -90,51 +90,60 @@ pub fn tab_data(
         let mut tab_data = vec![];
 
         for (_action_id, tab_action) in player_pawn_component.tab_actions.iter() {
-            let s = Some((event.gridmap_type.clone(), event.gridmap_cell_id.x, event.gridmap_cell_id.y,event.gridmap_cell_id.z));
+            let cell_part_tuple = Some((event.gridmap_type.clone(), event.gridmap_cell_id.x, event.gridmap_cell_id.y,event.gridmap_cell_id.z));
 
             let cell_world_position = cell_id_to_world(event.gridmap_cell_id);
 
             let doryen_coords = to_doryen_coordinates(event.gridmap_cell_id.x, event.gridmap_cell_id.z);
 
+            let this_map;
+
             match event.gridmap_type {
                 crate::space_core::resources::network_messages::GridMapType::Main => {
-                    match gridmap_main.data.get(&event.gridmap_cell_id) {
-                        Some(cell_data) => {
-                            
-                            match gridmap_data.main_text_names.get(&cell_data.item) {
-                                Some(cell_name) => {
-                                    if player_senser_component.fov.is_in_fov(doryen_coords.0, doryen_coords.1) {
-                                        if (tab_action.prerequisite_check)(tab_action.belonging_entity, None, s.clone(), player_body_position.distance(cell_world_position), player_inventory_component) {
-                                            tab_data.push(tab_action.into_net(cell_name.get_name(), None, s));
-                                        }
-                                    }
-                                },
-                                None => {},
-                            }
-                        },
-                        None => {},
-                    }
+                    this_map = &gridmap_main.data;
                 },
                 crate::space_core::resources::network_messages::GridMapType::Details1 => {
-                    match gridmap_details1.data.get(&event.gridmap_cell_id) {
-                        Some(cell_data) => {
-                            match gridmap_data.details1_text_names.get(&cell_data.item) {
-                                Some(cell_name) => {
-                                    if player_senser_component.fov.is_in_fov(doryen_coords.0, doryen_coords.1) {
-                                        if (tab_action.prerequisite_check)(tab_action.belonging_entity, None, s.clone(), player_body_position.distance(cell_world_position), player_inventory_component) {
-                                            tab_data.push(tab_action.into_net(cell_name.get_name(), None, s));
-                                        }
-                                    }
-                                },
-                                None => {},
-                            }
-                        },
-                        None => {},
-                    }
+                    this_map = &gridmap_details1.data;
                 },
             }
 
-            
+            let tab_data_name;
+            let mut cell_item = None;
+            match this_map.get(&event.gridmap_cell_id) {
+                Some(cell_data) => {
+                    cell_item = Some(cell_data);
+                    match gridmap_data.main_text_names.get(&cell_data.item) {
+                        Some(cell_name) => {
+                            tab_data_name = cell_name.get_name();
+                        },
+                        None => {
+                            tab_data_name = "Space";
+                        },
+                    }
+                },
+                None => {
+                    
+                    // Empty space, ie a space tile.
+                    tab_data_name = "Space";
+                },
+            }
+
+            let passed_cell_tuple;
+            match &cell_part_tuple {
+                Some(x) => {
+                    passed_cell_tuple = Some((x.0.clone(),x.1,x.2,x.3,cell_item));
+                },
+                None => {
+                    passed_cell_tuple = None;
+                    
+                },
+            }
+
+            if player_senser_component.fov.is_in_fov(doryen_coords.0, doryen_coords.1) {
+                if (tab_action.prerequisite_check)(tab_action.belonging_entity, None, passed_cell_tuple, player_body_position.distance(cell_world_position), player_inventory_component) {
+                    tab_data.push(tab_action.into_net(tab_data_name, None, cell_part_tuple));
+                }                
+            }
 
         }
 

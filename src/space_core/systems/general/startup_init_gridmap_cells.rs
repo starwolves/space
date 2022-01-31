@@ -1,7 +1,7 @@
 use bevy::prelude::{ResMut, info};
 use bevy_rapier3d::prelude::{ColliderPosition, ColliderShape};
 
-use crate::space_core::{components::examinable::RichName, resources::gridmap_data::GridmapData};
+use crate::space_core::{components::examinable::RichName, resources::gridmap_data::GridmapData, functions::gridmap::examine_cell::EXAMINATION_EMPTY};
 
 
 
@@ -96,7 +96,7 @@ pub fn startup_init_gridmap_cells(
                 n: false,
                 the: false,
             },
-            description: "You cannot see what is there.".to_string(),
+            description: EXAMINATION_EMPTY.to_string(),
             non_fov_blocker: true,
             constructable: false,
             ..Default::default()
@@ -114,7 +114,7 @@ pub fn startup_init_gridmap_cells(
                 n: false,
                 the: false,
             },
-            description: "A counter. This one is painted with security department colors.".to_string(),
+            description: "This one is painted with security department colors.".to_string(),
             non_fov_blocker:true,
             combat_obstacle:false,
             placeable_item_surface:true,
@@ -133,7 +133,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            description: "This one is painted with security department colors.".to_string(),
             constructable: true,
             floor_cell:true,
             ..Default::default()
@@ -147,7 +147,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            description: "This one is painted with security department colors.".to_string(),
             constructable: true,
             floor_cell:true,
             ..Default::default()
@@ -161,7 +161,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            description: "This one is painted with security department colors.".to_string(),
             constructable: true,
             floor_cell:true,
             ..Default::default()
@@ -175,7 +175,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "An aluminum wall.".to_string(),
+            description: "A generic wall tile.".to_string(),
             constructable: true,
             ..Default::default()
         }
@@ -188,7 +188,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "An aluminum floor.".to_string(),
+            description: "A generic floor tile.".to_string(),
             constructable: true,
             floor_cell:true,
             ..Default::default()
@@ -202,7 +202,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "You cannot see what is there.".to_string(),
+            description: EXAMINATION_EMPTY.to_string(),
             non_fov_blocker: true,
             constructable: false,
             ..Default::default()
@@ -216,7 +216,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "An aluminum wall. This one is painted with security department colors.".to_string(),
+            description: "This one is painted with security department colors.".to_string(),
             constructable: true,
             ..Default::default()
         }
@@ -225,11 +225,11 @@ pub fn startup_init_gridmap_cells(
         MainCellProperties {
             id: *gridmap_data.main_name_id_map.get("securityFloorStriped").unwrap(),
             name: RichName {
-                name: "aluminum security wall".to_string() ,
+                name: "aluminum security floor".to_string() ,
                 n: true,
                 the: false,
             },
-            description: "An aluminum floor. This one is painted with security department colors.".to_string(),
+            description: "This one is painted with security department colors.".to_string(),
             constructable: true,
             floor_cell:true,
             ..Default::default()
@@ -326,7 +326,7 @@ pub fn startup_init_gridmap_cells(
                 n: true,
                 the: false,
             },
-            description: "You cannot see what is there.".to_string()
+            description: EXAMINATION_EMPTY.to_string()
         }
     );
     details1_cells_data.push(
