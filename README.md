@@ -4,6 +4,7 @@
   
 
 ![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg) ![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
+![Screenshot of Space Frontiers gameplay](https://starwolves.io/images/sfss.png)
 
   
 
@@ -65,6 +66,8 @@ Yet to be created.
 Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 You can get in contact with the developers through [Discord](https://discord.gg/qcg4zPuHyU).
 Aditionally you can also get in contact on Discord by contacting STARWOLF#5816 .
+The idea is to financially reward people for contributions in the future, but it is too early for that now.
+Also looking for 3D artists and lore writers.
 
 ### Space Frontiers client
 You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server.

@@ -12,7 +12,7 @@ edition = "2021"
 [dependencies]
 
 bevy = {version= "0.6"}
-bevy_rapier3d = { git = "https://github.com/dimforge/bevy_rapier.git", rev = "27c945fa", version= "0.12.0" ,default-features = false, features = [ "dim3", "enhanced-determinism" ]}
+bevy_rapier3d = { git = "https://github.com/dimforge/bevy_rapier.git", rev = "11605d0", version= "0.12.1" ,default-features = false, features = [ "dim3", "enhanced-determinism" ]}
 
 serde = {version= "1.0.130"}
 serde_json = {version= "1.0.68"}
