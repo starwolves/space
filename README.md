@@ -4,7 +4,7 @@
   
 
 ![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg) ![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
-![Screenshot of Space Frontiers gameplay](https://starwolves.io/images/sfss.png)
+![Screenshot of Space Frontiers gameplay](https://starwolves.io/images/sfss.png?)
 
   
 
