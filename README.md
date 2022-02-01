@@ -63,12 +63,12 @@ Yet to be created.
 
 ### Contributions
 Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
-You can get in contact with the developers through [Discord](https://discord.gg/qcg4zPuHyU) that interfaces with the decentralized communication server of Star Wolves.
+You can get in contact with the developers through [Discord](https://discord.gg/qcg4zPuHyU).
 Aditionally you can also get in contact on Discord by contacting STARWOLF#5816 .
 
 ### Space Frontiers client
 You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server.
-You can find the latest stable releases of the client at [Discord](https://discord.gg/qcg4zPuHyU) by contacting STARWOLF#5816.
+You can get the latest stable releases of the client at [Discord](https://discord.gg/qcg4zPuHyU) by contacting STARWOLF#5816.
 Aditionally the client can be obtained at our own Matrix server without requiring you to contact anyone, more information about our Matrix on [our website](https://starwolves.io)
 Ensure you select the right branch of the server that has the same version number as the client you have obtained.
 
