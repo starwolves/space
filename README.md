@@ -58,7 +58,7 @@ This server-side project has a non-standard and non-commercial license, please r
 cargo run
 ```
 
-### [Documentation](https://docs.starwolves.io)
+### Documentation
 Yet to be created.
 
 ### Contributions
@@ -81,7 +81,7 @@ When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 
 You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_PxzeiI).
 
 ### Testing the game
-Please make sure you download and compile the latest stable branch of Space Frontiers server and not from the master branch. Also make sure that the stable server version matches the version of the Space Frontiers client that you have acquired at [comms.starwolves.io](https://comms.starwolves.io).
+Please make sure you download and compile the latest stable branch of Space Frontiers server and not from the master branch. Also make sure that the stable server branch version matches the version of the Space Frontiers client you have obtained.
 
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a brand new gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
