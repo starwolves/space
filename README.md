@@ -63,12 +63,13 @@ Yet to be created.
 
 ### Contributions
 Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
-You can get in contact with the developers through a [Matrix client](https://matrix.to/#/#live:comms.starwolves.io) that interfaces with the decentralized communication server of Star Wolves.
+You can get in contact with the developers through [Discord](https://discord.gg/qcg4zPuHyU) that interfaces with the decentralized communication server of Star Wolves.
 Aditionally you can also get in contact on Discord by contacting STARWOLF#5816 .
 
 ### Space Frontiers client
 You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server.
-You can find the latest stable releases of the client at [Star Wolves](https://starwolves.io).
+You can find the latest stable releases of the client at [Discord](https://discord.gg/qcg4zPuHyU) by contacting STARWOLF#5816.
+Aditionally the client can be obtained at our own Matrix server without requiring you to contact anyone, more information about our Matrix on [our website](https://starwolves.io)
 Ensure you select the right branch of the server that has the same version number as the client you have obtained.
 
 The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
@@ -83,5 +84,5 @@ You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_Px
 Please make sure you download and compile the latest stable branch of Space Frontiers server and not from the master branch. Also make sure that the stable server version matches the version of the Space Frontiers client that you have acquired at [comms.starwolves.io](https://comms.starwolves.io).
 
 ### [StarWolves.io](https://starwolves.io)
-Star Wolves is a brand new **sovereign gaming community** that is pioneering the game Space Frontiers by hosting official servers for it and more.
-It stays true to the sovereignty Space Frontiers gives communities in that it allows each community of players to compile and host a server istance themselves meaning the i/o gameplay and servers remain sovereign.
+Star Wolves is a brand new gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
+Space Frontiers allows each community of players to compile and host a server instance themselves meaning the i/o gameplay and servers remain sovereign.
