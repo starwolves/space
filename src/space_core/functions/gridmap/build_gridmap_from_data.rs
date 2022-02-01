@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Commands, ResMut};
+use bevy::prelude::{Commands, ResMut, Entity};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial,ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
 use crate::space_core::{components::{cell::Cell, health::HealthFlag}, functions::{converters::string_to_type_converters::string_vec3_to_vec3, entity::collider_interaction_groups::{ColliderGroup, get_bit_masks}, gridmap::gridmap_functions::cell_id_to_world}, resources::{doryen_fov::{DoryenMap, Vec3Int, to_doryen_coordinates}, gridmap_details1::GridmapDetails1, gridmap_main::{CellData, CellDataWID, GridmapMain, StructureHealth}, gridmap_data::GridmapData}};
@@ -14,7 +14,7 @@ use crate::space_core::{components::{cell::Cell, health::HealthFlag}, functions:
 
 pub fn build_main_gridmap(
     current_map_main_data : &Vec<CellDataWID>, 
-    commands : &mut Commands, 
+    mut commands : &mut Commands, 
     gridmap_main : &mut ResMut<GridmapMain>,
     fov_map : &mut ResMut<DoryenMap>,
     gridmap_data : &mut ResMut<GridmapData>,
@@ -62,15 +62,12 @@ pub fn build_main_gridmap(
             continue;
         }
 
-        let world_position = cell_id_to_world(cell_id_int);
-
-        let mut entity_builder = commands.spawn_bundle(RigidBodyBundle {
-            body_type: RigidBodyType::Static.into(),
-            position: world_position.into(),
-            ..Default::default()
-        },);
-
-        let entity_id = entity_builder.id();
+        let entity_op = spawn_main_cell(
+            &mut commands ,
+            cell_id_int, cell_item_id, 
+            cell_data.orientation,
+            &gridmap_data,
+        );
 
         gridmap_main.data.insert(cell_id_int,
         CellData {
@@ -80,49 +77,8 @@ pub fn build_main_gridmap(
                 health_flags: health_flags.clone(),
                 ..Default::default()
             },
-            entity: Some(entity_id),
+            entity: Some(entity_op),
         });
-        
-        let friction;
-        let friction_combine_rule;
-
-        if gridmap_data.placeable_items_cells_list.contains(&cell_item_id) {
-            friction = 0.2;
-            friction_combine_rule = CoefficientCombineRule::Min;
-        } else {
-            friction_combine_rule = CoefficientCombineRule::Min;
-            friction = 0.;
-        }
-
-        let cell_properties = gridmap_data.main_cell_properties.get(&cell_item_id).unwrap();
-
-
-        let masks = get_bit_masks(ColliderGroup::Standard);
-
-        
-
-        entity_builder.insert_bundle(
-            ColliderBundle {
-                shape: cell_properties.collider_shape.clone().into(),
-                position: cell_properties.collider_position.into(),
-                collider_type: ColliderType::Solid.into(),
-                material: ColliderMaterial {
-                    friction_combine_rule:  friction_combine_rule,
-                    friction: friction,
-                    ..Default::default()
-                }.into(),
-                flags: ColliderFlags {
-                    collision_groups: InteractionGroups::new(masks.0,masks.1),
-                    ..Default::default()
-                }.into(),
-                ..Default::default()
-            }
-        ).insert(
-        Cell {
-            id: cell_id_int,
-        });
-
-    
 
 
         
@@ -159,3 +115,67 @@ pub fn build_details1_gridmap(
     }
 
 }
+
+// We also build cells in systems/construction_tool.rs
+pub fn spawn_main_cell(
+    commands : &mut Commands,
+    cell_id : Vec3Int,
+    cell_item_id : i64,
+    _cell_rotation : i64,
+    gridmap_data : &GridmapData,
+) -> Entity{
+
+    let world_position = cell_id_to_world(cell_id);
+
+    let mut entity_builder = commands.spawn_bundle(RigidBodyBundle {
+        body_type: RigidBodyType::Static.into(),
+        position: world_position.into(),
+        ..Default::default()
+    },);
+
+    let entity_id = entity_builder.id();
+
+    
+    let friction;
+    let friction_combine_rule;
+
+    if gridmap_data.placeable_items_cells_list.contains(&cell_item_id) {
+        friction = 0.2;
+        friction_combine_rule = CoefficientCombineRule::Min;
+    } else {
+        friction_combine_rule = CoefficientCombineRule::Min;
+        friction = 0.;
+    }
+
+    let cell_properties = gridmap_data.main_cell_properties.get(&cell_item_id).unwrap();
+
+
+    let masks = get_bit_masks(ColliderGroup::Standard);
+
+    
+
+    entity_builder.insert_bundle(
+        ColliderBundle {
+            shape: cell_properties.collider_shape.clone().into(),
+            position: cell_properties.collider_position.into(),
+            collider_type: ColliderType::Solid.into(),
+            material: ColliderMaterial {
+                friction_combine_rule:  friction_combine_rule,
+                friction: friction,
+                ..Default::default()
+            }.into(),
+            flags: ColliderFlags {
+                collision_groups: InteractionGroups::new(masks.0,masks.1),
+                ..Default::default()
+            }.into(),
+            ..Default::default()
+        }
+    ).insert(
+    Cell {
+        id: cell_id,
+    });
+
+    entity_id
+
+}
+

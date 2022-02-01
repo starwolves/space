@@ -91,6 +91,7 @@ pub enum ReliableServerMessage {
     TabData(Vec<NetTabAction>),
     TextTreeSelection(Option<u64>, String, String, String, HashMap<String, TextTreeBit>),
     RemoveCell(i16,i16,i16, GridMapType),
+    AddCell(i16,i16,i16,i64,i64, GridMapType),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

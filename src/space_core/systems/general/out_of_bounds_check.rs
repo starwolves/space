@@ -1,11 +1,11 @@
-use bevy::prelude::{Query, warn, Entity};
+use bevy::prelude::{Query, warn, Entity, Without};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space_core::{components::{entity_data::EntityData}, resources::doryen_fov::FOV_MAP_WIDTH};
 
 pub fn out_of_bounds_check(
 
-    rigid_bodies : Query<(Entity, &EntityData, &RigidBodyPositionComponent)>,
+    rigid_bodies : Query<(Entity, &EntityData, &RigidBodyPositionComponent), Without<RigidBodyPositionComponent>>,
 
 ) {
 
