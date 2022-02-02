@@ -5,11 +5,18 @@ use serde::{Deserialize};
 
 use crate::space_core::{components::{health::{DamageModel, DamageType, HealthFlag, HitResult, calculate_damage}, inventory_item::HitSoundSurface, senser::Senser}, events::net::net_chat_message::NetChatMessage};
 
-use super::{doryen_fov::{Vec3Int, to_doryen_coordinates}, handle_to_entity::HandleToEntity, network_messages::ReliableServerMessage};
+use super::{doryen_fov::{Vec3Int, to_doryen_coordinates}, handle_to_entity::HandleToEntity, network_messages::{ReliableServerMessage}};
 
 
 pub struct GridmapMain {
-    pub data : HashMap<Vec3Int, CellData>
+    pub data : HashMap<Vec3Int, CellData>,
+    pub updates : HashMap<Vec3Int, CellUpdate>,
+}
+
+
+pub struct CellUpdate {
+    pub entities_received : Vec<Entity>,
+    pub cell_data : CellData,
 }
 
 #[derive(Deserialize)]
@@ -20,6 +27,7 @@ pub struct CellDataWID {
 }
 
 
+#[derive(Clone)]
 pub struct CellData {
     pub item: i64,
     pub orientation: i64,
@@ -148,7 +156,8 @@ impl StructureHealth {
 impl FromWorld for GridmapMain {
     fn from_world(_world: &mut World) -> Self {
         GridmapMain {
-           data : HashMap::new(), 
+           data : HashMap::new(),
+            updates: HashMap::new(), 
         }
     }
 }
