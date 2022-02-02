@@ -18,7 +18,7 @@ pub fn gridmap_updates(
 
         for (senser_entity, senser_component, connected_player_component) in sensers.iter() {
 
-            if !cell_update.entities_received.contains(&senser_entity) && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1) {
+            if connected_player_component.connected && !cell_update.entities_received.contains(&senser_entity) && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1) {
                 
                 cell_update.entities_received.push(senser_entity);
                 if cell_update.cell_data.item != -1 {
@@ -45,7 +45,7 @@ pub fn gridmap_updates(
 
         for (senser_entity, senser_component, connected_player_component) in sensers.iter() {
 
-            if !cell_update.entities_received.contains(&senser_entity) && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1) {
+            if connected_player_component.connected && !cell_update.entities_received.contains(&senser_entity) && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1) {
                 
                 cell_update.entities_received.push(senser_entity);
                 if cell_update.cell_data.item != -1 {
