@@ -5,7 +5,7 @@ use bevy_rapier3d::prelude::{RigidBodyPositionComponent};
 use doryen_fov::FovAlgorithm;
 use rand::Rng;
 
-use crate::space_core::{events::{general::{input_construct::InputConstruct, input_deconstruct::InputDeconstruct, input_construction_options::InputConstructionOptions, input_construction_options_selection::InputConstructionOptionsSelection, remove_cell::RemoveCell}, net::net_construction_tool::NetConstructionTool}, resources::{gridmap_data::GridmapData, entity_data_resource::EntityDataResource, network_messages::{ReliableServerMessage, TextTreeBit, GridMapType}, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, doryen_fov::{Vec3Int, Vec2Int, to_doryen_coordinates, DoryenMap}, gridmap_main::{GridmapMain, CellData, StructureHealth}, gridmap_details1::GridmapDetails1}, components::{construction_tool::ConstructionTool, sensable::Sensable, pawn::Pawn, inventory_item::InventoryItem, sfx::sfx_auto_destroy, entity_data::EntityData, senser::Senser, connected_player::ConnectedPlayer, rigidbody_disabled::RigidBodyDisabled}, functions::{entity::{new_chat_message::{FURTHER_ITALIC_FONT}}, converters::isometry_to_transform::isometry_to_transform, gridmap::{gridmap_functions::{world_to_cell_id}, build_gridmap_from_data::spawn_main_cell}}, bundles::{ui_interaction1_sfx::UIInteraction1SfxBundle, ui_interaction2_sfx::UIInteraction2SfxBundle, ui_interaction3_sfx::UIInteraction3SfxBundle, deconstruct1_sfx::Deconstruct1SfxBundle, construct_light1_sfx::ConstructLight1SfxBundle, construct_light2_sfx::ConstructLight2SfxBundle, construct1_sfx::Construct1SfxBundle, construct2_sfx::Construct2SfxBundle}};
+use crate::space_core::{events::{general::{input_construct::InputConstruct, input_deconstruct::InputDeconstruct, input_construction_options::InputConstructionOptions, input_construction_options_selection::InputConstructionOptionsSelection, remove_cell::RemoveCell}, net::net_construction_tool::NetConstructionTool}, resources::{gridmap_data::GridmapData, entity_data_resource::EntityDataResource, network_messages::{ReliableServerMessage, TextTreeBit}, handle_to_entity::HandleToEntity, sfx_auto_destroy_timers::SfxAutoDestroyTimers, doryen_fov::{Vec3Int, Vec2Int, to_doryen_coordinates, DoryenMap}, gridmap_main::{GridmapMain, CellData, StructureHealth, CellUpdate}, gridmap_details1::GridmapDetails1}, components::{construction_tool::ConstructionTool, sensable::Sensable, pawn::Pawn, inventory_item::InventoryItem, sfx::sfx_auto_destroy, entity_data::EntityData, senser::Senser, connected_player::ConnectedPlayer, rigidbody_disabled::RigidBodyDisabled}, functions::{entity::{new_chat_message::{FURTHER_ITALIC_FONT}}, converters::isometry_to_transform::isometry_to_transform, gridmap::{gridmap_functions::{world_to_cell_id}, build_gridmap_from_data::spawn_main_cell}}, bundles::{ui_interaction1_sfx::UIInteraction1SfxBundle, ui_interaction2_sfx::UIInteraction2SfxBundle, ui_interaction3_sfx::UIInteraction3SfxBundle, deconstruct1_sfx::Deconstruct1SfxBundle, construct_light1_sfx::ConstructLight1SfxBundle, construct_light2_sfx::ConstructLight2SfxBundle, construct1_sfx::Construct1SfxBundle, construct2_sfx::Construct2SfxBundle}};
 
 use super::senser_update_fov::FOV_DISTANCE;
 
@@ -275,15 +275,17 @@ pub fn construction_tool(
 
         let sfx_bundle;
 
+        let cell_id_int = Vec3Int{
+            x: *cell_x,
+            y: *cell_y,
+            z: *cell_z,
+        };
+
         match gridmap_type {
             crate::space_core::resources::network_messages::GridMapType::Main => {
-                match gridmap_main.data.get(&Vec3Int{
-                    x: *cell_x,
-                    y: *cell_y,
-                    z: *cell_z,
-                }) {
+                match &gridmap_main.data.get(&cell_id_int) {
                     Some(cell_data_passed) => {
-                        cell_data=cell_data_passed;
+                        cell_data=cell_data_passed.clone();
                         text_names_map=&gridmap_data.main_text_names;
                     },
                     None => { 
@@ -297,13 +299,9 @@ pub fn construction_tool(
 
             },
             crate::space_core::resources::network_messages::GridMapType::Details1 => {
-                match gridmap_details1.data.get(&Vec3Int{
-                    x: *cell_x,
-                    y: *cell_y,
-                    z: *cell_z,
-                }) {
+                match &gridmap_details1.data.get(&cell_id_int) {
                     Some(cell_data_passed) => {
-                        cell_data=cell_data_passed;
+                        cell_data=cell_data_passed.clone();
                         text_names_map=&gridmap_data.details1_text_names;
                     },
                     None => { 
@@ -325,6 +323,9 @@ pub fn construction_tool(
             },
         }
 
+        let mut cell_data_clone = cell_data.clone();
+        cell_data_clone.item=-1;
+
         let sfx_entity = commands.spawn().insert_bundle(
             sfx_bundle
         ).id();
@@ -342,11 +343,17 @@ pub fn construction_tool(
                 z:*cell_z,
             },
             handle: event.handle,
+            cell_data : cell_data_clone.clone()
         });
 
         let personal_update_text = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + 
         "You've deconstructed the " + &deconstructed_item_name
         + ".[/font]";
+
+        gridmap_main.updates.insert(cell_id_int, CellUpdate {
+            entities_received: vec![],
+            cell_data: cell_data_clone,
+        });
 
         net_construction_tool.send(NetConstructionTool {
             handle: event.handle,
@@ -373,7 +380,7 @@ pub fn construction_tool(
             },
         }
 
-        let public_notification =     "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + pawn_name + " has deconstructed " + &deconstructed_item_name + ".[/font]";
+        let public_notification = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + pawn_name + " has deconstructed " + &deconstructed_item_name + ".[/font]";
 
         for sensed_by_entity in sensable_component.sensed_by.iter() {
 
@@ -427,7 +434,7 @@ pub fn construction_tool(
                 construction_selection = s;
             },
             None => {
-                let personal_update_text =     "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Please select a construction option first.[/font]";
+                let personal_update_text = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Please select a construction option first.[/font]";
                 net_construction_tool.send(NetConstructionTool {
                     handle: event.handle,
                     message: ReliableServerMessage::ChatMessage(personal_update_text),
@@ -459,7 +466,7 @@ pub fn construction_tool(
 
         match gridmap_details1.data.get(&input_cell) {
             Some(_input_cell_data) => {
-                let personal_update_text =     "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Construction blocked.[/font]";
+                let personal_update_text = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Construction blocked.[/font]";
                 net_construction_tool.send(NetConstructionTool {
                     handle: event.handle,
                     message: ReliableServerMessage::ChatMessage(personal_update_text),
@@ -556,7 +563,7 @@ pub fn construction_tool(
         if target_cell_id.y == 0 {
 
             if cell_properties.floor_cell {
-                let personal_update_text =     "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Please construct a wall and not a floor here![/font]";
+                let personal_update_text = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Please construct a wall and not a floor here![/font]";
                 net_construction_tool.send(NetConstructionTool {
                     handle: event.handle,
                     message: ReliableServerMessage::ChatMessage(personal_update_text),
@@ -580,7 +587,7 @@ pub fn construction_tool(
 
         } else {
             if !cell_properties.floor_cell {
-                let personal_update_text =     "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Please construct a floor and not a wall here![/font]";
+                let personal_update_text = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "Please construct a floor and not a wall here![/font]";
                 net_construction_tool.send(NetConstructionTool {
                     handle: event.handle,
                     message: ReliableServerMessage::ChatMessage(personal_update_text),
@@ -590,20 +597,27 @@ pub fn construction_tool(
             new_entity = None;
         }
 
-        gridmap_main.data.insert(target_cell_id, CellData {
+        let cell_data = CellData {
             item: *target_item_id,
             orientation: new_cell_orientation,
             health: StructureHealth::default(),
             entity: new_entity,
-        });
+        };
 
-        let personal_update_text =     "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "You've constructed a " + construction_selection + "![/font]";
+        gridmap_main.data.insert(target_cell_id, cell_data.clone());
+
+        let personal_update_text = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "You've constructed a " + construction_selection + "![/font]";
         net_construction_tool.send(NetConstructionTool {
             handle: event.handle,
             message: ReliableServerMessage::ChatMessage(personal_update_text),
         });
 
-        let public_notification =     "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + pawn_name + " has constructed a " + construction_selection +  ".[/font]";
+        gridmap_main.updates.insert(target_cell_id, CellUpdate {
+            entities_received: vec![],
+            cell_data: cell_data,
+        });
+
+        let public_notification = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + pawn_name + " has constructed a " + construction_selection +  ".[/font]";
         for sensed_by_entity in sensable_component.sensed_by.iter() {
             match handle_to_entity.inv_map.get(sensed_by_entity) {
                 Some(senser_handle) => {
@@ -624,18 +638,13 @@ pub fn construction_tool(
 
         // Send netcode message to all clients who see this tile that it has been updated.
 
-        for (mut senser_component, connected_player_component) in sensers.iter_mut() {
+        for (mut senser_component, _connected_player_component) in sensers.iter_mut() {
 
             if senser_component.fov.is_in_fov(coords.0, coords.1) {
 
                 senser_component.fov.clear_fov();
                 let coords = to_doryen_coordinates(senser_component.cell_id.x, senser_component.cell_id.y);
                 senser_component.fov.compute_fov(&mut fov_map.map, coords.0, coords.1, FOV_DISTANCE, true);
-
-                net_construction_tool.send(NetConstructionTool {
-                    handle: connected_player_component.handle,
-                    message: ReliableServerMessage::AddCell(target_cell_id.x, target_cell_id.y, target_cell_id.z, *target_item_id, new_cell_orientation, GridMapType::Main),
-                });
 
             }
 

@@ -51,3 +51,4 @@ pub mod construction_tool;
 pub mod text_tree_input_selection;
 pub mod remove_cell;
 pub mod out_of_bounds_check;
+pub mod gridmap_updates;
