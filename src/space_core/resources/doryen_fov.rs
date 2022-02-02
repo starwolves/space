@@ -1,4 +1,4 @@
-use bevy::prelude::{FromWorld, World, warn};
+use bevy::prelude::{FromWorld, World};
 use doryen_fov::{MapData};
 
 use serde::{Serialize, Deserialize};
@@ -26,7 +26,6 @@ pub fn to_doryen_coordinates(x : i16, y : i16) -> (usize, usize){
     let mut n_y=y+FOV_MAP_HEIGHT as i16/2;
 
     if doryen_coordinates_out_of_range(n_x as usize, n_y as usize) {
-        warn!("Out of bounds x:{} y:{}",x,y);
         n_x=0;
         n_y=0;
     }

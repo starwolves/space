@@ -55,12 +55,26 @@ pub fn tab_action(
         match event.target_entity_option {
             Some(target_entity) => {
 
-                let rigid_body_position_component = inventory_items.get(Entity::from_bits(target_entity)).unwrap();
+                let rigid_body_position_component;
+                match inventory_items.get(Entity::from_bits(target_entity)) {
+                    Ok(v) => {
+                        rigid_body_position_component=v;
+                    },
+                    Err(_) => {continue;},
+                }
                 start_pos = rigid_body_position_component.0.position.translation.into();
 
             },
             None => {
-                let cell_data = event.target_cell_option.as_ref().unwrap();
+                let cell_data;
+                match event.target_cell_option.as_ref() {
+                    Some(v) => {
+                        cell_data=v;
+                    }
+                    None => {
+                        continue;
+                    }
+                }
                 start_pos = cell_id_to_world(Vec3Int{ x: cell_data.1, y: cell_data.2, z: cell_data.3 });
                 
             },
@@ -174,34 +188,47 @@ pub fn tab_action(
 
         } else if event.tab_id == "construct" {
 
-            event_construct.send(InputConstruct {
-                handle: event.handle,
-                target_cell: event.target_cell_option.as_ref().unwrap().clone(),
-                belonging_entity: event.belonging_entity.unwrap()
-            });
+            if event.target_cell_option.is_some() && event.belonging_entity.is_some() {
+                event_construct.send(InputConstruct {
+                    handle: event.handle,
+                    target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+                    belonging_entity: event.belonging_entity.unwrap()
+                });
+            }
+
+            
 
         } else if event.tab_id == "deconstruct" {
 
-            event_deconstruct.send(InputDeconstruct {
-                handle: event.handle,
-                target_cell: event.target_cell_option.as_ref().unwrap().clone(),
-                belonging_entity: event.belonging_entity.unwrap()
-            });
+            if event.target_cell_option.is_some() && event.belonging_entity.is_some() {
+                event_deconstruct.send(InputDeconstruct {
+                    handle: event.handle,
+                    target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+                    belonging_entity: event.belonging_entity.unwrap()
+                });
+            }
+            
 
         } else if event.tab_id == "constructionoptions" {
 
-            event_construction_options.send(InputConstructionOptions {
-                handle: event.handle,
-                belonging_entity: event.belonging_entity.unwrap()
-            });
+            if event.belonging_entity.is_some() {
+                event_construction_options.send(InputConstructionOptions {
+                    handle: event.handle,
+                    belonging_entity: event.belonging_entity.unwrap()
+                });
+            }
+            
 
         } else if event.tab_id == "pickup" {
 
-            pickup_world_item_event.send(InputUseWorldItem {
-                handle: event.handle,
-                pickuper_entity: event.player_entity,
-                pickupable_entity_bits: event.target_entity_option.unwrap(),
-            });
+            if event.target_entity_option.is_some() {
+                pickup_world_item_event.send(InputUseWorldItem {
+                    handle: event.handle,
+                    pickuper_entity: event.player_entity,
+                    pickupable_entity_bits: event.target_entity_option.unwrap(),
+                });
+            }
+            
 
         }
 

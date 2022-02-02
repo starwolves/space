@@ -1,7 +1,7 @@
-use bevy::prelude::{EventReader, ResMut, warn};
+use bevy::prelude::{EventReader, ResMut, warn, Query};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::events::net::{net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_examine_entity::NetExamineEntity, net_health_update::NetHealthUpdate, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_projectile_fov::NetProjectileFOV, net_send_entity_updates::NetSendEntityUpdates, net_send_server_time::NetSendServerTime, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_tab_data_entity::NetTabData, net_takeoff_item::NetTakeOffItem, net_throw_item::NetThrowItem, net_ui_input_transmit_data::NetUIInputTransmitData, net_unload_entity::NetUnloadEntity, net_update_player_count::NetUpdatePlayerCount, net_user_name::NetUserName, net_wear_item::NetWearItem, net_construction_tool::NetConstructionTool, net_gridmap_updates::NetGridmapUpdates};
+use crate::space_core::{events::net::{net_chat_message::NetChatMessage, net_console_commands::NetConsoleCommands, net_done_boarding::NetDoneBoarding, net_drop_current_item::NetDropCurrentItem, net_examine_entity::NetExamineEntity, net_health_update::NetHealthUpdate, net_load_entity::NetLoadEntity, net_on_boarding::NetOnBoarding, net_on_new_player_connection::NetOnNewPlayerConnection, net_on_setupui::NetOnSetupUI, net_on_spawning::NetOnSpawning, net_pickup_world_item::NetPickupWorldItem, net_projectile_fov::NetProjectileFOV, net_send_entity_updates::NetSendEntityUpdates, net_send_server_time::NetSendServerTime, net_send_world_environment::NetSendWorldEnvironment, net_showcase::NetShowcase, net_switch_hands::NetSwitchHands, net_tab_data_entity::NetTabData, net_takeoff_item::NetTakeOffItem, net_throw_item::NetThrowItem, net_ui_input_transmit_data::NetUIInputTransmitData, net_unload_entity::NetUnloadEntity, net_update_player_count::NetUpdatePlayerCount, net_user_name::NetUserName, net_wear_item::NetWearItem, net_construction_tool::NetConstructionTool, net_gridmap_updates::NetGridmapUpdates}, components::connected_player::ConnectedPlayer};
 
 
 pub fn net_send_message_event(
@@ -37,7 +37,8 @@ pub fn net_send_message_event(
         EventReader<NetUpdatePlayerCount>,
         EventReader<NetConstructionTool>,
         EventReader<NetGridmapUpdates>,
-    )
+    ),
+    connected_players : Query<&ConnectedPlayer>,
 ) {
 
 
@@ -78,12 +79,20 @@ pub fn net_send_message_event(
     )
     = tuple1;
 
+    let mut not_connected_handles = vec![];
 
-
-
+    for connected_player_component in connected_players.iter() {
+        if connected_player_component.connected == false {
+            not_connected_handles.push(connected_player_component.handle);
+        }
+    }
 
 
     for new_event in net_on_spawning.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -101,6 +110,10 @@ pub fn net_send_message_event(
 
     for new_event in net_on_boarding.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -116,6 +129,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_on_new_player_connection.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -133,6 +150,10 @@ pub fn net_send_message_event(
 
     for new_event in net_on_setupui.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -148,6 +169,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_done_boarding.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -165,6 +190,10 @@ pub fn net_send_message_event(
 
     for new_event in net_unload_entity.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -180,6 +209,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_load_entity.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -197,6 +230,10 @@ pub fn net_send_message_event(
 
     for new_event in net_send_entity_updates.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -212,6 +249,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_send_world_environment.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -229,6 +270,10 @@ pub fn net_send_message_event(
 
     for new_event in net_chat_message.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -244,6 +289,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_pickup_world_item.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -261,6 +310,10 @@ pub fn net_send_message_event(
 
     for new_event in net_drop_current_item.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -276,6 +329,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_switch_hands.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -293,6 +350,10 @@ pub fn net_send_message_event(
 
     for new_event in net_wear_item.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -308,6 +369,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_takeoff_item.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -326,6 +391,10 @@ pub fn net_send_message_event(
 
     for new_event in net_showcase.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -341,6 +410,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_console_commands.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -358,6 +431,10 @@ pub fn net_send_message_event(
 
     for new_event in net_user_name.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -373,6 +450,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_ui_input_transmit_data.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -390,6 +471,10 @@ pub fn net_send_message_event(
 
     for new_event in net_health_update.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -405,6 +490,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_examine_entity.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -422,6 +511,10 @@ pub fn net_send_message_event(
 
     for new_event in net_projectile_fov.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -438,6 +531,10 @@ pub fn net_send_message_event(
 
     for new_event in net_throw_item.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -453,6 +550,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_tab_data.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -471,6 +572,10 @@ pub fn net_send_message_event(
     
     for new_event in net_send_server_time.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -487,6 +592,10 @@ pub fn net_send_message_event(
 
 
     for new_event in net_update_player_count.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
@@ -505,6 +614,10 @@ pub fn net_send_message_event(
 
     for new_event in net_construction_tool.iter() {
 
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
@@ -520,6 +633,10 @@ pub fn net_send_message_event(
     }
 
     for new_event in net_gridmap_updates.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
 
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
