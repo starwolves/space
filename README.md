@@ -19,19 +19,19 @@ This game server is designed to run well on modern processors that have multiple
 You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_PxzeiI).
   
 ### Features (All Moddable & Modular)
-* Parallelized ECS (Entity Component System) architecture. 🐆
-* Pure Rust. No garbage collection & high parallel game logic execution speeds.
-* Data-oriented, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project.
+* Parallelized ECS (Entity Component System) architecture. 📡
+* Pure Rust. No garbage collection & high parallel game logic execution speeds. 🌟
+* Data-oriented, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project. 🔭
+* Using the cutting-edge [Rapier 3D Physics engine](https://rapier.rs/). 🚀
+* Character meshes and animations are fully integrated with [Mixamo](https://www.mixamo.com/) for rigging. ☄
 * Inventory system, pick up, wear, attach, place and equip items with character entities.
 * Melee & projectile combat systems, damage player, ship walls or other entities with various types of damage and the ability to target specific body parts.
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
 * Actions and tab menu's to easily interact with the world while also offering protection against cheaters.
 * Configurable console commands, including rcon admin commands.
-* Using the cutting-edge [Rapier 3D Physics engine](https://rapier.rs/).
 * Clients can load in custom content on a per server basis thanks to a traditional content folder approach. Allowing modders to create new entities such as items, characters, sounds, ship cells and MUCH more.
 * Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
 * Cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic (de)constructable ship cells as map size is currently bottlenecked by the FOV algorithm. 
-* Character meshes and animations are fully integrated with [Mixamo](https://www.mixamo.com/) for rigging.
 
 
 ## Getting Started
