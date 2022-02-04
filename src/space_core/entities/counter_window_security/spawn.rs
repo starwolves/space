@@ -4,7 +4,7 @@ use std::collections::{BTreeMap};
 use bevy::{math::Vec3, prelude::{BuildChildren, Commands, Entity, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{generics::{pawn::{components::SpaceAccessEnum, functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}, health::components::Health, static_body::components::StaticTransform, entity::{components::{Sensable, EntityData, EntityUpdates, Examinable, EntityGroup, RichName}, resources::{SpawnHeldData, SpawnPawnData}, functions::transform_to_isometry::transform_to_isometry}, physics::functions::{get_bit_masks, ColliderGroup}}};
+use crate::space_core::{ecs::{pawn::{components::SpaceAccessEnum, functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}, health::components::Health, static_body::components::StaticTransform, entity::{components::{Sensable, EntityData, EntityUpdates, Examinable, EntityGroup, RichName}, resources::{SpawnHeldData, SpawnPawnData}, functions::transform_to_isometry::transform_to_isometry}, physics::functions::{get_bit_masks, ColliderGroup}}};
 
 use super::components::{CounterWindow, CounterWindowSensor};
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{entities::counter_window_security::components::{CounterWindow, CounterWindowStatus, CounterWindowAccessLightsStatus}, generics::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData}};
+use crate::space_core::{entities::counter_window_security::components::{CounterWindow, CounterWindowStatus, CounterWindowAccessLightsStatus}, ecs::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData}};
 
 pub fn counter_window_update(
     mut updated_counter_windows: Query<(&CounterWindow, &mut EntityUpdates), Changed<CounterWindow>>,

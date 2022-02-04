@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 
-use crate::space_core::{entities::air_lock_security::components::{AirLock, AirLockStatus, AccessLightsStatus}, generics::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData},};
+use crate::space_core::{entities::air_lock_security::components::{AirLock, AirLockStatus, AccessLightsStatus}, ecs::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData},};
 
 pub fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,

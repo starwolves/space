@@ -4,7 +4,7 @@ use std::collections::{BTreeMap, HashMap};
 use bevy::{math::Vec3, prelude::{Commands, Entity, Transform}};
 use bevy_rapier3d::prelude::{ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{generics::{pawn::{components::SpaceAccessEnum, functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}, health::components::{HealthFlag, Health}, static_body::components::StaticTransform, entity::{components::{Sensable, EntityData, EntityGroup, EntityUpdates, Examinable, RichName}, resources::{SpawnPawnData, SpawnHeldData}, functions::transform_to_isometry::transform_to_isometry}, physics::functions::{get_bit_masks, ColliderGroup}}};
+use crate::space_core::{ecs::{pawn::{components::SpaceAccessEnum, functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}}, health::components::{HealthFlag, Health}, static_body::components::StaticTransform, entity::{components::{Sensable, EntityData, EntityGroup, EntityUpdates, Examinable, RichName}, resources::{SpawnPawnData, SpawnHeldData}, functions::transform_to_isometry::transform_to_isometry}, physics::functions::{get_bit_masks, ColliderGroup}}};
 
 use super::components::AirLock;
 

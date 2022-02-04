@@ -1,6 +1,6 @@
 use bevy::prelude::Entity;
 
-use crate::space_core::generics::networking::resources::{GridMapType, ReliableServerMessage};
+use crate::space_core::ecs::networking::resources::{GridMapType, ReliableServerMessage};
 
 
 pub struct InputConstruct {

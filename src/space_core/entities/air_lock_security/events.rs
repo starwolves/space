@@ -1,6 +1,6 @@
 use bevy::prelude::Entity;
 
-use crate::space_core::generics::entity::components::EntityGroup;
+use crate::space_core::ecs::entity::components::EntityGroup;
 
 pub struct AirLockCollision {
     pub collider1_entity : Entity,

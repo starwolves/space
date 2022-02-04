@@ -1,7 +1,7 @@
 use bevy::prelude::{Changed, Query};
 
 
-use crate::space_core::{entities::reflection_probe::components::ReflectionProbe, generics::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData}};
+use crate::space_core::{entities::reflection_probe::components::ReflectionProbe, ecs::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData}};
 
 pub fn reflection_probe_update(
     mut updated_reflection_probes: Query<(&ReflectionProbe, &mut EntityUpdates), Changed<ReflectionProbe>>,

@@ -1,6 +1,6 @@
 use serde::{Deserialize};
 
-use crate::space_core::generics::entity::functions::string_to_type_converters::string_vec3_to_vec3;
+use crate::space_core::ecs::entity::functions::string_to_type_converters::string_vec3_to_vec3;
 
 use super::components::GIProbe;
 

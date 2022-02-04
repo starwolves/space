@@ -1,6 +1,6 @@
 use bevy::{prelude::Component, core::Timer};
 
-use crate::space_core::generics::pawn::components::SpaceAccessEnum;
+use crate::space_core::ecs::pawn::components::SpaceAccessEnum;
 
 
 #[derive(Component)]

@@ -1,7 +1,7 @@
 use bevy::prelude::{Changed, Query};
 
 
-use crate::space_core::{entities::omni_light::components::OmniLight, generics::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData}};
+use crate::space_core::{entities::omni_light::components::OmniLight, ecs::{entity::{components::EntityUpdates, functions::get_entity_update_difference::get_entity_update_difference}, networking::resources::EntityUpdateData}};
 
 pub fn omni_light_update(
     mut updated_omni_lights: Query<(&OmniLight, &mut EntityUpdates), Changed<OmniLight>>,

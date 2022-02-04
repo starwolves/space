@@ -1,7 +1,7 @@
 use serde::{Deserialize};
 use bevy::{math::Vec3, prelude::Color};
 
-use crate::space_core::generics::entity::functions::string_to_type_converters::{string_vec3_to_vec3, string_color_to_color};
+use crate::space_core::ecs::entity::functions::string_to_type_converters::{string_vec3_to_vec3, string_color_to_color};
 
 use super::components::ReflectionProbe;
 

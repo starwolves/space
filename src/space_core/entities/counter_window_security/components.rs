@@ -1,6 +1,6 @@
 use bevy::{core::Timer, prelude::{Component, Entity}};
 
-use crate::space_core::generics::pawn::components::SpaceAccessEnum;
+use crate::space_core::ecs::pawn::components::SpaceAccessEnum;
 
 #[derive(Component)]
 pub struct CounterWindowClosedTimer {
