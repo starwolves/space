@@ -25,7 +25,7 @@ const_format = "0.2.21"
 
 vector2math = "0.13.0"
 
-doryen-fov = { git = "https://github.com/nikitavondel/doryen-fov" }
+doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
 
 voca_rs = "1.14.0"
 
