@@ -1,5 +1,5 @@
 
-# Space Frontiers server
+# Space Frontiers server PRE-ALPHA
 
   
 
