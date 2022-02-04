@@ -15,7 +15,7 @@
 A modular & moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/).
 This game server is designed to run well on modern processors that have multiple CPU cores.
 
-## Media
+### Media
 You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_PxzeiI).
   
 ### Features (All Moddable & Modular)
