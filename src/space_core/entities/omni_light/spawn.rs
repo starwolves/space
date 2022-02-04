@@ -1,7 +1,7 @@
 
 use bevy::prelude::{Commands, Transform};
 
-use crate::space_core::{generics::{static_body::components::StaticTransform, physics::components::{WorldMode, WorldModes}, entity::components::{Sensable, EntityData, EntityUpdates}}};
+use crate::space_core::{ecs::{static_body::components::StaticTransform, physics::components::{WorldMode, WorldModes}, entity::components::{Sensable, EntityData, EntityUpdates}}};
 
 use super::components::OmniLight;
 

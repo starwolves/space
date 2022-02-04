@@ -3,7 +3,7 @@
 use bevy::{prelude::{Commands, Entity, EventReader, Query, ResMut, Res}, core::{Time, Timer}};
 use bevy_rapier3d::{prelude::{RigidBodyPositionComponent}};
 
-use crate::space_core::{sfx::{air_lock_closed_sfx::{AirLockClosedSfxBundle}, air_lock_denied_sfx::{AirLockDeniedSfxBundle}, air_lock_open_sfx::{AirLockOpenSfxBundle}}, entities::air_lock_security::components::{AirLock, AirLockOpenTimer, AirLockDeniedTimer, AirLockClosedTimer, AirLockStatus, AccessLightsStatus}, generics::{pawn::components::{SpaceAccess, Pawn}, sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, static_body::components::StaticTransform, entity::components::EntityGroup}};
+use crate::space_core::{entities::air_lock_security::components::{AirLock, AirLockOpenTimer, AirLockDeniedTimer, AirLockClosedTimer, AirLockStatus, AccessLightsStatus}, ecs::{pawn::components::{SpaceAccess, Pawn}, sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, static_body::components::StaticTransform, entity::components::EntityGroup}, sfx::air_lock::{air_lock_closed_sfx::AirLockClosedSfxBundle, air_lock_open_sfx::AirLockOpenSfxBundle, air_lock_denied_sfx::AirLockDeniedSfxBundle}};
 
 use super::events::AirLockCollision;
 

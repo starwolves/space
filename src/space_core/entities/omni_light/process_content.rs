@@ -1,7 +1,7 @@
 use bevy::prelude::Color;
 use serde::{Deserialize};
 
-use crate::space_core::generics::entity::functions::string_to_type_converters::string_color_to_color;
+use crate::space_core::ecs::entity::functions::string_to_type_converters::string_color_to_color;
 
 use super::components::OmniLight;
 
