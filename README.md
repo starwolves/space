@@ -66,7 +66,7 @@ Yet to be created.
 Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 You can get in contact with the developers through [Discord](https://discord.gg/qcg4zPuHyU).
 Aditionally you can also get in contact on Discord by contacting STARWOLF#5816 .
-The idea is to financially reward people for contributions in the future, but it is too early for that now.
+The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
 Also looking for 3D artists and lore writers, even this early into the project.
 
 ### Space Frontiers client
