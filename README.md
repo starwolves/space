@@ -36,9 +36,6 @@ This game server is designed to run well on modern processors that have multiple
 
 ## Getting Started
 
-### [License](https://github.com/starwolves/space/blob/master/LICENSE)
-This server-side project has a non-standard and non-commercial license, please read it and agree to it before you continue. Find the license [here](https://github.com/starwolves/space/blob/master/LICENSE).
-
 ### Dependencies
 
 
@@ -60,7 +57,7 @@ cargo run
 ```
 
 ### Documentation
-Yet to be created.
+Coming soon.
 
 ### Contributions
 Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
@@ -70,7 +67,6 @@ The idea is to financially reward and/or hire people for their contributions in 
 Also looking for 3D artists and lore writers, even this early into the project.
 
 ### Space Frontiers client
-You need to get the official closed source Space Frontiers client together with the standard client-side content folder to be able to connect to the server.
 You can get the latest stable releases of the client at [Discord](https://discord.gg/qcg4zPuHyU) by contacting STARWOLF#5816.
 Aditionally the client can be obtained at our own Matrix server without requiring you to contact anyone, more information about our Matrix on [our website](https://starwolves.io)
 Ensure you select the right branch of the server that has the same version number as the client you have obtained.
