@@ -5,10 +5,9 @@ pub mod plugins;
 
 
 fn main() {
-    
     App::new()
+        //.insert_resource(ReportExecutionOrderAmbiguities)
         .insert_resource(DefaultTaskPoolOptions::with_num_threads(2))
         .add_plugin(SpaceCore)
         .run();
-    
 }
