@@ -24,11 +24,8 @@ This game server is designed to run well on modern processors that have multiple
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
 * Actions and tab menu's to easily interact with the world while also offering protection against cheaters.
 * Configurable console commands, including rcon admin commands.
-* Fearless multi-threading and resource access across multiple threads.
-* Built with the cutting-edge [Rapier 3D Physics engine](https://rapier.rs/).
-* Netcoded 3D positions are broadcasted, rates dynamically throttled on a per client basis to meet bandwidth usage quotas.
-* A concurrent [Doryen-FOV](https://github.com/jice-nospam/doryen-fov) (field of view) algorithm for all pawns.
-* Clients can load in custom entities and custom game data on a per server basis thanks to a traditional content folder approach. Allowing modders to create new entities such as items, characters, sounds, ship cells and MUCH more.
+* Using the cutting-edge [Rapier 3D Physics engine](https://rapier.rs/).
+* Clients can load in custom content on a per server basis thanks to a traditional content folder approach. Allowing modders to create new entities such as items, characters, sounds, ship cells and MUCH more.
 * Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
 * Cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic (de)constructable ship cells as map size is currently bottlenecked by the FOV algorithm. 
 * Character meshes and animations are fully integrated with [Mixamo](https://www.mixamo.com/) for rigging.
