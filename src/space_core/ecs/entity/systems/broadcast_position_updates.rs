@@ -81,14 +81,6 @@ pub fn broadcast_position_updates (
 
         }
 
-        
-
-        
-
     }
-
-    
-
-
 
 }
