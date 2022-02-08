@@ -1,4 +1,4 @@
 pub mod spawn;
 pub mod process_content;
 pub mod components;
-pub mod systems_update;
+pub mod entity_update;

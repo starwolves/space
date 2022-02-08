@@ -35,27 +35,6 @@ impl Default for DefaultTransform {
 }
 
 #[derive(Component)]
-pub struct InterpolationPriority {
-    pub priority : InterpolationPriorityStatus,
-}
-
-impl Default for InterpolationPriority {
-    fn default() -> Self {
-        Self {
-            priority : InterpolationPriorityStatus::Low,
-        }
-    }
-}
-
-
-#[allow(dead_code)]
-pub enum InterpolationPriorityStatus {
-    High,
-    Medium,
-    Low
-}
-
-#[derive(Component)]
 pub struct RigidBodyDisabled;
 
 #[derive(Component)]
@@ -76,4 +55,3 @@ impl Default for RigidBodyLinkTransform {
 
 #[derive(Component)]
 pub struct UpdateTransform;
-

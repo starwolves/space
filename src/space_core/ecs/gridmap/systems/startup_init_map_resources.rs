@@ -19,7 +19,7 @@ pub fn startup_init_misc_resources(
 ) {
 
     // Init Bevy Rapier physics.
-    rapier_configuration.timestep_mode = TimestepMode::FixedTimestep;
+    rapier_configuration.timestep_mode = TimestepMode::VariableTimestep;
     rapier_integration_params.dt = 1. / tick_rate.rate as f32;
 
 

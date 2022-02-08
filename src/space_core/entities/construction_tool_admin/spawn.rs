@@ -3,7 +3,7 @@ use std::{collections::{BTreeMap, HashMap}, sync::Arc};
 use bevy::{math::{Mat4, Quat, Vec3}, prelude::{Commands, Entity, EventWriter, Transform, warn}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition, ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyForces, RigidBodyType};
 
-use crate::space_core::{entities::helmet_security::spawn::STANDARD_BODY_FRICTION, ecs::{inventory::components::{SlotType, Inventory}, pawn::{components::TabAction, functions::can_reach_entity::REACH_DISTANCE}, inventory_item::components::{InventoryItem, CombatAttackAnimation, CombatType, CombatSoundSet, CombatStandardAnimation}, health::components::{DamageFlag, DamageModel, Health}, rigid_body::components::{CachedBroadcastTransform, DefaultTransform, InterpolationPriority, RigidBodyDisabled, RigidBodyLinkTransform}, physics::{components::{WorldMode, WorldModes}, functions::{get_bit_masks, ColliderGroup}}, gridmap::resources::CellData, entity::{components::{EntityData, EntityUpdates, Examinable, RichName, Showcase, Sensable}, resources::{SpawnHeldData, SpawnPawnData}, functions::transform_to_isometry::transform_to_isometry, events::NetShowcase}, networking::resources::{ReliableServerMessage, GridMapType}}};
+use crate::space_core::{entities::helmet_security::spawn::STANDARD_BODY_FRICTION, ecs::{inventory::components::{SlotType, Inventory}, pawn::{components::TabAction, functions::can_reach_entity::REACH_DISTANCE}, inventory_item::components::{InventoryItem, CombatAttackAnimation, CombatType, CombatSoundSet, CombatStandardAnimation}, health::components::{DamageFlag, DamageModel, Health}, rigid_body::components::{CachedBroadcastTransform, DefaultTransform, RigidBodyDisabled, RigidBodyLinkTransform}, physics::{components::{WorldMode, WorldModes}, functions::{get_bit_masks, ColliderGroup}}, gridmap::resources::CellData, entity::{components::{EntityData, EntityUpdates, Examinable, RichName, Showcase, Sensable}, resources::{SpawnHeldData, SpawnPawnData}, functions::transform_to_isometry::transform_to_isometry, events::NetShowcase}, networking::resources::{ReliableServerMessage, GridMapType}}};
 
 
 pub struct ConstructionToolBundle;
@@ -278,7 +278,6 @@ fn spawn_entity(
         DefaultTransform {
             transform: default_transform,
         },
-        InterpolationPriority::default(),
     ));
 
     if showcase_instance {
