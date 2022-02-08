@@ -122,8 +122,8 @@ pub fn broadcast_interpolation_transforms (
         let mut low_priority_rate;
 
         if low_priority_count < 8 {
-            low_priority_rate = InterpolationPriorityRates::T12;
-        } else if low_priority_count < 16 {
+            low_priority_rate = InterpolationPriorityRates::T8;
+        } else if low_priority_count < 12 {
             low_priority_rate = InterpolationPriorityRates::T8;
         } else {
             low_priority_rate = InterpolationPriorityRates::T4;
@@ -159,7 +159,7 @@ pub fn broadcast_interpolation_transforms (
         let mut medium_priority_rate;
 
         if medium_priority_count < 10 {
-            medium_priority_rate = InterpolationPriorityRates::T12;
+            medium_priority_rate = InterpolationPriorityRates::T8;
         } else {
             medium_priority_rate = InterpolationPriorityRates::T8;
         }
@@ -168,7 +168,7 @@ pub fn broadcast_interpolation_transforms (
 
             if low_priority_count < 40 {
                 if !matches!(medium_priority_rate, InterpolationPriorityRates::T8) {
-                    medium_priority_rate = InterpolationPriorityRates::T12;
+                    medium_priority_rate = InterpolationPriorityRates::T8;
                 }
             } else {
                 medium_priority_rate = InterpolationPriorityRates::T8;
@@ -179,7 +179,7 @@ pub fn broadcast_interpolation_transforms (
         if high_priority_count > 8 {
             if high_priority_count < 14 {
                 if !matches!(medium_priority_rate, InterpolationPriorityRates::T8) {
-                    medium_priority_rate = InterpolationPriorityRates::T12;
+                    medium_priority_rate = InterpolationPriorityRates::T8;
                 }
             } else {
                 medium_priority_rate = InterpolationPriorityRates::T8;
@@ -193,15 +193,15 @@ pub fn broadcast_interpolation_transforms (
         if high_priority_count < 20 {
             high_priority_rate = InterpolationPriorityRates::T24;
         } else {
-            high_priority_rate = InterpolationPriorityRates::T12;
+            high_priority_rate = InterpolationPriorityRates::T8;
         }
 
         if low_priority_count > 20 {
-            high_priority_rate = InterpolationPriorityRates::T12;
+            high_priority_rate = InterpolationPriorityRates::T8;
         }
 
         if medium_priority_count > 20 {
-            high_priority_rate = InterpolationPriorityRates::T12;
+            high_priority_rate = InterpolationPriorityRates::T8;
         }
 
         
@@ -303,20 +303,33 @@ pub fn broadcast_interpolation_transforms (
             }
 
             let rate_u : u8;
+            let send_vel;
 
             match entity_tick_rate {
                 InterpolationPriorityRates::T4 => {
                     rate_u = 4;
+                    send_vel=true;
                 },
                 InterpolationPriorityRates::T8 => {
                     rate_u = 8;
+                    send_vel=true;
                 },
                 InterpolationPriorityRates::T12 => {
                     rate_u = 12;
+                    send_vel=false;
                 },
                 InterpolationPriorityRates::T24 => {
                     rate_u = 24;
+                    send_vel=false;
                 },
+            }
+
+            let velocity_option;
+
+            if send_vel {
+                velocity_option= Some(rigid_body_velocity);
+            } else {
+                velocity_option = None;
             }
 
             let player_handle_option = handle_to_entity.inv_map.get(&sensed_by_entity);
@@ -330,7 +343,7 @@ pub fn broadcast_interpolation_transforms (
                             interpolated_entity.to_bits(),
                             rigid_body_translation,
                             rigid_body_rotation,
-                            rigid_body_velocity,
+                            velocity_option,
                             current_time_stamp as u64,
                             rate_u,
                         )
