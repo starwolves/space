@@ -7,7 +7,7 @@ use const_format::concatcp;
 
 use voca_rs::*;
 
-use crate::space_core::{ecs::{pawn::{components::{RadioChannel, PersistentPlayerData, ConnectedPlayer, SpaceJobsEnum, Radio}, events::NetChatMessage, resources::HandleToEntity}, networking::{resources::{ReliableServerMessage, EntityUpdateData, EntityWorldType}, systems::net_send_entity_updates::NetSendEntityUpdates}}, sfx::chat::{play_sound_proximity_message::PlaySoundProximityMessage, play_sound_radio_message::PlaySoundRadioMessage}};
+use crate::space_core::{ecs::{pawn::{components::{RadioChannel, PersistentPlayerData, ConnectedPlayer, SpaceJobsEnum, Radio}, events::NetChatMessage, resources::HandleToEntity}, networking::{resources::{ReliableServerMessage, EntityUpdateData, EntityWorldType}}, entity::events::NetSendEntityUpdates}, sfx::chat::{play_sound_proximity_message::PlaySoundProximityMessage, play_sound_radio_message::PlaySoundRadioMessage}};
 
 const BILLBOARD_SHOUT_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
 const BILLBOARD_SHOUT_ITALIC_FONT : &str = "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutItalicDyna.tres";
