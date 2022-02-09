@@ -1,8 +1,8 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
-use crate::space_core::{ecs::{pawn::{components::ConnectedPlayer, resources::HandleToEntity}, entity::components::{Sensable, EntityUpdates, Showcase}, networking::{systems::net_send_entity_updates::NetSendEntityUpdates, resources::{ReliableServerMessage, EntityWorldType}}}};
+use crate::space_core::{ecs::{pawn::{components::ConnectedPlayer, resources::HandleToEntity}, entity::components::{Sensable, EntityUpdates, Showcase}, networking::{resources::{ReliableServerMessage, EntityWorldType}}}};
 
-use super::functions::entity_updates_personalise;
+use super::{functions::entity_updates_personalise, events::NetSendEntityUpdates};
 
 pub fn send_entity_updates(
     mut updated_entity_updates: Query<(Entity, Option<&Sensable>, &mut EntityUpdates, Option<&ConnectedPlayer>, Option<&Showcase>), Changed<EntityUpdates>>,

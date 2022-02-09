@@ -1,10 +1,7 @@
 use bevy::prelude::{EventReader, ResMut, warn, Query};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{entities::construction_tool_admin::events::NetConstructionTool, ecs::{pawn::{components::ConnectedPlayer, events::{NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI, NetDoneBoarding, NetChatMessage, NetConsoleCommands, NetUserName, NetUIInputTransmitData, NetExamineEntity, NetTabData, NetOnSpawning, NetSendWorldEnvironment, NetSendServerTime, NetUpdatePlayerCount}}, inventory::events::{NetPickupWorldItem, NetDropCurrentItem, NetSwitchHands, NetWearItem, NetTakeOffItem, NetThrowItem}, health::events::NetHealthUpdate, gridmap::events::{NetGridmapUpdates, NetProjectileFOV}, entity::events::{NetLoadEntity, NetUnloadEntity, NetShowcase}}};
-
-use super::net_send_entity_updates::NetSendEntityUpdates;
-
+use crate::space_core::{entities::construction_tool_admin::events::NetConstructionTool, ecs::{pawn::{components::ConnectedPlayer, events::{NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI, NetDoneBoarding, NetChatMessage, NetConsoleCommands, NetUserName, NetUIInputTransmitData, NetExamineEntity, NetTabData, NetOnSpawning, NetSendWorldEnvironment, NetSendServerTime, NetUpdatePlayerCount}}, inventory::events::{NetPickupWorldItem, NetDropCurrentItem, NetSwitchHands, NetWearItem, NetTakeOffItem, NetThrowItem}, health::events::NetHealthUpdate, gridmap::events::{NetGridmapUpdates, NetProjectileFOV}, entity::events::{NetLoadEntity, NetUnloadEntity, NetShowcase, NetSendEntityUpdates}}};
 
 pub fn net_send_message_event(
     tuple0 : (
