@@ -5,4 +5,3 @@ pub mod senser_update_fov;
 pub mod startup_build_map;
 pub mod startup_init_gridmap_cells;
 pub mod startup_init_map_resources;
-pub mod atmospherics_diffusion;

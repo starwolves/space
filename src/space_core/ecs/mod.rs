@@ -11,3 +11,4 @@ pub mod entity;
 pub mod world_environment;
 pub mod configuration;
 pub mod networking;
+pub mod atmospherics;
