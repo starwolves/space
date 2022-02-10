@@ -1,6 +1,6 @@
 use bevy::prelude::{ResMut};
 
-use crate::space_core::ecs::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}, components::Atmospherics}, atmospherics::{resources::AtmosphericsResource, functions::get_atmos_index}};
+use crate::space_core::ecs::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}}, atmospherics::{resources::{AtmosphericsResource, Atmospherics}, functions::get_atmos_index}};
 
 const TEMPERATURE_DIFFUSIVITY : f32 = 1.;
 const AMOUNT_DIFFUSIVITY : f32 = 1.;
