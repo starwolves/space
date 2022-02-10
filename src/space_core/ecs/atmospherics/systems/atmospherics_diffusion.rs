@@ -1,13 +1,13 @@
 use bevy::prelude::{ResMut};
 
-use crate::space_core::ecs::gridmap::{resources::{GridmapMain, FOV_MAP_WIDTH, Vec2Int}, functions::get_atmos_index::get_atmos_index, components::Atmospherics};
+use crate::space_core::ecs::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}, components::Atmospherics}, atmospherics::{resources::AtmosphericsResource, functions::get_atmos_index}};
 
 const TEMPERATURE_DIFFUSIVITY : f32 = 1.;
 const AMOUNT_DIFFUSIVITY : f32 = 1.;
 
 pub fn atmospherics_diffusion (
 
-    mut gridmap_main : ResMut<GridmapMain>,
+    mut atmospherics : ResMut<AtmosphericsResource>,
 
 ) {
 
@@ -30,7 +30,7 @@ pub fn atmospherics_diffusion (
             current_cell_id.y +=1;        
         }
 
-        let current_cell_atmos = gridmap_main.atmospherics.get(get_atmos_index(current_cell_id)).unwrap();
+        let current_cell_atmos = atmospherics.atmospherics.get(get_atmos_index(current_cell_id)).unwrap();
 
         if current_cell_atmos.blocked {
             continue;
@@ -55,7 +55,7 @@ pub fn atmospherics_diffusion (
                 adjacent_cell_id.y-=1
             }
 
-            match gridmap_main.atmospherics.get(get_atmos_index(current_cell_id)) {
+            match atmospherics.atmospherics.get(get_atmos_index(current_cell_id)) {
                 Some(a) => {
                     if !a.blocked {
                         non_blocking_adjacents+=1;
@@ -79,7 +79,7 @@ pub fn atmospherics_diffusion (
         let new_temperature = (current_cell_atmos.temperature + TEMPERATURE_DIFFUSIVITY * (total_temperature / non_blocking_adjacents as f32)) / (1. + TEMPERATURE_DIFFUSIVITY);
         let new_amount = (current_cell_atmos.amount + AMOUNT_DIFFUSIVITY * (total_amount / non_blocking_adjacents as f32)) / (1. + AMOUNT_DIFFUSIVITY);
 
-        let current_cell_atmos = gridmap_main.atmospherics.get_mut(get_atmos_index(current_cell_id)).unwrap();
+        let current_cell_atmos = atmospherics.atmospherics.get_mut(get_atmos_index(current_cell_id)).unwrap();
 
         current_cell_atmos.temperature = new_temperature;
         current_cell_atmos.amount = new_amount;

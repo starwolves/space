@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::space_core::{ecs::{inventory_item::components::HitSoundSurface, health::components::{HealthFlag, DamageModel, DamageType, HitResult, calculate_damage}, pawn::{events::NetChatMessage, components::Senser, resources::HandleToEntity}, entity::{components::RichName, functions::string_to_type_converters::string_transform_to_transform}, networking::resources::ReliableServerMessage}};
 
-use super::{systems::startup_init_gridmap_cells::MainCellProperties, components::Atmospherics};
+use super::{systems::startup_init_gridmap_cells::MainCellProperties};
 
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
@@ -72,7 +72,6 @@ impl FromWorld for GridmapDetails1 {
 pub struct GridmapMain {
     pub data : HashMap<Vec3Int, CellData>,
     pub updates : HashMap<Vec3Int, CellUpdate>,
-    pub atmospherics : Vec<Atmospherics>,
 }
 
 
@@ -220,7 +219,6 @@ impl FromWorld for GridmapMain {
         GridmapMain {
             data : HashMap::new(),
             updates: HashMap::new(), 
-            atmospherics: vec![Atmospherics::default(); FOV_MAP_WIDTH*FOV_MAP_WIDTH],
         }
     }
 }

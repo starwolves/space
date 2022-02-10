@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use bevy::prelude::{Commands, ResMut, Entity};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial,ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType};
 
-use crate::space_core::{ecs::{health::components::HealthFlag, gridmap::{components::{Cell, Atmospherics}, resources::{CellDataWID, GridmapMain, GridmapData, CellData, StructureHealth, GridmapDetails1, Vec3Int, DoryenMap, to_doryen_coordinates, FOV_MAP_WIDTH, Vec2Int}}, entity::functions::string_to_type_converters::string_vec3_to_vec3, physics::functions::{get_bit_masks, ColliderGroup}}};
+use crate::space_core::{ecs::{health::components::HealthFlag, gridmap::{components::{Cell}, resources::{CellDataWID, GridmapMain, GridmapData, CellData, StructureHealth, GridmapDetails1, Vec3Int, DoryenMap, to_doryen_coordinates}}, entity::functions::string_to_type_converters::string_vec3_to_vec3, physics::functions::{get_bit_masks, ColliderGroup}}};
 
-use super::{gridmap_functions::cell_id_to_world, get_atmos_index::get_atmos_index};
+use super::{gridmap_functions::cell_id_to_world};
 
 
 
@@ -84,72 +84,6 @@ pub fn build_main_gridmap(
 
     }
 
-
-    // Setup atmospherics.
-    let default_x = FOV_MAP_WIDTH as i16 / 2;
-    let default_z = FOV_MAP_WIDTH as i16 / 2;
-
-    let mut current_cell_id = Vec2Int {
-        x: -default_x-1,
-        y: -default_z,
-    };
-
-    for _i in 0..FOV_MAP_WIDTH*FOV_MAP_WIDTH {
-
-        current_cell_id.x+=1;
-
-        if current_cell_id.x > default_x {
-            current_cell_id.x = -default_x;
-            current_cell_id.y +=1;        
-        }
-
-        let blocked;
-
-        match gridmap_main.data.get(&Vec3Int{
-            x: current_cell_id.x,
-            y:0,
-            z:current_cell_id.y
-        }) {
-            Some(_cell_data) => {
-                blocked=true;
-            },
-            None => {
-                blocked=false;
-            },
-        }
-
-        let internal;
-
-        if !blocked {
-
-            match gridmap_main.data.get(&Vec3Int{
-                x: current_cell_id.x,
-                y:-1,
-                z:current_cell_id.y
-            }) {
-                Some(_cell_data) => {
-                    internal=true;
-                },
-                None => {
-                    internal=false;
-                },
-            }
-
-        } else {
-            internal = false;
-        }
-
-        if internal {
-            gridmap_main.atmospherics[get_atmos_index(current_cell_id)] = Atmospherics::new_internal();
-        } else {
-            gridmap_main.atmospherics[get_atmos_index(current_cell_id)] = Atmospherics {
-                blocked,
-                ..Default::default()
-            }
-        }
-
-
-    }
 
 }
 
