@@ -5,7 +5,7 @@ use bevy::core::Timer;
 use bevy::prelude::{Component, Transform};
 use bevy::{math::Vec2, prelude::{Entity}};
 use doryen_fov::FovRecursiveShadowCasting;
-use crate::space_core::ecs::gridmap::resources::{CellData, Vec3Int, Vec2Int, FOV_MAP_WIDTH, FOV_MAP_HEIGHT};
+use crate::space_core::ecs::gridmap::resources::{CellData, Vec3Int, Vec2Int, FOV_MAP_WIDTH};
 use crate::space_core::ecs::health::components::{DamageModel, DamageFlag};
 use crate::space_core::ecs::inventory::components::Inventory;
 use crate::space_core::ecs::inventory_item::components::CombatSoundSet;
@@ -299,7 +299,7 @@ impl Default for Senser {
                 x: 0,
                 y: 0
             },
-            fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_HEIGHT),
+            fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
             sensing: vec![],
         }
     }
