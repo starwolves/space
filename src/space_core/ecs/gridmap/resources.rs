@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::space_core::{ecs::{inventory_item::components::HitSoundSurface, health::components::{HealthFlag, DamageModel, DamageType, HitResult, calculate_damage}, pawn::{events::NetChatMessage, components::Senser, resources::HandleToEntity}, entity::{components::RichName, functions::string_to_type_converters::string_transform_to_transform}, networking::resources::ReliableServerMessage}};
 
-use super::systems::startup_init_gridmap_cells::MainCellProperties;
+use super::{systems::startup_init_gridmap_cells::MainCellProperties, components::Atmospherics};
 
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
@@ -72,6 +72,7 @@ impl FromWorld for GridmapDetails1 {
 pub struct GridmapMain {
     pub data : HashMap<Vec3Int, CellData>,
     pub updates : HashMap<Vec3Int, CellUpdate>,
+    pub atmospherics : Vec<Atmospherics>,
 }
 
 
@@ -217,8 +218,9 @@ impl StructureHealth {
 impl FromWorld for GridmapMain {
     fn from_world(_world: &mut World) -> Self {
         GridmapMain {
-           data : HashMap::new(),
+            data : HashMap::new(),
             updates: HashMap::new(), 
+            atmospherics: vec![Atmospherics::default(); FOV_MAP_WIDTH*FOV_MAP_WIDTH],
         }
     }
 }
@@ -235,7 +237,7 @@ impl FromWorld for DoryenMap {
 
         DoryenMap {
             
-            map : MapData::new(FOV_MAP_WIDTH, FOV_MAP_HEIGHT),
+            map : MapData::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
 
         }
     }
@@ -244,7 +246,7 @@ impl FromWorld for DoryenMap {
 pub fn to_doryen_coordinates(x : i16, y : i16) -> (usize, usize){
 
     let mut n_x=x+FOV_MAP_WIDTH as i16/2;
-    let mut n_y=y+FOV_MAP_HEIGHT as i16/2;
+    let mut n_y=y+FOV_MAP_WIDTH as i16/2;
 
     if doryen_coordinates_out_of_range(n_x as usize, n_y as usize) {
         n_x=0;
@@ -257,7 +259,7 @@ pub fn to_doryen_coordinates(x : i16, y : i16) -> (usize, usize){
 
 
 pub fn doryen_coordinates_out_of_range(x : usize, y : usize) -> bool {
-    x > FOV_MAP_WIDTH || y > FOV_MAP_HEIGHT
+    x > FOV_MAP_WIDTH || y > FOV_MAP_WIDTH
 }
 
 
@@ -279,7 +281,6 @@ pub struct Vec3Int {
 // FOV calculation time will take 10x-15x slower, up to 2-3ms for just a single player calculation.
 // For bigger maps than 500x500 gridmaps we need a new and better FOV algorithm.
 pub const FOV_MAP_WIDTH : usize = 500;
-pub const FOV_MAP_HEIGHT : usize = 500;
 
 
 
