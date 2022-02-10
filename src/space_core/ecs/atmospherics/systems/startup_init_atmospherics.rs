@@ -1,6 +1,6 @@
 use bevy::prelude::{Res, ResMut};
 
-use crate::space_core::ecs::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int, Vec3Int, GridmapMain}, components::Atmospherics}, atmospherics::{resources::AtmosphericsResource, functions::get_atmos_index}};
+use crate::space_core::ecs::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int, Vec3Int, GridmapMain}}, atmospherics::{resources::{AtmosphericsResource, Atmospherics}, functions::get_atmos_index}};
 
 pub fn startup_init_atmospherics(
     gridmap_main : Res<GridmapMain>,
