@@ -5,7 +5,7 @@ use bevy_rapier3d::prelude::{RigidBodyPositionComponent};
 use doryen_fov::FovAlgorithm;
 use rand::Rng;
 
-use crate::space_core::{entities::construction_tool_admin::{components::ConstructionTool, events::{InputConstruct, InputDeconstruct, InputConstructionOptions, InputConstructionOptionsSelection, NetConstructionTool}}, ecs::{pawn::{components::{Pawn, Senser, ConnectedPlayer}, resources::HandleToEntity, functions::new_chat_message::FURTHER_ITALIC_FONT}, inventory_item::components::InventoryItem, sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, rigid_body::components::RigidBodyDisabled, gridmap::{events::RemoveCell, resources::{GridmapData, GridmapMain, GridmapDetails1, CellUpdate, CellData, StructureHealth, DoryenMap, Vec3Int, Vec2Int, to_doryen_coordinates}, systems::senser_update_fov::FOV_DISTANCE, functions::{gridmap_functions::world_to_cell_id, build_gridmap_from_data::spawn_main_cell}}, entity::{components::{Sensable, EntityData}, resources::EntityDataResource, functions::isometry_to_transform::isometry_to_transform}, networking::resources::{GridMapType, TextTreeBit, ReliableServerMessage}}, sfx::{ui::{ui_interaction1_sfx::UIInteraction1SfxBundle, ui_interaction2_sfx::UIInteraction2SfxBundle, ui_interaction3_sfx::UIInteraction3SfxBundle}, construction::{deconstruct1_sfx::Deconstruct1SfxBundle, construct_light1_sfx::ConstructLight1SfxBundle, construct_light2_sfx::ConstructLight2SfxBundle, construct1_sfx::Construct1SfxBundle, construct2_sfx::Construct2SfxBundle}}};
+use crate::space_core::{entities::construction_tool_admin::{components::ConstructionTool, events::{InputConstruct, InputDeconstruct, InputConstructionOptions, InputConstructionOptionsSelection, NetConstructionTool}}, ecs::{pawn::{components::{Pawn, Senser, ConnectedPlayer}, resources::HandleToEntity, functions::new_chat_message::FURTHER_ITALIC_FONT}, inventory_item::components::InventoryItem, sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, rigid_body::components::RigidBodyDisabled, gridmap::{events::RemoveCell, resources::{GridmapData, GridmapMain, GridmapDetails1, CellUpdate, CellData, StructureHealth, DoryenMap, Vec3Int, Vec2Int, to_doryen_coordinates}, systems::senser_update_fov::FOV_DISTANCE, functions::{gridmap_functions::world_to_cell_id, build_gridmap_from_data::spawn_main_cell}}, entity::{components::{Sensable, EntityData}, resources::EntityDataResource, functions::isometry_to_transform::isometry_to_transform}, networking::resources::{GridMapType, TextTreeBit, ReliableServerMessage}, atmospherics::{resources::{AtmosphericsResource, EffectType}, functions::get_atmos_index}}, sfx::{ui::{ui_interaction1_sfx::UIInteraction1SfxBundle, ui_interaction2_sfx::UIInteraction2SfxBundle, ui_interaction3_sfx::UIInteraction3SfxBundle}, construction::{deconstruct1_sfx::Deconstruct1SfxBundle, construct_light1_sfx::ConstructLight1SfxBundle, construct_light2_sfx::ConstructLight2SfxBundle, construct1_sfx::Construct1SfxBundle, construct2_sfx::Construct2SfxBundle}}};
 
 pub fn construction_tool(
     event_readers : (
@@ -28,6 +28,7 @@ pub fn construction_tool(
     rigid_bodies : Query<(&RigidBodyPositionComponent, Option<&EntityData>), Without<RigidBodyDisabled>>,
     mut fov_map : ResMut<DoryenMap>,
     mut sensers : Query<(&mut Senser, &ConnectedPlayer)>,
+    mut atmospherics_resource : ResMut<AtmosphericsResource>,
 ) {
 
     let (
@@ -603,6 +604,21 @@ pub fn construction_tool(
         };
 
         gridmap_main.data.insert(target_cell_id, cell_data.clone());
+
+        // Update atmospherics.
+
+        let mut atmospherics = atmospherics_resource.atmospherics.get_mut(get_atmos_index(Vec2Int{x:target_cell_id.x,y:target_cell_id.z})).unwrap();
+
+        if target_cell_id.y == 0 {
+            atmospherics.blocked=true;
+        } else {
+
+            // Remove vacuum flag from atmos.
+            atmospherics.effects.remove(&EffectType::Floorless);
+
+        }
+
+        
 
         let personal_update_text = "[font=".to_owned() + FURTHER_ITALIC_FONT + "]" + "You've constructed a " + construction_selection + "![/font]";
         net_construction_tool.send(NetConstructionTool {

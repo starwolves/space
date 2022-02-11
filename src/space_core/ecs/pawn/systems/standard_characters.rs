@@ -12,6 +12,7 @@ const RUN_SPEED : f32 = 3031.44;
 
 const MELEE_FISTS_REACH : f32 = 1.2;
 const COMBAT_ROTATION_SPEED : f32 = 18.;
+const DOWN_FORCE : f32 = -1.0;
 
 enum CharacterMovementState {
     None,
@@ -226,7 +227,7 @@ pub fn standard_characters(
 
         let rapier_vector : Vector<Real> = Vec3::new(
             player_input_movement_vector.x * -speed_factor,
-            -1.0,
+            DOWN_FORCE,
             player_input_movement_vector.y * speed_factor,
         ).into();
 

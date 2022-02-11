@@ -1,9 +1,14 @@
 use bevy::prelude::{EventReader, ResMut, Commands, Query};
 use doryen_fov::FovAlgorithm;
 
-use crate::space_core::{ecs::{pawn::components::{Senser, ConnectedPlayer}, gridmap::{events::RemoveCell, resources::{GridmapMain, GridmapDetails1, CellUpdate, CellData, StructureHealth, DoryenMap, to_doryen_coordinates}}, networking::resources::GridMapType}};
+use crate::space_core::{ecs::{pawn::components::{Senser, ConnectedPlayer}, gridmap::{events::RemoveCell, resources::{GridmapMain, GridmapDetails1, CellUpdate, CellData, StructureHealth, DoryenMap, to_doryen_coordinates, Vec2Int}}, networking::resources::GridMapType, atmospherics::{resources::{AtmosphericsResource, EffectType, AtmosEffect}, functions::get_atmos_index}}};
 
 use super::senser_update_fov::FOV_DISTANCE;
+
+pub const VACUUM_ATMOSEFFECT : AtmosEffect = AtmosEffect {
+    temperature_additive: -10.,
+    amount_additive: -10.,
+};
 
 pub fn remove_cell(
     mut deconstruct_cell_events : EventReader<RemoveCell>,
@@ -12,6 +17,7 @@ pub fn remove_cell(
     mut fov_map : ResMut<DoryenMap>,
     mut commands : Commands,
     mut sensers : Query<(&mut Senser, &ConnectedPlayer)>,
+    mut atmospherics_resource : ResMut<AtmosphericsResource>,
 ) {
 
     for event in deconstruct_cell_events.iter() {
@@ -65,6 +71,17 @@ pub fn remove_cell(
                 }
 
                 gridmap_main.data.remove(&event.id);
+
+                let mut atmospherics = atmospherics_resource.atmospherics.get_mut(get_atmos_index(Vec2Int{x:event.id.x,y:event.id.y})).unwrap();
+
+                if event.id.y == 0 {
+                    atmospherics.blocked=false;
+                } else {
+
+                    // Add vacuum flag to atmos.
+                    atmospherics.effects.insert(EffectType::Floorless, VACUUM_ATMOSEFFECT);
+
+                }
 
 
             },
