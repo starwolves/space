@@ -3,9 +3,10 @@ use rand::seq::SliceRandom;
 
 use crate::space_core::ecs::pawn::resources::UsedNames;
 
-const MALE_FIRST_NAMES: [&str; 102] = [
+const MALE_FIRST_NAMES: [&str; 107] = [
     "Anakin",
     "Angel",
+    "Abel",
     "Artemis",
     "Arthur",
     "Bastian",
@@ -78,6 +79,8 @@ const MALE_FIRST_NAMES: [&str; 102] = [
     "Ronias",
     "Orby",
     "Tiran",
+    "Steve",
+    "Steven",
     "Kalett",
     "Yarwick",
     "Jango",
@@ -105,10 +108,12 @@ const MALE_FIRST_NAMES: [&str; 102] = [
     "Bengorn",
     "Yaddu",
     "Ikev",
-    "Lokesh"
+    "Lokesh",
+    "Wolf",
+    "Falco",
 ];
 
-const FEMALE_FIRST_NAMES : [&str;44] = [
+const FEMALE_FIRST_NAMES : [&str;47] = [
     "Aeryn",
     "Amelia",
     "Anastasia",
@@ -140,6 +145,7 @@ const FEMALE_FIRST_NAMES : [&str;44] = [
     "Anno",
     "Katniss",
     "Nyota",
+    "Nancy",
     "Padme",
     "Peggy",
     "Raven",
@@ -152,10 +158,12 @@ const FEMALE_FIRST_NAMES : [&str;44] = [
     "Tauriel",
     "Teyla",
     "Valerian",
-    "Willow"
+    "Willow",
+    "Krystal",
+    "Katelyne"
 ];
 
-const LAST_NAMES : [&str;47] = [
+const LAST_NAMES : [&str;50] = [
 	"Voight",
 	"Barick",
 	"Nicolau",
@@ -202,7 +210,10 @@ const LAST_NAMES : [&str;47] = [
 	"Alpheus",
 	"Skywalker",
 	"Kenobi",
-	"Maul"
+	"Maul",
+    "McCloud",
+    "O'Donnell",
+    "Lombardi",
 ];
 
 

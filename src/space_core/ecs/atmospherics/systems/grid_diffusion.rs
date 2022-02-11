@@ -5,7 +5,7 @@ use crate::space_core::ecs::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}}, atm
 const TEMPERATURE_DIFFUSIVITY : f32 = 1.;
 const AMOUNT_DIFFUSIVITY : f32 = 1.;
 
-pub fn atmospherics_diffusion (
+pub fn grid_diffusion (
 
     mut atmospherics : ResMut<AtmosphericsResource>,
 

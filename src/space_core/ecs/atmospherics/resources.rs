@@ -1,6 +1,8 @@
-use bevy::prelude::{FromWorld, World};
+use std::collections::HashMap;
 
-use crate::space_core::ecs::gridmap::{resources::FOV_MAP_WIDTH};
+use bevy::prelude::{FromWorld, World, Entity};
+
+use crate::space_core::ecs::gridmap::{resources::FOV_MAP_WIDTH, systems::remove_cell::VACUUM_ATMOSEFFECT};
 
 pub struct AtmosphericsResource {
     pub atmospherics : Vec<Atmospherics>,
@@ -14,21 +16,37 @@ impl FromWorld for AtmosphericsResource {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Atmospherics {
     pub blocked : bool,
     //Kelvin
     pub temperature : f32,
     //Mol
     pub amount : f32,
+    pub effects : HashMap<EffectType, AtmosEffect>,
+}
+
+#[derive(Clone, PartialEq,Eq, Hash)]
+pub enum EffectType {
+    Floorless,
+    Entity(Entity),
+}
+
+#[derive(Clone)]
+pub struct AtmosEffect {
+    pub temperature_additive : f32,
+    pub amount_additive : f32,
 }
 
 impl Default for Atmospherics {
     fn default() -> Self {
+        let mut effects = HashMap::new();
+        effects.insert(EffectType::Floorless, VACUUM_ATMOSEFFECT);
         Self {
             blocked : false,
             temperature : -270.45 + CELCIUS_KELVIN_OFFSET,
             amount: 0.,
+            effects : effects,
         }
     }
 }
@@ -41,6 +59,7 @@ impl Atmospherics {
             blocked : false,
             temperature : 20. + CELCIUS_KELVIN_OFFSET,
             amount: 84.58,
+            effects : HashMap::new(),
         }
     }
 }
