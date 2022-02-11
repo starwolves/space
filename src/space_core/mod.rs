@@ -36,6 +36,12 @@ pub enum UpdateLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum AtmosphericsLabels {
+    Effects,
+    Diffusion,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum PostUpdateLabels {
     EntityUpdate,
     SendEntityUpdates,
@@ -193,8 +199,8 @@ impl Plugin for SpaceCore {
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1./4.))
-                .with_system(grid_diffusion)
-                .with_system(atmos_effects)
+                .with_system(grid_diffusion).label(AtmosphericsLabels::Diffusion)
+                .with_system(atmos_effects).label(AtmosphericsLabels::Effects).after(AtmosphericsLabels::Diffusion)
         )
         .add_system(remove_cell.label(UpdateLabels::DeconStructCell))
         .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
