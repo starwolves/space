@@ -37,7 +37,6 @@ pub enum UpdateLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum AtmosphericsLabels {
-    Effects,
     Diffusion,
 }
 
@@ -51,6 +50,7 @@ pub enum PostUpdateLabels {
 
 const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
+const ATMOS_LABEL: &str = "fixed_timestep_atmos";
 
 impl Plugin for SpaceCore {
     fn build(&self, app: &mut App) {
@@ -198,9 +198,10 @@ impl Plugin for SpaceCore {
         )
         .add_system_set(
             SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(1./4.))
-                .with_system(grid_diffusion).label(AtmosphericsLabels::Diffusion)
-                .with_system(atmos_effects).label(AtmosphericsLabels::Effects).after(AtmosphericsLabels::Diffusion)
+                .with_run_criteria(FixedTimestep::step(1./4.)
+                .with_label(ATMOS_LABEL))
+                .with_system(grid_diffusion.label(AtmosphericsLabels::Diffusion))
+                .with_system(atmos_effects.after(AtmosphericsLabels::Diffusion))
         )
         .add_system(remove_cell.label(UpdateLabels::DeconStructCell))
         .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
