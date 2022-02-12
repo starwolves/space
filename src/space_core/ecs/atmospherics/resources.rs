@@ -34,8 +34,13 @@ pub enum EffectType {
 
 #[derive(Clone)]
 pub struct AtmosEffect {
-    pub temperature_additive : f32,
-    pub amount_additive : f32,
+    pub target_temperature : f32,
+    pub temperature_speed : f32,
+    pub heater : bool,
+
+    pub target_amount : f32,
+    pub amount_speed : f32,
+    pub remover : bool,
 }
 
 impl Default for Atmospherics {
@@ -51,7 +56,7 @@ impl Default for Atmospherics {
     }
 }
 
-const CELCIUS_KELVIN_OFFSET : f32 = 273.15;
+pub const CELCIUS_KELVIN_OFFSET : f32 = 273.15;
 
 impl Atmospherics {
     pub fn new_internal() -> Self {

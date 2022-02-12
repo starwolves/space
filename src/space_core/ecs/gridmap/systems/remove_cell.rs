@@ -1,13 +1,18 @@
 use bevy::prelude::{EventReader, ResMut, Commands, Query};
 use doryen_fov::FovAlgorithm;
 
-use crate::space_core::{ecs::{pawn::components::{Senser, ConnectedPlayer}, gridmap::{events::RemoveCell, resources::{GridmapMain, GridmapDetails1, CellUpdate, CellData, StructureHealth, DoryenMap, to_doryen_coordinates, Vec2Int}}, networking::resources::GridMapType, atmospherics::{resources::{AtmosphericsResource, EffectType, AtmosEffect}, functions::get_atmos_index}}};
+use crate::space_core::{ecs::{pawn::components::{Senser, ConnectedPlayer}, gridmap::{events::RemoveCell, resources::{GridmapMain, GridmapDetails1, CellUpdate, CellData, StructureHealth, DoryenMap, to_doryen_coordinates, Vec2Int}}, networking::resources::GridMapType, atmospherics::{resources::{AtmosphericsResource, EffectType, AtmosEffect, CELCIUS_KELVIN_OFFSET}, functions::get_atmos_index}}};
 
 use super::senser_update_fov::FOV_DISTANCE;
 
 pub const VACUUM_ATMOSEFFECT : AtmosEffect = AtmosEffect {
-    temperature_additive: -10.,
-    amount_additive: -10.,
+    target_temperature: -270.45 + CELCIUS_KELVIN_OFFSET,
+    temperature_speed: 10.,
+    heater : false,
+
+    target_amount: 0.,
+    amount_speed: 10.,
+    remover : true,
 };
 
 pub fn remove_cell(
