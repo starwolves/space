@@ -1,6 +1,7 @@
 use bevy::{core::DefaultTaskPoolOptions, prelude::App};
-use space_core::SpaceCore;
-pub mod space_core;
+use space::SpacePlugin;
+
+pub mod space;
 pub mod plugins;
 
 
@@ -8,6 +9,6 @@ fn main() {
     App::new()
         //.insert_resource(ReportExecutionOrderAmbiguities)
         .insert_resource(DefaultTaskPoolOptions::with_num_threads(1))
-        .add_plugin(SpaceCore)
+        .add_plugin(SpacePlugin)
         .run();
 }
