@@ -551,7 +551,6 @@ pub fn handle_network_messages(
 
                 },
                 ReliableClientMessage::MapViewRange(range) => {
-
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_map_view_range.send(InputMap {
