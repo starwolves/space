@@ -77,3 +77,12 @@ impl Atmospherics {
         (((self.amount*0.08206*self.temperature)/2000.)*101325.)/1000.
     }
 }
+
+#[derive(Default)]
+pub struct MapHolders {
+    pub holders : HashMap<Entity, MapHolderData>,
+}
+
+pub struct MapHolderData {
+    pub batch_i : usize,
+}
