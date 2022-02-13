@@ -266,6 +266,18 @@ pub struct Vec2Int {
     pub x : i16,
     pub y : i16,   
 }
+
+
+impl Default for Vec2Int {
+    fn default() -> Self {
+        Self {
+            x:0,
+            y:0,
+        }
+    }
+}
+
+
 #[derive(PartialEq,Eq, Hash, Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct Vec3Int {
     pub x : i16,

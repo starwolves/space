@@ -21,10 +21,10 @@ const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
             rtt_update_factor: 0.1,
             rtt_resend_factor: 1.5,
         },
-        max_message_len: 10240,
+        max_message_len: 32765,
     },
-    message_buffer_size: 256,
-    packet_buffer_size: 256,
+    message_buffer_size: 1024,
+    packet_buffer_size: 1024,
 };
 
 const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
@@ -44,22 +44,22 @@ const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
         },
         max_message_len: 1024,
     },
-    message_buffer_size: 256,
-    packet_buffer_size: 256,
+    message_buffer_size: 64,
+    packet_buffer_size: 64,
 };
 
 const SERVER_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel: 2,
     channel_mode: MessageChannelMode::Unreliable,
-    message_buffer_size: 1600,
-    packet_buffer_size: 1600,
+    message_buffer_size: 256,
+    packet_buffer_size: 256,
 };
 
 const CLIENT_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel: 3,
     channel_mode: MessageChannelMode::Unreliable,
-    message_buffer_size: 1600,
-    packet_buffer_size: 1600,
+    message_buffer_size: 64,
+    packet_buffer_size: 64,
 };
 
 const SERVER_PORT: u16 = 57713;

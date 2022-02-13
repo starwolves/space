@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::{math::{Vec3}, prelude::{Commands, Entity, Query, Transform}};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyDominance, RigidBodyType};
 
-use crate::space_core::{ecs::{pawn::{components::{StandardCharacter, PersistentPlayerData, Pawn, SpaceJobsEnum, Senser, Radio, SpaceAccess, RadioChannel, SpaceAccessEnum, PlayerInput, ConnectedPlayer}, systems::on_setupui::ENTITY_SPAWN_PARENT, functions::{name_generator::get_dummy_name, get_tab_action::get_tab_action, new_chat_message::{FURTHER_NORMAL_FONT, ASTRIX, FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}}}, inventory::components::{Inventory, SlotType, Slot}, health::components::{Health, HealthContainer, HumanoidHealth}, rigid_body::components::{CachedBroadcastTransform, DefaultTransform}, physics::{components::{WorldMode, WorldModes}, functions::{get_bit_masks, ColliderGroup}}, entity::{components::{EntityData, EntityGroup, EntityUpdates, Examinable, RichName, Showcase, Sensable}, resources::{SpawnPawnData, SpawnHeldData}, functions::{transform_to_isometry::transform_to_isometry, spawn_entity::spawn_held_entity}, events::NetShowcase}, networking::resources::ReliableServerMessage}};
+use crate::space_core::{ecs::{pawn::{components::{StandardCharacter, PersistentPlayerData, Pawn, SpaceJobsEnum, Senser, Radio, SpaceAccess, RadioChannel, SpaceAccessEnum, PlayerInput, ConnectedPlayer}, systems::on_setupui::ENTITY_SPAWN_PARENT, functions::{name_generator::get_dummy_name, get_tab_action::get_tab_action, new_chat_message::{FURTHER_NORMAL_FONT, ASTRIX, FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}}}, inventory::components::{Inventory, SlotType, Slot}, health::components::{Health, HealthContainer, HumanoidHealth}, rigid_body::components::{CachedBroadcastTransform, DefaultTransform}, physics::{components::{WorldMode, WorldModes}, functions::{get_bit_masks, ColliderGroup}}, entity::{components::{EntityData, EntityGroup, EntityUpdates, Examinable, RichName, Showcase, Sensable}, resources::{SpawnPawnData, SpawnHeldData}, functions::{transform_to_isometry::transform_to_isometry, spawn_entity::spawn_held_entity}, events::NetShowcase}, networking::resources::ReliableServerMessage, data_link::components::{DataLink, DataLinkType}, map::components::Map}};
 
 pub struct HumanMalePawnBundle;
 
@@ -337,6 +337,18 @@ impl HumanMalePawnBundle {
                         authid: connected_player_component.unwrap().authid,
                         ..Default::default()
                     },
+                    DataLink {
+                        links: vec![DataLinkType::FullAtmospherics],
+                    },
+                    Map {
+                        available_display_modes: vec![
+                            ("Standard".to_string(),"standard".to_string()),
+                            ("Atmospherics Liveable".to_string(), "atmospherics_liveable".to_string()),
+                            ("Atmospherics Temperature".to_string(), "atmospherics_temperature".to_string()),
+                            ("Atmospherics Pressure".to_string(), "atmospherics_pressure".to_string()),
+                        ],
+                        ..Default::default()
+                    }
                 ));
 
             }

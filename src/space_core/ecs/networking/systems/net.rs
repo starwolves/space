@@ -1,7 +1,7 @@
 use bevy::prelude::{EventReader, ResMut, warn, Query};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{entities::construction_tool_admin::events::NetConstructionTool, ecs::{pawn::{components::ConnectedPlayer, events::{NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI, NetDoneBoarding, NetChatMessage, NetConsoleCommands, NetUserName, NetUIInputTransmitData, NetExamineEntity, NetTabData, NetOnSpawning, NetSendWorldEnvironment, NetSendServerTime, NetUpdatePlayerCount}}, inventory::events::{NetPickupWorldItem, NetDropCurrentItem, NetSwitchHands, NetWearItem, NetTakeOffItem, NetThrowItem}, health::events::NetHealthUpdate, gridmap::events::{NetGridmapUpdates, NetProjectileFOV}, entity::events::{NetLoadEntity, NetUnloadEntity, NetShowcase, NetSendEntityUpdates}}};
+use crate::space_core::{entities::construction_tool_admin::events::NetConstructionTool, ecs::{pawn::{components::ConnectedPlayer, events::{NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI, NetDoneBoarding, NetChatMessage, NetConsoleCommands, NetUserName, NetUIInputTransmitData, NetExamineEntity, NetTabData, NetOnSpawning, NetSendWorldEnvironment, NetSendServerTime, NetUpdatePlayerCount}}, inventory::events::{NetPickupWorldItem, NetDropCurrentItem, NetSwitchHands, NetWearItem, NetTakeOffItem, NetThrowItem}, health::events::NetHealthUpdate, gridmap::events::{NetGridmapUpdates, NetProjectileFOV}, entity::events::{NetLoadEntity, NetUnloadEntity, NetShowcase, NetSendEntityUpdates}, map::events::{NetRequestDisplayModes, NetDisplayAtmospherics}}};
 
 pub fn net_send_message_event(
     tuple0 : (
@@ -36,6 +36,8 @@ pub fn net_send_message_event(
         EventReader<NetUpdatePlayerCount>,
         EventReader<NetConstructionTool>,
         EventReader<NetGridmapUpdates>,
+        EventReader<NetRequestDisplayModes>,
+        EventReader<NetDisplayAtmospherics>,
     ),
     connected_players : Query<&ConnectedPlayer>,
 ) {
@@ -75,6 +77,8 @@ pub fn net_send_message_event(
         mut net_update_player_count,
         mut net_construction_tool,
         mut net_gridmap_updates,
+        mut net_request_display_modes,
+        mut net_display_atmospherics,
     )
     = tuple1;
 
@@ -96,7 +100,7 @@ pub fn net_send_message_event(
         match net.send_message(new_event.handle, new_event.message.clone()) {
             Ok(msg) => match msg {
                 Some(msg) => {
-                    warn!("net_send_message_event.rs was unable to send net_on_spawning message: {:?}", msg);
+                    warn!("net_send_message_event.rs was unNetRequestDisplayModesable to send net_on_spawning message: {:?}", msg);
                 }
                 None => {}
             },
@@ -652,4 +656,45 @@ pub fn net_send_message_event(
     }
     
     
+    for new_event in net_request_display_modes.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_request_display_modes message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_request_display_modes message (1): {:?}", err);
+            }
+        };
+
+    }
+    
+    for new_event in net_display_atmospherics.iter() {
+
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_display_atmospherics message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_display_atmospherics message (1): {:?}", err);
+            }
+        };
+
+    }
+    
+
 }

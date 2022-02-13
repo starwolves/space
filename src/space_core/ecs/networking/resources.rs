@@ -45,6 +45,10 @@ pub enum ReliableClientMessage {
     AttackCell(i16,i16,i16),
     TabPressed(String, Option<u64>, Option<(GridMapType, i16,i16,i16)>, Option<u64>),
     TextTreeInput(Option<u64>, String, String, String),
+    MapChangeDisplayMode(String),
+    MapRequestDisplayModes,
+    MapViewRange(f32),
+    MapCameraPosition(Vec2),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -92,6 +96,8 @@ pub enum ReliableServerMessage {
     TextTreeSelection(Option<u64>, String, String, String, HashMap<String, TextTreeBit>),
     RemoveCell(i16,i16,i16, GridMapType),
     AddCell(i16,i16,i16,i64,i64, GridMapType),
+    MapSendDisplayModes(Vec<(String, String)>),
+    MapOverlayUpdate(Vec<(i16,i16,i16)>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

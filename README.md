@@ -78,5 +78,5 @@ However, most devices made for video-games should expect no such problems.
 When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
 
 ### [StarWolves.io](https://starwolves.io)
-Star Wolves is a brand new gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
-Space Frontiers allows each community of players to compile and host a server instance themselves meaning the i/o gameplay and servers remain sovereign.
+Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
+Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & server remain sovereign.
