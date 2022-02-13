@@ -16,6 +16,8 @@ impl FromWorld for AtmosphericsResource {
     }
 }
 
+
+// This struct gets repeated FOV_MAP_WIDTH*FOV_MAP_WIDTH (250k) times in our atmospherics dictionary.
 #[derive(Clone)]
 pub struct Atmospherics {
     pub blocked : bool,
@@ -23,6 +25,7 @@ pub struct Atmospherics {
     pub temperature : f32,
     //Mol
     pub amount : f32,
+    pub flags : Vec<String>,
     pub effects : HashMap<EffectType, AtmosEffect>,
 }
 
@@ -52,6 +55,7 @@ impl Default for Atmospherics {
             temperature : -270.45 + CELCIUS_KELVIN_OFFSET,
             amount: 0.,
             effects : effects,
+            flags: vec![],
         }
     }
 }
@@ -65,6 +69,11 @@ impl Atmospherics {
             temperature : 20. + CELCIUS_KELVIN_OFFSET,
             amount: 84.58,
             effects : HashMap::new(),
+            flags: vec![],
         }
+    }
+    pub fn get_pressure(&self) -> f32 {
+        // Return kpa
+        (((self.amount*0.08206*self.temperature)/2000.)*101325.)/1000.
     }
 }

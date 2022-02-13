@@ -1,7 +1,7 @@
 use bevy::{ecs::system::{ResMut}, prelude::{EventWriter, Res, warn}};
 use bevy_networking_turbulence::NetworkResource;
 
-use crate::space_core::{ecs::{inventory::events::{InputDropCurrentItem, InputUseWorldItem, InputSwitchHands, InputWearItem, InputTakeOffItem, InputThrowItem}, pawn::{events::{InputUIInput, InputSceneReady, InputUIInputTransmitText, InputMovementInput, InputBuildGraphics, InputChatMessage, InputSprinting, InputExamineEntity, InputExamineMap, InputToggleCombatMode, InputMouseDirectionUpdate, InputMouseAction, InputSelectBodyPart, InputToggleAutoMove, InputUserName, InputAttackEntity, InputAltItemAttack, InputAttackCell, InputTabDataEntity, InputTabDataMap, InputTabAction, TextTreeInputSelection, InputConsoleCommand}, resources::HandleToEntity}, gridmap::resources::Vec3Int, networking::resources::{ReliableClientMessage, UnreliableClientMessage, ReliableServerMessage, UnreliableServerMessage}}};
+use crate::space_core::{ecs::{inventory::events::{InputDropCurrentItem, InputUseWorldItem, InputSwitchHands, InputWearItem, InputTakeOffItem, InputThrowItem}, pawn::{events::{InputUIInput, InputSceneReady, InputUIInputTransmitText, InputMovementInput, InputBuildGraphics, InputChatMessage, InputSprinting, InputExamineEntity, InputExamineMap, InputToggleCombatMode, InputMouseDirectionUpdate, InputMouseAction, InputSelectBodyPart, InputToggleAutoMove, InputUserName, InputAttackEntity, InputAltItemAttack, InputAttackCell, InputTabDataEntity, InputTabDataMap, InputTabAction, TextTreeInputSelection, InputConsoleCommand}, resources::HandleToEntity}, gridmap::resources::Vec3Int, networking::resources::{ReliableClientMessage, UnreliableClientMessage, ReliableServerMessage, UnreliableServerMessage}, map::events::{InputMapChangeDisplayMode, InputMapRequestDisplayModes, InputMap, MapInput}}};
 
 pub fn handle_network_messages(
 
@@ -20,7 +20,7 @@ pub fn handle_network_messages(
         EventWriter<InputDropCurrentItem>,
         EventWriter<InputSwitchHands>,
         EventWriter<InputWearItem>,
-        EventWriter<InputTakeOffItem>,
+        EventWriter<InputTakeOffItem>
     ),
 
     tuple1 : (
@@ -38,10 +38,13 @@ pub fn handle_network_messages(
         EventWriter<InputTabDataEntity>,
         EventWriter<InputTabDataMap>,
         EventWriter<InputTabAction>,
+        EventWriter<InputMapChangeDisplayMode>
     ),
 
     tuple2 : (
         EventWriter<TextTreeInputSelection>,
+        EventWriter<InputMapRequestDisplayModes>,
+        EventWriter<InputMap>,
     ),
 
     handle_to_entity : Res<HandleToEntity>,
@@ -82,12 +85,15 @@ pub fn handle_network_messages(
         mut tab_data_entity,
         mut tab_data_map,
         mut input_tab_action,
+        mut input_map_change_display_mode,
     )
     = tuple1;
 
-    let 
-        mut text_tree_input_selection
-     = tuple2.0;
+    let ( 
+        mut text_tree_input_selection,
+        mut input_map_request_display_modes,
+        mut input_map_view_range,
+    ) = tuple2;
 
 
     for (handle, connection) in net.connections.iter_mut() {
@@ -512,6 +518,67 @@ pub fn handle_network_messages(
                         tab_action_id,
                     });
 
+                },
+                ReliableClientMessage::MapChangeDisplayMode(display_mode) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_map_change_display_mode.send(InputMapChangeDisplayMode {
+                                handle: *handle,
+                                entity: *player_entity,
+                                display_mode,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to MapChangeDisplayMode sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::MapRequestDisplayModes => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_map_request_display_modes.send(InputMapRequestDisplayModes {
+                                handle: *handle,
+                                entity: *player_entity,
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to input_map_request_display_modes sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::MapViewRange(range) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_map_view_range.send(InputMap {
+                                handle: *handle,
+                                entity: *player_entity,
+                                input: MapInput::Range(range)
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to MapViewRange sender handle.");
+                        },
+                    }
+
+                },
+                ReliableClientMessage::MapCameraPosition(position) => {
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_map_view_range.send(InputMap {
+                                handle: *handle,
+                                entity: *player_entity,
+                                input: MapInput::Position(position)
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to MapCameraPosition sender handle.");
+                        },
+                    }
                 },
             }
 

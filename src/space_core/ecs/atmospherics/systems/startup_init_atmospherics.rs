@@ -66,6 +66,7 @@ pub fn startup_init_atmospherics(
         } else {
             atmospherics.atmospherics[get_atmos_index(current_cell_id)] = Atmospherics {
                 blocked,
+                flags : vec!["default_vacuum".to_string()],
                 ..Default::default()
             }
         }
