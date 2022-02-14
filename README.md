@@ -59,8 +59,11 @@ cargo run
 
 ### Space Frontiers community
 Space Frontiers now has an official brand new community [Discord server](https://discord.gg/yYpMun9CTT).
+
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for years to come.
+
 Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
+
 The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
 Also looking for 3D artists and lore writers, even this early into the project.
 
