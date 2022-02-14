@@ -56,6 +56,15 @@ You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_Px
 cargo run
 ```
 
+### Space Frontiers client
+You can get the latest stable releases of the closed-source client contacting STARWOLF#5816 on Discord.
+Ensure you select the right branch of the server that has the same version number as the client you have obtained.
+
+The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
+However, most devices made for video-games should expect no such problems.
+
+When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
+
 
 ### Space Frontiers community
 Space Frontiers now has an official brand new community [Discord server](https://discord.gg/yYpMun9CTT).
@@ -77,14 +86,6 @@ A public client release is planned starting at the next version (0.0.2) and beyo
 
 
 
-### Space Frontiers client
-You can get the latest stable releases of the closed-source client contacting STARWOLF#5816 on Discord.
-Ensure you select the right branch of the server that has the same version number as the client you have obtained.
-
-The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
-However, most devices made for video-games should expect no such problems.
-
-When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
 
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
