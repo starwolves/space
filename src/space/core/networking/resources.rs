@@ -97,6 +97,7 @@ pub enum ReliableServerMessage {
     AddCell(i16,i16,i16,i64,i64, GridMapType),
     MapSendDisplayModes(Vec<(String, String)>),
     MapOverlayUpdate(Vec<(i16,i16,i16)>),
+    MapOverlayHoverData(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -171,7 +172,7 @@ pub enum ServerConfigMessage {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableServerMessage {
     TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
-    PositionUpdate(u64, Vec3, u64)
+    PositionUpdate(u64, Vec3, u64),
 }
 
 
@@ -180,4 +181,10 @@ pub enum UnreliableServerMessage {
 pub enum UnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
     MapViewRange(f32),
+    MapOverlayMouseHoverCell(i16,i16),
+}
+
+pub enum NetMessageType {
+    Reliable(ReliableServerMessage),
+    Unreliable(UnreliableServerMessage),
 }

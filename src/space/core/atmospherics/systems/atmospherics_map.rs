@@ -1,6 +1,8 @@
+use std::collections::HashSet;
+
 use bevy::{prelude::{Query, Res, EventWriter, Entity, ResMut}, math::Vec3};
 
-use crate::space::core::{atmospherics::{resources::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET, MapHolders, MapHolderData}, functions::{get_atmos_id, get_atmos_index}}, pawn::components::ConnectedPlayer, map::{components::Map, events::{NetDisplayAtmospherics}, functions::{OverlayTile, get_overlay_tile_item, get_overlay_tile_priority}}, networking::resources::ReliableServerMessage, gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}, functions::gridmap_functions::world_to_cell_id}};
+use crate::space::core::{atmospherics::{resources::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET, MapHolders, MapHolderData}, functions::{get_atmos_id, get_atmos_index}}, pawn::components::ConnectedPlayer, map::{components::Map, events::{NetDisplayAtmospherics}, functions::{OverlayTile, get_overlay_tile_item, get_overlay_tile_priority}}, networking::resources::{ReliableServerMessage, NetMessageType}, gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}, functions::gridmap_functions::world_to_cell_id}};
 
 
 
@@ -46,10 +48,6 @@ pub fn atmospherics_map(
         let camera_center_cell_3 = world_to_cell_id(Vec3::new(map_component.camera_position.x,0.,map_component.camera_position.y));
         let camera_center_cell = Vec2Int{x:camera_center_cell_3.x,y:camera_center_cell_3.z};
 
-        let total_cells_in_view = (map_component.view_range*2)*(map_component.view_range*2);
-
-        
-
         let mut start_cam_x = camera_center_cell.x-map_component.view_range as i16;
         let mut start_cam_y = camera_center_cell.y-map_component.view_range as i16;
 
@@ -88,10 +86,49 @@ pub fn atmospherics_map(
             None => {
                 display_atmos_state.holders.insert(map_holder_entity, MapHolderData{
                     batch_i: min_i,
+                    ..Default::default()
                 });
                 map_holder_data=display_atmos_state.holders.get_mut(&map_holder_entity).unwrap();
             },
         }
+
+        match map_component.passed_mouse_cell {
+            Some((idx,idy)) => {
+
+                let id = Vec2Int{x:idx,y:idy};
+
+                if id.x > start_cam_x && id.x < end_cam_x && id.y > start_cam_y && id.y < end_cam_y {
+
+                    let cell_i = get_atmos_index(id);
+
+                    let cell_atmos = atmospherics.atmospherics.get(cell_i).unwrap();
+
+                    let data;
+                    
+                    if cell_atmos.blocked {
+                        data = "".to_string();
+                    } else {
+                        data = "Temperature: ".to_owned() + &(cell_atmos.temperature - CELCIUS_KELVIN_OFFSET).floor().to_string()  + " c\n"
+                        + "Pressure: " + &cell_atmos.get_pressure().floor().to_string() + " kpa";
+                    }
+
+                    if map_holder_data.hovering_data != data {
+                        net.send(NetDisplayAtmospherics {
+                            handle: connected_player_component.handle,
+                            message: NetMessageType::Reliable(ReliableServerMessage::MapOverlayHoverData(data.to_string())),
+                        });
+                        map_holder_data.hovering_data=data;
+                    }
+
+                    
+                }
+
+                
+            },
+            None => {},
+        }
+
+        let total_cells_in_view = (map_component.view_range*2)*(map_component.view_range*2);
 
         let mut adjusted_cell_i = map_holder_data.batch_i;
 
@@ -148,22 +185,38 @@ pub fn atmospherics_map(
 
             let atmospherics = atmospherics.atmospherics.get(cell_i).unwrap();
 
-            if atmospherics.blocked || atmospherics.flags.contains(&"default_vacuum".to_string()) {
+            let atmospherics_cache = map_holder_data.cache.get_mut(cell_i).unwrap();
+
+            if atmospherics.flags.contains(&"default_vacuum".to_string()) {
+                cell_i+=1;
+                if atmospherics_cache.tile_color.is_some() {
+                    atmospherics_cache.tile_color = None;
+                    batch.push((current_cell_id.x,current_cell_id.y, -1));
+                }
+                continue;
+            }
+
+            if atmospherics.blocked {
                 cell_i+=1;
                 continue;
             }
 
+            
+
             let item;
+            let new_tile_color;
 
             match show_temperature {
                 SelectedDisplayMode::Temperature => {
                     let tile_color = temperature_to_tile_color(atmospherics.temperature);
                     item = get_overlay_tile_item(&tile_color);
+                    new_tile_color = tile_color;
                 },
                 SelectedDisplayMode::Pressure => {
                     let pressure_kpa = atmospherics.get_pressure();
                     let tile_color = pressure_to_tile_color(pressure_kpa);
                     item = get_overlay_tile_item(&tile_color);
+                    new_tile_color = tile_color;
                     
                 },
                 SelectedDisplayMode::Liveable => {
@@ -175,15 +228,34 @@ pub fn atmospherics_map(
 
                     if get_overlay_tile_priority(&temperature_tile_color) > get_overlay_tile_priority(&pressure_tile_color) {
                         item = get_overlay_tile_item(&temperature_tile_color);
+                        new_tile_color = temperature_tile_color;
                     } else {
                         item = get_overlay_tile_item(&pressure_tile_color);
+                        new_tile_color = pressure_tile_color;
                     }
 
                 },
-            } 
-            
+            }
 
-            batch.push((current_cell_id.x,current_cell_id.y, item));
+            let should_update;
+
+            match &atmospherics_cache.tile_color {
+                Some(r) => {
+                    if r.clone() != new_tile_color {
+                        should_update=true;
+                    } else {
+                        should_update=false;
+                    }
+                },
+                None => {
+                    should_update=true;
+                },
+            }
+
+            if should_update {
+                batch.push((current_cell_id.x,current_cell_id.y, item));
+                atmospherics_cache.tile_color = Some(new_tile_color);
+            }
 
             cell_i+=1;
             valids_processed_i+=1;
@@ -194,11 +266,91 @@ pub fn atmospherics_map(
 
         net.send(NetDisplayAtmospherics {
             handle: connected_player_component.handle,
-            message: ReliableServerMessage::MapOverlayUpdate(batch),
+            message: NetMessageType::Reliable(ReliableServerMessage::MapOverlayUpdate(batch)),
         });
 
         map_holder_data.batch_i = adjusted_cell_i;
 
+
+        // Instead build up an array that gets the difference in FOV cells, the substractives. And that has them in a vector of indexes
+        //  so you can efficiently remove them here
+        // Just store prev cam pos and prev cam distance, get all its i's in a vector. Do the same with current cam and get difference.
+
+        let mut prev_start_cam_x = map_holder_data.prev_camera_cell_id.x-map_holder_data.prev_camera_view_range as i16;
+        let mut prev_start_cam_y = map_holder_data.prev_camera_cell_id.y-map_holder_data.prev_camera_view_range as i16;
+
+        if prev_start_cam_x < -(FOV_MAP_WIDTH as i16)/2 {
+            prev_start_cam_x = -(FOV_MAP_WIDTH as i16)/2;
+        }
+        if prev_start_cam_y < -(FOV_MAP_WIDTH as i16)/2 {
+            prev_start_cam_y = -(FOV_MAP_WIDTH as i16)/2;
+        }
+
+        let mut prev_end_cam_x = map_holder_data.prev_camera_cell_id.x+map_holder_data.prev_camera_view_range as i16;
+        let mut prev_end_cam_y = map_holder_data.prev_camera_cell_id.y+map_holder_data.prev_camera_view_range as i16;
+
+        if prev_end_cam_x > FOV_MAP_WIDTH as i16/2 {
+            prev_end_cam_x = FOV_MAP_WIDTH as i16/2;
+        }
+        if prev_end_cam_y > FOV_MAP_WIDTH as i16/2 {
+            prev_end_cam_y = FOV_MAP_WIDTH as i16/2;
+        }
+
+        let mut prev_cell_is = vec![];
+
+        let mut prev_iter_id = Vec2Int{
+            x: prev_start_cam_x-1,
+            y: prev_start_cam_y,
+        };
+
+        for _i in 0..(map_holder_data.prev_camera_view_range*2)*(map_holder_data.prev_camera_view_range*2) {
+
+            prev_iter_id.x+=1;
+            if prev_iter_id.x > prev_end_cam_x {
+                prev_iter_id.x=prev_start_cam_x;
+                prev_iter_id.y+=1;
+            }
+            if prev_iter_id.y > prev_end_cam_y {
+                break;
+            }
+
+            prev_cell_is.push(get_atmos_index(prev_iter_id));
+
+        }
+
+        let mut new_cell_is = vec![];
+
+        let mut new_iter_id = Vec2Int {
+            x: start_cam_x-1,
+            y: start_cam_y,
+        };
+
+        for _i in 0..(map_component.view_range*2)*(map_component.view_range*2) {
+
+            new_iter_id.x+=1;
+            if new_iter_id.x > end_cam_x {
+                new_iter_id.x=start_cam_x;
+                new_iter_id.y+=1;
+            }
+            if new_iter_id.y > end_cam_y {
+                break;
+            }
+
+            new_cell_is.push(get_atmos_index(new_iter_id));
+
+        }
+
+        let item_set: HashSet<_> = prev_cell_is.iter().collect();
+        let difference: Vec<_> = new_cell_is.into_iter().filter(|item| !item_set.contains(item)).collect();
+
+        for i in difference {
+            // If outside of FOV put tile color to none as client resets it too.
+            let atmos_data = map_holder_data.cache.get_mut(i).unwrap();
+            atmos_data.tile_color = None;
+        }
+
+        map_holder_data.prev_camera_cell_id = camera_center_cell;
+        map_holder_data.prev_camera_view_range = map_component.view_range;
 
     }
 

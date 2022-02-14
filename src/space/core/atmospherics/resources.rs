@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{FromWorld, World, Entity};
 
-use crate::space::core::gridmap::{resources::FOV_MAP_WIDTH, systems::remove_cell::VACUUM_ATMOSEFFECT};
+use crate::space::core::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}, systems::remove_cell::VACUUM_ATMOSEFFECT}, map::functions::OverlayTile};
 
 pub struct AtmosphericsResource {
     pub atmospherics : Vec<Atmospherics>,
@@ -85,4 +85,33 @@ pub struct MapHolders {
 
 pub struct MapHolderData {
     pub batch_i : usize,
+    pub cache : Vec<AtmosphericsCache>,
+    pub prev_camera_cell_id : Vec2Int,
+    pub prev_camera_view_range : usize,
+    pub hovering_data : String,
+}
+
+#[derive(Clone)]
+pub struct AtmosphericsCache {
+    pub tile_color : Option<OverlayTile>,
+}
+
+impl Default for MapHolderData {
+    fn default() -> Self {
+        Self {
+            batch_i : 0,
+            cache : vec![AtmosphericsCache::default(); FOV_MAP_WIDTH*FOV_MAP_WIDTH],
+            prev_camera_cell_id : Vec2Int::default(),
+            prev_camera_view_range : 20,
+            hovering_data : "".to_string(),
+        }
+    }
+}
+
+impl Default for AtmosphericsCache {
+    fn default() -> Self {
+        Self {
+            tile_color : None,
+        }
+    }
 }

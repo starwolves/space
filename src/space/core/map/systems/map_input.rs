@@ -17,6 +17,11 @@ pub fn map_input (
                     crate::space::core::map::events::MapInput::Position(position) => {
                         let width = FOV_MAP_WIDTH as f32 * 2. - 1.;
                         map_component.camera_position = position.clamp(Vec2::new(-width,-width),Vec2::new(width,width));
+                    },
+                    crate::space::core::map::events::MapInput::MouseCell(idx, idy) => {
+
+                        map_component.passed_mouse_cell = Some((idx,idy));
+
                     }, 
                 }
                 
