@@ -57,19 +57,24 @@ cargo run
 ```
 
 
-### Documentation
-Coming soon.
-
-### Contributions
-Pushed code, feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
-You can get in contact with the developers through [Discord](https://discord.gg/qcg4zPuHyU).
-Aditionally you can also get in contact on Discord by contacting STARWOLF#5816 .
+### Space Frontiers community
+Space Frontiers has an official community [Discord server](https://discord.gg/yYpMun9CTT).
+Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
 Also looking for 3D artists and lore writers, even this early into the project.
 
+Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain sovereign.
+
+A developer documentation website is planned.
+
+A developer web forum is planned.
+
+A public client release is planned starting at the next version (0.0.2) and beyond!
+
+
+
 ### Space Frontiers client
-You can get the latest stable releases of the client at [Discord](https://discord.gg/qcg4zPuHyU) by contacting STARWOLF#5816.
-Aditionally the client can be obtained at our own Matrix server without requiring you to contact anyone, more information about our Matrix on [our website](https://starwolves.io)
+You can get the latest stable releases of the client contacting STARWOLF#5816 on Discord.
 Ensure you select the right branch of the server that has the same version number as the client you have obtained.
 
 The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
@@ -79,4 +84,5 @@ When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 
 
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
-Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & server remain sovereign.
+The roots of Space Frontiers are partially in this community, but Space Frontiers and its community remain its own seperated project, community and entity.
+This will be the first community to host a 24/7 server for Space Frontiers when this project is out of pre-alpha and enters alpha.

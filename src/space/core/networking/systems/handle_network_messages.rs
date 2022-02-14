@@ -603,6 +603,22 @@ pub fn handle_network_messages(
                     }
 
                 },
+                UnreliableClientMessage::MapOverlayMouseHoverCell(idx, idy) => {
+
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_map_view_range.send(InputMap {
+                                handle: *handle,
+                                entity: *player_entity,
+                                input: MapInput::MouseCell(idx,idy)
+                            });
+                        },
+                        None => {
+                            warn!("Couldn't find player_entity belonging to MapMouseHoverCell sender handle.");
+                        },
+                    }
+
+                },
             }
 
         }

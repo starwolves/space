@@ -1,6 +1,6 @@
 use bevy::{prelude::Entity, math::Vec2};
 
-use crate::space::core::networking::resources::ReliableServerMessage;
+use crate::space::core::networking::resources::{ReliableServerMessage, NetMessageType};
 
 pub struct InputMapChangeDisplayMode{
     pub handle : u32,
@@ -20,7 +20,7 @@ pub struct NetRequestDisplayModes {
 
 pub struct NetDisplayAtmospherics {
     pub handle : u32,
-    pub message : ReliableServerMessage
+    pub message : NetMessageType
 }
 
 pub struct InputMap {
@@ -32,5 +32,6 @@ pub struct InputMap {
 
 pub enum MapInput {
     Range(f32),
-    Position(Vec2)
+    Position(Vec2),
+    MouseCell(i16,i16)
 }

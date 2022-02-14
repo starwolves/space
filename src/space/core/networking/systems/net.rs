@@ -682,17 +682,37 @@ pub fn net_send_message_event(
             continue;
         }
 
-        match net.send_message(new_event.handle, new_event.message.clone()) {
-            Ok(msg) => match msg {
-                Some(msg) => {
-                    warn!("net_send_message_event.rs was unable to send net_display_atmospherics message: {:?}", msg);
-                }
-                None => {}
+
+        match &new_event.message {
+            crate::space::core::networking::resources::NetMessageType::Reliable(m) => {
+                match net.send_message(new_event.handle, m.clone()) {
+                    Ok(msg) => match msg {
+                        Some(msg) => {
+                            warn!("net_send_message_event.rs was unable to send net_display_atmospherics message: {:?}", msg);
+                        }
+                        None => {}
+                    },
+                    Err(err) => {
+                        warn!("net_send_message_event.rs was unable to send net_display_atmospherics message (1): {:?}", err);
+                    }
+                };
             },
-            Err(err) => {
-                warn!("net_send_message_event.rs was unable to send net_display_atmospherics message (1): {:?}", err);
-            }
-        };
+            crate::space::core::networking::resources::NetMessageType::Unreliable(m) => {
+                match net.send_message(new_event.handle, m.clone()) {
+                    Ok(msg) => match msg {
+                        Some(msg) => {
+                            warn!("net_send_message_event.rs was unable to send net_display_atmospherics message: {:?}", msg);
+                        }
+                        None => {}
+                    },
+                    Err(err) => {
+                        warn!("net_send_message_event.rs was unable to send net_display_atmospherics message (1): {:?}", err);
+                    }
+                };
+            },
+        }
+
+        
 
     }
     
