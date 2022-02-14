@@ -37,6 +37,12 @@ pub fn change_display_mode(
         if event.display_mode == "atmospherics_temperature" ||  event.display_mode == "atmospherics_pressure" || event.display_mode == "atmospherics_liveable" {
             if data_link_component.links.contains(&DataLinkType::FullAtmospherics) {
                 map_component.display_mode = Some(event.display_mode.clone());
+                match display_atmos_state.holders.get_mut(&event.entity) {
+                    Some(atmospherics_map_state) => {
+                        atmospherics_map_state.reset_cache=true;
+                    },
+                    None => {},
+                }
             }
         } else {
             display_atmos_state.holders.remove(&event.entity);
@@ -44,7 +50,7 @@ pub fn change_display_mode(
 
         if event.display_mode == "standard" {
             map_component.display_mode = None;
-        } 
+        }
 
     }
 

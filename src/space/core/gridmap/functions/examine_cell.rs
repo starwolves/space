@@ -1,10 +1,12 @@
 
 use bevy::prelude::{Res};
+use const_format::concatcp;
 use rand::Rng;
 
 use crate::space::{core::{gridmap::resources::{CellData, GridmapData}, pawn::functions::new_chat_message::{FURTHER_NORMAL_FONT, ASTRIX, FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR}, networking::resources::GridMapType}};
 
 pub const EXAMINATION_EMPTY : &str = "You cannot see what is there.";
+pub const END_ASTRIX : &str = concatcp!("\n",ASTRIX,"[/font]");
 
 pub fn examine_ship_cell(
     ship_cell : &CellData,
@@ -56,8 +58,6 @@ pub fn examine_ship_cell(
 
     }
 
-    message = message + "\n" + ASTRIX + "[/font]";
-
     message
 
 }
@@ -65,7 +65,6 @@ pub fn examine_ship_cell(
 pub fn get_empty_cell_message() -> String {
     "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n"
     + EXAMINATION_EMPTY
-    + "\n" + ASTRIX + "[/font]"
 }
 
 
@@ -85,8 +84,6 @@ pub fn get_space_message() -> String {
     } else {
         msg = msg+"Space.";
     }
-
-    msg = msg + "\n" + ASTRIX + "[/font]";
 
     msg.to_string()
 

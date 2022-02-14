@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 use bevy::{math::{Quat, Vec2, Vec3}, prelude::{Color}};
+use bevy_networking_turbulence::{MessageChannelSettings, MessageChannelMode, ReliableChannelSettings};
 use serde::{Serialize, Deserialize};
 
 use crate::space::core::world_environment::resources::WorldEnvironment;
@@ -188,3 +189,62 @@ pub enum NetMessageType {
     Reliable(ReliableServerMessage),
     Unreliable(UnreliableServerMessage),
 }
+
+
+pub const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 0,
+    channel_mode: MessageChannelMode::Reliable {
+        reliability_settings: ReliableChannelSettings {
+            bandwidth: 163840,
+            recv_window_size: 1024,
+            send_window_size: 1024,
+            burst_bandwidth: 1024,
+            init_send: 512,
+            wakeup_time: Duration::from_millis(100),
+            initial_rtt: Duration::from_millis(200),
+            max_rtt: Duration::from_secs(2),
+            rtt_update_factor: 0.1,
+            rtt_resend_factor: 1.5,
+        },
+        max_message_len: 32765,
+    },
+    message_buffer_size: 1024,
+    packet_buffer_size: 1024,
+};
+
+pub const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 1,
+    channel_mode: MessageChannelMode::Reliable {
+        reliability_settings: ReliableChannelSettings {
+            bandwidth: 163840,
+            recv_window_size: 1024,
+            send_window_size: 1024,
+            burst_bandwidth: 1024,
+            init_send: 512,
+            wakeup_time: Duration::from_millis(100),
+            initial_rtt: Duration::from_millis(200),
+            max_rtt: Duration::from_secs(2),
+            rtt_update_factor: 0.1,
+            rtt_resend_factor: 1.5,
+        },
+        max_message_len: 1024,
+    },
+    message_buffer_size: 64,
+    packet_buffer_size: 64,
+};
+
+pub const SERVER_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 2,
+    channel_mode: MessageChannelMode::Unreliable,
+    message_buffer_size: 256,
+    packet_buffer_size: 256,
+};
+
+pub const CLIENT_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 3,
+    channel_mode: MessageChannelMode::Unreliable,
+    message_buffer_size: 64,
+    packet_buffer_size: 64,
+};
+
+pub const SERVER_PORT: u16 = 57713;

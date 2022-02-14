@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::space::{core::{inventory_item::components::HitSoundSurface, health::components::{HealthFlag, DamageModel, DamageType, HitResult, calculate_damage}, pawn::{events::NetChatMessage, components::Senser, resources::HandleToEntity}, entity::{components::RichName, functions::string_to_type_converters::string_transform_to_transform}, networking::resources::ReliableServerMessage}};
 
-use super::{systems::startup_init_gridmap_cells::MainCellProperties};
+use super::MainCellProperties;
+
 
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,

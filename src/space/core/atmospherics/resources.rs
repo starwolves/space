@@ -16,6 +16,24 @@ impl FromWorld for AtmosphericsResource {
     }
 }
 
+impl AtmosphericsResource {
+    pub fn is_id_out_of_range(id : Vec2Int) -> bool {
+
+        if id.x < -(FOV_MAP_WIDTH as i16/2) {
+            true
+        } else if id.x > FOV_MAP_WIDTH as i16/2 {
+            true
+        } else if id.y < -(FOV_MAP_WIDTH as i16/2) {
+            true
+        } else if id.y > FOV_MAP_WIDTH as i16/2 {
+            true
+        } else {
+            false
+        }
+
+    }
+}
+
 
 // This struct gets repeated FOV_MAP_WIDTH*FOV_MAP_WIDTH (250k) times in our atmospherics dictionary.
 #[derive(Clone)]
@@ -61,13 +79,14 @@ impl Default for Atmospherics {
 }
 
 pub const CELCIUS_KELVIN_OFFSET : f32 = 273.15;
+pub const DEFAULT_INTERNAL_AMOUNT : f32 = 84.58;
 
 impl Atmospherics {
     pub fn new_internal() -> Self {
         Self {
             blocked : false,
             temperature : 20. + CELCIUS_KELVIN_OFFSET,
-            amount: 84.58,
+            amount: DEFAULT_INTERNAL_AMOUNT,
             effects : HashMap::new(),
             flags: vec![],
         }
@@ -88,6 +107,7 @@ pub struct MapHolderData {
     pub cache : Vec<AtmosphericsCache>,
     pub prev_camera_cell_id : Vec2Int,
     pub prev_camera_view_range : usize,
+    pub reset_cache : bool,
     pub hovering_data : String,
 }
 
@@ -103,6 +123,7 @@ impl Default for MapHolderData {
             cache : vec![AtmosphericsCache::default(); FOV_MAP_WIDTH*FOV_MAP_WIDTH],
             prev_camera_cell_id : Vec2Int::default(),
             prev_camera_view_range : 20,
+            reset_cache: true,
             hovering_data : "".to_string(),
         }
     }

@@ -272,9 +272,9 @@ pub fn atmospherics_map(
         map_holder_data.batch_i = adjusted_cell_i;
 
 
-        // Instead build up an array that gets the difference in FOV cells, the substractives. And that has them in a vector of indexes
-        //  so you can efficiently remove them here
-        // Just store prev cam pos and prev cam distance, get all its i's in a vector. Do the same with current cam and get difference.
+        // Vector that gets the difference in FOV cells, the substractives. And that has them in a vector of indexes
+        // So we efficiently remove them here
+        // We store prev cam pos and prev cam distance, get all its i's in a vector. Do the same with current cam and get difference.
 
         let mut prev_start_cam_x = map_holder_data.prev_camera_cell_id.x-map_holder_data.prev_camera_view_range as i16;
         let mut prev_start_cam_y = map_holder_data.prev_camera_cell_id.y-map_holder_data.prev_camera_view_range as i16;
@@ -341,7 +341,17 @@ pub fn atmospherics_map(
         }
 
         let item_set: HashSet<_> = prev_cell_is.iter().collect();
-        let difference: Vec<_> = new_cell_is.into_iter().filter(|item| !item_set.contains(item)).collect();
+
+        let difference: Vec<_>;
+
+        if map_holder_data.reset_cache {
+            map_holder_data.reset_cache =false;
+            difference = new_cell_is;
+        } else {
+            difference = new_cell_is.into_iter().filter(|item| !item_set.contains(item)).collect();
+        }
+
+        
 
         for i in difference {
             // If outside of FOV put tile color to none as client resets it too.
