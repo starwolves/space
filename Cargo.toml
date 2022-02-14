@@ -1,5 +1,5 @@
 [package]
-name = "space"
+name = "server"
 version = "0.0.1"
 authors = ["Nikita Ramses Abdoelrahman <nikitaab98@gmail.com>"]
 description="A high performance multi-threaded ECS game server for Space Frontiers."
