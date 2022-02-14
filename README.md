@@ -58,7 +58,8 @@ cargo run
 
 
 ### Space Frontiers community
-Space Frontiers has an official community [Discord server](https://discord.gg/yYpMun9CTT).
+Space Frontiers now has an official brand new community [Discord server](https://discord.gg/yYpMun9CTT).
+This project is oriented towards long-term development, meaning it is here to stay and to be developed for years to come.
 Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
 Also looking for 3D artists and lore writers, even this early into the project.
@@ -74,7 +75,7 @@ A public client release is planned starting at the next version (0.0.2) and beyo
 
 
 ### Space Frontiers client
-You can get the latest stable releases of the client contacting STARWOLF#5816 on Discord.
+You can get the latest stable releases of the closed-source client contacting STARWOLF#5816 on Discord.
 Ensure you select the right branch of the server that has the same version number as the client you have obtained.
 
 The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
