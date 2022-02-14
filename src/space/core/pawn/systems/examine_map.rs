@@ -1,6 +1,6 @@
 use bevy::{prelude::{EventReader, EventWriter, Query, Res, warn}};
 
-use crate::space::{core::{pawn::{components::Senser, events::{InputExamineMap, NetChatMessage}}, gridmap::{resources::{GridmapMain, GridmapDetails1, GridmapData, to_doryen_coordinates}, functions::examine_cell::{get_empty_cell_message, examine_ship_cell, get_space_message}}, networking::resources::{GridMapType, ReliableServerMessage}}};
+use crate::space::{core::{pawn::{components::Senser, events::{InputExamineMap, NetChatMessage}, functions::new_chat_message::{FURTHER_ITALIC_FONT}}, gridmap::{resources::{GridmapMain, GridmapDetails1, GridmapData, to_doryen_coordinates, Vec2Int}, functions::examine_cell::{get_empty_cell_message, examine_ship_cell, get_space_message, END_ASTRIX}}, networking::resources::{GridMapType, ReliableServerMessage}, atmospherics::{resources::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET}, functions::get_atmos_index}}};
 
 pub fn examine_map(
     mut examine_map_events : EventReader<InputExamineMap>,
@@ -9,6 +9,7 @@ pub fn examine_map(
     gridmap_details1 : Res<GridmapDetails1>,
     senser_entities : Query<&Senser>,
     gridmap_data : Res<GridmapData>,
+    atmospherics_resource : Res<AtmosphericsResource>,
 ) {
 
     for examine_event in examine_map_events.iter() {
@@ -26,7 +27,7 @@ pub fn examine_map(
         }
 
 
-        let examine_text;
+        let mut examine_text;
 
         let coords = to_doryen_coordinates(examine_event.gridmap_cell_id.x, examine_event.gridmap_cell_id.z);
         if !examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
@@ -67,7 +68,41 @@ pub fn examine_map(
                     examine_text = get_space_message();
                 },
             }
+
         }
+
+        examine_text = examine_text + "\n";
+
+        for sensing_ability in examiner_senser_component.sensing_abilities.iter() {
+
+            match sensing_ability {
+                crate::space::core::pawn::components::SensingAbility::Atmospherics => {
+
+                    let id = Vec2Int {
+                        x: examine_event.gridmap_cell_id.x,
+                        y: examine_event.gridmap_cell_id.z,
+                    };
+
+                    if AtmosphericsResource::is_id_out_of_range(id) {
+                        continue;
+                    }
+
+                    let atmospherics = atmospherics_resource.atmospherics.get(get_atmos_index(id)).unwrap();
+
+                    if atmospherics.blocked {
+                        continue;
+                    }
+
+                    examine_text = examine_text + "[font=" + FURTHER_ITALIC_FONT + "][color=" + ATMOSPHERICS_TEXT_COLOR + "]" + "\n" + "Atmospherics DataLink: [/color]"
+                    + "\n" + "Temperature: " + &(atmospherics.temperature - CELCIUS_KELVIN_OFFSET).floor().to_string()  + " c\n"
+                    + "Pressure: " + &atmospherics.get_pressure().floor().to_string() + " kpa" + "[/font]";
+
+                },
+            }
+
+        }
+
+        examine_text = examine_text + END_ASTRIX;
 
         net_new_chat_message_event.send(NetChatMessage {
             handle: examine_event.handle,
@@ -80,3 +115,5 @@ pub fn examine_map(
     
 
 }
+
+pub const ATMOSPHERICS_TEXT_COLOR : &str = "#1797ff";

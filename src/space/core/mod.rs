@@ -1,3 +1,5 @@
+use bevy::prelude::info;
+
 pub mod pawn;
 pub mod inventory;
 pub mod inventory_item;
@@ -14,3 +16,7 @@ pub mod networking;
 pub mod atmospherics;
 pub mod data_link;
 pub mod map;
+
+pub fn server_is_live() {
+    info!("Live.");
+}

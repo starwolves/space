@@ -285,11 +285,17 @@ pub enum RadioChannel {
     SpecialOps
 }
 
+#[derive(PartialEq)]
+pub enum SensingAbility {
+    Atmospherics,
+}
+
 #[derive(Component)]
 pub struct Senser {
     pub cell_id : Vec2Int,
     pub fov : FovRecursiveShadowCasting,
     pub sensing : Vec<Entity>,
+    pub sensing_abilities : Vec<SensingAbility>,
 }
 
 impl Default for Senser {
@@ -301,6 +307,7 @@ impl Default for Senser {
             },
             fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
             sensing: vec![],
+            sensing_abilities : vec![],
         }
     }
 }
