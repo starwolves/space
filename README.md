@@ -85,4 +85,4 @@ When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
 The roots of Space Frontiers are partially in this community, but Space Frontiers and its community remain its own seperated project, community and entity.
-This will be the first community to host a 24/7 server for Space Frontiers when this project is out of pre-alpha and enters alpha.
+This will be the first community to host a 24/7 server for Space Frontiers when this project is out of pre-alpha and enters the alpha stage.
