@@ -32,12 +32,28 @@ pub fn remove_cell(
                 
                 let coords = to_doryen_coordinates(event.id.x, event.id.z);
                 
+                let mut atmospherics = atmospherics_resource.atmospherics.get_mut(get_atmos_index(Vec2Int{x:event.id.x,y:event.id.z})).unwrap();
+
                 if event.id.y == 0 {
                     // Wall
                     let cell_entity = gridmap_main.data.get(&event.id).unwrap().entity.unwrap();
                     commands.entity(cell_entity).despawn();
                     fov_map.map.set_transparent(coords.0, coords.1, true);
+                    atmospherics.blocked=false;
+                } else {
+
+                    let mut upper_id = event.id.clone();
+                    upper_id.y=0;
+
+                    // Add vacuum flag to atmos.
+                    match gridmap_main.data.get(&upper_id) {
+                        Some(_) => todo!(),
+                        None => {
+                            atmospherics.effects.insert(EffectType::Floorless, VACUUM_ATMOSEFFECT);
+                        },
+                    }
                     
+
                 }
 
                 match gridmap_details1.data.get(&event.id) {
@@ -76,18 +92,6 @@ pub fn remove_cell(
                 }
 
                 gridmap_main.data.remove(&event.id);
-
-                let mut atmospherics = atmospherics_resource.atmospherics.get_mut(get_atmos_index(Vec2Int{x:event.id.x,y:event.id.y})).unwrap();
-
-                if event.id.y == 0 {
-                    atmospherics.blocked=false;
-                } else {
-
-                    // Add vacuum flag to atmos.
-                    atmospherics.effects.insert(EffectType::Floorless, VACUUM_ATMOSEFFECT);
-
-                }
-
 
             },
             GridMapType::Details1 => {

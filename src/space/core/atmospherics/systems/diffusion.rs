@@ -5,7 +5,7 @@ use crate::space::core::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}}, atmosph
 const TEMPERATURE_DIFFUSIVITY : f32 = 1.;
 const AMOUNT_DIFFUSIVITY : f32 = 1.;
 
-pub fn grid_diffusion (
+pub fn diffusion (
 
     mut atmospherics : ResMut<AtmosphericsResource>,
 
@@ -55,26 +55,42 @@ pub fn grid_diffusion (
                 adjacent_cell_id.y-=1
             }
 
-            match atmospherics.atmospherics.get(get_atmos_index(current_cell_id)) {
-                Some(a) => {
-                    if !a.blocked {
-                        non_blocking_adjacents+=1;
-                        total_temperature+=a.temperature;
-                        total_amount+=a.amount;
-                    }
-                },
-                None => {
-                    // Tile is outside of map range, permanent vacuum.
-                    total_temperature+=vacuum_atmos.temperature;
-                    total_amount+=vacuum_atmos.amount;
-                },
+            let out_of_range;
+
+            if AtmosphericsResource::is_id_out_of_range(adjacent_cell_id) {
+                out_of_range=true;
+            } else {
+                match atmospherics.atmospherics.get(get_atmos_index(adjacent_cell_id)) {
+                    Some(a) => {
+                        if !a.blocked {
+                            non_blocking_adjacents+=1;
+                            total_temperature+=a.temperature;
+                            total_amount+=a.amount;
+                        }
+                        out_of_range=false;
+                    },
+                    None => {
+                        out_of_range=true;
+                    },
+                }
             }
+
+            if out_of_range {
+                // Tile is outside of map range, permanent vacuum.
+                total_temperature+=vacuum_atmos.temperature;
+                total_amount+=vacuum_atmos.amount;
+            }
+
+            
 
         }
 
         if non_blocking_adjacents == 0 {
             continue;
         }
+
+        //let new_temperature = total_temperature / non_blocking_adjacents as f32;
+        //let new_amount = total_amount / non_blocking_adjacents as f32;
 
         let new_temperature = (current_cell_atmos.temperature + TEMPERATURE_DIFFUSIVITY * (total_temperature / non_blocking_adjacents as f32)) / (1. + TEMPERATURE_DIFFUSIVITY);
         let new_amount = (current_cell_atmos.amount + AMOUNT_DIFFUSIVITY * (total_amount / non_blocking_adjacents as f32)) / (1. + AMOUNT_DIFFUSIVITY);

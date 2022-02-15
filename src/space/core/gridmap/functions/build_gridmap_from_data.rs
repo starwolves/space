@@ -36,7 +36,7 @@ pub fn build_main_gridmap(
             y: cell_id.y as i16,
             z: cell_id.z as i16,
         };
-
+        
         let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
 
         if cell_id_int.y == 0 {
