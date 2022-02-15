@@ -355,6 +355,9 @@ pub fn atmospherics_map(
 
         for i in difference {
             // If outside of FOV put tile color to none as client resets it too.
+            if i > FOV_MAP_WIDTH*FOV_MAP_WIDTH{
+                continue;
+            }
             let atmos_data = map_holder_data.cache.get_mut(i).unwrap();
             atmos_data.tile_color = None;
         }
