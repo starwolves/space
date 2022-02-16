@@ -49,7 +49,6 @@ use self::{
             entity_update::health_ui_update,
             events::{Attack, NetHealthUpdate},
             resources::ClientHealthUICache,
-            systems::attack,
         },
         inventory::{
             entity_update::inventory_update,
@@ -129,7 +128,7 @@ use self::{
             resources::SfxAutoDestroyTimers,
             systems::tick_timers_slowed,
         },
-        world_environment::resources::WorldEnvironment,
+        world_environment::resources::WorldEnvironment, combat::systems::attack,
     },
     entities::{
         air_lock_security::{
