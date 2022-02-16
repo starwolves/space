@@ -2,6 +2,7 @@ use bevy::{
     math::{Quat, Vec3},
     prelude::{Component, Entity, Transform},
 };
+use bevy_rapier3d::prelude::CoefficientCombineRule;
 #[derive(Component)]
 pub struct CachedBroadcastTransform {
     pub transform: Transform,
@@ -53,3 +54,9 @@ impl Default for RigidBodyLinkTransform {
 
 #[derive(Component)]
 pub struct UpdateTransform;
+
+#[derive(Component)]
+pub struct RigidBodyData {
+    pub friction: f32,
+    pub friction_combine_rule: CoefficientCombineRule,
+}

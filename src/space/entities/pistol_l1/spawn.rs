@@ -30,7 +30,8 @@ use crate::space::{
             functions::{get_bit_masks, ColliderGroup},
         },
         rigid_body::components::{
-            CachedBroadcastTransform, DefaultTransform, RigidBodyDisabled, RigidBodyLinkTransform,
+            CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
+            RigidBodyLinkTransform,
         },
     },
     entities::helmet_security::spawn::STANDARD_BODY_FRICTION,
@@ -113,6 +114,8 @@ fn spawn_entity(
     if correct_transform {
         this_transform.rotation = default_transform.rotation;
     }
+    let friction = STANDARD_BODY_FRICTION;
+    let friction_combine_rule = CoefficientCombineRule::Multiply;
 
     let rigid_body_component;
     let collider_component;
@@ -134,8 +137,8 @@ fn spawn_entity(
             shape: shape.into(),
             position: collider_position.into(),
             material: ColliderMaterial {
-                friction: STANDARD_BODY_FRICTION,
-                friction_combine_rule: CoefficientCombineRule::Multiply,
+                friction,
+                friction_combine_rule,
                 ..Default::default()
             }
             .into(),
@@ -169,8 +172,8 @@ fn spawn_entity(
             shape: shape.into(),
             position: collider_position.into(),
             material: ColliderMaterial {
-                friction: STANDARD_BODY_FRICTION,
-                friction_combine_rule: CoefficientCombineRule::Average,
+                friction,
+                friction_combine_rule,
                 ..Default::default()
             }
             .into(),
@@ -281,6 +284,10 @@ fn spawn_entity(
         },
         DefaultTransform {
             transform: default_transform,
+        },
+        RigidBodyData {
+            friction,
+            friction_combine_rule,
         },
     ));
 

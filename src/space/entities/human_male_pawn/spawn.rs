@@ -44,7 +44,7 @@ use crate::space::core::{
         components::{WorldMode, WorldModes},
         functions::{get_bit_masks, ColliderGroup},
     },
-    rigid_body::components::{CachedBroadcastTransform, DefaultTransform},
+    rigid_body::components::{CachedBroadcastTransform, DefaultTransform, RigidBodyData},
 };
 
 pub struct HumanMalePawnBundle;
@@ -91,6 +91,9 @@ impl HumanMalePawnBundle {
 
         this_transform.translation.y = 0.9 - r;
 
+        let friction = CHARACTER_FLOOR_FRICTION;
+        let friction_combine_rule = CoefficientCombineRule::Min;
+
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(this_transform).into(),
@@ -112,8 +115,8 @@ impl HumanMalePawnBundle {
             position: Vec3::ZERO.into(),
             collider_type: ColliderType::Solid.into(),
             material: ColliderMaterial {
-                friction: CHARACTER_FLOOR_FRICTION,
-                friction_combine_rule: CoefficientCombineRule::Min,
+                friction,
+                friction_combine_rule,
                 ..Default::default()
             }
             .into(),
@@ -172,6 +175,10 @@ impl HumanMalePawnBundle {
                 health_container: HealthContainer::Humanoid(HumanoidHealth::default()),
                 is_combat_obstacle: true,
                 ..Default::default()
+            },
+            RigidBodyData {
+                friction,
+                friction_combine_rule,
             },
         ));
 

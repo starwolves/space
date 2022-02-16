@@ -23,6 +23,7 @@ use self::{
                 atmospherics_sensing_ability::atmospherics_sensing_ability,
                 diffusion::{atmos_diffusion, DIFFUSION_STEP},
                 effects::atmos_effects,
+                zero_gravity::zero_gravity,
             },
         },
         configuration::resources::{ServerId, TickRate, MOTD},
@@ -367,6 +368,8 @@ impl Plugin for SpacePlugin {
             .add_system(map_input.label(MapLabels::ChangeMode))
             .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
             .add_system(atmospherics_sensing_ability)
+            .add_system(zero_gravity)
+            .add_system(out_of_bounds_check)
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))
@@ -405,8 +408,7 @@ impl Plugin for SpacePlugin {
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(3.))
                     .with_system(send_server_time)
-                    .with_system(update_player_count)
-                    .with_system(out_of_bounds_check),
+                    .with_system(update_player_count),
             )
             .add_system(drop_current_item.label(UpdateLabels::DropCurrentItem))
             .add_system(rigidbody_link_transform.after(UpdateLabels::DropCurrentItem))

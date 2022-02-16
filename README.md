@@ -29,9 +29,10 @@ You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_Px
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
 * Actions and tab menu's to easily interact with the world while also offering protection against cheaters.
 * Configurable console commands, including rcon admin commands.
-* Clients can load in custom content on a per server basis thanks to a traditional content folder approach. Allowing modders to create new entities such as items, characters, sounds, ship cells and MUCH more.
+* Clients can load in custom content on a per server basis thanks to a traditional content folder approach. Allowing modders to create new entities such as items, characters, sounds, ship cells and more.
 * Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
 * Cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic (de)constructable ship cells as map size is currently bottlenecked by the FOV algorithm. 
+* Atmospherics simulation including temperature, pressure, diffusion, gravity and the vacuum of space.
 
 
 ## Getting Started

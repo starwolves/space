@@ -117,42 +117,6 @@ pub fn atmospherics_map(
             }
         }
 
-        /*match map_component.passed_mouse_cell {
-            Some((idx,idy)) => {
-
-                let id = Vec2Int{x:idx,y:idy};
-
-                if id.x > start_cam_x && id.x < end_cam_x && id.y > start_cam_y && id.y < end_cam_y {
-
-                    let cell_i = get_atmos_index(id);
-
-                    let cell_atmos = atmospherics.atmospherics.get(cell_i).unwrap();
-
-                    let data;
-
-                    if cell_atmos.blocked {
-                        data = "".to_string();
-                    } else {
-                        data = "Temperature: ".to_owned() + &(cell_atmos.temperature - CELCIUS_KELVIN_OFFSET).floor().to_string()  + " c\n"
-                        + "Pressure: " + &cell_atmos.get_pressure().floor().to_string() + " kpa";
-                    }
-
-                    if map_holder_data.hovering_data != data {
-                        net.send(NetDisplayAtmospherics {
-                            handle: connected_player_component.handle,
-                            message: NetMessageType::Reliable(ReliableServerMessage::MapOverlayHoverData(data.to_string())),
-                        });
-                        map_holder_data.hovering_data=data;
-                    }
-
-
-                }
-
-
-            },
-            None => {},
-        }*/
-
         let total_cells_in_view = (map_component.view_range * 2) * (map_component.view_range * 2);
 
         let mut adjusted_cell_i = map_holder_data.batch_i;
