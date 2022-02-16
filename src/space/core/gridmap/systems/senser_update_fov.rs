@@ -5,7 +5,7 @@ use doryen_fov::FovAlgorithm;
 use crate::space::core::{
     gridmap::{
         functions::gridmap_functions::world_to_cell_id,
-        resources::{to_doryen_coordinates, DoryenMap, Vec2Int},
+        resources::{to_doryen_coordinates, DoryenMap, Vec2Int, FOV_MAP_WIDTH},
     },
     pawn::components::Senser,
 };
@@ -24,7 +24,12 @@ pub fn senser_update_fov(
             y: senser_cell_id_3.z,
         };
 
-        if senser_component.cell_id != senser_cell_id {
+        if senser_component.cell_id != senser_cell_id
+            && senser_cell_id.x < FOV_MAP_WIDTH as i16 / 2
+            && senser_cell_id.x > -(FOV_MAP_WIDTH as i16) / 2
+            && senser_cell_id.y < FOV_MAP_WIDTH as i16 / 2
+            && senser_cell_id.y > -(FOV_MAP_WIDTH as i16) / 2
+        {
             senser_component.cell_id = senser_cell_id;
 
             // 240000 ns. 1/4th of a ms. 4x/ms (expensive.)

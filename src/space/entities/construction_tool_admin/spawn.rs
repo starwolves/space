@@ -35,7 +35,8 @@ use crate::space::{
             functions::{get_bit_masks, ColliderGroup},
         },
         rigid_body::components::{
-            CachedBroadcastTransform, DefaultTransform, RigidBodyDisabled, RigidBodyLinkTransform,
+            CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
+            RigidBodyLinkTransform,
         },
     },
     entities::{
@@ -121,6 +122,9 @@ fn spawn_entity(
 
     let collider_position: ColliderPosition = Vec3::new(0., 0.087, 0.).into();
 
+    let friction = STANDARD_BODY_FRICTION;
+    let friction_combine_rule = CoefficientCombineRule::Multiply;
+
     if held == false {
         rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic.into(),
@@ -134,8 +138,8 @@ fn spawn_entity(
             shape: shape.into(),
             position: collider_position.into(),
             material: ColliderMaterial {
-                friction: STANDARD_BODY_FRICTION,
-                friction_combine_rule: CoefficientCombineRule::Multiply,
+                friction,
+                friction_combine_rule,
                 ..Default::default()
             }
             .into(),
@@ -169,8 +173,8 @@ fn spawn_entity(
             shape: shape.into(),
             position: collider_position.into(),
             material: ColliderMaterial {
-                friction: STANDARD_BODY_FRICTION,
-                friction_combine_rule: CoefficientCombineRule::Average,
+                friction,
+                friction_combine_rule,
                 ..Default::default()
             }
             .into(),
@@ -294,6 +298,10 @@ fn spawn_entity(
                     belonging_entity: Some(entity_id),
                 },
             ],
+        },
+        RigidBodyData {
+            friction,
+            friction_combine_rule,
         },
         DefaultTransform {
             transform: default_transform,

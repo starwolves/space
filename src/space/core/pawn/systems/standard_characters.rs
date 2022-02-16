@@ -8,14 +8,15 @@ use bevy::{
 use bevy_rapier3d::{
     na::UnitQuaternion,
     prelude::{
-        RigidBodyDominanceComponent, RigidBodyForcesComponent, RigidBodyPositionComponent,
-        RigidBodyVelocityComponent,
+        CoefficientCombineRule, ColliderMaterialComponent, RigidBodyDominanceComponent,
+        RigidBodyForcesComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
     },
     rapier::math::{Real, Vector},
 };
 
 use crate::space::{
     core::{
+        atmospherics::components::ZeroGravity,
         configuration::resources::TickRate,
         entity::{
             components::{Examinable, Sensable},
@@ -25,6 +26,7 @@ use crate::space::{
                 transform_to_isometry::transform_to_isometry,
             },
         },
+        gridmap::{functions::gridmap_functions::world_to_cell_id, resources::GridmapMain},
         health::events::Attack,
         inventory::components::Inventory,
         inventory_item::components::{CombatType, InventoryItem},
@@ -40,6 +42,7 @@ use crate::space::{
             },
             resources::{HandleToEntity, PlayerYAxisRotations},
         },
+        rigid_body::components::RigidBodyData,
         sfx::components::{FootstepsSprinting, FootstepsWalking},
         static_body::components::StaticTransform,
     },
@@ -77,6 +80,9 @@ pub fn standard_characters(
         Option<&LinkedFootstepsSprinting>,
         &mut Pawn,
         &Inventory,
+        Option<&ZeroGravity>,
+        &mut ColliderMaterialComponent,
+        &RigidBodyData,
     )>,
     inventory_items_query: Query<(&InventoryItem, &Examinable)>,
     mut footsteps_query: Query<(
@@ -100,6 +106,7 @@ pub fn standard_characters(
         EventReader<InputAltItemAttack>,
         EventReader<InputAttackCell>,
     ),
+    gridmap_main: Res<GridmapMain>,
 ) {
     let (
         mut net_unload_entity,
@@ -196,6 +203,9 @@ pub fn standard_characters(
         linked_footsteps_sprinting_option,
         mut pawn_component,
         inventory_component,
+        zero_gravity_component_option,
+        mut collider_material_component,
+        rigidbody_data_component,
     ) in standard_character_query.iter_mut()
     {
         let character_movement_state;
@@ -688,17 +698,19 @@ pub fn standard_characters(
 
                     // Spawn FootstepsWalkingSfx entity here.
 
-                    let repeating_sfx_id = commands
-                        .spawn_bundle(FootstepsWalkingSfxBundle::new(isometry_to_transform(
-                            rigid_body_position,
-                        )))
-                        .id();
+                    if zero_gravity_component_option.is_none() {
+                        let repeating_sfx_id = commands
+                            .spawn_bundle(FootstepsWalkingSfxBundle::new(isometry_to_transform(
+                                rigid_body_position,
+                            )))
+                            .id();
 
-                    commands
-                        .entity(standard_character_entity)
-                        .insert(LinkedFootstepsWalking {
-                            entity: repeating_sfx_id,
-                        });
+                        commands
+                            .entity(standard_character_entity)
+                            .insert(LinkedFootstepsWalking {
+                                entity: repeating_sfx_id,
+                            });
+                    }
                 } else if !player_input_component.sprinting
                     && matches!(
                         standard_character_component.current_lower_animation_state,
@@ -766,17 +778,19 @@ pub fn standard_characters(
 
                     // Spawn FootstepsWalkingSfx entity here.
 
-                    let repeating_sfx_id = commands
-                        .spawn_bundle(FootstepsSprintingSfxBundle::new(isometry_to_transform(
-                            rigid_body_position,
-                        )))
-                        .id();
+                    if zero_gravity_component_option.is_none() {
+                        let repeating_sfx_id = commands
+                            .spawn_bundle(FootstepsSprintingSfxBundle::new(isometry_to_transform(
+                                rigid_body_position,
+                            )))
+                            .id();
 
-                    commands
-                        .entity(standard_character_entity)
-                        .insert(LinkedFootstepsSprinting {
-                            entity: repeating_sfx_id,
-                        });
+                        commands.entity(standard_character_entity).insert(
+                            LinkedFootstepsSprinting {
+                                entity: repeating_sfx_id,
+                            },
+                        );
+                    }
                 } else if player_input_component.sprinting
                     && matches!(
                         standard_character_component.current_lower_animation_state,
@@ -827,12 +841,69 @@ pub fn standard_characters(
                 }
             }
 
-            let should_apply;
+            let mut should_apply;
 
             if speed > max_speed {
                 should_apply = false;
             } else {
                 should_apply = true;
+            }
+
+            if zero_gravity_component_option.is_some() {
+                let mut cell_id =
+                    world_to_cell_id(rigid_body_position_component.position.translation.into());
+
+                cell_id.y = 0;
+
+                let mut bordering_wall = false;
+
+                for j in 0..8 {
+                    let mut adjacent_cell_id = cell_id.clone();
+
+                    if j == 0 {
+                        adjacent_cell_id.x += 1;
+                    } else if j == 1 {
+                        adjacent_cell_id.x -= 1;
+                    } else if j == 2 {
+                        adjacent_cell_id.z += 1;
+                    } else if j == 3 {
+                        adjacent_cell_id.z -= 1;
+                    } else if j == 4 {
+                        adjacent_cell_id.x += 1;
+                        adjacent_cell_id.z += 1;
+                    } else if j == 5 {
+                        adjacent_cell_id.x -= 1;
+                        adjacent_cell_id.z -= 1;
+                    } else if j == 6 {
+                        adjacent_cell_id.x += 1;
+                        adjacent_cell_id.z -= 1;
+                    } else {
+                        adjacent_cell_id.x -= 1;
+                        adjacent_cell_id.z += 1;
+                    }
+
+                    match gridmap_main.data.get(&adjacent_cell_id) {
+                        Some(_) => {
+                            bordering_wall = true;
+                            break;
+                        }
+                        None => {}
+                    }
+                }
+                if !bordering_wall {
+                    should_apply = false;
+                    if collider_material_component.friction != 0. {
+                        collider_material_component.friction = 0.;
+                        collider_material_component.friction_combine_rule =
+                            CoefficientCombineRule::Min;
+                    }
+                } else {
+                    if rigidbody_data_component.friction != collider_material_component.friction {
+                        collider_material_component.friction = rigidbody_data_component.friction;
+                        collider_material_component.friction_combine_rule =
+                            rigidbody_data_component.friction_combine_rule;
+                    }
+                }
             }
 
             if should_apply {
@@ -850,6 +921,53 @@ pub fn standard_characters(
         } else {
             if rigid_body_dominance.0 .0 != 10 {
                 rigid_body_dominance.0 .0 = 10;
+            }
+        }
+
+        if zero_gravity_component_option.is_some() {
+            match linked_footsteps_walking_option {
+                Some(linked_footsteps_walking_component) => {
+                    let mut sensable_component = sensable_entities
+                        .get_mut(linked_footsteps_walking_component.entity)
+                        .unwrap();
+
+                    sensable_component.despawn(
+                        linked_footsteps_walking_component.entity,
+                        &mut net_unload_entity,
+                        &handle_to_entity,
+                    );
+
+                    commands
+                        .entity(standard_character_entity)
+                        .remove::<LinkedFootstepsWalking>();
+
+                    commands
+                        .entity(linked_footsteps_walking_component.entity)
+                        .despawn();
+                }
+                None => {}
+            }
+            match linked_footsteps_sprinting_option {
+                Some(linked_footsteps_sprinting_component) => {
+                    let mut sensable_component = sensable_entities
+                        .get_mut(linked_footsteps_sprinting_component.entity)
+                        .unwrap();
+
+                    sensable_component.despawn(
+                        linked_footsteps_sprinting_component.entity,
+                        &mut net_unload_entity,
+                        &handle_to_entity,
+                    );
+
+                    commands
+                        .entity(standard_character_entity)
+                        .remove::<LinkedFootstepsSprinting>();
+
+                    commands
+                        .entity(linked_footsteps_sprinting_component.entity)
+                        .despawn();
+                }
+                None => {}
             }
         }
     }

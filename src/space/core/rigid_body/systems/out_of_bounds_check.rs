@@ -1,32 +1,43 @@
-use bevy::prelude::{warn, Entity, Query, Without};
+use bevy::prelude::{warn, Entity, Query};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{entity::components::EntityData, gridmap::resources::FOV_MAP_WIDTH};
 
 pub fn out_of_bounds_check(
-    rigid_bodies: Query<
-        (Entity, &EntityData, &RigidBodyPositionComponent),
-        Without<RigidBodyPositionComponent>,
-    >,
+    mut rigid_bodies: Query<(Entity, &EntityData, &mut RigidBodyPositionComponent)>,
 ) {
     let max = FOV_MAP_WIDTH as f32 * 0.5 * 2.;
 
-    for (rigid_body_entity, entity_data_component, rigid_body_position_component) in
-        rigid_bodies.iter()
+    for (rigid_body_entity, entity_data_component, mut rigid_body_position_component) in
+        rigid_bodies.iter_mut()
     {
         if rigid_body_position_component.position.translation.y > 5.
             || rigid_body_position_component.position.translation.y < -5.
-            || rigid_body_position_component.position.translation.x > max
-            || rigid_body_position_component.position.translation.x < -max
-            || rigid_body_position_component.position.translation.z > max
-            || rigid_body_position_component.position.translation.z < -max
         {
             warn!(
-                "Entity {:?} {} is out of range at position {}.",
+                "Entity {:?} {} is out of y-axis range at position {}.",
                 rigid_body_entity,
                 entity_data_component.entity_type,
                 rigid_body_position_component.position.translation
             );
+            rigid_body_position_component.position.translation.y = 0.5;
+        }
+
+        if rigid_body_position_component.position.translation.x > max {
+            let overshot = rigid_body_position_component.position.translation.x - max;
+            rigid_body_position_component.position.translation.x = -max + overshot;
+        }
+        if rigid_body_position_component.position.translation.x < -max {
+            let overshot = rigid_body_position_component.position.translation.x.abs() - max.abs();
+            rigid_body_position_component.position.translation.x = max - overshot;
+        }
+        if rigid_body_position_component.position.translation.z > max {
+            let overshot = rigid_body_position_component.position.translation.z - max;
+            rigid_body_position_component.position.translation.z = -max + overshot;
+        }
+        if rigid_body_position_component.position.translation.z < -max {
+            let overshot = rigid_body_position_component.position.translation.z.abs() - max.abs();
+            rigid_body_position_component.position.translation.z = max - overshot;
         }
     }
 }
