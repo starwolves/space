@@ -1,53 +1,55 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{FromWorld, World, Entity};
+use bevy::prelude::{Entity, FromWorld, World};
 
-use crate::space::core::{gridmap::{resources::{FOV_MAP_WIDTH, Vec2Int}, systems::remove_cell::VACUUM_ATMOSEFFECT}, map::functions::OverlayTile};
+use crate::space::core::{
+    gridmap::resources::{Vec2Int, FOV_MAP_WIDTH},
+    map::functions::OverlayTile,
+};
+
+use super::systems::effects::VACUUM_ATMOSEFFECT;
 
 pub struct AtmosphericsResource {
-    pub atmospherics : Vec<Atmospherics>,
+    pub atmospherics: Vec<Atmospherics>,
 }
 
 impl FromWorld for AtmosphericsResource {
     fn from_world(_world: &mut World) -> Self {
         AtmosphericsResource {
-            atmospherics: vec![Atmospherics::default(); FOV_MAP_WIDTH*FOV_MAP_WIDTH],
+            atmospherics: vec![Atmospherics::default(); FOV_MAP_WIDTH * FOV_MAP_WIDTH],
         }
     }
 }
 
 impl AtmosphericsResource {
-    pub fn is_id_out_of_range(id : Vec2Int) -> bool {
-
-        if id.x < -(FOV_MAP_WIDTH as i16/2) {
+    pub fn is_id_out_of_range(id: Vec2Int) -> bool {
+        if id.x < -(FOV_MAP_WIDTH as i16 / 2) {
             true
-        } else if id.x > FOV_MAP_WIDTH as i16/2 {
+        } else if id.x > FOV_MAP_WIDTH as i16 / 2 {
             true
-        } else if id.y < -(FOV_MAP_WIDTH as i16/2) {
+        } else if id.y < -(FOV_MAP_WIDTH as i16 / 2) {
             true
-        } else if id.y > FOV_MAP_WIDTH as i16/2 {
+        } else if id.y > FOV_MAP_WIDTH as i16 / 2 {
             true
         } else {
             false
         }
-
     }
 }
-
 
 // This struct gets repeated FOV_MAP_WIDTH*FOV_MAP_WIDTH (250k) times in our atmospherics dictionary.
 #[derive(Clone)]
 pub struct Atmospherics {
-    pub blocked : bool,
+    pub blocked: bool,
     //Kelvin
-    pub temperature : f32,
+    pub temperature: f32,
     //Mol
-    pub amount : f32,
-    pub flags : Vec<String>,
-    pub effects : HashMap<EffectType, AtmosEffect>,
+    pub amount: f32,
+    pub flags: Vec<String>,
+    pub effects: HashMap<EffectType, AtmosEffect>,
 }
 
-#[derive(Clone, PartialEq,Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub enum EffectType {
     Floorless,
     Entity(Entity),
@@ -55,13 +57,13 @@ pub enum EffectType {
 
 #[derive(Clone)]
 pub struct AtmosEffect {
-    pub target_temperature : f32,
-    pub temperature_speed : f32,
-    pub heater : bool,
+    pub target_temperature: f32,
+    pub temperature_speed: f32,
+    pub heater: bool,
 
-    pub target_amount : f32,
-    pub amount_speed : f32,
-    pub remover : bool,
+    pub target_amount: f32,
+    pub amount_speed: f32,
+    pub remover: bool,
 }
 
 impl Default for Atmospherics {
@@ -69,70 +71,68 @@ impl Default for Atmospherics {
         let mut effects = HashMap::new();
         effects.insert(EffectType::Floorless, VACUUM_ATMOSEFFECT);
         Self {
-            blocked : false,
-            temperature : -270.45 + CELCIUS_KELVIN_OFFSET,
+            blocked: false,
+            temperature: -270.45 + CELCIUS_KELVIN_OFFSET,
             amount: 0.,
-            effects : effects,
+            effects: effects,
             flags: vec![],
         }
     }
 }
 
-pub const CELCIUS_KELVIN_OFFSET : f32 = 273.15;
-pub const DEFAULT_INTERNAL_AMOUNT : f32 = 84.58;
+pub const CELCIUS_KELVIN_OFFSET: f32 = 273.15;
+pub const DEFAULT_INTERNAL_AMOUNT: f32 = 84.58;
 
 impl Atmospherics {
     pub fn new_internal() -> Self {
         Self {
-            blocked : false,
-            temperature : 20. + CELCIUS_KELVIN_OFFSET,
+            blocked: false,
+            temperature: 20. + CELCIUS_KELVIN_OFFSET,
             amount: DEFAULT_INTERNAL_AMOUNT,
-            effects : HashMap::new(),
+            effects: HashMap::new(),
             flags: vec![],
         }
     }
     pub fn get_pressure(&self) -> f32 {
         // Return kpa
-        (((self.amount*0.08206*self.temperature)/2000.)*101325.)/1000.
+        (((self.amount * 0.08206 * self.temperature) / 2000.) * 101325.) / 1000.
     }
 }
 
 #[derive(Default)]
 pub struct MapHolders {
-    pub holders : HashMap<Entity, MapHolderData>,
+    pub holders: HashMap<Entity, MapHolderData>,
 }
 
 pub struct MapHolderData {
-    pub batch_i : usize,
-    pub cache : Vec<AtmosphericsCache>,
-    pub prev_camera_cell_id : Vec2Int,
-    pub prev_camera_view_range : usize,
-    pub reset_cache : bool,
-    pub hovering_data : String,
+    pub batch_i: usize,
+    pub cache: Vec<AtmosphericsCache>,
+    pub prev_camera_cell_id: Vec2Int,
+    pub prev_camera_view_range: usize,
+    pub reset_cache: bool,
+    pub hovering_data: String,
 }
 
 #[derive(Clone)]
 pub struct AtmosphericsCache {
-    pub tile_color : Option<OverlayTile>,
+    pub tile_color: Option<OverlayTile>,
 }
 
 impl Default for MapHolderData {
     fn default() -> Self {
         Self {
-            batch_i : 0,
-            cache : vec![AtmosphericsCache::default(); FOV_MAP_WIDTH*FOV_MAP_WIDTH],
-            prev_camera_cell_id : Vec2Int::default(),
-            prev_camera_view_range : 20,
+            batch_i: 0,
+            cache: vec![AtmosphericsCache::default(); FOV_MAP_WIDTH * FOV_MAP_WIDTH],
+            prev_camera_cell_id: Vec2Int::default(),
+            prev_camera_view_range: 20,
             reset_cache: true,
-            hovering_data : "".to_string(),
+            hovering_data: "".to_string(),
         }
     }
 }
 
 impl Default for AtmosphericsCache {
     fn default() -> Self {
-        Self {
-            tile_color : None,
-        }
+        Self { tile_color: None }
     }
 }

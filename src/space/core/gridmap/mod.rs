@@ -1,33 +1,65 @@
 pub mod components;
 pub mod events;
+pub mod functions;
 pub mod resources;
 pub mod systems;
-pub mod functions;
 
 use std::{fs, path::Path};
 
-use bevy::prelude::{Commands, Res, ResMut, info, Transform};
-use bevy_rapier3d::{prelude::{ColliderShape, ColliderPosition, RapierConfiguration, IntegrationParameters}, physics::TimestepMode};
+use bevy::prelude::{info, Commands, Res, ResMut, Transform};
+use bevy_rapier3d::{
+    physics::TimestepMode,
+    prelude::{ColliderPosition, ColliderShape, IntegrationParameters, RapierConfiguration},
+};
 
-use crate::space::{core::{gridmap::{resources::{GridmapMain, GridmapDetails1, GridmapData, CellDataWID, DoryenMap, SpawnPointRaw, SpawnPoint}, functions::{build_gridmap_floor::build_gridmap_floor, build_gridmap_from_data::{build_main_gridmap, build_details1_gridmap}, examine_cell::EXAMINATION_EMPTY}}, entity::{resources::EntityDataResource, functions::{raw_entity::RawEntity, load_raw_map_entities::load_raw_map_entities}, components::Server}, world_environment::resources::WorldEnvironmentRaw}, entities::sfx::ambience::ambience_sfx::AmbienceSfxBundle};
+use crate::space::{
+    core::{
+        entity::{
+            components::Server,
+            functions::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity},
+            resources::EntityDataResource,
+        },
+        gridmap::{
+            functions::{
+                build_gridmap_floor::build_gridmap_floor,
+                build_gridmap_from_data::{build_details1_gridmap, build_main_gridmap},
+                examine_cell::EXAMINATION_EMPTY,
+            },
+            resources::{
+                CellDataWID, DoryenMap, GridmapData, GridmapDetails1, GridmapMain, SpawnPoint,
+                SpawnPointRaw,
+            },
+        },
+        world_environment::resources::WorldEnvironmentRaw,
+    },
+    entities::sfx::ambience::ambience_sfx::AmbienceSfxBundle,
+};
 
 use self::resources::SpawnPoints;
 
-use super::{entity::components::RichName, configuration::resources::{ServerId, TickRate}, world_environment::resources::WorldEnvironment};
+use super::{
+    configuration::resources::{ServerId, TickRate},
+    entity::components::RichName,
+    world_environment::resources::WorldEnvironment,
+};
 
 pub fn startup_build_map(
-    mut gridmap_main : ResMut<GridmapMain>,
-    mut gridmap_details1 : ResMut<GridmapDetails1>,
-    mut gridmap_data : ResMut<GridmapData>,
-    entity_data : Res<EntityDataResource>,
-    mut fov_map : ResMut<DoryenMap>,
+    mut gridmap_main: ResMut<GridmapMain>,
+    mut gridmap_details1: ResMut<GridmapDetails1>,
+    mut gridmap_data: ResMut<GridmapData>,
+    entity_data: Res<EntityDataResource>,
+    mut fov_map: ResMut<DoryenMap>,
     mut commands: Commands,
 ) {
-
     // Load map json data into real static bodies.
-    let main_json = Path::new("data").join("maps").join("bullseye").join("main.json");
-    let current_map_main_raw_json : String = fs::read_to_string(main_json).expect("main.rs launch_server() Error reading map main.json file from drive.");
-    let current_map_main_data : Vec<CellDataWID> = serde_json::from_str(&current_map_main_raw_json).expect("main.rs launch_server() Error parsing map main.json String.");
+    let main_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("main.json");
+    let current_map_main_raw_json: String = fs::read_to_string(main_json)
+        .expect("main.rs launch_server() Error reading map main.json file from drive.");
+    let current_map_main_data: Vec<CellDataWID> = serde_json::from_str(&current_map_main_raw_json)
+        .expect("main.rs launch_server() Error parsing map main.json String.");
 
     build_gridmap_floor(&mut commands);
 
@@ -39,90 +71,97 @@ pub fn startup_build_map(
         &mut gridmap_data,
     );
 
-    let details1_json = Path::new("data").join("maps").join("bullseye").join("details1.json");
-    let current_map_details1_raw_json : String = fs::read_to_string(details1_json).expect("main.rs launch_server() Error reading map details1_json file from drive.");
-    let current_map_details1_data : Vec<CellDataWID> = serde_json::from_str(&current_map_details1_raw_json).expect("main.rs launch_server() Error parsing map details1_json String.");
+    let details1_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("details1.json");
+    let current_map_details1_raw_json: String = fs::read_to_string(details1_json)
+        .expect("main.rs launch_server() Error reading map details1_json file from drive.");
+    let current_map_details1_data: Vec<CellDataWID> =
+        serde_json::from_str(&current_map_details1_raw_json)
+            .expect("main.rs launch_server() Error parsing map details1_json String.");
 
     build_details1_gridmap(
         &current_map_details1_data,
         &mut gridmap_details1,
         &mut gridmap_data,
     );
-    
-    info!("Spawned {} map cells.", current_map_main_data.len()+current_map_details1_data.len());
 
-    let entities_json = Path::new("data").join("maps").join("bullseye").join("entities.json");
-    let current_map_entities_raw_json : String = fs::read_to_string(entities_json).expect("main.rs launch_server() Error reading map entities.json file from drive.");
-    let current_map_entities_data : Vec<RawEntity> = serde_json::from_str(&current_map_entities_raw_json).expect("main.rs launch_server() Error parsing map entities.json String.");
-    
+    info!(
+        "Spawned {} map cells.",
+        current_map_main_data.len() + current_map_details1_data.len()
+    );
+
+    let entities_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("entities.json");
+    let current_map_entities_raw_json: String = fs::read_to_string(entities_json)
+        .expect("main.rs launch_server() Error reading map entities.json file from drive.");
+    let current_map_entities_data: Vec<RawEntity> =
+        serde_json::from_str(&current_map_entities_raw_json)
+            .expect("main.rs launch_server() Error parsing map entities.json String.");
+
     load_raw_map_entities(&current_map_entities_data, &mut commands, &entity_data);
 
     info!("Spawned {} entities.", current_map_entities_data.len());
-
 }
-
-
-
-
-
 
 #[derive(Clone)]
 pub struct MainCellProperties {
-    pub id : i64,
-    pub name : RichName,
-    pub description : String,
-    pub non_fov_blocker : bool,
-    pub combat_obstacle : bool,
-    pub placeable_item_surface : bool,
-    pub laser_combat_obstacle : bool,
-    pub collider_shape : ColliderShape,
-    pub collider_position : ColliderPosition,
-    pub constructable : bool,
-    pub floor_cell : bool,
+    pub id: i64,
+    pub name: RichName,
+    pub description: String,
+    pub non_fov_blocker: bool,
+    pub combat_obstacle: bool,
+    pub placeable_item_surface: bool,
+    pub laser_combat_obstacle: bool,
+    pub collider_shape: ColliderShape,
+    pub collider_position: ColliderPosition,
+    pub constructable: bool,
+    pub floor_cell: bool,
 }
 
 impl Default for MainCellProperties {
     fn default() -> Self {
         Self {
-            id : 0,
-            name : Default::default(),
-            description : "".to_string(),
-            non_fov_blocker : false,
-            combat_obstacle : true,
-            placeable_item_surface : false,
+            id: 0,
+            name: Default::default(),
+            description: "".to_string(),
+            non_fov_blocker: false,
+            combat_obstacle: true,
+            placeable_item_surface: false,
             laser_combat_obstacle: true,
-            collider_shape : ColliderShape::cuboid(1., 1., 1.),
+            collider_shape: ColliderShape::cuboid(1., 1., 1.),
             collider_position: ColliderPosition::identity(),
-            constructable : false,
-            floor_cell : false,
+            constructable: false,
+            floor_cell: false,
         }
     }
 }
 
-
 #[allow(dead_code)]
 pub struct Details1CellProperties {
-    pub id : i64,
-    pub name : RichName,
-    pub description : String,
+    pub id: i64,
+    pub name: RichName,
+    pub description: String,
 }
 
 impl Default for Details1CellProperties {
     fn default() -> Self {
         Self {
-            id : 0,
-            name : Default::default(),
-            description : "".to_string(),
+            id: 0,
+            name: Default::default(),
+            description: "".to_string(),
         }
     }
 }
 
-pub fn startup_map_cells(
-    mut gridmap_data : ResMut<GridmapData>,
-) {
-
-    
-    gridmap_data.blackcell_blocking_id = *gridmap_data.main_name_id_map.get("blackCellBlocking").unwrap();
+pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
+    gridmap_data.blackcell_blocking_id = *gridmap_data
+        .main_name_id_map
+        .get("blackCellBlocking")
+        .unwrap();
     gridmap_data.blackcell_id = *gridmap_data.main_name_id_map.get("blackCell").unwrap();
 
     let mut main_cells_data = vec![];
@@ -131,195 +170,206 @@ pub fn startup_map_cells(
 
     default_isometry.translation.y = -0.5;
 
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityDecoratedTable").unwrap(),
-            name: RichName {
-                name: "decorated security table".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A decorated security table.".to_string(),
-            non_fov_blocker:true,
-            combat_obstacle:false,
-            placeable_item_surface:true,
-            collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
-            collider_position: default_isometry,
-            constructable: true,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("blackCellBlocking").unwrap(),
-            name: RichName {
-                name: "INVISIBLECELL2".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: EXAMINATION_EMPTY.to_string(),
-            non_fov_blocker: true,
-            constructable: false,
-            ..Default::default()
-        }
-    );
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("securityDecoratedTable")
+            .unwrap(),
+        name: RichName {
+            name: "decorated security table".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A decorated security table.".to_string(),
+        non_fov_blocker: true,
+        combat_obstacle: false,
+        placeable_item_surface: true,
+        collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
+        collider_position: default_isometry,
+        constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("blackCellBlocking")
+            .unwrap(),
+        name: RichName {
+            name: "INVISIBLECELL2".to_string(),
+            n: false,
+            the: false,
+        },
+        description: EXAMINATION_EMPTY.to_string(),
+        non_fov_blocker: true,
+        constructable: false,
+        ..Default::default()
+    });
 
     let mut default_isometry = ColliderPosition::identity();
     default_isometry.translation.y = -0.5;
 
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityCounter1").unwrap(),
-            name: RichName {
-                name: "security counter".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "This one is painted with security department colors.".to_string(),
-            non_fov_blocker:true,
-            combat_obstacle:false,
-            placeable_item_surface:true,
-            collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
-            collider_position: default_isometry,
-            constructable: true,
-            ..Default::default()
-        }
-    );
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("securityCounter1")
+            .unwrap(),
+        name: RichName {
+            name: "security counter".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        non_fov_blocker: true,
+        combat_obstacle: false,
+        placeable_item_surface: true,
+        collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
+        collider_position: default_isometry,
+        constructable: true,
+        ..Default::default()
+    });
 
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityFloorColored").unwrap(),
-            name: RichName {
-                name: "aluminum security floor".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "This one is painted with security department colors.".to_string(),
-            constructable: true,
-            floor_cell:true,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityFloorStripedCorner2").unwrap(),
-            name: RichName {
-                name: "aluminum security floor".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "This one is painted with security department colors.".to_string(),
-            constructable: true,
-            floor_cell:true,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityFloorStripedCorner").unwrap(),
-            name: RichName {
-                name: "aluminum security floor".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "This one is painted with security department colors.".to_string(),
-            constructable: true,
-            floor_cell:true,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("genericWall1").unwrap(),
-            name: RichName {
-                name: "aluminum wall".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "A generic wall tile.".to_string(),
-            constructable: true,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("genericFloor1").unwrap(),
-            name: RichName {
-                name: "aluminum floor".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "A generic floor tile.".to_string(),
-            constructable: true,
-            floor_cell:true,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("blackCell").unwrap(),
-            name: RichName {
-                name: "INVISIBLECELL".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: EXAMINATION_EMPTY.to_string(),
-            non_fov_blocker: true,
-            constructable: false,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityWall").unwrap(),
-            name: RichName {
-                name: "aluminum security wall".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "This one is painted with security department colors.".to_string(),
-            constructable: true,
-            ..Default::default()
-        }
-    );
-    main_cells_data.push(
-        MainCellProperties {
-            id: *gridmap_data.main_name_id_map.get("securityFloorStriped").unwrap(),
-            name: RichName {
-                name: "aluminum security floor".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "This one is painted with security department colors.".to_string(),
-            constructable: true,
-            floor_cell:true,
-            ..Default::default()
-        }
-    );
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("securityFloorColored")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum security floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("securityFloorStripedCorner2")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum security floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("securityFloorStripedCorner")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum security floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("genericWall1").unwrap(),
+        name: RichName {
+            name: "aluminum wall".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "A generic wall tile.".to_string(),
+        constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("genericFloor1").unwrap(),
+        name: RichName {
+            name: "aluminum floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "A generic floor tile.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("blackCell").unwrap(),
+        name: RichName {
+            name: "INVISIBLECELL".to_string(),
+            n: true,
+            the: false,
+        },
+        description: EXAMINATION_EMPTY.to_string(),
+        non_fov_blocker: true,
+        constructable: false,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("securityWall").unwrap(),
+        name: RichName {
+            name: "aluminum security wall".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("securityFloorStriped")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum security floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
 
     for cell_properties in main_cells_data.iter() {
-
-        gridmap_data.main_text_names.insert(cell_properties.id, cell_properties.name.clone());
-        gridmap_data.main_text_examine_desc.insert(cell_properties.id, cell_properties.description.clone());
+        gridmap_data
+            .main_text_names
+            .insert(cell_properties.id, cell_properties.name.clone());
+        gridmap_data
+            .main_text_examine_desc
+            .insert(cell_properties.id, cell_properties.description.clone());
 
         if cell_properties.non_fov_blocker {
-            gridmap_data.non_fov_blocking_cells_list.push(cell_properties.id);
+            gridmap_data
+                .non_fov_blocking_cells_list
+                .push(cell_properties.id);
         }
 
         if !cell_properties.combat_obstacle {
-            gridmap_data.non_combat_obstacle_cells_list.push(cell_properties.id)
+            gridmap_data
+                .non_combat_obstacle_cells_list
+                .push(cell_properties.id)
         }
 
         if cell_properties.placeable_item_surface {
-            gridmap_data.placeable_items_cells_list.push(cell_properties.id);
+            gridmap_data
+                .placeable_items_cells_list
+                .push(cell_properties.id);
         }
 
         if !cell_properties.laser_combat_obstacle {
-            gridmap_data.non_laser_obstacle_cells_list.push(cell_properties.id);
+            gridmap_data
+                .non_laser_obstacle_cells_list
+                .push(cell_properties.id);
         }
 
-        gridmap_data.main_cell_properties.insert(cell_properties.id, cell_properties.clone());
-
+        gridmap_data
+            .main_cell_properties
+            .insert(cell_properties.id, cell_properties.clone());
     }
 
     let mut details1_cells_data = vec![];
@@ -346,17 +396,17 @@ pub fn startup_map_cells(
             description: "An administrative personal computer (APC). Authorized personnel can use these computers to check on the status of the sub-systems this room utilises.".to_string()
         }
     );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("airExhaust").unwrap(),
-            name: RichName {
-                name: "air exhaust".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "An air exhaust. Here to ventilate and circulate oxygen throughout the spaceship.".to_string()
-        }
-    );
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data.details1_name_id_map.get("airExhaust").unwrap(),
+        name: RichName {
+            name: "air exhaust".to_string(),
+            n: true,
+            the: false,
+        },
+        description:
+            "An air exhaust. Here to ventilate and circulate oxygen throughout the spaceship."
+                .to_string(),
+    });
     details1_cells_data.push(
         Details1CellProperties{
             id: *gridmap_data.details1_name_id_map.get("liquidDrain").unwrap(),
@@ -379,50 +429,51 @@ pub fn startup_map_cells(
             description: "A Red Dragon poster. Here to remind you that the nation's surveillance systems have never been as effective and important as it is now. \n\"Always\nWatchful\"".to_string()
         }
     );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("EMPTY0").unwrap(),
-            name: RichName {
-                name: "INVISIBLEDCELL1".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: EXAMINATION_EMPTY.to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster4").unwrap(),
-            name: RichName {
-                name: "security poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A Red Dragon poster for security personnel. \n\"I\nServe\"".to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonPoster2").unwrap(),
-            name: RichName {
-                name: "poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A poster. \n \"Colonise\nSpace\"".to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonPoster1").unwrap(),
-            name: RichName {
-                name: "poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A glorious Red Dragon poster. \n\"Hail our\nRed\nNation\"".to_string()
-        }
-    );
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data.details1_name_id_map.get("EMPTY0").unwrap(),
+        name: RichName {
+            name: "INVISIBLEDCELL1".to_string(),
+            n: true,
+            the: false,
+        },
+        description: EXAMINATION_EMPTY.to_string(),
+    });
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data
+            .details1_name_id_map
+            .get("redDragonSecurityPoster4")
+            .unwrap(),
+        name: RichName {
+            name: "security poster".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A Red Dragon poster for security personnel. \n\"I\nServe\"".to_string(),
+    });
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data
+            .details1_name_id_map
+            .get("redDragonPoster2")
+            .unwrap(),
+        name: RichName {
+            name: "poster".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A poster. \n \"Colonise\nSpace\"".to_string(),
+    });
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data
+            .details1_name_id_map
+            .get("redDragonPoster1")
+            .unwrap(),
+        name: RichName {
+            name: "poster".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A glorious Red Dragon poster. \n\"Hail our\nRed\nNation\"".to_string(),
+    });
     details1_cells_data.push(
         Details1CellProperties{
             id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster3").unwrap(),
@@ -456,90 +507,116 @@ pub fn startup_map_cells(
             description: "A glorious Red Dragon poster for security personnel to remind you of the collective's might. \n\"Protect\nControl\nPrevent\nSecure\"".to_string()
         }
     );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("floorLight1").unwrap(),
-            name: RichName {
-                name: "fluorescent floor light".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "A fluorescent floor light.".to_string()
-        }
-    );
-
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data
+            .details1_name_id_map
+            .get("floorLight1")
+            .unwrap(),
+        name: RichName {
+            name: "fluorescent floor light".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "A fluorescent floor light.".to_string(),
+    });
 
     for cell_properties in details1_cells_data.iter() {
-
-        gridmap_data.details1_text_names.insert(cell_properties.id, cell_properties.name.clone());
-        gridmap_data.details1_text_examine_desc.insert(cell_properties.id, cell_properties.description.clone());
-
+        gridmap_data
+            .details1_text_names
+            .insert(cell_properties.id, cell_properties.name.clone());
+        gridmap_data
+            .details1_text_examine_desc
+            .insert(cell_properties.id, cell_properties.description.clone());
     }
 
-    info!("Loaded {} different map cell types.", main_cells_data.len()+details1_cells_data.len());
-
-
+    info!(
+        "Loaded {} different map cell types.",
+        main_cells_data.len() + details1_cells_data.len()
+    );
 }
 
-
-
-
-
 pub fn startup_misc_resources(
-    mut server_id : ResMut<ServerId>,
-    mut map_environment : ResMut<WorldEnvironment>,
-    mut gridmap_data : ResMut<GridmapData>,
-    mut spawn_points_res : ResMut<SpawnPoints>,
-    mut rapier_configuration : ResMut<RapierConfiguration>,
-    mut rapier_integration_params : ResMut<IntegrationParameters>,
-    tick_rate : Res<TickRate>,
-    mut commands: Commands
+    mut server_id: ResMut<ServerId>,
+    mut map_environment: ResMut<WorldEnvironment>,
+    mut gridmap_data: ResMut<GridmapData>,
+    mut spawn_points_res: ResMut<SpawnPoints>,
+    mut rapier_configuration: ResMut<RapierConfiguration>,
+    mut rapier_integration_params: ResMut<IntegrationParameters>,
+    tick_rate: Res<TickRate>,
+    mut commands: Commands,
 ) {
-
     // Init Bevy Rapier physics.
     rapier_configuration.timestep_mode = TimestepMode::VariableTimestep;
     rapier_integration_params.dt = 1. / tick_rate.rate as f32;
 
     info!("Configured Rapier physics.");
 
-    let environment_json_location = Path::new("data").join("maps").join("bullseye").join("environment.json");
-    let current_map_environment_raw_json : String = fs::read_to_string(environment_json_location).expect("main.rs main() Error reading map environment.json file from drive.");
-    let current_map_raw_environment : WorldEnvironmentRaw = serde_json::from_str(&current_map_environment_raw_json).expect("main.rs main() Error parsing map environment.json String.");
-    let current_map_environment : WorldEnvironment = WorldEnvironment::new(current_map_raw_environment);
+    let environment_json_location = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("environment.json");
+    let current_map_environment_raw_json: String = fs::read_to_string(environment_json_location)
+        .expect("main.rs main() Error reading map environment.json file from drive.");
+    let current_map_raw_environment: WorldEnvironmentRaw =
+        serde_json::from_str(&current_map_environment_raw_json)
+            .expect("main.rs main() Error parsing map environment.json String.");
+    let current_map_environment: WorldEnvironment =
+        WorldEnvironment::new(current_map_raw_environment);
 
     current_map_environment.adjust(&mut map_environment);
 
-    let mainordered_cells_json = Path::new("data").join("maps").join("bullseye").join("mainordered.json");
-    let current_map_mainordered_cells_raw_json : String = fs::read_to_string(mainordered_cells_json).expect("main.rs main() Error reading map mainordered.json drive.");
-    let current_map_mainordered_cells : Vec<String> = serde_json::from_str(&current_map_mainordered_cells_raw_json).expect("main.rs main() Error parsing map mainordered.json String.");
+    let mainordered_cells_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("mainordered.json");
+    let current_map_mainordered_cells_raw_json: String = fs::read_to_string(mainordered_cells_json)
+        .expect("main.rs main() Error reading map mainordered.json drive.");
+    let current_map_mainordered_cells: Vec<String> =
+        serde_json::from_str(&current_map_mainordered_cells_raw_json)
+            .expect("main.rs main() Error parsing map mainordered.json String.");
 
-    let details1ordered_cells_json = Path::new("data").join("maps").join("bullseye").join("details1ordered.json");
-    let current_map_details1ordered_cells_raw_json : String = fs::read_to_string(details1ordered_cells_json).expect("main.rs main() Error reading map details1ordered.json drive.");
-    let current_map_details1ordered_cells : Vec<String> = serde_json::from_str(&current_map_details1ordered_cells_raw_json).expect("main.rs main() Error parsing map details1ordered.json String.");
+    let details1ordered_cells_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("details1ordered.json");
+    let current_map_details1ordered_cells_raw_json: String =
+        fs::read_to_string(details1ordered_cells_json)
+            .expect("main.rs main() Error reading map details1ordered.json drive.");
+    let current_map_details1ordered_cells: Vec<String> =
+        serde_json::from_str(&current_map_details1ordered_cells_raw_json)
+            .expect("main.rs main() Error parsing map details1ordered.json String.");
 
-    for (i,name) in current_map_mainordered_cells.iter().rev().enumerate() {
-
-        gridmap_data.main_name_id_map.insert(name.to_string(),i as i64);
-        gridmap_data.main_id_name_map.insert(i as i64,name.to_string());
-
+    for (i, name) in current_map_mainordered_cells.iter().rev().enumerate() {
+        gridmap_data
+            .main_name_id_map
+            .insert(name.to_string(), i as i64);
+        gridmap_data
+            .main_id_name_map
+            .insert(i as i64, name.to_string());
     }
 
-    for (i,name) in current_map_details1ordered_cells.iter().rev().enumerate() {
-
-        gridmap_data.details1_name_id_map.insert(name.to_string(), i as i64);
-        gridmap_data.details1_id_name_map.insert(i as i64, name.to_string());
-
+    for (i, name) in current_map_details1ordered_cells.iter().rev().enumerate() {
+        gridmap_data
+            .details1_name_id_map
+            .insert(name.to_string(), i as i64);
+        gridmap_data
+            .details1_id_name_map
+            .insert(i as i64, name.to_string());
     }
 
-    gridmap_data.ordered_main_names =  current_map_mainordered_cells;
+    gridmap_data.ordered_main_names = current_map_mainordered_cells;
     gridmap_data.ordered_details1_names = current_map_details1ordered_cells;
 
-    
-
-    let spawnpoints_json = Path::new("data").join("maps").join("bullseye").join("spawnpoints.json");
-    let current_map_spawn_points_raw_json : String = fs::read_to_string(spawnpoints_json).expect("main.rs main() Error reading map spawnpoints.json from drive.");
-    let current_map_spawn_points_raw : Vec<SpawnPointRaw> = serde_json::from_str(&current_map_spawn_points_raw_json).expect("main.rs main() Error parsing map spawnpoints.json String.");
-    let mut current_map_spawn_points : Vec<SpawnPoint> = vec![];
+    let spawnpoints_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("spawnpoints.json");
+    let current_map_spawn_points_raw_json: String = fs::read_to_string(spawnpoints_json)
+        .expect("main.rs main() Error reading map spawnpoints.json from drive.");
+    let current_map_spawn_points_raw: Vec<SpawnPointRaw> =
+        serde_json::from_str(&current_map_spawn_points_raw_json)
+            .expect("main.rs main() Error parsing map spawnpoints.json String.");
+    let mut current_map_spawn_points: Vec<SpawnPoint> = vec![];
 
     for raw_point in current_map_spawn_points_raw.iter() {
         current_map_spawn_points.push(SpawnPoint::new(raw_point));
@@ -549,7 +626,9 @@ pub fn startup_misc_resources(
     spawn_points_res.i = 0;
 
     // Spawn ambience SFX
-    commands.spawn().insert_bundle(AmbienceSfxBundle::new(Transform::identity()));
+    commands
+        .spawn()
+        .insert_bundle(AmbienceSfxBundle::new(Transform::identity()));
 
     // So we have one reserved Id that isnt an entity for sure
     let server_component = Server;
@@ -557,6 +636,4 @@ pub fn startup_misc_resources(
     server_id.id = commands.spawn().insert(server_component).id();
 
     info!("Loaded misc map data.");
-    
-
 }

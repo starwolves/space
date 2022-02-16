@@ -1,22 +1,25 @@
-use bevy::prelude::{ResMut, info};
+use bevy::prelude::{info, ResMut};
 
-use crate::space::{core::entity::resources::EntityDataProperties, entities::{jumpsuit_security::spawn::JumpsuitSecurityBundle, helmet_security::spawn::HelmetSecurityBundle, pistol_l1::spawn::PistolL1Bundle, human_male_pawn::spawn::HumanMalePawnBundle, air_lock_security::spawn::SecurityAirlockBundle, counter_window_security::spawn::SecurityCounterWindowBundle, construction_tool_admin::spawn::ConstructionToolBundle}};
+use crate::space::{
+    core::entity::resources::EntityDataProperties,
+    entities::{
+        air_lock_security::spawn::SecurityAirlockBundle,
+        construction_tool_admin::spawn::ConstructionToolBundle,
+        counter_window_security::spawn::SecurityCounterWindowBundle,
+        helmet_security::spawn::HelmetSecurityBundle, human_male_pawn::spawn::HumanMalePawnBundle,
+        jumpsuit_security::spawn::JumpsuitSecurityBundle, pistol_l1::spawn::PistolL1Bundle,
+    },
+};
 
 use self::resources::EntityDataResource;
 
 pub mod components;
-pub mod resources;
-pub mod functions;
 pub mod events;
+pub mod functions;
+pub mod resources;
 pub mod systems;
 
-
-
-
-pub fn startup_entities(
-    mut entity_data : ResMut<EntityDataResource>,
-) {
-
+pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
     let mut entities = vec![];
 
     entities.push(EntityDataProperties {
@@ -71,12 +74,13 @@ pub fn startup_entities(
     info!("Loaded {} different entity types.", entities.len());
 
     for entity_properties in entities {
-
-        entity_data.id_to_name.insert(entity_properties.id, entity_properties.name.clone());
-        entity_data.name_to_id.insert(entity_properties.name.clone(), entity_properties.id);
+        entity_data
+            .id_to_name
+            .insert(entity_properties.id, entity_properties.name.clone());
+        entity_data
+            .name_to_id
+            .insert(entity_properties.name.clone(), entity_properties.id);
 
         entity_data.data.push(entity_properties);
-
     }
-
 }

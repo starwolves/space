@@ -1,16 +1,13 @@
 use bevy::prelude::Component;
 
-
 #[derive(Component)]
 pub struct DataLink {
-    pub links : Vec<DataLinkType>,
+    pub links: Vec<DataLinkType>,
 }
 
 impl Default for DataLink {
     fn default() -> Self {
-        Self {
-            links : vec![],
-        }
+        Self { links: vec![] }
     }
 }
 

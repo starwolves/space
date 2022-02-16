@@ -1,18 +1,21 @@
 use std::f32::consts::PI;
 
-use bevy::{math::Vec3, prelude::{Res, Transform}};
+use bevy::{
+    math::Vec3,
+    prelude::{Res, Transform},
+};
 
-use crate::space::{core::{pawn::components::FacingDirection, gridmap::{resources::GridmapMain, functions::gridmap_functions::world_to_cell_id}}};
-
-
+use crate::space::core::{
+    gridmap::{functions::gridmap_functions::world_to_cell_id, resources::GridmapMain},
+    pawn::components::FacingDirection,
+};
 
 pub fn entity_spawn_position_for_player(
-    player_transform : Transform,
-    player_facing_direction_option : Option<&FacingDirection>,
-    angle_option : Option<f32>,
-    gridmap_main : &Res<GridmapMain>,
+    player_transform: Transform,
+    player_facing_direction_option: Option<&FacingDirection>,
+    angle_option: Option<f32>,
+    gridmap_main: &Res<GridmapMain>,
 ) -> (Transform, FacingDirection) {
-
     let mut original_transform = player_transform.clone();
 
     if original_transform.translation.y < 0.1 {
@@ -26,9 +29,8 @@ pub fn entity_spawn_position_for_player(
     match player_facing_direction_option {
         Some(player_facing_direction) => {
             facing_direction = player_facing_direction;
-        },
+        }
         None => {
-
             let angle = angle_option.unwrap();
 
             if angle < -PI + (0.25 * PI) {
@@ -48,8 +50,7 @@ pub fn entity_spawn_position_for_player(
             } else {
                 facing_direction = &FacingDirection::Left;
             }
-
-        },
+        }
     }
 
     new_transform.translation += get_offset(facing_direction, OFFSET_CHECK);
@@ -59,15 +60,13 @@ pub fn entity_spawn_position_for_player(
     match gridmap_main.data.get(&cell_id) {
         Some(cell_data) => {
             if cell_data.item != -1 {
-
                 let mut found_correct_spawn = false;
 
                 for i in 0..8 {
-
                     let this_direction;
 
                     new_transform = original_transform.clone();
-            
+
                     if i == 0 {
                         this_direction = FacingDirection::UpLeft;
                     } else if i == 1 {
@@ -87,84 +86,57 @@ pub fn entity_spawn_position_for_player(
                     }
 
                     new_transform.translation += get_offset(&this_direction, OFFSET_CHECK);
-                
+
                     let cell_id = world_to_cell_id(new_transform.translation);
-            
+
                     match gridmap_main.data.get(&cell_id) {
                         Some(cell_data) => {
                             if cell_data.item == -1 {
                                 new_transform = original_transform.clone();
-                                new_transform.translation += get_offset(&this_direction, OFFSET_FROM_PLAYER);
+                                new_transform.translation +=
+                                    get_offset(&this_direction, OFFSET_FROM_PLAYER);
                                 found_correct_spawn = true;
                                 break;
                             }
-                        },
+                        }
                         None => {
                             new_transform = original_transform.clone();
-                            new_transform.translation += get_offset(&this_direction, OFFSET_FROM_PLAYER);
+                            new_transform.translation +=
+                                get_offset(&this_direction, OFFSET_FROM_PLAYER);
                             found_correct_spawn = true;
                             break;
-                        },
+                        }
                     }
-            
                 }
-
-
 
                 if found_correct_spawn == false {
-
                     new_transform = original_transform.clone();
-                    new_transform.translation += 0.1 * get_offset(facing_direction, OFFSET_FROM_PLAYER);
-
+                    new_transform.translation +=
+                        0.1 * get_offset(facing_direction, OFFSET_FROM_PLAYER);
                 }
-
-
-
-
             }
-        },
+        }
         None => {
             new_transform = original_transform.clone();
             new_transform.translation += get_offset(facing_direction, OFFSET_FROM_PLAYER);
-        },
+        }
     }
-    
-    (new_transform,facing_direction.clone())
+
+    (new_transform, facing_direction.clone())
 }
 
+const OFFSET_FROM_PLAYER: f32 = 1.;
+const OFFSET_CHECK: f32 = 1.80;
 
-const OFFSET_FROM_PLAYER : f32 = 1.;
-const OFFSET_CHECK : f32 = 1.80;
-
-fn get_offset(
-    player_facing_direction : &FacingDirection,
-    offset : f32,
-) -> Vec3 {
-
+fn get_offset(player_facing_direction: &FacingDirection, offset: f32) -> Vec3 {
     match player_facing_direction {
-        FacingDirection::UpLeft => {
-            Vec3::new(offset,0.,offset)
-        },
-        FacingDirection::Up => {
-            Vec3::new(0.,0.,offset)
-        },
-        FacingDirection::UpRight => {
-            Vec3::new(-offset,0.,offset)
-        },
-        FacingDirection::Right => {
-            Vec3::new(-offset,0.,0.)
-        },
-        FacingDirection::DownRight => {
-            Vec3::new(-offset,0.,-offset)
-        },
-        FacingDirection::Down => {
-            Vec3::new(0.,0.,-offset)
-        },
-        FacingDirection::DownLeft => {
-            Vec3::new(offset,0.,-offset)
-        },
-        FacingDirection::Left => {
-            Vec3::new(offset,0.,0.)
-        },
+        FacingDirection::UpLeft => Vec3::new(offset, 0., offset),
+        FacingDirection::Up => Vec3::new(0., 0., offset),
+        FacingDirection::UpRight => Vec3::new(-offset, 0., offset),
+        FacingDirection::Right => Vec3::new(-offset, 0., 0.),
+        FacingDirection::DownRight => Vec3::new(-offset, 0., -offset),
+        FacingDirection::Down => Vec3::new(0., 0., -offset),
+        FacingDirection::DownLeft => Vec3::new(offset, 0., -offset),
+        FacingDirection::Left => Vec3::new(offset, 0., 0.),
     }
 }

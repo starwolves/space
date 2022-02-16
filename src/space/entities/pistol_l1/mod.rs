@@ -1,2 +1,2 @@
-pub mod spawn;
 pub mod components;
+pub mod spawn;

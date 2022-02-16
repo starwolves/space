@@ -1,21 +1,24 @@
-use bevy::prelude::{EventReader, EventWriter, Query, ResMut, warn};
+use bevy::prelude::{warn, EventReader, EventWriter, Query, ResMut};
 
-use crate::space::{core::{pawn::{components::PersistentPlayerData, events::{InputUserName, NetUserName}, resources::UsedNames, functions::{CONSOLE_ERROR_COLOR, new_chat_message::escape_bb}}, networking::resources::ReliableServerMessage}};
+use crate::space::core::{
+    networking::resources::ReliableServerMessage,
+    pawn::{
+        components::PersistentPlayerData,
+        events::{InputUserName, NetUserName},
+        functions::{new_chat_message::escape_bb, CONSOLE_ERROR_COLOR},
+        resources::UsedNames,
+    },
+};
 
 pub fn user_name(
-
-    mut input_user_name_events : EventReader<InputUserName>,
+    mut input_user_name_events: EventReader<InputUserName>,
     mut persistent_player_data_query: Query<&mut PersistentPlayerData>,
-    mut used_names : ResMut<UsedNames>,
-    mut net_user_name_event : EventWriter<NetUserName>,
-
+    mut used_names: ResMut<UsedNames>,
+    mut net_user_name_event: EventWriter<NetUserName>,
 ) {
-
     for event in input_user_name_events.iter() {
-
         match persistent_player_data_query.get_mut(event.entity) {
             Ok(mut persistent_player_data_component) => {
-
                 if persistent_player_data_component.user_name_is_set {
                     continue;
                 }
@@ -50,13 +53,10 @@ pub fn user_name(
                 used_names.user_names.insert(user_name, event.entity);
 
                 persistent_player_data_component.user_name_is_set = true;
-
-            },
+            }
             Err(_rr) => {
                 warn!("Couldnt find persistent_player_data_component in query.");
-            },
+            }
         }
-
     }
-
 }

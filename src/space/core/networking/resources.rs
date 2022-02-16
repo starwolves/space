@@ -1,24 +1,27 @@
 use std::{collections::HashMap, time::Duration};
 
-use bevy::{math::{Quat, Vec2, Vec3}, prelude::{Color}};
-use bevy_networking_turbulence::{MessageChannelSettings, MessageChannelMode, ReliableChannelSettings};
-use serde::{Serialize, Deserialize};
+use bevy::{
+    math::{Quat, Vec2, Vec3},
+    prelude::Color,
+};
+use bevy_networking_turbulence::{
+    MessageChannelMode, MessageChannelSettings, ReliableChannelSettings,
+};
+use serde::{Deserialize, Serialize};
 
 use crate::space::core::world_environment::resources::WorldEnvironment;
-
-
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 pub enum GridMapType {
     Main,
-    Details1
+    Details1,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableClientMessage {
     Awoo,
     HeartBeat,
-    UIInput(UIInputNodeClass,UIInputAction,String,String),
+    UIInput(UIInputNodeClass, UIInputAction, String, String),
     SceneReady(String),
     UIInputTransmitData(String, String, String),
     MovementInput(Vec2),
@@ -26,9 +29,9 @@ pub enum ReliableClientMessage {
     BuildGraphics,
     InputChatMessage(String),
     ExamineEntity(u64),
-    ExamineMap(GridMapType, i16,i16,i16),
+    ExamineMap(GridMapType, i16, i16, i16),
     TabDataEntity(u64),
-    TabDataMap(GridMapType, i16,i16,i16),
+    TabDataMap(GridMapType, i16, i16, i16),
     UseWorldItem(u64),
     DropCurrentItem(Option<Vec3>),
     SwitchHands,
@@ -43,8 +46,13 @@ pub enum ReliableClientMessage {
     AttackEntity(u64),
     AltItemAttack,
     ThrowItem(Vec3, f32),
-    AttackCell(i16,i16,i16),
-    TabPressed(String, Option<u64>, Option<(GridMapType, i16,i16,i16)>, Option<u64>),
+    AttackCell(i16, i16, i16),
+    TabPressed(
+        String,
+        Option<u64>,
+        Option<(GridMapType, i16, i16, i16)>,
+        Option<u64>,
+    ),
     TextTreeInput(Option<u64>, String, String, String),
     MapChangeDisplayMode(String),
     MapRequestDisplayModes,
@@ -61,12 +69,12 @@ pub enum ConsoleCommandVariantValues {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UIInputNodeClass {
-    Button
+    Button,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UIInputAction {
-    Pressed
+    Pressed,
 }
 
 #[allow(dead_code)]
@@ -76,13 +84,26 @@ pub enum NetProjectileType {
     Ballistic,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
-    EntityUpdate(u64, HashMap<String, HashMap<String, EntityUpdateData>>, bool, EntityWorldType),
+    EntityUpdate(
+        u64,
+        HashMap<String, HashMap<String, EntityUpdateData>>,
+        bool,
+        EntityWorldType,
+    ),
     ConfigMessage(ServerConfigMessage),
     UIRequestInput(String, String),
-    LoadEntity(String, String, HashMap<String, HashMap<String, EntityUpdateData>>, u64, bool, String, String, bool),
+    LoadEntity(
+        String,
+        String,
+        HashMap<String, HashMap<String, EntityUpdateData>>,
+        u64,
+        bool,
+        String,
+        String,
+        bool,
+    ),
     UnloadEntity(u64, bool),
     ChatMessage(String),
     PickedUpItem(String, u64, String),
@@ -93,11 +114,17 @@ pub enum ReliableServerMessage {
     PlaySound(String, f32, f32, Option<Vec3>),
     FireProjectile(NetProjectileType),
     TabData(Vec<NetTabAction>),
-    TextTreeSelection(Option<u64>, String, String, String, HashMap<String, TextTreeBit>),
-    RemoveCell(i16,i16,i16, GridMapType),
-    AddCell(i16,i16,i16,i64,i64, GridMapType),
+    TextTreeSelection(
+        Option<u64>,
+        String,
+        String,
+        String,
+        HashMap<String, TextTreeBit>,
+    ),
+    RemoveCell(i16, i16, i16, GridMapType),
+    AddCell(i16, i16, i16, i64, i64, GridMapType),
     MapSendDisplayModes(Vec<(String, String)>),
-    MapOverlayUpdate(Vec<(i16,i16,i16)>),
+    MapOverlayUpdate(Vec<(i16, i16, i16)>),
     MapOverlayHoverData(String),
 }
 
@@ -109,13 +136,13 @@ pub enum TextTreeBit {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NetTabAction {
-    pub id : String,
-    pub text : String,
-    pub tab_list_priority : u8,
-    pub item_name : String,
+    pub id: String,
+    pub text: String,
+    pub tab_list_priority: u8,
+    pub item_name: String,
     pub entity_option: Option<u64>,
-    pub belonging_entity : Option<u64>,
-    pub cell_option : Option<(GridMapType, i16,i16,i16)>,
+    pub belonging_entity: Option<u64>,
+    pub cell_option: Option<(GridMapType, i16, i16, i16)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -139,13 +166,13 @@ pub enum EntityUpdateData {
     String(String),
     StringVec(Vec<String>),
     Float(f32),
-    Transform(Vec3,Quat,Vec3),
+    Transform(Vec3, Quat, Vec3),
     Color(Color),
     Bool(bool),
     Vec3(Vec3),
     Vec2(Vec2),
-    AttachedItem(u64, Vec3,Quat,Vec3),
-    WornItem(String, u64, String, Vec3,Quat,Vec3),
+    AttachedItem(u64, Vec3, Quat, Vec3),
+    WornItem(String, u64, String, Vec3, Quat, Vec3),
     WornItemNotAttached(String, u64, String),
 }
 
@@ -164,7 +191,7 @@ pub enum ServerConfigMessage {
     ServerEntityId(u64),
     RepeatingSFX(String, Vec<String>),
     FinishedInitialization,
-    ConsoleCommands(Vec<(String,String, Vec<(String, ConsoleCommandVariant)>)>),
+    ConsoleCommands(Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)>),
     TalkSpaces(Vec<(String, String)>),
     PlaceableItemsSurfaces(Vec<i64>),
     NonBlockingCells(Vec<i64>),
@@ -176,20 +203,17 @@ pub enum UnreliableServerMessage {
     PositionUpdate(u64, Vec3, u64),
 }
 
-
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
     MapViewRange(f32),
-    MapOverlayMouseHoverCell(i16,i16),
+    MapOverlayMouseHoverCell(i16, i16),
 }
 
 pub enum NetMessageType {
     Reliable(ReliableServerMessage),
     Unreliable(UnreliableServerMessage),
 }
-
 
 pub const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
     channel: 0,

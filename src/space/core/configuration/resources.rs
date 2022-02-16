@@ -1,12 +1,12 @@
-use bevy::{prelude::{FromWorld, World, Entity}};
+use bevy::prelude::{Entity, FromWorld, World};
 
 use crate::space::core::pawn::functions::new_chat_message::NEARBY_SHOUT_FONT;
 
 pub struct MOTD {
-    pub message : String,
+    pub message: String,
 }
 
-const COMMUNITY_HREF_COLOR : &str = "#5c4aff";
+const COMMUNITY_HREF_COLOR: &str = "#5c4aff";
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
@@ -25,15 +25,12 @@ impl FromWorld for MOTD {
 }
 
 pub struct TickRate {
-    pub rate : u8
+    pub rate: u8,
 }
-
 
 impl FromWorld for TickRate {
     fn from_world(_world: &mut World) -> Self {
-        TickRate {
-           rate : 24, 
-        }
+        TickRate { rate: 24 }
     }
 }
 
@@ -41,14 +38,13 @@ impl FromWorld for TickRate {
 // to a specific entity and it should be customly assigned to something such as UIs and other stuff which
 // are not real server entities but just client GUI instances.
 pub struct ServerId {
-    pub id : Entity
+    pub id: Entity,
 }
-
 
 impl FromWorld for ServerId {
     fn from_world(_world: &mut World) -> Self {
         ServerId {
-           id : Entity::from_raw(0), 
+            id: Entity::from_raw(0),
         }
     }
 }

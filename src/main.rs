@@ -1,9 +1,8 @@
 use bevy::{core::DefaultTaskPoolOptions, prelude::App};
 use space::SpacePlugin;
 
-pub mod space;
 pub mod plugins;
-
+pub mod space;
 
 fn main() {
     App::new()

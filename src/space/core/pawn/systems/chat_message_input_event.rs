@@ -1,55 +1,58 @@
-use bevy::{math::Vec3, prelude::{Entity, EventReader, EventWriter, Query, Res, warn}};
-use bevy_rapier3d::{prelude::{RigidBodyPositionComponent}};
+use bevy::{
+    math::Vec3,
+    prelude::{warn, Entity, EventReader, EventWriter, Query, Res},
+};
+use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
-use crate::space::{core::{pawn::{components::{Pawn, Radio, SoftPlayer, PersistentPlayerData, ConnectedPlayer, SpaceJobsEnum}, events::{InputChatMessage, NetChatMessage}, resources::HandleToEntity, functions::new_chat_message::{new_chat_message, Communicator, MessagingPlayerState}}, entity::{components::Sensable, events::NetSendEntityUpdates}}};
+use crate::space::core::{
+    entity::{components::Sensable, events::NetSendEntityUpdates},
+    pawn::{
+        components::{
+            ConnectedPlayer, Pawn, PersistentPlayerData, Radio, SoftPlayer, SpaceJobsEnum,
+        },
+        events::{InputChatMessage, NetChatMessage},
+        functions::new_chat_message::{new_chat_message, Communicator, MessagingPlayerState},
+        resources::HandleToEntity,
+    },
+};
 
 pub fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
-    handle_to_entity : Res<HandleToEntity>,
-    player_pawns : Query<(
-        &Pawn,
+    handle_to_entity: Res<HandleToEntity>,
+    player_pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Sensable)>,
+    radio_pawns: Query<(
+        Entity,
+        &Radio,
         &RigidBodyPositionComponent,
-        &Sensable,
+        &PersistentPlayerData,
     )>,
-    radio_pawns : Query<(Entity, &Radio, &RigidBodyPositionComponent, &PersistentPlayerData)>,
-    soft_player_query : Query<&SoftPlayer>,
-    mut net_new_chat_message_event : EventWriter<NetChatMessage>,
+    soft_player_query: Query<&SoftPlayer>,
+    mut net_new_chat_message_event: EventWriter<NetChatMessage>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
-    global_listeners : Query<(&ConnectedPlayer, &PersistentPlayerData)>,
+    global_listeners: Query<(&ConnectedPlayer, &PersistentPlayerData)>,
 ) {
-
     for chat_message_input_event in chat_message_input_events.iter() {
-
-        
         let player_pawn_entity_option = handle_to_entity.map.get(&chat_message_input_event.handle);
         let player_pawn_entity;
 
         match player_pawn_entity_option {
             Some(entity) => {
                 player_pawn_entity = entity;
-            },
+            }
             None => {
                 warn!("Couldn't find player pawn entity with handle_to_entity resource.");
                 continue;
-            },
+            }
         }
 
         let player_components_result = player_pawns.get(*player_pawn_entity);
 
-        
-        
         match player_components_result {
             Ok(player_components) => {
-
                 let player_position;
-                
+
                 let translation = player_components.1.position.translation;
-                player_position = Vec3::new(
-                    translation.x,
-                    translation.y,
-                    translation.z
-                );
-                    
+                player_position = Vec3::new(translation.x, translation.y, translation.z);
 
                 new_chat_message(
                     &mut net_new_chat_message_event,
@@ -68,8 +71,7 @@ pub fn chat_message_input_event(
                     Some(&mut net_send_entity_updates),
                     &MessagingPlayerState::Alive,
                 );
-
-            },
+            }
             Err(_) => {
                 // Soft connected chat
 
@@ -77,18 +79,20 @@ pub fn chat_message_input_event(
 
                 //Safety check.
                 match soft_player_query.get(*player_pawn_entity) {
-                    Ok(_) => {},
-                    Err(_rr) => {continue;},
+                    Ok(_) => {}
+                    Err(_rr) => {
+                        continue;
+                    }
                 }
 
                 match global_listeners.get(*player_pawn_entity) {
                     Ok((_connected, persistent_data)) => {
                         persistent_player_data_component = persistent_data;
-                    },
+                    }
                     Err(_rr) => {
                         warn!("Couldnt find components for SoftConnected player with assumed global message.");
                         continue;
-                    },
+                    }
                 }
 
                 new_chat_message(
@@ -108,9 +112,7 @@ pub fn chat_message_input_event(
                     Some(&mut net_send_entity_updates),
                     &MessagingPlayerState::SoftConnected,
                 );
-            },
+            }
         }
-
     }
-
 }

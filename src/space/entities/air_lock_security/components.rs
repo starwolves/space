@@ -1,67 +1,64 @@
-use bevy::{prelude::Component, core::Timer};
+use bevy::{core::Timer, prelude::Component};
 
 use crate::space::core::pawn::components::SpaceAccessEnum;
 
-
 #[derive(Component)]
 pub struct AirLock {
-    pub status : AirLockStatus,
-    pub access_lights : AccessLightsStatus,
-    pub access_permissions : Vec<SpaceAccessEnum>
+    pub status: AirLockStatus,
+    pub access_lights: AccessLightsStatus,
+    pub access_permissions: Vec<SpaceAccessEnum>,
 }
 
 pub enum AirLockStatus {
     Open,
-    Closed
+    Closed,
 }
 
 pub enum AccessLightsStatus {
     Neutral,
     Granted,
-    Denied
+    Denied,
 }
 
 impl Default for AirLock {
     fn default() -> Self {
         Self {
-            status : AirLockStatus::Closed,
-            access_lights : AccessLightsStatus::Neutral,
-            access_permissions : vec![SpaceAccessEnum::Common]
+            status: AirLockStatus::Closed,
+            access_lights: AccessLightsStatus::Neutral,
+            access_permissions: vec![SpaceAccessEnum::Common],
         }
     }
 }
 
-
 #[derive(Component)]
 pub struct AirLockOpenTimer {
-    pub timer : Timer
+    pub timer: Timer,
 }
 
 impl Default for AirLockOpenTimer {
     fn default() -> Self {
         Self {
-            timer : Timer::from_seconds(5.0, false),
+            timer: Timer::from_seconds(5.0, false),
         }
     }
 }
 
-
 #[derive(Component)]
 pub struct AirLockDeniedTimer {
-    pub timer : Timer
+    pub timer: Timer,
 }
 
 impl Default for AirLockDeniedTimer {
     fn default() -> Self {
         Self {
-            timer : Timer::from_seconds(5.0, false),
+            timer: Timer::from_seconds(5.0, false),
         }
     }
 }
 
 #[derive(Component)]
 pub struct AirLockClosedTimer {
-    pub timer : Timer
+    pub timer: Timer,
 }
 
 impl Default for AirLockClosedTimer {
