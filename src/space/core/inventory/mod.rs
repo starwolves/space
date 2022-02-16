@@ -1,4 +1,4 @@
 pub mod components;
-pub mod events;
 pub mod entity_update;
+pub mod events;
 pub mod systems;

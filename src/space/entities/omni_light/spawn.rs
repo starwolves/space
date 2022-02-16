@@ -1,43 +1,41 @@
-
 use bevy::prelude::{Commands, Transform};
 
-use crate::space::{core::{static_body::components::StaticTransform, physics::components::{WorldMode, WorldModes}, entity::components::{Sensable, EntityData, EntityUpdates}}};
+use crate::space::core::{
+    entity::components::{EntityData, EntityUpdates, Sensable},
+    physics::components::{WorldMode, WorldModes},
+    static_body::components::StaticTransform,
+};
 
 use super::components::OmniLight;
 
 pub struct OmniLightBundle;
 
 impl OmniLightBundle {
-
     pub fn spawn(
-        entity_transform : Transform,
-        commands : &mut Commands,
-        _correct_transform : bool,
-        omni_light_component : OmniLight,
+        entity_transform: Transform,
+        commands: &mut Commands,
+        _correct_transform: bool,
+        omni_light_component: OmniLight,
     ) {
-
         let static_transform_component = StaticTransform {
-            transform: entity_transform
+            transform: entity_transform,
         };
-
 
         commands.spawn_bundle((
             omni_light_component,
-            Sensable{
-                is_light:true,
+            Sensable {
+                is_light: true,
                 ..Default::default()
             },
             static_transform_component,
-            EntityData{
+            EntityData {
                 entity_class: "omni_light".to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),
             WorldMode {
-                mode : WorldModes::Static
-            }
+                mode: WorldModes::Static,
+            },
         ));
-
     }
-
 }

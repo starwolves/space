@@ -1,15 +1,6 @@
-
-pub mod punch1_sfx;
-pub mod punch2_sfx;
-pub mod punch3_sfx;
-pub mod punch4_sfx;
 pub mod block1_sfx;
 pub mod block2_sfx;
 pub mod block3_sfx;
-pub mod laser_light_shot1_sfx;
-pub mod laser_light_shot2_sfx;
-pub mod laser_light_shot3_sfx;
-pub mod laser_light_shot4_sfx;
 pub mod laser_light_block1_sfx;
 pub mod laser_light_block2_sfx;
 pub mod laser_light_block3_sfx;
@@ -18,3 +9,11 @@ pub mod laser_light_hit1_sfx;
 pub mod laser_light_hit2_sfx;
 pub mod laser_light_hit3_sfx;
 pub mod laser_light_hit4_sfx;
+pub mod laser_light_shot1_sfx;
+pub mod laser_light_shot2_sfx;
+pub mod laser_light_shot3_sfx;
+pub mod laser_light_shot4_sfx;
+pub mod punch1_sfx;
+pub mod punch2_sfx;
+pub mod punch3_sfx;
+pub mod punch4_sfx;

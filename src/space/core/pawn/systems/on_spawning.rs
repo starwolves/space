@@ -1,23 +1,33 @@
-use bevy::{prelude::{Added, Commands, Entity, EventWriter, Query, ResMut}};
+use bevy::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
 
-use crate::space::{entities::human_male_pawn::spawn::HumanMalePawnBundle, core::{pawn::{components::{Spawning, PersistentPlayerData, ConnectedPlayer}, events::NetOnSpawning, resources::{HandleToEntity, UsedNames}}, entity::resources::{EntityDataResource, SpawnPawnData}, networking::resources::{ReliableServerMessage, ServerConfigMessage}}};
+use crate::space::{
+    core::{
+        entity::resources::{EntityDataResource, SpawnPawnData},
+        networking::resources::{ReliableServerMessage, ServerConfigMessage},
+        pawn::{
+            components::{ConnectedPlayer, PersistentPlayerData, Spawning},
+            events::NetOnSpawning,
+            resources::{HandleToEntity, UsedNames},
+        },
+    },
+    entities::human_male_pawn::spawn::HumanMalePawnBundle,
+};
 
 pub fn on_spawning(
-    mut net_on_new_player_connection : EventWriter<NetOnSpawning>,
-    query : Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData),Added<Spawning>>,
-    mut commands : Commands,
-    mut handle_to_entity : ResMut<HandleToEntity>,
-    mut used_names : ResMut<UsedNames>,
-    entity_data : ResMut<EntityDataResource>,
+    mut net_on_new_player_connection: EventWriter<NetOnSpawning>,
+    query: Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData), Added<Spawning>>,
+    mut commands: Commands,
+    mut handle_to_entity: ResMut<HandleToEntity>,
+    mut used_names: ResMut<UsedNames>,
+    entity_data: ResMut<EntityDataResource>,
 ) {
-    
     for (
         entity_id,
         spawning_component,
         connected_player_component,
         persistent_player_data_component,
-    ) in query.iter() {
-
+    ) in query.iter()
+    {
         let passed_inventory_setup = vec![
             ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
             ("helmet".to_string(), "helmetSecurity".to_string()),
@@ -29,7 +39,7 @@ pub fn on_spawning(
             spawning_component.transform,
             &mut commands,
             true,
-            Some(SpawnPawnData{
+            Some(SpawnPawnData {
                 data: (
                     persistent_player_data_component,
                     Some(connected_player_component),
@@ -40,11 +50,10 @@ pub fn on_spawning(
                     None,
                     Some(persistent_player_data_component.user_name.clone()),
                     &entity_data,
-                )
+                ),
             }),
             None,
         );
-
 
         let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();
 
@@ -54,16 +63,18 @@ pub fn on_spawning(
         handle_to_entity.map.remove(&handle);
         handle_to_entity.map.insert(handle, new_entity);
 
-        used_names.names.insert(persistent_player_data_component.character_name.clone(), new_entity);
+        used_names.names.insert(
+            persistent_player_data_component.character_name.clone(),
+            new_entity,
+        );
 
         commands.entity(entity_id).despawn();
-        
-        net_on_new_player_connection.send(NetOnSpawning{
+
+        net_on_new_player_connection.send(NetOnSpawning {
             handle: handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(new_entity.to_bits()))
+            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(
+                new_entity.to_bits(),
+            )),
         });
-
-
     }
-
 }

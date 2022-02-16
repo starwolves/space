@@ -1,37 +1,33 @@
-
 use bevy::prelude::{Commands, Transform};
 
-use crate::space::{core::{static_body::components::StaticTransform, entity::components::{EntityData, EntityUpdates}}};
+use crate::space::core::{
+    entity::components::{EntityData, EntityUpdates},
+    static_body::components::StaticTransform,
+};
 
 use super::components::GIProbe;
 
 pub struct GIProbeBundle;
 
 impl GIProbeBundle {
-
     pub fn spawn(
-        entity_transform : Transform,
-        commands : &mut Commands,
-        _correct_transform : bool,
-        gi_probe_component : GIProbe,
+        entity_transform: Transform,
+        commands: &mut Commands,
+        _correct_transform: bool,
+        gi_probe_component: GIProbe,
     ) {
-
         let static_transform_component = StaticTransform {
-            transform: entity_transform
+            transform: entity_transform,
         };
-
-
 
         commands.spawn_bundle((
             gi_probe_component,
             static_transform_component,
-            EntityData{
+            EntityData {
                 entity_class: "gi_probe".to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),
         ));
-
     }
-
 }

@@ -1,14 +1,15 @@
-use bevy::{prelude::{EventWriter, Query}};
+use bevy::prelude::{EventWriter, Query};
 
-use crate::space::{core::{pawn::{components::{ConnectedPlayer}, events::{NetSendServerTime},}, networking::resources::{ReliableServerMessage, ServerConfigMessage}},};
+use crate::space::core::{
+    networking::resources::{ReliableServerMessage, ServerConfigMessage},
+    pawn::{components::ConnectedPlayer, events::NetSendServerTime},
+};
 
 pub fn send_server_time(
-    mut event_writer : EventWriter<NetSendServerTime>,
-    connected_players : Query<&ConnectedPlayer>,
+    mut event_writer: EventWriter<NetSendServerTime>,
+    connected_players: Query<&ConnectedPlayer>,
 ) {
-
     for connected_player_component in connected_players.iter() {
-
         if !connected_player_component.connected {
             continue;
         }
@@ -17,9 +18,5 @@ pub fn send_server_time(
             handle: connected_player_component.handle,
             message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerTime),
         });
-
     }
-
-
 }
-

@@ -1,29 +1,43 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query, Res, ResMut};
-use bevy_rapier3d::prelude::{RigidBodyPositionComponent};
+use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
-use crate::space::{core::{pawn::{components::{Pawn, ConnectedPlayer}, events::{InputConsoleCommand, NetConsoleCommands}, resources::{HandleToEntity, UsedNames}, functions::{rcon_authorization::{BruteforceProtection, rcon_authorization}, rcon_status::rcon_status, rcon_spawn_entity::rcon_spawn_entity, rcon_spawn_held_entity::rcon_spawn_held_entity}}, inventory::components::Inventory, gridmap::resources::GridmapMain, entity::resources::EntityDataResource, networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage, ConsoleCommandVariant}}};
+use crate::space::core::{
+    entity::resources::EntityDataResource,
+    gridmap::resources::GridmapMain,
+    inventory::components::Inventory,
+    networking::resources::{
+        ConsoleCommandVariant, ConsoleCommandVariantValues, ReliableServerMessage,
+    },
+    pawn::{
+        components::{ConnectedPlayer, Pawn},
+        events::{InputConsoleCommand, NetConsoleCommands},
+        functions::{
+            rcon_authorization::{rcon_authorization, BruteforceProtection},
+            rcon_spawn_entity::rcon_spawn_entity,
+            rcon_spawn_held_entity::rcon_spawn_held_entity,
+            rcon_status::rcon_status,
+        },
+        resources::{HandleToEntity, UsedNames},
+    },
+};
 
 pub fn console_commands(
-    mut console_commands_events : EventReader<InputConsoleCommand>,
-    mut rcon_bruteforce_protection : Local<BruteforceProtection>,
-    mut connected_players : Query<&mut ConnectedPlayer>,
-    mut rigid_body_positions : Query<(&RigidBodyPositionComponent, &Pawn)>,
-    mut inventory_components : Query<&mut Inventory>,
+    mut console_commands_events: EventReader<InputConsoleCommand>,
+    mut rcon_bruteforce_protection: Local<BruteforceProtection>,
+    mut connected_players: Query<&mut ConnectedPlayer>,
+    mut rigid_body_positions: Query<(&RigidBodyPositionComponent, &Pawn)>,
+    mut inventory_components: Query<&mut Inventory>,
 
-    mut net_console_commands : EventWriter<NetConsoleCommands>,
-    mut commands : Commands,
+    mut net_console_commands: EventWriter<NetConsoleCommands>,
+    mut commands: Commands,
 
-    gridmap_main : Res<GridmapMain>,
-    mut used_names : ResMut<UsedNames>,
-    handle_to_entity : Res<HandleToEntity>,
-    mut entity_data : ResMut<EntityDataResource>,
-
+    gridmap_main: Res<GridmapMain>,
+    mut used_names: ResMut<UsedNames>,
+    handle_to_entity: Res<HandleToEntity>,
+    mut entity_data: ResMut<EntityDataResource>,
 ) {
-
     for console_command_event in console_commands_events.iter() {
-
         if console_command_event.command_name == "rcon" {
-
             match &console_command_event.command_arguments[0] {
                 ConsoleCommandVariantValues::String(value) => {
                     rcon_authorization(
@@ -35,12 +49,10 @@ pub fn console_commands(
                         value.to_string(),
                     );
                     return;
-                },
-                _=>(),
+                }
+                _ => (),
             }
-
         } else if console_command_event.command_name == "rcon_status" {
-
             rcon_status(
                 &mut connected_players,
                 console_command_event.handle,
@@ -48,41 +60,38 @@ pub fn console_commands(
                 &mut net_console_commands,
             );
             return;
-
         }
 
         let player_entity;
         match connected_players.get_mut(console_command_event.entity) {
             Ok(s) => {
                 player_entity = s;
-            },
+            }
             Err(_rr) => {
                 continue;
-            },
+            }
         }
 
-        if player_entity.rcon == false{
+        if player_entity.rcon == false {
             net_console_commands.send(NetConsoleCommands {
                 handle: console_command_event.handle,
                 message: ReliableServerMessage::ConsoleWriteLine(
-                    "[color=#ff6600]RCON status denied.[/color]"
-                    .to_string()
+                    "[color=#ff6600]RCON status denied.[/color]".to_string(),
                 ),
             });
             return;
         }
 
         if console_command_event.command_name == "spawn_entity" {
-
             let entity_name;
 
             match &console_command_event.command_arguments[0] {
                 ConsoleCommandVariantValues::String(value) => {
                     entity_name = value;
-                },
-                _=> {
+                }
+                _ => {
                     return;
-                },
+                }
             }
 
             let spawn_amount;
@@ -90,10 +99,10 @@ pub fn console_commands(
             match &console_command_event.command_arguments[1] {
                 ConsoleCommandVariantValues::Int(value) => {
                     spawn_amount = *value;
-                },
-                _=> {
+                }
+                _ => {
                     return;
-                },
+                }
             }
 
             let player_selector;
@@ -101,10 +110,10 @@ pub fn console_commands(
             match &console_command_event.command_arguments[2] {
                 ConsoleCommandVariantValues::String(value) => {
                     player_selector = value;
-                },
-                _=> {
+                }
+                _ => {
                     return;
-                },
+                }
             }
 
             rcon_spawn_entity(
@@ -119,20 +128,18 @@ pub fn console_commands(
                 &gridmap_main,
                 &mut used_names,
                 &handle_to_entity,
-                &entity_data
+                &entity_data,
             );
-
         } else if console_command_event.command_name == "spawn_held_entity" {
-
             let entity_name;
 
             match &console_command_event.command_arguments[0] {
                 ConsoleCommandVariantValues::String(value) => {
                     entity_name = value;
-                },
-                _=> {
+                }
+                _ => {
                     return;
-                },
+                }
             }
 
             let player_selector;
@@ -140,10 +147,10 @@ pub fn console_commands(
             match &console_command_event.command_arguments[1] {
                 ConsoleCommandVariantValues::String(value) => {
                     player_selector = value;
-                },
-                _=> {
+                }
+                _ => {
                     return;
-                },
+                }
             }
 
             rcon_spawn_held_entity(
@@ -158,18 +165,13 @@ pub fn console_commands(
                 &gridmap_main,
                 &mut used_names,
                 &handle_to_entity,
-                &mut entity_data
+                &mut entity_data,
             );
-
         }
-
     }
-
 }
 
-
 pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)> {
-
     vec![
         (
             "rcon".to_string(),
@@ -219,5 +221,4 @@ pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleComman
             ]
         )
     ]
-
 }
