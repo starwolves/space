@@ -20,12 +20,14 @@ use self::{
             systems::{
                 atmospherics_map::atmospherics_map,
                 atmospherics_map_hover::atmospherics_map_hover,
+                atmospherics_rigidbody_forces::atmospherics_rigidbody_forces,
                 atmospherics_sensing_ability::atmospherics_sensing_ability,
                 diffusion::{atmos_diffusion, DIFFUSION_STEP},
                 effects::atmos_effects,
                 zero_gravity::zero_gravity,
             },
         },
+        combat::systems::attack,
         configuration::resources::{ServerId, TickRate, MOTD},
         entity::{
             events::{NetLoadEntity, NetSendEntityUpdates, NetShowcase, NetUnloadEntity},
@@ -128,7 +130,7 @@ use self::{
             resources::SfxAutoDestroyTimers,
             systems::tick_timers_slowed,
         },
-        world_environment::resources::WorldEnvironment, combat::systems::attack,
+        world_environment::resources::WorldEnvironment,
     },
     entities::{
         air_lock_security::{
@@ -189,6 +191,7 @@ pub enum UpdateLabels {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum AtmosphericsLabels {
     Diffusion,
+    Effects
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -380,7 +383,8 @@ impl Plugin for SpacePlugin {
                         FixedTimestep::step(1. / DIFFUSION_STEP).with_label(ATMOS_DIFFUSION_LABEL),
                     )
                     .with_system(atmos_diffusion.label(AtmosphericsLabels::Diffusion))
-                    .with_system(atmos_effects.after(AtmosphericsLabels::Diffusion)),
+                    .with_system(atmos_effects.after(AtmosphericsLabels::Diffusion).label(AtmosphericsLabels::Effects))
+                    .with_system(atmospherics_rigidbody_forces.after(AtmosphericsLabels::Effects)),
             )
             .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
             .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
