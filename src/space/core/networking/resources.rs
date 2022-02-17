@@ -126,6 +126,8 @@ pub enum ReliableServerMessage {
     MapSendDisplayModes(Vec<(String, String)>),
     MapOverlayUpdate(Vec<(i16, i16, i16)>),
     MapOverlayHoverData(String),
+    UIAddNotice(String),
+    UIRemoveNotice(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
