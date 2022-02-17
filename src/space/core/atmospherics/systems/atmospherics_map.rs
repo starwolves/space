@@ -355,32 +355,38 @@ pub fn atmospherics_map(
     }
 }
 
+pub const MINIMUM_LIVABLE_TEMPERATURE: f32 = -22. + CELCIUS_KELVIN_OFFSET;
+pub const MAXIMUM_LIVABLE_TEMPERATURE: f32 = 39.3 + CELCIUS_KELVIN_OFFSET;
+
 fn temperature_to_tile_color(temperature: f32) -> OverlayTile {
-    if temperature < -60. + CELCIUS_KELVIN_OFFSET {
+    if temperature < -40. + CELCIUS_KELVIN_OFFSET {
         OverlayTile::Red
-    } else if temperature < -30. + CELCIUS_KELVIN_OFFSET {
+    } else if temperature < -33. + CELCIUS_KELVIN_OFFSET {
         OverlayTile::Orange
-    } else if temperature < -15. + CELCIUS_KELVIN_OFFSET {
+    } else if temperature < MINIMUM_LIVABLE_TEMPERATURE {
         OverlayTile::Yellow
-    } else if temperature < 39.3 + CELCIUS_KELVIN_OFFSET {
+    } else if temperature < MAXIMUM_LIVABLE_TEMPERATURE {
         OverlayTile::Green
     } else if temperature < 46.3 + CELCIUS_KELVIN_OFFSET {
         OverlayTile::Yellow
-    } else if temperature < 56.3 + CELCIUS_KELVIN_OFFSET {
+    } else if temperature < 52.3 + CELCIUS_KELVIN_OFFSET {
         OverlayTile::Orange
     } else {
         OverlayTile::Red
     }
 }
 
+pub const MINIMUM_LIVABLE_PRESSURE: f32 = 90.;
+pub const MAXIMUM_LIVABLE_PRESSURE: f32 = 180.;
+
 fn pressure_to_tile_color(pressure_kpa: f32) -> OverlayTile {
     if pressure_kpa < 47.62275 {
         OverlayTile::Red
     } else if pressure_kpa < 75. {
         OverlayTile::Orange
-    } else if pressure_kpa < 90. {
+    } else if pressure_kpa < MINIMUM_LIVABLE_PRESSURE {
         OverlayTile::Yellow
-    } else if pressure_kpa < 180. {
+    } else if pressure_kpa < MAXIMUM_LIVABLE_PRESSURE {
         OverlayTile::Green
     } else if pressure_kpa < 200. {
         OverlayTile::Yellow

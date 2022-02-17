@@ -14,12 +14,13 @@ use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use self::{
     core::{
         atmospherics::{
-            events::{NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
+            events::{NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
             resources::{AtmosphericsResource, MapHolders},
             startup_atmospherics,
             systems::{
                 atmospherics_map::atmospherics_map,
                 atmospherics_map_hover::atmospherics_map_hover,
+                atmospherics_notices::atmospherics_notices,
                 atmospherics_rigidbody_forces::atmospherics_rigidbody_forces,
                 atmospherics_sensing_ability::atmospherics_sensing_ability,
                 diffusion::{atmos_diffusion, DIFFUSION_STEP},
@@ -191,7 +192,7 @@ pub enum UpdateLabels {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum AtmosphericsLabels {
     Diffusion,
-    Effects
+    Effects,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -307,6 +308,7 @@ impl Plugin for SpacePlugin {
             .add_event::<NetMapDisplayAtmospherics>()
             .add_event::<InputMap>()
             .add_event::<NetMapHoverAtmospherics>()
+            .add_event::<NetAtmosphericsNotices>()
             .add_startup_system(startup_misc_resources.label(StartupLabels::Launch))
             .add_startup_system(
                 startup_map_cells
@@ -375,6 +377,7 @@ impl Plugin for SpacePlugin {
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))
+                    .with_system(atmospherics_notices)
                     .with_system(atmospherics_map.after(MapLabels::ChangeMode)),
             )
             .add_system_set(
@@ -383,7 +386,11 @@ impl Plugin for SpacePlugin {
                         FixedTimestep::step(1. / DIFFUSION_STEP).with_label(ATMOS_DIFFUSION_LABEL),
                     )
                     .with_system(atmos_diffusion.label(AtmosphericsLabels::Diffusion))
-                    .with_system(atmos_effects.after(AtmosphericsLabels::Diffusion).label(AtmosphericsLabels::Effects))
+                    .with_system(
+                        atmos_effects
+                            .after(AtmosphericsLabels::Diffusion)
+                            .label(AtmosphericsLabels::Effects),
+                    )
                     .with_system(atmospherics_rigidbody_forces.after(AtmosphericsLabels::Effects)),
             )
             .add_system(remove_cell.label(UpdateLabels::DeconstructCell))

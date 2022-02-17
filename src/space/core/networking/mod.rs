@@ -59,7 +59,9 @@ use crate::space::{
     entities::construction_tool_admin::events::NetConstructionTool,
 };
 
-use super::atmospherics::events::{NetMapDisplayAtmospherics, NetMapHoverAtmospherics};
+use super::atmospherics::events::{
+    NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics,
+};
 
 pub fn startup_listen_connections(mut net: ResMut<NetworkResource>) {
     net.set_channels_builder(|builder: &mut ConnectionChannelsBuilder| {
@@ -751,7 +753,10 @@ pub fn net_send_message_event(
         EventReader<NetRequestDisplayModes>,
         EventReader<NetMapDisplayAtmospherics>,
     ),
-    tuple2: (EventReader<NetMapHoverAtmospherics>,),
+    tuple2: (
+        EventReader<NetMapHoverAtmospherics>,
+        EventReader<NetAtmosphericsNotices>,
+    ),
     connected_players: Query<&ConnectedPlayer>,
 ) {
     let (
@@ -791,7 +796,7 @@ pub fn net_send_message_event(
         mut net_display_atmospherics,
     ) = tuple1;
 
-    let mut net_map_hover_atmospherics = tuple2.0;
+    let (mut net_map_hover_atmospherics, mut net_atmospherics_notices) = tuple2;
 
     let mut not_connected_handles = vec![];
 
@@ -1421,5 +1426,23 @@ pub fn net_send_message_event(
                 };
             }
         }
+    }
+
+    for new_event in net_atmospherics_notices.iter() {
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_atmospherics_notices message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_atmospherics_notices message (1): {:?}", err);
+            }
+        };
     }
 }

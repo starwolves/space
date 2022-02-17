@@ -9,19 +9,26 @@ use crate::space::core::{
     gridmap::{
         functions::gridmap_functions::world_to_cell_id,
         resources::{Vec2Int, FOV_MAP_WIDTH},
-    }, pawn::components::Pawn,
+    },
+    pawn::components::Pawn,
 };
 
-const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 80.;
-const ATMOSPHERICS_FORCES_MAX: f32 = 110.;
+const ATMOSPHERICS_FORCES_SENSITIVITY_PAWN: f32 = 120.;
+const ATMOSPHERICS_FORCES_MAX_PAWN: f32 = 110.;
+
+const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 20.;
+const ATMOSPHERICS_FORCES_MAX: f32 = 11.;
 
 pub fn atmospherics_rigidbody_forces(
-    mut rigid_bodies: Query<
-        (&RigidBodyPositionComponent, &mut RigidBodyForcesComponent, Option<&Pawn>),
-    >,
+    mut rigid_bodies: Query<(
+        &RigidBodyPositionComponent,
+        &mut RigidBodyForcesComponent,
+        Option<&Pawn>,
+    )>,
     atmospherics_resource: Res<AtmosphericsResource>,
 ) {
-    for (rigid_body_position_component, mut rigid_body_forces_component, pawn_component_option) in rigid_bodies.iter_mut()
+    for (rigid_body_position_component, mut rigid_body_forces_component, pawn_component_option) in
+        rigid_bodies.iter_mut()
     {
         let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
 
@@ -44,14 +51,15 @@ pub fn atmospherics_rigidbody_forces(
 
         let mut atmos_force = Vec3::ZERO;
 
-
-
-        let mut sensitivity = ATMOSPHERICS_FORCES_SENSITIVITY;
-        let mut forces_max = ATMOSPHERICS_FORCES_MAX;
+        let sensitivity;
+        let forces_max;
 
         if pawn_component_option.is_none() {
-            sensitivity *=0.25;
-            forces_max *=0.1;
+            sensitivity = ATMOSPHERICS_FORCES_SENSITIVITY;
+            forces_max = ATMOSPHERICS_FORCES_MAX;
+        } else {
+            sensitivity = ATMOSPHERICS_FORCES_SENSITIVITY_PAWN;
+            forces_max = ATMOSPHERICS_FORCES_MAX_PAWN;
         }
 
         for j in 0..4 {
@@ -97,20 +105,12 @@ pub fn atmospherics_rigidbody_forces(
 
             atmos_force -= force_direction
                 * ((adjacent_atmospherics.get_pressure() - self_atmospherics.get_pressure())
-                * sensitivity);
+                    * sensitivity);
         }
 
         atmos_force = atmos_force.clamp(
-            Vec3::new(
-                -forces_max,
-                -forces_max,
-                -forces_max,
-            ),
-            Vec3::new(
-                forces_max,
-                forces_max,
-                forces_max,
-            ),
+            Vec3::new(-forces_max, -forces_max, -forces_max),
+            Vec3::new(forces_max, forces_max, forces_max),
         );
 
         let mut bevy_vec: Vec3 = rigid_body_forces_component.force.into();
