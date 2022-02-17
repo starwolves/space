@@ -11,7 +11,6 @@ use bevy_rapier3d::{
         CoefficientCombineRule, ColliderMaterialComponent, RigidBodyDominanceComponent,
         RigidBodyForcesComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
     },
-    rapier::math::{Real, Vector},
 };
 
 use crate::space::{
@@ -265,12 +264,14 @@ pub fn standard_characters(
         let delta_time = time.delta();
         let delta_seconds = delta_time.as_secs_f32();
 
-        let rapier_vector: Vector<Real> = Vec3::new(
+        let mut netto_force = Vec3::new(
             player_input_movement_vector.x * -speed_factor,
             DOWN_FORCE,
             player_input_movement_vector.y * speed_factor,
-        )
-        .into();
+        );
+
+        let bevy_vec: Vec3 = rigid_body_forces.force.into();
+        netto_force += bevy_vec;
 
         let mut rigid_body_position = rigid_body_position_component.position.clone();
 
@@ -907,6 +908,7 @@ pub fn standard_characters(
             }
 
             if should_apply {
+                let rapier_vector = netto_force.into();
                 if rigid_body_forces.force != rapier_vector {
                     rigid_body_forces.force = rapier_vector * (1. / tick_rate.rate as f32);
                 }
