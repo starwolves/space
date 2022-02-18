@@ -89,7 +89,7 @@ impl HumanMalePawnBundle {
 
         let r = 0.5;
 
-        this_transform.translation.y = 0.9 - r;
+        this_transform.translation.y = 0.9;// - r;
 
         let friction = CHARACTER_FLOOR_FRICTION;
         let friction_combine_rule = CoefficientCombineRule::Min;
@@ -97,7 +97,6 @@ impl HumanMalePawnBundle {
         let rigid_body_component = RigidBodyBundle {
             body_type: RigidBodyType::Dynamic.into(),
             position: transform_to_isometry(this_transform).into(),
-            //mass_properties: (RigidBodyMassPropsFlags::ROTATION_LOCKED_Z| RigidBodyMassPropsFlags::ROTATION_LOCKED_X).into(),
             mass_properties: RigidBodyMassPropsFlags::ROTATION_LOCKED.into(),
             dominance: RigidBodyDominance(10).into(),
             ..Default::default()
