@@ -11,7 +11,7 @@ edition = "2021"
 
 [dependencies]
 
-bevy = {version= "0.6"}
+bevy = {version= "0.6.1"}
 bevy_rapier3d = { git = "https://github.com/dimforge/bevy_rapier.git", rev = "11605d0", version= "0.12.1" ,default-features = false, features = [ "dim3" ]}
 
 serde = {version= "1.0.130"}

@@ -120,6 +120,8 @@ pub struct MainCellProperties {
     pub collider_position: ColliderPosition,
     pub constructable: bool,
     pub floor_cell: bool,
+    pub atmospherics_blocker: bool,
+    pub atmospherics_pushes_up: bool,
 }
 
 impl Default for MainCellProperties {
@@ -136,6 +138,8 @@ impl Default for MainCellProperties {
             collider_position: ColliderPosition::identity(),
             constructable: false,
             floor_cell: false,
+            atmospherics_blocker: true,
+            atmospherics_pushes_up: false,
         }
     }
 }
@@ -225,6 +229,8 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
         collider_position: default_isometry,
         constructable: true,
+        atmospherics_blocker: false,
+        atmospherics_pushes_up: true,
         ..Default::default()
     });
 

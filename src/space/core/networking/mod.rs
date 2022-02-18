@@ -59,8 +59,11 @@ use crate::space::{
     entities::construction_tool_admin::events::NetConstructionTool,
 };
 
-use super::atmospherics::events::{
-    NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics,
+use super::{
+    atmospherics::events::{
+        NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics,
+    },
+    map::resources::MapData,
 };
 
 pub fn startup_listen_connections(mut net: ResMut<NetworkResource>) {
@@ -664,6 +667,7 @@ pub fn connections(
     mut used_names: ResMut<UsedNames>,
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
     gridmap_data: Res<GridmapData>,
+    map_data: Res<MapData>,
 ) {
     for event in reader.iter() {
         match event {
@@ -698,6 +702,7 @@ pub fn connections(
                     &mut commands,
                     &mut used_names,
                     &gridmap_data,
+                    &map_data,
                 );
             }
 

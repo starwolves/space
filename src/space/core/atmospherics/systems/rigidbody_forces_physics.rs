@@ -1,36 +1,31 @@
+// Add to shared resources with _physics,
 
-// Add to shared resources with _physics, 
-
-use bevy::{prelude::{ResMut, Query}, math::Vec3};
+use bevy::{
+    math::Vec3,
+    prelude::{Query, ResMut},
+};
 use bevy_rapier3d::prelude::RigidBodyForcesComponent;
 
 use crate::space::core::atmospherics::resources::RigidBodyForcesAccumulation;
 
 pub fn rigidbody_forces_physics(
-    mut forces_accumulation : ResMut<RigidBodyForcesAccumulation>,
-    mut rigidbodies : Query<&mut RigidBodyForcesComponent>,
-    
+    mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,
+    mut rigidbodies: Query<&mut RigidBodyForcesComponent>,
 ) {
-
     for (entity, accumulated) in &mut forces_accumulation.data {
-
-
         let mut net_force = Vec3::ZERO;
 
         for accumulation in accumulated.iter() {
-            net_force+=*accumulation;
+            net_force += *accumulation;
         }
 
         match rigidbodies.get_mut(*entity) {
             Ok(mut rigid_body_forces_component) => {
                 rigid_body_forces_component.force = net_force.into();
-            },
-            Err(_rr) => {},
+            }
+            Err(_rr) => {}
         }
 
         accumulated.clear();
-
     }
-
-    
 }

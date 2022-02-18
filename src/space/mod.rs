@@ -9,7 +9,10 @@ use bevy::{
     MinimalPlugins,
 };
 use bevy_networking_turbulence::NetworkingPlugin;
-use bevy_rapier3d::{prelude::{NoUserData, RapierPhysicsPlugin}, physics::{PhysicsStages, PhysicsSystems}};
+use bevy_rapier3d::{
+    physics::{PhysicsStages, PhysicsSystems},
+    prelude::{NoUserData, RapierPhysicsPlugin},
+};
 
 use self::{
     core::{
@@ -21,11 +24,12 @@ use self::{
                 atmospherics_map::atmospherics_map,
                 atmospherics_map_hover::atmospherics_map_hover,
                 atmospherics_notices::atmospherics_notices,
-                rigidbody_forces_atmospherics::rigidbody_forces_accumulation,
                 atmospherics_sensing_ability::atmospherics_sensing_ability,
                 diffusion::{atmos_diffusion, DIFFUSION_STEP},
                 effects::atmos_effects,
-                zero_gravity::zero_gravity, rigidbody_forces_physics::rigidbody_forces_physics,
+                rigidbody_forces_atmospherics::rigidbody_forces_accumulation,
+                rigidbody_forces_physics::rigidbody_forces_physics,
+                zero_gravity::zero_gravity,
             },
         },
         combat::systems::attack,
@@ -72,6 +76,7 @@ use self::{
                 InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes,
                 NetRequestDisplayModes,
             },
+            resources::MapData,
             systems::{
                 change_display_mode::change_display_mode, map_input::map_input,
                 request_display_modes::request_display_modes,
@@ -119,9 +124,7 @@ use self::{
         },
         physics::{entity_update::world_mode_update, systems::physics_events},
         rigid_body::systems::{
-            broadcast_interpolation_transforms::{
-                broadcast_interpolation_transforms,
-            },
+            broadcast_interpolation_transforms::broadcast_interpolation_transforms,
             out_of_bounds_check::out_of_bounds_check,
             rigidbody_link_transform::rigidbody_link_transform,
         },
@@ -137,7 +140,9 @@ use self::{
         air_lock_security::{
             entity_update::air_lock_update,
             events::AirLockCollision,
-            systems::{air_lock_events, air_lock_tick_timers},
+            systems::{
+                air_lock_added, air_lock_default_map_added, air_lock_events, air_lock_tick_timers,
+            },
         },
         construction_tool_admin::{
             events::{
@@ -149,7 +154,10 @@ use self::{
         counter_window_security::{
             entity_update::counter_window_update,
             events::CounterWindowSensorCollision,
-            systems::{counter_window_events, counter_window_tick_timers},
+            systems::{
+                counter_window_added, counter_window_default_map_added, counter_window_events,
+                counter_window_tick_timers,
+            },
         },
         gi_probe::entity_update::gi_probe_update,
         omni_light::entity_update::omni_light_update,
@@ -235,6 +243,7 @@ impl Plugin for SpacePlugin {
             .init_resource::<AtmosphericsResource>()
             .init_resource::<MapHolders>()
             .init_resource::<RigidBodyForcesAccumulation>()
+            .init_resource::<MapData>()
             .add_event::<InputUIInput>()
             .add_event::<InputSceneReady>()
             .add_event::<InputUIInputTransmitText>()
@@ -374,6 +383,10 @@ impl Plugin for SpacePlugin {
             .add_system(atmospherics_sensing_ability)
             .add_system(zero_gravity)
             .add_system(out_of_bounds_check)
+            .add_system(air_lock_added)
+            .add_system(counter_window_added)
+            .add_system(counter_window_default_map_added)
+            .add_system(air_lock_default_map_added)
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))
@@ -423,12 +436,9 @@ impl Plugin for SpacePlugin {
             .add_system(drop_current_item.label(UpdateLabels::DropCurrentItem))
             .add_system(rigidbody_link_transform.after(UpdateLabels::DropCurrentItem))
             .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
-            .add_system(mouse_direction_update)
-            .add_system_to_stage(
-                PhysicsStages::SyncTransforms,
-                standard_characters.after(PhysicsSystems::SyncTransforms),
-            )
-            .add_system(attack)
+            .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
+            .add_system(standard_characters.label(UpdateLabels::StandardCharacters).before(PhysicsSystems::StepWorld).after(UpdateLabels::ProcessMovementInput))
+            .add_system(attack.after(UpdateLabels::StandardCharacters))
             .add_system_to_stage(
                 PhysicsStages::SyncTransforms,
                 broadcast_interpolation_transforms.after(PhysicsSystems::SyncTransforms),

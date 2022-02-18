@@ -89,6 +89,7 @@ pub fn on_setupui(
                 ),
             }),
             None,
+            false,
         );
     }
 }

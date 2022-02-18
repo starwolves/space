@@ -53,6 +53,7 @@ pub fn on_spawning(
                 ),
             }),
             None,
+            false,
         );
 
         let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();

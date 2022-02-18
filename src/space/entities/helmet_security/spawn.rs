@@ -46,6 +46,7 @@ impl HelmetSecurityBundle {
         correct_transform: bool,
         _pawn_data_option: Option<SpawnPawnData>,
         held_data_option: Option<SpawnHeldData>,
+        _default_map_spawn: bool,
     ) -> Entity {
         match held_data_option {
             Some(held_data) => {

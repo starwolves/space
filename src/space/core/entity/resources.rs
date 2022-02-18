@@ -66,6 +66,7 @@ pub struct EntityDataProperties {
                 bool,
                 Option<SpawnPawnData>,
                 Option<SpawnHeldData>,
+                bool,
             ) -> Entity
             + Sync
             + Send,
@@ -78,7 +79,7 @@ pub struct EntityDataProperties {
 impl Default for EntityDataProperties {
     fn default() -> Self {
         Self {
-            spawn_function: Box::new(|_, _, _, _, _| Entity::from_raw(0)),
+            spawn_function: Box::new(|_, _, _, _, _, _| Entity::from_raw(0)),
             name: Default::default(),
             id: Default::default(),
             constructable: false,

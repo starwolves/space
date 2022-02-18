@@ -164,3 +164,6 @@ pub struct Server;
 pub struct Showcase {
     pub handle: u32,
 }
+
+#[derive(Component)]
+pub struct DefaultMapEntity;
