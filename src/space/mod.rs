@@ -9,23 +9,23 @@ use bevy::{
     MinimalPlugins,
 };
 use bevy_networking_turbulence::NetworkingPlugin;
-use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
+use bevy_rapier3d::{prelude::{NoUserData, RapierPhysicsPlugin}, physics::{PhysicsStages, PhysicsSystems}};
 
 use self::{
     core::{
         atmospherics::{
             events::{NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
-            resources::{AtmosphericsResource, MapHolders},
+            resources::{AtmosphericsResource, MapHolders, RigidBodyForcesAccumulation},
             startup_atmospherics,
             systems::{
                 atmospherics_map::atmospherics_map,
                 atmospherics_map_hover::atmospherics_map_hover,
                 atmospherics_notices::atmospherics_notices,
-                atmospherics_rigidbody_forces::atmospherics_rigidbody_forces,
+                rigidbody_forces_atmospherics::rigidbody_forces_accumulation,
                 atmospherics_sensing_ability::atmospherics_sensing_ability,
                 diffusion::{atmos_diffusion, DIFFUSION_STEP},
                 effects::atmos_effects,
-                zero_gravity::zero_gravity,
+                zero_gravity::zero_gravity, rigidbody_forces_physics::rigidbody_forces_physics,
             },
         },
         combat::systems::attack,
@@ -120,7 +120,7 @@ use self::{
         physics::{entity_update::world_mode_update, systems::physics_events},
         rigid_body::systems::{
             broadcast_interpolation_transforms::{
-                broadcast_interpolation_transforms, BROADCAST_INTERPOLATION_TRANSFORM_RATE,
+                broadcast_interpolation_transforms,
             },
             out_of_bounds_check::out_of_bounds_check,
             rigidbody_link_transform::rigidbody_link_transform,
@@ -202,7 +202,6 @@ pub enum PostUpdateLabels {
     VisibleChecker,
 }
 
-const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 const ATMOS_LABEL: &str = "fixed_timestep_map_atmos";
 const ATMOS_DIFFUSION_LABEL: &str = "fixed_timestep_atmos";
 
@@ -235,6 +234,7 @@ impl Plugin for SpacePlugin {
             .init_resource::<EntityDataResource>()
             .init_resource::<AtmosphericsResource>()
             .init_resource::<MapHolders>()
+            .init_resource::<RigidBodyForcesAccumulation>()
             .add_event::<InputUIInput>()
             .add_event::<InputSceneReady>()
             .add_event::<InputUIInputTransmitText>()
@@ -391,7 +391,7 @@ impl Plugin for SpacePlugin {
                             .after(AtmosphericsLabels::Diffusion)
                             .label(AtmosphericsLabels::Effects),
                     )
-                    .with_system(atmospherics_rigidbody_forces.after(AtmosphericsLabels::Effects)),
+                    .with_system(rigidbody_forces_accumulation.after(AtmosphericsLabels::Effects)),
             )
             .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
             .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
@@ -423,18 +423,19 @@ impl Plugin for SpacePlugin {
             .add_system(drop_current_item.label(UpdateLabels::DropCurrentItem))
             .add_system(rigidbody_link_transform.after(UpdateLabels::DropCurrentItem))
             .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
-            .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
-            .add_system(
-                standard_characters
-                    .label(UpdateLabels::StandardCharacters)
-                    .after(UpdateLabels::ProcessMovementInput),
+            .add_system(mouse_direction_update)
+            .add_system_to_stage(
+                PhysicsStages::SyncTransforms,
+                standard_characters.after(PhysicsSystems::SyncTransforms),
             )
-            .add_system(attack.after(UpdateLabels::StandardCharacters))
-            .add_system(
-                broadcast_interpolation_transforms.with_run_criteria(
-                    FixedTimestep::step(1. / BROADCAST_INTERPOLATION_TRANSFORM_RATE)
-                        .with_label(INTERPOLATION_LABEL),
-                ),
+            .add_system(attack)
+            .add_system_to_stage(
+                PhysicsStages::SyncTransforms,
+                broadcast_interpolation_transforms.after(PhysicsSystems::SyncTransforms),
+            )
+            .add_system_to_stage(
+                PhysicsStages::SyncTransforms,
+                rigidbody_forces_physics.after(PhysicsSystems::SyncTransforms),
             )
             .add_system_set_to_stage(
                 PostUpdate,

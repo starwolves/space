@@ -1,5 +1,5 @@
 use bevy::{
-    core::{FixedTimesteps, Time},
+    core::{Time},
     math::{Quat, Vec3},
     prelude::{warn, Entity, Local, Query, Res, ResMut, Transform, Without},
 };
@@ -13,8 +13,6 @@ use crate::space::core::{
     rigid_body::components::{CachedBroadcastTransform, RigidBodyDisabled},
     static_body::components::StaticTransform,
 };
-
-const INTERPOLATION_LABEL: &str = "fixed_timestep_interpolation";
 
 #[derive(Debug)]
 pub enum InterpolationPriorityRates {
@@ -33,7 +31,6 @@ pub const BROADCAST_INTERPOLATION_TRANSFORM_RATE: f64 = 24.;
 
 pub fn broadcast_interpolation_transforms(
     time: Res<Time>,
-    fixed_timesteps: Res<FixedTimesteps>,
 
     mut net: ResMut<NetworkResource>,
     handle_to_entity: Res<HandleToEntity>,
@@ -57,14 +54,6 @@ pub fn broadcast_interpolation_transforms(
     }
 
     let current_time_stamp = time.time_since_startup().as_millis();
-
-    let fixed_timestep = fixed_timesteps
-        .get(INTERPOLATION_LABEL)
-        .unwrap()
-        .overstep_percentage();
-    if fixed_timestep > 5. && current_time_stamp > 60000 {
-        warn!("overstep_percentage: {}", fixed_timestep);
-    }
 
     for (
         interpolated_entity,
