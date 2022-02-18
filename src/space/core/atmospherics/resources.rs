@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Entity, FromWorld, World};
+use bevy::{prelude::{Entity, FromWorld, World}, math::Vec3};
 
 use crate::space::core::{
     gridmap::resources::{Vec2Int, FOV_MAP_WIDTH},
@@ -134,5 +134,15 @@ impl Default for MapHolderData {
 impl Default for AtmosphericsCache {
     fn default() -> Self {
         Self { tile_color: None }
+    }
+}
+
+pub struct RigidBodyForcesAccumulation {
+    pub data : HashMap<Entity, Vec<Vec3>>,
+}
+
+impl Default for RigidBodyForcesAccumulation {
+    fn default() -> Self {
+        Self { data: HashMap::new() }
     }
 }
