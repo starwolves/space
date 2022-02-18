@@ -1,5 +1,5 @@
 use bevy::{
-    core::{Time},
+    core::Time,
     math::{Quat, Vec3},
     prelude::{warn, Entity, Local, Query, Res, ResMut, Transform, Without},
 };

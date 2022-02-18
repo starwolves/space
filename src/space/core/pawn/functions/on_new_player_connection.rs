@@ -1,6 +1,7 @@
 use crate::space::core::{
     configuration::resources::{ServerId, TickRate},
     gridmap::resources::GridmapData,
+    map::resources::MapData,
     networking::resources::{ReliableServerMessage, ServerConfigMessage},
     pawn::{
         components::{ConnectedPlayer, PersistentPlayerData, PlayerInput, SoftPlayer},
@@ -26,6 +27,7 @@ pub fn on_new_player_connection(
     commands: &mut Commands,
     used_names: &mut ResMut<UsedNames>,
     gridmap_data: &Res<GridmapData>,
+    map_data: &Res<MapData>,
 ) {
     net_on_new_player_connection.send(NetOnNewPlayerConnection {
         handle: *handle,
@@ -255,4 +257,11 @@ pub fn on_new_player_connection(
             gridmap_data.non_fov_blocking_cells_list.clone(),
         )),
     });
+
+    for add in map_data.to_net() {
+        net_on_new_player_connection.send(NetOnNewPlayerConnection {
+            handle: *handle,
+            message: ReliableServerMessage::MapDefaultAddition(add.0, add.1, add.2),
+        });
+    }
 }

@@ -58,6 +58,7 @@ impl HumanMalePawnBundle {
         correct_transform: bool,
         pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
+        _default_map_spawn: bool,
     ) -> Entity {
         let (
             persistent_player_data_component,
@@ -89,7 +90,7 @@ impl HumanMalePawnBundle {
 
         let r = 0.5;
 
-        this_transform.translation.y = 0.9;// - r;
+        this_transform.translation.y = 0.9 - r;
 
         let friction = CHARACTER_FLOOR_FRICTION;
         let friction_combine_rule = CoefficientCombineRule::Min;

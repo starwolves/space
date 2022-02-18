@@ -128,6 +128,7 @@ pub enum ReliableServerMessage {
     MapOverlayHoverData(String),
     UIAddNotice(String),
     UIRemoveNotice(String),
+    MapDefaultAddition(i16, i16, i16),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

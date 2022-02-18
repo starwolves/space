@@ -14,9 +14,12 @@ use crate::space::core::{
     gridmap::resources::{GridmapMain, Vec2Int, Vec3Int, FOV_MAP_WIDTH},
 };
 
+use super::gridmap::resources::GridmapData;
+
 pub fn startup_atmospherics(
     gridmap_main: Res<GridmapMain>,
     mut atmospherics: ResMut<AtmosphericsResource>,
+    gridmap_main_data: Res<GridmapData>,
 ) {
     // Setup atmospherics.
     let default_x = FOV_MAP_WIDTH as i16 / 2;
@@ -38,17 +41,24 @@ pub fn startup_atmospherics(
         }
 
         let blocked;
+        let push_up;
 
         match gridmap_main.data.get(&Vec3Int {
             x: current_cell_id.x,
             y: 0,
             z: current_cell_id.y,
         }) {
-            Some(_cell_data) => {
-                blocked = true;
+            Some(cell_data) => {
+                let properties = gridmap_main_data
+                    .main_cell_properties
+                    .get(&cell_data.item)
+                    .unwrap();
+                blocked = properties.atmospherics_blocker;
+                push_up = properties.atmospherics_pushes_up;
             }
             None => {
                 blocked = false;
+                push_up = false;
             }
         }
 
@@ -75,9 +85,11 @@ pub fn startup_atmospherics(
             atmospherics.atmospherics[get_atmos_index(current_cell_id)] =
                 Atmospherics::new_internal();
         } else {
+            let flags = vec!["default_vacuum".to_string()];
             atmospherics.atmospherics[get_atmos_index(current_cell_id)] = Atmospherics {
                 blocked,
-                flags: vec!["default_vacuum".to_string()],
+                flags,
+                forces_push_up: push_up,
                 ..Default::default()
             };
             vacuum_cells += 1;

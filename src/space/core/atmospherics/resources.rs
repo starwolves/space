@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::{prelude::{Entity, FromWorld, World}, math::Vec3};
+use bevy::{
+    math::Vec3,
+    prelude::{Entity, FromWorld, World},
+};
 
 use crate::space::core::{
     gridmap::resources::{Vec2Int, FOV_MAP_WIDTH},
@@ -47,6 +50,7 @@ pub struct Atmospherics {
     pub amount: f32,
     pub flags: Vec<String>,
     pub effects: HashMap<EffectType, AtmosEffect>,
+    pub forces_push_up: bool,
 }
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -76,6 +80,7 @@ impl Default for Atmospherics {
             amount: 0.,
             effects: effects,
             flags: vec![],
+            forces_push_up: false,
         }
     }
 }
@@ -91,6 +96,7 @@ impl Atmospherics {
             amount: DEFAULT_INTERNAL_AMOUNT,
             effects: HashMap::new(),
             flags: vec![],
+            forces_push_up: false,
         }
     }
     pub fn get_pressure(&self) -> f32 {
@@ -138,11 +144,13 @@ impl Default for AtmosphericsCache {
 }
 
 pub struct RigidBodyForcesAccumulation {
-    pub data : HashMap<Entity, Vec<Vec3>>,
+    pub data: HashMap<Entity, Vec<Vec3>>,
 }
 
 impl Default for RigidBodyForcesAccumulation {
     fn default() -> Self {
-        Self { data: HashMap::new() }
+        Self {
+            data: HashMap::new(),
+        }
     }
 }

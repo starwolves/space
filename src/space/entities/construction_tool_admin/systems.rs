@@ -69,8 +69,8 @@ pub fn construction_tool(
         EventReader<InputDeconstruct>,
         EventReader<InputConstructionOptions>,
         EventReader<InputConstructionOptionsSelection>,
+        EventWriter<RemoveCell>,
     ),
-    mut remove_cell_events: EventWriter<RemoveCell>,
     entity_data: Res<EntityDataResource>,
     gridmap_data: Res<GridmapData>,
     mut gridmap_main: ResMut<GridmapMain>,
@@ -94,12 +94,14 @@ pub fn construction_tool(
     mut fov_map: ResMut<DoryenMap>,
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
+    gridmap_main_data: Res<GridmapData>,
 ) {
     let (
         mut input_construct_event,
         mut input_deconstruct_event,
         mut input_construction_options_event,
         mut input_construction_options_selection_event,
+        mut remove_cell_events,
     ) = event_readers;
 
     // Retreive all construction and complex constructions as a text list and make generic client GUI text list call.
@@ -685,7 +687,12 @@ pub fn construction_tool(
             .unwrap();
 
         if target_cell_id.y == 0 {
-            atmospherics.blocked = true;
+            let properties = gridmap_main_data
+                .main_cell_properties
+                .get(&cell_data.item)
+                .unwrap();
+            atmospherics.blocked = properties.atmospherics_blocker;
+            atmospherics.forces_push_up = properties.atmospherics_pushes_up;
         } else {
             // Remove vacuum flag from atmos.
             atmospherics.effects.remove(&EffectType::Floorless);

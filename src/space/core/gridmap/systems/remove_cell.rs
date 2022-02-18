@@ -48,6 +48,7 @@ pub fn remove_cell(
                     commands.entity(cell_entity).despawn();
                     fov_map.map.set_transparent(coords.0, coords.1, true);
                     atmospherics.blocked = false;
+                    atmospherics.forces_push_up = false;
                 } else {
                     let mut upper_id = event.id.clone();
                     upper_id.y = 0;

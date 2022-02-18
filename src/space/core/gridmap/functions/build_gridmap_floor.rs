@@ -47,8 +47,8 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
             shape: ColliderShape::cuboid(500., 1., 500.).into(),
             collider_type: ColliderType::Solid.into(),
             material: ColliderMaterial {
-                friction_combine_rule: CoefficientCombineRule::Average,
-                friction: CHARACTER_FLOOR_FRICTION,
+                friction_combine_rule: CoefficientCombineRule::Min,
+                friction: CHARACTER_FLOOR_FRICTION * 0.25,
                 ..Default::default()
             }
             .into(),

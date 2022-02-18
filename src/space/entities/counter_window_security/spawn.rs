@@ -11,7 +11,10 @@ use bevy_rapier3d::prelude::{
 
 use crate::space::core::{
     entity::{
-        components::{EntityData, EntityGroup, EntityUpdates, Examinable, RichName, Sensable},
+        components::{
+            DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
+            Sensable,
+        },
         functions::transform_to_isometry::transform_to_isometry,
         resources::{SpawnHeldData, SpawnPawnData},
     },
@@ -35,6 +38,7 @@ impl SecurityCounterWindowBundle {
         _correct_transform: bool,
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
+        default_map_spawn: bool,
     ) -> Entity {
         let static_transform_component = StaticTransform {
             transform: entity_transform,
@@ -101,8 +105,8 @@ impl SecurityCounterWindowBundle {
                 + "]It is fully operational.[/color][/font]",
         );
 
-        let parent = commands
-            .spawn_bundle(window_rigid_body_component)
+        let mut parent_builder = commands.spawn_bundle(window_rigid_body_component);
+        let parent = parent_builder
             .insert_bundle(window_collider_component)
             .insert_bundle((
                 static_transform_component,
@@ -134,6 +138,10 @@ impl SecurityCounterWindowBundle {
                 },
             ))
             .id();
+
+        if default_map_spawn {
+            parent_builder.insert(DefaultMapEntity);
+        }
 
         let child = commands
             .spawn_bundle(sensor_rigid_body_component)

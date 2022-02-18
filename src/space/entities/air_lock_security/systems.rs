@@ -1,12 +1,15 @@
 use bevy::{
     core::{Time, Timer},
-    prelude::{Commands, Entity, EventReader, Query, Res, ResMut},
+    prelude::{Added, Commands, Entity, EventReader, Query, Res, ResMut},
 };
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::{
     core::{
-        entity::components::EntityGroup,
+        atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
+        entity::components::{DefaultMapEntity, EntityGroup},
+        gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
+        map::resources::{MapData, GREEN_MAP_TILE_ENTRANCE},
         pawn::components::{Pawn, SpaceAccess},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
@@ -39,6 +42,7 @@ pub fn air_lock_events(
     pawn_query: Query<(&Pawn, &SpaceAccess)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
+    mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
     for (
         mut air_lock_component,
@@ -56,6 +60,22 @@ pub fn air_lock_events(
                     timer_component.timer.pause();
                     timer_component.timer.reset();
 
+                    let cell_id =
+                        world_to_cell_id(rigid_body_position_component.position.translation.into());
+                    let cell_id2 = Vec2Int {
+                        x: cell_id.x,
+                        y: cell_id.z,
+                    };
+                    if AtmosphericsResource::is_id_out_of_range(cell_id2) {
+                        continue;
+                    }
+                    let atmos_id = get_atmos_index(cell_id2);
+                    let atmospherics = atmospherics_resource
+                        .atmospherics
+                        .get_mut(atmos_id)
+                        .unwrap();
+
+                    atmospherics.blocked = true;
                     air_lock_component.status = AirLockStatus::Closed;
 
                     commands
@@ -165,6 +185,26 @@ pub fn air_lock_events(
         }
 
         if pawn_has_permission == true {
+            let cell_id = world_to_cell_id(
+                air_lock_rigid_body_position_component
+                    .position
+                    .translation
+                    .into(),
+            );
+            let cell_id2 = Vec2Int {
+                x: cell_id.x,
+                y: cell_id.z,
+            };
+            if AtmosphericsResource::is_id_out_of_range(cell_id2) {
+                continue;
+            }
+            let atmos_id = get_atmos_index(cell_id2);
+            let atmospherics = atmospherics_resource
+                .atmospherics
+                .get_mut(atmos_id)
+                .unwrap();
+
+            atmospherics.blocked = false;
             air_lock_component.status = AirLockStatus::Open;
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
@@ -249,5 +289,45 @@ pub fn air_lock_tick_timers(
         sfx_auto_destroy_timers.timers.remove(j);
 
         commands.entity(this_entity_id).despawn();
+    }
+}
+
+pub fn air_lock_added(
+    air_locks: Query<(Entity, &RigidBodyPositionComponent), Added<AirLock>>,
+    mut atmospherics_resource: ResMut<AtmosphericsResource>,
+) {
+    for (_airlock_entity, rigid_body_position_component) in air_locks.iter() {
+        let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+        let cell_id2 = Vec2Int {
+            x: cell_id.x,
+            y: cell_id.z,
+        };
+        if AtmosphericsResource::is_id_out_of_range(cell_id2) {
+            continue;
+        }
+        let atmos_id = get_atmos_index(cell_id2);
+        let atmospherics = atmospherics_resource
+            .atmospherics
+            .get_mut(atmos_id)
+            .unwrap();
+
+        atmospherics.blocked = true;
+    }
+}
+
+pub fn air_lock_default_map_added(
+    airlock_windows: Query<
+        (Entity, &RigidBodyPositionComponent, &DefaultMapEntity),
+        Added<AirLock>,
+    >,
+    mut map_data: ResMut<MapData>,
+) {
+    for (_airlock_entity, rigid_body_position_component, _) in airlock_windows.iter() {
+        let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+        let cell_id2 = Vec2Int {
+            x: cell_id.x,
+            y: cell_id.z,
+        };
+        map_data.data.insert(cell_id2, GREEN_MAP_TILE_ENTRANCE);
     }
 }

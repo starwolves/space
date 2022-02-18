@@ -11,7 +11,10 @@ use bevy_rapier3d::prelude::{
 
 use crate::space::core::{
     entity::{
-        components::{EntityData, EntityGroup, EntityUpdates, Examinable, RichName, Sensable},
+        components::{
+            DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
+            Sensable,
+        },
         functions::transform_to_isometry::transform_to_isometry,
         resources::{SpawnHeldData, SpawnPawnData},
     },
@@ -35,6 +38,7 @@ impl SecurityAirlockBundle {
         _correct_transform: bool,
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
+        default_map_spawn: bool,
     ) -> Entity {
         let static_transform_component = StaticTransform {
             transform: entity_transform,
@@ -79,37 +83,41 @@ impl SecurityAirlockBundle {
 
         health_flags.insert(0, HealthFlag::ArmourPlated);
 
-        commands
-            .spawn_bundle(rigid_body_component)
-            .insert_bundle(collider_component)
-            .insert_bundle((
-                static_transform_component,
-                Sensable::default(),
-                AirLock {
-                    access_permissions: vec![SpaceAccessEnum::Security],
+        let mut builder = commands.spawn_bundle(rigid_body_component);
+
+        builder.insert_bundle(collider_component).insert_bundle((
+            static_transform_component,
+            Sensable::default(),
+            AirLock {
+                access_permissions: vec![SpaceAccessEnum::Security],
+                ..Default::default()
+            },
+            EntityData {
+                entity_class: "entity".to_string(),
+                entity_type: "securityAirLock1".to_string(),
+                entity_group: EntityGroup::AirLock,
+            },
+            EntityUpdates::default(),
+            Examinable {
+                name: RichName {
+                    name: "security airlock".to_string(),
+                    n: false,
                     ..Default::default()
                 },
-                EntityData {
-                    entity_class: "entity".to_string(),
-                    entity_type: "securityAirLock1".to_string(),
-                    entity_group: EntityGroup::AirLock,
-                },
-                EntityUpdates::default(),
-                Examinable {
-                    name: RichName {
-                        name: "security airlock".to_string(),
-                        n: false,
-                        ..Default::default()
-                    },
-                    assigned_texts: examine_map,
-                    ..Default::default()
-                },
-                Health {
-                    is_combat_obstacle: true,
-                    is_reach_obstacle: true,
-                    ..Default::default()
-                },
-            ))
-            .id()
+                assigned_texts: examine_map,
+                ..Default::default()
+            },
+            Health {
+                is_combat_obstacle: true,
+                is_reach_obstacle: true,
+                ..Default::default()
+            },
+        ));
+
+        if default_map_spawn {
+            builder.insert(DefaultMapEntity);
+        }
+
+        builder.id()
     }
 }

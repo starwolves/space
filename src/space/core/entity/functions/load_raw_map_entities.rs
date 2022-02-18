@@ -60,6 +60,7 @@ pub fn load_raw_map_entities(
                         false,
                         None,
                         None,
+                        true,
                     ));
                 }
                 None => {}

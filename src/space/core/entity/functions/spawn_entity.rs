@@ -61,6 +61,7 @@ pub fn spawn_entity(
                         correct_transform,
                         pawn,
                         held,
+                        false,
                     ));
                 }
                 None => {
@@ -70,6 +71,7 @@ pub fn spawn_entity(
                         correct_transform,
                         None,
                         held,
+                        false,
                     ));
                 }
             }
@@ -110,6 +112,7 @@ pub fn spawn_held_entity(
                         net_showcase,
                     ),
                 }),
+                false,
             ));
         }
         None => {

@@ -1,10 +1,25 @@
-use bevy::prelude::{warn, Entity, Query};
+use bevy::prelude::{warn, Entity, Query, Without};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
-use crate::space::core::{entity::components::EntityData, gridmap::resources::FOV_MAP_WIDTH};
+use crate::space::{
+    core::{
+        entity::components::EntityData, gridmap::resources::FOV_MAP_WIDTH,
+        rigid_body::components::RigidBodyDisabled,
+    },
+    entities::{
+        air_lock_security::components::AirLock, counter_window_security::components::CounterWindow,
+    },
+};
 
 pub fn out_of_bounds_check(
-    mut rigid_bodies: Query<(Entity, &EntityData, &mut RigidBodyPositionComponent)>,
+    mut rigid_bodies: Query<
+        (Entity, &EntityData, &mut RigidBodyPositionComponent),
+        (
+            Without<AirLock>,
+            Without<CounterWindow>,
+            Without<RigidBodyDisabled>,
+        ),
+    >,
 ) {
     let max = FOV_MAP_WIDTH as f32 * 0.5 * 2.;
 
