@@ -25,9 +25,11 @@ const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 150.;
 
 const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 1.;
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX: f32 = 8.;
-const ATMOSPHERICS_PUSHING_UP_FORCE: f32 = 10.;
 
 const ATMOSHPERICS_MAX_VELOCITY: f32 = 10.;
+
+const ATMOSPHERICS_PUSHING_UP_FORCE: f32 = 2.;
+
 
 // Now this system must instead read from a shared resource or event reader of rigidbody_forces_accumulation.
 
@@ -187,7 +189,9 @@ pub fn rigidbody_forces_accumulation(
             is_moving_left = true;
         }
 
-        if body_velocity > ATMOSHPERICS_MAX_VELOCITY {
+        let over_max_speed = body_velocity > ATMOSHPERICS_MAX_VELOCITY;
+
+        if over_max_speed {
             if is_moving_left {
                 let net_x_axis = to_be_applied_forces
                     .get(&AdjacentTileDirection::Left)
@@ -250,7 +254,7 @@ pub fn rigidbody_forces_accumulation(
             Vec3::new(forces_max, forces_max, forces_max),
         );
 
-        if push_up {
+        if push_up && !over_max_speed {
             atmos_force.y = ATMOSPHERICS_PUSHING_UP_FORCE;
         }
 

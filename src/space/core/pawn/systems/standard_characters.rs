@@ -91,7 +91,6 @@ pub fn standard_characters(
     )>,
     mut sensable_entities: Query<&mut Sensable>,
     time: Res<Time>,
-    movement_rotations: Res<PlayerYAxisRotations>,
     handle_to_entity: Res<HandleToEntity>,
     mut commands: Commands,
     tick_rate: Res<TickRate>,
@@ -207,6 +206,8 @@ pub fn standard_characters(
         rigidbody_data_component,
     ) in standard_character_query.iter_mut()
     {
+        let movement_options = PlayerYAxisRotations::new();
+
         let character_movement_state;
 
         if player_input_component.auto_move_enabled {
@@ -655,7 +656,7 @@ pub fn standard_characters(
                     || player_input_component.sprinting
                 {
                     rigid_body_position.rotation = UnitQuaternion::from_quaternion(
-                        movement_rotations.rotations[movement_index],
+                        movement_options[movement_index],
                     );
                     rigid_body_position_component.position = rigid_body_position;
                 }

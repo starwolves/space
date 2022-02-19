@@ -48,35 +48,32 @@ impl FromWorld for UsedNames {
     }
 }
 
-pub struct PlayerYAxisRotations {
-    pub rotations: Vec<Quaternion<f32>>,
-}
+pub struct PlayerYAxisRotations;
 
-impl FromWorld for PlayerYAxisRotations {
-    fn from_world(_world: &mut World) -> Self {
-        PlayerYAxisRotations {
-            rotations: vec![
-                //0deg
-                Quaternion::new(1., 0., 0., 0.),
-                //45deg
-                Quaternion::new(0.9238795, 0., 0.3826834, 0.),
-                //90deg
-                Quaternion::new(0.7071068, 0., 0.7071068, 0.),
-                //135deg
-                Quaternion::new(0.3826834, 0., 0.9238795, 0.),
-                //180deg
-                Quaternion::new(0., 0., 1., 0.),
-                //225deg
-                Quaternion::new(-0.3826834, 0., 0.9238795, 0.),
-                //270deg
-                Quaternion::new(-0.7071068, 0., 0.7071068, 0.),
-                //315deg
-                Quaternion::new(-0.9238795, 0., 0.3826834, 0.),
-            ],
-        }
+impl PlayerYAxisRotations {
+    pub fn new() -> Vec<Quaternion<f32>> {
+        vec![
+            //0deg
+            Quaternion::new(1., 0., 0., 0.),
+            //45deg
+            Quaternion::new(0.9238795, 0., 0.3826834, 0.),
+            //90deg
+            Quaternion::new(0.7071068, 0., 0.7071068, 0.),
+            //135deg
+            Quaternion::new(0.3826834, 0., 0.9238795, 0.),
+            //180deg
+            Quaternion::new(0., 0., 1., 0.),
+            //225deg
+            Quaternion::new(-0.3826834, 0., 0.9238795, 0.),
+            //270deg
+            Quaternion::new(-0.7071068, 0., 0.7071068, 0.),
+            //315deg
+            Quaternion::new(-0.9238795, 0., 0.3826834, 0.),
+        ]
     }
 }
 
+// Logic works witha timer, better as resource.
 pub struct AsanaBoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }

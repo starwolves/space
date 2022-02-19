@@ -64,26 +64,22 @@ pub fn startup_atmospherics(
 
         let internal;
 
-        if !blocked {
-            match gridmap_main.data.get(&Vec3Int {
-                x: current_cell_id.x,
-                y: -1,
-                z: current_cell_id.y,
-            }) {
-                Some(_cell_data) => {
-                    internal = true;
-                }
-                None => {
-                    internal = false;
-                }
+        match gridmap_main.data.get(&Vec3Int {
+            x: current_cell_id.x,
+            y: -1,
+            z: current_cell_id.y,
+        }) {
+            Some(_cell_data) => {
+                internal = true;
             }
-        } else {
-            internal = false;
+            None => {
+                internal = false;
+            }
         }
 
         if internal {
             atmospherics.atmospherics[get_atmos_index(current_cell_id)] =
-                Atmospherics::new_internal();
+                Atmospherics::new_internal(blocked, push_up);
         } else {
             let flags = vec!["default_vacuum".to_string()];
             atmospherics.atmospherics[get_atmos_index(current_cell_id)] = Atmospherics {
@@ -105,11 +101,8 @@ pub fn startup_atmospherics(
     let internal_liter = internal_m3 * 1000.;
     let internal_kilo_liter = internal_liter * 0.001;
 
-    let vacuum_m3 = vacuum_cells as f32 / 2.;
-    let vacuum_km3 = vacuum_m3 * 0.001;
-
     info!(
-        "Loaded {:.1}Mmol atmosphere into {:.1}kl ship surrounded by {:.1}dam3 vacuum.",
-        internal_mega_mol, internal_kilo_liter, vacuum_km3
+        "Loaded {:.1}Mmol atmosphere into {:.1}kl ship.",
+        internal_mega_mol, internal_kilo_liter
     );
 }
