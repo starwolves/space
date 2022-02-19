@@ -53,13 +53,13 @@ pub struct Atmospherics {
     pub forces_push_up: bool,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub enum EffectType {
     Floorless,
     Entity(Entity),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AtmosEffect {
     pub target_temperature: f32,
     pub temperature_speed: f32,
@@ -89,14 +89,14 @@ pub const CELCIUS_KELVIN_OFFSET: f32 = 273.15;
 pub const DEFAULT_INTERNAL_AMOUNT: f32 = 84.58;
 
 impl Atmospherics {
-    pub fn new_internal() -> Self {
+    pub fn new_internal(blocked : bool, forces_push_up : bool) -> Self {
         Self {
-            blocked: false,
+            blocked,
             temperature: 20. + CELCIUS_KELVIN_OFFSET,
             amount: DEFAULT_INTERNAL_AMOUNT,
             effects: HashMap::new(),
             flags: vec![],
-            forces_push_up: false,
+            forces_push_up,
         }
     }
     pub fn get_pressure(&self) -> f32 {

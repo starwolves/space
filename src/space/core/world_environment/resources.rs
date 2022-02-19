@@ -243,7 +243,6 @@ impl WorldEnvironment {
     }
 }
 
-// Each struct value how it gets interpreted by verde-json and how it gets exported via the official JSON.print method on the godot server.
 #[derive(Deserialize)]
 pub struct WorldEnvironmentRaw {
     adjustment_brightness: f32,

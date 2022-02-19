@@ -13,7 +13,7 @@ use crate::space::core::{
     pawn::components::{ConnectedPlayer, Pawn},
 };
 
-use super::atmospherics_map::{
+use super::map::{
     MAXIMUM_LIVABLE_PRESSURE, MAXIMUM_LIVABLE_TEMPERATURE, MINIMUM_LIVABLE_PRESSURE,
     MINIMUM_LIVABLE_TEMPERATURE,
 };

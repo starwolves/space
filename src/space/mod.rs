@@ -21,10 +21,10 @@ use self::{
             resources::{AtmosphericsResource, MapHolders, RigidBodyForcesAccumulation},
             startup_atmospherics,
             systems::{
-                atmospherics_map::atmospherics_map,
-                atmospherics_map_hover::atmospherics_map_hover,
-                atmospherics_notices::atmospherics_notices,
-                atmospherics_sensing_ability::atmospherics_sensing_ability,
+                map::atmospherics_map,
+                map_hover::atmospherics_map_hover,
+                notices::atmospherics_notices,
+                sensing_ability::atmospherics_sensing_ability,
                 diffusion::{atmos_diffusion, DIFFUSION_STEP},
                 effects::atmos_effects,
                 rigidbody_forces_atmospherics::rigidbody_forces_accumulation,
@@ -100,7 +100,7 @@ use self::{
                 NetUserName, TextTreeInputSelection,
             },
             resources::{
-                AsanaBoardingAnnouncements, AuthidI, HandleToEntity, PlayerYAxisRotations,
+                AsanaBoardingAnnouncements, AuthidI, HandleToEntity,
                 UsedNames,
             },
             systems::{
@@ -233,7 +233,6 @@ impl Plugin for SpacePlugin {
             .init_resource::<ServerId>()
             .init_resource::<UsedNames>()
             .init_resource::<HandleToEntity>()
-            .init_resource::<PlayerYAxisRotations>()
             .init_resource::<SfxAutoDestroyTimers>()
             .init_resource::<AsanaBoardingAnnouncements>()
             .init_resource::<DoryenMap>()
@@ -381,7 +380,6 @@ impl Plugin for SpacePlugin {
             .add_system(map_input.label(MapLabels::ChangeMode))
             .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
             .add_system(atmospherics_sensing_ability)
-            .add_system(zero_gravity)
             .add_system(out_of_bounds_check)
             .add_system(air_lock_added)
             .add_system(counter_window_added)
@@ -429,7 +427,7 @@ impl Plugin for SpacePlugin {
             )
             .add_system_set(
                 SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(3.))
+                    .with_run_criteria(FixedTimestep::step(2.))
                     .with_system(send_server_time)
                     .with_system(update_player_count),
             )
@@ -446,6 +444,10 @@ impl Plugin for SpacePlugin {
             .add_system_to_stage(
                 PhysicsStages::SyncTransforms,
                 rigidbody_forces_physics.after(PhysicsSystems::SyncTransforms),
+            )
+            .add_system_to_stage(
+                PhysicsStages::SyncTransforms,
+                zero_gravity.after(PhysicsSystems::SyncTransforms),
             )
             .add_system_set_to_stage(
                 PostUpdate,
