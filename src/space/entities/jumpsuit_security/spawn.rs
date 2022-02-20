@@ -260,10 +260,13 @@ fn spawn_entity(
             trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
             trigger_projectile_text_set: None,
             active_slot_tab_actions: vec![],
+
+            throw_force_factor: 2.,
         },
         DefaultTransform {
             transform: default_transform,
         },
+        
     );
 
     let mut builder = commands.spawn_bundle(rigid_body_component);

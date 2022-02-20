@@ -282,6 +282,7 @@ fn spawn_entity(
             trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
             trigger_projectile_text_set: Some(InventoryItem::get_default_trigger_weapon_words()),
             active_slot_tab_actions: vec![],
+            throw_force_factor: 1.,
         },
         DefaultTransform {
             transform: default_transform,

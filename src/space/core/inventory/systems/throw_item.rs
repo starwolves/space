@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Commands, EventReader, EventWriter, Query, Res, ResMut};
+use bevy::prelude::{warn, Commands, EventReader, EventWriter, Query, Res, ResMut, Entity};
 use bevy_rapier3d::prelude::{
     ColliderFlagsComponent, RigidBodyActivationComponent, RigidBodyForcesComponent,
     RigidBodyMassPropsComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
@@ -30,7 +30,7 @@ use crate::space::{
         },
         physics::components::{WorldMode, WorldModes},
         rigid_body::{components::RigidBodyLinkTransform, functions::enable_rigidbody},
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, atmospherics::components::ZeroGravity,
     },
     entities::sfx::actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},
 };
@@ -45,17 +45,20 @@ pub fn throw_item(
         &mut Pawn,
         &StandardCharacter,
         &mut PlayerInput,
+        Option<&ZeroGravity>,
+        Entity,
     )>,
     mut pickupable_entities: Query<(
+        Entity,
         &mut InventoryItem,
         &mut WorldMode,
         &mut RigidBodyActivationComponent,
         &mut ColliderFlagsComponent,
         &mut RigidBodyForcesComponent,
         &mut RigidBodyLinkTransform,
-        &mut RigidBodyVelocityComponent,
         &RigidBodyMassPropsComponent,
     )>,
+    mut rigidbody_velocites : Query<&mut RigidBodyVelocityComponent>,
     mut commands: Commands,
     mut net_throw_item: EventWriter<NetThrowItem>,
     gridmap_main: Res<GridmapMain>,
@@ -93,13 +96,13 @@ pub fn throw_item(
         }
 
         let (
+            pickupable_entity,
             mut inventory_item_component,
             mut pickupable_world_mode_component,
             mut pickupable_rigidbody_activation,
             mut pickupable_rigidbody_collider_flags,
             mut pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
-            mut pickupable_rigidbody_velocity,
             pickupable_rigidbody_props,
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
@@ -176,8 +179,25 @@ pub fn throw_item(
         impulse.y = 0.;
 
         impulse *= distance;
+        impulse*=inventory_item_component.throw_force_factor;
 
-        pickupable_rigidbody_velocity.apply_impulse(pickupable_rigidbody_props, impulse.into());
+        match rigidbody_velocites.get_mut(pickupable_entity) {
+            Ok(mut pickupable_rigidbody_velocity) => {
+                pickupable_rigidbody_velocity.apply_impulse(pickupable_rigidbody_props, impulse.into());
+            },
+            Err(_rr) => {},
+        }
+
+        if pickuper_components.5.is_some() {
+            // Thrower has zerogravity, apply inverse impulse energy.
+            match rigidbody_velocites.get_mut(pickuper_components.6) {
+                Ok(mut s) => {
+                    s.apply_impulse(pickupable_rigidbody_props, (-impulse).into());
+                },
+                Err(_rr) => {},
+            }
+
+        }
 
         match &drop_slot.slot_attachment {
             Some(attachment_path) => {

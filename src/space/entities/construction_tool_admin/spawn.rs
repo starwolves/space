@@ -299,6 +299,7 @@ fn spawn_entity(
                     belonging_entity: Some(entity_id),
                 },
             ],
+            throw_force_factor: 1.,
         },
         RigidBodyData {
             friction,
