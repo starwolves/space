@@ -111,6 +111,53 @@ pub fn visible_checker(
                 &entity_updates_component,
             );
         }
+
+        let mut gone_entities = vec![];
+        let mut gone_sfx_entities = vec![];
+
+        let mut i = 0;
+        for entity in visible_checker_component.sensing.iter() {
+            match query_visible_entities.get(*entity) {
+                Ok(_) => {}
+                Err(_) => {
+                    // Entity has despawned.
+                    if !visible_checker_component.sfx.contains(entity) {
+                        match visible_checker_connected_player_component_option {
+                            Some(connected_component) => {
+                                unload_entity(
+                                    connected_component.handle,
+                                    *entity,
+                                    &mut net_unload_entity,
+                                    true,
+                                );
+                            }
+                            None => {}
+                        }
+                    } else {
+                        let index = visible_checker_component
+                            .sfx
+                            .iter()
+                            .position(|&r| r == *entity)
+                            .unwrap();
+                        gone_sfx_entities.push(index);
+                    }
+
+                    gone_entities.push(i);
+                }
+            }
+
+            i += 1;
+        }
+
+        gone_entities.reverse();
+
+        for i in gone_entities {
+            visible_checker_component.sensing.remove(i);
+        }
+
+        for i in gone_sfx_entities {
+            visible_checker_component.sfx.remove(i);
+        }
     }
 }
 
@@ -279,6 +326,9 @@ fn visible_check(
     } else {
         if !senser_component.sensing.contains(&visible_entity_id) {
             senser_component.sensing.push(visible_entity_id);
+            if sensable_component.is_audible {
+                senser_component.sfx.push(visible_entity_id);
+            }
         }
 
         if !sensed_by_contains {

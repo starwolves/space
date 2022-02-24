@@ -57,7 +57,7 @@ pub fn entity_spawn_position_for_player(
 
     let cell_id = world_to_cell_id(new_transform.translation);
 
-    match gridmap_main.data.get(&cell_id) {
+    match gridmap_main.grid_data.get(&cell_id) {
         Some(cell_data) => {
             if cell_data.item != -1 {
                 let mut found_correct_spawn = false;
@@ -89,7 +89,7 @@ pub fn entity_spawn_position_for_player(
 
                     let cell_id = world_to_cell_id(new_transform.translation);
 
-                    match gridmap_main.data.get(&cell_id) {
+                    match gridmap_main.grid_data.get(&cell_id) {
                         Some(cell_data) => {
                             if cell_data.item == -1 {
                                 new_transform = original_transform.clone();

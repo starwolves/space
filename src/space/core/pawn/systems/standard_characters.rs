@@ -883,7 +883,7 @@ pub fn standard_characters(
                         adjacent_cell_id.z += 1;
                     }
 
-                    match gridmap_main.data.get(&adjacent_cell_id) {
+                    match gridmap_main.grid_data.get(&adjacent_cell_id) {
                         Some(_) => {
                             bordering_wall = true;
                             break;

@@ -1,11 +1,12 @@
 use bevy::{
     math::Vec3,
-    prelude::{Entity, EventReader, EventWriter, Query},
+    prelude::{Entity, EventReader, EventWriter, Query, Res},
 };
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::{
     core::{
+        entity::{components::EntityData, resources::EntityDataResource},
         inventory::components::Inventory,
         inventory_item::components::InventoryItem,
         pawn::{components::Pawn, events::TextTreeInputSelection},
@@ -20,6 +21,9 @@ pub fn text_tree_input_selection(
 
     pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
     inventory_items: Query<(&RigidBodyPositionComponent, &InventoryItem)>,
+
+    entity_data_resource: Res<EntityDataResource>,
+    entity_datas: Query<&EntityData>,
 ) {
     for event in input_events.iter() {
         let mut belonging_entity = None;
@@ -60,6 +64,8 @@ pub fn text_tree_input_selection(
                                             None,
                                             pos1.distance(pos2),
                                             inventory_component,
+                                            &entity_data_resource,
+                                            &entity_datas,
                                         ) {
                                             true => {
                                                 belonging_entity = Some(entity);

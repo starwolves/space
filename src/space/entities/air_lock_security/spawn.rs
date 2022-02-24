@@ -40,7 +40,6 @@ impl SecurityAirlockBundle {
         _held_data_option: Option<SpawnHeldData>,
         default_map_spawn: bool,
     ) -> Entity {
-
         let static_transform_component = StaticTransform {
             transform: entity_transform,
         };
@@ -95,7 +94,7 @@ impl SecurityAirlockBundle {
             },
             EntityData {
                 entity_class: "entity".to_string(),
-                entity_type: "securityAirLock1".to_string(),
+                entity_name: "securityAirLock1".to_string(),
                 entity_group: EntityGroup::AirLock,
             },
             EntityUpdates::default(),

@@ -22,7 +22,8 @@ pub struct InputConstructionOptions {
 
 pub struct InputDeconstruct {
     pub handle: u32,
-    pub target_cell: (GridMapType, i16, i16, i16),
+    pub target_cell_option: Option<(GridMapType, i16, i16, i16)>,
+    pub target_entity_option: Option<u64>,
     pub belonging_entity: u64,
 }
 

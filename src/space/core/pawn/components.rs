@@ -1,10 +1,12 @@
+use crate::space::core::entity::components::EntityData;
+use crate::space::core::entity::resources::EntityDataResource;
 use crate::space::core::gridmap::resources::{CellData, Vec2Int, Vec3Int, FOV_MAP_WIDTH};
 use crate::space::core::health::components::{DamageFlag, DamageModel};
 use crate::space::core::inventory::components::Inventory;
 use crate::space::core::inventory_item::components::CombatSoundSet;
 use crate::space::core::networking::resources::{GridMapType, NetTabAction};
 use bevy::core::Timer;
-use bevy::prelude::{Component, Transform};
+use bevy::prelude::{Component, Query, Transform};
 use bevy::{math::Vec2, prelude::Entity};
 use doryen_fov::FovRecursiveShadowCasting;
 use std::collections::HashMap;
@@ -56,6 +58,8 @@ pub struct TabAction {
                 Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
                 f32,
                 &Inventory,
+                &EntityDataResource,
+                &Query<&EntityData>,
             ) -> bool
             + Sync
             + Send,
@@ -295,6 +299,7 @@ pub struct Senser {
     pub cell_id: Vec2Int,
     pub fov: FovRecursiveShadowCasting,
     pub sensing: Vec<Entity>,
+    pub sfx: Vec<Entity>,
     pub sensing_abilities: Vec<SensingAbility>,
 }
 
@@ -304,6 +309,7 @@ impl Default for Senser {
             cell_id: Vec2Int { x: 0, y: 0 },
             fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
             sensing: vec![],
+            sfx: vec![],
             sensing_abilities: vec![],
         }
     }

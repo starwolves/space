@@ -33,7 +33,7 @@ pub fn zero_gravity(
 
         cell_id.y = -1;
 
-        match gridmap_main.data.get(&cell_id) {
+        match gridmap_main.grid_data.get(&cell_id) {
             Some(_) => {
                 if zero_gravity_component_option.is_some() {
                     collider_material_component.friction = rigidbody_data_component.friction;

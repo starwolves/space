@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Commands, Entity, ResMut, info};
+use bevy::prelude::{Commands, Entity, ResMut};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderType,
     InteractionGroups, RigidBodyBundle, RigidBodyType,
@@ -43,10 +43,6 @@ pub fn build_main_gridmap(
 
         let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
 
-        if &cell_data.item== "securityCounter1" {
-            info!("{:?}", cell_data.orientation);
-        }
-
         if cell_id_int.y == 0 {
             // Wall
 
@@ -59,7 +55,7 @@ pub fn build_main_gridmap(
             }
         } else {
             // Floor cells dont have collision. Don't need to be an entity at this moment either.
-            gridmap_main.data.insert(
+            gridmap_main.grid_data.insert(
                 cell_id_int,
                 CellData {
                     item: cell_item_id,
@@ -82,7 +78,7 @@ pub fn build_main_gridmap(
             &gridmap_data,
         );
 
-        gridmap_main.data.insert(
+        gridmap_main.grid_data.insert(
             cell_id_int,
             CellData {
                 item: cell_item_id,

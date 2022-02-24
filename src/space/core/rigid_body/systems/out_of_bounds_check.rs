@@ -32,7 +32,7 @@ pub fn out_of_bounds_check(
             warn!(
                 "Entity {:?} {} is out of y-axis range at position {}.",
                 rigid_body_entity,
-                entity_data_component.entity_type,
+                entity_data_component.entity_name,
                 rigid_body_position_component.position.translation
             );
             rigid_body_position_component.position.translation.y = 0.5;

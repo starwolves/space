@@ -1,7 +1,10 @@
-use bevy::{prelude::{info, ResMut, Transform}, math::Quat};
+use bevy::{
+    math::Quat,
+    prelude::{info, ResMut, Transform},
+};
 
 use crate::space::{
-    core::entity::resources::{ConstructableData, EntityDataProperties},
+    core::entity::resources::{EntityDataProperties, GridItemData},
     entities::{
         air_lock_security::spawn::SecurityAirlockBundle,
         construction_tool_admin::spawn::ConstructionToolBundle,
@@ -51,24 +54,33 @@ pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
     });
 
     entities.push(EntityDataProperties {
+        name: "humanMale".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(HumanMalePawnBundle::spawn),
+        ..Default::default()
+    });
+
+    entities.push(EntityDataProperties {
         name: "securityAirLock1".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityAirlockBundle::spawn),
-        constructable: Some(ConstructableData {
+        grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
+            can_be_built_with_grid_item: vec![],
         }),
     });
 
-    let mut transform =  Transform::identity();
-    transform.translation.y=0.86;
+    let mut transform = Transform::identity();
+    transform.translation.y = 0.86;
     transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
 
     entities.push(EntityDataProperties {
         name: "securityCounterWindow".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityCounterWindowBundle::spawn),
-        constructable: Some(ConstructableData {
+        grid_item: Some(GridItemData {
             transform_offset: transform,
+            can_be_built_with_grid_item: vec!["securityCounter1".to_string()],
         }),
     });
 

@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Query};
 
 use crate::space::core::{
-    gridmap::resources::CellData, inventory::components::Inventory,
-    networking::resources::GridMapType, pawn::components::TabAction,
+    entity::{components::EntityData, resources::EntityDataResource},
+    gridmap::resources::CellData,
+    inventory::components::Inventory,
+    networking::resources::GridMapType,
+    pawn::components::TabAction,
 };
 
 use super::can_reach_entity::REACH_DISTANCE;
@@ -41,6 +44,8 @@ pub fn examine_tab_prerequisite_check(
     cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
     _distance: f32,
     _inventory_component: &Inventory,
+    _entity_data_resource: &EntityDataResource,
+    _entity_datas: &Query<&EntityData>,
 ) -> bool {
     cell_id_option.is_some() || entity_id_bits_option.is_some()
 }
@@ -51,6 +56,8 @@ pub fn pickup_tab_prerequisite_check(
     _cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
     distance: f32,
     inventory_component: &Inventory,
+    _entity_data_resource: &EntityDataResource,
+    _entity_datas: &Query<&EntityData>,
 ) -> bool {
     distance < REACH_DISTANCE
         && entity_id_bits_option.is_some()

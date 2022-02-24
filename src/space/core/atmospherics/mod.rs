@@ -43,7 +43,7 @@ pub fn startup_atmospherics(
         let blocked;
         let push_up;
 
-        match gridmap_main.data.get(&Vec3Int {
+        match gridmap_main.grid_data.get(&Vec3Int {
             x: current_cell_id.x,
             y: 0,
             z: current_cell_id.y,
@@ -64,7 +64,7 @@ pub fn startup_atmospherics(
 
         let internal;
 
-        match gridmap_main.data.get(&Vec3Int {
+        match gridmap_main.grid_data.get(&Vec3Int {
             x: current_cell_id.x,
             y: -1,
             z: current_cell_id.y,

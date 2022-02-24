@@ -71,7 +71,7 @@ pub fn load_entity(
         handle: player_handle,
         message: ReliableServerMessage::LoadEntity(
             entity_data.entity_class.clone(),
-            entity_data.entity_type.clone(),
+            entity_data.entity_name.clone(),
             hash_map,
             entity_id.to_bits(),
             load_entirely,

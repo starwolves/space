@@ -232,7 +232,7 @@ fn spawn_entity(
     builder.insert_bundle(collider_component).insert_bundle((
         EntityData {
             entity_class: "entity".to_string(),
-            entity_type: "helmetSecurity".to_string(),
+            entity_name: "helmetSecurity".to_string(),
             ..Default::default()
         },
         EntityUpdates::default(),

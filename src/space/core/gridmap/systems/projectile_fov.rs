@@ -116,7 +116,7 @@ pub fn projectile_fov(
                             let coords = to_doryen_coordinates(cell_id.x, cell_id.z);
 
                             if !too_far {
-                                match gridmap_main.data.get(&cell_id) {
+                                match gridmap_main.grid_data.get(&cell_id) {
                                     Some(cell_data) => {
                                         if non_blocking_cells_list
                                             .non_fov_blocking_cells_list

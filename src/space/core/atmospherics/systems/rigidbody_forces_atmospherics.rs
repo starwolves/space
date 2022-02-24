@@ -162,7 +162,7 @@ pub fn rigidbody_forces_accumulation(
         let mut floor_tile = cell_id.clone();
         floor_tile.y = -1;
 
-        match gridmap_main.data.get(&floor_tile) {
+        match gridmap_main.grid_data.get(&floor_tile) {
             Some(_) => {}
             None => {
                 push_up = false;
