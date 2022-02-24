@@ -20,8 +20,10 @@ use crate::space::core::{
     pawn::components::Pawn,
 };
 
+use super::diffusion::DIFFUSION_STEP;
+
 const ATMOSPHERICS_FORCES_SENSITIVITY_PAWN: f32 = 50.;
-const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 150.;
+const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 300.;
 
 const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 1.;
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX: f32 = 8.;
@@ -30,11 +32,10 @@ const ATMOSHPERICS_MAX_VELOCITY: f32 = 10.;
 
 const ATMOSPHERICS_PUSHING_UP_FORCE: f32 = 2.;
 
-
 // Now this system must instead read from a shared resource or event reader of rigidbody_forces_accumulation.
 
-#[derive(Clone, Hash, PartialEq, Eq)]
-enum AdjacentTileDirection {
+#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+pub enum AdjacentTileDirection {
     Up,
     Down,
     Left,
@@ -86,10 +87,10 @@ pub fn rigidbody_forces_accumulation(
         let forces_max;
 
         if pawn_component_option.is_none() {
-            sensitivity = ATMOSPHERICS_FORCES_SENSITIVITY;
+            sensitivity = ATMOSPHERICS_FORCES_SENSITIVITY * (64. / DIFFUSION_STEP as f32);
             forces_max = ATMOSPHERICS_FORCES_ACCELERATION_MAX;
         } else {
-            sensitivity = ATMOSPHERICS_FORCES_SENSITIVITY_PAWN;
+            sensitivity = ATMOSPHERICS_FORCES_SENSITIVITY_PAWN * (64. / DIFFUSION_STEP as f32);
             forces_max = ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN;
         }
 
@@ -255,7 +256,7 @@ pub fn rigidbody_forces_accumulation(
         );
 
         if push_up && !over_max_speed {
-            atmos_force.y = ATMOSPHERICS_PUSHING_UP_FORCE;
+            atmos_force.y = ATMOSPHERICS_PUSHING_UP_FORCE * (64. / DIFFUSION_STEP as f32);
         }
 
         let mut bevy_vec: Vec3 = rigid_body_forces_component.force.into();

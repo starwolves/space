@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Commands, EventReader, EventWriter, Query, Res, ResMut, Entity};
+use bevy::{
+    math::Vec3,
+    prelude::{warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
+};
 use bevy_rapier3d::prelude::{
     ColliderFlagsComponent, RigidBodyActivationComponent, RigidBodyForcesComponent,
     RigidBodyMassPropsComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
@@ -9,6 +12,7 @@ use rand::Rng;
 
 use crate::space::{
     core::{
+        atmospherics::components::ZeroGravity,
         entity::{
             components::{Examinable, Sensable},
             functions::{
@@ -30,7 +34,7 @@ use crate::space::{
         },
         physics::components::{WorldMode, WorldModes},
         rigid_body::{components::RigidBodyLinkTransform, functions::enable_rigidbody},
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, atmospherics::components::ZeroGravity,
+        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
     },
     entities::sfx::actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},
 };
@@ -58,7 +62,7 @@ pub fn throw_item(
         &mut RigidBodyLinkTransform,
         &RigidBodyMassPropsComponent,
     )>,
-    mut rigidbody_velocites : Query<&mut RigidBodyVelocityComponent>,
+    mut rigidbody_velocites: Query<&mut RigidBodyVelocityComponent>,
     mut commands: Commands,
     mut net_throw_item: EventWriter<NetThrowItem>,
     gridmap_main: Res<GridmapMain>,
@@ -168,35 +172,56 @@ pub fn throw_item(
             }
         }
 
+        let thrower_vec3: Vec3;
+
+        match rigidbody_positions.get(pickuper_components.6) {
+            Ok(pos) => {
+                thrower_vec3 = pos.position.translation.into();
+            }
+            Err(_rr) => {
+                warn!("Couldn't find rigidbodyposition of thrower!");
+                continue;
+            }
+        }
+
         let mut impulse = (event.position - new_transform.translation).normalize() * 0.025;
+        let mut impulse_absolute: Vec3 = (event.position - thrower_vec3).normalize() * 0.025;
 
         let mut distance = event.position.distance(new_transform.translation);
+        let mut distance_absolute = event.position.distance(thrower_vec3);
 
         if distance > 10. {
             distance = 10.
         }
+        if distance_absolute > 10. {
+            distance_absolute = 10.
+        }
 
         impulse.y = 0.;
+        impulse_absolute.y = 0.;
 
         impulse *= distance;
-        impulse*=inventory_item_component.throw_force_factor;
+        impulse_absolute *= distance_absolute;
+
+        impulse *= inventory_item_component.throw_force_factor;
+        impulse_absolute *= inventory_item_component.throw_force_factor;
 
         match rigidbody_velocites.get_mut(pickupable_entity) {
             Ok(mut pickupable_rigidbody_velocity) => {
-                pickupable_rigidbody_velocity.apply_impulse(pickupable_rigidbody_props, impulse.into());
-            },
-            Err(_rr) => {},
+                pickupable_rigidbody_velocity
+                    .apply_impulse(pickupable_rigidbody_props, impulse.into());
+            }
+            Err(_rr) => {}
         }
 
         if pickuper_components.5.is_some() {
             // Thrower has zerogravity, apply inverse impulse energy.
             match rigidbody_velocites.get_mut(pickuper_components.6) {
                 Ok(mut s) => {
-                    s.apply_impulse(pickupable_rigidbody_props, (-impulse).into());
-                },
-                Err(_rr) => {},
+                    s.apply_impulse(pickupable_rigidbody_props, (-impulse_absolute).into());
+                }
+                Err(_rr) => {}
             }
-
         }
 
         match &drop_slot.slot_attachment {

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Commands, Entity, ResMut};
+use bevy::prelude::{Commands, Entity, ResMut, info};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderType,
     InteractionGroups, RigidBodyBundle, RigidBodyType,
@@ -42,6 +42,10 @@ pub fn build_main_gridmap(
         };
 
         let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
+
+        if &cell_data.item== "securityCounter1" {
+            info!("{:?}", cell_data.orientation);
+        }
 
         if cell_id_int.y == 0 {
             // Wall

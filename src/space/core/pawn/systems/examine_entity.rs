@@ -16,7 +16,7 @@ use crate::space::{
             resources::HandleToEntity,
         },
     },
-    entities::human_male_pawn::spawn::generate_human_examine_text,
+    entities::human_male_pawn::functions::generate_human_examine_text,
 };
 
 pub fn examine_entity(

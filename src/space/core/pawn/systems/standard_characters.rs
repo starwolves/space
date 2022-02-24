@@ -655,9 +655,8 @@ pub fn standard_characters(
                 if standard_character_component.combat_mode == false
                     || player_input_component.sprinting
                 {
-                    rigid_body_position.rotation = UnitQuaternion::from_quaternion(
-                        movement_options[movement_index],
-                    );
+                    rigid_body_position.rotation =
+                        UnitQuaternion::from_quaternion(movement_options[movement_index]);
                     rigid_body_position_component.position = rigid_body_position;
                 }
 

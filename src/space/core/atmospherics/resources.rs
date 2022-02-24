@@ -89,7 +89,7 @@ pub const CELCIUS_KELVIN_OFFSET: f32 = 273.15;
 pub const DEFAULT_INTERNAL_AMOUNT: f32 = 84.58;
 
 impl Atmospherics {
-    pub fn new_internal(blocked : bool, forces_push_up : bool) -> Self {
+    pub fn new_internal(blocked: bool, forces_push_up: bool) -> Self {
         Self {
             blocked,
             temperature: 20. + CELCIUS_KELVIN_OFFSET,

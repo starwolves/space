@@ -1,7 +1,7 @@
-use bevy::prelude::{info, ResMut};
+use bevy::{prelude::{info, ResMut, Transform}, math::Quat};
 
 use crate::space::{
-    core::entity::resources::EntityDataProperties,
+    core::entity::resources::{ConstructableData, EntityDataProperties},
     entities::{
         air_lock_security::spawn::SecurityAirlockBundle,
         construction_tool_admin::spawn::ConstructionToolBundle,
@@ -26,49 +26,57 @@ pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
         name: "jumpsuitSecurity".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(JumpsuitSecurityBundle::spawn),
-        constructable: false,
+        ..Default::default()
     });
 
     entities.push(EntityDataProperties {
         name: "helmetSecurity".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(HelmetSecurityBundle::spawn),
-        constructable: false,
+        ..Default::default()
     });
 
     entities.push(EntityDataProperties {
         name: "pistolL1".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(PistolL1Bundle::spawn),
-        constructable: false,
+        ..Default::default()
     });
 
     entities.push(EntityDataProperties {
         name: "humanDummy".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(HumanMalePawnBundle::spawn),
-        constructable: false,
+        ..Default::default()
     });
 
     entities.push(EntityDataProperties {
         name: "securityAirLock1".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityAirlockBundle::spawn),
-        constructable: true,
+        constructable: Some(ConstructableData {
+            transform_offset: Transform::identity(),
+        }),
     });
+
+    let mut transform =  Transform::identity();
+    transform.translation.y=0.86;
+    transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
 
     entities.push(EntityDataProperties {
         name: "securityCounterWindow".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityCounterWindowBundle::spawn),
-        constructable: true,
+        constructable: Some(ConstructableData {
+            transform_offset: transform,
+        }),
     });
 
     entities.push(EntityDataProperties {
         name: "constructionTool".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(ConstructionToolBundle::spawn),
-        constructable: false,
+        ..Default::default()
     });
 
     info!("Loaded {} different entity types.", entities.len());
