@@ -1,5 +1,15 @@
 [
 	{
+		"entity_type": "securityCounterWindow",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -7.09895, 0.85994, 7.05476",
+		"data": ""
+	},
+	{
+		"entity_type": "securityCounterWindow",
+		"transform": "0.020663, 0, 0.999786, 0, 1, 0, -0.999786, 0, 0.020663 - -5.117, 0.86, 7.055",
+		"data": ""
+	},
+	{
 		"entity_type": "airLock",
 		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 13.65, 0.472762, 0",
 		"data": ""
@@ -22,16 +32,6 @@
 	{
 		"entity_type": "securityAirLock1",
 		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 13, 0, 7",
-		"data": ""
-	},
-	{
-		"entity_type": "securityCounterWindow",
-		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -5.88408, 1.41603, 7.48323",
-		"data": ""
-	},
-	{
-		"entity_type": "securityCounterWindow",
-		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - -6.06563, 1.41603, 7.48323",
 		"data": ""
 	},
 	{

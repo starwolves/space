@@ -21,14 +21,14 @@ use self::{
             resources::{AtmosphericsResource, MapHolders, RigidBodyForcesAccumulation},
             startup_atmospherics,
             systems::{
+                diffusion::{atmos_diffusion, DIFFUSION_STEP},
+                effects::atmos_effects,
                 map::atmospherics_map,
                 map_hover::atmospherics_map_hover,
                 notices::atmospherics_notices,
-                sensing_ability::atmospherics_sensing_ability,
-                diffusion::{atmos_diffusion, DIFFUSION_STEP},
-                effects::atmos_effects,
                 rigidbody_forces_atmospherics::rigidbody_forces_accumulation,
                 rigidbody_forces_physics::rigidbody_forces_physics,
+                sensing_ability::atmospherics_sensing_ability,
                 zero_gravity::zero_gravity,
             },
         },
@@ -99,10 +99,7 @@ use self::{
                 NetSendWorldEnvironment, NetTabData, NetUIInputTransmitData, NetUpdatePlayerCount,
                 NetUserName, TextTreeInputSelection,
             },
-            resources::{
-                AsanaBoardingAnnouncements, AuthidI, HandleToEntity,
-                UsedNames,
-            },
+            resources::{AsanaBoardingAnnouncements, AuthidI, HandleToEntity, UsedNames},
             systems::{
                 build_graphics_event::build_graphics_event,
                 chat_message_input_event::chat_message_input_event,
@@ -435,7 +432,12 @@ impl Plugin for SpacePlugin {
             .add_system(rigidbody_link_transform.after(UpdateLabels::DropCurrentItem))
             .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
             .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
-            .add_system(standard_characters.label(UpdateLabels::StandardCharacters).before(PhysicsSystems::StepWorld).after(UpdateLabels::ProcessMovementInput))
+            .add_system(
+                standard_characters
+                    .label(UpdateLabels::StandardCharacters)
+                    .before(PhysicsSystems::StepWorld)
+                    .after(UpdateLabels::ProcessMovementInput),
+            )
             .add_system(attack.after(UpdateLabels::StandardCharacters))
             .add_system_to_stage(
                 PhysicsStages::SyncTransforms,

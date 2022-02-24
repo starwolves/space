@@ -42,7 +42,7 @@ pub fn counter_window_update(
         }
 
         entity_updates_component.updates.insert(
-            "animationTree1>>parameters/blend_position".to_string(),
+            "offset/animationTree1>>parameters/blend_position".to_string(),
             animation_tree_data,
         );
 
@@ -69,9 +69,10 @@ pub fn counter_window_update(
             }
         }
 
-        entity_updates_component
-            .updates
-            .insert("accessLight++material".to_string(), access_light_data);
+        entity_updates_component.updates.insert(
+            "offset/accessLight++material".to_string(),
+            access_light_data,
+        );
 
         let difference_updates =
             get_entity_update_difference(old_entity_updates, &entity_updates_component.updates);

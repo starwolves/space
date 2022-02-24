@@ -4,7 +4,7 @@ pub mod functions;
 pub mod resources;
 pub mod systems;
 
-use std::{fs, path::Path};
+use std::{fs, path::Path, collections::HashMap};
 
 use bevy::prelude::{info, Commands, Res, ResMut, Transform};
 use bevy_rapier3d::{
@@ -40,7 +40,7 @@ use self::resources::SpawnPoints;
 use super::{
     configuration::resources::{ServerId, TickRate},
     entity::components::RichName,
-    world_environment::resources::WorldEnvironment,
+    world_environment::resources::WorldEnvironment, atmospherics::systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
 };
 
 pub fn startup_build_map(
@@ -122,6 +122,23 @@ pub struct MainCellProperties {
     pub floor_cell: bool,
     pub atmospherics_blocker: bool,
     pub atmospherics_pushes_up: bool,
+    pub direction_rotations : GridDirectionRotations,
+}
+
+#[derive(Clone)]
+pub struct GridDirectionRotations {
+    pub data : HashMap<AdjacentTileDirection,u8>,
+}
+
+impl GridDirectionRotations {
+    pub fn default_wall_rotations() -> Self {
+        let mut data = HashMap::new();
+        data.insert(AdjacentTileDirection::Left, 23);
+        data.insert(AdjacentTileDirection::Right, 19);
+        data.insert(AdjacentTileDirection::Up, 14);
+        data.insert(AdjacentTileDirection::Down, 4);
+        Self{data}
+    }
 }
 
 impl Default for MainCellProperties {
@@ -140,6 +157,7 @@ impl Default for MainCellProperties {
             floor_cell: false,
             atmospherics_blocker: true,
             atmospherics_pushes_up: false,
+            direction_rotations : GridDirectionRotations::default_wall_rotations(),
         }
     }
 }
@@ -212,6 +230,16 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     let mut default_isometry = ColliderPosition::identity();
     default_isometry.translation.y = -0.5;
 
+    let mut rotations = HashMap::new();
+    rotations.insert(AdjacentTileDirection::Left, 0);
+    rotations.insert(AdjacentTileDirection::Right, 0);
+    rotations.insert(AdjacentTileDirection::Up, 16);
+    rotations.insert(AdjacentTileDirection::Down, 16);
+
+    let rotation_struct = GridDirectionRotations {
+        data: rotations,
+    };
+
     main_cells_data.push(MainCellProperties {
         id: *gridmap_data
             .main_name_id_map
@@ -231,6 +259,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         constructable: true,
         atmospherics_blocker: false,
         atmospherics_pushes_up: true,
+        direction_rotations : rotation_struct,
         ..Default::default()
     });
 
@@ -554,8 +583,6 @@ pub fn startup_misc_resources(
     // Init Bevy Rapier physics.
     rapier_configuration.timestep_mode = TimestepMode::VariableTimestep;
     rapier_integration_params.dt = 1. / tick_rate.rate as f32;
-
-    info!("Configured Rapier physics.");
 
     let environment_json_location = Path::new("data")
         .join("maps")

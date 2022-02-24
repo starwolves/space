@@ -266,7 +266,6 @@ fn spawn_entity(
         DefaultTransform {
             transform: default_transform,
         },
-        
     );
 
     let mut builder = commands.spawn_bundle(rigid_body_component);

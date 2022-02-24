@@ -51,7 +51,7 @@ pub struct InventoryItem {
     pub trigger_melee_text_set: Vec<String>,
     pub trigger_projectile_text_set: Option<Vec<String>>,
     pub active_slot_tab_actions: Vec<TabAction>,
-    pub throw_force_factor : f32,
+    pub throw_force_factor: f32,
 }
 
 impl InventoryItem {

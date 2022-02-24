@@ -40,6 +40,7 @@ impl SecurityAirlockBundle {
         _held_data_option: Option<SpawnHeldData>,
         default_map_spawn: bool,
     ) -> Entity {
+
         let static_transform_component = StaticTransform {
             transform: entity_transform,
         };
@@ -67,7 +68,7 @@ impl SecurityAirlockBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
-            "A security air lock. It will only grant access to those authorised to use it."
+            "An air lock with security department markings. It will only grant access to those authorised to use it."
                 .to_string(),
         );
         examine_map.insert(

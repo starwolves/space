@@ -73,7 +73,11 @@ pub struct EntityDataProperties {
     >,
     pub name: String,
     pub id: usize,
-    pub constructable: bool,
+    pub constructable: Option<ConstructableData>,
+}
+
+pub struct ConstructableData {
+    pub transform_offset: Transform,
 }
 
 impl Default for EntityDataProperties {
@@ -82,7 +86,7 @@ impl Default for EntityDataProperties {
             spawn_function: Box::new(|_, _, _, _, _, _| Entity::from_raw(0)),
             name: Default::default(),
             id: Default::default(),
-            constructable: false,
+            constructable: None,
         }
     }
 }

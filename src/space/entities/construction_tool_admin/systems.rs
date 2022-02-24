@@ -1,7 +1,11 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{
-    warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Without,
+use bevy::{
+    math::Quat,
+    prelude::{
+        info, warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
+        Without,
+    },
 };
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use doryen_fov::FovAlgorithm;
@@ -12,6 +16,7 @@ use crate::space::{
         atmospherics::{
             functions::get_atmos_index,
             resources::{AtmosphericsResource, EffectType},
+            systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
         },
         entity::{
             components::{EntityData, Sensable},
@@ -21,7 +26,8 @@ use crate::space::{
         gridmap::{
             events::RemoveCell,
             functions::{
-                build_gridmap_from_data::spawn_main_cell, gridmap_functions::world_to_cell_id,
+                build_gridmap_from_data::spawn_main_cell,
+                gridmap_functions::{cell_id_to_world, world_to_cell_id},
             },
             resources::{
                 to_doryen_coordinates, CellData, CellUpdate, DoryenMap, GridmapData,
@@ -94,7 +100,6 @@ pub fn construction_tool(
     mut fov_map: ResMut<DoryenMap>,
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
-    gridmap_main_data: Res<GridmapData>,
 ) {
     let (
         mut input_construct_event,
@@ -111,8 +116,11 @@ pub fn construction_tool(
         let entity = Entity::from_bits(event.belonging_entity);
 
         for entity_data_properties in entity_data.data.iter() {
-            if entity_data_properties.constructable {
-                text_options.push(entity_data_properties.name.clone());
+            match &entity_data_properties.constructable {
+                Some(_d) => {
+                    text_options.push(entity_data_properties.name.clone());
+                }
+                None => {}
             }
         }
 
@@ -193,8 +201,11 @@ pub fn construction_tool(
         let mut text_options = vec![];
 
         for entity_data_properties in entity_data.data.iter() {
-            if entity_data_properties.constructable {
-                text_options.push(entity_data_properties.name.clone());
+            match &entity_data_properties.constructable {
+                Some(_d) => {
+                    text_options.push(entity_data_properties.name.clone());
+                }
+                None => {}
             }
         }
 
@@ -609,93 +620,254 @@ pub fn construction_tool(
         }
 
         let new_entity;
-        let target_item_id = gridmap_data
-            .main_name_id_map
-            .get(construction_selection)
-            .unwrap();
         let coords = to_doryen_coordinates(target_cell_id.x, target_cell_id.z);
 
-        let cell_properties = gridmap_data
-            .main_cell_properties
-            .get(&target_item_id)
-            .unwrap();
+        match gridmap_data.main_name_id_map.get(construction_selection) {
+            Some(target_item_id) => {
+                // Construction item is map cell.
 
-        let new_cell_orientation = 23;
+                let cell_properties = gridmap_data
+                    .main_cell_properties
+                    .get(&target_item_id)
+                    .unwrap();
 
-        // Spawn cell, check build_gridmap_from_data for more info.
-        if target_cell_id.y == 0 {
-            if cell_properties.floor_cell {
-                let personal_update_text = "[font=".to_owned()
-                    + FURTHER_ITALIC_FONT
-                    + "]"
-                    + "Please construct a wall and not a floor here![/font]";
-                net_construction_tool.send(NetConstructionTool {
-                    handle: event.handle,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
-                continue;
+                let mut new_cell_orientation : i64 = 23;
+
+                for j in 0..4 {
+                    let mut adjacent_cell_id = target_cell_id.clone();
+                    let tile_direction;
+
+                    if j == 0 {
+                        adjacent_cell_id.x += 1;
+                        tile_direction = AdjacentTileDirection::Right;
+                    } else if j == 1 {
+                        adjacent_cell_id.x -= 1;
+                        tile_direction = AdjacentTileDirection::Left;
+                    } else if j == 2 {
+                        adjacent_cell_id.z += 1;
+                        tile_direction = AdjacentTileDirection::Up;
+                    } else {
+                        adjacent_cell_id.z -= 1;
+                        tile_direction = AdjacentTileDirection::Down;
+                    }
+
+                    match gridmap_main.data.get(&adjacent_cell_id) {
+                        Some(_data) => {
+                            // Do more checks here in future.
+                        }
+                        None => {
+                            continue;
+                        }
+                    }
+
+                    new_cell_orientation = *cell_properties.direction_rotations.data.get(&tile_direction).unwrap() as i64;
+                    
+                    break;
+                }
+
+                // Spawn cell, check build_gridmap_from_data for more info.
+                if target_cell_id.y == 0 {
+                    if cell_properties.floor_cell {
+                        let personal_update_text = "[font=".to_owned()
+                            + FURTHER_ITALIC_FONT
+                            + "]"
+                            + "Please construct a wall and not a floor here![/font]";
+                        net_construction_tool.send(NetConstructionTool {
+                            handle: event.handle,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                        continue;
+                    }
+
+                    let entity_op = spawn_main_cell(
+                        &mut commands,
+                        target_cell_id,
+                        *target_item_id,
+                        new_cell_orientation,
+                        &gridmap_data,
+                    );
+
+                    if !gridmap_data
+                        .non_fov_blocking_cells_list
+                        .contains(target_item_id)
+                    {
+                        fov_map.map.set_transparent(coords.0, coords.1, false);
+                    }
+
+                    new_entity = Some(entity_op);
+                } else {
+                    if !cell_properties.floor_cell {
+                        let personal_update_text = "[font=".to_owned()
+                            + FURTHER_ITALIC_FONT
+                            + "]"
+                            + "Please construct a floor and not a wall here![/font]";
+                        net_construction_tool.send(NetConstructionTool {
+                            handle: event.handle,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                        continue;
+                    }
+                    new_entity = None;
+                }
+
+                let cell_data = CellData {
+                    item: *target_item_id,
+                    orientation: new_cell_orientation,
+                    health: StructureHealth::default(),
+                    entity: new_entity,
+                };
+
+                gridmap_main.data.insert(target_cell_id, cell_data.clone());
+
+                // Update atmospherics.
+
+                let mut atmospherics = atmospherics_resource
+                    .atmospherics
+                    .get_mut(get_atmos_index(Vec2Int {
+                        x: target_cell_id.x,
+                        y: target_cell_id.z,
+                    }))
+                    .unwrap();
+
+                if target_cell_id.y == 0 {
+                    let properties = gridmap_data
+                        .main_cell_properties
+                        .get(&cell_data.item)
+                        .unwrap();
+                    atmospherics.blocked = properties.atmospherics_blocker;
+                    atmospherics.forces_push_up = properties.atmospherics_pushes_up;
+                } else {
+                    // Remove vacuum flag from atmos.
+                    atmospherics.effects.remove(&EffectType::Floorless);
+                }
+
+                gridmap_main.updates.insert(
+                    target_cell_id,
+                    CellUpdate {
+                        entities_received: vec![],
+                        cell_data: cell_data,
+                    },
+                );
             }
+            None => {
+                // Construction item is entity.
+                info!("Building an entity.");
 
-            let entity_op = spawn_main_cell(
-                &mut commands,
-                target_cell_id,
-                *target_item_id,
-                new_cell_orientation,
-                &gridmap_data,
-            );
+                // Build transform to be passed to the entity's spawn func.
+                let world_position = cell_id_to_world(target_cell_id);
 
-            if !gridmap_data
-                .non_fov_blocking_cells_list
-                .contains(target_item_id)
-            {
-                fov_map.map.set_transparent(coords.0, coords.1, false);
-            }
+                // Get entity data.
+                let built_entity_data;
 
-            new_entity = Some(entity_op);
-        } else {
-            if !cell_properties.floor_cell {
-                let personal_update_text = "[font=".to_owned()
-                    + FURTHER_ITALIC_FONT
-                    + "]"
-                    + "Please construct a floor and not a wall here![/font]";
-                net_construction_tool.send(NetConstructionTool {
-                    handle: event.handle,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
-                continue;
-            }
-            new_entity = None;
-        }
-
-        let cell_data = CellData {
-            item: *target_item_id,
-            orientation: new_cell_orientation,
-            health: StructureHealth::default(),
-            entity: new_entity,
-        };
-
-        gridmap_main.data.insert(target_cell_id, cell_data.clone());
-
-        // Update atmospherics.
-
-        let mut atmospherics = atmospherics_resource
-            .atmospherics
-            .get_mut(get_atmos_index(Vec2Int {
-                x: target_cell_id.x,
-                y: target_cell_id.z,
-            }))
-            .unwrap();
-
-        if target_cell_id.y == 0 {
-            let properties = gridmap_main_data
-                .main_cell_properties
-                .get(&cell_data.item)
+                let construction_entity_name = construction_tool_component
+                .construction_option
+                .as_ref()
                 .unwrap();
-            atmospherics.blocked = properties.atmospherics_blocker;
-            atmospherics.forces_push_up = properties.atmospherics_pushes_up;
-        } else {
-            // Remove vacuum flag from atmos.
-            atmospherics.effects.remove(&EffectType::Floorless);
+
+                match entity_data.name_to_id.get(
+                    construction_entity_name,
+                ) {
+                    Some(i) => {
+                        built_entity_data = entity_data.data.get(*i).unwrap();
+                    }
+                    None => {
+                        continue;
+                    }
+                };
+
+                let constructable_data;
+
+                match &built_entity_data.constructable {
+                    Some(d) => {
+                        constructable_data = d;
+                    }
+                    None => {
+                        continue;
+                    }
+                }
+
+                let mut spawn_rotation_option: Option<Quat> = None;
+                // Decide the rotation..
+
+                for j in 0..4 {
+                    let mut adjacent_cell_id = target_cell_id.clone();
+                    let tile_direction;
+
+                    if j == 0 {
+                        adjacent_cell_id.x += 1;
+                        tile_direction = AdjacentTileDirection::Right;
+                    } else if j == 1 {
+                        adjacent_cell_id.x -= 1;
+                        tile_direction = AdjacentTileDirection::Left;
+                    } else if j == 2 {
+                        adjacent_cell_id.z += 1;
+                        tile_direction = AdjacentTileDirection::Up;
+                    } else {
+                        adjacent_cell_id.z -= 1;
+                        tile_direction = AdjacentTileDirection::Down;
+                    }
+
+                    match gridmap_main.data.get(&adjacent_cell_id) {
+                        Some(_data) => {
+                            // Do more checks here in future.
+                        }
+                        None => {
+                            continue;
+                        }
+                    }
+
+                    match tile_direction {
+                        AdjacentTileDirection::Left => {
+                            spawn_rotation_option = Some(Quat::from_xyzw(0., 0., 0., 1.));
+                        }
+                        AdjacentTileDirection::Right => {
+                            spawn_rotation_option = Some(Quat::from_xyzw(0., 0., 0., 1.));
+                        }
+                        AdjacentTileDirection::Up => {
+                            spawn_rotation_option = Some(Quat::from_xyzw(0., 0.707, 0., 0.707));
+                        }
+                        AdjacentTileDirection::Down => {
+                            spawn_rotation_option = Some(Quat::from_xyzw(0., 0.707, 0., 0.707));
+                        }
+                    }
+
+                    break;
+                }
+
+                let spawn_rotation;
+
+                match spawn_rotation_option {
+                    Some(s) => {
+                        spawn_rotation = s;
+                    }
+                    None => {
+                        spawn_rotation = Quat::from_xyzw(0., 0., 0., 1.);
+                    }
+                }
+
+                let mut corrected_world_position = world_position.clone();
+                corrected_world_position.y = 0.;
+
+                
+
+                let mut spawn_transform = Transform::identity();
+                spawn_transform.translation =
+                    corrected_world_position + constructable_data.transform_offset.translation;
+                spawn_transform.rotation =
+                    constructable_data.transform_offset.rotation.mul_quat(spawn_rotation);
+
+
+                let new_entity = (built_entity_data.spawn_function)(
+                    spawn_transform,
+                    &mut commands,
+                    true,
+                    None,
+                    None,
+                    false,
+                );
+
+                
+            }
         }
 
         let personal_update_text = "[font=".to_owned()
@@ -704,18 +876,11 @@ pub fn construction_tool(
             + "You've constructed a "
             + construction_selection
             + "![/font]";
+
         net_construction_tool.send(NetConstructionTool {
             handle: event.handle,
             message: ReliableServerMessage::ChatMessage(personal_update_text),
         });
-
-        gridmap_main.updates.insert(
-            target_cell_id,
-            CellUpdate {
-                entities_received: vec![],
-                cell_data: cell_data,
-            },
-        );
 
         let public_notification = "[font=".to_owned()
             + FURTHER_ITALIC_FONT
@@ -724,6 +889,7 @@ pub fn construction_tool(
             + " has constructed a "
             + construction_selection
             + ".[/font]";
+
         for sensed_by_entity in sensable_component.sensed_by.iter() {
             match handle_to_entity.inv_map.get(sensed_by_entity) {
                 Some(senser_handle) => {
@@ -743,7 +909,6 @@ pub fn construction_tool(
         }
 
         // Send netcode message to all clients who see this tile that it has been updated.
-
         for (mut senser_component, _connected_player_component) in sensers.iter_mut() {
             if senser_component.fov.is_in_fov(coords.0, coords.1) {
                 senser_component.fov.clear_fov();
