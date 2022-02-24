@@ -117,7 +117,7 @@ impl SecurityCounterWindowBundle {
                 },
                 EntityData {
                     entity_class: "entity".to_string(),
-                    entity_type: "securityCounterWindow".to_string(),
+                    entity_name: "securityCounterWindow".to_string(),
                     entity_group: EntityGroup::AirLock,
                 },
                 EntityUpdates::default(),
@@ -151,7 +151,7 @@ impl SecurityCounterWindowBundle {
                 static_transform_component,
                 EntityData {
                     entity_class: "child".to_string(),
-                    entity_type: "counterWindowSensor".to_string(),
+                    entity_name: "counterWindowSensor".to_string(),
                     entity_group: EntityGroup::CounterWindowSensor,
                 },
             ))

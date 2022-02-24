@@ -5,7 +5,10 @@ use bevy::{
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{
-    entity::components::{Examinable, Sensable},
+    entity::{
+        components::{EntityData, Examinable, Sensable},
+        resources::EntityDataResource,
+    },
     gridmap::{
         functions::gridmap_functions::cell_id_to_world,
         resources::{to_doryen_coordinates, GridmapData, GridmapDetails1, GridmapMain},
@@ -28,6 +31,8 @@ pub fn tab_data(
     gridmap_data: Res<GridmapData>,
     gridmap_main: Res<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,
+    entity_data_resource: Res<EntityDataResource>,
+    entity_datas: Query<&EntityData>,
 ) {
     for event in entity_events.iter() {
         let player_pawn_component;
@@ -64,6 +69,8 @@ pub fn tab_data(
                                 rigid_body_position_component.position.translation.into(),
                             ),
                             player_inventory_component,
+                            &entity_data_resource,
+                            &entity_datas,
                         ) {
                             tab_data.push(tab_action.into_net(
                                 examinable_component.name.get_name(),
@@ -121,7 +128,7 @@ pub fn tab_data(
 
             match event.gridmap_type {
                 GridMapType::Main => {
-                    this_map = &gridmap_main.data;
+                    this_map = &gridmap_main.grid_data;
                 }
                 GridMapType::Details1 => {
                     this_map = &gridmap_details1.data;
@@ -168,6 +175,8 @@ pub fn tab_data(
                     passed_cell_tuple,
                     player_body_position.distance(cell_world_position),
                     player_inventory_component,
+                    &entity_data_resource,
+                    &entity_datas,
                 ) {
                     tab_data.push(tab_action.into_net(tab_data_name, None, cell_part_tuple));
                 }

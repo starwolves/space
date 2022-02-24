@@ -56,7 +56,7 @@ pub fn examine_map(
 
             match examine_event.gridmap_type {
                 GridMapType::Main => {
-                    gridmap_result = gridmap_main.data.get(&examine_event.gridmap_cell_id);
+                    gridmap_result = gridmap_main.grid_data.get(&examine_event.gridmap_cell_id);
                 }
                 GridMapType::Details1 => {
                     gridmap_result = gridmap_details1.data.get(&examine_event.gridmap_cell_id);

@@ -183,7 +183,7 @@ pub fn pickup_world_item<'a>(
         net_pickup_world_item.send(NetPickupWorldItem {
             handle: event.handle,
             message: ReliableServerMessage::PickedUpItem(
-                pickupable_entity_data.entity_type.clone(),
+                pickupable_entity_data.entity_name.clone(),
                 event.pickupable_entity_bits,
                 pickup_slot.slot_name.clone(),
             ),

@@ -73,11 +73,12 @@ pub struct EntityDataProperties {
     >,
     pub name: String,
     pub id: usize,
-    pub constructable: Option<ConstructableData>,
+    pub grid_item: Option<GridItemData>,
 }
 
-pub struct ConstructableData {
+pub struct GridItemData {
     pub transform_offset: Transform,
+    pub can_be_built_with_grid_item: Vec<String>,
 }
 
 impl Default for EntityDataProperties {
@@ -86,7 +87,7 @@ impl Default for EntityDataProperties {
             spawn_function: Box::new(|_, _, _, _, _, _| Entity::from_raw(0)),
             name: Default::default(),
             id: Default::default(),
-            constructable: None,
+            grid_item: None,
         }
     }
 }

@@ -60,7 +60,7 @@ pub fn inventory_update(
                                 EntityUpdateData::WornItem(
                                     slot.slot_name.clone(),
                                     item.to_bits(),
-                                    pickupable_components.1.entity_type.clone(),
+                                    pickupable_components.1.entity_name.clone(),
                                     attachment_transform.translation,
                                     attachment_transform.rotation,
                                     attachment_transform.scale,
@@ -76,7 +76,7 @@ pub fn inventory_update(
                                     EntityUpdateData::WornItemNotAttached(
                                         slot.slot_name.clone(),
                                         item.to_bits(),
-                                        pickupable_components.1.entity_type.clone(),
+                                        pickupable_components.1.entity_name.clone(),
                                     ),
                                 );
                             }

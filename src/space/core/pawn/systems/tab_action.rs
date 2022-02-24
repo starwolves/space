@@ -6,6 +6,7 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::{
     core::{
+        entity::{components::EntityData, resources::EntityDataResource},
         gridmap::{
             functions::gridmap_functions::cell_id_to_world,
             resources::{GridmapMain, Vec3Int},
@@ -35,6 +36,8 @@ pub fn tab_action(
     inventory_items: Query<&RigidBodyPositionComponent>,
 
     gridmap_main_data: Res<GridmapMain>,
+    entity_data_resource: Res<EntityDataResource>,
+    entity_datas: Query<&EntityData>,
 ) {
     for event in events.iter() {
         // Safety check.
@@ -70,9 +73,9 @@ pub fn tab_action(
             .into();
 
         match event.target_entity_option {
-            Some(target_entity) => {
+            Some(target_entity_bits) => {
                 let rigid_body_position_component;
-                match inventory_items.get(Entity::from_bits(target_entity)) {
+                match inventory_items.get(Entity::from_bits(target_entity_bits)) {
                     Ok(v) => {
                         rigid_body_position_component = v;
                     }
@@ -133,7 +136,7 @@ pub fn tab_action(
                 match &event.target_cell_option {
                     Some(gridmap_cell_data) => {
                         let cell_item;
-                        match gridmap_main_data.data.get(&Vec3Int {
+                        match gridmap_main_data.grid_data.get(&Vec3Int {
                             x: gridmap_cell_data.1,
                             y: gridmap_cell_data.2,
                             z: gridmap_cell_data.3,
@@ -163,6 +166,8 @@ pub fn tab_action(
                     cell_option,
                     distance,
                     pawn_inventory_component,
+                    &entity_data_resource,
+                    &entity_datas,
                 ) {
                     true => {}
                     false => {
@@ -209,10 +214,13 @@ pub fn tab_action(
                 });
             }
         } else if event.tab_id == "deconstruct" {
-            if event.target_cell_option.is_some() && event.belonging_entity.is_some() {
+            if (event.target_entity_option.is_some() || event.target_cell_option.is_some())
+                && event.belonging_entity.is_some()
+            {
                 event_deconstruct.send(InputDeconstruct {
                     handle: event.handle,
-                    target_cell: event.target_cell_option.as_ref().unwrap().clone(),
+                    target_cell_option: event.target_cell_option.clone(),
+                    target_entity_option: event.target_entity_option,
                     belonging_entity: event.belonging_entity.unwrap(),
                 });
             }

@@ -154,7 +154,7 @@ pub fn attack(
                                 let position = cell_id_to_world(cell_component.id);
 
                                 let cell_data =
-                                    world_cells.data.get_mut(&cell_component.id).unwrap();
+                                    world_cells.grid_data.get_mut(&cell_component.id).unwrap();
 
                                 hit_entities.push(AttackResult {
                                     entity_option: None,
@@ -296,7 +296,8 @@ pub fn attack(
                         },
                         None => {
                             let attacked_cell_id = attack_result.cell_id_option.unwrap();
-                            let cell_data = world_cells.data.get_mut(&attacked_cell_id).unwrap();
+                            let cell_data =
+                                world_cells.grid_data.get_mut(&attacked_cell_id).unwrap();
 
                             hit_result = cell_data.health.apply_damage(
                                 &attack_event.targetted_limb,
@@ -449,8 +450,10 @@ pub fn attack(
 
                                         sound_transform.translation = position;
 
-                                        let cell_data =
-                                            world_cells.data.get_mut(&cell_component.id).unwrap();
+                                        let cell_data = world_cells
+                                            .grid_data
+                                            .get_mut(&cell_component.id)
+                                            .unwrap();
 
                                         let r = AttackResult {
                                             entity_option: None,
@@ -636,7 +639,7 @@ pub fn attack(
                                             let attacked_cell_id =
                                                 attack_result.cell_id_option.unwrap();
                                             let cell_data = world_cells
-                                                .data
+                                                .grid_data
                                                 .get_mut(&attacked_cell_id)
                                                 .unwrap();
 

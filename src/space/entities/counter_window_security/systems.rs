@@ -7,8 +7,11 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::{
     core::{
         atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
-        entity::components::{DefaultMapEntity, EntityGroup},
-        gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
+        entity::components::{DefaultMapEntity, EntityData, EntityGroup},
+        gridmap::{
+            functions::gridmap_functions::world_to_cell_id,
+            resources::{EntityGridData, GridmapMain, Vec2Int},
+        },
         map::resources::{MapData, GREEN_MAP_TILE_COUNTER},
         pawn::components::{Pawn, SpaceAccess},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
@@ -360,12 +363,19 @@ pub fn counter_window_added(
 
 pub fn counter_window_default_map_added(
     default_counter_windows: Query<
-        (Entity, &RigidBodyPositionComponent, &DefaultMapEntity),
+        (
+            Entity,
+            &RigidBodyPositionComponent,
+            &DefaultMapEntity,
+            &EntityData,
+        ),
         Added<CounterWindow>,
     >,
     mut map_data: ResMut<MapData>,
+    mut gridmap_main: ResMut<GridmapMain>,
 ) {
-    for (_counter_window_entity, rigid_body_position_component, _) in default_counter_windows.iter()
+    for (counter_window_entity, rigid_body_position_component, _, entity_data_component) in
+        default_counter_windows.iter()
     {
         let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
         let cell_id2 = Vec2Int {
@@ -373,5 +383,13 @@ pub fn counter_window_default_map_added(
             y: cell_id.z,
         };
         map_data.data.insert(cell_id2, GREEN_MAP_TILE_COUNTER);
+
+        gridmap_main.entity_data.insert(
+            cell_id,
+            EntityGridData {
+                entity: counter_window_entity,
+                entity_name: entity_data_component.entity_name.to_string(),
+            },
+        );
     }
 }

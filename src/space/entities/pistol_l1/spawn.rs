@@ -233,7 +233,7 @@ fn spawn_entity(
     builder.insert_bundle(collider_component).insert_bundle((
         EntityData {
             entity_class: "entity".to_string(),
-            entity_type: "pistolL1".to_string(),
+            entity_name: "pistolL1".to_string(),
             ..Default::default()
         },
         EntityUpdates::default(),

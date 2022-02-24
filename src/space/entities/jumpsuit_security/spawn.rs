@@ -223,7 +223,7 @@ fn spawn_entity(
     let rest = (
         EntityData {
             entity_class: "entity".to_string(),
-            entity_type: "jumpsuitSecurity".to_string(),
+            entity_name: "jumpsuitSecurity".to_string(),
             ..Default::default()
         },
         EntityUpdates::default(),

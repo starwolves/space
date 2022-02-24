@@ -4,7 +4,7 @@ pub mod functions;
 pub mod resources;
 pub mod systems;
 
-use std::{fs, path::Path, collections::HashMap};
+use std::{collections::HashMap, fs, path::Path};
 
 use bevy::prelude::{info, Commands, Res, ResMut, Transform};
 use bevy_rapier3d::{
@@ -38,9 +38,10 @@ use crate::space::{
 use self::resources::SpawnPoints;
 
 use super::{
+    atmospherics::systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
     configuration::resources::{ServerId, TickRate},
     entity::components::RichName,
-    world_environment::resources::WorldEnvironment, atmospherics::systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
+    world_environment::resources::WorldEnvironment,
 };
 
 pub fn startup_build_map(
@@ -122,12 +123,12 @@ pub struct MainCellProperties {
     pub floor_cell: bool,
     pub atmospherics_blocker: bool,
     pub atmospherics_pushes_up: bool,
-    pub direction_rotations : GridDirectionRotations,
+    pub direction_rotations: GridDirectionRotations,
 }
 
 #[derive(Clone)]
 pub struct GridDirectionRotations {
-    pub data : HashMap<AdjacentTileDirection,u8>,
+    pub data: HashMap<AdjacentTileDirection, u8>,
 }
 
 impl GridDirectionRotations {
@@ -137,7 +138,7 @@ impl GridDirectionRotations {
         data.insert(AdjacentTileDirection::Right, 19);
         data.insert(AdjacentTileDirection::Up, 14);
         data.insert(AdjacentTileDirection::Down, 4);
-        Self{data}
+        Self { data }
     }
 }
 
@@ -157,7 +158,7 @@ impl Default for MainCellProperties {
             floor_cell: false,
             atmospherics_blocker: true,
             atmospherics_pushes_up: false,
-            direction_rotations : GridDirectionRotations::default_wall_rotations(),
+            direction_rotations: GridDirectionRotations::default_wall_rotations(),
         }
     }
 }
@@ -236,9 +237,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     rotations.insert(AdjacentTileDirection::Up, 16);
     rotations.insert(AdjacentTileDirection::Down, 16);
 
-    let rotation_struct = GridDirectionRotations {
-        data: rotations,
-    };
+    let rotation_struct = GridDirectionRotations { data: rotations };
 
     main_cells_data.push(MainCellProperties {
         id: *gridmap_data
@@ -259,7 +258,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         constructable: true,
         atmospherics_blocker: false,
         atmospherics_pushes_up: true,
-        direction_rotations : rotation_struct,
+        direction_rotations: rotation_struct,
         ..Default::default()
     });
 

@@ -30,8 +30,8 @@ use crate::space::{
                 gridmap_functions::{cell_id_to_world, world_to_cell_id},
             },
             resources::{
-                to_doryen_coordinates, CellData, CellUpdate, DoryenMap, GridmapData,
-                GridmapDetails1, GridmapMain, StructureHealth, Vec2Int, Vec3Int,
+                to_doryen_coordinates, CellData, CellUpdate, DoryenMap, EntityGridData,
+                GridmapData, GridmapDetails1, GridmapMain, StructureHealth, Vec2Int, Vec3Int,
             },
             systems::senser_update_fov::FOV_DISTANCE,
         },
@@ -93,13 +93,10 @@ pub fn construction_tool(
     pawns: Query<&Pawn>,
     mut commands: Commands,
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
-    rigid_bodies: Query<
-        (&RigidBodyPositionComponent, Option<&EntityData>),
-        Without<RigidBodyDisabled>,
-    >,
     mut fov_map: ResMut<DoryenMap>,
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
+    rigid_bodies: Query<(&RigidBodyPositionComponent, &EntityData), Without<RigidBodyDisabled>>,
 ) {
     let (
         mut input_construct_event,
@@ -116,7 +113,7 @@ pub fn construction_tool(
         let entity = Entity::from_bits(event.belonging_entity);
 
         for entity_data_properties in entity_data.data.iter() {
-            match &entity_data_properties.constructable {
+            match &entity_data_properties.grid_item {
                 Some(_d) => {
                     text_options.push(entity_data_properties.name.clone());
                 }
@@ -201,7 +198,7 @@ pub fn construction_tool(
         let mut text_options = vec![];
 
         for entity_data_properties in entity_data.data.iter() {
-            match &entity_data_properties.constructable {
+            match &entity_data_properties.grid_item {
                 Some(_d) => {
                     text_options.push(entity_data_properties.name.clone());
                 }
@@ -297,8 +294,6 @@ pub fn construction_tool(
 
     // Write to a DespawnShipCell event.
     for event in input_deconstruct_event.iter() {
-        let (gridmap_type, cell_x, cell_y, cell_z) = &event.target_cell;
-
         let belonging_entity = Entity::from_bits(event.belonging_entity);
 
         let (
@@ -329,81 +324,115 @@ pub fn construction_tool(
             }
         }
 
-        let cell_data;
-
-        let text_names_map;
-
         let sfx_bundle;
+        let deconstructed_item_name;
 
-        let cell_id_int = Vec3Int {
-            x: *cell_x,
-            y: *cell_y,
-            z: *cell_z,
-        };
+        match &event.target_cell_option {
+            Some((gridmap_type, cell_x, cell_y, cell_z)) => {
+                let cell_data;
 
-        match gridmap_type {
-            GridMapType::Main => {
-                match &gridmap_main.data.get(&cell_id_int) {
-                    Some(cell_data_passed) => {
-                        cell_data = cell_data_passed.clone();
-                        text_names_map = &gridmap_data.main_text_names;
+                let text_names_map;
+
+                let cell_id_int = Vec3Int {
+                    x: *cell_x,
+                    y: *cell_y,
+                    z: *cell_z,
+                };
+
+                match gridmap_type {
+                    GridMapType::Main => {
+                        match &gridmap_main.grid_data.get(&cell_id_int) {
+                            Some(cell_data_passed) => {
+                                cell_data = cell_data_passed.clone();
+                                text_names_map = &gridmap_data.main_text_names;
+                            }
+                            None => {
+                                warn!("Couldnt find gridmap_main.data for cellid.");
+                                continue;
+                            }
+                        }
+
+                        sfx_bundle = Deconstruct1SfxBundle::new(isometry_to_transform(
+                            rigid_body_position_component.position,
+                        ));
                     }
-                    None => {
-                        warn!("Couldnt find gridmap_main.data for cellid.");
-                        continue;
+                    GridMapType::Details1 => {
+                        match &gridmap_details1.data.get(&cell_id_int) {
+                            Some(cell_data_passed) => {
+                                cell_data = cell_data_passed.clone();
+                                text_names_map = &gridmap_data.details1_text_names;
+                            }
+                            None => {
+                                warn!("Couldnt find gridmap_details1.data for cellid.");
+                                continue;
+                            }
+                        }
+
+                        let mut rng = rand::thread_rng();
+                        let random_pick: i32 = rng.gen_range(0..2);
+
+                        if random_pick == 0 {
+                            sfx_bundle = ConstructLight1SfxBundle::new(isometry_to_transform(
+                                rigid_body_position_component.position,
+                            ));
+                        } else {
+                            sfx_bundle = ConstructLight2SfxBundle::new(isometry_to_transform(
+                                rigid_body_position_component.position,
+                            ));
+                        }
                     }
                 }
+
+                let mut cell_data_clone = cell_data.clone();
+                cell_data_clone.item = -1;
+
+                deconstructed_item_name = text_names_map.get(&cell_data.item).unwrap().get_name();
+
+                gridmap_main.updates.insert(
+                    cell_id_int,
+                    CellUpdate {
+                        entities_received: vec![],
+                        cell_data: cell_data_clone.clone(),
+                    },
+                );
+
+                remove_cell_events.send(RemoveCell {
+                    gridmap_type: gridmap_type.clone(),
+                    id: Vec3Int {
+                        x: *cell_x,
+                        y: *cell_y,
+                        z: *cell_z,
+                    },
+                    handle: event.handle,
+                    cell_data: cell_data_clone,
+                });
+            }
+            None => {
+                let deconstruct_entity = Entity::from_bits(event.target_entity_option.unwrap());
+
+                let g = rigid_bodies.get(deconstruct_entity).unwrap();
+
+                let entity_position_component = g.0;
+                let entity_data = g.1;
+
+                deconstructed_item_name = &entity_data.entity_name;
+
+                let cell_id =
+                    world_to_cell_id(entity_position_component.position.translation.into());
+
+                gridmap_main.entity_data.remove(&cell_id);
+
+                commands.entity(deconstruct_entity).despawn();
 
                 sfx_bundle = Deconstruct1SfxBundle::new(isometry_to_transform(
                     rigid_body_position_component.position,
                 ));
             }
-            GridMapType::Details1 => {
-                match &gridmap_details1.data.get(&cell_id_int) {
-                    Some(cell_data_passed) => {
-                        cell_data = cell_data_passed.clone();
-                        text_names_map = &gridmap_data.details1_text_names;
-                    }
-                    None => {
-                        warn!("Couldnt find gridmap_details1.data for cellid.");
-                        continue;
-                    }
-                }
-
-                let mut rng = rand::thread_rng();
-                let random_pick: i32 = rng.gen_range(0..2);
-
-                if random_pick == 0 {
-                    sfx_bundle = ConstructLight1SfxBundle::new(isometry_to_transform(
-                        rigid_body_position_component.position,
-                    ));
-                } else {
-                    sfx_bundle = ConstructLight2SfxBundle::new(isometry_to_transform(
-                        rigid_body_position_component.position,
-                    ));
-                }
-            }
         }
-
-        let mut cell_data_clone = cell_data.clone();
-        cell_data_clone.item = -1;
 
         let sfx_entity = commands.spawn().insert_bundle(sfx_bundle).id();
 
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
-
-        let deconstructed_item_name = text_names_map.get(&cell_data.item).unwrap().get_name();
-
-        remove_cell_events.send(RemoveCell {
-            gridmap_type: gridmap_type.clone(),
-            id: Vec3Int {
-                x: *cell_x,
-                y: *cell_y,
-                z: *cell_z,
-            },
-            handle: event.handle,
-            cell_data: cell_data_clone.clone(),
-        });
 
         let personal_update_text = "[font=".to_owned()
             + FURTHER_ITALIC_FONT
@@ -411,14 +440,6 @@ pub fn construction_tool(
             + "You've deconstructed the "
             + &deconstructed_item_name
             + ".[/font]";
-
-        gridmap_main.updates.insert(
-            cell_id_int,
-            CellUpdate {
-                entities_received: vec![],
-                cell_data: cell_data_clone,
-            },
-        );
 
         net_construction_tool.send(NetConstructionTool {
             handle: event.handle,
@@ -512,8 +533,41 @@ pub fn construction_tool(
             }
         }
 
-        if event.target_cell.2 != -1 {
-            continue;
+        let construction_is_entity;
+
+        let mut allowed_grid_items = vec![];
+        let construction_entity_name = construction_tool_component
+            .construction_option
+            .as_ref()
+            .unwrap();
+
+        match gridmap_data.main_name_id_map.get(construction_selection) {
+            Some(_) => {
+                construction_is_entity = false;
+            }
+            None => {
+                // Get entity data.
+                let built_entity_data;
+
+                match entity_data.name_to_id.get(construction_entity_name) {
+                    Some(i) => {
+                        built_entity_data = entity_data.data.get(*i).unwrap();
+                    }
+                    None => {
+                        continue;
+                    }
+                };
+
+                match &built_entity_data.grid_item {
+                    Some(d) => {
+                        allowed_grid_items = d.can_be_built_with_grid_item.clone();
+                    }
+                    None => {
+                        continue;
+                    }
+                }
+                construction_is_entity = true;
+            }
         }
 
         let input_cell = Vec3Int {
@@ -524,16 +578,20 @@ pub fn construction_tool(
 
         let mut target_cell_id = input_cell.clone();
 
-        match gridmap_main.data.get(&input_cell) {
-            Some(_input_cell_data) => {
-                target_cell_id.y = 0;
+        if !construction_is_entity {
+            match gridmap_main.grid_data.get(&input_cell) {
+                Some(_input_cell_data) => {
+                    target_cell_id.y = 0;
+                }
+                None => {
+                    target_cell_id.y = -1;
+                }
             }
-            None => {
-                target_cell_id.y = -1;
-            }
+        } else {
+            target_cell_id.y = 0;
         }
 
-        match gridmap_details1.data.get(&input_cell) {
+        match gridmap_details1.data.get(&target_cell_id) {
             Some(_input_cell_data) => {
                 let personal_update_text = "[font=".to_owned()
                     + FURTHER_ITALIC_FONT
@@ -548,9 +606,59 @@ pub fn construction_tool(
             None => {}
         }
 
-        match gridmap_main.data.get(&target_cell_id) {
-            Some(_target_cell_data) => {
-                continue;
+        match gridmap_main.grid_data.get(&target_cell_id) {
+            Some(target_cell_data) => {
+                let name = gridmap_data
+                    .main_id_name_map
+                    .get(&target_cell_data.item)
+                    .unwrap();
+
+                if (construction_is_entity && allowed_grid_items.contains(name)) == false {
+                    let personal_update_text = "[font=".to_owned()
+                        + FURTHER_ITALIC_FONT
+                        + "]"
+                        + "Construction blocked.[/font]";
+                    net_construction_tool.send(NetConstructionTool {
+                        handle: event.handle,
+                        message: ReliableServerMessage::ChatMessage(personal_update_text),
+                    });
+                    continue;
+                }
+            }
+            None => {}
+        }
+
+        match gridmap_main.entity_data.get(&target_cell_id) {
+            Some(ed) => {
+                let entity_data = entity_data
+                    .data
+                    .get(*entity_data.name_to_id.get(&ed.entity_name).unwrap())
+                    .unwrap();
+
+                let mut is_blocking = true;
+
+                match &entity_data.grid_item {
+                    Some(data) => {
+                        if data
+                            .can_be_built_with_grid_item
+                            .contains(construction_entity_name)
+                        {
+                            is_blocking = false;
+                        }
+                    }
+                    None => {}
+                }
+                if is_blocking {
+                    let personal_update_text = "[font=".to_owned()
+                        + FURTHER_ITALIC_FONT
+                        + "]"
+                        + "Construction blocked.[/font]";
+                    net_construction_tool.send(NetConstructionTool {
+                        handle: event.handle,
+                        message: ReliableServerMessage::ChatMessage(personal_update_text),
+                    });
+                    continue;
+                }
             }
             None => {}
         }
@@ -576,9 +684,9 @@ pub fn construction_tool(
             y: target_cell_id.z,
         };
 
-        let mut blocked = None;
+        let mut blockers = vec![];
 
-        for (rigid_body, entity_data_option) in rigid_bodies.iter() {
+        for (rigid_body, entity_data_component) in rigid_bodies.iter() {
             let pos = rigid_body.position.translation.into();
 
             let cell_id = world_to_cell_id(pos);
@@ -588,21 +696,29 @@ pub fn construction_tool(
             };
 
             if cell_id_2 == target_cell_id_2 {
-                let name;
-
-                match entity_data_option {
-                    Some(entity_data_component) => name = entity_data_component.entity_type.clone(),
-                    None => {
-                        name = pos.to_string();
-                    }
-                }
-
-                blocked = Some(name);
-                break;
+                let name = entity_data_component.entity_name.clone();
+                blockers.push(name);
             }
         }
 
-        match blocked {
+        let mut blockerz = None;
+
+        for blocker in blockers {
+            match entity_data.name_to_id.get(&blocker) {
+                Some(id) => {
+                    let entity_data_properties = entity_data.data.get(*id).unwrap();
+                    match entity_data_properties.grid_item {
+                        Some(_) => {
+                            // Already in GridMapMain.entity_data
+                        }
+                        None => blockerz = Some(blocker),
+                    }
+                }
+                None => {}
+            }
+        }
+
+        match blockerz {
             Some(blocker_name) => {
                 let personal_update_text = "[font=".to_owned()
                     + FURTHER_ITALIC_FONT
@@ -631,7 +747,11 @@ pub fn construction_tool(
                     .get(&target_item_id)
                     .unwrap();
 
-                let mut new_cell_orientation : i64 = 23;
+                let mut new_cell_orientation: i64 = *cell_properties
+                    .direction_rotations
+                    .data
+                    .get(&AdjacentTileDirection::Right)
+                    .unwrap() as i64;
 
                 for j in 0..4 {
                     let mut adjacent_cell_id = target_cell_id.clone();
@@ -651,7 +771,7 @@ pub fn construction_tool(
                         tile_direction = AdjacentTileDirection::Down;
                     }
 
-                    match gridmap_main.data.get(&adjacent_cell_id) {
+                    match gridmap_main.grid_data.get(&adjacent_cell_id) {
                         Some(_data) => {
                             // Do more checks here in future.
                         }
@@ -660,8 +780,12 @@ pub fn construction_tool(
                         }
                     }
 
-                    new_cell_orientation = *cell_properties.direction_rotations.data.get(&tile_direction).unwrap() as i64;
-                    
+                    new_cell_orientation = *cell_properties
+                        .direction_rotations
+                        .data
+                        .get(&tile_direction)
+                        .unwrap() as i64;
+
                     break;
                 }
 
@@ -717,7 +841,9 @@ pub fn construction_tool(
                     entity: new_entity,
                 };
 
-                gridmap_main.data.insert(target_cell_id, cell_data.clone());
+                gridmap_main
+                    .grid_data
+                    .insert(target_cell_id, cell_data.clone());
 
                 // Update atmospherics.
 
@@ -756,36 +882,6 @@ pub fn construction_tool(
                 // Build transform to be passed to the entity's spawn func.
                 let world_position = cell_id_to_world(target_cell_id);
 
-                // Get entity data.
-                let built_entity_data;
-
-                let construction_entity_name = construction_tool_component
-                .construction_option
-                .as_ref()
-                .unwrap();
-
-                match entity_data.name_to_id.get(
-                    construction_entity_name,
-                ) {
-                    Some(i) => {
-                        built_entity_data = entity_data.data.get(*i).unwrap();
-                    }
-                    None => {
-                        continue;
-                    }
-                };
-
-                let constructable_data;
-
-                match &built_entity_data.constructable {
-                    Some(d) => {
-                        constructable_data = d;
-                    }
-                    None => {
-                        continue;
-                    }
-                }
-
                 let mut spawn_rotation_option: Option<Quat> = None;
                 // Decide the rotation..
 
@@ -807,7 +903,7 @@ pub fn construction_tool(
                         tile_direction = AdjacentTileDirection::Down;
                     }
 
-                    match gridmap_main.data.get(&adjacent_cell_id) {
+                    match gridmap_main.grid_data.get(&adjacent_cell_id) {
                         Some(_data) => {
                             // Do more checks here in future.
                         }
@@ -848,14 +944,35 @@ pub fn construction_tool(
                 let mut corrected_world_position = world_position.clone();
                 corrected_world_position.y = 0.;
 
-                
+                let built_entity_data;
+
+                match entity_data.name_to_id.get(construction_entity_name) {
+                    Some(i) => {
+                        built_entity_data = entity_data.data.get(*i).unwrap();
+                    }
+                    None => {
+                        continue;
+                    }
+                };
+
+                let constructable_data;
+
+                match &built_entity_data.grid_item {
+                    Some(d) => {
+                        constructable_data = d;
+                    }
+                    None => {
+                        continue;
+                    }
+                }
 
                 let mut spawn_transform = Transform::identity();
                 spawn_transform.translation =
                     corrected_world_position + constructable_data.transform_offset.translation;
-                spawn_transform.rotation =
-                    constructable_data.transform_offset.rotation.mul_quat(spawn_rotation);
-
+                spawn_transform.rotation = constructable_data
+                    .transform_offset
+                    .rotation
+                    .mul_quat(spawn_rotation);
 
                 let new_entity = (built_entity_data.spawn_function)(
                     spawn_transform,
@@ -866,7 +983,13 @@ pub fn construction_tool(
                     false,
                 );
 
-                
+                gridmap_main.entity_data.insert(
+                    target_cell_id,
+                    EntityGridData {
+                        entity: new_entity,
+                        entity_name: construction_entity_name.to_string(),
+                    },
+                );
             }
         }
 

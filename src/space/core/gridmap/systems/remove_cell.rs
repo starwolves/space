@@ -44,7 +44,12 @@ pub fn remove_cell(
 
                 if event.id.y == 0 {
                     // Wall
-                    let cell_entity = gridmap_main.data.get(&event.id).unwrap().entity.unwrap();
+                    let cell_entity = gridmap_main
+                        .grid_data
+                        .get(&event.id)
+                        .unwrap()
+                        .entity
+                        .unwrap();
                     commands.entity(cell_entity).despawn();
                     fov_map.map.set_transparent(coords.0, coords.1, true);
                     atmospherics.blocked = false;
@@ -54,7 +59,7 @@ pub fn remove_cell(
                     upper_id.y = 0;
 
                     // Add vacuum flag to atmos.
-                    match gridmap_main.data.get(&upper_id) {
+                    match gridmap_main.grid_data.get(&upper_id) {
                         Some(_) => {}
                         None => {
                             atmospherics
@@ -105,7 +110,7 @@ pub fn remove_cell(
                     }
                 }
 
-                gridmap_main.data.remove(&event.id);
+                gridmap_main.grid_data.remove(&event.id);
             }
             GridMapType::Details1 => {
                 gridmap_details1.updates.insert(

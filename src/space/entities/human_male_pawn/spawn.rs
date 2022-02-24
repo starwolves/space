@@ -147,7 +147,7 @@ impl HumanMalePawnBundle {
         entity_builder.insert_bundle((
             EntityData {
                 entity_class: "entity".to_string(),
-                entity_type: "humanMale".to_string(),
+                entity_name: "humanMale".to_string(),
                 entity_group: EntityGroup::Pawn,
             },
             EntityUpdates::default(),

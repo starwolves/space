@@ -79,13 +79,19 @@ impl FromWorld for GridmapDetails1 {
 }
 
 pub struct GridmapMain {
-    pub data: HashMap<Vec3Int, CellData>,
+    pub grid_data: HashMap<Vec3Int, CellData>,
+    pub entity_data: HashMap<Vec3Int, EntityGridData>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
 }
 
 pub struct CellUpdate {
     pub entities_received: Vec<Entity>,
     pub cell_data: CellData,
+}
+
+pub struct EntityGridData {
+    pub entity: Entity,
+    pub entity_name: String,
 }
 
 #[derive(Deserialize)]
@@ -238,8 +244,9 @@ impl StructureHealth {
 impl FromWorld for GridmapMain {
     fn from_world(_world: &mut World) -> Self {
         GridmapMain {
-            data: HashMap::new(),
+            grid_data: HashMap::new(),
             updates: HashMap::new(),
+            entity_data: HashMap::new(),
         }
     }
 }

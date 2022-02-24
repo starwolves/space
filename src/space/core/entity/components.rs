@@ -11,7 +11,7 @@ use super::{events::NetUnloadEntity, functions::unload_entity_for_player::unload
 #[derive(Component)]
 pub struct EntityData {
     pub entity_class: String,
-    pub entity_type: String,
+    pub entity_name: String,
     pub entity_group: EntityGroup,
 }
 
@@ -27,7 +27,7 @@ impl Default for EntityData {
     fn default() -> Self {
         Self {
             entity_class: "".to_string(),
-            entity_type: "".to_string(),
+            entity_name: "".to_string(),
             entity_group: EntityGroup::None,
         }
     }
