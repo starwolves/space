@@ -1,5 +1,7 @@
-
-use bevy_internal::{prelude::{EventReader, Query}, math::Vec2};
+use bevy_internal::{
+    math::Vec2,
+    prelude::{EventReader, Query},
+};
 
 use crate::space::core::{
     gridmap::resources::FOV_MAP_WIDTH,

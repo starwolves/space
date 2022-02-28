@@ -1,4 +1,3 @@
-
 use bevy_internal::prelude::Entity;
 
 use crate::space::core::entity::components::EntityGroup;

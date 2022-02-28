@@ -1,6 +1,5 @@
 use bevy_internal::prelude::Component;
 
-
 #[derive(Component)]
 pub struct ConstructionTool {
     pub construction_option: Option<String>,

@@ -1,4 +1,4 @@
-use bevy_internal::prelude::{ResMut, Entity, Query, EventWriter};
+use bevy_internal::prelude::{Entity, EventWriter, Query, ResMut};
 
 use crate::space::core::{
     gridmap::{

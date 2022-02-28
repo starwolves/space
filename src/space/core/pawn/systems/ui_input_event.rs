@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{EventReader, Res, Query, Commands};
+use bevy_internal::prelude::{Commands, EventReader, Query, Res};
 
 use crate::space::core::{
     networking::resources::{UIInputAction, UIInputNodeClass},

@@ -4,7 +4,7 @@ pub mod functions;
 pub mod resources;
 pub mod systems;
 
-use bevy_internal::prelude::{Res, ResMut, info};
+use bevy_internal::prelude::{info, Res, ResMut};
 
 use crate::space::core::{
     atmospherics::{

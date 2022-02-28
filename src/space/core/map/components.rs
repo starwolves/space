@@ -1,5 +1,4 @@
-use bevy_internal::{prelude::Component, math::Vec2};
-
+use bevy_internal::{math::Vec2, prelude::Component};
 
 #[derive(Component)]
 pub struct Map {

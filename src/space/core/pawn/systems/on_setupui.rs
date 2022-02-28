@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy_internal::prelude::{Res, Query, Added, EventWriter, Commands, ResMut, Transform};
+use bevy_internal::prelude::{Added, Commands, EventWriter, Query, Res, ResMut, Transform};
 
 use crate::space::{
     core::{

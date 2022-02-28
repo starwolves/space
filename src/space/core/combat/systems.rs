@@ -1,4 +1,7 @@
-use bevy_internal::{math::{Quat, Vec3}, prelude::{Transform, EventReader, Res, Entity, Query, EventWriter, ResMut, Commands}};
+use bevy_internal::{
+    math::{Quat, Vec3},
+    prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform},
+};
 use bevy_rapier3d::prelude::{
     ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery,
     QueryPipelineColliderComponentsSet, Ray, RigidBodyPositionComponent,

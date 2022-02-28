@@ -1,4 +1,4 @@
-use bevy_internal::prelude::{Res, ResMut, EventWriter, Query, Entity};
+use bevy_internal::prelude::{Entity, EventWriter, Query, Res, ResMut};
 
 use crate::space::core::{
     atmospherics::{

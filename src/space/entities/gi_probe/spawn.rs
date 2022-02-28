@@ -1,4 +1,3 @@
-
 use bevy_internal::prelude::{Commands, Transform};
 
 use crate::space::core::{

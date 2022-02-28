@@ -2,7 +2,7 @@ pub mod resources;
 
 use std::net::SocketAddr;
 
-use bevy_internal::prelude::{info, ResMut, EventWriter, warn, Res, Commands, EventReader, Query};
+use bevy_internal::prelude::{info, warn, Commands, EventReader, EventWriter, Query, Res, ResMut};
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, NetworkEvent, NetworkResource};
 
 use crate::space::core::{

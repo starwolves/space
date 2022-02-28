@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{EventReader, EventWriter, Res, Query, warn, Entity};
+use bevy_internal::prelude::{warn, Entity, EventReader, EventWriter, Query, Res};
 
 use crate::space::{
     core::{

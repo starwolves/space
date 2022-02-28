@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{EventReader, Res, Query, warn};
+use bevy_internal::prelude::{warn, EventReader, Query, Res};
 
 use crate::space::core::pawn::{
     components::PlayerInput,

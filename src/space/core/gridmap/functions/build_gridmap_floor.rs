@@ -1,4 +1,4 @@
-use bevy_internal::{prelude::Commands, math::Vec3};
+use bevy_internal::{math::Vec3, prelude::Commands};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape,
     ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType,

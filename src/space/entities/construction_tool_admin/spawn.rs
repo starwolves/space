@@ -3,7 +3,10 @@ use std::{
     sync::Arc,
 };
 
-use bevy_internal::{prelude::{Transform, Commands, Entity, EventWriter, Query, warn}, math::{Mat4, Vec3, Quat}};
+use bevy_internal::{
+    math::{Mat4, Quat, Vec3},
+    prelude::{warn, Commands, Entity, EventWriter, Query, Transform},
+};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition,
     ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyForces,

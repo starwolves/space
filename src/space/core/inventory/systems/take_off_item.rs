@@ -1,4 +1,4 @@
-use bevy_internal::prelude::{Query, EventReader, EventWriter};
+use bevy_internal::prelude::{EventReader, EventWriter, Query};
 
 use crate::space::core::{
     entity::components::EntityData,

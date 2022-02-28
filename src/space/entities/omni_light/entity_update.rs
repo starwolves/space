@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{Query, Changed};
+use bevy_internal::prelude::{Changed, Query};
 
 use crate::space::{
     core::{
@@ -45,7 +44,12 @@ pub fn omni_light_update(
         );
         entity_updates.insert(
             "color".to_string(),
-            EntityUpdateData::Color(omni_light_component.color.0,omni_light_component.color.1,omni_light_component.color.2,omni_light_component.color.3),
+            EntityUpdateData::Color(
+                omni_light_component.color.0,
+                omni_light_component.color.1,
+                omni_light_component.color.2,
+                omni_light_component.color.3,
+            ),
         );
         entity_updates.insert(
             "cull_mask".to_string(),
@@ -73,7 +77,12 @@ pub fn omni_light_update(
         );
         entity_updates.insert(
             "shadow_color".to_string(),
-            EntityUpdateData::Color(omni_light_component.shadow_color.0, omni_light_component.shadow_color.1, omni_light_component.shadow_color.2, omni_light_component.shadow_color.3),
+            EntityUpdateData::Color(
+                omni_light_component.shadow_color.0,
+                omni_light_component.shadow_color.1,
+                omni_light_component.shadow_color.2,
+                omni_light_component.shadow_color.3,
+            ),
         );
         entity_updates.insert(
             "shadow_contact".to_string(),

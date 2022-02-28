@@ -1,16 +1,21 @@
 pub mod core;
 pub mod entities;
 
-
 use bevy_core::FixedTimestep;
-use bevy_internal::{prelude::{SystemLabel, Plugin, TransformPlugin, App, SystemSet, ParallelSystemDescriptorCoercion}, MinimalPlugins, log::LogPlugin};
+use bevy_internal::{
+    log::LogPlugin,
+    prelude::{
+        App, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet, TransformPlugin,
+    },
+    MinimalPlugins,
+};
 use bevy_networking_turbulence::NetworkingPlugin;
 use bevy_rapier3d::{
     physics::{PhysicsStages, PhysicsSystems},
     prelude::{NoUserData, RapierPhysicsPlugin},
 };
 
-use bevy_internal::app::CoreStage::{PreUpdate, PostUpdate};
+use bevy_internal::app::CoreStage::{PostUpdate, PreUpdate};
 
 use self::{
     core::{

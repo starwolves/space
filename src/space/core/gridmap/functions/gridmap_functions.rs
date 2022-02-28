@@ -1,4 +1,3 @@
-
 use bevy_internal::math::Vec3;
 
 use crate::space::core::gridmap::resources::Vec3Int;

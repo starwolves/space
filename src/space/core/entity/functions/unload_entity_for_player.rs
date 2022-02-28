@@ -1,4 +1,3 @@
-
 use bevy_internal::prelude::{Entity, EventWriter};
 
 use crate::space::core::{

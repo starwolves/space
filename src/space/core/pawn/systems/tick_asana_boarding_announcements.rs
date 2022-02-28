@@ -1,6 +1,8 @@
-
 use bevy_core::Time;
-use bevy_internal::{prelude::{EventWriter, Res, Query, Entity, ResMut}, math::Vec3};
+use bevy_internal::{
+    math::Vec3,
+    prelude::{Entity, EventWriter, Query, Res, ResMut},
+};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::pawn::{

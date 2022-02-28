@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use bevy_internal::{prelude::{EventReader, EventWriter, Query, Res}, math::Vec3};
+use bevy_internal::{
+    math::Vec3,
+    prelude::{EventReader, EventWriter, Query, Res},
+};
 
 use crate::space::core::{
     gridmap::{

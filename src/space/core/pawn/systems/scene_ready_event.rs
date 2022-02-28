@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{EventReader, Res, Query, Commands, Without};
+use bevy_internal::prelude::{Commands, EventReader, Query, Res, Without};
 
 use crate::space::core::pawn::{
     components::{Boarding, SetupPhase, SoftPlayer},

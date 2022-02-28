@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use bevy_internal::prelude::{Query, Entity};
+use bevy_internal::prelude::{Entity, Query};
 
 use crate::space::core::{
     entity::{components::EntityData, resources::EntityDataResource},
