@@ -1,4 +1,4 @@
-use bevy::prelude::Component;
+use bevy_internal::prelude::Component;
 
 use super::resources::Vec3Int;
 

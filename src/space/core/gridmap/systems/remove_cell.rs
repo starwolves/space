@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, EventReader, Query, ResMut};
+use bevy_internal::prelude::{ResMut, EventReader, Commands, Query};
 use doryen_fov::FovAlgorithm;
 
 use crate::space::core::{

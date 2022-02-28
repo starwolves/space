@@ -1,4 +1,5 @@
-use bevy::{math::Vec2, prelude::Entity};
+
+use bevy_internal::{prelude::Entity, math::Vec2};
 
 use crate::space::core::{
     gridmap::resources::Vec3Int,

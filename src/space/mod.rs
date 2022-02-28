@@ -1,18 +1,16 @@
 pub mod core;
 pub mod entities;
 
-use bevy::{
-    core::FixedTimestep,
-    log::LogPlugin,
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet},
-    transform::TransformPlugin,
-    MinimalPlugins,
-};
+
+use bevy_core::FixedTimestep;
+use bevy_internal::{prelude::{SystemLabel, Plugin, TransformPlugin, App, SystemSet, ParallelSystemDescriptorCoercion}, MinimalPlugins, log::LogPlugin};
 use bevy_networking_turbulence::NetworkingPlugin;
 use bevy_rapier3d::{
     physics::{PhysicsStages, PhysicsSystems},
     prelude::{NoUserData, RapierPhysicsPlugin},
 };
+
+use bevy_internal::app::CoreStage::{PreUpdate, PostUpdate};
 
 use self::{
     core::{
@@ -161,7 +159,6 @@ use self::{
         reflection_probe::entity_update::reflection_probe_update,
     },
 };
-use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
 pub struct SpacePlugin;
 
@@ -484,5 +481,9 @@ impl Plugin for SpacePlugin {
                 PostUpdate,
                 net_send_message_event.after(PostUpdateLabels::VisibleChecker),
             );
+    }
+
+    fn name(&self) -> &str {
+        std::any::type_name::<Self>()
     }
 }

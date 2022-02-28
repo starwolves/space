@@ -1,4 +1,5 @@
-use bevy::prelude::{Component, Entity};
+use bevy_internal::prelude::{Component, Entity};
+
 
 #[derive(Component)]
 pub struct Inventory {

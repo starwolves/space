@@ -1,4 +1,5 @@
-use bevy::prelude::{Entity, EventWriter, ResMut};
+
+use bevy_internal::prelude::{Entity, ResMut, EventWriter};
 
 use crate::space::core::{
     networking::resources::ReliableServerMessage,

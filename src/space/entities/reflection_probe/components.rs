@@ -1,7 +1,5 @@
-use bevy::{
-    math::Vec3,
-    prelude::{Color, Component},
-};
+use bevy_internal::{prelude::Component, math::Vec3};
+
 
 #[derive(Component)]
 pub struct ReflectionProbe {
@@ -10,7 +8,7 @@ pub struct ReflectionProbe {
     pub shadows_enabled: bool,
     pub extents: Vec3,
     pub intensity: f32,
-    pub interior_ambient: Color,
+    pub interior_ambient: (f32,f32,f32,f32),
     pub interior_ambient_probe_contribution: f32,
     pub interior_ambient_energy: f32,
     pub set_as_interior: bool,

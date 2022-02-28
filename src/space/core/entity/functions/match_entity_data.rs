@@ -42,9 +42,9 @@ pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateDat
             }
             _ => {}
         },
-        EntityUpdateData::Color(old_value) => match data2 {
-            EntityUpdateData::Color(new_value) => {
-                is_not_matching = *new_value != *old_value;
+        EntityUpdateData::Color(r,g,b,a) => match data2 {
+            EntityUpdateData::Color(r_n,g_n,b_n,a_n) => {
+                is_not_matching = r != r_n && g != g_n && b != b_n && a != a_n;
             }
             _ => {}
         },

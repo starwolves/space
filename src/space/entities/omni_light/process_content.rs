@@ -1,4 +1,3 @@
-use bevy::prelude::Color;
 use serde::Deserialize;
 
 use crate::space::core::entity::functions::string_to_type_converters::string_color_to_color;
@@ -76,14 +75,14 @@ pub struct ExportData {
     omni_shadow_detail: u8,
     omni_shadow_mode: u8,
     bake_mode: u8,
-    color: Color,
+    color: (f32,f32,f32,f32),
     cull_mask: i64,
     light_energy: f32,
     light_indirect_energy: f32,
     negative: bool,
     light_specular: f32,
     shadow_bias: f32,
-    shadow_color: Color,
+    shadow_color: (f32,f32,f32,f32),
     shadow_contact: f32,
     shadow: bool,
     shadow_reverse_cull_face: bool,

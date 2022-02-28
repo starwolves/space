@@ -1,9 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::{
-    math::Vec3,
-    prelude::{Commands, Entity, Transform},
-};
+
+use bevy_internal::{prelude::{Transform, Commands, Entity}, math::Vec3};
 use bevy_rapier3d::prelude::{
     ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, InteractionGroups, RigidBodyBundle,
     RigidBodyType,

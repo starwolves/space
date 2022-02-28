@@ -1,12 +1,9 @@
-use bevy::math::Quat;
-use bevy::{
-    math::{Mat3, Vec3},
-    prelude::{Color, Transform},
-};
+
+use bevy_internal::{math::{Quat, Vec3, Mat3}, prelude::Transform};
 
 use crate::space::core::gridmap::resources::Vec2Int;
 
-pub fn string_color_to_color(string_color: &str) -> Color {
+pub fn string_color_to_color(string_color: &str) -> (f32,f32,f32,f32) {
     let string_values: Vec<&str> = string_color.split(",").collect();
 
     let mut red_color = 0.;
@@ -35,7 +32,7 @@ pub fn string_color_to_color(string_color: &str) -> Color {
         i += 1;
     }
 
-    Color::rgba(red_color, green_color, blue_color, alpha_color)
+    (red_color, green_color, blue_color, alpha_color)
 }
 
 pub fn string_quat_to_quat(string_quad: &str) -> Quat {

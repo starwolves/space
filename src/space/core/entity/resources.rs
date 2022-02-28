@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Commands, Entity, EventWriter, FromWorld, ResMut, Transform, World};
+use bevy_internal::prelude::{ResMut, EventWriter, Transform, Entity, Commands, FromWorld, World};
 
 use crate::space::core::pawn::{
     components::{ConnectedPlayer, PersistentPlayerData},

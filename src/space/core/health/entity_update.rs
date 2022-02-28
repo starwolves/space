@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Color, Entity, EventWriter, Query, ResMut};
+use bevy_internal::prelude::{Query, Entity, Changed, ResMut, EventWriter};
 
 use crate::space::core::{
     health::{components::Health, events::NetHealthUpdate},
@@ -95,12 +95,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 HEAVY_UI_RED / 255.,
                                 HEAVY_UI_GREEN / 255.,
                                 HEAVY_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("head".to_string(), head_data);
                         new_update = true;
@@ -111,12 +111,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 MODERATE_UI_RED / 255.,
                                 MODERATE_UI_GREEN / 255.,
                                 MODERATE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("head".to_string(), head_data);
                         new_update = true;
@@ -127,12 +127,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 LIGHT_UI_RED / 255.,
                                 LIGHT_UI_GREEN / 255.,
                                 LIGHT_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("head".to_string(), head_data);
                         new_update = true;
@@ -143,12 +143,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 NONE_UI_RED / 255.,
                                 NONE_UI_GREEN / 255.,
                                 NONE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("head".to_string(), head_data);
                         new_update = true;
@@ -162,12 +162,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 HEAVY_UI_RED / 255.,
                                 HEAVY_UI_GREEN / 255.,
                                 HEAVY_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("torso".to_string(), head_data);
                         new_update = true;
@@ -178,12 +178,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 MODERATE_UI_RED / 255.,
                                 MODERATE_UI_GREEN / 255.,
                                 MODERATE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("torso".to_string(), head_data);
                         new_update = true;
@@ -194,12 +194,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 LIGHT_UI_RED / 255.,
                                 LIGHT_UI_GREEN / 255.,
                                 LIGHT_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("torso".to_string(), head_data);
                         new_update = true;
@@ -210,12 +210,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 NONE_UI_RED / 255.,
                                 NONE_UI_GREEN / 255.,
                                 NONE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("torso".to_string(), head_data);
                         new_update = true;
@@ -229,12 +229,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 HEAVY_UI_RED / 255.,
                                 HEAVY_UI_GREEN / 255.,
                                 HEAVY_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftArm".to_string(), head_data);
                         new_update = true;
@@ -245,12 +245,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 MODERATE_UI_RED / 255.,
                                 MODERATE_UI_GREEN / 255.,
                                 MODERATE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftArm".to_string(), head_data);
                         new_update = true;
@@ -261,12 +261,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 LIGHT_UI_RED / 255.,
                                 LIGHT_UI_GREEN / 255.,
                                 LIGHT_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftArm".to_string(), head_data);
                         new_update = true;
@@ -277,12 +277,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 NONE_UI_RED / 255.,
                                 NONE_UI_GREEN / 255.,
                                 NONE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftArm".to_string(), head_data);
                         new_update = true;
@@ -296,12 +296,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 HEAVY_UI_RED / 255.,
                                 HEAVY_UI_GREEN / 255.,
                                 HEAVY_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightArm".to_string(), head_data);
                         new_update = true;
@@ -312,12 +312,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 MODERATE_UI_RED / 255.,
                                 MODERATE_UI_GREEN / 255.,
                                 MODERATE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightArm".to_string(), head_data);
                         new_update = true;
@@ -328,12 +328,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 LIGHT_UI_RED / 255.,
                                 LIGHT_UI_GREEN / 255.,
                                 LIGHT_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightArm".to_string(), head_data);
                         new_update = true;
@@ -344,12 +344,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 NONE_UI_RED / 255.,
                                 NONE_UI_GREEN / 255.,
                                 NONE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightArm".to_string(), head_data);
                         new_update = true;
@@ -363,12 +363,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 HEAVY_UI_RED / 255.,
                                 HEAVY_UI_GREEN / 255.,
                                 HEAVY_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftLeg".to_string(), head_data);
                         new_update = true;
@@ -379,12 +379,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 MODERATE_UI_RED / 255.,
                                 MODERATE_UI_GREEN / 255.,
                                 MODERATE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftLeg".to_string(), head_data);
                         new_update = true;
@@ -395,12 +395,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 LIGHT_UI_RED / 255.,
                                 LIGHT_UI_GREEN / 255.,
                                 LIGHT_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftLeg".to_string(), head_data);
                         new_update = true;
@@ -411,12 +411,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 NONE_UI_RED / 255.,
                                 NONE_UI_GREEN / 255.,
                                 NONE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("leftLeg".to_string(), head_data);
                         new_update = true;
@@ -430,12 +430,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 HEAVY_UI_RED / 255.,
                                 HEAVY_UI_GREEN / 255.,
                                 HEAVY_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightLeg".to_string(), head_data);
                         new_update = true;
@@ -446,12 +446,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 MODERATE_UI_RED / 255.,
                                 MODERATE_UI_GREEN / 255.,
                                 MODERATE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightLeg".to_string(), head_data);
                         new_update = true;
@@ -462,12 +462,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 LIGHT_UI_RED / 255.,
                                 LIGHT_UI_GREEN / 255.,
                                 LIGHT_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightLeg".to_string(), head_data);
                         new_update = true;
@@ -478,12 +478,12 @@ pub fn health_ui_update(
                         let mut head_data = HashMap::new();
                         head_data.insert(
                             "control_color".to_string(),
-                            EntityUpdateData::Color(Color::rgba(
+                            EntityUpdateData::Color(
                                 NONE_UI_RED / 255.,
                                 NONE_UI_GREEN / 255.,
                                 NONE_UI_BLUE / 255.,
                                 UI_ALPHA / 255.,
-                            )),
+                            ),
                         );
                         entity_updates_map.insert("rightLeg".to_string(), head_data);
                         new_update = true;

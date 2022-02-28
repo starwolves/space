@@ -1,4 +1,5 @@
-use bevy::prelude::Res;
+
+use bevy_internal::prelude::Res;
 
 use crate::space::core::gridmap::resources::{CellData, GridmapData};
 

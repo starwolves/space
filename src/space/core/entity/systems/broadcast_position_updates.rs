@@ -1,7 +1,6 @@
-use bevy::{
-    core::{FixedTimesteps, Time},
-    prelude::{warn, Entity, Query, Res, ResMut},
-};
+
+use bevy_core::{Time, FixedTimesteps};
+use bevy_internal::prelude::{ResMut, Res, Entity, Query, warn};
 use bevy_networking_turbulence::NetworkResource;
 
 use crate::space::core::{

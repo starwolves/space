@@ -1,7 +1,6 @@
-use bevy::{
-    core::Timer,
-    prelude::{Component, Entity},
-};
+
+use bevy_core::Timer;
+use bevy_internal::prelude::{Component, Entity};
 
 use crate::space::core::pawn::components::SpaceAccessEnum;
 

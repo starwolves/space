@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{
-    math::Vec3,
-    prelude::{warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
-};
+use bevy_internal::{prelude::{warn, EventReader, Query, Entity, Commands, EventWriter, Res, ResMut}, math::Vec3};
 use bevy_rapier3d::prelude::{
     ColliderFlagsComponent, RigidBodyActivationComponent, RigidBodyForcesComponent,
     RigidBodyMassPropsComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,

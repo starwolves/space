@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{FromWorld, World};
+use bevy_internal::prelude::{FromWorld, World};
 
 use crate::space::core::gridmap::resources::Vec2Int;
 

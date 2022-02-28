@@ -1,4 +1,4 @@
-use bevy::prelude::{Entity, FromWorld, World};
+use bevy_internal::prelude::{FromWorld, World, Entity};
 
 use crate::space::core::pawn::functions::new_chat_message::NEARBY_SHOUT_FONT;
 

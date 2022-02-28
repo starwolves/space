@@ -1,4 +1,5 @@
-use bevy::prelude::{Commands, Entity, EventWriter, ResMut, Transform};
+
+use bevy_internal::prelude::{Transform, Commands, ResMut, Entity, EventWriter};
 
 use crate::space::core::{
     entity::{

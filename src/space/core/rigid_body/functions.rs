@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, Entity, Mut};
+use bevy_internal::prelude::{Mut, Commands, Entity};
 use bevy_rapier3d::prelude::{
     ColliderFlagsComponent, InteractionGroups, RigidBodyActivationComponent,
     RigidBodyForcesComponent,

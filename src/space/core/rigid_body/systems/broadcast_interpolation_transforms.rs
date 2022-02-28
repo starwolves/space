@@ -1,8 +1,6 @@
-use bevy::{
-    core::Time,
-    math::{Quat, Vec3},
-    prelude::{warn, Entity, Local, Query, Res, ResMut, Transform, Without},
-};
+
+use bevy_core::Time;
+use bevy_internal::{prelude::{Res, ResMut, Query, Entity, Without, Local, Transform, warn}, math::{Vec3, Quat}};
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::prelude::{RigidBodyPositionComponent, RigidBodyVelocityComponent};
 

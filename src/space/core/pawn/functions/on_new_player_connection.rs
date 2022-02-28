@@ -1,3 +1,5 @@
+use bevy_internal::prelude::{EventWriter, Res, ResMut, Commands};
+
 use crate::space::core::{
     configuration::resources::{ServerId, TickRate},
     gridmap::resources::GridmapData,
@@ -10,11 +12,6 @@ use crate::space::core::{
         systems::console_commands::get_console_commands,
     },
 };
-use bevy::{
-    ecs::system::{Commands, Res, ResMut},
-    prelude::EventWriter,
-};
-
 use super::new_chat_message::get_talk_spaces_setupui;
 
 pub fn on_new_player_connection(

@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{
-    math::Vec3,
-    prelude::{Entity, Query, Res, ResMut},
-};
+use bevy_internal::{math::Vec3, prelude::{Query, Entity, Res, ResMut}};
 use bevy_rapier3d::prelude::{
     RigidBodyForcesComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
 };

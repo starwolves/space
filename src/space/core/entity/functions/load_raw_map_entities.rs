@@ -1,4 +1,5 @@
-use bevy::prelude::{Commands, Res};
+
+use bevy_internal::prelude::{Commands, Res};
 
 use crate::space::{
     core::entity::{

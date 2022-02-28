@@ -1,7 +1,5 @@
-use bevy::{
-    math::Vec3,
-    prelude::{Entity, EventWriter, Mut, Query, Transform},
-};
+
+use bevy_internal::{prelude::{Query, Entity, EventWriter, Transform, Mut}, math::Vec3};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{
