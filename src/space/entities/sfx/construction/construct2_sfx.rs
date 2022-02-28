@@ -27,7 +27,7 @@ impl Construct2SfxBundle {
                 ..Default::default()
             },
             Sfx {
-                unit_db: 15.,
+                unit_db: 11.,
                 unit_size: 1.,
                 stream_id: "construct2".to_string(),
                 play_back_duration: CONSTRUCT2_PLAY_BACK_DURATION,
