@@ -1,6 +1,6 @@
 use std::{collections::HashMap, time::Duration};
 
-use bevy_internal::math::{Vec2, Vec3, Quat};
+use bevy_internal::math::{Quat, Vec2, Vec3};
 use bevy_networking_turbulence::{
     MessageChannelMode, MessageChannelSettings, ReliableChannelSettings,
 };
@@ -77,7 +77,7 @@ pub enum UIInputAction {
 #[allow(dead_code)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum NetProjectileType {
-    Laser((f32,f32,f32,f32), f32, f32, Vec3, Vec3),
+    Laser((f32, f32, f32, f32), f32, f32, Vec3, Vec3),
     Ballistic,
 }
 
@@ -167,7 +167,7 @@ pub enum EntityUpdateData {
     StringVec(Vec<String>),
     Float(f32),
     Transform(Vec3, Quat, Vec3),
-    Color(f32,f32,f32,f32),
+    Color(f32, f32, f32, f32),
     Bool(bool),
     Vec3(Vec3),
     Vec2(Vec2),

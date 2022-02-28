@@ -1,5 +1,7 @@
-
-use bevy_internal::{prelude::{Query, Entity, EventWriter, Transform, Mut}, math::Vec3};
+use bevy_internal::{
+    math::Vec3,
+    prelude::{Entity, EventWriter, Mut, Query, Transform},
+};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{
@@ -148,6 +150,7 @@ pub fn visible_checker(
         }
 
         gone_entities.reverse();
+        gone_sfx_entities.reverse();
 
         for i in gone_entities {
             visible_checker_component.sensing.remove(i);

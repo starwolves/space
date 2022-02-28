@@ -1,4 +1,4 @@
-use bevy_core::{Time, FixedTimesteps};
+use bevy_core::{FixedTimesteps, Time};
 use bevy_internal::prelude::{warn, Res, ResMut};
 
 use crate::space::{

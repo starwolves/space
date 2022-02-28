@@ -1,6 +1,5 @@
 use bevy_internal::prelude::Component;
 
-
 #[derive(Component)]
 pub struct WorldMode {
     pub mode: WorldModes,

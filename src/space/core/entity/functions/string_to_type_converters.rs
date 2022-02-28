@@ -1,9 +1,11 @@
-
-use bevy_internal::{math::{Quat, Vec3, Mat3}, prelude::Transform};
+use bevy_internal::{
+    math::{Mat3, Quat, Vec3},
+    prelude::Transform,
+};
 
 use crate::space::core::gridmap::resources::Vec2Int;
 
-pub fn string_color_to_color(string_color: &str) -> (f32,f32,f32,f32) {
+pub fn string_color_to_color(string_color: &str) -> (f32, f32, f32, f32) {
     let string_values: Vec<&str> = string_color.split(",").collect();
 
     let mut red_color = 0.;

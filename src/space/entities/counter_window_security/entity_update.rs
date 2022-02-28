@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy_internal::prelude::{Query, Changed};
+use bevy_internal::prelude::{Changed, Query};
 
 use crate::space::{
     core::{

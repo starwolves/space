@@ -42,8 +42,8 @@ pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateDat
             }
             _ => {}
         },
-        EntityUpdateData::Color(r,g,b,a) => match data2 {
-            EntityUpdateData::Color(r_n,g_n,b_n,a_n) => {
+        EntityUpdateData::Color(r, g, b, a) => match data2 {
+            EntityUpdateData::Color(r_n, g_n, b_n, a_n) => {
                 is_not_matching = r != r_n && g != g_n && b != b_n && a != a_n;
             }
             _ => {}

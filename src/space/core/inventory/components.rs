@@ -1,6 +1,5 @@
 use bevy_internal::prelude::{Component, Entity};
 
-
 #[derive(Component)]
 pub struct Inventory {
     pub slots: Vec<Slot>,

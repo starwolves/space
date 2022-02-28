@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{Query, Changed, warn};
+use bevy_internal::prelude::{warn, Changed, Query};
 
 use crate::space::core::{
     inventory::components::Inventory, inventory_item::components::InventoryItem,

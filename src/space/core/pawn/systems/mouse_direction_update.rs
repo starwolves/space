@@ -1,7 +1,6 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-
-use bevy_internal::prelude::{Entity, EventReader, Query, Local};
+use bevy_internal::prelude::{Entity, EventReader, Local, Query};
 
 use crate::space::core::pawn::{components::StandardCharacter, events::InputMouseDirectionUpdate};
 

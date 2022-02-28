@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy_internal::prelude::{World, FromWorld, Entity};
+use bevy_internal::prelude::{Entity, FromWorld, World};
 
 pub struct ClientHealthUICache {
     pub cache: HashMap<Entity, ClientHealthUI>,

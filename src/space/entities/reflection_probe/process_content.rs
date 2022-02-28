@@ -30,7 +30,7 @@ pub struct ExportData {
     shadows_enabled: bool,
     extents: Vec3,
     intensity: f32,
-    interior_ambient: (f32,f32,f32,f32),
+    interior_ambient: (f32, f32, f32, f32),
     interior_ambient_probe_contribution: f32,
     interior_ambient_energy: f32,
     set_as_interior: bool,

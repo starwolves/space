@@ -1,4 +1,3 @@
-
 use bevy_core::Timer;
 use bevy_internal::prelude::{Component, Entity};
 

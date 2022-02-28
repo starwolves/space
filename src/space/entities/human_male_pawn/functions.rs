@@ -1,4 +1,3 @@
-
 use bevy_internal::prelude::Query;
 
 use crate::space::core::{

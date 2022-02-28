@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{Query, Changed};
+use bevy_internal::prelude::{Changed, Query};
 
 use crate::space::{
     core::{
@@ -50,7 +49,12 @@ pub fn reflection_probe_update(
         );
         entity_updates.insert(
             "interior_ambient".to_string(),
-            EntityUpdateData::Color(reflection_probe_component.interior_ambient.0,reflection_probe_component.interior_ambient.1,reflection_probe_component.interior_ambient.2,reflection_probe_component.interior_ambient.3),
+            EntityUpdateData::Color(
+                reflection_probe_component.interior_ambient.0,
+                reflection_probe_component.interior_ambient.1,
+                reflection_probe_component.interior_ambient.2,
+                reflection_probe_component.interior_ambient.3,
+            ),
         );
         entity_updates.insert(
             "interior_ambient_probe_contribution".to_string(),

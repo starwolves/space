@@ -1,5 +1,7 @@
-
-use bevy_internal::{prelude::{Component, Transform, Entity}, math::{Vec3, Quat}};
+use bevy_internal::{
+    math::{Quat, Vec3},
+    prelude::{Component, Entity, Transform},
+};
 use bevy_rapier3d::prelude::CoefficientCombineRule;
 #[derive(Component)]
 pub struct CachedBroadcastTransform {

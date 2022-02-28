@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy_core::Timer;
-use bevy_internal::prelude::{FromWorld, World, Entity};
+use bevy_internal::prelude::{Entity, FromWorld, World};
 use bevy_rapier3d::na::Quaternion;
 
 pub struct AuthidI {

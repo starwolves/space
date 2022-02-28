@@ -1,5 +1,4 @@
-
-use bevy_internal::prelude::{Query, Changed};
+use bevy_internal::prelude::{Changed, Query};
 
 use crate::space::core::{
     data_link::components::{DataLink, DataLinkType},
