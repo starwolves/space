@@ -1,4 +1,4 @@
-use bevy::{math::Vec3, prelude::Transform};
+use bevy_internal::{prelude::Transform, math::Vec3};
 use bevy_rapier3d::{
     na::Quaternion,
     prelude::Translation,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Color, Commands, Component, Entity, ResMut, Transform};
+use bevy_internal::prelude::{Component, Entity, Transform, Commands, ResMut};
 use rand::prelude::SliceRandom;
 
 use crate::space::{
@@ -102,7 +102,7 @@ pub enum CombatType {
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub enum ProjectileType {
-    Laser(Color, f32, f32, f32),
+    Laser((f32,f32,f32,f32), f32, f32, f32),
     Ballistic,
 }
 

@@ -1,7 +1,5 @@
-use bevy::{
-    math::Vec3,
-    prelude::{warn, Entity, Query, Res},
-};
+
+use bevy_internal::{prelude::{Entity, Res, warn, Query}, math::Vec3};
 use bevy_rapier3d::prelude::{
     InteractionGroups, IntoEntity, QueryPipeline, QueryPipelineColliderComponentsQuery,
     QueryPipelineColliderComponentsSet, Ray,

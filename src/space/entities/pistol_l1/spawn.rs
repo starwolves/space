@@ -1,9 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::{
-    math::{Mat4, Quat, Vec3},
-    prelude::{warn, Color, Commands, Entity, EventWriter, Transform},
-};
+use bevy_internal::{prelude::{Transform, Commands, Entity, EventWriter, warn}, math::{Vec3, Quat, Mat4}};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition,
     ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyForces,
@@ -259,7 +256,7 @@ fn spawn_entity(
             is_attached_when_worn: true,
             combat_attack_animation: CombatAttackAnimation::PistolShot,
             combat_type: CombatType::Projectile(ProjectileType::Laser(
-                Color::RED,
+                (1.,0.,0.,1.),
                 3.,
                 0.025,
                 PISTOL_L1_PROJECTILE_RANGE,

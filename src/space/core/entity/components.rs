@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{Component, Entity, EventWriter, Res};
+use bevy_internal::prelude::{Component, Entity, EventWriter, Res};
 
 use crate::space::core::{
     networking::resources::EntityUpdateData, pawn::resources::HandleToEntity,

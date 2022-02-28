@@ -1,7 +1,6 @@
-use bevy::{
-    core::Timer,
-    prelude::{info, Commands, EventReader, EventWriter, ResMut},
-};
+
+use bevy_core::Timer;
+use bevy_internal::prelude::{ResMut, EventWriter, EventReader, Commands, info};
 
 use crate::space::core::{
     gridmap::resources::SpawnPoints,

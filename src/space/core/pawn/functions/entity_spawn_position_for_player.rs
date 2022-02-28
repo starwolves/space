@@ -1,9 +1,6 @@
 use std::f32::consts::PI;
 
-use bevy::{
-    math::Vec3,
-    prelude::{Res, Transform},
-};
+use bevy_internal::{prelude::{Transform, Res}, math::Vec3};
 
 use crate::space::core::{
     gridmap::{functions::gridmap_functions::world_to_cell_id, resources::GridmapMain},

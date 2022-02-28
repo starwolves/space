@@ -1,10 +1,5 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use bevy::{
-    math::Vec2,
-    prelude::{Changed, Entity, Query},
-};
-
 use crate::space::core::{
     entity::{
         components::{EntityUpdates, Showcase},
@@ -15,6 +10,7 @@ use crate::space::core::{
     networking::resources::EntityUpdateData,
 };
 
+use bevy_internal::{prelude::{Query, Entity, Changed}, math::Vec2};
 use vector2math::*;
 
 use super::components::{

@@ -1,4 +1,5 @@
-use bevy::prelude::{Changed, Query};
+
+use bevy_internal::prelude::{Query, Changed};
 
 use crate::space::{
     core::{

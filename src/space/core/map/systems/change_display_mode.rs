@@ -1,4 +1,5 @@
-use bevy::prelude::{EventReader, Query, ResMut};
+
+use bevy_internal::prelude::{EventReader, ResMut, Query};
 
 use crate::space::core::{
     atmospherics::resources::MapHolders,

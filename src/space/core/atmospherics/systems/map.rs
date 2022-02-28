@@ -1,9 +1,6 @@
 use std::collections::HashSet;
 
-use bevy::{
-    math::Vec3,
-    prelude::{Entity, EventWriter, Query, Res, ResMut},
-};
+use bevy_internal::{prelude::{Query, Entity, Res, EventWriter, ResMut}, math::Vec3};
 
 use crate::space::core::{
     atmospherics::{

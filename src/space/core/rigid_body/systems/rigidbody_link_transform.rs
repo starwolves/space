@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Entity, QuerySet, QueryState, Without};
+use bevy_internal::prelude::{QuerySet, QueryState, Entity, Without, warn};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{

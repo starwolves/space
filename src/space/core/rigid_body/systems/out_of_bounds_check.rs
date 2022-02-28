@@ -1,4 +1,4 @@
-use bevy::prelude::{warn, Entity, Query, Without};
+use bevy_internal::prelude::{Query, Entity, Without, warn};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::{

@@ -1,4 +1,5 @@
-use bevy::prelude::{warn, EventReader, EventWriter, Query, Res};
+
+use bevy_internal::prelude::{EventReader, EventWriter, Res, Query, warn};
 
 use crate::space::core::{
     atmospherics::{

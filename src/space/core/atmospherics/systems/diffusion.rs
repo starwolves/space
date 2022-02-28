@@ -1,7 +1,5 @@
-use bevy::{
-    core::{FixedTimesteps, Time},
-    prelude::{warn, Res, ResMut},
-};
+use bevy_core::{Time, FixedTimesteps};
+use bevy_internal::prelude::{warn, Res, ResMut};
 
 use crate::space::{
     core::{

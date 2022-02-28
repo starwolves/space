@@ -1,4 +1,5 @@
-use bevy::prelude::{EventReader, EventWriter, Query};
+
+use bevy_internal::prelude::{EventReader, Query, EventWriter};
 
 use crate::space::core::{
     map::{

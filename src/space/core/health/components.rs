@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Component, Entity, EventWriter, Query, Res};
+use bevy_internal::prelude::{Component, EventWriter, Res, Entity, Query};
 use rand::prelude::SliceRandom;
 
 use crate::space::core::{

@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{
-    math::Vec3,
-    prelude::{error, warn, Entity, EventWriter, Query, Res},
-};
+use bevy_internal::{prelude::{error, warn, Query, EventWriter, Res, Entity}, math::Vec3};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use const_format::concatcp;
 

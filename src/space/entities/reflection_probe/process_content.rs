@@ -1,4 +1,4 @@
-use bevy::{math::Vec3, prelude::Color};
+use bevy_internal::math::Vec3;
 use serde::Deserialize;
 
 use crate::space::core::entity::functions::string_to_type_converters::{
@@ -30,7 +30,7 @@ pub struct ExportData {
     shadows_enabled: bool,
     extents: Vec3,
     intensity: f32,
-    interior_ambient: Color,
+    interior_ambient: (f32,f32,f32,f32),
     interior_ambient_probe_contribution: f32,
     interior_ambient_energy: f32,
     set_as_interior: bool,

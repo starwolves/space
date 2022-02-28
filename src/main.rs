@@ -1,4 +1,5 @@
-use bevy::{core::DefaultTaskPoolOptions, prelude::App};
+use bevy_core::DefaultTaskPoolOptions;
+use bevy_internal::prelude::App;
 use space::SpacePlugin;
 
 pub mod plugins;

@@ -6,7 +6,7 @@ pub mod systems;
 
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy::prelude::{info, Commands, Res, ResMut, Transform};
+use bevy_internal::prelude::{info, ResMut, Res, Commands, Transform};
 use bevy_rapier3d::{
     physics::TimestepMode,
     prelude::{ColliderPosition, ColliderShape, IntegrationParameters, RapierConfiguration},

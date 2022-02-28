@@ -1,10 +1,8 @@
 use std::f32::consts::PI;
 
-use bevy::{
-    core::Time,
-    math::{Quat, Vec2, Vec3},
-    prelude::{warn, Commands, Entity, EventReader, EventWriter, Query, Res},
-};
+
+use bevy_core::Time;
+use bevy_internal::{prelude::{Query, Res, EventWriter, Commands, EventReader, Entity, warn}, math::{Vec2, Vec3, Quat}};
 use bevy_rapier3d::{
     na::UnitQuaternion,
     prelude::{

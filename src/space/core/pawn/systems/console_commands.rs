@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, Local, Query, Res, ResMut};
+use bevy_internal::prelude::{EventReader, Local, Query, EventWriter, Commands, Res, ResMut};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{

@@ -1,7 +1,6 @@
-use bevy::{
-    core::Timer,
-    prelude::{Component, Entity, ResMut},
-};
+
+use bevy_core::Timer;
+use bevy_internal::prelude::{Component, Entity, ResMut};
 use rand::Rng;
 
 use crate::space::entities::sfx::ambience::ambience_sfx::AMBIENCE_SFX_PLAY_BACK_DURATION;

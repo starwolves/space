@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bevy::prelude::Query;
+use bevy_internal::prelude::Query;
 
 use super::components::{AmbienceSfxTimer, Sfx};
 
