@@ -106,10 +106,12 @@ pub fn rcon_spawn_entity(
             ..Default::default()
         };
 
+        let mut individual_transform = spawn_position.0.clone();
+
         for _i in 0..spawn_amount {
             final_result = spawn_entity(
                 entity_name.clone(),
-                spawn_position.0,
+                individual_transform,
                 commands,
                 true,
                 Some(used_names),
@@ -120,6 +122,14 @@ pub fn rcon_spawn_entity(
                     persistent_player_data_component.clone(),
                 )),
             );
+            individual_transform.translation.x += 0.5;
+            individual_transform = entity_spawn_position_for_player(
+                individual_transform,
+                Some(&standard_character_component.facing_direction),
+                None,
+                gridmap_main,
+            )
+            .0;
         }
 
         if spawn_amount > 0 {

@@ -27,7 +27,7 @@ impl Deconstruct1SfxBundle {
                 ..Default::default()
             },
             Sfx {
-                unit_db: 15.,
+                unit_db: 11.,
                 unit_size: 1.,
                 stream_id: "deconstruct1".to_string(),
                 play_back_duration: DECONSTRUCT1_PLAY_BACK_DURATION,
