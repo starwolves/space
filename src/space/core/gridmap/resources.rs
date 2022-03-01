@@ -1,9 +1,13 @@
 use std::collections::HashMap;
 
-use bevy_internal::{
-    math::Quat,
-    prelude::{Entity, EventWriter, FromWorld, Query, Res, Transform, World},
+use bevy_app::EventWriter;
+use bevy_ecs::{
+    entity::Entity,
+    prelude::{FromWorld, World},
+    system::{Query, Res},
 };
+use bevy_math::Quat;
+use bevy_transform::components::Transform;
 use doryen_fov::MapData;
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};

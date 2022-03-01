@@ -6,11 +6,13 @@ pub mod systems;
 
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy_internal::prelude::{info, Commands, Res, ResMut, Transform};
+use bevy_ecs::system::{Commands, Res, ResMut};
+use bevy_log::info;
 use bevy_rapier3d::{
     physics::TimestepMode,
     prelude::{ColliderPosition, ColliderShape, IntegrationParameters, RapierConfiguration},
 };
+use bevy_transform::components::Transform;
 
 use crate::space::{
     core::{

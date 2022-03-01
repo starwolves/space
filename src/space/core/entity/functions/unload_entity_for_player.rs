@@ -1,4 +1,5 @@
-use bevy_internal::prelude::{Entity, EventWriter};
+use bevy_app::EventWriter;
+use bevy_ecs::entity::Entity;
 
 use crate::space::core::{
     entity::events::NetUnloadEntity, networking::resources::ReliableServerMessage,

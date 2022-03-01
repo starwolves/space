@@ -1,4 +1,5 @@
-use bevy_internal::prelude::{Added, EventWriter, Query};
+use bevy_app::EventWriter;
+use bevy_ecs::{prelude::Added, system::Query};
 
 use crate::space::core::{
     networking::resources::ReliableServerMessage,

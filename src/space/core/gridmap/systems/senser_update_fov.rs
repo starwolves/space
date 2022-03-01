@@ -1,4 +1,4 @@
-use bevy_internal::prelude::{Query, ResMut};
+use bevy_ecs::system::{Query, ResMut};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use doryen_fov::FovAlgorithm;
 

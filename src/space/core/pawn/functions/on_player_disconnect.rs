@@ -1,7 +1,6 @@
-use bevy_internal::{
-    math::Vec2,
-    prelude::{info, Query, ResMut},
-};
+use bevy_ecs::system::{Query, ResMut};
+use bevy_log::info;
+use bevy_math::Vec2;
 
 use crate::space::core::{
     health::resources::ClientHealthUICache,

@@ -1,4 +1,4 @@
-use bevy_internal::prelude::info;
+use bevy_log::info;
 
 pub mod atmospherics;
 pub mod combat;

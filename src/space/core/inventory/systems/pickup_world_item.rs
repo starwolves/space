@@ -1,7 +1,12 @@
-use bevy_internal::{
-    math::Vec3,
-    prelude::{warn, Commands, Entity, EventReader, EventWriter, Query, QuerySet, QueryState, Res},
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::{
+    entity::Entity,
+    prelude::QueryState,
+    system::{Commands, Query, QuerySet, Res},
 };
+use bevy_log::warn;
+use bevy_math::Vec3;
+
 use bevy_rapier3d::prelude::{
     ColliderFlagsComponent, ColliderPositionComponent, ColliderShapeComponent, QueryPipeline,
     RigidBodyActivationComponent, RigidBodyForcesComponent, RigidBodyPositionComponent,

@@ -1,13 +1,15 @@
 use std::collections::HashMap;
 
-use bevy_internal::{
-    math::Quat,
-    prelude::{
-        info, warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
-        Without,
-    },
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::{
+    entity::Entity,
+    prelude::Without,
+    system::{Commands, Query, Res, ResMut},
 };
+use bevy_log::{info, warn};
+use bevy_math::Quat;
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::components::Transform;
 use doryen_fov::FovAlgorithm;
 use rand::Rng;
 

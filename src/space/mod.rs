@@ -1,21 +1,20 @@
 pub mod core;
 pub mod entities;
 
-use bevy_core::FixedTimestep;
-use bevy_internal::{
-    log::LogPlugin,
-    prelude::{
-        App, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet, TransformPlugin,
-    },
-    MinimalPlugins,
+use bevy_app::{
+    App,
+    CoreStage::{PostUpdate, PreUpdate},
+    Plugin, ScheduleRunnerPlugin,
 };
+use bevy_core::{CorePlugin, FixedTimestep};
+use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemLabel, SystemSet};
+use bevy_log::LogPlugin;
 use bevy_networking_turbulence::NetworkingPlugin;
 use bevy_rapier3d::{
     physics::{PhysicsStages, PhysicsSystems},
     prelude::{NoUserData, RapierPhysicsPlugin},
 };
-
-use bevy_internal::app::CoreStage::{PostUpdate, PreUpdate};
+use bevy_transform::TransformPlugin;
 
 use self::{
     core::{
@@ -214,7 +213,8 @@ const ATMOS_DIFFUSION_LABEL: &str = "fixed_timestep_atmos";
 
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(MinimalPlugins)
+        app.add_plugin(CorePlugin::default())
+            .add_plugin(ScheduleRunnerPlugin::default())
             .add_plugin(LogPlugin::default())
             .add_plugin(TransformPlugin::default())
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())

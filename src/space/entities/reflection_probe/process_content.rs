@@ -1,4 +1,4 @@
-use bevy_internal::math::Vec3;
+use bevy_math::Vec3;
 use serde::Deserialize;
 
 use crate::space::core::entity::functions::string_to_type_converters::{

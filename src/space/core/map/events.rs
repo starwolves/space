@@ -1,4 +1,5 @@
-use bevy_internal::{math::Vec2, prelude::Entity};
+use bevy_ecs::entity::Entity;
+use bevy_math::Vec2;
 
 use crate::space::core::networking::resources::ReliableServerMessage;
 

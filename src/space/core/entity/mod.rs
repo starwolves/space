@@ -1,7 +1,7 @@
-use bevy_internal::{
-    math::Quat,
-    prelude::{info, ResMut, Transform},
-};
+use bevy_ecs::system::ResMut;
+use bevy_log::info;
+use bevy_math::Quat;
+use bevy_transform::components::Transform;
 
 use crate::space::{
     core::entity::resources::{EntityDataProperties, GridItemData},

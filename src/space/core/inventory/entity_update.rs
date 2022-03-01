@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use bevy_internal::prelude::{warn, Changed, Query};
+use bevy_ecs::{prelude::Changed, system::Query};
+use bevy_log::warn;
 
 use crate::space::core::{
     entity::{

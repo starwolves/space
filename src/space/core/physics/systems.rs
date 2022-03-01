@@ -1,4 +1,5 @@
-use bevy_internal::prelude::{Entity, EventReader, EventWriter, Query};
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::{entity::Entity, system::Query};
 use bevy_rapier3d::{
     prelude::{ContactEvent, IntersectionEvent, IntoEntity, RigidBodyPositionComponent},
     rapier::geometry::ColliderHandle,

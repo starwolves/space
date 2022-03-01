@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use bevy_internal::{
-    math::Vec3,
-    prelude::{Entity, FromWorld, World},
+use bevy_ecs::{
+    entity::Entity,
+    prelude::{FromWorld, World},
 };
+use bevy_math::Vec3;
 
 use crate::space::core::{
     gridmap::resources::{Vec2Int, FOV_MAP_WIDTH},

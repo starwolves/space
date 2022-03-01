@@ -1,13 +1,12 @@
 use std::collections::BTreeMap;
 
-use bevy_internal::{
-    math::Vec3,
-    prelude::{BuildChildren, Commands, Entity, Transform},
-};
+use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial,
     ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType,
 };
+use bevy_transform::{components::Transform, hierarchy::BuildChildren};
 
 use crate::space::core::{
     entity::{

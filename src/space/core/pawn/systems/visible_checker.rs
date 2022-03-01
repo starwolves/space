@@ -1,8 +1,8 @@
-use bevy_internal::{
-    math::Vec3,
-    prelude::{Entity, EventWriter, Mut, Query, Transform},
-};
+use bevy_app::EventWriter;
+use bevy_ecs::{change_detection::Mut, entity::Entity, system::Query};
+use bevy_math::Vec3;
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::components::Transform;
 
 use crate::space::core::{
     entity::{

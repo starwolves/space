@@ -1,4 +1,6 @@
-use bevy_internal::prelude::{warn, EventReader, EventWriter, Query, ResMut};
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::system::{Query, ResMut};
+use bevy_log::warn;
 
 use crate::space::core::{
     networking::resources::ReliableServerMessage,

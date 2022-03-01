@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use bevy_internal::prelude::{Commands, Entity, ResMut};
+use bevy_ecs::{
+    entity::Entity,
+    system::{Commands, ResMut},
+};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderType,
     InteractionGroups, RigidBodyBundle, RigidBodyType,

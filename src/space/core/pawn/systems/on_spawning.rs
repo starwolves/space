@@ -1,4 +1,9 @@
-use bevy_internal::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
+use bevy_app::EventWriter;
+use bevy_ecs::{
+    entity::Entity,
+    prelude::Added,
+    system::{Commands, Query, ResMut},
+};
 
 use crate::space::{
     core::{

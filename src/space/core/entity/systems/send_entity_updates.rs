@@ -1,4 +1,9 @@
-use bevy_internal::prelude::{Changed, Entity, EventWriter, Query, Res};
+use bevy_app::EventWriter;
+use bevy_ecs::{
+    entity::Entity,
+    prelude::Changed,
+    system::{Query, Res},
+};
 
 use crate::space::core::{
     entity::{

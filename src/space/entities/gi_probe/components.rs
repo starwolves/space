@@ -1,4 +1,5 @@
-use bevy_internal::{math::Vec3, prelude::Component};
+use bevy_ecs::prelude::Component;
+use bevy_math::Vec3;
 
 #[derive(Component)]
 pub struct GIProbe {
