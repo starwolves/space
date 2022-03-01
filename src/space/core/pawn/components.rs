@@ -5,9 +5,13 @@ use crate::space::core::health::components::{DamageFlag, DamageModel};
 use crate::space::core::inventory::components::Inventory;
 use crate::space::core::inventory_item::components::CombatSoundSet;
 use crate::space::core::networking::resources::{GridMapType, NetTabAction};
+
 use bevy_core::Timer;
-use bevy_internal::math::Vec2;
-use bevy_internal::prelude::{Component, Entity, Query, Transform};
+use bevy_ecs::entity::Entity;
+use bevy_ecs::prelude::Component;
+use bevy_ecs::system::Query;
+use bevy_math::Vec2;
+use bevy_transform::components::Transform;
 use doryen_fov::FovRecursiveShadowCasting;
 use std::collections::HashMap;
 use std::sync::Arc;

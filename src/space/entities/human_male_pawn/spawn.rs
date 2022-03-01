@@ -1,14 +1,13 @@
 use std::collections::HashMap;
 
-use bevy_internal::{
-    math::Vec3,
-    prelude::{Commands, Entity, Transform},
-};
+use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape,
     ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyDominance, RigidBodyMassPropsFlags,
     RigidBodyType,
 };
+use bevy_transform::components::Transform;
 
 use crate::space::core::{
     data_link::components::{DataLink, DataLinkType},

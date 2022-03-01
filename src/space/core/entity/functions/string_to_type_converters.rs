@@ -1,7 +1,5 @@
-use bevy_internal::{
-    math::{Mat3, Quat, Vec3},
-    prelude::Transform,
-};
+use bevy_math::{Mat3, Quat, Vec3};
+use bevy_transform::components::Transform;
 
 use crate::space::core::gridmap::resources::Vec2Int;
 

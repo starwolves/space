@@ -1,7 +1,10 @@
-use std::collections::HashMap;
-
-use bevy_internal::prelude::{Entity, EventWriter, Local, Query, Res};
+use bevy_app::EventWriter;
+use bevy_ecs::{
+    entity::Entity,
+    system::{Local, Query, Res},
+};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use std::collections::HashMap;
 
 use crate::space::core::{
     atmospherics::{

@@ -1,6 +1,11 @@
 use std::collections::HashMap;
 
-use bevy_internal::prelude::{Changed, Entity, EventWriter, Query, ResMut};
+use bevy_app::EventWriter;
+use bevy_ecs::{
+    entity::Entity,
+    prelude::Changed,
+    system::{Query, ResMut},
+};
 
 use crate::space::core::{
     health::{components::Health, events::NetHealthUpdate},

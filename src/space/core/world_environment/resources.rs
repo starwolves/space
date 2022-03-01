@@ -1,7 +1,8 @@
-use bevy_internal::{
-    math::Quat,
-    prelude::{FromWorld, ResMut, World},
+use bevy_ecs::{
+    prelude::{FromWorld, World},
+    system::ResMut,
 };
+use bevy_math::Quat;
 use serde::{Deserialize, Serialize};
 
 use crate::space::core::entity::functions::string_to_type_converters::{

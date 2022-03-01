@@ -1,4 +1,4 @@
-use bevy_internal::prelude::{Res, ResMut};
+use bevy_ecs::system::{Res, ResMut};
 use rand::seq::SliceRandom;
 
 use crate::space::core::pawn::resources::UsedNames;

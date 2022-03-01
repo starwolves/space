@@ -1,5 +1,10 @@
+use bevy_app::EventReader;
 use bevy_core::{Time, Timer};
-use bevy_internal::prelude::{Added, Commands, Entity, EventReader, Query, Res, ResMut};
+use bevy_ecs::{
+    entity::Entity,
+    prelude::Added,
+    system::{Commands, Query, Res, ResMut},
+};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::{

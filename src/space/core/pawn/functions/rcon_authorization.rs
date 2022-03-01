@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use bevy_internal::prelude::{Entity, EventWriter, Local, Query};
+use bevy_app::EventWriter;
+use bevy_ecs::{
+    entity::Entity,
+    system::{Local, Query},
+};
 
 use crate::space::core::{
     networking::resources::ReliableServerMessage,

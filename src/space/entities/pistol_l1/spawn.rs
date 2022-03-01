@@ -1,14 +1,15 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy_internal::{
-    math::{Mat4, Quat, Vec3},
-    prelude::{warn, Commands, Entity, EventWriter, Transform},
-};
+use bevy_app::EventWriter;
+use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_log::warn;
+use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition,
     ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyForces,
     RigidBodyType,
 };
+use bevy_transform::components::Transform;
 
 use crate::space::{
     core::{

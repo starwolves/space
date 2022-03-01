@@ -1,4 +1,7 @@
-use bevy_internal::prelude::{Commands, Entity, Query, Res};
+use bevy_ecs::{
+    entity::Entity,
+    system::{Commands, Query, Res},
+};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderMaterialComponent, RigidBodyPositionComponent,
 };

@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 
-use bevy_internal::{
-    math::Vec3,
-    prelude::{EventReader, EventWriter, Query, Res},
-};
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::system::{Query, Res};
+use bevy_math::Vec3;
 
 use crate::space::core::{
     gridmap::{

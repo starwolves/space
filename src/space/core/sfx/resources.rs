@@ -1,4 +1,7 @@
-use bevy_internal::prelude::{Entity, FromWorld, World};
+use bevy_ecs::{
+    entity::Entity,
+    prelude::{FromWorld, World},
+};
 
 pub struct SfxAutoDestroyTimers {
     pub timers: Vec<(Entity, u8)>,

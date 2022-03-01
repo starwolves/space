@@ -1,4 +1,5 @@
-use bevy_internal::prelude::{EventReader, Query};
+use bevy_app::EventReader;
+use bevy_ecs::system::Query;
 
 use crate::space::core::pawn::{components::StandardCharacter, events::InputToggleCombatMode};
 

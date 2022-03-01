@@ -1,10 +1,14 @@
 use bevy_core::Time;
-use bevy_internal::{
-    math::{Quat, Vec3},
-    prelude::{warn, Entity, Local, Query, Res, ResMut, Transform, Without},
+use bevy_ecs::{
+    entity::Entity,
+    prelude::Without,
+    system::{Local, Query, Res, ResMut},
 };
+use bevy_log::warn;
+use bevy_math::{Quat, Vec3};
 use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::prelude::{RigidBodyPositionComponent, RigidBodyVelocityComponent};
+use bevy_transform::components::Transform;
 
 use crate::space::core::{
     entity::components::Sensable,

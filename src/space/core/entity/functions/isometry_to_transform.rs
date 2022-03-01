@@ -1,8 +1,6 @@
-use bevy_internal::{
-    math::{Quat, Vec3},
-    prelude::Transform,
-};
+use bevy_math::{Quat, Vec3};
 use bevy_rapier3d::rapier::math::{Isometry, Real};
+use bevy_transform::components::Transform;
 
 pub fn isometry_to_transform(isometry: Isometry<Real>) -> Transform {
     let translation = Vec3::new(

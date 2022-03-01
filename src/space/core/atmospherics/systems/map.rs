@@ -1,9 +1,11 @@
 use std::collections::HashSet;
 
-use bevy_internal::{
-    math::Vec3,
-    prelude::{Entity, EventWriter, Query, Res, ResMut},
+use bevy_app::EventWriter;
+use bevy_ecs::{
+    entity::Entity,
+    system::{Query, Res, ResMut},
 };
+use bevy_math::Vec3;
 
 use crate::space::core::{
     atmospherics::{

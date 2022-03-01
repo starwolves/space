@@ -1,11 +1,14 @@
-use bevy_internal::{
-    math::{Quat, Vec3},
-    prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform},
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::{
+    entity::Entity,
+    system::{Commands, Query, Res, ResMut},
 };
+use bevy_math::{Quat, Vec3};
 use bevy_rapier3d::prelude::{
     ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery,
     QueryPipelineColliderComponentsSet, Ray, RigidBodyPositionComponent,
 };
+use bevy_transform::components::Transform;
 
 use crate::space::core::{
     entity::components::Examinable,

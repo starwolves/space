@@ -1,4 +1,4 @@
-use bevy_internal::prelude::Entity;
+use bevy_ecs::entity::Entity;
 
 use crate::space::core::entity::components::EntityGroup;
 

@@ -1,4 +1,5 @@
-use bevy_internal::prelude::{Commands, EventWriter, Res, ResMut};
+use bevy_app::EventWriter;
+use bevy_ecs::system::{Commands, Res, ResMut};
 
 use super::new_chat_message::get_talk_spaces_setupui;
 use crate::space::core::{

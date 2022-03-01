@@ -10,10 +10,8 @@ use crate::space::core::{
     networking::resources::EntityUpdateData,
 };
 
-use bevy_internal::{
-    math::Vec2,
-    prelude::{Changed, Entity, Query},
-};
+use bevy_ecs::{entity::Entity, prelude::Changed, system::Query};
+use bevy_math::Vec2;
 use vector2math::*;
 
 use super::components::{

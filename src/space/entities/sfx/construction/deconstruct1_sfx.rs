@@ -1,4 +1,4 @@
-use bevy_internal::prelude::Transform;
+use bevy_transform::components::Transform;
 
 use crate::space::core::{
     entity::components::{EntityData, EntityUpdates, Sensable},

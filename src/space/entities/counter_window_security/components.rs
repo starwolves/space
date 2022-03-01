@@ -1,5 +1,5 @@
 use bevy_core::Timer;
-use bevy_internal::prelude::{Component, Entity};
+use bevy_ecs::{entity::Entity, prelude::Component};
 
 use crate::space::core::pawn::components::SpaceAccessEnum;
 

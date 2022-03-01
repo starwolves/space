@@ -1,4 +1,4 @@
-use bevy_internal::prelude::Query;
+use bevy_ecs::system::Query;
 
 use crate::space::core::{
     entity::components::Examinable,

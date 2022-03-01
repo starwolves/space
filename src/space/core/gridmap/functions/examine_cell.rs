@@ -1,4 +1,4 @@
-use bevy_internal::prelude::Res;
+use bevy_ecs::system::Res;
 use const_format::concatcp;
 use rand::Rng;
 

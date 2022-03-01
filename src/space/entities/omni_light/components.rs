@@ -1,4 +1,4 @@
-use bevy_internal::prelude::Component;
+use bevy_ecs::prelude::Component;
 
 #[derive(Component)]
 pub struct OmniLight {

@@ -1,5 +1,6 @@
 use bevy_core::{FixedTimesteps, Time};
-use bevy_internal::prelude::{warn, Res, ResMut};
+use bevy_ecs::system::{Res, ResMut};
+use bevy_log::warn;
 
 use crate::space::{
     core::{

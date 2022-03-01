@@ -1,6 +1,6 @@
 use std::{collections::HashMap, time::Duration};
 
-use bevy_internal::math::{Quat, Vec2, Vec3};
+use bevy_math::{Quat, Vec2, Vec3};
 use bevy_networking_turbulence::{
     MessageChannelMode, MessageChannelSettings, ReliableChannelSettings,
 };

@@ -1,9 +1,7 @@
 // Add to shared resources with _physics,
 
-use bevy_internal::{
-    math::Vec3,
-    prelude::{Query, ResMut},
-};
+use bevy_ecs::system::{Query, ResMut};
+use bevy_math::Vec3;
 use bevy_rapier3d::prelude::RigidBodyForcesComponent;
 
 use crate::space::core::atmospherics::resources::RigidBodyForcesAccumulation;

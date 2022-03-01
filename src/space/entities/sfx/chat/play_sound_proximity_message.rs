@@ -1,4 +1,4 @@
-use bevy_internal::math::Vec3;
+use bevy_math::Vec3;
 use rand::Rng;
 
 use crate::space::core::{

@@ -1,5 +1,9 @@
 use bevy_core::{FixedTimesteps, Time};
-use bevy_internal::prelude::{warn, Entity, Query, Res, ResMut};
+use bevy_ecs::{
+    entity::Entity,
+    system::{Query, Res, ResMut},
+};
+use bevy_log::warn;
 use bevy_networking_turbulence::NetworkResource;
 
 use crate::space::core::{
