@@ -11,11 +11,11 @@ const ATMOS_EFFECT_SPEED: f32 = 0.01;
 
 pub const VACUUM_ATMOSEFFECT: AtmosEffect = AtmosEffect {
     target_temperature: -270.45 + CELCIUS_KELVIN_OFFSET,
-    temperature_speed: 250.,
+    temperature_speed: 500.,
     heater: false,
 
     target_amount: 0.,
-    amount_speed: 250.,
+    amount_speed: 500.,
     remover: true,
 };
 
