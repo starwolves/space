@@ -371,6 +371,8 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         ..Default::default()
     });
 
+    gridmap_data.non_fov_blocking_cells_list.push(-1);
+
     for cell_properties in main_cells_data.iter() {
         gridmap_data
             .main_text_names
