@@ -174,11 +174,23 @@ pub fn atmospherics_map(
 
             cell_i = get_atmos_index(current_cell_id);
 
-            let atmospherics = atmospherics.atmospherics.get(cell_i).unwrap();
+            let atmospherics_data;
+
+            match atmospherics.atmospherics.get(cell_i) {
+                Some(x) => {
+                    atmospherics_data = x;
+                }
+                None => {
+                    continue;
+                }
+            }
 
             let atmospherics_cache = map_holder_data.cache.get_mut(cell_i).unwrap();
 
-            if atmospherics.flags.contains(&"default_vacuum".to_string()) {
+            if atmospherics_data
+                .flags
+                .contains(&"default_vacuum".to_string())
+            {
                 cell_i += 1;
                 if atmospherics_cache.tile_color.is_some() {
                     atmospherics_cache.tile_color = None;
@@ -187,7 +199,7 @@ pub fn atmospherics_map(
                 continue;
             }
 
-            if atmospherics.blocked {
+            if atmospherics_data.blocked {
                 cell_i += 1;
                 continue;
             }
@@ -197,21 +209,21 @@ pub fn atmospherics_map(
 
             match show_temperature {
                 SelectedDisplayMode::Temperature => {
-                    let tile_color = temperature_to_tile_color(atmospherics.temperature);
+                    let tile_color = temperature_to_tile_color(atmospherics_data.temperature);
                     item = get_overlay_tile_item(&tile_color);
                     new_tile_color = tile_color;
                 }
                 SelectedDisplayMode::Pressure => {
-                    let pressure_kpa = atmospherics.get_pressure();
+                    let pressure_kpa = atmospherics_data.get_pressure();
                     let tile_color = pressure_to_tile_color(pressure_kpa);
                     item = get_overlay_tile_item(&tile_color);
                     new_tile_color = tile_color;
                 }
                 SelectedDisplayMode::Liveable => {
                     let temperature_tile_color =
-                        temperature_to_tile_color(atmospherics.temperature);
+                        temperature_to_tile_color(atmospherics_data.temperature);
 
-                    let pressure_kpa = atmospherics.get_pressure();
+                    let pressure_kpa = atmospherics_data.get_pressure();
                     let pressure_tile_color = pressure_to_tile_color(pressure_kpa);
 
                     if get_overlay_tile_priority(&temperature_tile_color)
