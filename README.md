@@ -74,8 +74,9 @@ This project is oriented towards long-term development, meaning it is here to st
 Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 
 The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
-Also looking for 3D artists and lore writers, even this early into the project.
-People who are interested in contributing are suggested to contact the developer on Discord, when this interest arises high priority will be put into creating project documentation, tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
+It is possible to contribute in all kinds of ways and you reaching out for possibilities will be very appreciated!
+Also looking for both 2D & 3D digital artists, writers and game(play) designers.
+People who are genuinely interested in contributing are suggested to contact the developer on Discord, when this interest arises high priority will be put into creating project documentation, tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
 
 Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain sovereign.
 
