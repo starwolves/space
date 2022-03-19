@@ -65,8 +65,9 @@ However, most devices made for video-games should expect no such problems.
 When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
 
 
-### Space Frontiers community
+### Space Frontiers community & contributing
 Space Frontiers now has an official brand new community [Discord server](https://discord.gg/yYpMun9CTT).
+
 
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for years to come.
 
@@ -74,15 +75,13 @@ Feedback, bug reports, suggestions and critique are very much appreciated. Githu
 
 The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
 Also looking for 3D artists and lore writers, even this early into the project.
+People who are interested in contributing are suggested to contact the developer on Discord, when this interest arises high priority will be put into creating project documentation, tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
 
 Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain sovereign.
 
 A developer documentation website is planned.
 
 A developer web forum is planned.
-
-A public client release is planned starting at the next version (0.0.2) and beyond!
-
 
 
 
