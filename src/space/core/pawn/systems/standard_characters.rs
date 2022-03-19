@@ -582,11 +582,11 @@ pub fn standard_characters(
 
         pawn_component.facing_direction = facing_direction;
 
-        let current_linear_velocity: Vec3 = rigid_body_velocity_component.linvel.into();
+        //let current_linear_velocity: Vec3 = rigid_body_velocity_component.linvel.into();
 
         match (standard_character_component.combat_mode
             && idle
-            && current_linear_velocity.length() < 0.05)
+        /*&& current_linear_velocity.length() < 0.05*/)
             || (standard_character_component.combat_mode == false && idle)
         {
             true => {

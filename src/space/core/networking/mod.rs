@@ -62,7 +62,7 @@ use super::{
     atmospherics::events::{
         NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics,
     },
-    map::resources::MapData,
+    map::resources::MapData, pawn::components::StandardCharacter,
 };
 
 pub fn startup_listen_connections(mut net: ResMut<NetworkResource>) {
@@ -662,6 +662,7 @@ pub fn connections(
         &mut PersistentPlayerData,
         &mut ConnectedPlayer,
         &mut PlayerInput,
+        &mut StandardCharacter,
     )>,
     mut used_names: ResMut<UsedNames>,
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
