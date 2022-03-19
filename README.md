@@ -14,7 +14,7 @@ A modular & moddable multi-threaded sci-fi headless community game server writte
 This game server is designed to run well on modern processors that have multiple CPU cores.
 
 ### Media
-You can see a video of Space Frontiers in action [here](https://youtu.be/Qa-Y_PxzeiI).
+You can see videos of Space Frontiers in action on [YouTube](https://youtu.be/Qa-Y_PxzeiI).
   
 ### Features (All Moddable & Modular)
 * Parallelized ECS (Entity Component System) architecture. 📡
