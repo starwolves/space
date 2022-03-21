@@ -1,5 +1,60 @@
 [
 	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 215, 0, -251",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - -41, 0, 149",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 211, 0, 211",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -327, 0, 213",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -327, 0, -145",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -327, 0, -285",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 301, 0, -75",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 301, 0, -281",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 301, 0, 209",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - -237, 0, 211",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - -237, 0, -273",
+		"data": ""
+	},
+	{
 		"entity_type": "securityCounterWindow",
 		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -7.09895, 0.85994, 7.05476",
 		"data": ""

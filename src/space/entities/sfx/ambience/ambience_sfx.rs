@@ -36,7 +36,7 @@ impl AmbienceSfxBundle {
             },
             Sfx {
                 unit_db: 21.,
-                stream_id: "spaceshipAmbientSound".to_string(),
+                stream_id: "/content/audio/ambience/spaceshipAmbientSound.sample".to_string(),
                 play_back_position: 0.,
                 play_back_duration: AMBIENCE_SFX_PLAY_BACK_DURATION,
                 auto_destroy: false,

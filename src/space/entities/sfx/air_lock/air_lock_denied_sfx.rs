@@ -29,7 +29,7 @@ impl AirLockDeniedSfxBundle {
             Sfx {
                 unit_db: 19.,
                 unit_size: 1.,
-                stream_id: "doorAccessDenied".to_string(),
+                stream_id: "/content/audio/airLock/doorAccessDenied.sample".to_string(),
                 play_back_duration: PLAY_BACK_DURATION,
                 ..Default::default()
             },

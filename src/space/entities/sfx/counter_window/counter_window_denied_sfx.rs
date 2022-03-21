@@ -28,7 +28,7 @@ impl CounterWindowDeniedSfxBundle {
             },
             Sfx {
                 unit_db: 20.,
-                stream_id: "windowAccessDenied".to_string(),
+                stream_id: "/content/audio/counterWindow/windowAccessDenied.sample".to_string(),
                 play_back_duration: PLAY_BACK_DURATION,
                 ..Default::default()
             },

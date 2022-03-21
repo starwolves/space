@@ -29,7 +29,7 @@ impl Punch3SfxBundle {
             Sfx {
                 unit_db: 12.,
                 unit_size: 1.,
-                stream_id: "punch3".to_string(),
+                stream_id: "/content/audio/combat/punch3.sample".to_string(),
                 play_back_duration: PUNCH3_PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

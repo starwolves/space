@@ -29,7 +29,7 @@ impl Swing2SfxBundle {
             Sfx {
                 unit_db: 12.,
                 unit_size: 1.,
-                stream_id: "swing2".to_string(),
+                stream_id: "/content/audio/combat/swing2.sample".to_string(),
                 play_back_duration: SWING2_PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

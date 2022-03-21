@@ -8,7 +8,7 @@ use crate::space::{
         rigid_body::components::RigidBodyDisabled,
     },
     entities::{
-        air_lock_security::components::AirLock, counter_window_security::components::CounterWindow,
+        counter_window_security::components::CounterWindow, air_locks::components::AirLock,
     },
 };
 
