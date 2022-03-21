@@ -21,7 +21,7 @@ use crate::space::{
         static_body::components::StaticTransform,
     },
     entities::{
-        air_lock_security::components::{
+        air_locks::components::{
             AccessLightsStatus, AirLock, AirLockClosedTimer, AirLockDeniedTimer, AirLockOpenTimer,
             AirLockStatus,
         },

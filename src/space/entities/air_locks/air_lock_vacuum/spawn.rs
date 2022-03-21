@@ -8,7 +8,7 @@ use bevy_rapier3d::prelude::{
 };
 use bevy_transform::components::Transform;
 
-use crate::space::core::{
+use crate::space::{core::{
     entity::{
         components::{
             DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
@@ -24,13 +24,11 @@ use crate::space::core::{
     },
     physics::functions::{get_bit_masks, ColliderGroup},
     static_body::components::StaticTransform,
-};
+}, entities::air_locks::components::AirLock};
 
-use super::components::AirLock;
+pub struct VacuumAirlockBundle;
 
-pub struct SecurityAirlockBundle;
-
-impl SecurityAirlockBundle {
+impl VacuumAirlockBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
@@ -66,7 +64,7 @@ impl SecurityAirlockBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
-            "An air lock with security department markings. It will only grant access to those authorised to use it."
+            "An air lock with vacuum warning colors. Opening this door will expose you to space."
                 .to_string(),
         );
         examine_map.insert(
@@ -93,13 +91,13 @@ impl SecurityAirlockBundle {
             },
             EntityData {
                 entity_class: "entity".to_string(),
-                entity_name: "securityAirLock1".to_string(),
+                entity_name: "vacuumAirLock".to_string(),
                 entity_group: EntityGroup::AirLock,
             },
             EntityUpdates::default(),
             Examinable {
                 name: RichName {
-                    name: "security airlock".to_string(),
+                    name: "vacuum airlock".to_string(),
                     n: false,
                     ..Default::default()
                 },

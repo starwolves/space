@@ -6,11 +6,10 @@ use bevy_transform::components::Transform;
 use crate::space::{
     core::entity::resources::{EntityDataProperties, GridItemData},
     entities::{
-        air_lock_security::spawn::SecurityAirlockBundle,
         construction_tool_admin::spawn::ConstructionToolBundle,
         counter_window_security::spawn::SecurityCounterWindowBundle,
         helmet_security::spawn::HelmetSecurityBundle, human_male_pawn::spawn::HumanMalePawnBundle,
-        jumpsuit_security::spawn::JumpsuitSecurityBundle, pistol_l1::spawn::PistolL1Bundle,
+        jumpsuit_security::spawn::JumpsuitSecurityBundle, pistol_l1::spawn::PistolL1Bundle, air_locks::{air_lock_security::spawn::SecurityAirlockBundle, air_lock_vacuum::spawn::VacuumAirlockBundle}, 
     },
 };
 
@@ -64,6 +63,16 @@ pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
         name: "securityAirLock1".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(SecurityAirlockBundle::spawn),
+        grid_item: Some(GridItemData {
+            transform_offset: Transform::identity(),
+            can_be_built_with_grid_item: vec![],
+        }),
+    });
+
+    entities.push(EntityDataProperties {
+        name: "vacuumAirLock".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(VacuumAirlockBundle::spawn),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
             can_be_built_with_grid_item: vec![],

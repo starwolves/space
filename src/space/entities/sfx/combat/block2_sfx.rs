@@ -29,7 +29,7 @@ impl Block2SfxBundle {
             Sfx {
                 unit_db: 15.,
                 unit_size: 1.,
-                stream_id: "block2".to_string(),
+                stream_id: "/content/audio/combat/block2.sample".to_string(),
                 play_back_duration: BLOCK2_PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

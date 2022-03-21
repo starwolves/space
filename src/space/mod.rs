@@ -136,13 +136,6 @@ use self::{
         world_environment::resources::WorldEnvironment,
     },
     entities::{
-        air_lock_security::{
-            entity_update::air_lock_update,
-            events::AirLockCollision,
-            systems::{
-                air_lock_added, air_lock_default_map_added, air_lock_events, air_lock_tick_timers,
-            },
-        },
         construction_tool_admin::{
             events::{
                 InputConstruct, InputConstructionOptions, InputConstructionOptionsSelection,
@@ -160,7 +153,7 @@ use self::{
         },
         gi_probe::entity_update::gi_probe_update,
         omni_light::entity_update::omni_light_update,
-        reflection_probe::entity_update::reflection_probe_update,
+        reflection_probe::entity_update::reflection_probe_update, air_locks::{events::AirLockCollision, systems::{air_lock_events, air_lock_tick_timers, air_lock_added, air_lock_default_map_added}, entity_update::air_lock_update},
     },
 };
 

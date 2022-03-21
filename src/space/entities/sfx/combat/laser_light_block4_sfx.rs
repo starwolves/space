@@ -29,7 +29,7 @@ impl LaserLightBlock4Bundle {
             Sfx {
                 unit_db: 15.,
                 unit_size: 1.,
-                stream_id: "laser_light_block4".to_string(),
+                stream_id: "/content/audio/combat/laser_light_block4.sample".to_string(),
                 play_back_duration: LASER_LIGHT_BLOCK4_PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

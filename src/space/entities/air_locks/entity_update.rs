@@ -10,8 +10,9 @@ use crate::space::{
         },
         networking::resources::EntityUpdateData,
     },
-    entities::air_lock_security::components::{AccessLightsStatus, AirLock, AirLockStatus},
 };
+
+use super::components::{AirLock, AirLockStatus, AccessLightsStatus};
 
 pub fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,
@@ -46,31 +47,31 @@ pub fn air_lock_update(
             AccessLightsStatus::Neutral => {
                 door_left_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("doorLeftEmissive".to_string()),
+                    EntityUpdateData::String("/content/entities/securityAirLock1/doorLeftEmissive.png".to_string()),
                 );
                 door_right_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("doorRightEmissive".to_string()),
+                    EntityUpdateData::String("/content/entities/securityAirLock1/doorRightEmissive.png".to_string()),
                 );
             }
             AccessLightsStatus::Granted => {
                 door_left_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("allowedDoorLeftEmissive".to_string()),
+                    EntityUpdateData::String("/content/entities/securityAirLock1/allowedDoorLeftEmissive.png".to_string()),
                 );
                 door_right_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("allowedDoorRightEmissive".to_string()),
+                    EntityUpdateData::String("/content/entities/securityAirLock1/allowedDoorRightEmissive.png".to_string()),
                 );
             }
             AccessLightsStatus::Denied => {
                 door_left_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("deniedDoorLeftEmissive".to_string()),
+                    EntityUpdateData::String("/content/entities/securityAirLock1/deniedDoorLeftEmissive.png".to_string()),
                 );
                 door_right_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("deniedDoorRightEmissive".to_string()),
+                    EntityUpdateData::String("/content/entities/securityAirLock1/deniedDoorRightEmissive.png".to_string()),
                 );
             }
         }

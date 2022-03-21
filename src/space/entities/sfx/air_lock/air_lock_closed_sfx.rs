@@ -29,7 +29,7 @@ impl AirLockClosedSfxBundle {
             Sfx {
                 unit_db: 19.,
                 unit_size: 1.,
-                stream_id: "doorCloseCompression".to_string(),
+                stream_id: "/content/audio/airLock/doorCloseCompression.sample".to_string(),
                 play_back_duration: PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

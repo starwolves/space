@@ -29,7 +29,7 @@ impl Swing1SfxBundle {
             Sfx {
                 unit_db: 12.,
                 unit_size: 1.,
-                stream_id: "swing1".to_string(),
+                stream_id: "/content/audio/combat/swing1.sample".to_string(),
                 play_back_duration: SWING1_PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

@@ -29,7 +29,7 @@ impl LaserLightHit4Bundle {
             Sfx {
                 unit_db: 25.,
                 unit_size: 1.,
-                stream_id: "laser_light_hit4".to_string(),
+                stream_id: "/content/audio/combat/laser_light_hit4.sample".to_string(),
                 play_back_duration: LASER_LIGHT_HIT4_PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()
