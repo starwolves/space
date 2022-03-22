@@ -45,7 +45,7 @@ You can see gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-
 
   
 
-### Executing program
+### Executing game server
 
   
 
