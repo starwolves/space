@@ -20,21 +20,19 @@ use crate::space::{
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
     },
-    entities::{
-        counter_window_security::{
-            components::{
-                CounterWindow, CounterWindowAccessLightsStatus, CounterWindowClosedTimer,
-                CounterWindowDeniedTimer, CounterWindowOpenTimer, CounterWindowSensor,
-                CounterWindowStatus,
-            },
-            events::CounterWindowSensorCollision,
-        },
-        sfx::counter_window::{
-            counter_window_closed_sfx::CounterWindowClosedSfxBundle,
-            counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
-            counter_window_open_sfx::CounterWindowOpenSfxBundle,
-        },
+    entities::sfx::counter_window::{
+        counter_window_closed_sfx::CounterWindowClosedSfxBundle,
+        counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
+        counter_window_open_sfx::CounterWindowOpenSfxBundle,
     },
+};
+
+use super::{
+    components::{
+        CounterWindow, CounterWindowAccessLightsStatus, CounterWindowClosedTimer,
+        CounterWindowDeniedTimer, CounterWindowOpenTimer, CounterWindowSensor, CounterWindowStatus,
+    },
+    events::CounterWindowSensorCollision,
 };
 
 pub fn counter_window_events(

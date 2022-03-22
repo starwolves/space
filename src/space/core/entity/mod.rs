@@ -6,10 +6,21 @@ use bevy_transform::components::Transform;
 use crate::space::{
     core::entity::resources::{EntityDataProperties, GridItemData},
     entities::{
+        air_locks::{
+            air_lock_bridge::spawn::BridgeAirlockBundle,
+            air_lock_government::spawn::GovernmentAirlockBundle,
+            air_lock_security::spawn::SecurityAirlockBundle,
+            air_lock_vacuum::spawn::VacuumAirlockBundle,
+        },
         construction_tool_admin::spawn::ConstructionToolBundle,
-        counter_window_security::spawn::SecurityCounterWindowBundle,
-        helmet_security::spawn::HelmetSecurityBundle, human_male_pawn::spawn::HumanMalePawnBundle,
-        jumpsuit_security::spawn::JumpsuitSecurityBundle, pistol_l1::spawn::PistolL1Bundle, air_locks::{air_lock_security::spawn::SecurityAirlockBundle, air_lock_vacuum::spawn::VacuumAirlockBundle}, 
+        counter_windows::{
+            counter_window_bridge::spawn::BridgeCounterWindowBundle,
+            counter_window_security::spawn::SecurityCounterWindowBundle,
+        },
+        helmet_security::spawn::HelmetSecurityBundle,
+        human_male_pawn::spawn::HumanMalePawnBundle,
+        jumpsuit_security::spawn::JumpsuitSecurityBundle,
+        pistol_l1::spawn::PistolL1Bundle,
     },
 };
 
@@ -79,6 +90,26 @@ pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
         }),
     });
 
+    entities.push(EntityDataProperties {
+        name: "governmentAirLock".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(GovernmentAirlockBundle::spawn),
+        grid_item: Some(GridItemData {
+            transform_offset: Transform::identity(),
+            can_be_built_with_grid_item: vec![],
+        }),
+    });
+
+    entities.push(EntityDataProperties {
+        name: "bridgeAirLock".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(BridgeAirlockBundle::spawn),
+        grid_item: Some(GridItemData {
+            transform_offset: Transform::identity(),
+            can_be_built_with_grid_item: vec![],
+        }),
+    });
+
     let mut transform = Transform::identity();
     transform.translation.y = 0.86;
     transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
@@ -90,6 +121,20 @@ pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
         grid_item: Some(GridItemData {
             transform_offset: transform,
             can_be_built_with_grid_item: vec!["securityCounter1".to_string()],
+        }),
+    });
+
+    let mut transform = Transform::identity();
+    transform.translation.y = 0.86;
+    transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
+
+    entities.push(EntityDataProperties {
+        name: "bridgeCounterWindow".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(BridgeCounterWindowBundle::spawn),
+        grid_item: Some(GridItemData {
+            transform_offset: transform,
+            can_be_built_with_grid_item: vec!["bridgeCounter".to_string()],
         }),
     });
 

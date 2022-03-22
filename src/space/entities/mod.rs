@@ -1,5 +1,6 @@
+pub mod air_locks;
 pub mod construction_tool_admin;
-pub mod counter_window_security;
+pub mod counter_windows;
 pub mod gi_probe;
 pub mod helmet_security;
 pub mod human_male_pawn;
@@ -8,4 +9,3 @@ pub mod omni_light;
 pub mod pistol_l1;
 pub mod reflection_probe;
 pub mod sfx;
-pub mod air_locks;

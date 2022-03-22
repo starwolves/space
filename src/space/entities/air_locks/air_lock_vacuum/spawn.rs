@@ -8,23 +8,26 @@ use bevy_rapier3d::prelude::{
 };
 use bevy_transform::components::Transform;
 
-use crate::space::{core::{
-    entity::{
-        components::{
-            DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
-            Sensable,
+use crate::space::{
+    core::{
+        entity::{
+            components::{
+                DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
+                Sensable,
+            },
+            functions::transform_to_isometry::transform_to_isometry,
+            resources::{SpawnHeldData, SpawnPawnData},
         },
-        functions::transform_to_isometry::transform_to_isometry,
-        resources::{SpawnHeldData, SpawnPawnData},
+        health::components::{Health, HealthFlag},
+        pawn::{
+            components::SpaceAccessEnum,
+            functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+        },
+        physics::functions::{get_bit_masks, ColliderGroup},
+        static_body::components::StaticTransform,
     },
-    health::components::{Health, HealthFlag},
-    pawn::{
-        components::SpaceAccessEnum,
-        functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    },
-    physics::functions::{get_bit_masks, ColliderGroup},
-    static_body::components::StaticTransform,
-}, entities::air_locks::components::AirLock};
+    entities::air_locks::components::AirLock,
+};
 
 pub struct VacuumAirlockBundle;
 

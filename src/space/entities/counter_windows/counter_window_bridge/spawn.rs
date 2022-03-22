@@ -8,29 +8,30 @@ use bevy_rapier3d::prelude::{
 };
 use bevy_transform::{components::Transform, hierarchy::BuildChildren};
 
-use crate::space::core::{
-    entity::{
-        components::{
-            DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
-            Sensable,
+use crate::space::{
+    core::{
+        entity::{
+            components::{
+                DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
+                Sensable,
+            },
+            functions::transform_to_isometry::transform_to_isometry,
+            resources::{SpawnHeldData, SpawnPawnData},
         },
-        functions::transform_to_isometry::transform_to_isometry,
-        resources::{SpawnHeldData, SpawnPawnData},
+        health::components::Health,
+        pawn::{
+            components::SpaceAccessEnum,
+            functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+        },
+        physics::functions::{get_bit_masks, ColliderGroup},
+        static_body::components::StaticTransform,
     },
-    health::components::Health,
-    pawn::{
-        components::SpaceAccessEnum,
-        functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    },
-    physics::functions::{get_bit_masks, ColliderGroup},
-    static_body::components::StaticTransform,
+    entities::counter_windows::components::{CounterWindow, CounterWindowSensor},
 };
 
-use super::components::{CounterWindow, CounterWindowSensor};
+pub struct BridgeCounterWindowBundle;
 
-pub struct SecurityCounterWindowBundle;
-
-impl SecurityCounterWindowBundle {
+impl BridgeCounterWindowBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
@@ -92,7 +93,7 @@ impl SecurityCounterWindowBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
-            "An airtight security window. It will only grant access to those authorised to use it."
+            "An airtight bridge window. It will only grant access to those authorised to use it."
                 .to_string(),
         );
         examine_map.insert(
@@ -116,13 +117,13 @@ impl SecurityCounterWindowBundle {
                 },
                 EntityData {
                     entity_class: "entity".to_string(),
-                    entity_name: "securityCounterWindow".to_string(),
+                    entity_name: "bridgeCounterWindow".to_string(),
                     entity_group: EntityGroup::AirLock,
                 },
                 EntityUpdates::default(),
                 Examinable {
                     name: RichName {
-                        name: "security counter window".to_string(),
+                        name: "bridge counter window".to_string(),
                         n: false,
                         ..Default::default()
                     },

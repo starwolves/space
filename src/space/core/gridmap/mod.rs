@@ -214,6 +214,52 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         constructable: true,
         ..Default::default()
     });
+    let mut default_isometry = ColliderPosition::identity();
+
+    default_isometry.translation.y = -0.5;
+
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("governmentDecoratedTable")
+            .unwrap(),
+        name: RichName {
+            name: "decorated government table".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A decorated government table.".to_string(),
+        non_fov_blocker: true,
+        combat_obstacle: false,
+        placeable_item_surface: true,
+        collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
+        collider_position: default_isometry,
+        constructable: true,
+        ..Default::default()
+    });
+    let mut default_isometry = ColliderPosition::identity();
+
+    default_isometry.translation.y = -0.5;
+
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("bridgeDecoratedTable")
+            .unwrap(),
+        name: RichName {
+            name: "decorated bridge table".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A decorated bridge table.".to_string(),
+        non_fov_blocker: true,
+        combat_obstacle: false,
+        placeable_item_surface: true,
+        collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
+        collider_position: default_isometry,
+        constructable: true,
+        ..Default::default()
+    });
     main_cells_data.push(MainCellProperties {
         id: *gridmap_data
             .main_name_id_map
@@ -264,6 +310,37 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         ..Default::default()
     });
 
+    let mut default_isometry = ColliderPosition::identity();
+    default_isometry.translation.y = -0.5;
+
+    let mut rotations = HashMap::new();
+    rotations.insert(AdjacentTileDirection::Left, 0);
+    rotations.insert(AdjacentTileDirection::Right, 0);
+    rotations.insert(AdjacentTileDirection::Up, 16);
+    rotations.insert(AdjacentTileDirection::Down, 16);
+
+    let rotation_struct = GridDirectionRotations { data: rotations };
+
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("bridgeCounter").unwrap(),
+        name: RichName {
+            name: "bridge counter".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        non_fov_blocker: true,
+        combat_obstacle: false,
+        placeable_item_surface: true,
+        collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
+        collider_position: default_isometry,
+        constructable: true,
+        atmospherics_blocker: false,
+        atmospherics_pushes_up: true,
+        direction_rotations: rotation_struct,
+        ..Default::default()
+    });
+
     main_cells_data.push(MainCellProperties {
         id: *gridmap_data
             .main_name_id_map
@@ -275,6 +352,36 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
             the: false,
         },
         description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("bridgeFloorColored")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum bridge floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("governmentFloorColored")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum government floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with government department colors.".to_string(),
         constructable: true,
         floor_cell: true,
         ..Default::default()
@@ -297,6 +404,36 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     main_cells_data.push(MainCellProperties {
         id: *gridmap_data
             .main_name_id_map
+            .get("bridgeFloorStripedCorner2")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum bridge floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("governmentFloorStripedCorner2")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum government floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with government department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
             .get("securityFloorStripedCorner")
             .unwrap(),
         name: RichName {
@@ -310,6 +447,36 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         ..Default::default()
     });
     main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("bridgeFloorStripedCorner")
+            .unwrap(),
+        name: RichName {
+            name: "bridge security floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("governmentFloorStripedCorner")
+            .unwrap(),
+        name: RichName {
+            name: "government security floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with government department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
         id: *gridmap_data.main_name_id_map.get("genericWall1").unwrap(),
         name: RichName {
             name: "aluminum wall".to_string(),
@@ -318,6 +485,108 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         },
         description: "A generic wall tile.".to_string(),
         constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("reinforcedGlassWall").unwrap(),
+        name: RichName {
+            name: "reinforced glass wall".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "A transparent reinforced glass wall.".to_string(),
+        constructable: true,
+        non_fov_blocker: true,
+        laser_combat_obstacle: false,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("bridgeWall").unwrap(),
+        name: RichName {
+            name: "bridge wall".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("governmentWall").unwrap(),
+        name: RichName {
+            name: "bridge wall".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("securityWall").unwrap(),
+        name: RichName {
+            name: "aluminum security wall".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data.main_name_id_map.get("bridgeWall").unwrap(),
+        name: RichName {
+            name: "aluminum bridge wall".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        constructable: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("securityFloorStriped")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum security floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with security department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("bridgeFloorStriped")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum bridge floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with bridge department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
+        ..Default::default()
+    });
+    main_cells_data.push(MainCellProperties {
+        id: *gridmap_data
+            .main_name_id_map
+            .get("governmentFloorStriped")
+            .unwrap(),
+        name: RichName {
+            name: "aluminum government floor".to_string(),
+            n: true,
+            the: false,
+        },
+        description: "This one is painted with government department colors.".to_string(),
+        constructable: true,
+        floor_cell: true,
         ..Default::default()
     });
     main_cells_data.push(MainCellProperties {
@@ -342,32 +611,6 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         description: EXAMINATION_EMPTY.to_string(),
         non_fov_blocker: true,
         constructable: false,
-        ..Default::default()
-    });
-    main_cells_data.push(MainCellProperties {
-        id: *gridmap_data.main_name_id_map.get("securityWall").unwrap(),
-        name: RichName {
-            name: "aluminum security wall".to_string(),
-            n: true,
-            the: false,
-        },
-        description: "This one is painted with security department colors.".to_string(),
-        constructable: true,
-        ..Default::default()
-    });
-    main_cells_data.push(MainCellProperties {
-        id: *gridmap_data
-            .main_name_id_map
-            .get("securityFloorStriped")
-            .unwrap(),
-        name: RichName {
-            name: "aluminum security floor".to_string(),
-            n: true,
-            the: false,
-        },
-        description: "This one is painted with security department colors.".to_string(),
-        constructable: true,
-        floor_cell: true,
         ..Default::default()
     });
 

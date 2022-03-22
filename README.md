@@ -57,7 +57,7 @@ cargo run
 
 ### Space Frontiers client
 You can get the latest stable releases of the closed-source client on [Discord](https://discord.gg/yYpMun9CTT).
-Ensure you select the right branch with the same version as the client you will obtain.
+Ensure you select the right git branch with the same version as the client you will obtain and so not the master branch.
 
 The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
 However, most devices made for video-games should expect no such problems.
@@ -83,10 +83,10 @@ Space Frontiers allows each community of players to compile and host a server in
 A developer documentation website is planned.
 
 A developer web forum is planned.
-
+![Screenshot of Space Frontiers GUI project map and server editor](https://starwolves.io/images/sfeditorss.png)
 
 
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
 The roots of Space Frontiers are partially in this community, but Space Frontiers is managed in a way that effectively makes Space Frontiers and its community remain a predominantly separated entity.
-Star Wolves will be the first community to host a non-stop server for Space Frontiers when this project is out of pre-alpha and enters the alpha stage.
+Star Wolves will be first community to host a 24/7 server for Space Frontiers when this project is out of pre-alpha and enters the alpha stage.
