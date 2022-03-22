@@ -59,7 +59,7 @@ cargo run
 
 ### Space Frontiers client
 You can get the latest stable releases of the closed-source client on [Discord](https://discord.gg/yYpMun9CTT).
-Ensure your server has the right git branch with the same version as the client obtain, not the master branch!
+Ensure your server has the right git branch with the same version as the obtained client and not the master branch!
 
 The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
 However, most devices made for video-games should expect no such problems.
