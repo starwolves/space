@@ -7,9 +7,7 @@ use crate::space::{
         entity::components::EntityData, gridmap::resources::FOV_MAP_WIDTH,
         rigid_body::components::RigidBodyDisabled,
     },
-    entities::{
-        counter_window_security::components::CounterWindow, air_locks::components::AirLock,
-    },
+    entities::{air_locks::components::AirLock, counter_windows::components::CounterWindow},
 };
 
 pub fn out_of_bounds_check(

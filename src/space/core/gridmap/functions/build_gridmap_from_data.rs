@@ -4,6 +4,7 @@ use bevy_ecs::{
     entity::Entity,
     system::{Commands, ResMut},
 };
+use bevy_log::warn;
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderType,
     InteractionGroups, RigidBodyBundle, RigidBodyType,
@@ -44,7 +45,17 @@ pub fn build_main_gridmap(
             z: cell_id.z as i16,
         };
 
-        let cell_item_id = *gridmap_data.main_name_id_map.get(&cell_data.item).unwrap();
+        let cell_item_id;
+        
+        match gridmap_data.main_name_id_map.get(&cell_data.item) {
+            Some(x) => {
+                cell_item_id = *x;
+            },
+            None => {
+                warn!("Couldnt find item {}", cell_data.item);
+                break;
+            },
+        };
 
         if cell_id_int.y == 0 {
             // Wall
@@ -157,10 +168,18 @@ pub fn spawn_main_cell(
         friction = 0.;
     }
 
-    let cell_properties = gridmap_data
-        .main_cell_properties
-        .get(&cell_item_id)
-        .unwrap();
+    let cell_properties;
+    match gridmap_data
+    .main_cell_properties
+    .get(&cell_item_id) {
+        Some(x) => {
+            cell_properties=x;
+        },
+        None => {
+            warn!("Unknown cellid {}. Initialization of gridmap cell in startup gridmap systems missing.", cell_item_id);
+            return Entity::from_bits(0);
+        },
+    }
 
     let masks = get_bit_masks(ColliderGroup::Standard);
 

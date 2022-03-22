@@ -2,17 +2,15 @@ use std::collections::HashMap;
 
 use bevy_ecs::{prelude::Changed, system::Query};
 
-use crate::space::{
-    core::{
-        entity::{
-            components::EntityUpdates,
-            functions::get_entity_update_difference::get_entity_update_difference,
-        },
-        networking::resources::EntityUpdateData,
+use crate::space::core::{
+    entity::{
+        components::EntityUpdates,
+        functions::get_entity_update_difference::get_entity_update_difference,
     },
+    networking::resources::EntityUpdateData,
 };
 
-use super::components::{AirLock, AirLockStatus, AccessLightsStatus};
+use super::components::{AccessLightsStatus, AirLock, AirLockStatus};
 
 pub fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,
@@ -47,31 +45,46 @@ pub fn air_lock_update(
             AccessLightsStatus::Neutral => {
                 door_left_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("/content/entities/securityAirLock1/doorLeftEmissive.png".to_string()),
+                    EntityUpdateData::String(
+                        "/content/entities/securityAirLock1/doorLeftEmissive.png".to_string(),
+                    ),
                 );
                 door_right_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("/content/entities/securityAirLock1/doorRightEmissive.png".to_string()),
+                    EntityUpdateData::String(
+                        "/content/entities/securityAirLock1/doorRightEmissive.png".to_string(),
+                    ),
                 );
             }
             AccessLightsStatus::Granted => {
                 door_left_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("/content/entities/securityAirLock1/allowedDoorLeftEmissive.png".to_string()),
+                    EntityUpdateData::String(
+                        "/content/entities/securityAirLock1/allowedDoorLeftEmissive.png"
+                            .to_string(),
+                    ),
                 );
                 door_right_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("/content/entities/securityAirLock1/allowedDoorRightEmissive.png".to_string()),
+                    EntityUpdateData::String(
+                        "/content/entities/securityAirLock1/allowedDoorRightEmissive.png"
+                            .to_string(),
+                    ),
                 );
             }
             AccessLightsStatus::Denied => {
                 door_left_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("/content/entities/securityAirLock1/deniedDoorLeftEmissive.png".to_string()),
+                    EntityUpdateData::String(
+                        "/content/entities/securityAirLock1/deniedDoorLeftEmissive.png".to_string(),
+                    ),
                 );
                 door_right_data.insert(
                     "emissiveTexture".to_string(),
-                    EntityUpdateData::String("/content/entities/securityAirLock1/deniedDoorRightEmissive.png".to_string()),
+                    EntityUpdateData::String(
+                        "/content/entities/securityAirLock1/deniedDoorRightEmissive.png"
+                            .to_string(),
+                    ),
                 );
             }
         }

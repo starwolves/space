@@ -8,7 +8,7 @@ use bevy_rapier3d::{
 use crate::space::{
     core::entity::components::{EntityData, EntityGroup},
     entities::{
-        counter_window_security::events::CounterWindowSensorCollision, air_locks::events::AirLockCollision,
+        air_locks::events::AirLockCollision, counter_windows::events::CounterWindowSensorCollision,
     },
 };
 

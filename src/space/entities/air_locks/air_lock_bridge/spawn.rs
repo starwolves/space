@@ -29,9 +29,9 @@ use crate::space::{
     entities::air_locks::components::AirLock,
 };
 
-pub struct SecurityAirlockBundle;
+pub struct BridgeAirlockBundle;
 
-impl SecurityAirlockBundle {
+impl BridgeAirlockBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
@@ -67,7 +67,7 @@ impl SecurityAirlockBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
-            "An air lock with security department markings. It will only grant access to those authorised to use it."
+            "An air lock with bridge department colors. Access is only granted to high ranking staff."
                 .to_string(),
         );
         examine_map.insert(
@@ -94,13 +94,13 @@ impl SecurityAirlockBundle {
             },
             EntityData {
                 entity_class: "entity".to_string(),
-                entity_name: "securityAirLock1".to_string(),
+                entity_name: "bridgeAirLock".to_string(),
                 entity_group: EntityGroup::AirLock,
             },
             EntityUpdates::default(),
             Examinable {
                 name: RichName {
-                    name: "security airlock".to_string(),
+                    name: "bridge airlock".to_string(),
                     n: false,
                     ..Default::default()
                 },

@@ -5,7 +5,10 @@ use bevy_math::Vec2;
 use crate::space::core::{
     health::resources::ClientHealthUICache,
     pawn::{
-        components::{ConnectedPlayer, PersistentPlayerData, PlayerInput, StandardCharacter, CharacterAnimationState},
+        components::{
+            CharacterAnimationState, ConnectedPlayer, PersistentPlayerData, PlayerInput,
+            StandardCharacter,
+        },
         resources::{HandleToEntity, UsedNames},
     },
 };
@@ -36,7 +39,8 @@ pub fn on_player_disconnect(
                     mut player_input_component,
                     mut standard_character_component,
                 )) => {
-                    standard_character_component.current_lower_animation_state = CharacterAnimationState::Idle;
+                    standard_character_component.current_lower_animation_state =
+                        CharacterAnimationState::Idle;
                     connected_player_component.connected = false;
                     player_input_component.movement_vector = Vec2::ZERO;
                     player_input_component.sprinting = false;
