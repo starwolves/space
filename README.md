@@ -1,9 +1,9 @@
 # Space Frontiers pre-alpha
-<img src="https://i.imgur.com/4CI2rb4.png" data-canonical-src="https://starwolves.io/images/sflogo.png" width="175" height="175"/>
+<img src="/data/project/sflogo.png?raw=true" data-canonical-src="/data/project/sflogo.png?raw=true" width="175" height="175"/>
   
 
 ![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg) ![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
-![Screenshot of Space Frontiers gameplay](https://starwolves.io/images/sfss.png)
+![Screenshot of Space Frontiers gameplay](/data/project/sfss.png?raw=true)
   
 
 ## Description
@@ -31,7 +31,7 @@ You can see gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-
 * Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
 * Cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic (de)constructable ship cells as map size is currently bottlenecked by the FOV algorithm. 
 * Atmospherics simulation including temperature, pressure, diffusion, gravity and the vacuum of space.
-![Screenshot of Space Frontiers atmospherics simulation](https://starwolves.io/images/sfatmosss.png)
+![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
 ## Getting Started
 
@@ -85,7 +85,7 @@ Space Frontiers allows each community of players to compile and host a server in
 A developer documentation website is planned.
 
 A developer web forum is planned.
-![Screenshot of Space Frontiers GUI project map and server editor](https://starwolves.io/images/sfeditorss.png)
+![Screenshot of Space Frontiers GUI project map and server editor](/data/project/sfeditorss.png?raw=true)
 
 
 ### [StarWolves.io](https://starwolves.io)
