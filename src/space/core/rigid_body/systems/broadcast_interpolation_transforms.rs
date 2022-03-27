@@ -117,9 +117,7 @@ pub fn broadcast_interpolation_transforms(
 
             if *sensed_by_entity == interpolated_entity {
                 entity_tick_rate = &InterpolationPriorityRates::T24;
-            }
-
-            if connected_player_component_option.is_some() {
+            } else if connected_player_component_option.is_some() {
                 entity_tick_rate = &InterpolationPriorityRates::T12;
             }
 
