@@ -131,11 +131,13 @@ pub fn broadcast_interpolation_transforms(
             match entity_tick_rate {
                 InterpolationPriorityRates::T4 => {
                     rate_u = 4;
-                    send_vel = true;
+                    //send_vel = true;
+                    send_vel = false;
                 }
                 InterpolationPriorityRates::T8 => {
                     rate_u = 8;
-                    send_vel = true;
+                    //send_vel = true;
+                    send_vel = false;
                 }
                 InterpolationPriorityRates::T12 => {
                     rate_u = 12;
