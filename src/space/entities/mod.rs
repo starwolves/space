@@ -9,3 +9,4 @@ pub mod omni_light;
 pub mod pistol_l1;
 pub mod reflection_probe;
 pub mod sfx;
+pub mod computers;

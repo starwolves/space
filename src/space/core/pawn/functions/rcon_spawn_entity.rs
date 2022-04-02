@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
@@ -126,6 +128,7 @@ pub fn rcon_spawn_entity(
                     passed_inventory_setup.clone(),
                     persistent_player_data_component.clone(),
                 )),
+                HashMap::new(),
             );
             individual_transform.translation.x += 0.5;
             individual_transform = entity_spawn_position_for_player(

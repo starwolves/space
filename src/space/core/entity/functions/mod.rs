@@ -10,3 +10,4 @@ pub mod spawn_entity;
 pub mod string_to_type_converters;
 pub mod transform_to_isometry;
 pub mod unload_entity_for_player;
+pub mod process_entities_json_data;

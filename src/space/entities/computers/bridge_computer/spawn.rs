@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use bevy_app::EventWriter;
 use bevy_ecs::{entity::Entity, system::Commands};
-use bevy_log::warn;
+use bevy_log::{warn};
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition,
@@ -11,71 +11,49 @@ use bevy_rapier3d::prelude::{
 };
 use bevy_transform::components::Transform;
 
-use crate::space::core::{
+use crate::space::{core::{
     entity::{
         components::{EntityData, EntityUpdates, Examinable, RichName, Sensable, Showcase},
         events::NetShowcase,
         functions::transform_to_isometry::transform_to_isometry,
         resources::{SpawnHeldData, SpawnPawnData},
     },
-    health::components::{DamageFlag, DamageModel, Health},
-    inventory::components::SlotType,
-    inventory_item::components::{
-        CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem,
-    },
+    health::components::{DamageFlag, Health},
     networking::resources::{ReliableServerMessage, ConsoleCommandVariantValues},
     physics::{
         components::{WorldMode, WorldModes},
         functions::{get_bit_masks, ColliderGroup},
     },
     rigid_body::components::{
-        CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
-        RigidBodyLinkTransform,
+        CachedBroadcastTransform, DefaultTransform, RigidBodyData,
     },
-};
-
-use super::components::Helmet;
+}, entities::computers::components::Computer};
 
 pub const STANDARD_BODY_FRICTION: f32 = 0.125;
 
-pub struct HelmetSecurityBundle;
+pub struct BridgeComputerBundle;
 
-impl HelmetSecurityBundle {
+impl BridgeComputerBundle {
     pub fn spawn(
         passed_transform: Transform,
         commands: &mut Commands,
         correct_transform: bool,
         _pawn_data_option: Option<SpawnPawnData>,
-        held_data_option: Option<SpawnHeldData>,
+        _held_data_option: Option<SpawnHeldData>,
         _default_map_spawn: bool,
-        _properties : HashMap<String,ConsoleCommandVariantValues>,
+        properties : HashMap<String,ConsoleCommandVariantValues>,
     ) -> Entity {
-        match held_data_option {
-            Some(held_data) => {
-                let (holder_entity, showcase_instance, showcase_handle_option, net_showcase) =
-                    held_data.data;
-                spawn_entity(
-                    commands,
-                    None,
-                    true,
-                    Some(holder_entity),
-                    showcase_instance,
-                    showcase_handle_option,
-                    net_showcase,
-                    false,
-                )
-            }
-            None => spawn_entity(
-                commands,
-                Some(passed_transform),
-                false,
-                None,
-                false,
-                None,
-                &mut None,
-                correct_transform,
-            ),
-        }
+        spawn_entity(
+            commands,
+            Some(passed_transform),
+            false,
+            None,
+            false,
+            None,
+            &mut None,
+            correct_transform,
+            properties,
+        )
     }
 }
 
@@ -85,7 +63,7 @@ fn spawn_entity(
     passed_transform_option: Option<Transform>,
 
     held: bool,
-    holder_entity_option: Option<Entity>,
+    _holder_entity_option: Option<Entity>,
 
     showcase_instance: bool,
     showcase_handle_option: Option<u32>,
@@ -93,7 +71,21 @@ fn spawn_entity(
     net_showcase: &mut Option<&mut EventWriter<NetShowcase>>,
 
     correct_transform: bool,
+    properties : HashMap<String,ConsoleCommandVariantValues>,
 ) -> Entity {
+
+    let computer_type;
+
+    match properties.get("computerType").unwrap() {
+        ConsoleCommandVariantValues::String(s) => {
+            computer_type=s.to_string();
+        },
+        _=> {
+            warn!("computerType had incorrect variable type!");
+            computer_type="".to_string();
+        }
+    }
+
     let mut this_transform;
     let default_transform = Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -117,15 +109,15 @@ fn spawn_entity(
     let rigid_body_component;
     let collider_component;
 
-    let shape = ColliderShape::cuboid(0.208, 0.277, 0.213);
+    let shape = ColliderShape::cuboid(1., 0.7, 1.);
 
-    let collider_position: ColliderPosition = Vec3::new(0., 0.011, -0.004).into();
+    let collider_position: ColliderPosition = Vec3::new(0., 0., 0.).into();
     let friction = STANDARD_BODY_FRICTION;
-    let friction_combine_rule = CoefficientCombineRule::Multiply;
+    let friction_combine_rule = CoefficientCombineRule::Min;
 
     if held == false {
         rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic.into(),
+            body_type: RigidBodyType::Static.into(),
             position: transform_to_isometry(this_transform).into(),
             ..Default::default()
         };
@@ -185,44 +177,9 @@ fn spawn_entity(
         };
     }
 
-    let template_examine_text = "A standard issue helmet used by Security Officers.".to_string();
+    let template_examine_text = "A computer used by bridge personnel.".to_string();
     let mut examine_map = BTreeMap::new();
     examine_map.insert(0, template_examine_text);
-
-    let mut attachment_transforms = HashMap::new();
-
-    attachment_transforms.insert(
-        "left_hand".to_string(),
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(0.5, 0.5, 0.5),
-            Quat::from_axis_angle(Vec3::new(1., 0., 0.), 3.111607897),
-            Vec3::new(0., -0.003, -0.108),
-        )),
-    );
-
-    let right_hand_rotation = Vec3::new(0.11473795, 0.775676679, 0.);
-    let right_hand_rotation_length = right_hand_rotation.length();
-
-    attachment_transforms.insert(
-        "right_hand".to_string(),
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(0.5, 0.5, 0.5),
-            Quat::from_axis_angle(
-                Vec3::new(0.11473795, 0.775676679, 0.).normalize(),
-                right_hand_rotation_length,
-            ),
-            Vec3::new(0.064, -0.019, 0.065),
-        )),
-    );
-
-    attachment_transforms.insert(
-        "helmet".to_string(),
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(0.5, 0.5, 0.5),
-            Quat::from_axis_angle(Vec3::new(1., 0., 0.), -1.41617761),
-            Vec3::new(0., 0.132, 0.05),
-        )),
-    );
 
     let mut builder = commands.spawn_bundle(rigid_body_component);
 
@@ -234,47 +191,25 @@ fn spawn_entity(
     builder.insert_bundle(collider_component).insert_bundle((
         EntityData {
             entity_class: "entity".to_string(),
-            entity_name: "helmetSecurity".to_string(),
+            entity_name: "bridgeComputer".to_string(),
             ..Default::default()
         },
         EntityUpdates::default(),
         WorldMode {
-            mode: WorldModes::Physics,
+            mode: WorldModes::Static,
         },
         CachedBroadcastTransform::default(),
         Examinable {
             assigned_texts: examine_map,
             name: RichName {
-                name: "security helmet".to_string(),
+                name: "bridge computer".to_string(),
                 n: false,
                 ..Default::default()
             },
             ..Default::default()
         },
-        Helmet,
-        InventoryItem {
-            in_inventory_of_entity: holder_entity_option,
-            attachment_transforms: attachment_transforms,
-            drop_transform: default_transform,
-            slot_type: SlotType::Helmet,
-            is_attached_when_worn: true,
-            combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
-            combat_type: CombatType::MeleeDirect,
-            combat_melee_damage_model: DamageModel {
-                brute: 9.,
-                damage_flags: melee_damage_flags,
-                ..Default::default()
-            },
-            combat_projectile_damage_model: None,
-            combat_melee_sound_set: CombatSoundSet::default(),
-            combat_standard_animation: CombatStandardAnimation::StandardStance,
-            combat_projectile_sound_set: None,
-            combat_melee_text_set: InventoryItem::get_default_strike_words(),
-            combat_projectile_text_set: None,
-            trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
-            trigger_projectile_text_set: None,
-            active_slot_tab_actions: vec![],
-            throw_force_factor: 2.,
+        Computer {
+            computer_type,
         },
         DefaultTransform {
             transform: default_transform,
@@ -293,7 +228,7 @@ fn spawn_entity(
             handle: handle,
             message: ReliableServerMessage::LoadEntity(
                 "entity".to_string(),
-                "helmetSecurity".to_string(),
+                "bridgeComputer".to_string(),
                 entity_updates,
                 entity_id.to_bits(),
                 true,
@@ -304,36 +239,6 @@ fn spawn_entity(
         });
     } else {
         builder.insert_bundle((Sensable::default(), Health::default()));
-    }
-
-    match held {
-        true => {
-            builder.insert_bundle((
-                RigidBodyDisabled,
-                WorldMode {
-                    mode: WorldModes::Worn,
-                },
-            ));
-        }
-        false => {
-            builder.insert(WorldMode {
-                mode: WorldModes::Physics,
-            });
-        }
-    }
-
-    match holder_entity_option {
-        Some(holder_entity) => {
-            builder.insert(RigidBodyLinkTransform {
-                follow_entity: holder_entity,
-                ..Default::default()
-            });
-        }
-        None => {
-            if held == true {
-                warn!("Spawned entity in held mode but holder_entity_option is none.");
-            }
-        }
     }
 
     entity_id

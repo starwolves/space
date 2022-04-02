@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
@@ -10,7 +12,7 @@ use crate::space::core::{
         events::NetShowcase,
         resources::{EntityDataResource, SpawnHeldData, SpawnPawnData},
     },
-    pawn::{components::PersistentPlayerData, resources::UsedNames},
+    pawn::{components::PersistentPlayerData, resources::UsedNames}, networking::resources::ConsoleCommandVariantValues,
 };
 
 pub fn spawn_entity(
@@ -27,6 +29,7 @@ pub fn spawn_entity(
         &mut Option<&mut EventWriter<NetShowcase>>,
     )>,
     pawn_data_option: Option<(Vec<(String, String)>, PersistentPlayerData)>,
+    properties: HashMap<String,ConsoleCommandVariantValues>,
 ) -> Option<Entity> {
     let return_entity;
 
@@ -67,6 +70,7 @@ pub fn spawn_entity(
                         pawn,
                         held,
                         false,
+                        properties,
                     ));
                 }
                 None => {
@@ -77,6 +81,7 @@ pub fn spawn_entity(
                         None,
                         held,
                         false,
+                        properties,
                     ));
                 }
             }
@@ -118,6 +123,7 @@ pub fn spawn_held_entity(
                     ),
                 }),
                 false,
+                HashMap::new(),
             ));
         }
         None => {

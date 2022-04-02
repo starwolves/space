@@ -32,7 +32,7 @@ use crate::space::{
             CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
             InventoryItem,
         },
-        networking::resources::{GridMapType, ReliableServerMessage},
+        networking::resources::{GridMapType, ReliableServerMessage, ConsoleCommandVariantValues},
         pawn::{components::TabAction, functions::can_reach_entity::REACH_DISTANCE},
         physics::{
             components::{WorldMode, WorldModes},
@@ -59,6 +59,7 @@ impl ConstructionToolBundle {
         _pawn_data_option: Option<SpawnPawnData>,
         held_data_option: Option<SpawnHeldData>,
         _default_map_spawn: bool,
+        _properties : HashMap<String,ConsoleCommandVariantValues>,
     ) -> Entity {
         match held_data_option {
             Some(held_data) => {

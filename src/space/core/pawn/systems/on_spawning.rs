@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
@@ -59,6 +61,7 @@ pub fn on_spawning(
             }),
             None,
             false,
+            HashMap::new(),
         );
 
         let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();
