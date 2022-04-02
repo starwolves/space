@@ -983,6 +983,7 @@ pub fn construction_tool(
                     None,
                     None,
                     false,
+                    HashMap::new(),
                 );
 
                 gridmap_main.entity_data.insert(

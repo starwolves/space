@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_math::Vec3;
@@ -24,7 +24,7 @@ use crate::space::{
             functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         },
         physics::functions::{get_bit_masks, ColliderGroup},
-        static_body::components::StaticTransform,
+        static_body::components::StaticTransform, networking::resources::ConsoleCommandVariantValues,
     },
     entities::counter_windows::components::{CounterWindow, CounterWindowSensor},
 };
@@ -39,6 +39,7 @@ impl BridgeCounterWindowBundle {
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
         default_map_spawn: bool,
+        _properties : HashMap<String,ConsoleCommandVariantValues>,
     ) -> Entity {
         let static_transform_component = StaticTransform {
             transform: entity_transform,

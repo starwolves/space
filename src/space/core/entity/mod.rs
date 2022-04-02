@@ -20,7 +20,7 @@ use crate::space::{
         helmet_security::spawn::HelmetSecurityBundle,
         human_male_pawn::spawn::HumanMalePawnBundle,
         jumpsuit_security::spawn::JumpsuitSecurityBundle,
-        pistol_l1::spawn::PistolL1Bundle,
+        pistol_l1::spawn::PistolL1Bundle, computers::bridge_computer::spawn::BridgeComputerBundle,
     },
 };
 
@@ -142,6 +142,13 @@ pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
         name: "constructionTool".to_string(),
         id: entity_data.get_id_inc(),
         spawn_function: Box::new(ConstructionToolBundle::spawn),
+        ..Default::default()
+    });
+
+    entities.push(EntityDataProperties {
+        name: "bridgeComputer".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(BridgeComputerBundle::spawn),
         ..Default::default()
     });
 

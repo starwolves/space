@@ -24,7 +24,7 @@ use crate::space::core::{
     health::components::{Health, HealthContainer, HumanoidHealth},
     inventory::components::{Inventory, Slot, SlotType},
     map::components::Map,
-    networking::resources::ReliableServerMessage,
+    networking::resources::{ReliableServerMessage, ConsoleCommandVariantValues},
     pawn::{
         components::{
             ConnectedPlayer, Pawn, PersistentPlayerData, PlayerInput, Radio, RadioChannel, Senser,
@@ -52,6 +52,7 @@ impl HumanMalePawnBundle {
         pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
         _default_map_spawn: bool,
+        _properties : HashMap<String,ConsoleCommandVariantValues>,
     ) -> Entity {
         let (
             persistent_player_data_component,

@@ -95,6 +95,7 @@ pub fn on_setupui(
             }),
             None,
             false,
+            HashMap::new(),
         );
     }
 }

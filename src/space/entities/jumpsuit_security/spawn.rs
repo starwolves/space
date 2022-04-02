@@ -25,7 +25,7 @@ use crate::space::{
             CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
             InventoryItem,
         },
-        networking::resources::ReliableServerMessage,
+        networking::resources::{ReliableServerMessage, ConsoleCommandVariantValues},
         physics::{
             components::{WorldMode, WorldModes},
             functions::{get_bit_masks, ColliderGroup},
@@ -49,6 +49,7 @@ impl JumpsuitSecurityBundle {
         _pawn_data_option: Option<SpawnPawnData>,
         held_data_option: Option<SpawnHeldData>,
         _default_map_spawn: bool,
+        _properties : HashMap<String,ConsoleCommandVariantValues>,
     ) -> Entity {
         match held_data_option {
             Some(held_data) => {

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy_ecs::system::{Commands, Res};
 
 use crate::space::{
@@ -51,6 +53,22 @@ pub fn load_raw_map_entities(
                 reflection_probe_component,
             );
         } else {
+
+            let data;
+
+            if &raw_entity.data != "" {
+                let raw_export_data: super::process_entities_json_data::ExportDataRaw = super::process_entities_json_data::ExportDataRaw {
+                    properties : serde_json::from_str(&raw_entity.data)
+                    .expect("load_raw_map_entities.rs Error parsing standard entity data.")
+                };
+                
+                data = super::process_entities_json_data::ExportData::new(raw_export_data).properties;
+            } else {
+                data = HashMap::new();
+            }
+
+            
+
             match entity_data.name_to_id.get(&raw_entity.entity_type) {
                 Some(entity_type_id) => {
                     let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
@@ -61,6 +79,7 @@ pub fn load_raw_map_entities(
                         None,
                         None,
                         true,
+                        data,
                     ));
                 }
                 None => {}
