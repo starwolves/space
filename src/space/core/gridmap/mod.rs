@@ -488,7 +488,10 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         ..Default::default()
     });
     main_cells_data.push(MainCellProperties {
-        id: *gridmap_data.main_name_id_map.get("reinforcedGlassWall").unwrap(),
+        id: *gridmap_data
+            .main_name_id_map
+            .get("reinforcedGlassWall")
+            .unwrap(),
         name: RichName {
             name: "reinforced glass wall".to_string(),
             n: true,

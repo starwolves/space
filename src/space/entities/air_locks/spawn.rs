@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     ActiveEvents, ColliderBundle, ColliderFlags, ColliderShape, InteractionGroups, RigidBodyBundle,
@@ -19,19 +20,20 @@ use crate::space::{
             resources::{SpawnHeldData, SpawnPawnData},
         },
         health::components::{Health, HealthFlag},
+        networking::resources::ConsoleCommandVariantValues,
         pawn::{
             components::SpaceAccessEnum,
             functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         },
         physics::functions::{get_bit_masks, ColliderGroup},
-        static_body::components::StaticTransform, networking::resources::{ConsoleCommandVariantValues},
+        static_body::components::StaticTransform,
     },
     entities::air_locks::components::AirLock,
 };
 
-pub struct VacuumAirlockBundle;
+pub struct AirlockBundle;
 
-impl VacuumAirlockBundle {
+impl AirlockBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
@@ -39,7 +41,7 @@ impl VacuumAirlockBundle {
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
         default_map_spawn: bool,
-        _properties : HashMap<String,ConsoleCommandVariantValues>,
+        properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
         let static_transform_component = StaticTransform {
             transform: entity_transform,
@@ -65,10 +67,21 @@ impl VacuumAirlockBundle {
             ..Default::default()
         };
 
+        let mut entity_name = "";
+
+        match properties.get("entity_name").unwrap() {
+            ConsoleCommandVariantValues::String(name) => {
+                entity_name = name;
+            }
+            _ => {
+                warn!("Incorrect entity_name type.");
+            }
+        }
+
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
-            "An air lock with vacuum warning colors. Opening this door will expose you to space."
+            "An air lock with bridge department colors. Access is only granted to high ranking staff."
                 .to_string(),
         );
         examine_map.insert(
@@ -95,13 +108,13 @@ impl VacuumAirlockBundle {
             },
             EntityData {
                 entity_class: "entity".to_string(),
-                entity_name: "vacuumAirLock".to_string(),
+                entity_name: entity_name.to_string(),
                 entity_group: EntityGroup::AirLock,
             },
             EntityUpdates::default(),
             Examinable {
                 name: RichName {
-                    name: "vacuum airlock".to_string(),
+                    name: "bridge airlock".to_string(),
                     n: false,
                     ..Default::default()
                 },
