@@ -1,4 +1,5 @@
 pub mod air_locks;
+pub mod computers;
 pub mod construction_tool_admin;
 pub mod counter_windows;
 pub mod gi_probe;
@@ -9,4 +10,3 @@ pub mod omni_light;
 pub mod pistol_l1;
 pub mod reflection_probe;
 pub mod sfx;
-pub mod computers;

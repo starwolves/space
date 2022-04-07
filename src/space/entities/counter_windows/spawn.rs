@@ -19,19 +19,20 @@ use crate::space::{
             resources::{SpawnHeldData, SpawnPawnData},
         },
         health::components::Health,
+        networking::resources::ConsoleCommandVariantValues,
         pawn::{
             components::SpaceAccessEnum,
             functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         },
         physics::functions::{get_bit_masks, ColliderGroup},
-        static_body::components::StaticTransform, networking::resources::ConsoleCommandVariantValues,
+        static_body::components::StaticTransform,
     },
     entities::counter_windows::components::{CounterWindow, CounterWindowSensor},
 };
 
-pub struct BridgeCounterWindowBundle;
+pub struct CounterWindowBundle;
 
-impl BridgeCounterWindowBundle {
+impl CounterWindowBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
@@ -39,7 +40,7 @@ impl BridgeCounterWindowBundle {
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
         default_map_spawn: bool,
-        _properties : HashMap<String,ConsoleCommandVariantValues>,
+        _properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
         let static_transform_component = StaticTransform {
             transform: entity_transform,
@@ -94,7 +95,7 @@ impl BridgeCounterWindowBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
-            "An airtight bridge window. It will only grant access to those authorised to use it."
+            "An airtight security window. It will only grant access to those authorised to use it."
                 .to_string(),
         );
         examine_map.insert(
@@ -118,13 +119,13 @@ impl BridgeCounterWindowBundle {
                 },
                 EntityData {
                     entity_class: "entity".to_string(),
-                    entity_name: "bridgeCounterWindow".to_string(),
+                    entity_name: "securityCounterWindow".to_string(),
                     entity_group: EntityGroup::AirLock,
                 },
                 EntityUpdates::default(),
                 Examinable {
                     name: RichName {
-                        name: "bridge counter window".to_string(),
+                        name: "security counter window".to_string(),
                         n: false,
                         ..Default::default()
                     },

@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use bevy_app::EventReader;
 use bevy_core::{Time, Timer};
 use bevy_ecs::{
@@ -10,13 +12,13 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::{
     core::{
         atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
-        entity::components::{DefaultMapEntity, EntityData, EntityGroup},
+        entity::components::{DefaultMapEntity, EntityData, EntityGroup, RichName, Examinable},
         gridmap::{
             functions::gridmap_functions::world_to_cell_id,
             resources::{EntityGridData, GridmapMain, Vec2Int},
         },
         map::resources::{MapData, GREEN_MAP_TILE_COUNTER},
-        pawn::components::{Pawn, SpaceAccess},
+        pawn::{components::{Pawn, SpaceAccess}, functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
     },
@@ -363,20 +365,21 @@ pub fn counter_window_added(
 }
 
 pub fn counter_window_default_map_added(
-    default_counter_windows: Query<
+    mut default_counter_windows: Query<
         (
             Entity,
             &RigidBodyPositionComponent,
             &DefaultMapEntity,
             &EntityData,
+            &mut Examinable,
         ),
         Added<CounterWindow>,
     >,
     mut map_data: ResMut<MapData>,
     mut gridmap_main: ResMut<GridmapMain>,
 ) {
-    for (counter_window_entity, rigid_body_position_component, _, entity_data_component) in
-        default_counter_windows.iter()
+    for (counter_window_entity, rigid_body_position_component, _, entity_data_component, mut examinable_component) in
+        default_counter_windows.iter_mut()
     {
         let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
         let cell_id2 = Vec2Int {
@@ -392,5 +395,41 @@ pub fn counter_window_default_map_added(
                 entity_name: entity_data_component.entity_name.to_string(),
             },
         );
+
+        if entity_data_component.entity_name == "securityCounterWindow" {
+            examinable_component.name = RichName {
+                name: "security counter window".to_string(),
+                n: false,
+                ..Default::default()
+            };
+            let mut examine_map = BTreeMap::new();
+            examine_map.insert(0, "An airtight security window. It will only grant access to those authorised to use it.".to_string());
+            examine_map.insert(
+                1,
+                "[font=".to_string()
+                    + FURTHER_ITALIC_FONT
+                    + "][color="
+                    + HEALTHY_COLOR
+                    + "]It is fully operational.[/color][/font]",
+            );
+            examinable_component.assigned_texts = examine_map;
+        } else if  entity_data_component.entity_name == "bridgeCounterWindow" {
+            examinable_component.name = RichName {
+                name: "bridge counter window".to_string(),
+                n: false,
+                ..Default::default()
+            };
+            let mut examine_map = BTreeMap::new();
+            examine_map.insert(0, "An airtight bridge window. It will only grant access to those authorised to use it.".to_string());
+            examine_map.insert(
+                1,
+                "[font=".to_string()
+                    + FURTHER_ITALIC_FONT
+                    + "][color="
+                    + HEALTHY_COLOR
+                    + "]It is fully operational.[/color][/font]",
+            );
+            examinable_component.assigned_texts = examine_map;
+        }
     }
 }

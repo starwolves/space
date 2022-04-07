@@ -143,6 +143,7 @@ use self::{
                 air_lock_added, air_lock_default_map_added, air_lock_events, air_lock_tick_timers,
             },
         },
+        computers::systems::computer_added,
         construction_tool_admin::{
             events::{
                 InputConstruct, InputConstructionOptions, InputConstructionOptionsSelection,
@@ -384,6 +385,7 @@ impl Plugin for SpacePlugin {
             .add_system(counter_window_added)
             .add_system(counter_window_default_map_added)
             .add_system(air_lock_default_map_added)
+            .add_system(computer_added)
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))

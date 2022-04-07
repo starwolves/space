@@ -12,7 +12,8 @@ use crate::space::core::{
         events::NetShowcase,
         resources::{EntityDataResource, SpawnHeldData, SpawnPawnData},
     },
-    pawn::{components::PersistentPlayerData, resources::UsedNames}, networking::resources::ConsoleCommandVariantValues,
+    networking::resources::ConsoleCommandVariantValues,
+    pawn::{components::PersistentPlayerData, resources::UsedNames},
 };
 
 pub fn spawn_entity(
@@ -29,9 +30,11 @@ pub fn spawn_entity(
         &mut Option<&mut EventWriter<NetShowcase>>,
     )>,
     pawn_data_option: Option<(Vec<(String, String)>, PersistentPlayerData)>,
-    properties: HashMap<String,ConsoleCommandVariantValues>,
+    mut properties: HashMap<String, ConsoleCommandVariantValues>,
 ) -> Option<Entity> {
     let return_entity;
+
+    properties.insert("entity_name".to_string(), ConsoleCommandVariantValues::String(entity_name.clone()));
 
     match entity_data.name_to_id.get(&entity_name) {
         Some(entity_type_id) => {
@@ -109,6 +112,9 @@ pub fn spawn_held_entity(
         Some(entity_type_id) => {
             let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
 
+            let mut map = HashMap::new();
+            map.insert("entity_name".to_string(), ConsoleCommandVariantValues::String(entity_name));
+
             return_entity = Some((*entity_properties.spawn_function)(
                 Transform::identity(),
                 commands,
@@ -123,7 +129,7 @@ pub fn spawn_held_entity(
                     ),
                 }),
                 false,
-                HashMap::new(),
+                map,
             ));
         }
         None => {

@@ -25,7 +25,7 @@ use crate::space::{
             CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
             InventoryItem, ProjectileType,
         },
-        networking::resources::{ReliableServerMessage, ConsoleCommandVariantValues},
+        networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
         physics::{
             components::{WorldMode, WorldModes},
             functions::{get_bit_masks, ColliderGroup},
@@ -52,7 +52,7 @@ impl PistolL1Bundle {
         _pawn_data_option: Option<SpawnPawnData>,
         held_data_option: Option<SpawnHeldData>,
         _default_map_spawn: bool,
-        _properties : HashMap<String,ConsoleCommandVariantValues>,
+        _properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
         match held_data_option {
             Some(held_data) => {

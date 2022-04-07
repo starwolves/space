@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use bevy_app::EventWriter;
 use bevy_ecs::{entity::Entity, system::Commands};
-use bevy_log::{warn};
+use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition,
@@ -11,29 +11,30 @@ use bevy_rapier3d::prelude::{
 };
 use bevy_transform::components::Transform;
 
-use crate::space::{core::{
-    entity::{
-        components::{EntityData, EntityUpdates, Examinable, RichName, Sensable, Showcase},
-        events::NetShowcase,
-        functions::transform_to_isometry::transform_to_isometry,
-        resources::{SpawnHeldData, SpawnPawnData},
+use crate::space::{
+    core::{
+        entity::{
+            components::{EntityData, EntityUpdates, Examinable, RichName, Sensable, Showcase},
+            events::NetShowcase,
+            functions::transform_to_isometry::transform_to_isometry,
+            resources::{SpawnHeldData, SpawnPawnData},
+        },
+        health::components::{DamageFlag, Health},
+        networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
+        physics::{
+            components::{WorldMode, WorldModes},
+            functions::{get_bit_masks, ColliderGroup},
+        },
+        rigid_body::components::{RigidBodyData}, static_body::components::StaticTransform,
     },
-    health::components::{DamageFlag, Health},
-    networking::resources::{ReliableServerMessage, ConsoleCommandVariantValues},
-    physics::{
-        components::{WorldMode, WorldModes},
-        functions::{get_bit_masks, ColliderGroup},
-    },
-    rigid_body::components::{
-        CachedBroadcastTransform, DefaultTransform, RigidBodyData,
-    },
-}, entities::computers::components::Computer};
+    entities::computers::components::Computer,
+};
 
 pub const STANDARD_BODY_FRICTION: f32 = 0.125;
 
-pub struct BridgeComputerBundle;
+pub struct ComputerBundle;
 
-impl BridgeComputerBundle {
+impl ComputerBundle {
     pub fn spawn(
         passed_transform: Transform,
         commands: &mut Commands,
@@ -41,7 +42,7 @@ impl BridgeComputerBundle {
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
         _default_map_spawn: bool,
-        properties : HashMap<String,ConsoleCommandVariantValues>,
+        properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
         spawn_entity(
             commands,
@@ -71,18 +72,17 @@ fn spawn_entity(
     net_showcase: &mut Option<&mut EventWriter<NetShowcase>>,
 
     correct_transform: bool,
-    properties : HashMap<String,ConsoleCommandVariantValues>,
+    properties: HashMap<String, ConsoleCommandVariantValues>,
 ) -> Entity {
-
     let computer_type;
 
     match properties.get("computerType").unwrap() {
         ConsoleCommandVariantValues::String(s) => {
-            computer_type=s.to_string();
-        },
-        _=> {
+            computer_type = s.to_string();
+        }
+        _ => {
             warn!("computerType had incorrect variable type!");
-            computer_type="".to_string();
+            computer_type = "".to_string();
         }
     }
 
@@ -198,7 +198,6 @@ fn spawn_entity(
         WorldMode {
             mode: WorldModes::Static,
         },
-        CachedBroadcastTransform::default(),
         Examinable {
             assigned_texts: examine_map,
             name: RichName {
@@ -208,11 +207,9 @@ fn spawn_entity(
             },
             ..Default::default()
         },
-        Computer {
-            computer_type,
-        },
-        DefaultTransform {
-            transform: default_transform,
+        Computer { computer_type },
+        StaticTransform {
+            transform: this_transform,
         },
         RigidBodyData {
             friction,

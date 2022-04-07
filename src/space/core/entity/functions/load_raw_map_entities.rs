@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use bevy_ecs::system::{Commands, Res};
 
 use crate::space::{
-    core::entity::{
+    core::{entity::{
         functions::string_to_type_converters::string_transform_to_transform,
         resources::EntityDataResource,
-    },
+    }, networking::resources::ConsoleCommandVariantValues},
     entities::{
         gi_probe::{process_content::ExportData, spawn::GIProbeBundle},
         omni_light::{self, spawn::OmniLightBundle},
@@ -53,21 +53,22 @@ pub fn load_raw_map_entities(
                 reflection_probe_component,
             );
         } else {
-
-            let data;
+            let mut data;
 
             if &raw_entity.data != "" {
-                let raw_export_data: super::process_entities_json_data::ExportDataRaw = super::process_entities_json_data::ExportDataRaw {
-                    properties : serde_json::from_str(&raw_entity.data)
-                    .expect("load_raw_map_entities.rs Error parsing standard entity data.")
-                };
-                
-                data = super::process_entities_json_data::ExportData::new(raw_export_data).properties;
+                let raw_export_data: super::process_entities_json_data::ExportDataRaw =
+                    super::process_entities_json_data::ExportDataRaw {
+                        properties: serde_json::from_str(&raw_entity.data)
+                            .expect("load_raw_map_entities.rs Error parsing standard entity data."),
+                    };
+
+                data =
+                    super::process_entities_json_data::ExportData::new(raw_export_data).properties;
             } else {
                 data = HashMap::new();
             }
 
-            
+            data.insert("entity_name".to_string(), ConsoleCommandVariantValues::String(raw_entity.entity_type.clone()));
 
             match entity_data.name_to_id.get(&raw_entity.entity_type) {
                 Some(entity_type_id) => {

@@ -8,10 +8,13 @@ use bevy_ecs::{
 };
 use bevy_transform::components::Transform;
 
-use crate::space::core::{pawn::{
-    components::{ConnectedPlayer, PersistentPlayerData},
-    resources::UsedNames,
-}, networking::resources::{ConsoleCommandVariantValues}};
+use crate::space::core::{
+    networking::resources::ConsoleCommandVariantValues,
+    pawn::{
+        components::{ConnectedPlayer, PersistentPlayerData},
+        resources::UsedNames,
+    },
+};
 
 use super::events::NetShowcase;
 
@@ -73,7 +76,7 @@ pub struct EntityDataProperties {
                 Option<SpawnPawnData>,
                 Option<SpawnHeldData>,
                 bool,
-                HashMap<String,ConsoleCommandVariantValues>,
+                HashMap<String, ConsoleCommandVariantValues>,
             ) -> Entity
             + Sync
             + Send,
@@ -91,7 +94,7 @@ pub struct GridItemData {
 impl Default for EntityDataProperties {
     fn default() -> Self {
         Self {
-            spawn_function: Box::new(|_, _, _, _, _, _,_,| Entity::from_raw(0)),
+            spawn_function: Box::new(|_, _, _, _, _, _, _| Entity::from_raw(0)),
             name: Default::default(),
             id: Default::default(),
             grid_item: None,
