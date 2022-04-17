@@ -6,14 +6,13 @@ use bevy_ecs::{
 
 use crate::space::{
     core::{
-        connected_player::events::NetSendWorldEnvironment,
+        connected_player::events::{InputBuildGraphics, NetSendWorldEnvironment},
         entity::{
             components::{EntityData, EntityUpdates},
             events::NetLoadEntity,
             functions::load_entity_for_player::load_entity,
         },
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
-        pawn::events::InputBuildGraphics,
         static_body::components::StaticTransform,
         world_environment::resources::WorldEnvironment,
     },

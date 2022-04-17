@@ -11,11 +11,12 @@ use crate::space::{
     core::{
         connected_player::{
             components::{ConnectedPlayer, Spawning},
+            events::NetOnSpawning,
             resources::HandleToEntity,
         },
         entity::resources::{EntityDataResource, SpawnPawnData},
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
-        pawn::{components::PersistentPlayerData, events::NetOnSpawning, resources::UsedNames},
+        pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
     entities::human_male_pawn::spawn::HumanMalePawnBundle,
 };

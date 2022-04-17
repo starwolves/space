@@ -8,7 +8,10 @@ use bevy_math::Vec3;
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{
-    connected_player::resources::HandleToEntity,
+    connected_player::{
+        events::{InputTabDataEntity, InputTabDataMap, NetTabData},
+        resources::HandleToEntity,
+    },
     entity::{components::EntityData, resources::EntityDataResource},
     examinable::components::Examinable,
     gridmap::{
@@ -17,10 +20,7 @@ use crate::space::core::{
     },
     inventory::components::Inventory,
     networking::resources::{GridMapType, ReliableServerMessage},
-    pawn::{
-        components::Pawn,
-        events::{InputTabDataEntity, InputTabDataMap, NetTabData},
-    },
+    pawn::components::Pawn,
     sensable::components::Sensable,
     senser::components::Senser,
 };

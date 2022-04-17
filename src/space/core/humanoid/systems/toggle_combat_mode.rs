@@ -1,7 +1,9 @@
 use bevy_app::EventReader;
 use bevy_ecs::system::Query;
 
-use crate::space::core::{humanoid::components::Humanoid, pawn::events::InputToggleCombatMode};
+use crate::space::core::{
+    connected_player::events::InputToggleCombatMode, humanoid::components::Humanoid,
+};
 
 pub fn toggle_combat_mode(
     mut toggle_combat_mode_events: EventReader<InputToggleCombatMode>,

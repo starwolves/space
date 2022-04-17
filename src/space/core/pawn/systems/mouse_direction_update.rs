@@ -6,7 +6,9 @@ use bevy_ecs::{
     system::{Local, Query},
 };
 
-use crate::space::core::{humanoid::components::Humanoid, pawn::events::InputMouseDirectionUpdate};
+use crate::space::core::{
+    connected_player::events::InputMouseDirectionUpdate, humanoid::components::Humanoid,
+};
 
 #[derive(Default)]
 pub struct TimeStampPerEntity {

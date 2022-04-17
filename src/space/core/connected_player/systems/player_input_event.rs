@@ -2,9 +2,9 @@ use bevy_app::EventReader;
 use bevy_ecs::system::Query;
 use bevy_log::warn;
 
-use crate::space::core::pawn::{
-    components::ControllerInput,
-    events::{InputMovementInput, InputSprinting},
+use crate::space::core::{
+    connected_player::events::{InputMovementInput, InputSprinting},
+    pawn::components::ControllerInput,
 };
 
 pub fn player_input_event(

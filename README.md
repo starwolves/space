@@ -88,7 +88,7 @@ Space Frontiers allows each community of players to compile and host a server in
 A developer documentation website is planned.
 
 A developer web forum is planned.
-![Screenshot of Space Frontiers GUI project map and server editor](/data/project/sfeditorss.png?raw=true)
+![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
 
 
 ### License
