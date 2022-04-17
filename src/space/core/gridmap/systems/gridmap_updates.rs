@@ -5,12 +5,13 @@ use bevy_ecs::{
 };
 
 use crate::space::core::{
+    connected_player::components::ConnectedPlayer,
     gridmap::{
         events::NetGridmapUpdates,
         resources::{to_doryen_coordinates, GridmapDetails1, GridmapMain},
     },
     networking::resources::{GridMapType, ReliableServerMessage},
-    pawn::components::{ConnectedPlayer, Senser},
+    senser::components::Senser,
 };
 
 pub fn gridmap_updates(

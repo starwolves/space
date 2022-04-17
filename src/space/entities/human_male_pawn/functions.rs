@@ -1,12 +1,12 @@
 use bevy_ecs::system::Query;
 
 use crate::space::core::{
-    entity::components::Examinable,
-    health::components::Health,
-    inventory::components::Inventory,
-    pawn::functions::new_chat_message::{
+    chat::functions::{
         ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
     },
+    examinable::components::Examinable,
+    health::components::Health,
+    inventory::components::Inventory,
 };
 
 pub fn generate_human_examine_text(

@@ -13,6 +13,7 @@ use bevy_rapier3d::prelude::{
 };
 
 use crate::space::core::{
+    connected_player::resources::HandleToEntity,
     entity::components::EntityData,
     gridmap::{
         components::Cell,
@@ -54,7 +55,7 @@ pub fn pickup_world_item<'a>(
     mut commands: Commands,
     mut net_pickup_world_item: EventWriter<NetPickupWorldItem>,
     query_pipeline: Res<QueryPipeline>,
-
+    handle_to_entity: Res<HandleToEntity>,
     gridmap_main: Res<GridmapMain>,
     gridmap_data: Res<GridmapData>,
     cell_query: Query<&Cell>,
@@ -185,13 +186,18 @@ pub fn pickup_world_item<'a>(
                 ..Default::default()
             });
 
-        net_pickup_world_item.send(NetPickupWorldItem {
-            handle: event.handle,
-            message: ReliableServerMessage::PickedUpItem(
-                pickupable_entity_data.entity_name.clone(),
-                event.pickupable_entity_bits,
-                pickup_slot.slot_name.clone(),
-            ),
-        });
+        match handle_to_entity.inv_map.get(&event.pickuper_entity) {
+            Some(handle) => {
+                net_pickup_world_item.send(NetPickupWorldItem {
+                    handle: *handle,
+                    message: ReliableServerMessage::PickedUpItem(
+                        pickupable_entity_data.entity_name.clone(),
+                        event.pickupable_entity_bits,
+                        pickup_slot.slot_name.clone(),
+                    ),
+                });
+            }
+            None => {}
+        }
     }
 }

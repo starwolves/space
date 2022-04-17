@@ -12,16 +12,15 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::{
     core::{
         atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
-        entity::components::{DefaultMapEntity, EntityData, EntityGroup, Examinable, RichName},
+        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+        entity::components::{DefaultMapEntity, EntityData, EntityGroup},
+        examinable::components::{Examinable, RichName},
         gridmap::{
             functions::gridmap_functions::world_to_cell_id,
             resources::{EntityGridData, GridmapMain, Vec2Int},
         },
         map::resources::{MapData, GREEN_MAP_TILE_ENTRANCE},
-        pawn::{
-            components::{Pawn, SpaceAccess},
-            functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-        },
+        pawn::components::{Pawn, SpaceAccess},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
     },

@@ -1,0 +1,93 @@
+use bevy_ecs::entity::Entity;
+
+use crate::space::core::{
+    gridmap::resources::Vec3Int,
+    networking::resources::{GridMapType, ReliableServerMessage, UIInputAction, UIInputNodeClass},
+};
+
+pub struct NetSendServerTime {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct NetSendWorldEnvironment {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct NetUpdatePlayerCount {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct BoardingPlayer {
+    pub player_handle: u32,
+    pub player_character_name: String,
+    pub entity: Entity,
+}
+
+pub struct InputExamineEntity {
+    pub handle: u32,
+    pub examine_entity_bits: u64,
+    pub entity: Entity,
+}
+
+pub struct InputExamineMap {
+    pub handle: u32,
+    pub entity: Entity,
+    pub gridmap_type: GridMapType,
+    pub gridmap_cell_id: Vec3Int,
+}
+
+pub struct TextTreeInputSelection {
+    pub handle: u32,
+    pub menu_id: String,
+    pub menu_selection: String,
+    pub tab_action_id: String,
+    pub belonging_entity: Option<u64>,
+}
+
+pub struct InputSceneReady {
+    pub handle: u32,
+    pub scene_type: String,
+}
+
+pub struct NetDoneBoarding {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct NetExamineEntity {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct NetOnBoarding {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct NetOnNewPlayerConnection {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct NetOnSetupUI {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
+pub struct InputUIInputTransmitText {
+    pub handle: u32,
+    pub ui_type: String,
+    pub node_path: String,
+    pub input_text: String,
+}
+
+pub struct InputUIInput {
+    pub handle: u32,
+    pub node_class: UIInputNodeClass,
+    pub action: UIInputAction,
+    pub node_name: String,
+    pub ui_type: String,
+}

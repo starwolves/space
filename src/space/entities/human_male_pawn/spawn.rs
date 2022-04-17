@@ -10,34 +10,37 @@ use bevy_rapier3d::prelude::{
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
+    connected_player::{
+        components::ConnectedPlayer, functions::name_generator::get_dummy_name,
+        systems::on_setupui::ENTITY_SPAWN_PARENT,
+    },
     data_link::components::{DataLink, DataLinkType},
     entity::{
-        components::{
-            EntityData, EntityGroup, EntityUpdates, Examinable, RichName, Sensable, Showcase,
-        },
+        components::{EntityData, EntityGroup, EntityUpdates, Showcase},
         events::NetShowcase,
         functions::{
             spawn_entity::spawn_held_entity, transform_to_isometry::transform_to_isometry,
         },
         resources::{SpawnHeldData, SpawnPawnData},
     },
+    examinable::components::{Examinable, RichName},
     health::components::{Health, HealthContainer, HumanoidHealth},
+    humanoid::components::Humanoid,
     inventory::components::{Inventory, Slot, SlotType},
     map::components::Map,
     networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
-    pawn::{
-        components::{
-            ConnectedPlayer, Pawn, PersistentPlayerData, PlayerInput, Radio, RadioChannel, Senser,
-            SpaceAccess, SpaceAccessEnum, SpaceJobsEnum, StandardCharacter,
-        },
-        functions::{get_tab_action::get_tab_action, name_generator::get_dummy_name},
-        systems::on_setupui::ENTITY_SPAWN_PARENT,
+    pawn::components::{
+        ControllerInput, Pawn, PersistentPlayerData, Radio, RadioChannel, SpaceAccess,
+        SpaceAccessEnum, SpaceJobsEnum,
     },
     physics::{
         components::{WorldMode, WorldModes},
         functions::{get_bit_masks, ColliderGroup},
     },
     rigid_body::components::{CachedBroadcastTransform, DefaultTransform, RigidBodyData},
+    sensable::components::Sensable,
+    senser::components::Senser,
+    tab_actions::functions::get_tab_action,
 };
 
 pub struct HumanMalePawnBundle;
@@ -154,7 +157,7 @@ impl HumanMalePawnBundle {
             WorldMode {
                 mode: WorldModes::Kinematic,
             },
-            StandardCharacter {
+            Humanoid {
                 character_name: character_name.clone(),
                 ..Default::default()
             },
@@ -357,7 +360,7 @@ impl HumanMalePawnBundle {
                     access: vec![SpaceAccessEnum::Security],
                 },
                 pawn_component,
-                PlayerInput::default(),
+                ControllerInput::default(),
             ));
 
             if !dummy_instance {

@@ -20,9 +20,10 @@ use crate::space::{
             resources::{AtmosphericsResource, EffectType},
             systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
         },
+        chat::functions::FURTHER_ITALIC_FONT,
+        connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
         entity::{
-            components::{EntityData, Sensable},
-            functions::isometry_to_transform::isometry_to_transform,
+            components::EntityData, functions::isometry_to_transform::isometry_to_transform,
             resources::EntityDataResource,
         },
         gridmap::{
@@ -39,12 +40,10 @@ use crate::space::{
         },
         inventory_item::components::InventoryItem,
         networking::resources::{GridMapType, ReliableServerMessage, TextTreeBit},
-        pawn::{
-            components::{ConnectedPlayer, Pawn, Senser},
-            functions::new_chat_message::FURTHER_ITALIC_FONT,
-            resources::HandleToEntity,
-        },
+        pawn::components::Pawn,
         rigid_body::components::RigidBodyDisabled,
+        sensable::components::Sensable,
+        senser::components::Senser,
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
     },
     entities::{

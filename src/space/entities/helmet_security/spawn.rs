@@ -13,11 +13,12 @@ use bevy_transform::components::Transform;
 
 use crate::space::core::{
     entity::{
-        components::{EntityData, EntityUpdates, Examinable, RichName, Sensable, Showcase},
+        components::{EntityData, EntityUpdates, Showcase},
         events::NetShowcase,
         functions::transform_to_isometry::transform_to_isometry,
         resources::{SpawnHeldData, SpawnPawnData},
     },
+    examinable::components::{Examinable, RichName},
     health::components::{DamageFlag, DamageModel, Health},
     inventory::components::SlotType,
     inventory_item::components::{
@@ -32,6 +33,7 @@ use crate::space::core::{
         CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
         RigidBodyLinkTransform,
     },
+    sensable::components::Sensable,
 };
 
 use super::components::Helmet;

@@ -10,21 +10,18 @@ use bevy_transform::{components::Transform, hierarchy::BuildChildren};
 
 use crate::space::{
     core::{
+        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         entity::{
-            components::{
-                DefaultMapEntity, EntityData, EntityGroup, EntityUpdates, Examinable, RichName,
-                Sensable,
-            },
+            components::{DefaultMapEntity, EntityData, EntityGroup, EntityUpdates},
             functions::transform_to_isometry::transform_to_isometry,
             resources::{SpawnHeldData, SpawnPawnData},
         },
+        examinable::components::{Examinable, RichName},
         health::components::Health,
         networking::resources::ConsoleCommandVariantValues,
-        pawn::{
-            components::SpaceAccessEnum,
-            functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-        },
+        pawn::components::SpaceAccessEnum,
         physics::functions::{get_bit_masks, ColliderGroup},
+        sensable::components::Sensable,
         static_body::components::StaticTransform,
     },
     entities::counter_windows::components::{CounterWindow, CounterWindowSensor},

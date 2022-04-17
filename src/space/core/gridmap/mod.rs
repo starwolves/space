@@ -42,7 +42,7 @@ use self::resources::SpawnPoints;
 use super::{
     atmospherics::systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
     configuration::resources::{ServerId, TickRate},
-    entity::components::RichName,
+    examinable::components::RichName,
     world_environment::resources::WorldEnvironment,
 };
 

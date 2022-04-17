@@ -1,8 +1,9 @@
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
-    entity::components::{EntityData, EntityUpdates, Sensable},
+    entity::components::{EntityData, EntityUpdates},
     rigid_body::components::{CachedBroadcastTransform, UpdateTransform},
+    sensable::components::Sensable,
     sfx::components::{get_random_pitch_scale, FootstepsWalking, RepeatingSfx},
     static_body::components::StaticTransform,
 };

@@ -3,11 +3,11 @@ use const_format::concatcp;
 use rand::Rng;
 
 use crate::space::core::{
-    gridmap::resources::{CellData, GridmapData},
-    networking::resources::GridMapType,
-    pawn::functions::new_chat_message::{
+    chat::functions::{
         ASTRIX, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
     },
+    gridmap::resources::{CellData, GridmapData},
+    networking::resources::GridMapType,
 };
 
 pub const EXAMINATION_EMPTY: &str = "You cannot see what is there.";

@@ -11,7 +11,9 @@ use bevy_rapier3d::prelude::{
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
-    entity::components::Examinable,
+    chat::events::NetChatMessage,
+    connected_player::resources::HandleToEntity,
+    examinable::components::Examinable,
     gridmap::{
         components::Cell,
         events::ProjectileFOV,
@@ -27,8 +29,8 @@ use crate::space::core::{
     },
     inventory_item::components::CombatType,
     networking::resources::NetProjectileType,
-    pawn::{components::Senser, events::NetChatMessage, resources::HandleToEntity},
     physics::functions::{get_bit_masks, ColliderGroup},
+    senser::components::Senser,
     sfx::resources::SfxAutoDestroyTimers,
 };
 

@@ -8,6 +8,7 @@ use crate::space::core::{
         resources::{AtmosphericsResource, EffectType},
         systems::effects::VACUUM_ATMOSEFFECT,
     },
+    connected_player::components::ConnectedPlayer,
     gridmap::{
         events::RemoveCell,
         resources::{
@@ -16,7 +17,7 @@ use crate::space::core::{
         },
     },
     networking::resources::GridMapType,
-    pawn::components::{ConnectedPlayer, Senser},
+    senser::components::Senser,
 };
 
 use super::senser_update_fov::FOV_DISTANCE;

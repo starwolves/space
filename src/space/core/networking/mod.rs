@@ -22,21 +22,14 @@ use crate::space::core::{
         SERVER_MESSAGE_RELIABLE, SERVER_MESSAGE_UNRELIABLE, SERVER_PORT,
     },
     pawn::{
-        components::{ConnectedPlayer, PersistentPlayerData, PlayerInput},
+        components::{ControllerInput, PersistentPlayerData},
         events::{
             InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics,
-            InputChatMessage, InputConsoleCommand, InputExamineEntity, InputExamineMap,
-            InputMouseAction, InputMouseDirectionUpdate, InputMovementInput, InputSceneReady,
-            InputSelectBodyPart, InputSprinting, InputTabAction, InputTabDataEntity,
-            InputTabDataMap, InputToggleAutoMove, InputToggleCombatMode, InputUIInput,
-            InputUIInputTransmitText, InputUserName, NetOnNewPlayerConnection,
-            TextTreeInputSelection,
+            InputMouseAction, InputMouseDirectionUpdate, InputMovementInput, InputSelectBodyPart,
+            InputSprinting, InputTabDataEntity, InputTabDataMap, InputToggleAutoMove,
+            InputToggleCombatMode, InputUserName,
         },
-        functions::{
-            on_new_player_connection::on_new_player_connection,
-            on_player_disconnect::on_player_disconnect,
-        },
-        resources::{AuthidI, HandleToEntity, UsedNames},
+        resources::{AuthidI, UsedNames},
     },
 };
 use crate::space::{
@@ -49,11 +42,7 @@ use crate::space::{
             NetWearItem,
         },
         map::events::NetRequestDisplayModes,
-        pawn::events::{
-            NetChatMessage, NetConsoleCommands, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
-            NetOnSetupUI, NetOnSpawning, NetSendServerTime, NetSendWorldEnvironment, NetTabData,
-            NetUIInputTransmitData, NetUpdatePlayerCount, NetUserName,
-        },
+        pawn::events::{NetOnSpawning, NetTabData, NetUIInputTransmitData, NetUserName},
     },
     entities::construction_tool_admin::events::NetConstructionTool,
 };
@@ -62,8 +51,25 @@ use super::{
     atmospherics::events::{
         NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics,
     },
+    chat::events::{InputChatMessage, NetChatMessage},
+    connected_player::{
+        components::ConnectedPlayer,
+        events::{
+            InputExamineEntity, InputExamineMap, InputSceneReady, InputUIInput,
+            InputUIInputTransmitText, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
+            NetOnNewPlayerConnection, NetOnSetupUI, NetSendServerTime, NetSendWorldEnvironment,
+            NetUpdatePlayerCount, TextTreeInputSelection,
+        },
+        functions::{
+            on_new_player_connection::on_new_player_connection,
+            on_player_disconnect::on_player_disconnect,
+        },
+        resources::HandleToEntity,
+    },
+    console_commands::events::{InputConsoleCommand, NetConsoleCommands},
+    humanoid::components::Humanoid,
     map::resources::MapData,
-    pawn::components::StandardCharacter,
+    tab_actions::events::InputTabAction,
 };
 
 pub fn startup_listen_connections(mut net: ResMut<NetworkResource>) {
@@ -208,26 +214,47 @@ pub fn messages_outgoing(
                     });
                 }
                 ReliableClientMessage::MovementInput(movement_input) => {
-                    movement_input_event.send(InputMovementInput {
-                        handle: *handle,
-                        vector: movement_input,
-                    });
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            movement_input_event.send(InputMovementInput {
+                                vector: movement_input,
+                                player_entity: *player_entity,
+                            });
+                        }
+                        None => {
+                            warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
+                        }
+                    }
                 }
                 ReliableClientMessage::BuildGraphics => {
                     build_graphics_event.send(InputBuildGraphics { handle: *handle });
                 }
                 ReliableClientMessage::InputChatMessage(message) => {
-                    input_chat_message_event.send(InputChatMessage {
-                        handle: *handle,
-                        message: message,
-                    });
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_chat_message_event.send(InputChatMessage {
+                                entity: *player_entity,
+                                message: message,
+                            });
+                        }
+                        None => {
+                            warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
+                        }
+                    }
                 }
 
                 ReliableClientMessage::SprintInput(is_sprinting) => {
-                    input_sprinting_event.send(InputSprinting {
-                        handle: *handle,
-                        is_sprinting: is_sprinting,
-                    });
+                    match handle_to_entity.map.get(handle) {
+                        Some(player_entity) => {
+                            input_sprinting_event.send(InputSprinting {
+                                is_sprinting: is_sprinting,
+                                entity: *player_entity,
+                            });
+                        }
+                        None => {
+                            warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
+                        }
+                    }
                 }
                 ReliableClientMessage::ExamineEntity(entity_id) => {
                     match handle_to_entity.map.get(handle) {
@@ -269,7 +296,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             use_world_item.send(InputUseWorldItem {
-                                handle: *handle,
                                 pickuper_entity: *player_entity,
                                 pickupable_entity_bits: entity_id,
                             });
@@ -283,7 +309,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             drop_current_item.send(InputDropCurrentItem {
-                                handle: *handle,
                                 pickuper_entity: *player_entity,
                                 input_position_option: position_option,
                             });
@@ -297,7 +322,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             switch_hands.send(InputSwitchHands {
-                                handle: *handle,
                                 entity: *player_entity,
                             });
                         }
@@ -310,7 +334,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             wear_items.send(InputWearItem {
-                                handle: *handle,
                                 wearer_entity: *player_entity,
                                 wearable_id_bits: item_id,
                                 wear_slot: wear_slot,
@@ -327,7 +350,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             take_off_item.send(InputTakeOffItem {
-                                handle: *handle,
                                 entity: *player_entity,
                                 slot_name: slot_name,
                             });
@@ -360,7 +382,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_toggle_combat_mode.send(InputToggleCombatMode {
-                                handle: *handle,
                                 entity: *player_entity,
                             });
                         }
@@ -373,7 +394,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_mouse_action.send(InputMouseAction {
-                                handle: *handle,
                                 entity: *player_entity,
                                 pressed,
                             });
@@ -387,7 +407,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_select_body_part.send(InputSelectBodyPart {
-                                handle: *handle,
                                 entity: *player_entity,
                                 body_part,
                             });
@@ -400,7 +419,6 @@ pub fn messages_outgoing(
                 ReliableClientMessage::ToggleAutoMove => match handle_to_entity.map.get(handle) {
                     Some(player_entity) => {
                         input_toggle_auto_move.send(InputToggleAutoMove {
-                            handle: *handle,
                             entity: *player_entity,
                         });
                     }
@@ -412,7 +430,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_global_name.send(InputUserName {
-                                handle: *handle,
                                 entity: *player_entity,
                                 input_name,
                             });
@@ -426,7 +443,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_attack_entity.send(InputAttackEntity {
-                                handle: *handle,
                                 entity: *player_entity,
                                 target_entity_bits: entity_id,
                             });
@@ -440,7 +456,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_alt_item_attack.send(InputAltItemAttack {
-                                handle: *handle,
                                 entity: *player_entity,
                             });
                         }
@@ -453,7 +468,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_throw_item.send(InputThrowItem {
-                                handle: *handle,
                                 entity: *player_entity,
                                 position,
                                 angle,
@@ -468,7 +482,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             input_attack_cell.send(InputAttackCell {
-                                handle: *handle,
                                 entity: *player_entity,
                                 id: Vec3Int {
                                     x: cell_x,
@@ -486,7 +499,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             tab_data_entity.send(InputTabDataEntity {
-                                handle: *handle,
                                 player_entity: *player_entity,
                                 examine_entity_bits: entity_id_bits,
                             });
@@ -500,7 +512,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             tab_data_map.send(InputTabDataMap {
-                                handle: *handle,
                                 player_entity: *player_entity,
                                 gridmap_type: gridmap_type,
                                 gridmap_cell_id: Vec3Int {
@@ -523,7 +534,6 @@ pub fn messages_outgoing(
                 ) => match handle_to_entity.map.get(handle) {
                     Some(player_entity) => {
                         input_tab_action.send(InputTabAction {
-                            handle: *handle,
                             tab_id,
                             player_entity: *player_entity,
                             target_entity_option: entity_option,
@@ -599,7 +609,6 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             mouse_direction_update.send(InputMouseDirectionUpdate {
-                                handle: *handle,
                                 entity: *player_entity,
                                 direction: mouse_direction,
                                 time_stamp,
@@ -662,8 +671,8 @@ pub fn connections(
     mut connected_players: Query<(
         &mut PersistentPlayerData,
         &mut ConnectedPlayer,
-        &mut PlayerInput,
-        &mut StandardCharacter,
+        &mut ControllerInput,
+        &mut Humanoid,
     )>,
     mut used_names: ResMut<UsedNames>,
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,

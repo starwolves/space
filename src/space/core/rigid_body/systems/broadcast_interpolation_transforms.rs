@@ -11,10 +11,10 @@ use bevy_rapier3d::prelude::{RigidBodyPositionComponent, RigidBodyVelocityCompon
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
-    entity::components::Sensable,
+    connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
     networking::resources::UnreliableServerMessage,
-    pawn::{components::ConnectedPlayer, resources::HandleToEntity},
     rigid_body::components::{CachedBroadcastTransform, RigidBodyDisabled},
+    sensable::components::Sensable,
     static_body::components::StaticTransform,
 };
 

@@ -13,6 +13,7 @@ use crate::space::core::{
         functions::{get_atmos_id, get_atmos_index},
         resources::{AtmosphericsResource, MapHolderData, MapHolders, CELCIUS_KELVIN_OFFSET},
     },
+    connected_player::components::ConnectedPlayer,
     gridmap::{
         functions::gridmap_functions::world_to_cell_id,
         resources::{Vec2Int, FOV_MAP_WIDTH},
@@ -22,7 +23,6 @@ use crate::space::core::{
         functions::{get_overlay_tile_item, get_overlay_tile_priority, OverlayTile},
     },
     networking::resources::{NetMessageType, ReliableServerMessage},
-    pawn::components::ConnectedPlayer,
 };
 
 const MAX_VALIDS_PER_BATCH: u16 = 2500;

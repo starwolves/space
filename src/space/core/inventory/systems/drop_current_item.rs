@@ -15,12 +15,9 @@ use bevy_rapier3d::prelude::{
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
-    entity::{
-        components::Sensable,
-        functions::{
-            isometry_to_transform::isometry_to_transform,
-            transform_to_isometry::transform_to_isometry,
-        },
+    connected_player::resources::HandleToEntity,
+    entity::functions::{
+        isometry_to_transform::isometry_to_transform, transform_to_isometry::transform_to_isometry,
     },
     gridmap::{
         components::Cell,
@@ -39,10 +36,10 @@ use crate::space::core::{
             can_reach_entity::{can_reach_entity, REACH_DISTANCE},
             entity_spawn_position_for_player::entity_spawn_position_for_player,
         },
-        resources::HandleToEntity,
     },
     physics::components::{WorldMode, WorldModes},
     rigid_body::{components::RigidBodyLinkTransform, functions::enable_rigidbody},
+    sensable::components::Sensable,
 };
 
 pub fn drop_current_item<'a>(
@@ -283,10 +280,17 @@ pub fn drop_current_item<'a>(
             None => {}
         }
 
-        // Send UI/Control update to owning client.
-        net_drop_current_item.send(NetDropCurrentItem {
-            handle: event.handle,
-            message: ReliableServerMessage::DropItem(drop_slot.slot_name.clone()),
-        });
+        match handle_to_entity.inv_map.get(&event.pickuper_entity) {
+            Some(handle) => {
+                // Send UI/Control update to owning client.
+                net_drop_current_item.send(NetDropCurrentItem {
+                    handle: *handle,
+                    message: ReliableServerMessage::DropItem(drop_slot.slot_name.clone()),
+                });
+            }
+            None => {
+                continue;
+            }
+        }
     }
 }

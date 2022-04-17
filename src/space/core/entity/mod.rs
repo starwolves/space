@@ -6,16 +6,11 @@ use bevy_transform::components::Transform;
 use crate::space::{
     core::entity::resources::{EntityDataProperties, GridItemData},
     entities::{
-        air_locks::spawn::AirlockBundle,
-        computers::spawn::ComputerBundle,
+        air_locks::spawn::AirlockBundle, computers::spawn::ComputerBundle,
         construction_tool_admin::spawn::ConstructionToolBundle,
-        counter_windows::{
-            spawn::CounterWindowBundle,
-        },
-        helmet_security::spawn::HelmetSecurityBundle,
+        counter_windows::spawn::CounterWindowBundle, helmet_security::spawn::HelmetSecurityBundle,
         human_male_pawn::spawn::HumanMalePawnBundle,
-        jumpsuit_security::spawn::JumpsuitSecurityBundle,
-        pistol_l1::spawn::PistolL1Bundle,
+        jumpsuit_security::spawn::JumpsuitSecurityBundle, pistol_l1::spawn::PistolL1Bundle,
     },
 };
 

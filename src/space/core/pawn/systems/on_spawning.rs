@@ -9,13 +9,13 @@ use bevy_ecs::{
 
 use crate::space::{
     core::{
+        connected_player::{
+            components::{ConnectedPlayer, Spawning},
+            resources::HandleToEntity,
+        },
         entity::resources::{EntityDataResource, SpawnPawnData},
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
-        pawn::{
-            components::{ConnectedPlayer, PersistentPlayerData, Spawning},
-            events::NetOnSpawning,
-            resources::{HandleToEntity, UsedNames},
-        },
+        pawn::{components::PersistentPlayerData, events::NetOnSpawning, resources::UsedNames},
     },
     entities::human_male_pawn::spawn::HumanMalePawnBundle,
 };

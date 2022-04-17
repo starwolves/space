@@ -6,13 +6,14 @@ use bevy_ecs::{
 };
 
 use crate::space::core::{
+    connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
     entity::{
-        components::{EntityUpdates, Sensable, Showcase},
+        components::{EntityUpdates, Showcase},
         events::NetSendEntityUpdates,
         functions::entity_updates_personalise,
     },
     networking::resources::{EntityWorldType, ReliableServerMessage},
-    pawn::{components::ConnectedPlayer, resources::HandleToEntity},
+    sensable::components::Sensable,
 };
 
 pub fn send_entity_updates(

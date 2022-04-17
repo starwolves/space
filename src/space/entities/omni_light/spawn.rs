@@ -2,8 +2,9 @@ use bevy_ecs::system::Commands;
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
-    entity::components::{EntityData, EntityUpdates, Sensable},
+    entity::components::{EntityData, EntityUpdates},
     physics::components::{WorldMode, WorldModes},
+    sensable::components::Sensable,
     static_body::components::StaticTransform,
 };
 

@@ -3,8 +3,9 @@ use std::collections::BTreeMap;
 use bevy_ecs::{prelude::Added, system::Query};
 
 use crate::space::core::{
-    entity::components::{EntityData, Examinable, RichName},
-    pawn::functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    entity::components::EntityData,
+    examinable::components::{Examinable, RichName},
 };
 
 use super::components::Computer;

@@ -10,7 +10,7 @@
 
   
 
-A modular & moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/).
+A modular & moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust).
 This game server is designed to run well on modern processors that have multiple CPU cores.
 
 ### Media
@@ -66,8 +66,9 @@ However, most devices made for video-games should expect no such problems.
 
 When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
 
+## Organization
 
-### Space Frontiers community & contributing
+### Space Frontiers
 Space Frontiers now has an official brand new community [Discord server](https://discord.gg/yYpMun9CTT).
 
 
@@ -76,9 +77,11 @@ This project is oriented towards long-term development, meaning it is here to st
 Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 
 The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
-It is possible to contribute in all kinds of ways and you reaching out for possibilities will be very appreciated!
+It is possible to contribute in all kinds of ways and you reaching out for possibilities will be appreciated!
 Also looking for both 2D & 3D digital artists, writers and game(play) designers.
 People who are genuinely interested in contributing are suggested to contact the developer on Discord, when this interest arises high priority will be put into creating project documentation, tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
+
+All contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on GitHub.
 
 Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain sovereign.
 
@@ -88,7 +91,12 @@ A developer web forum is planned.
 ![Screenshot of Space Frontiers GUI project map and server editor](/data/project/sfeditorss.png?raw=true)
 
 
+### License
+
+This repository is licensed under [a special license](https://github.com/starwolves/space/blob/master/LICENSE).
+
+
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
-The roots of Space Frontiers are partially in this community, but Space Frontiers is managed in a way that effectively makes Space Frontiers and its community remain a predominantly separated entity.
-Star Wolves will be first community to host a 24/7 server for Space Frontiers when this project is out of pre-alpha and enters the alpha stage.
+The roots of Space Frontiers are partially in this community, but Space Frontiers is managed in a way that effectively makes Space Frontiers and its community remain a predominantly separated entity; apart from the fact that Star Wolves technically owns Space Frontiers.
+Star Wolves will be one of the first community to host a 24/7 server for Space Frontiers.

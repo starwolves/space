@@ -9,10 +9,12 @@ use bevy_ecs::{
 use rand::prelude::SliceRandom;
 
 use crate::space::core::{
+    chat::events::NetChatMessage,
+    connected_player::resources::HandleToEntity,
     gridmap::resources::{to_doryen_coordinates, Vec3Int},
     inventory_item::components::HitSoundSurface,
     networking::resources::ReliableServerMessage,
-    pawn::{components::Senser, events::NetChatMessage, resources::HandleToEntity},
+    senser::components::Senser,
 };
 
 #[derive(Component)]

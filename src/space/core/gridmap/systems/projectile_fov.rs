@@ -5,13 +5,14 @@ use bevy_ecs::system::{Query, Res};
 use bevy_math::Vec3;
 
 use crate::space::core::{
+    connected_player::components::ConnectedPlayer,
     gridmap::{
         events::{NetProjectileFOV, ProjectileFOV},
         functions::gridmap_functions::world_to_cell_id,
         resources::{to_doryen_coordinates, GridmapData, GridmapMain, Vec3Int},
     },
     networking::resources::{NetProjectileType, ReliableServerMessage},
-    pawn::components::{ConnectedPlayer, Senser},
+    senser::components::Senser,
 };
 
 pub fn projectile_fov(

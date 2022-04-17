@@ -12,13 +12,15 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::{
     core::{
         atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
-        entity::components::{DefaultMapEntity, EntityData, EntityGroup, RichName, Examinable},
+        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+        entity::components::{DefaultMapEntity, EntityData, EntityGroup},
+        examinable::components::{Examinable, RichName},
         gridmap::{
             functions::gridmap_functions::world_to_cell_id,
             resources::{EntityGridData, GridmapMain, Vec2Int},
         },
         map::resources::{MapData, GREEN_MAP_TILE_COUNTER},
-        pawn::{components::{Pawn, SpaceAccess}, functions::new_chat_message::{FURTHER_ITALIC_FONT, HEALTHY_COLOR}},
+        pawn::components::{Pawn, SpaceAccess},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
     },
@@ -378,8 +380,13 @@ pub fn counter_window_default_map_added(
     mut map_data: ResMut<MapData>,
     mut gridmap_main: ResMut<GridmapMain>,
 ) {
-    for (counter_window_entity, rigid_body_position_component, _, entity_data_component, mut examinable_component) in
-        default_counter_windows.iter_mut()
+    for (
+        counter_window_entity,
+        rigid_body_position_component,
+        _,
+        entity_data_component,
+        mut examinable_component,
+    ) in default_counter_windows.iter_mut()
     {
         let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
         let cell_id2 = Vec2Int {
@@ -413,7 +420,7 @@ pub fn counter_window_default_map_added(
                     + "]It is fully operational.[/color][/font]",
             );
             examinable_component.assigned_texts = examine_map;
-        } else if  entity_data_component.entity_name == "bridgeCounterWindow" {
+        } else if entity_data_component.entity_name == "bridgeCounterWindow" {
             examinable_component.name = RichName {
                 name: "bridge counter window".to_string(),
                 n: false,

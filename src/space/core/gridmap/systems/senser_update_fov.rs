@@ -7,7 +7,7 @@ use crate::space::core::{
         functions::gridmap_functions::world_to_cell_id,
         resources::{to_doryen_coordinates, DoryenMap, Vec2Int, FOV_MAP_WIDTH},
     },
-    pawn::components::Senser,
+    senser::components::Senser,
 };
 
 pub const FOV_DISTANCE: usize = 23;

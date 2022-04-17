@@ -1,7 +1,8 @@
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
-    entity::components::{EntityData, EntityUpdates, Sensable},
+    entity::components::{EntityData, EntityUpdates},
+    sensable::components::Sensable,
     sfx::components::{AmbienceSfxTimer, Sfx},
     static_body::components::StaticTransform,
 };
