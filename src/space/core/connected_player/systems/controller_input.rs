@@ -3,14 +3,12 @@ use bevy_ecs::{entity::Entity, system::Query};
 use bevy_log::warn;
 
 use crate::space::core::{
-    humanoid::components::Humanoid,
-    pawn::{
-        components::ControllerInput,
-        events::{
-            InputAltItemAttack, InputAttackCell, InputAttackEntity, InputMouseAction,
-            InputSelectBodyPart, InputToggleAutoMove,
-        },
+    connected_player::events::{
+        InputAltItemAttack, InputAttackCell, InputAttackEntity, InputMouseAction,
+        InputSelectBodyPart, InputToggleAutoMove,
     },
+    humanoid::components::Humanoid,
+    pawn::components::ControllerInput,
 };
 
 pub fn controller_input(

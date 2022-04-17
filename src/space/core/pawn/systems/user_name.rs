@@ -4,13 +4,13 @@ use bevy_log::warn;
 
 use crate::space::core::{
     chat::functions::escape_bb,
-    connected_player::resources::HandleToEntity,
+    connected_player::{
+        events::{InputUserName, NetUserName},
+        resources::HandleToEntity,
+    },
     networking::resources::ReliableServerMessage,
     pawn::{
-        components::PersistentPlayerData,
-        events::{InputUserName, NetUserName},
-        functions::CONSOLE_ERROR_COLOR,
-        resources::UsedNames,
+        components::PersistentPlayerData, functions::CONSOLE_ERROR_COLOR, resources::UsedNames,
     },
 };
 

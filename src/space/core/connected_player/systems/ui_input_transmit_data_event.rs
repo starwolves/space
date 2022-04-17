@@ -6,13 +6,12 @@ use crate::space::core::{
     chat::functions::escape_bb,
     connected_player::{
         components::{Boarding, ConnectedPlayer},
-        events::{BoardingPlayer, InputUIInputTransmitText},
+        events::{BoardingPlayer, InputUIInputTransmitText, NetUIInputTransmitData},
         resources::HandleToEntity,
     },
     networking::resources::ReliableServerMessage,
     pawn::{
-        components::PersistentPlayerData, events::NetUIInputTransmitData,
-        functions::CONSOLE_ERROR_COLOR, resources::UsedNames,
+        components::PersistentPlayerData, functions::CONSOLE_ERROR_COLOR, resources::UsedNames,
     },
 };
 

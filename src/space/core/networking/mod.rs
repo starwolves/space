@@ -23,12 +23,6 @@ use crate::space::core::{
     },
     pawn::{
         components::{ControllerInput, PersistentPlayerData},
-        events::{
-            InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics,
-            InputMouseAction, InputMouseDirectionUpdate, InputMovementInput, InputSelectBodyPart,
-            InputSprinting, InputTabDataEntity, InputTabDataMap, InputToggleAutoMove,
-            InputToggleCombatMode, InputUserName,
-        },
         resources::{AuthidI, UsedNames},
     },
 };
@@ -42,7 +36,6 @@ use crate::space::{
             NetWearItem,
         },
         map::events::NetRequestDisplayModes,
-        pawn::events::{NetOnSpawning, NetTabData, NetUIInputTransmitData, NetUserName},
     },
     entities::construction_tool_admin::events::NetConstructionTool,
 };
@@ -55,10 +48,14 @@ use super::{
     connected_player::{
         components::ConnectedPlayer,
         events::{
-            InputExamineEntity, InputExamineMap, InputSceneReady, InputUIInput,
-            InputUIInputTransmitText, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
-            NetOnNewPlayerConnection, NetOnSetupUI, NetSendServerTime, NetSendWorldEnvironment,
-            NetUpdatePlayerCount, TextTreeInputSelection,
+            InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics,
+            InputExamineEntity, InputExamineMap, InputMouseAction, InputMouseDirectionUpdate,
+            InputMovementInput, InputSceneReady, InputSelectBodyPart, InputSprinting,
+            InputTabDataEntity, InputTabDataMap, InputToggleAutoMove, InputToggleCombatMode,
+            InputUIInput, InputUIInputTransmitText, InputUserName, NetDoneBoarding,
+            NetExamineEntity, NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI, NetOnSpawning,
+            NetSendServerTime, NetSendWorldEnvironment, NetTabData, NetUIInputTransmitData,
+            NetUpdatePlayerCount, NetUserName, TextTreeInputSelection,
         },
         functions::{
             on_new_player_connection::on_new_player_connection,
