@@ -93,7 +93,7 @@ A developer web forum is planned.
 
 ### License
 
-This repository is licensed under [a special license](https://github.com/starwolves/space/blob/master/LICENSE).
+This repository is licensed under a [special license](https://github.com/starwolves/space/blob/master/LICENSE).
 
 
 ### [StarWolves.io](https://starwolves.io)
