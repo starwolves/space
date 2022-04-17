@@ -66,7 +66,7 @@ use self::{
                 text_tree_input_selection::text_tree_input_selection,
                 ui_input_event::ui_input_event,
                 ui_input_transmit_data_event::ui_input_transmit_data_event,
-                update_player_count::update_player_count,
+                update_player_count::update_player_count, on_spawning::on_spawning, mouse_direction_update::mouse_direction_update,
             },
         },
         console_commands::{
@@ -131,7 +131,6 @@ use self::{
         pawn::{
             resources::{AuthidI, UsedNames},
             systems::{
-                mouse_direction_update::mouse_direction_update, on_spawning::on_spawning,
                 user_name::user_name,
             },
         },
