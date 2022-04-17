@@ -12,8 +12,8 @@ use crate::space::{
     core::{
         health::components::DamageModel,
         inventory::components::SlotType,
-        pawn::components::TabAction,
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        tab_actions::components::TabAction,
     },
     entities::sfx::{
         actions::{

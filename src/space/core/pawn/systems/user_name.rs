@@ -1,13 +1,15 @@
 use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::{Query, ResMut};
+use bevy_ecs::system::{Query, Res, ResMut};
 use bevy_log::warn;
 
 use crate::space::core::{
+    chat::functions::escape_bb,
+    connected_player::resources::HandleToEntity,
     networking::resources::ReliableServerMessage,
     pawn::{
         components::PersistentPlayerData,
         events::{InputUserName, NetUserName},
-        functions::{new_chat_message::escape_bb, CONSOLE_ERROR_COLOR},
+        functions::CONSOLE_ERROR_COLOR,
         resources::UsedNames,
     },
 };
@@ -17,12 +19,24 @@ pub fn user_name(
     mut persistent_player_data_query: Query<&mut PersistentPlayerData>,
     mut used_names: ResMut<UsedNames>,
     mut net_user_name_event: EventWriter<NetUserName>,
+    handle_to_entity: Res<HandleToEntity>,
 ) {
     for event in input_user_name_events.iter() {
         match persistent_player_data_query.get_mut(event.entity) {
             Ok(mut persistent_player_data_component) => {
                 if persistent_player_data_component.user_name_is_set {
                     continue;
+                }
+
+                let handle_option;
+
+                match handle_to_entity.inv_map.get(&event.entity) {
+                    Some(x) => {
+                        handle_option = Some(x);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
                 }
 
                 let mut user_name = escape_bb((&event.input_name).to_string(), true, true);
@@ -34,19 +48,29 @@ pub fn user_name(
                 if used_names.user_names.contains_key(&user_name) {
                     //Already exists.
 
-                    net_user_name_event.send(NetUserName{
-                        handle: event.handle,
-                        message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is already in-use, please change the name in the file and restart your game.[/color]"),
-                    });
+                    match handle_option {
+                        Some(handle) => {
+                            net_user_name_event.send(NetUserName{
+                                handle: *handle,
+                                message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is already in-use, please change the name in the file and restart your game.[/color]"),
+                            });
+                        }
+                        None => {}
+                    }
 
                     continue;
                 }
 
                 if user_name.len() < 3 {
-                    net_user_name_event.send(NetUserName {
-                        handle: event.handle,
-                        message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters and whitespaces are not registered.[/color]"),
-                    });
+                    match handle_option {
+                        Some(handle) => {
+                            net_user_name_event.send(NetUserName {
+                                handle: *handle,
+                                message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters and whitespaces are not registered.[/color]"),
+                            });
+                        }
+                        None => {}
+                    }
                     continue;
                 }
 

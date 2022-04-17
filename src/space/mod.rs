@@ -18,6 +18,10 @@ use bevy_transform::TransformPlugin;
 
 use self::{
     core::{
+        asana::{
+            resources::AsanaBoardingAnnouncements,
+            systems::tick_asana_boarding_announcements::tick_asana_boarding_announcements,
+        },
         atmospherics::{
             events::{NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
             resources::{AtmosphericsResource, MapHolders, RigidBodyForcesAccumulation},
@@ -34,8 +38,35 @@ use self::{
                 zero_gravity::zero_gravity,
             },
         },
+        chat::{
+            events::{InputChatMessage, NetChatMessage},
+            systems::chat_message_input_event,
+        },
         combat::systems::attack,
         configuration::resources::{ServerId, TickRate, MOTD},
+        connected_player::{
+            events::{
+                BoardingPlayer, InputExamineEntity, InputExamineMap, InputSceneReady, InputUIInput,
+                InputUIInputTransmitText, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
+                NetOnNewPlayerConnection, NetOnSetupUI, NetSendServerTime, NetSendWorldEnvironment,
+                NetUpdatePlayerCount, TextTreeInputSelection,
+            },
+            resources::HandleToEntity,
+            systems::{
+                build_graphics_event::build_graphics_event, done_boarding::done_boarding,
+                examine_entity::examine_entity, examine_map::examine_map, on_boarding::on_boarding,
+                on_setupui::on_setupui, player_input_event::player_input_event,
+                scene_ready_event::scene_ready_event, send_server_time::send_server_time,
+                text_tree_input_selection::text_tree_input_selection,
+                ui_input_event::ui_input_event,
+                ui_input_transmit_data_event::ui_input_transmit_data_event,
+                update_player_count::update_player_count,
+            },
+        },
+        console_commands::{
+            events::{InputConsoleCommand, NetConsoleCommands},
+            systems::console_commands,
+        },
         entity::{
             events::{NetLoadEntity, NetSendEntityUpdates, NetShowcase, NetUnloadEntity},
             resources::EntityDataResource,
@@ -59,6 +90,10 @@ use self::{
             events::{Attack, NetHealthUpdate},
             resources::ClientHealthUICache,
         },
+        humanoid::{
+            entity_update::humanoid_update,
+            systems::{humanoid::humanoids, toggle_combat_mode::toggle_combat_mode},
+        },
         inventory::{
             entity_update::inventory_update,
             events::{
@@ -67,9 +102,9 @@ use self::{
                 NetSwitchHands, NetTakeOffItem, NetThrowItem, NetWearItem,
             },
             systems::{
-                drop_current_item::drop_current_item, pickup_world_item::pickup_world_item,
-                switch_hands::switch_hands, take_off_item::take_off_item, throw_item::throw_item,
-                wear_item::wear_item,
+                drop_current_item::drop_current_item, inventory_tab_data::inventory_tab_data,
+                pickup_world_item::pickup_world_item, switch_hands::switch_hands,
+                take_off_item::take_off_item, throw_item::throw_item, wear_item::wear_item,
             },
         },
         inventory_item::entity_update::inventory_item_update,
@@ -88,37 +123,17 @@ use self::{
             connections, messages_outgoing, net_send_message_event, startup_listen_connections,
         },
         pawn::{
-            entity_update::standard_character_update,
             events::{
-                BoardingPlayer, InputAltItemAttack, InputAttackCell, InputAttackEntity,
-                InputBuildGraphics, InputChatMessage, InputConsoleCommand, InputExamineEntity,
-                InputExamineMap, InputMouseAction, InputMouseDirectionUpdate, InputMovementInput,
-                InputSceneReady, InputSelectBodyPart, InputSprinting, InputTabAction,
-                InputTabDataEntity, InputTabDataMap, InputToggleAutoMove, InputToggleCombatMode,
-                InputUIInput, InputUIInputTransmitText, InputUserName, NetChatMessage,
-                NetConsoleCommands, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
-                NetOnNewPlayerConnection, NetOnSetupUI, NetOnSpawning, NetSendServerTime,
-                NetSendWorldEnvironment, NetTabData, NetUIInputTransmitData, NetUpdatePlayerCount,
-                NetUserName, TextTreeInputSelection,
+                InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics,
+                InputMouseAction, InputMouseDirectionUpdate, InputMovementInput,
+                InputSelectBodyPart, InputSprinting, InputTabDataEntity, InputTabDataMap,
+                InputToggleAutoMove, InputToggleCombatMode, InputUserName, NetOnSpawning,
+                NetTabData, NetUIInputTransmitData, NetUserName,
             },
-            resources::{AsanaBoardingAnnouncements, AuthidI, HandleToEntity, UsedNames},
+            resources::{AuthidI, UsedNames},
             systems::{
-                build_graphics_event::build_graphics_event,
-                chat_message_input_event::chat_message_input_event,
-                console_commands::console_commands, done_boarding::done_boarding,
-                examine_entity::examine_entity, examine_map::examine_map,
-                inventory_tab_data::inventory_tab_data,
-                mouse_direction_update::mouse_direction_update, on_boarding::on_boarding,
-                on_setupui::on_setupui, on_spawning::on_spawning,
-                player_input_event::player_input_event, scene_ready_event::scene_ready_event,
-                send_server_time::send_server_time, standard_characters::standard_characters,
-                tab_action::tab_action, tab_data::tab_data,
-                text_tree_input_selection::text_tree_input_selection,
-                tick_asana_boarding_announcements::tick_asana_boarding_announcements,
-                toggle_combat_mode::toggle_combat_mode, ui_input_event::ui_input_event,
-                ui_input_transmit_data_event::ui_input_transmit_data_event,
-                update_player_count::update_player_count, user_name::user_name,
-                visible_checker::visible_checker,
+                mouse_direction_update::mouse_direction_update, on_spawning::on_spawning,
+                pawns::pawns, user_name::user_name,
             },
         },
         physics::{entity_update::world_mode_update, systems::physics_events},
@@ -127,11 +142,16 @@ use self::{
             out_of_bounds_check::out_of_bounds_check,
             rigidbody_link_transform::rigidbody_link_transform,
         },
+        senser::systems::visible_checker::visible_checker,
         server_is_live,
         sfx::{
             entity_update::{repeating_sfx_update, sfx_update},
             resources::SfxAutoDestroyTimers,
             systems::tick_timers_slowed,
+        },
+        tab_actions::{
+            events::InputTabAction,
+            systems::{tab_action::tab_action, tab_data::tab_data},
         },
         world_environment::resources::WorldEnvironment,
     },
@@ -436,8 +456,9 @@ impl Plugin for SpacePlugin {
             .add_system(rigidbody_link_transform.after(UpdateLabels::DropCurrentItem))
             .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
             .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
+            .add_system(pawns.before(UpdateLabels::StandardCharacters))
             .add_system(
-                standard_characters
+                humanoids
                     .label(UpdateLabels::StandardCharacters)
                     .before(PhysicsSystems::StepWorld)
                     .after(UpdateLabels::ProcessMovementInput),
@@ -460,7 +481,7 @@ impl Plugin for SpacePlugin {
                 SystemSet::new()
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(omni_light_update)
-                    .with_system(standard_character_update)
+                    .with_system(humanoid_update)
                     .with_system(world_mode_update)
                     .with_system(gi_probe_update)
                     .with_system(reflection_probe_update)

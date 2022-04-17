@@ -1,7 +1,8 @@
 use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::Query;
+use bevy_ecs::system::{Query, Res};
 
 use crate::space::core::{
+    connected_player::resources::HandleToEntity,
     inventory::{
         components::Inventory,
         events::{InputSwitchHands, NetSwitchHands},
@@ -13,6 +14,7 @@ pub fn switch_hands(
     mut switch_hands_events: EventReader<InputSwitchHands>,
     mut inventory_entities: Query<&mut Inventory>,
     mut net_switch_hands: EventWriter<NetSwitchHands>,
+    handle_to_entity: Res<HandleToEntity>,
 ) {
     for event in switch_hands_events.iter() {
         let hand_switcher_components_option = inventory_entities.get_mut(event.entity);
@@ -35,9 +37,14 @@ pub fn switch_hands(
             hand_switcher_inventory.active_slot = "left_hand".to_string();
         }
 
-        net_switch_hands.send(NetSwitchHands {
-            handle: event.handle,
-            message: ReliableServerMessage::SwitchHands,
-        });
+        match handle_to_entity.inv_map.get(&event.entity) {
+            Some(handle) => {
+                net_switch_hands.send(NetSwitchHands {
+                    handle: *handle,
+                    message: ReliableServerMessage::SwitchHands,
+                });
+            }
+            None => {}
+        }
     }
 }

@@ -11,9 +11,10 @@ use crate::space::core::{
         components::ZeroGravity, events::NetAtmosphericsNotices, functions::get_atmos_index,
         resources::AtmosphericsResource,
     },
+    connected_player::components::ConnectedPlayer,
     gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
     networking::resources::ReliableServerMessage,
-    pawn::components::{ConnectedPlayer, Pawn},
+    pawn::components::Pawn,
 };
 
 use super::map::{

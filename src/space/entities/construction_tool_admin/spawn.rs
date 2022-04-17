@@ -20,11 +20,12 @@ use bevy_transform::components::Transform;
 use crate::space::{
     core::{
         entity::{
-            components::{EntityData, EntityUpdates, Examinable, RichName, Sensable, Showcase},
+            components::{EntityData, EntityUpdates, Showcase},
             events::NetShowcase,
             functions::transform_to_isometry::transform_to_isometry,
             resources::{EntityDataResource, SpawnHeldData, SpawnPawnData},
         },
+        examinable::components::{Examinable, RichName},
         gridmap::resources::CellData,
         health::components::{DamageFlag, DamageModel, Health},
         inventory::components::{Inventory, SlotType},
@@ -33,7 +34,7 @@ use crate::space::{
             InventoryItem,
         },
         networking::resources::{ConsoleCommandVariantValues, GridMapType, ReliableServerMessage},
-        pawn::{components::TabAction, functions::can_reach_entity::REACH_DISTANCE},
+        pawn::functions::can_reach_entity::REACH_DISTANCE,
         physics::{
             components::{WorldMode, WorldModes},
             functions::{get_bit_masks, ColliderGroup},
@@ -42,6 +43,8 @@ use crate::space::{
             CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
             RigidBodyLinkTransform,
         },
+        sensable::components::Sensable,
+        tab_actions::components::TabAction,
     },
     entities::{
         construction_tool_admin::components::ConstructionTool,

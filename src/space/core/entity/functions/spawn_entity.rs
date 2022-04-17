@@ -34,7 +34,10 @@ pub fn spawn_entity(
 ) -> Option<Entity> {
     let return_entity;
 
-    properties.insert("entity_name".to_string(), ConsoleCommandVariantValues::String(entity_name.clone()));
+    properties.insert(
+        "entity_name".to_string(),
+        ConsoleCommandVariantValues::String(entity_name.clone()),
+    );
 
     match entity_data.name_to_id.get(&entity_name) {
         Some(entity_type_id) => {
@@ -113,7 +116,10 @@ pub fn spawn_held_entity(
             let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
 
             let mut map = HashMap::new();
-            map.insert("entity_name".to_string(), ConsoleCommandVariantValues::String(entity_name));
+            map.insert(
+                "entity_name".to_string(),
+                ConsoleCommandVariantValues::String(entity_name),
+            );
 
             return_entity = Some((*entity_properties.spawn_function)(
                 Transform::identity(),

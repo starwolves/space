@@ -1,7 +1,8 @@
 use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::Query;
+use bevy_ecs::system::{Query, Res};
 
 use crate::space::core::{
+    connected_player::resources::HandleToEntity,
     entity::components::EntityData,
     inventory::{
         components::Inventory,
@@ -17,6 +18,7 @@ pub fn take_off_item(
     mut inventory_entities: Query<&mut Inventory>,
     mut pickupable_entities: Query<(&InventoryItem, &mut WorldMode, &EntityData)>,
     mut net_takeoff_item: EventWriter<NetTakeOffItem>,
+    handle_to_entity: Res<HandleToEntity>,
 ) {
     for event in take_off_item_events.iter() {
         let carrier_components_option = inventory_entities.get_mut(event.entity);
@@ -84,13 +86,18 @@ pub fn take_off_item(
         takeoff_slot.slot_item = None;
         takeoff_worldmode.mode = WorldModes::Held;
 
-        net_takeoff_item.send(NetTakeOffItem {
-            handle: event.handle,
-            message: ReliableServerMessage::EquippedWornItem(
-                takeoff_components.2.entity_name.clone(),
-                takeoff_entity.to_bits(),
-                takeoff_slot.slot_name.clone(),
-            ),
-        });
+        match handle_to_entity.inv_map.get(&event.entity) {
+            Some(handle) => {
+                net_takeoff_item.send(NetTakeOffItem {
+                    handle: *handle,
+                    message: ReliableServerMessage::EquippedWornItem(
+                        takeoff_components.2.entity_name.clone(),
+                        takeoff_entity.to_bits(),
+                        takeoff_slot.slot_name.clone(),
+                    ),
+                });
+            }
+            None => {}
+        }
     }
 }

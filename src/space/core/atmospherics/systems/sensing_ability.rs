@@ -2,7 +2,7 @@ use bevy_ecs::{prelude::Changed, system::Query};
 
 use crate::space::core::{
     data_link::components::{DataLink, DataLinkType},
-    pawn::components::{Senser, SensingAbility},
+    senser::components::{Senser, SensingAbility},
 };
 
 pub fn atmospherics_sensing_ability(

@@ -3,7 +3,7 @@ use bevy_ecs::{
     prelude::{FromWorld, World},
 };
 
-use crate::space::core::pawn::functions::new_chat_message::NEARBY_SHOUT_FONT;
+use crate::space::core::chat::functions::NEARBY_SHOUT_FONT;
 
 pub struct MOTD {
     pub message: String,

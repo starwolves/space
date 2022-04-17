@@ -13,13 +13,14 @@ use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 
 use crate::space::core::{
-    entity::{
-        components::RichName, functions::string_to_type_converters::string_transform_to_transform,
-    },
+    chat::events::NetChatMessage,
+    connected_player::resources::HandleToEntity,
+    entity::functions::string_to_type_converters::string_transform_to_transform,
+    examinable::components::RichName,
     health::components::{calculate_damage, DamageModel, DamageType, HealthFlag, HitResult},
     inventory_item::components::HitSoundSurface,
     networking::resources::ReliableServerMessage,
-    pawn::{components::Senser, events::NetChatMessage, resources::HandleToEntity},
+    senser::components::Senser,
 };
 
 use super::MainCellProperties;

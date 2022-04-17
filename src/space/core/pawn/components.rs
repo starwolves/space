@@ -1,104 +1,10 @@
-use crate::space::core::entity::components::EntityData;
-use crate::space::core::entity::resources::EntityDataResource;
-use crate::space::core::gridmap::resources::{CellData, Vec2Int, Vec3Int, FOV_MAP_WIDTH};
-use crate::space::core::health::components::{DamageFlag, DamageModel};
-use crate::space::core::inventory::components::Inventory;
-use crate::space::core::inventory_item::components::CombatSoundSet;
-use crate::space::core::networking::resources::{GridMapType, NetTabAction};
+use crate::space::core::gridmap::resources::Vec3Int;
+use crate::space::core::tab_actions::components::{TabAction, TabActionsData};
 
-use bevy_core::Timer;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::prelude::Component;
-use bevy_ecs::system::Query;
 use bevy_math::Vec2;
-use bevy_transform::components::Transform;
-use doryen_fov::FovRecursiveShadowCasting;
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::time::Duration;
-
-#[derive(Component)]
-pub struct Boarding;
-
-#[derive(Component)]
-pub struct ConnectedPlayer {
-    pub handle: u32,
-    pub authid: u16,
-    pub rcon: bool,
-    pub connected: bool,
-}
-
-impl Default for ConnectedPlayer {
-    fn default() -> Self {
-        Self {
-            handle: 0,
-            authid: 0,
-            rcon: true,
-            connected: true,
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct LinkedFootstepsSprinting {
-    pub entity: Entity,
-}
-
-#[derive(Component)]
-pub struct LinkedFootstepsWalking {
-    pub entity: Entity,
-}
-
-#[derive(Clone)]
-pub struct TabAction {
-    pub id: String,
-    pub text: String,
-    pub tab_list_priority: u8,
-    pub belonging_entity: Option<Entity>,
-    pub prerequisite_check: Arc<
-        dyn Fn(
-                Option<Entity>,
-                Option<u64>,
-                Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-                f32,
-                &Inventory,
-                &EntityDataResource,
-                &Query<&EntityData>,
-            ) -> bool
-            + Sync
-            + Send,
-    >,
-}
-
-impl TabAction {
-    pub fn into_net(
-        &self,
-        item_name: &str,
-        entity_option: Option<u64>,
-        cell_option: Option<(GridMapType, i16, i16, i16)>,
-    ) -> NetTabAction {
-        let self_belonging_entity;
-
-        match self.belonging_entity {
-            Some(rr) => {
-                self_belonging_entity = Some(rr.to_bits());
-            }
-            None => {
-                self_belonging_entity = None;
-            }
-        }
-
-        NetTabAction {
-            id: self.id.clone(),
-            text: self.text.clone(),
-            tab_list_priority: self.tab_list_priority,
-            entity_option: entity_option,
-            cell_option,
-            item_name: item_name.to_string(),
-            belonging_entity: self_belonging_entity,
-        }
-    }
-}
 
 #[derive(Component)]
 pub struct Pawn {
@@ -107,20 +13,6 @@ pub struct Pawn {
     pub facing_direction: FacingDirection,
     pub tab_actions: HashMap<u32, TabAction>,
     pub tab_actions_data: TabActionsData,
-}
-
-pub struct TabActionsData {
-    pub layout: HashMap<Option<Entity>, HashMap<String, u32>>,
-    pub tab_action_i: u32,
-}
-
-impl Default for TabActionsData {
-    fn default() -> Self {
-        Self {
-            layout: HashMap::new(),
-            tab_action_i: 0,
-        }
-    }
 }
 
 impl Default for Pawn {
@@ -247,7 +139,7 @@ impl Default for PersistentPlayerData {
 }
 
 #[derive(Component)]
-pub struct PlayerInput {
+pub struct ControllerInput {
     pub movement_vector: Vec2,
     pub sprinting: bool,
     pub is_mouse_action_pressed: bool,
@@ -260,7 +152,7 @@ pub struct PlayerInput {
     pub pending_direction: Option<FacingDirection>,
 }
 
-impl Default for PlayerInput {
+impl Default for ControllerInput {
     fn default() -> Self {
         Self {
             movement_vector: Vec2::ZERO,
@@ -293,90 +185,7 @@ pub enum RadioChannel {
     SpecialOps,
 }
 
-#[derive(PartialEq)]
-pub enum SensingAbility {
-    Atmospherics,
-}
-
-#[derive(Component)]
-pub struct Senser {
-    pub cell_id: Vec2Int,
-    pub fov: FovRecursiveShadowCasting,
-    pub sensing: Vec<Entity>,
-    pub sfx: Vec<Entity>,
-    pub sensing_abilities: Vec<SensingAbility>,
-}
-
-impl Default for Senser {
-    fn default() -> Self {
-        Self {
-            cell_id: Vec2Int { x: 0, y: 0 },
-            fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
-            sensing: vec![],
-            sfx: vec![],
-            sensing_abilities: vec![],
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct SoftPlayer;
-
 #[derive(Component)]
 pub struct SpaceAccess {
     pub access: Vec<SpaceAccessEnum>,
 }
-
-#[derive(Component)]
-pub struct Spawning {
-    pub transform: Transform,
-}
-
-#[derive(Component)]
-pub struct StandardCharacter {
-    pub current_lower_animation_state: CharacterAnimationState,
-    pub character_name: String,
-    pub combat_mode: bool,
-    pub facing_direction: f32,
-    pub is_attacking: bool,
-    pub next_attack_timer: Timer,
-    pub default_melee_damage_model: DamageModel,
-    pub default_melee_sound_set: CombatSoundSet,
-}
-
-pub enum CharacterAnimationState {
-    Idle,
-    Jogging,
-    Sprinting,
-}
-
-const FIRST_MELEE_TIME: u64 = 433;
-
-impl Default for StandardCharacter {
-    fn default() -> Self {
-        let mut t = Timer::new(Duration::from_millis(FIRST_MELEE_TIME), false);
-        let mut first_damage_flags = HashMap::new();
-        first_damage_flags.insert(0, DamageFlag::SoftDamage);
-        t.tick(Duration::from_millis(FIRST_MELEE_TIME));
-        Self {
-            current_lower_animation_state: CharacterAnimationState::Idle,
-            character_name: "".to_string(),
-            combat_mode: false,
-            facing_direction: 0.,
-            is_attacking: false,
-            next_attack_timer: t,
-            default_melee_damage_model: DamageModel {
-                brute: 5.,
-                damage_flags: first_damage_flags,
-                ..Default::default()
-            },
-            default_melee_sound_set: CombatSoundSet::default(),
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct SetupPhase;
-
-#[derive(Component)]
-pub struct OnBoard;

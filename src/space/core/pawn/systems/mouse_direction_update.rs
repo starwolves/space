@@ -6,7 +6,7 @@ use bevy_ecs::{
     system::{Local, Query},
 };
 
-use crate::space::core::pawn::{components::StandardCharacter, events::InputMouseDirectionUpdate};
+use crate::space::core::{humanoid::components::Humanoid, pawn::events::InputMouseDirectionUpdate};
 
 #[derive(Default)]
 pub struct TimeStampPerEntity {
@@ -15,7 +15,7 @@ pub struct TimeStampPerEntity {
 
 pub fn mouse_direction_update(
     mut update_events: EventReader<InputMouseDirectionUpdate>,
-    mut standard_characters: Query<&mut StandardCharacter>,
+    mut standard_characters: Query<&mut Humanoid>,
     mut time_stamp_per_entity: Local<TimeStampPerEntity>,
 ) {
     for event in update_events.iter() {

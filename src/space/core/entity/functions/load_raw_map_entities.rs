@@ -3,10 +3,13 @@ use std::collections::HashMap;
 use bevy_ecs::system::{Commands, Res};
 
 use crate::space::{
-    core::{entity::{
-        functions::string_to_type_converters::string_transform_to_transform,
-        resources::EntityDataResource,
-    }, networking::resources::ConsoleCommandVariantValues},
+    core::{
+        entity::{
+            functions::string_to_type_converters::string_transform_to_transform,
+            resources::EntityDataResource,
+        },
+        networking::resources::ConsoleCommandVariantValues,
+    },
     entities::{
         gi_probe::{process_content::ExportData, spawn::GIProbeBundle},
         omni_light::{self, spawn::OmniLightBundle},
@@ -68,7 +71,10 @@ pub fn load_raw_map_entities(
                 data = HashMap::new();
             }
 
-            data.insert("entity_name".to_string(), ConsoleCommandVariantValues::String(raw_entity.entity_type.clone()));
+            data.insert(
+                "entity_name".to_string(),
+                ConsoleCommandVariantValues::String(raw_entity.entity_type.clone()),
+            );
 
             match entity_data.name_to_id.get(&raw_entity.entity_type) {
                 Some(entity_type_id) => {

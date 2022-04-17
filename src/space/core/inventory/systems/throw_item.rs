@@ -17,14 +17,14 @@ use rand::Rng;
 use crate::space::{
     core::{
         atmospherics::components::ZeroGravity,
-        entity::{
-            components::{Examinable, Sensable},
-            functions::{
-                isometry_to_transform::isometry_to_transform,
-                transform_to_isometry::transform_to_isometry,
-            },
+        connected_player::resources::HandleToEntity,
+        entity::functions::{
+            isometry_to_transform::isometry_to_transform,
+            transform_to_isometry::transform_to_isometry,
         },
+        examinable::components::Examinable,
         gridmap::resources::GridmapMain,
+        humanoid::components::{CharacterAnimationState, Humanoid},
         inventory::{
             components::Inventory,
             events::{InputThrowItem, NetThrowItem},
@@ -32,12 +32,12 @@ use crate::space::{
         inventory_item::components::InventoryItem,
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
         pawn::{
-            components::{Pawn, PlayerInput, StandardCharacter},
+            components::{ControllerInput, Pawn},
             functions::entity_spawn_position_for_player::entity_spawn_position_for_player,
-            resources::HandleToEntity,
         },
         physics::components::{WorldMode, WorldModes},
         rigid_body::{components::RigidBodyLinkTransform, functions::enable_rigidbody},
+        sensable::components::Sensable,
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
     },
     entities::sfx::actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},
@@ -51,8 +51,8 @@ pub fn throw_item(
         &mut Inventory,
         &Sensable,
         &mut Pawn,
-        &StandardCharacter,
-        &mut PlayerInput,
+        &Humanoid,
+        &mut ControllerInput,
         Option<&ZeroGravity>,
         Entity,
     )>,
@@ -151,7 +151,7 @@ pub fn throw_item(
                 );
 
                 match pickuper_components.3.current_lower_animation_state {
-                    crate::space::core::pawn::components::CharacterAnimationState::Idle => {
+                    CharacterAnimationState::Idle => {
                         if !pickuper_components.3.combat_mode {
                             pickuper_components.4.pending_direction = Some(results.1);
                         }
@@ -294,10 +294,15 @@ pub fn throw_item(
         let sfx_entity = commands.spawn().insert_bundle(throw).id();
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
 
-        // Send UI/Control update to owning client.
-        net_throw_item.send(NetThrowItem {
-            handle: event.handle,
-            message: ReliableServerMessage::DropItem(drop_slot.slot_name.clone()),
-        });
+        match handle_to_entity.inv_map.get(&event.entity) {
+            Some(handle) => {
+                // Send UI/Control update to owning client.
+                net_throw_item.send(NetThrowItem {
+                    handle: *handle,
+                    message: ReliableServerMessage::DropItem(drop_slot.slot_name.clone()),
+                });
+            }
+            None => {}
+        }
     }
 }

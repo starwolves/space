@@ -10,10 +10,10 @@ use crate::space::core::{
         functions::get_atmos_index,
         resources::{AtmosphericsResource, MapHolders, CELCIUS_KELVIN_OFFSET},
     },
+    connected_player::components::ConnectedPlayer,
     gridmap::resources::Vec2Int,
     map::components::Map,
     networking::resources::{NetMessageType, ReliableServerMessage},
-    pawn::components::ConnectedPlayer,
 };
 
 pub fn atmospherics_map_hover(

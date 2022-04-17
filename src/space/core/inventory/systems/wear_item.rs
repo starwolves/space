@@ -1,7 +1,8 @@
 use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::Query;
+use bevy_ecs::system::{Query, Res};
 
 use crate::space::core::{
+    connected_player::resources::HandleToEntity,
     entity::components::EntityData,
     inventory::{
         components::Inventory,
@@ -17,6 +18,7 @@ pub fn wear_item(
     mut inventory_entities: Query<&mut Inventory>,
     mut wearable_entities: Query<(&InventoryItem, &mut WorldMode, &EntityData)>,
     mut net_wear_item: EventWriter<NetWearItem>,
+    handle_to_entity: Res<HandleToEntity>,
 ) {
     for event in wear_item_events.iter() {
         let wearer_components_option = inventory_entities.get_mut(event.wearer_entity);
@@ -99,13 +101,18 @@ pub fn wear_item(
         wear_slot.slot_item = Some(wearable_entity);
         wearable_components.1.mode = WorldModes::Worn;
 
-        net_wear_item.send(NetWearItem {
-            handle: event.handle,
-            message: ReliableServerMessage::PickedUpItem(
-                wearable_components.2.entity_name.clone(),
-                wearable_entity.to_bits(),
-                wear_slot.slot_name.clone(),
-            ),
-        });
+        match handle_to_entity.inv_map.get(&event.wearer_entity) {
+            Some(handle) => {
+                net_wear_item.send(NetWearItem {
+                    handle: *handle,
+                    message: ReliableServerMessage::PickedUpItem(
+                        wearable_components.2.entity_name.clone(),
+                        wearable_entity.to_bits(),
+                        wear_slot.slot_name.clone(),
+                    ),
+                });
+            }
+            None => {}
+        }
     }
 }

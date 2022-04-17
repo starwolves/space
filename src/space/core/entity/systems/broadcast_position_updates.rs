@@ -7,10 +7,10 @@ use bevy_log::warn;
 use bevy_networking_turbulence::NetworkResource;
 
 use crate::space::core::{
-    entity::components::Sensable,
+    connected_player::resources::HandleToEntity,
     networking::resources::UnreliableServerMessage,
-    pawn::resources::HandleToEntity,
     rigid_body::components::{CachedBroadcastTransform, UpdateTransform},
+    sensable::components::Sensable,
     static_body::components::StaticTransform,
 };
 

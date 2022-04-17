@@ -14,18 +14,21 @@ use bevy_transform::components::Transform;
 use crate::space::{
     core::{
         entity::{
-            components::{EntityData, EntityUpdates, Examinable, RichName, Sensable, Showcase},
+            components::{EntityData, EntityUpdates, Showcase},
             events::NetShowcase,
             functions::transform_to_isometry::transform_to_isometry,
             resources::{SpawnHeldData, SpawnPawnData},
         },
+        examinable::components::{Examinable, RichName},
         health::components::{DamageFlag, Health},
         networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
         physics::{
             components::{WorldMode, WorldModes},
             functions::{get_bit_masks, ColliderGroup},
         },
-        rigid_body::components::{RigidBodyData}, static_body::components::StaticTransform,
+        rigid_body::components::RigidBodyData,
+        sensable::components::Sensable,
+        static_body::components::StaticTransform,
     },
     entities::computers::components::Computer,
 };

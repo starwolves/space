@@ -8,9 +8,9 @@ use bevy_ecs::{
 };
 
 use crate::space::core::{
+    connected_player::components::ConnectedPlayer,
     health::{components::Health, events::NetHealthUpdate},
     networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
-    pawn::components::ConnectedPlayer,
 };
 
 use super::resources::{ClientHealthUI, ClientHealthUICache, UIDamageType};

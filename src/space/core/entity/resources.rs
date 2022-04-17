@@ -9,11 +9,9 @@ use bevy_ecs::{
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
+    connected_player::components::ConnectedPlayer,
     networking::resources::ConsoleCommandVariantValues,
-    pawn::{
-        components::{ConnectedPlayer, PersistentPlayerData},
-        resources::UsedNames,
-    },
+    pawn::{components::PersistentPlayerData, resources::UsedNames},
 };
 
 use super::events::NetShowcase;
