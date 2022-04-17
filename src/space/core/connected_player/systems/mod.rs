@@ -11,3 +11,4 @@ pub mod text_tree_input_selection;
 pub mod ui_input_event;
 pub mod ui_input_transmit_data_event;
 pub mod update_player_count;
+pub mod controller_input;

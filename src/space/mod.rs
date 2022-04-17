@@ -60,7 +60,7 @@ use self::{
                 text_tree_input_selection::text_tree_input_selection,
                 ui_input_event::ui_input_event,
                 ui_input_transmit_data_event::ui_input_transmit_data_event,
-                update_player_count::update_player_count,
+                update_player_count::update_player_count, controller_input::controller_input,
             },
         },
         console_commands::{
@@ -133,7 +133,7 @@ use self::{
             resources::{AuthidI, UsedNames},
             systems::{
                 mouse_direction_update::mouse_direction_update, on_spawning::on_spawning,
-                pawns::pawns, user_name::user_name,
+                user_name::user_name,
             },
         },
         physics::{entity_update::world_mode_update, systems::physics_events},
@@ -456,7 +456,7 @@ impl Plugin for SpacePlugin {
             .add_system(rigidbody_link_transform.after(UpdateLabels::DropCurrentItem))
             .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
             .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
-            .add_system(pawns.before(UpdateLabels::StandardCharacters))
+            .add_system(controller_input.before(UpdateLabels::StandardCharacters))
             .add_system(
                 humanoids
                     .label(UpdateLabels::StandardCharacters)
