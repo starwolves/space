@@ -11,10 +11,10 @@ use crate::space::core::{
     asana::resources::AsanaBoardingAnnouncements,
     chat::{
         events::NetChatMessage,
-        functions::{new_chat_message, Communicator, MessagingPlayerState},
+        functions::{new_chat_message, Communicator, MessagingPlayerState}, components::Radio,
     },
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    pawn::components::{PersistentPlayerData, Radio, SpaceJobsEnum},
+    pawn::components::{PersistentPlayerData, SpaceJobsEnum},
 };
 
 pub fn tick_asana_boarding_announcements(

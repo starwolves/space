@@ -30,7 +30,7 @@ use crate::space::core::{
     map::components::Map,
     networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
     pawn::components::{
-        ControllerInput, Pawn, PersistentPlayerData, Radio, RadioChannel, SpaceAccess,
+        ControllerInput, Pawn, PersistentPlayerData, SpaceAccess,
         SpaceAccessEnum, SpaceJobsEnum,
     },
     physics::{
@@ -40,7 +40,7 @@ use crate::space::core::{
     rigid_body::components::{CachedBroadcastTransform, DefaultTransform, RigidBodyData},
     sensable::components::Sensable,
     senser::components::Senser,
-    tab_actions::functions::get_tab_action,
+    tab_actions::functions::get_tab_action, chat::components::{RadioChannel, Radio},
 };
 
 pub struct HumanMalePawnBundle;
