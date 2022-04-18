@@ -83,6 +83,8 @@ People who are genuinely interested in contributing are suggested to contact the
 
 All contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on Github.
 
+When contributing please do not work on the `master` branch, but work on the snapshot branch (named `*-snap`). Create pull requests when you would like us to review and merge your code.
+
 Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain decentralized and sovereign.
 
 A developer documentation website is planned.
