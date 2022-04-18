@@ -170,22 +170,6 @@ impl Default for ControllerInput {
 }
 
 #[derive(Component)]
-pub struct Radio {
-    pub listen_access: Vec<RadioChannel>,
-    pub speak_access: Vec<RadioChannel>,
-}
-
-#[derive(PartialEq, Debug, Clone)]
-pub enum RadioChannel {
-    Proximity,
-    ProximityEmote,
-    Global,
-    Common,
-    Security,
-    SpecialOps,
-}
-
-#[derive(Component)]
 pub struct SpaceAccess {
     pub access: Vec<SpaceAccessEnum>,
 }

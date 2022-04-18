@@ -17,7 +17,7 @@ use crate::space::{
         connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
         entity::events::NetSendEntityUpdates,
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
-        pawn::components::{PersistentPlayerData, Radio, RadioChannel, SpaceJobsEnum},
+        pawn::components::{PersistentPlayerData, SpaceJobsEnum},
     },
     entities::sfx::chat::{
         play_sound_proximity_message::PlaySoundProximityMessage,
@@ -25,7 +25,7 @@ use crate::space::{
     },
 };
 
-use super::events::NetChatMessage;
+use super::{events::NetChatMessage, components::{RadioChannel, Radio}};
 
 const BILLBOARD_SHOUT_FONT: &str =
     "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
