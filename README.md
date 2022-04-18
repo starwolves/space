@@ -18,6 +18,7 @@ This game server is designed to run well on modern processors that have multiple
 You can see gameplay videos of Space Frontiers on [YouTube, subscribe](https://www.youtube.com/channel/UC6D7lcx9eL_ChA7HzzvhLtA)!
   
 ### Features (All Moddable & Modular)
+* Decentralized gameplay, each community can host their own servers. 👑
 * Parallelized ECS (Entity Component System) architecture. 📡
 * Pure Rust. No garbage collection & high parallel game logic execution speeds. 🌟
 * Data-oriented, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project. 🔭
@@ -69,22 +70,20 @@ When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 
 
 ## Organization
 
-### Space Frontiers
-Space Frontiers now has an official brand new community [Discord server](https://discord.gg/yYpMun9CTT).
-
-
+### Overview
+Space Frontiers has an official community [Discord server](https://discord.gg/yYpMun9CTT).
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for years to come.
-
 Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 
-The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
+### Contributing
+The hopes are to financially reward and/or hire the most suitable people for their contributions in the much further future.
 It is possible to contribute in all kinds of ways and you reaching out for possibilities will be appreciated!
-Also looking for both 2D & 3D digital artists, writers and game(play) designers.
-People who are genuinely interested in contributing are suggested to contact the developer on Discord, when this interest arises high priority will be put into creating project documentation, tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
+Also looking for both 2D & 3D digital artists, concept artists, writers and game(play) designers.
+People who are genuinely interested in contributing are suggested to contact the developers through Discord, when this interest arises high priority will be put into tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
 
 All contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on Github.
 
-Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain sovereign.
+Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain decentralized and sovereign.
 
 A developer documentation website is planned.
 
