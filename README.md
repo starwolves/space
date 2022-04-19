@@ -87,8 +87,6 @@ When contributing please do not work on the `master` branch, but work on the sna
 
 Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain decentralized and sovereign.
 
-A developer documentation website is planned.
-
 A developer web forum is planned.
 ![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
 
