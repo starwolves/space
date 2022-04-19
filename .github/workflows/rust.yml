@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: rui314/setup-mold@v1
+      with:
+        make-default: false
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -15,3 +17,4 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
+          args: -c link-arg=-fuse-ld=/usr/local/bin/mold
