@@ -20,6 +20,9 @@ You can see gameplay videos of Space Frontiers on [YouTube, subscribe](https://w
 ### Documentation
 There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) available for code contributors or modders.
 
+### Discord
+[Official Space Frontiers Discord server.](https://discord.gg/yYpMun9CTT)
+
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own servers. 👑
 * Parallelized ECS (Entity Component System) architecture. 📡
