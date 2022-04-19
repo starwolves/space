@@ -17,4 +17,4 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -c link-arg=-fuse-ld=/usr/local/bin/mold
+          args: link-arg=-fuse-ld=/usr/local/bin/mold
