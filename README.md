@@ -16,7 +16,7 @@ This game server is designed to run well on modern processors that have multiple
 
 ### Media
 You can see gameplay videos of Space Frontiers on [YouTube, subscribe](https://www.youtube.com/channel/UC6D7lcx9eL_ChA7HzzvhLtA)!
-  
+
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own servers. 👑
 * Parallelized ECS (Entity Component System) architecture. 📡
@@ -68,7 +68,7 @@ However, most devices made for video-games should expect no such problems.
 
 When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
 
-## Organization
+## More information
 
 ### Overview
 Space Frontiers has an official community [Discord server](https://discord.gg/yYpMun9CTT).
@@ -92,6 +92,8 @@ A developer documentation website is planned.
 A developer web forum is planned.
 ![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
 
+### [Documentation](https://sf-docs.starwolves.io)
+There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) available for code contributors or modders.
 
 ### License
 
