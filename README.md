@@ -17,7 +17,7 @@ This game server is designed to run well on modern processors that have multiple
 ### Media
 You can see gameplay videos of Space Frontiers on [YouTube, subscribe](https://www.youtube.com/channel/UC6D7lcx9eL_ChA7HzzvhLtA)!
 
-### [Documentation](https://sf-docs.starwolves.io)
+### Documentation
 There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) available for code contributors or modders.
 
 ### Features (All Moddable & Modular)
