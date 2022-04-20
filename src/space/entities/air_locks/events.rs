@@ -11,3 +11,8 @@ pub struct AirLockCollision {
 
     pub started: bool,
 }
+
+pub struct InputAirLockToggleOpen {
+    pub opener: Entity,
+    pub opened: u64,
+}

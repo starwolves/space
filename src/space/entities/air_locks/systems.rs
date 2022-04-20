@@ -36,10 +36,16 @@ use crate::space::{
     },
 };
 
-use super::events::AirLockCollision;
+use super::events::{AirLockCollision, InputAirLockToggleOpen};
+
+pub struct ToggleOpenRequest {
+    pub opener: Entity,
+    pub opened: Entity,
+}
 
 pub fn air_lock_events(
     mut air_lock_collisions: EventReader<AirLockCollision>,
+    mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
     mut air_lock_query: Query<(
         &mut AirLock,
         &mut RigidBodyPositionComponent,
@@ -135,6 +141,15 @@ pub fn air_lock_events(
         }
     }
 
+    let mut toggle_open_requests = vec![];
+
+    for event in toggle_open_action.iter() {
+        toggle_open_requests.push(ToggleOpenRequest {
+            opener: event.opener,
+            opened: Entity::from_bits(event.opened),
+        });
+    }
+
     for collision_event in air_lock_collisions.iter() {
         if collision_event.started == false {
             continue;
@@ -151,8 +166,15 @@ pub fn air_lock_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
+        toggle_open_requests.push(ToggleOpenRequest {
+            opener: pawn_entity,
+            opened: air_lock_entity,
+        });
+    }
+
+    for request in toggle_open_requests {
         let pawn_space_access_component_result =
-            pawn_query.get_component::<SpaceAccess>(pawn_entity);
+            pawn_query.get_component::<SpaceAccess>(request.opener);
         let pawn_space_access_component;
 
         match pawn_space_access_component_result {
@@ -164,7 +186,7 @@ pub fn air_lock_events(
             }
         }
 
-        let air_lock_components_result = air_lock_query.get_mut(air_lock_entity);
+        let air_lock_components_result = air_lock_query.get_mut(request.opened);
 
         let mut air_lock_component;
         let mut air_lock_rigid_body_position_component;
@@ -225,7 +247,7 @@ pub fn air_lock_events(
             air_lock_rigid_body_position_component.position = air_lock_rigid_body_position;
 
             commands
-                .entity(air_lock_entity)
+                .entity(request.opened)
                 .insert(AirLockOpenTimer::default());
 
             let sfx_entity = commands
@@ -239,7 +261,7 @@ pub fn air_lock_events(
             air_lock_component.access_lights = AccessLightsStatus::Denied;
 
             commands
-                .entity(air_lock_entity)
+                .entity(request.opened)
                 .insert(AirLockDeniedTimer::default());
 
             let sfx_entity = commands

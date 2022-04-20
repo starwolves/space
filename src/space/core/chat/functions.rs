@@ -25,7 +25,10 @@ use crate::space::{
     },
 };
 
-use super::{events::NetChatMessage, components::{RadioChannel, Radio}};
+use super::{
+    components::{Radio, RadioChannel},
+    events::NetChatMessage,
+};
 
 const BILLBOARD_SHOUT_FONT: &str =
     "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";

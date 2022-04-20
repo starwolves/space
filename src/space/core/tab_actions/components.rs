@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use bevy_ecs::{entity::Entity, system::Query};
+use bevy_ecs::{entity::Entity, prelude::Component, system::Query};
 
 use crate::space::core::{
     entity::{components::EntityData, resources::EntityDataResource},
@@ -21,6 +21,11 @@ impl Default for TabActionsData {
             tab_action_i: 0,
         }
     }
+}
+
+#[derive(Component)]
+pub struct TabActions {
+    pub tab_actions: Vec<TabAction>,
 }
 
 #[derive(Clone)]

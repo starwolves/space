@@ -10,6 +10,7 @@ use bevy_rapier3d::prelude::{
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
+    chat::components::{Radio, RadioChannel},
     connected_player::{
         components::ConnectedPlayer, functions::name_generator::get_dummy_name,
         systems::on_setupui::ENTITY_SPAWN_PARENT,
@@ -30,8 +31,7 @@ use crate::space::core::{
     map::components::Map,
     networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
     pawn::components::{
-        ControllerInput, Pawn, PersistentPlayerData, SpaceAccess,
-        SpaceAccessEnum, SpaceJobsEnum,
+        ControllerInput, Pawn, PersistentPlayerData, SpaceAccess, SpaceAccessEnum, SpaceJobsEnum,
     },
     physics::{
         components::{WorldMode, WorldModes},
@@ -40,7 +40,7 @@ use crate::space::core::{
     rigid_body::components::{CachedBroadcastTransform, DefaultTransform, RigidBodyData},
     sensable::components::Sensable,
     senser::components::Senser,
-    tab_actions::functions::get_tab_action, chat::components::{RadioChannel, Radio},
+    tab_actions::functions::get_tab_action,
 };
 
 pub struct HumanMalePawnBundle;

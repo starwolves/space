@@ -22,10 +22,14 @@ use crate::space::{
         },
         inventory::{components::Inventory, events::InputUseWorldItem},
         pawn::components::Pawn,
-        tab_actions::events::InputTabAction,
+        tab_actions::{events::InputTabAction, components::TabActions},
     },
-    entities::construction_tool_admin::events::{
-        InputConstruct, InputConstructionOptions, InputDeconstruct,
+    entities::{
+        air_locks::events::InputAirLockToggleOpen,
+        construction_tool_admin::events::{
+            InputConstruct, InputConstructionOptions, InputDeconstruct,
+        },
+        counter_windows::events::InputCounterWindowToggleOpen,
     },
 };
 
@@ -37,10 +41,13 @@ pub fn tab_action(
     mut event_deconstruct: EventWriter<InputDeconstruct>,
     mut pickup_world_item_event: EventWriter<InputUseWorldItem>,
     mut event_construction_options: EventWriter<InputConstructionOptions>,
+    mut air_lock_toggle_open_event: EventWriter<InputAirLockToggleOpen>,
+    mut counter_window_toggle_open_event: EventWriter<InputCounterWindowToggleOpen>,
+
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
     pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
-    inventory_items: Query<&RigidBodyPositionComponent>,
+    targettable_entities: Query<(&RigidBodyPositionComponent, Option<&TabActions>)>,
 
     gridmap_main_data: Res<GridmapMain>,
     entity_data_resource: Res<EntityDataResource>,
@@ -80,12 +87,15 @@ pub fn tab_action(
             .translation
             .into();
 
+        let mut tab_actions_component_option = None;
+
         match event.target_entity_option {
             Some(target_entity_bits) => {
                 let rigid_body_position_component;
-                match inventory_items.get(Entity::from_bits(target_entity_bits)) {
-                    Ok(v) => {
-                        rigid_body_position_component = v;
+                match targettable_entities.get(Entity::from_bits(target_entity_bits)) {
+                    Ok((rigid_body_position_comp, tab_actions_comp_option)) => {
+                        rigid_body_position_component = rigid_body_position_comp;
+                        tab_actions_component_option=tab_actions_comp_option;
                     }
                     Err(_) => {
                         continue;
@@ -113,20 +123,27 @@ pub fn tab_action(
 
         distance = start_pos.distance(end_pos);
 
-        let mut index_option = None;
+        let mut action_option = None;
 
         for (_entity_option, action_id_index_map) in pawn_component.tab_actions_data.layout.iter() {
             for (action_id, index) in action_id_index_map {
                 if action_id == &event.tab_id {
-                    index_option = Some(index);
+                    action_option = Some(pawn_component.tab_actions.get(index).unwrap());
                     break;
                 }
             }
         }
 
-        match index_option {
-            Some(index) => {
-                let action = pawn_component.tab_actions.get(index).unwrap();
+        if action_option.is_none() && &tab_actions_component_option.is_some() == &true {
+            for act in &tab_actions_component_option.unwrap().tab_actions {
+                if act.id == event.tab_id {
+                    action_option=Some(act);
+                }
+            }
+        }
+
+        match action_option {
+            Some(action) => {
 
                 let self_belonging_entity;
 
@@ -256,6 +273,20 @@ pub fn tab_action(
                 pickup_world_item_event.send(InputUseWorldItem {
                     pickuper_entity: event.player_entity,
                     pickupable_entity_bits: event.target_entity_option.unwrap(),
+                });
+            }
+        } else if event.tab_id == "airlocktoggleopen" {
+            if event.target_entity_option.is_some() {
+                air_lock_toggle_open_event.send(InputAirLockToggleOpen {
+                    opener: event.player_entity,
+                    opened: event.target_entity_option.unwrap(),
+                });
+            }
+        } else if event.tab_id == "counterwindowtoggleopen" {
+            if event.target_entity_option.is_some() {
+                counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
+                    opener: event.player_entity,
+                    opened: event.target_entity_option.unwrap(),
                 });
             }
         }

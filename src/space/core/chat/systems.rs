@@ -18,8 +18,9 @@ use crate::space::core::{
 };
 
 use super::{
+    components::Radio,
     events::{InputChatMessage, NetChatMessage},
-    functions::{new_chat_message, Communicator, MessagingPlayerState}, components::Radio,
+    functions::{new_chat_message, Communicator, MessagingPlayerState},
 };
 
 pub fn chat_message_input_event(

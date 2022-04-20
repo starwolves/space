@@ -1,4 +1,7 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::Arc,
+};
 
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_log::warn;
@@ -24,9 +27,12 @@ use crate::space::{
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
         static_body::components::StaticTransform,
+        tab_actions::components::{TabAction, TabActions},
     },
     entities::air_locks::components::AirLock,
 };
+
+use super::functions::toggle_open_action;
 
 pub struct AirlockBundle;
 
@@ -96,6 +102,8 @@ impl AirlockBundle {
 
         let mut builder = commands.spawn_bundle(rigid_body_component);
 
+        let entity_id = builder.id();
+
         builder.insert_bundle(collider_component).insert_bundle((
             static_transform_component,
             Sensable::default(),
@@ -123,12 +131,21 @@ impl AirlockBundle {
                 is_reach_obstacle: true,
                 ..Default::default()
             },
+            TabActions {
+                tab_actions: vec![TabAction {
+                    id: "airlocktoggleopen".to_string(),
+                    text: "Toggle Open".to_string(),
+                    tab_list_priority: 100,
+                    prerequisite_check: Arc::new(toggle_open_action),
+                    belonging_entity: Some(entity_id),
+                }],
+            },
         ));
 
         if default_map_spawn {
             builder.insert(DefaultMapEntity);
         }
 
-        builder.id()
+        entity_id
     }
 }

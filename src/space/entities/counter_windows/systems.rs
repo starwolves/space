@@ -24,10 +24,13 @@ use crate::space::{
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
     },
-    entities::sfx::counter_window::{
-        counter_window_closed_sfx::CounterWindowClosedSfxBundle,
-        counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
-        counter_window_open_sfx::CounterWindowOpenSfxBundle,
+    entities::{
+        air_locks::systems::ToggleOpenRequest,
+        sfx::counter_window::{
+            counter_window_closed_sfx::CounterWindowClosedSfxBundle,
+            counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
+            counter_window_open_sfx::CounterWindowOpenSfxBundle,
+        },
     },
 };
 
@@ -36,11 +39,12 @@ use super::{
         CounterWindow, CounterWindowAccessLightsStatus, CounterWindowClosedTimer,
         CounterWindowDeniedTimer, CounterWindowOpenTimer, CounterWindowSensor, CounterWindowStatus,
     },
-    events::CounterWindowSensorCollision,
+    events::{CounterWindowSensorCollision, InputCounterWindowToggleOpen},
 };
 
 pub fn counter_window_events(
     mut counter_window_sensor_collisions: EventReader<CounterWindowSensorCollision>,
+    mut counter_window_toggle_open_action: EventReader<InputCounterWindowToggleOpen>,
     mut counter_window_query: Query<(
         &mut CounterWindow,
         &mut RigidBodyPositionComponent,
@@ -142,6 +146,8 @@ pub fn counter_window_events(
         }
     }
 
+    let mut toggle_open_requests = vec![];
+
     for collision_event in counter_window_sensor_collisions.iter() {
         if collision_event.started == false {
             continue;
@@ -161,8 +167,22 @@ pub fn counter_window_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
+        toggle_open_requests.push(ToggleOpenRequest {
+            opener: pawn_entity,
+            opened: counter_window_sensor_entity,
+        });
+    }
+
+    for event in counter_window_toggle_open_action.iter() {
+        toggle_open_requests.push(ToggleOpenRequest {
+            opener: event.opener,
+            opened: Entity::from_bits(event.opened),
+        });
+    }
+
+    for request in toggle_open_requests {
         let pawn_space_access_component_result =
-            pawn_query.get_component::<SpaceAccess>(pawn_entity);
+            pawn_query.get_component::<SpaceAccess>(request.opener);
         let pawn_space_access_component;
 
         match pawn_space_access_component_result {
@@ -175,8 +195,7 @@ pub fn counter_window_events(
         }
 
         let counter_window_sensor_components_result =
-            counter_window_sensor_query
-                .get_component::<CounterWindowSensor>(counter_window_sensor_entity);
+            counter_window_sensor_query.get_component::<CounterWindowSensor>(request.opened);
         let counter_window_sensor_component;
 
         match counter_window_sensor_components_result {
