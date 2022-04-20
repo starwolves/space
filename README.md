@@ -104,4 +104,4 @@ This repository is licensed under a [special license](https://github.com/starwol
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
 The roots of Space Frontiers are partially in this community, but Space Frontiers is managed in a way that effectively makes Space Frontiers and its community remain a predominantly separated entity; apart from the fact that Star Wolves technically owns Space Frontiers.
-Star Wolves will be one of the first community to host a 24/7 server for Space Frontiers.
+Star Wolves will be one of the first communities to host a 24/7 server for Space Frontiers.
