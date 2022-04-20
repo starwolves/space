@@ -105,18 +105,18 @@ pub fn tab_data(
                 )) => {
                     let entity_translation;
 
-                    if rigid_body_position_component_option.is_some() {
-                        entity_translation = rigid_body_position_component_option
+                    if static_transform_component_option.is_some() {
+                        entity_translation = static_transform_component_option
                             .unwrap()
-                            .position
-                            .translation
-                            .into();
+                            .transform
+                            .translation;
                     } else {
-                        if static_transform_component_option.is_some() {
-                            entity_translation = static_transform_component_option
+                        if rigid_body_position_component_option.is_some() {
+                            entity_translation = rigid_body_position_component_option
                                 .unwrap()
-                                .transform
-                                .translation;
+                                .position
+                                .translation
+                                .into();
                         } else {
                             warn!("Entity with tab_action doesn't have any positional component!");
                             continue;
