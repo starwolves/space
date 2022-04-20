@@ -38,7 +38,7 @@ use crate::space::{
 
 use super::events::{AirLockCollision, InputAirLockToggleOpen};
 
-pub struct AirLockToggleOpenRequest {
+pub struct AirLockOpenRequest {
     pub opener: Entity,
     pub opened: Entity,
 }
@@ -133,10 +133,31 @@ pub fn air_lock_events(
     let mut open_air_lock_requests = vec![];
 
     for event in toggle_open_action.iter() {
-        open_air_lock_requests.push(AirLockToggleOpenRequest {
-            opener: event.opener,
-            opened: Entity::from_bits(event.opened),
-        });
+        match air_lock_query.get(Entity::from_bits(event.opened)) {
+            Ok((
+                air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+            )) => match air_lock_component.status {
+                AirLockStatus::Open => {
+                    close_air_lock_requests.push(AirLockCloseRequest {
+                        interacter_option: Some(event.opener),
+                        interacted: Entity::from_bits(event.opened),
+                    });
+                }
+                AirLockStatus::Closed => {
+                    open_air_lock_requests.push(AirLockOpenRequest {
+                        opener: event.opener,
+                        opened: Entity::from_bits(event.opened),
+                    });
+                }
+            },
+            Err(_rr) => {}
+        }
     }
 
     for collision_event in air_lock_collisions.iter() {
@@ -155,7 +176,7 @@ pub fn air_lock_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
-        open_air_lock_requests.push(AirLockToggleOpenRequest {
+        open_air_lock_requests.push(AirLockOpenRequest {
             opener: pawn_entity,
             opened: air_lock_entity,
         });
