@@ -22,7 +22,7 @@ use crate::space::{
         },
         inventory::{components::Inventory, events::InputUseWorldItem},
         pawn::components::Pawn,
-        tab_actions::{components::TabActions, events::InputTabAction},
+        tab_actions::{components::TabActions, events::InputTabAction}, static_body::components::StaticTransform,
     },
     entities::{
         air_locks::events::InputAirLockToggleOpen,
@@ -47,7 +47,7 @@ pub fn tab_action(
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
     pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
-    targettable_entities: Query<(&RigidBodyPositionComponent, Option<&TabActions>)>,
+    targettable_entities: Query<(Option<&RigidBodyPositionComponent>, Option<&StaticTransform>, Option<&TabActions>)>,
 
     gridmap_main_data: Res<GridmapMain>,
     entity_data_resource: Res<EntityDataResource>,
@@ -91,17 +91,26 @@ pub fn tab_action(
 
         match event.target_entity_option {
             Some(target_entity_bits) => {
-                let rigid_body_position_component;
                 match targettable_entities.get(Entity::from_bits(target_entity_bits)) {
-                    Ok((rigid_body_position_comp, tab_actions_comp_option)) => {
-                        rigid_body_position_component = rigid_body_position_comp;
+                    Ok((rigid_body_position_comp_option, static_transform_comp_option, tab_actions_comp_option)) => {
+
+                        match rigid_body_position_comp_option {
+                            Some(rigid_body_position_component) => {
+                                start_pos = rigid_body_position_component.0.position.translation.into();
+                            },
+                            None => {
+                                start_pos = static_transform_comp_option.unwrap().transform.translation;
+                            },
+                        }
+
+                        
+
                         tab_actions_component_option = tab_actions_comp_option;
                     }
                     Err(_) => {
                         continue;
                     }
                 }
-                start_pos = rigid_body_position_component.0.position.translation.into();
             }
             None => {
                 let cell_data;
