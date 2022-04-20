@@ -22,7 +22,9 @@ use crate::space::core::{
     networking::resources::{GridMapType, ReliableServerMessage},
     pawn::components::Pawn,
     sensable::components::Sensable,
-    senser::components::Senser, static_body::components::StaticTransform, tab_actions::components::TabActions,
+    senser::components::Senser,
+    static_body::components::StaticTransform,
+    tab_actions::components::TabActions,
 };
 
 pub fn tab_data(
@@ -31,7 +33,13 @@ pub fn tab_data(
     mut net: EventWriter<NetTabData>,
 
     pawn_query: Query<(&Pawn, &Senser, &RigidBodyPositionComponent, &Inventory)>,
-    examinable_query: Query<(&Examinable, &Sensable, Option<&RigidBodyPositionComponent>, Option<&StaticTransform>, Option<&TabActions>)>,
+    examinable_query: Query<(
+        &Examinable,
+        &Sensable,
+        Option<&RigidBodyPositionComponent>,
+        Option<&StaticTransform>,
+        Option<&TabActions>,
+    )>,
     gridmap_data: Res<GridmapData>,
     gridmap_main: Res<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,
@@ -65,54 +73,54 @@ pub fn tab_data(
         for (_action_id, tab_action) in player_pawn_component.tab_actions.iter() {
             tab_actions.push(tab_action);
         }
-        
+
         match examinable_query.get(entity) {
             Ok((
-                _examinable_component, 
+                _examinable_component,
                 _sensable_component,
                 _rigid_body_position_component_option,
                 _static_transform_component_option,
                 tab_actions_component_option,
-            )) => {
-                match tab_actions_component_option {
-                    Some(tab_actions_component) => {
-                        for tab_action in tab_actions_component.tab_actions.iter() {
-                            tab_actions.push(tab_action);
-                        }
-                    },
-                    None => {},
-                } 
+            )) => match tab_actions_component_option {
+                Some(tab_actions_component) => {
+                    for tab_action in tab_actions_component.tab_actions.iter() {
+                        tab_actions.push(tab_action);
+                    }
+                }
+                None => {}
             },
-            Err(_rr) => {},
+            Err(_rr) => {}
         }
 
         for tab_action in tab_actions {
-
-
             let s = Some(event.examine_entity_bits);
 
             match examinable_query.get(entity) {
                 Ok((
-                    examinable_component, 
+                    examinable_component,
                     sensable_component,
                     rigid_body_position_component_option,
                     static_transform_component_option,
                     _tab_actions_component_option,
                 )) => {
-
                     let entity_translation;
 
                     if rigid_body_position_component_option.is_some() {
-                        entity_translation = rigid_body_position_component_option.unwrap().position.translation.into();
+                        entity_translation = rigid_body_position_component_option
+                            .unwrap()
+                            .position
+                            .translation
+                            .into();
                     } else {
-
                         if static_transform_component_option.is_some() {
-                            entity_translation = static_transform_component_option.unwrap().transform.translation;
+                            entity_translation = static_transform_component_option
+                                .unwrap()
+                                .transform
+                                .translation;
                         } else {
                             warn!("Entity with tab_action doesn't have any positional component!");
                             continue;
                         }
-
                     }
 
                     if sensable_component.sensed_by.contains(&event.player_entity) {
@@ -120,9 +128,7 @@ pub fn tab_data(
                             tab_action.belonging_entity,
                             s,
                             None,
-                            pawn_body_position.distance(
-                                entity_translation,
-                            ),
+                            pawn_body_position.distance(entity_translation),
                             player_inventory_component,
                             &entity_data_resource,
                             &entity_datas,
@@ -137,7 +143,6 @@ pub fn tab_data(
                 }
                 Err(_rr) => {}
             }
-
         }
 
         match handle_to_entity.inv_map.get(&event.player_entity) {

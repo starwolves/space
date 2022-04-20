@@ -7,7 +7,9 @@ use bevy_ecs::{
     prelude::Added,
     system::{Commands, Query, Res, ResMut},
 };
+use bevy_log::warn;
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::components::Children;
 
 use crate::space::{
     core::{
@@ -25,7 +27,7 @@ use crate::space::{
         static_body::components::StaticTransform,
     },
     entities::{
-        air_locks::systems::ToggleOpenRequest,
+        air_locks::systems::{AirLockCloseRequest},
         sfx::counter_window::{
             counter_window_closed_sfx::CounterWindowClosedSfxBundle,
             counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
@@ -42,6 +44,12 @@ use super::{
     events::{CounterWindowSensorCollision, InputCounterWindowToggleOpen},
 };
 
+pub struct CounterWindowToggleOpenRequest {
+    pub opener: Entity,
+    pub opened: Entity,
+    pub opened_sensor : Entity,
+}
+
 pub fn counter_window_events(
     mut counter_window_sensor_collisions: EventReader<CounterWindowSensorCollision>,
     mut counter_window_toggle_open_action: EventReader<InputCounterWindowToggleOpen>,
@@ -53,6 +61,7 @@ pub fn counter_window_events(
         Option<&mut CounterWindowDeniedTimer>,
         Option<&mut CounterWindowClosedTimer>,
         Entity,
+        &Children,
     )>,
     counter_window_sensor_query: Query<&CounterWindowSensor>,
     pawn_query: Query<(&Pawn, &SpaceAccess)>,
@@ -60,6 +69,8 @@ pub fn counter_window_events(
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
+    let mut close_counter_window_requests = vec![];
+
     for (
         mut counter_window_component,
         mut rigid_body_position_component,
@@ -68,6 +79,7 @@ pub fn counter_window_events(
         counter_window_denied_timer_option,
         counter_window_closed_timer_option,
         counter_window_entity,
+        _children_component,
     ) in counter_window_query.iter_mut()
     {
         match counter_window_open_timer_option {
@@ -76,29 +88,10 @@ pub fn counter_window_events(
                     timer_component.timer.pause();
                     timer_component.timer.reset();
 
-                    counter_window_component.status = CounterWindowStatus::Closed;
-
-                    let cell_id =
-                        world_to_cell_id(rigid_body_position_component.position.translation.into());
-                    let cell_id2 = Vec2Int {
-                        x: cell_id.x,
-                        y: cell_id.z,
-                    };
-                    if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                        continue;
-                    }
-                    let atmos_id = get_atmos_index(cell_id2);
-                    let atmospherics = atmospherics_resource
-                        .atmospherics
-                        .get_mut(atmos_id)
-                        .unwrap();
-
-                    atmospherics.blocked = true;
-                    atmospherics.forces_push_up = false;
-
-                    commands
-                        .entity(counter_window_entity)
-                        .insert(CounterWindowClosedTimer::default());
+                    close_counter_window_requests.push(AirLockCloseRequest {
+                        interacter_option: None,
+                        interacted: counter_window_entity,
+                    });
                 }
             }
             None => {}
@@ -167,17 +160,45 @@ pub fn counter_window_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
-        toggle_open_requests.push(ToggleOpenRequest {
+        let counter_window_entity;
+
+        match counter_window_sensor_query.get(counter_window_sensor_entity) {
+            Ok(counter_window_sensor_component) => {
+                counter_window_entity = counter_window_sensor_component.parent;
+            },
+            Err(_rr) => {
+                warn!("Couldn't find parent entity of counter window sensor.");
+                continue;
+            },
+        }
+
+        toggle_open_requests.push(CounterWindowToggleOpenRequest {
             opener: pawn_entity,
-            opened: counter_window_sensor_entity,
+            opened: counter_window_entity,
+            opened_sensor: counter_window_sensor_entity,
         });
+
     }
 
     for event in counter_window_toggle_open_action.iter() {
-        toggle_open_requests.push(ToggleOpenRequest {
-            opener: event.opener,
-            opened: Entity::from_bits(event.opened),
-        });
+        let opened_entity = Entity::from_bits(event.opened);
+        match counter_window_query.get_component::<Children>(opened_entity) {
+            Ok(children_component) => {
+                
+                for child in children_component.iter() {
+                    toggle_open_requests.push(CounterWindowToggleOpenRequest {
+                        opener: event.opener,
+                        opened: opened_entity,
+                        opened_sensor: *child,
+                    });
+                }
+
+            },
+            Err(_rr) => {
+                warn!("Couldn't find children component of counter window.");
+            },
+        };
+        
     }
 
     for request in toggle_open_requests {
@@ -194,8 +215,10 @@ pub fn counter_window_events(
             }
         }
 
+        
+
         let counter_window_sensor_components_result =
-            counter_window_sensor_query.get_component::<CounterWindowSensor>(request.opened);
+            counter_window_sensor_query.get_component::<CounterWindowSensor>(request.opened_sensor);
         let counter_window_sensor_component;
 
         match counter_window_sensor_components_result {
@@ -309,6 +332,81 @@ pub fn counter_window_events(
                 ))
                 .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
+        }
+    }
+
+    for request in close_counter_window_requests {
+        match counter_window_query.get_mut(request.interacted) {
+            Ok((
+                mut counter_window_component,
+                rigid_body_position_component,
+                _static_transform_component,
+                _counter_window_open_timer_option,
+                _counter_window_denied_timer_option,
+                _counter_window_closed_timer_option,
+                counter_window_entity,
+                _children_component,
+            )) => {
+                match request.interacter_option {
+                    Some(interacter) => {
+                        let pawn_space_access_component_result =
+                            pawn_query.get_component::<SpaceAccess>(interacter);
+                        let pawn_space_access_component;
+
+                        match pawn_space_access_component_result {
+                            Ok(result) => {
+                                pawn_space_access_component = result;
+                            }
+                            Err(_err) => {
+                                continue;
+                            }
+                        }
+
+                        let mut pawn_has_permission = false;
+
+                        for space_permission in &counter_window_component.access_permissions {
+                            if pawn_space_access_component
+                                .access
+                                .contains(space_permission)
+                                == true
+                            {
+                                pawn_has_permission = true;
+                                break;
+                            }
+                        }
+
+                        if pawn_has_permission == false {
+                            continue;
+                        }
+                    }
+                    None => {}
+                }
+
+                counter_window_component.status = CounterWindowStatus::Closed;
+
+                let cell_id =
+                    world_to_cell_id(rigid_body_position_component.position.translation.into());
+                let cell_id2 = Vec2Int {
+                    x: cell_id.x,
+                    y: cell_id.z,
+                };
+                if AtmosphericsResource::is_id_out_of_range(cell_id2) {
+                    continue;
+                }
+                let atmos_id = get_atmos_index(cell_id2);
+                let atmospherics = atmospherics_resource
+                    .atmospherics
+                    .get_mut(atmos_id)
+                    .unwrap();
+
+                atmospherics.blocked = true;
+                atmospherics.forces_push_up = false;
+
+                commands
+                    .entity(counter_window_entity)
+                    .insert(CounterWindowClosedTimer::default());
+            }
+            Err(_rr) => {}
         }
     }
 }

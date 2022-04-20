@@ -22,7 +22,7 @@ use crate::space::{
         },
         inventory::{components::Inventory, events::InputUseWorldItem},
         pawn::components::Pawn,
-        tab_actions::{events::InputTabAction, components::TabActions},
+        tab_actions::{components::TabActions, events::InputTabAction},
     },
     entities::{
         air_locks::events::InputAirLockToggleOpen,
@@ -95,7 +95,7 @@ pub fn tab_action(
                 match targettable_entities.get(Entity::from_bits(target_entity_bits)) {
                     Ok((rigid_body_position_comp, tab_actions_comp_option)) => {
                         rigid_body_position_component = rigid_body_position_comp;
-                        tab_actions_component_option=tab_actions_comp_option;
+                        tab_actions_component_option = tab_actions_comp_option;
                     }
                     Err(_) => {
                         continue;
@@ -137,14 +137,13 @@ pub fn tab_action(
         if action_option.is_none() && &tab_actions_component_option.is_some() == &true {
             for act in &tab_actions_component_option.unwrap().tab_actions {
                 if act.id == event.tab_id {
-                    action_option=Some(act);
+                    action_option = Some(act);
                 }
             }
         }
 
         match action_option {
             Some(action) => {
-
                 let self_belonging_entity;
 
                 match event.belonging_entity {

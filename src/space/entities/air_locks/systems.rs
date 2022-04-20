@@ -38,9 +38,14 @@ use crate::space::{
 
 use super::events::{AirLockCollision, InputAirLockToggleOpen};
 
-pub struct ToggleOpenRequest {
+pub struct AirLockToggleOpenRequest {
     pub opener: Entity,
     pub opened: Entity,
+}
+
+pub struct AirLockCloseRequest {
+    pub interacter_option: Option<Entity>,
+    pub interacted: Entity,
 }
 
 pub fn air_lock_events(
@@ -60,6 +65,8 @@ pub fn air_lock_events(
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
+    let mut close_air_lock_requests = vec![];
+
     for (
         mut air_lock_component,
         mut rigid_body_position_component,
@@ -75,28 +82,10 @@ pub fn air_lock_events(
                 if timer_component.timer.finished() == true {
                     timer_component.timer.pause();
                     timer_component.timer.reset();
-
-                    let cell_id =
-                        world_to_cell_id(rigid_body_position_component.position.translation.into());
-                    let cell_id2 = Vec2Int {
-                        x: cell_id.x,
-                        y: cell_id.z,
-                    };
-                    if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                        continue;
-                    }
-                    let atmos_id = get_atmos_index(cell_id2);
-                    let atmospherics = atmospherics_resource
-                        .atmospherics
-                        .get_mut(atmos_id)
-                        .unwrap();
-
-                    atmospherics.blocked = true;
-                    air_lock_component.status = AirLockStatus::Closed;
-
-                    commands
-                        .entity(air_lock_entity)
-                        .insert(AirLockClosedTimer::default());
+                    close_air_lock_requests.push(AirLockCloseRequest {
+                        interacter_option: None,
+                        interacted: air_lock_entity,
+                    });
                 }
             }
             None => {}
@@ -141,10 +130,10 @@ pub fn air_lock_events(
         }
     }
 
-    let mut toggle_open_requests = vec![];
+    let mut open_air_lock_requests = vec![];
 
     for event in toggle_open_action.iter() {
-        toggle_open_requests.push(ToggleOpenRequest {
+        open_air_lock_requests.push(AirLockToggleOpenRequest {
             opener: event.opener,
             opened: Entity::from_bits(event.opened),
         });
@@ -166,13 +155,13 @@ pub fn air_lock_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
-        toggle_open_requests.push(ToggleOpenRequest {
+        open_air_lock_requests.push(AirLockToggleOpenRequest {
             opener: pawn_entity,
             opened: air_lock_entity,
         });
     }
 
-    for request in toggle_open_requests {
+    for request in open_air_lock_requests {
         let pawn_space_access_component_result =
             pawn_query.get_component::<SpaceAccess>(request.opener);
         let pawn_space_access_component;
@@ -271,6 +260,79 @@ pub fn air_lock_events(
                 ))
                 .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
+        }
+    }
+
+    for request in close_air_lock_requests {
+        match air_lock_query.get_mut(request.interacted) {
+            Ok((
+                mut air_lock_component,
+                rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                air_lock_entity,
+            )) => {
+                match request.interacter_option {
+                    Some(interacter) => {
+                        let pawn_space_access_component_result =
+                            pawn_query.get_component::<SpaceAccess>(interacter);
+                        let pawn_space_access_component;
+
+                        match pawn_space_access_component_result {
+                            Ok(result) => {
+                                pawn_space_access_component = result;
+                            }
+                            Err(_err) => {
+                                continue;
+                            }
+                        }
+
+                        let mut pawn_has_permission = false;
+
+                        for space_permission in &air_lock_component.access_permissions {
+                            if pawn_space_access_component
+                                .access
+                                .contains(space_permission)
+                                == true
+                            {
+                                pawn_has_permission = true;
+                                break;
+                            }
+                        }
+
+                        if pawn_has_permission == false {
+                            continue;
+                        }
+                    }
+                    None => {}
+                }
+
+                let cell_id =
+                    world_to_cell_id(rigid_body_position_component.position.translation.into());
+                let cell_id2 = Vec2Int {
+                    x: cell_id.x,
+                    y: cell_id.z,
+                };
+                if AtmosphericsResource::is_id_out_of_range(cell_id2) {
+                    continue;
+                }
+                let atmos_id = get_atmos_index(cell_id2);
+                let atmospherics = atmospherics_resource
+                    .atmospherics
+                    .get_mut(atmos_id)
+                    .unwrap();
+
+                atmospherics.blocked = true;
+                air_lock_component.status = AirLockStatus::Closed;
+
+                commands
+                    .entity(air_lock_entity)
+                    .insert(AirLockClosedTimer::default());
+            }
+
+            Err(_rr) => {}
         }
     }
 }
