@@ -1,6 +1,5 @@
 use bevy_ecs::prelude::Component;
 
-
 #[derive(Component)]
 pub struct Radio {
     pub listen_access: Vec<RadioChannel>,

@@ -11,3 +11,8 @@ pub struct CounterWindowSensorCollision {
 
     pub started: bool,
 }
+
+pub struct InputCounterWindowToggleOpen {
+    pub opener: Entity,
+    pub opened: u64,
+}

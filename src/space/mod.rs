@@ -60,13 +60,14 @@ use self::{
             systems::{
                 build_graphics_event::build_graphics_event, controller_input::controller_input,
                 done_boarding::done_boarding, examine_entity::examine_entity,
-                examine_map::examine_map, on_boarding::on_boarding, on_setupui::on_setupui,
+                examine_map::examine_map, mouse_direction_update::mouse_direction_update,
+                on_boarding::on_boarding, on_setupui::on_setupui, on_spawning::on_spawning,
                 player_input_event::player_input_event, scene_ready_event::scene_ready_event,
                 send_server_time::send_server_time,
                 text_tree_input_selection::text_tree_input_selection,
                 ui_input_event::ui_input_event,
                 ui_input_transmit_data_event::ui_input_transmit_data_event,
-                update_player_count::update_player_count, on_spawning::on_spawning, mouse_direction_update::mouse_direction_update,
+                update_player_count::update_player_count,
             },
         },
         console_commands::{
@@ -130,9 +131,7 @@ use self::{
         },
         pawn::{
             resources::{AuthidI, UsedNames},
-            systems::{
-                user_name::user_name,
-            },
+            systems::user_name::user_name,
         },
         physics::{entity_update::world_mode_update, systems::physics_events},
         rigid_body::systems::{
@@ -156,7 +155,7 @@ use self::{
     entities::{
         air_locks::{
             entity_update::air_lock_update,
-            events::AirLockCollision,
+            events::{AirLockCollision, InputAirLockToggleOpen},
             systems::{
                 air_lock_added, air_lock_default_map_added, air_lock_events, air_lock_tick_timers,
             },
@@ -171,7 +170,7 @@ use self::{
         },
         counter_windows::{
             entity_update::counter_window_update,
-            events::CounterWindowSensorCollision,
+            events::{CounterWindowSensorCollision, InputCounterWindowToggleOpen},
             systems::{
                 counter_window_added, counter_window_default_map_added, counter_window_events,
                 counter_window_tick_timers,
@@ -335,6 +334,8 @@ impl Plugin for SpacePlugin {
             .add_event::<InputMap>()
             .add_event::<NetMapHoverAtmospherics>()
             .add_event::<NetAtmosphericsNotices>()
+            .add_event::<InputCounterWindowToggleOpen>()
+            .add_event::<InputAirLockToggleOpen>()
             .add_startup_system(startup_misc_resources.label(StartupLabels::Launch))
             .add_startup_system(
                 startup_map_cells
