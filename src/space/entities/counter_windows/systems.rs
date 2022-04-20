@@ -7,7 +7,7 @@ use bevy_ecs::{
     prelude::Added,
     system::{Commands, Query, Res, ResMut},
 };
-use bevy_log::warn;
+use bevy_log::{info, warn};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use bevy_transform::components::Children;
 
@@ -27,7 +27,7 @@ use crate::space::{
         static_body::components::StaticTransform,
     },
     entities::{
-        air_locks::systems::{AirLockCloseRequest},
+        air_locks::systems::AirLockCloseRequest,
         sfx::counter_window::{
             counter_window_closed_sfx::CounterWindowClosedSfxBundle,
             counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
@@ -44,10 +44,10 @@ use super::{
     events::{CounterWindowSensorCollision, InputCounterWindowToggleOpen},
 };
 
-pub struct CounterWindowToggleOpenRequest {
+pub struct CounterWindowOpenRequest {
     pub opener: Entity,
     pub opened: Entity,
-    pub opened_sensor : Entity,
+    pub opened_sensor: Entity,
 }
 
 pub fn counter_window_events(
@@ -69,7 +69,7 @@ pub fn counter_window_events(
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
-    let mut close_counter_window_requests = vec![];
+    let mut close_requests = vec![];
 
     for (
         mut counter_window_component,
@@ -88,7 +88,7 @@ pub fn counter_window_events(
                     timer_component.timer.pause();
                     timer_component.timer.reset();
 
-                    close_counter_window_requests.push(AirLockCloseRequest {
+                    close_requests.push(AirLockCloseRequest {
                         interacter_option: None,
                         interacted: counter_window_entity,
                     });
@@ -139,7 +139,7 @@ pub fn counter_window_events(
         }
     }
 
-    let mut toggle_open_requests = vec![];
+    let mut open_requests = vec![];
 
     for collision_event in counter_window_sensor_collisions.iter() {
         if collision_event.started == false {
@@ -165,43 +165,64 @@ pub fn counter_window_events(
         match counter_window_sensor_query.get(counter_window_sensor_entity) {
             Ok(counter_window_sensor_component) => {
                 counter_window_entity = counter_window_sensor_component.parent;
-            },
+            }
             Err(_rr) => {
                 warn!("Couldn't find parent entity of counter window sensor.");
                 continue;
-            },
+            }
         }
 
-        toggle_open_requests.push(CounterWindowToggleOpenRequest {
+        open_requests.push(CounterWindowOpenRequest {
             opener: pawn_entity,
             opened: counter_window_entity,
             opened_sensor: counter_window_sensor_entity,
         });
-
     }
 
     for event in counter_window_toggle_open_action.iter() {
         let opened_entity = Entity::from_bits(event.opened);
-        match counter_window_query.get_component::<Children>(opened_entity) {
-            Ok(children_component) => {
-                
-                for child in children_component.iter() {
-                    toggle_open_requests.push(CounterWindowToggleOpenRequest {
-                        opener: event.opener,
-                        opened: opened_entity,
-                        opened_sensor: *child,
-                    });
-                }
 
-            },
+        info!("Toggle open action from {:?}", opened_entity);
+
+        match counter_window_query.get(opened_entity) {
+            Ok((
+                counter_window_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _counter_window_open_timer_option,
+                _counter_window_denied_timer_option,
+                _counter_window_closed_timer_option,
+                _counter_window_entity,
+                children_component,
+            )) => {
+                for child in children_component.iter() {
+                    match counter_window_component.status {
+                        CounterWindowStatus::Open => {
+                            close_requests.push(AirLockCloseRequest {
+                                interacter_option: Some(event.opener),
+                                interacted: opened_entity,
+                            });
+                        }
+                        CounterWindowStatus::Closed => {
+                            open_requests.push(CounterWindowOpenRequest {
+                                opener: event.opener,
+                                opened: opened_entity,
+                                opened_sensor: *child,
+                            });
+                        }
+                    }
+
+                    break;
+                    //Should only fire once anyways.
+                }
+            }
             Err(_rr) => {
                 warn!("Couldn't find children component of counter window.");
-            },
+            }
         };
-        
     }
 
-    for request in toggle_open_requests {
+    for request in open_requests {
         let pawn_space_access_component_result =
             pawn_query.get_component::<SpaceAccess>(request.opener);
         let pawn_space_access_component;
@@ -214,8 +235,6 @@ pub fn counter_window_events(
                 continue;
             }
         }
-
-        
 
         let counter_window_sensor_components_result =
             counter_window_sensor_query.get_component::<CounterWindowSensor>(request.opened_sensor);
@@ -335,7 +354,7 @@ pub fn counter_window_events(
         }
     }
 
-    for request in close_counter_window_requests {
+    for request in close_requests {
         match counter_window_query.get_mut(request.interacted) {
             Ok((
                 mut counter_window_component,
