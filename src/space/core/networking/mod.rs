@@ -69,7 +69,10 @@ use super::{
         },
         resources::HandleToEntity,
     },
-    console_commands::events::{InputConsoleCommand, NetConsoleCommands},
+    console_commands::{
+        events::NetConsoleCommands,
+        resources::{InputConsoleCommand, QueuedConsoleCommands},
+    },
     humanoid::components::Humanoid,
     map::resources::MapData,
     tab_actions::events::InputTabAction,
@@ -120,7 +123,6 @@ pub fn messages_outgoing(
     ),
 
     tuple1: (
-        EventWriter<InputConsoleCommand>,
         EventWriter<InputToggleCombatMode>,
         EventWriter<InputMouseDirectionUpdate>,
         EventWriter<InputMouseAction>,
@@ -143,6 +145,8 @@ pub fn messages_outgoing(
         EventWriter<InputMap>,
     ),
 
+    mut console_commands_queue: ResMut<QueuedConsoleCommands>,
+
     handle_to_entity: Res<HandleToEntity>,
 ) {
     let (
@@ -164,7 +168,6 @@ pub fn messages_outgoing(
     ) = tuple0;
 
     let (
-        mut console_command,
         mut input_toggle_combat_mode,
         mut mouse_direction_update,
         mut input_mouse_action,
@@ -369,7 +372,7 @@ pub fn messages_outgoing(
                 ReliableClientMessage::ConsoleCommand(command_name, variant_arguments) => {
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            console_command.send(InputConsoleCommand {
+                            console_commands_queue.queue.push(InputConsoleCommand {
                                 handle: *handle,
                                 entity: *player_entity,
                                 command_name: command_name,

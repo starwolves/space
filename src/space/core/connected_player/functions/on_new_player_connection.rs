@@ -9,7 +9,7 @@ use crate::space::core::{
         events::NetOnNewPlayerConnection,
         resources::HandleToEntity,
     },
-    console_commands::systems::get_console_commands,
+    console_commands::get_console_commands,
     gridmap::resources::GridmapData,
     map::resources::MapData,
     networking::resources::{ReliableServerMessage, ServerConfigMessage},
