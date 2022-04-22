@@ -12,6 +12,7 @@ use crate::space::core::{
         events::{InputTabDataEntity, InputTabDataMap, NetTabData},
         resources::HandleToEntity,
     },
+    data_link::components::DataLink,
     entity::{components::EntityData, resources::EntityDataResource},
     examinable::components::Examinable,
     gridmap::{
@@ -32,7 +33,13 @@ pub fn tab_data(
     mut map_events: EventReader<InputTabDataMap>,
     mut net: EventWriter<NetTabData>,
 
-    pawn_query: Query<(&Pawn, &Senser, &RigidBodyPositionComponent, &Inventory)>,
+    pawn_query: Query<(
+        &Pawn,
+        &Senser,
+        &RigidBodyPositionComponent,
+        &Inventory,
+        &DataLink,
+    )>,
     examinable_query: Query<(
         &Examinable,
         &Sensable,
@@ -51,12 +58,14 @@ pub fn tab_data(
         let player_pawn_component;
         let pawn_body_position: Vec3;
         let player_inventory_component;
+        let data_link_component;
 
         match pawn_query.get(event.player_entity) {
-            Ok((pawn_c, _pawn_c2, pawn_c3, pawn_c4)) => {
+            Ok((pawn_c, _pawn_c2, pawn_c3, pawn_c4, pawn_c5)) => {
                 player_pawn_component = pawn_c;
                 pawn_body_position = pawn_c3.position.translation.into();
                 player_inventory_component = pawn_c4;
+                data_link_component = pawn_c5;
             }
             Err(_rr) => {
                 warn!("Couldn't find Pawn component belonging to player.");
@@ -132,6 +141,7 @@ pub fn tab_data(
                             player_inventory_component,
                             &entity_data_resource,
                             &entity_datas,
+                            &data_link_component,
                         ) {
                             tab_data.push(tab_action.into_net(
                                 examinable_component.name.get_name(),
@@ -161,13 +171,15 @@ pub fn tab_data(
         let player_senser_component;
         let player_body_position: Vec3;
         let player_inventory_component;
+        let data_link_component;
 
         match pawn_query.get(event.player_entity) {
-            Ok((pawn_c, pawn_c2, pawn_c3, pawn_c4)) => {
+            Ok((pawn_c, pawn_c2, pawn_c3, pawn_c4, pawn_c5)) => {
                 player_pawn_component = pawn_c;
                 player_senser_component = pawn_c2;
                 player_body_position = pawn_c3.position.translation.into();
                 player_inventory_component = pawn_c4;
+                data_link_component = pawn_c5;
             }
             Err(_rr) => {
                 warn!("Couldn't find Pawn component belonging to player (2).");
@@ -243,6 +255,7 @@ pub fn tab_data(
                     player_inventory_component,
                     &entity_data_resource,
                     &entity_datas,
+                    &data_link_component,
                 ) {
                     tab_data.push(tab_action.into_net(tab_data_name, None, cell_part_tuple));
                 }

@@ -32,7 +32,7 @@ use crate::space::{
     entities::air_locks::components::AirLock,
 };
 
-use super::functions::toggle_open_action;
+use super::functions::{lock_closed_action, lock_open_action, toggle_open_action};
 
 pub struct AirlockBundle;
 
@@ -132,13 +132,29 @@ impl AirlockBundle {
                 ..Default::default()
             },
             TabActions {
-                tab_actions: vec![TabAction {
-                    id: "airlocktoggleopen".to_string(),
-                    text: "Toggle Open".to_string(),
-                    tab_list_priority: 100,
-                    prerequisite_check: Arc::new(toggle_open_action),
-                    belonging_entity: Some(entity_id),
-                }],
+                tab_actions: vec![
+                    TabAction {
+                        id: "airlocktoggleopen".to_string(),
+                        text: "Toggle Open".to_string(),
+                        tab_list_priority: 100,
+                        prerequisite_check: Arc::new(toggle_open_action),
+                        belonging_entity: Some(entity_id),
+                    },
+                    TabAction {
+                        id: "airlocklockopen".to_string(),
+                        text: "Lock Open".to_string(),
+                        tab_list_priority: 99,
+                        prerequisite_check: Arc::new(lock_open_action),
+                        belonging_entity: Some(entity_id),
+                    },
+                    TabAction {
+                        id: "airlocklockclosed".to_string(),
+                        text: "Lock Closed".to_string(),
+                        tab_list_priority: 98,
+                        prerequisite_check: Arc::new(lock_closed_action),
+                        belonging_entity: Some(entity_id),
+                    },
+                ],
             },
         ));
 

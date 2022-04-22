@@ -3,6 +3,7 @@ use std::sync::Arc;
 use bevy_ecs::{entity::Entity, system::Query};
 
 use crate::space::core::{
+    data_link::components::DataLink,
     entity::{components::EntityData, resources::EntityDataResource},
     gridmap::resources::CellData,
     inventory::components::Inventory,
@@ -46,6 +47,7 @@ pub fn examine_tab_prerequisite_check(
     _inventory_component: &Inventory,
     _entity_data_resource: &EntityDataResource,
     _entity_datas: &Query<&EntityData>,
+    _data_link_component: &DataLink,
 ) -> bool {
     cell_id_option.is_some() || entity_id_bits_option.is_some()
 }
@@ -58,6 +60,7 @@ pub fn pickup_tab_prerequisite_check(
     inventory_component: &Inventory,
     _entity_data_resource: &EntityDataResource,
     _entity_datas: &Query<&EntityData>,
+    _data_link_component: &DataLink,
 ) -> bool {
     distance < REACH_DISTANCE
         && entity_id_bits_option.is_some()
