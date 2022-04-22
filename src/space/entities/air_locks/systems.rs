@@ -36,10 +36,13 @@ use crate::space::{
     },
 };
 
-use super::events::{AirLockCollision, InputAirLockToggleOpen};
+use super::{
+    components::LockedStatus,
+    events::{AirLockCollision, AirLockLockClosed, AirLockLockOpen, InputAirLockToggleOpen},
+};
 
 pub struct AirLockOpenRequest {
-    pub opener: Entity,
+    pub opener_option: Option<Entity>,
     pub opened: Entity,
 }
 
@@ -64,8 +67,46 @@ pub fn air_lock_events(
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
+    mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
+    mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
 ) {
-    let mut close_air_lock_requests = vec![];
+    let mut close_requests = vec![];
+    let mut open_requests = vec![];
+
+    for event in air_lock_lock_open_event.iter() {
+        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
+            Ok(mut air_lock_component) => {
+                air_lock_component.locked_status = LockedStatus::Open;
+                match air_lock_component.status {
+                    AirLockStatus::Open => {}
+                    AirLockStatus::Closed => {
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
+                        });
+                    }
+                }
+            }
+            Err(_rr) => {}
+        }
+    }
+    for event in air_lock_lock_close_event.iter() {
+        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
+            Ok(mut air_lock_component) => {
+                air_lock_component.locked_status = LockedStatus::Closed;
+                match air_lock_component.status {
+                    AirLockStatus::Open => {
+                        open_requests.push(AirLockOpenRequest {
+                            opener_option: None,
+                            opened: event.locked,
+                        });
+                    }
+                    AirLockStatus::Closed => {}
+                }
+            }
+            Err(_rr) => {}
+        }
+    }
 
     for (
         mut air_lock_component,
@@ -82,7 +123,7 @@ pub fn air_lock_events(
                 if timer_component.timer.finished() == true {
                     timer_component.timer.pause();
                     timer_component.timer.reset();
-                    close_air_lock_requests.push(AirLockCloseRequest {
+                    close_requests.push(AirLockCloseRequest {
                         interacter_option: None,
                         interacted: air_lock_entity,
                     });
@@ -130,8 +171,6 @@ pub fn air_lock_events(
         }
     }
 
-    let mut open_air_lock_requests = vec![];
-
     for event in toggle_open_action.iter() {
         match air_lock_query.get(Entity::from_bits(event.opened)) {
             Ok((
@@ -144,14 +183,14 @@ pub fn air_lock_events(
                 _air_lock_entity,
             )) => match air_lock_component.status {
                 AirLockStatus::Open => {
-                    close_air_lock_requests.push(AirLockCloseRequest {
+                    close_requests.push(AirLockCloseRequest {
                         interacter_option: Some(event.opener),
                         interacted: Entity::from_bits(event.opened),
                     });
                 }
                 AirLockStatus::Closed => {
-                    open_air_lock_requests.push(AirLockOpenRequest {
-                        opener: event.opener,
+                    open_requests.push(AirLockOpenRequest {
+                        opener_option: Some(event.opener),
                         opened: Entity::from_bits(event.opened),
                     });
                 }
@@ -176,26 +215,13 @@ pub fn air_lock_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
-        open_air_lock_requests.push(AirLockOpenRequest {
-            opener: pawn_entity,
+        open_requests.push(AirLockOpenRequest {
+            opener_option: Some(pawn_entity),
             opened: air_lock_entity,
         });
     }
 
-    for request in open_air_lock_requests {
-        let pawn_space_access_component_result =
-            pawn_query.get_component::<SpaceAccess>(request.opener);
-        let pawn_space_access_component;
-
-        match pawn_space_access_component_result {
-            Ok(result) => {
-                pawn_space_access_component = result;
-            }
-            Err(_err) => {
-                continue;
-            }
-        }
-
+    for request in open_requests {
         let air_lock_components_result = air_lock_query.get_mut(request.opened);
 
         let mut air_lock_component;
@@ -213,17 +239,43 @@ pub fn air_lock_events(
             }
         }
 
+        match air_lock_component.locked_status {
+            LockedStatus::Open => {}
+            LockedStatus::Closed => {
+                continue;
+            }
+            LockedStatus::None => {}
+        }
+
         let mut pawn_has_permission = false;
 
-        for space_permission in &air_lock_component.access_permissions {
-            if pawn_space_access_component
-                .access
-                .contains(space_permission)
-                == true
-            {
-                pawn_has_permission = true;
-                break;
+        match request.opener_option {
+            Some(opener) => {
+                let pawn_space_access_component_result =
+                    pawn_query.get_component::<SpaceAccess>(opener);
+                let pawn_space_access_component;
+
+                match pawn_space_access_component_result {
+                    Ok(result) => {
+                        pawn_space_access_component = result;
+                    }
+                    Err(_err) => {
+                        continue;
+                    }
+                }
+
+                for space_permission in &air_lock_component.access_permissions {
+                    if pawn_space_access_component
+                        .access
+                        .contains(space_permission)
+                        == true
+                    {
+                        pawn_has_permission = true;
+                        break;
+                    }
+                }
             }
+            None => {}
         }
 
         if pawn_has_permission == true {
@@ -284,7 +336,7 @@ pub fn air_lock_events(
         }
     }
 
-    for request in close_air_lock_requests {
+    for request in close_requests {
         match air_lock_query.get_mut(request.interacted) {
             Ok((
                 mut air_lock_component,
@@ -295,6 +347,14 @@ pub fn air_lock_events(
                 _timer_closed_component_option,
                 air_lock_entity,
             )) => {
+                match air_lock_component.locked_status {
+                    LockedStatus::Open => {
+                        continue;
+                    }
+                    LockedStatus::Closed => {}
+                    LockedStatus::None => {}
+                }
+
                 match request.interacter_option {
                     Some(interacter) => {
                         let pawn_space_access_component_result =

@@ -27,7 +27,7 @@ use crate::space::{
         static_body::components::StaticTransform,
     },
     entities::{
-        air_locks::systems::AirLockCloseRequest,
+        air_locks::{components::LockedStatus, systems::AirLockCloseRequest},
         sfx::counter_window::{
             counter_window_closed_sfx::CounterWindowClosedSfxBundle,
             counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
@@ -41,13 +41,15 @@ use super::{
         CounterWindow, CounterWindowAccessLightsStatus, CounterWindowClosedTimer,
         CounterWindowDeniedTimer, CounterWindowOpenTimer, CounterWindowSensor, CounterWindowStatus,
     },
-    events::{CounterWindowSensorCollision, InputCounterWindowToggleOpen},
+    events::{
+        CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowSensorCollision,
+        InputCounterWindowToggleOpen,
+    },
 };
 
 pub struct CounterWindowOpenRequest {
-    pub opener: Entity,
+    pub opener_option: Option<Entity>,
     pub opened: Entity,
-    pub opened_sensor: Entity,
 }
 
 pub fn counter_window_events(
@@ -68,8 +70,46 @@ pub fn counter_window_events(
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
+    mut counter_window_lock_open_events: EventReader<CounterWindowLockOpen>,
+    mut counter_window_lock_close_events: EventReader<CounterWindowLockClosed>,
 ) {
     let mut close_requests = vec![];
+    let mut open_requests = vec![];
+
+    for event in counter_window_lock_open_events.iter() {
+        match counter_window_query.get_component_mut::<CounterWindow>(event.locked) {
+            Ok(mut counter_window_component) => {
+                counter_window_component.locked_status = LockedStatus::Open;
+                match counter_window_component.status {
+                    CounterWindowStatus::Open => {}
+                    CounterWindowStatus::Closed => {
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
+                        });
+                    }
+                }
+            }
+            Err(_rr) => {}
+        }
+    }
+    for event in counter_window_lock_close_events.iter() {
+        match counter_window_query.get_component_mut::<CounterWindow>(event.locked) {
+            Ok(mut counter_window_component) => {
+                counter_window_component.locked_status = LockedStatus::Closed;
+                match counter_window_component.status {
+                    CounterWindowStatus::Open => {
+                        open_requests.push(CounterWindowOpenRequest {
+                            opener_option: None,
+                            opened: event.locked,
+                        });
+                    }
+                    CounterWindowStatus::Closed => {}
+                }
+            }
+            Err(_rr) => {}
+        }
+    }
 
     for (
         mut counter_window_component,
@@ -139,8 +179,6 @@ pub fn counter_window_events(
         }
     }
 
-    let mut open_requests = vec![];
-
     for collision_event in counter_window_sensor_collisions.iter() {
         if collision_event.started == false {
             continue;
@@ -173,9 +211,8 @@ pub fn counter_window_events(
         }
 
         open_requests.push(CounterWindowOpenRequest {
-            opener: pawn_entity,
+            opener_option: Some(pawn_entity),
             opened: counter_window_entity,
-            opened_sensor: counter_window_sensor_entity,
         });
     }
 
@@ -193,28 +230,24 @@ pub fn counter_window_events(
                 _counter_window_denied_timer_option,
                 _counter_window_closed_timer_option,
                 _counter_window_entity,
-                children_component,
+                _children_component,
             )) => {
-                for child in children_component.iter() {
-                    match counter_window_component.status {
-                        CounterWindowStatus::Open => {
-                            close_requests.push(AirLockCloseRequest {
-                                interacter_option: Some(event.opener),
-                                interacted: opened_entity,
-                            });
-                        }
-                        CounterWindowStatus::Closed => {
-                            open_requests.push(CounterWindowOpenRequest {
-                                opener: event.opener,
-                                opened: opened_entity,
-                                opened_sensor: *child,
-                            });
-                        }
+                match counter_window_component.status {
+                    CounterWindowStatus::Open => {
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: Some(event.opener),
+                            interacted: opened_entity,
+                        });
                     }
-
-                    break;
-                    //Should only fire once anyways.
+                    CounterWindowStatus::Closed => {
+                        open_requests.push(CounterWindowOpenRequest {
+                            opener_option: Some(event.opener),
+                            opened: opened_entity,
+                        });
+                    }
                 }
+                break;
+                //Should only fire once anyways.
             }
             Err(_rr) => {
                 warn!("Couldn't find children component of counter window.");
@@ -223,21 +256,45 @@ pub fn counter_window_events(
     }
 
     for request in open_requests {
-        let pawn_space_access_component_result =
-            pawn_query.get_component::<SpaceAccess>(request.opener);
-        let pawn_space_access_component;
+        let counter_window_components_result = counter_window_query.get_mut(request.opened);
 
-        match pawn_space_access_component_result {
+        let mut counter_window_component;
+        let mut counter_window_rigid_body_position_component;
+        let counter_window_static_transform_component;
+        let counter_window_closed_timer_option;
+        let children;
+
+        match counter_window_components_result {
             Ok(result) => {
-                pawn_space_access_component = result;
+                counter_window_component = result.0;
+                counter_window_rigid_body_position_component = result.1;
+                counter_window_static_transform_component = result.2;
+                counter_window_closed_timer_option = result.5;
+                children = result.7;
             }
             Err(_err) => {
                 continue;
             }
         }
 
+        match counter_window_component.locked_status {
+            LockedStatus::Open => {}
+            LockedStatus::Closed => {
+                continue;
+            }
+            LockedStatus::None => {}
+        }
+
+        let mut opened_sensor = Entity::from_bits(0);
+
+        for child in children.iter() {
+            opened_sensor = *child;
+            break;
+            // Should only have one child.
+        }
+
         let counter_window_sensor_components_result =
-            counter_window_sensor_query.get_component::<CounterWindowSensor>(request.opened_sensor);
+            counter_window_sensor_query.get_component::<CounterWindowSensor>(opened_sensor);
         let counter_window_sensor_component;
 
         match counter_window_sensor_components_result {
@@ -249,37 +306,35 @@ pub fn counter_window_events(
             }
         }
 
-        let counter_window_components_result =
-            counter_window_query.get_mut(counter_window_sensor_component.parent);
-
-        let mut counter_window_component;
-        let mut counter_window_rigid_body_position_component;
-        let counter_window_static_transform_component;
-        let counter_window_closed_timer_option;
-
-        match counter_window_components_result {
-            Ok(result) => {
-                counter_window_component = result.0;
-                counter_window_rigid_body_position_component = result.1;
-                counter_window_static_transform_component = result.2;
-                counter_window_closed_timer_option = result.5;
-            }
-            Err(_err) => {
-                continue;
-            }
-        }
-
         let mut pawn_has_permission = false;
 
-        for space_permission in &counter_window_component.access_permissions {
-            if pawn_space_access_component
-                .access
-                .contains(space_permission)
-                == true
-            {
-                pawn_has_permission = true;
-                break;
+        match request.opener_option {
+            Some(opener) => {
+                let pawn_space_access_component_result =
+                    pawn_query.get_component::<SpaceAccess>(opener);
+                let pawn_space_access_component;
+
+                match pawn_space_access_component_result {
+                    Ok(result) => {
+                        pawn_space_access_component = result;
+                    }
+                    Err(_err) => {
+                        continue;
+                    }
+                }
+
+                for space_permission in &counter_window_component.access_permissions {
+                    if pawn_space_access_component
+                        .access
+                        .contains(space_permission)
+                        == true
+                    {
+                        pawn_has_permission = true;
+                        break;
+                    }
+                }
             }
+            None => {}
         }
 
         match counter_window_closed_timer_option {
@@ -366,6 +421,13 @@ pub fn counter_window_events(
                 counter_window_entity,
                 _children_component,
             )) => {
+                match counter_window_component.locked_status {
+                    LockedStatus::Open => {
+                        continue;
+                    }
+                    LockedStatus::Closed => {}
+                    LockedStatus::None => {}
+                }
                 match request.interacter_option {
                     Some(interacter) => {
                         let pawn_space_access_component_result =
