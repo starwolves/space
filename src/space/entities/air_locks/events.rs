@@ -16,3 +16,13 @@ pub struct InputAirLockToggleOpen {
     pub opener: Entity,
     pub opened: u64,
 }
+
+pub struct AirLockLockOpen {
+    pub locked: Entity,
+    pub locker: Entity,
+}
+
+pub struct AirLockLockClosed {
+    pub locked: Entity,
+    pub locker: Entity,
+}

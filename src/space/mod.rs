@@ -155,7 +155,9 @@ use self::{
     entities::{
         air_locks::{
             entity_update::air_lock_update,
-            events::{AirLockCollision, InputAirLockToggleOpen},
+            events::{
+                AirLockCollision, AirLockLockClosed, AirLockLockOpen, InputAirLockToggleOpen,
+            },
             systems::{
                 air_lock_added, air_lock_default_map_added, air_lock_events, air_lock_tick_timers,
             },
@@ -170,7 +172,10 @@ use self::{
         },
         counter_windows::{
             entity_update::counter_window_update,
-            events::{CounterWindowSensorCollision, InputCounterWindowToggleOpen},
+            events::{
+                CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowSensorCollision,
+                InputCounterWindowToggleOpen,
+            },
             systems::{
                 counter_window_added, counter_window_default_map_added, counter_window_events,
                 counter_window_tick_timers,
@@ -336,6 +341,10 @@ impl Plugin for SpacePlugin {
             .add_event::<NetAtmosphericsNotices>()
             .add_event::<InputCounterWindowToggleOpen>()
             .add_event::<InputAirLockToggleOpen>()
+            .add_event::<AirLockLockOpen>()
+            .add_event::<CounterWindowLockOpen>()
+            .add_event::<AirLockLockClosed>()
+            .add_event::<CounterWindowLockClosed>()
             .add_startup_system(startup_misc_resources.label(StartupLabels::Launch))
             .add_startup_system(
                 startup_map_cells
