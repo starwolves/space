@@ -18,7 +18,8 @@ const TEMPERATURE_DIFFUSIVITY: f32 = 1.;
 const AMOUNT_DIFFUSIVITY: f32 = 1.;
 
 // The higher this is the more CPU intensive and the faster diffusion will take place.
-pub const DIFFUSION_STEP: f64 = 48.;
+// After optimization ideally have this at about 48.
+pub const DIFFUSION_STEP: f64 = 28.;
 
 pub fn atmos_diffusion(
     time: Res<Time>,
