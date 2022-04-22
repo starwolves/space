@@ -4,40 +4,15 @@ pub mod functions;
 pub mod resources;
 pub mod systems;
 
-use bevy_app::{App, Plugin};
-use bevy_core::FixedTimestep;
-use bevy_ecs::{
-    schedule::{ParallelSystemDescriptorCoercion, SystemSet},
-    system::{Res, ResMut},
-};
+use bevy_ecs::system::{Res, ResMut};
 use bevy_log::info;
-use bevy_rapier3d::physics::{PhysicsStages, PhysicsSystems};
 
-use crate::space::{
-    core::{
-        atmospherics::{
-            functions::get_atmos_index,
-            resources::{Atmospherics, AtmosphericsResource, DEFAULT_INTERNAL_AMOUNT},
-        },
-        gridmap::resources::{GridmapMain, Vec2Int, Vec3Int, FOV_MAP_WIDTH},
+use crate::space::core::{
+    atmospherics::{
+        functions::get_atmos_index,
+        resources::{Atmospherics, AtmosphericsResource, DEFAULT_INTERNAL_AMOUNT},
     },
-    AtmosphericsLabels, MapLabels, StartupLabels, ATMOS_DIFFUSION_LABEL, ATMOS_LABEL,
-};
-
-use self::{
-    events::{NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
-    resources::{MapHolders, RigidBodyForcesAccumulation},
-    systems::{
-        diffusion::{atmos_diffusion, DIFFUSION_STEP},
-        effects::atmos_effects,
-        map::atmospherics_map,
-        map_hover::atmospherics_map_hover,
-        notices::atmospherics_notices,
-        rigidbody_forces_atmospherics::rigidbody_forces_accumulation,
-        rigidbody_forces_physics::rigidbody_forces_physics,
-        sensing_ability::atmospherics_sensing_ability,
-        zero_gravity::zero_gravity,
-    },
+    gridmap::resources::{GridmapMain, Vec2Int, Vec3Int, FOV_MAP_WIDTH},
 };
 
 use super::gridmap::resources::GridmapData;
@@ -131,51 +106,4 @@ pub fn startup_atmospherics(
         "Loaded {:.1}Mmol atmosphere into {:.1}kl ship.",
         internal_mega_mol, internal_kilo_liter
     );
-}
-
-pub struct AtmosphericsPlugin;
-
-impl Plugin for AtmosphericsPlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<AtmosphericsResource>()
-            .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
-            .add_system(atmospherics_sensing_ability)
-            .add_system_to_stage(
-                PhysicsStages::SyncTransforms,
-                rigidbody_forces_physics.after(PhysicsSystems::SyncTransforms),
-            )
-            .add_system_to_stage(
-                PhysicsStages::SyncTransforms,
-                zero_gravity.after(PhysicsSystems::SyncTransforms),
-            )
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))
-                    .with_system(atmospherics_notices)
-                    .with_system(atmospherics_map.after(MapLabels::ChangeMode)),
-            )
-            .add_event::<NetMapDisplayAtmospherics>()
-            .init_resource::<MapHolders>()
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(
-                        FixedTimestep::step(1. / DIFFUSION_STEP).with_label(ATMOS_DIFFUSION_LABEL),
-                    )
-                    .with_system(atmos_diffusion.label(AtmosphericsLabels::Diffusion))
-                    .with_system(
-                        atmos_effects
-                            .after(AtmosphericsLabels::Diffusion)
-                            .label(AtmosphericsLabels::Effects),
-                    )
-                    .with_system(rigidbody_forces_accumulation.after(AtmosphericsLabels::Effects)),
-            )
-            .init_resource::<RigidBodyForcesAccumulation>()
-            .add_event::<NetMapHoverAtmospherics>()
-            .add_startup_system(
-                startup_atmospherics
-                    .label(StartupLabels::InitAtmospherics)
-                    .after(StartupLabels::BuildGridmap),
-            )
-            .add_event::<NetAtmosphericsNotices>();
-    }
 }

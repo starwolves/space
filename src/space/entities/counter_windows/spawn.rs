@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    sync::Arc,
-};
+use std::collections::{BTreeMap, HashMap};
 
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_math::Vec3;
@@ -26,12 +23,9 @@ use crate::space::{
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
         static_body::components::StaticTransform,
-        tab_actions::components::{TabAction, TabActions},
     },
     entities::counter_windows::components::{CounterWindow, CounterWindowSensor},
 };
-
-use super::functions::{lock_closed_action, lock_open_action, toggle_open_action};
 
 pub struct CounterWindowBundle;
 
@@ -111,9 +105,7 @@ impl CounterWindowBundle {
         );
 
         let mut parent_builder = commands.spawn_bundle(window_rigid_body_component);
-        let parent = parent_builder.id();
-
-        parent_builder
+        let parent = parent_builder
             .insert_bundle(window_collider_component)
             .insert_bundle((
                 static_transform_component,
@@ -142,31 +134,6 @@ impl CounterWindowBundle {
                     is_laser_obstacle: false,
                     is_reach_obstacle: true,
                     ..Default::default()
-                },
-                TabActions {
-                    tab_actions: vec![
-                        TabAction {
-                            id: "counterwindowtoggleopen".to_string(),
-                            text: "Toggle Open".to_string(),
-                            tab_list_priority: 100,
-                            prerequisite_check: Arc::new(toggle_open_action),
-                            belonging_entity: Some(parent),
-                        },
-                        TabAction {
-                            id: "counterwindowlockopen".to_string(),
-                            text: "Lock Open".to_string(),
-                            tab_list_priority: 99,
-                            prerequisite_check: Arc::new(lock_open_action),
-                            belonging_entity: Some(parent),
-                        },
-                        TabAction {
-                            id: "counterwindowlockclosed".to_string(),
-                            text: "Lock Closed".to_string(),
-                            tab_list_priority: 98,
-                            prerequisite_check: Arc::new(lock_closed_action),
-                            belonging_entity: Some(parent),
-                        },
-                    ],
                 },
             ))
             .id();

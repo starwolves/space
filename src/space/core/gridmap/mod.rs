@@ -6,12 +6,7 @@ pub mod systems;
 
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy_app::{App, Plugin};
-use bevy_core::FixedTimestep;
-use bevy_ecs::{
-    schedule::{ParallelSystemDescriptorCoercion, SystemSet},
-    system::{Commands, Res, ResMut},
-};
+use bevy_ecs::system::{Commands, Res, ResMut};
 use bevy_log::info;
 use bevy_rapier3d::{
     physics::TimestepMode,
@@ -40,22 +35,13 @@ use crate::space::{
         world_environment::resources::WorldEnvironmentRaw,
     },
     entities::sfx::ambience::ambience_sfx::AmbienceSfxBundle,
-    StartupLabels, UpdateLabels,
 };
 
-use self::{
-    events::{NetGridmapUpdates, NetProjectileFOV, ProjectileFOV, RemoveCell},
-    resources::SpawnPoints,
-    systems::{
-        gridmap_updates::gridmap_updates, projectile_fov::projectile_fov, remove_cell::remove_cell,
-        senser_update_fov::senser_update_fov,
-    },
-};
+use self::resources::SpawnPoints;
 
 use super::{
     atmospherics::systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
     configuration::resources::{ServerId, TickRate},
-    entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1,
     examinable::components::RichName,
     world_environment::resources::WorldEnvironment,
 };
@@ -932,47 +918,4 @@ pub fn startup_misc_resources(
     server_id.id = commands.spawn().insert(server_component).id();
 
     info!("Loaded misc map data.");
-}
-
-pub struct GridmapPlugin;
-
-impl Plugin for GridmapPlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<GridmapDetails1>()
-            .init_resource::<GridmapData>()
-            .init_resource::<DoryenMap>()
-            .init_resource::<SpawnPoints>()
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(
-                        FixedTimestep::step(1. / 2.).with_label(INTERPOLATION_LABEL1),
-                    )
-                    .with_system(gridmap_updates),
-            )
-            .add_event::<NetGridmapUpdates>()
-            .add_event::<ProjectileFOV>()
-            .add_system(senser_update_fov)
-            .add_system(projectile_fov)
-            .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
-            .add_event::<NetProjectileFOV>()
-            .add_event::<RemoveCell>()
-            .add_startup_system(startup_misc_resources.label(StartupLabels::Launch))
-            .add_startup_system(
-                startup_map_cells
-                    .label(StartupLabels::InitDefaultGridmapData)
-                    .after(StartupLabels::Launch),
-            )
-            .init_resource::<GridmapDetails1>()
-            .add_startup_system(
-                startup_build_map
-                    .label(StartupLabels::BuildGridmap)
-                    .after(StartupLabels::InitDefaultGridmapData),
-            )
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(1. / 4.))
-                    .with_system(gridmap_updates),
-            )
-            .init_resource::<GridmapMain>();
-    }
 }

@@ -14,5 +14,4 @@ impl Default for DataLink {
 #[derive(PartialEq)]
 pub enum DataLinkType {
     FullAtmospherics,
-    RemoteLock,
 }

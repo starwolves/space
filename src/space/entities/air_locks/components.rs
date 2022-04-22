@@ -8,7 +8,6 @@ pub struct AirLock {
     pub status: AirLockStatus,
     pub access_lights: AccessLightsStatus,
     pub access_permissions: Vec<SpaceAccessEnum>,
-    pub locked_status: LockedStatus,
 }
 
 pub enum AirLockStatus {
@@ -28,15 +27,8 @@ impl Default for AirLock {
             status: AirLockStatus::Closed,
             access_lights: AccessLightsStatus::Neutral,
             access_permissions: vec![SpaceAccessEnum::Common],
-            locked_status: LockedStatus::None,
         }
     }
-}
-
-pub enum LockedStatus {
-    Open,
-    Closed,
-    None,
 }
 
 #[derive(Component)]

@@ -10,12 +10,11 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::core::{
     asana::resources::AsanaBoardingAnnouncements,
     chat::{
-        components::Radio,
         events::NetChatMessage,
         functions::{new_chat_message, Communicator, MessagingPlayerState},
     },
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    pawn::components::{PersistentPlayerData, SpaceJobsEnum},
+    pawn::components::{PersistentPlayerData, Radio, SpaceJobsEnum},
 };
 
 pub fn tick_asana_boarding_announcements(

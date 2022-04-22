@@ -15,7 +15,6 @@ use crate::space::{
             events::{InputExamineEntity, InputExamineMap},
             resources::HandleToEntity,
         },
-        data_link::components::DataLink,
         entity::{components::EntityData, resources::EntityDataResource},
         gridmap::{
             functions::gridmap_functions::cell_id_to_world,
@@ -23,63 +22,32 @@ use crate::space::{
         },
         inventory::{components::Inventory, events::InputUseWorldItem},
         pawn::components::Pawn,
-        static_body::components::StaticTransform,
-        tab_actions::{components::TabActions, events::InputTabAction},
+        tab_actions::events::InputTabAction,
     },
-    entities::{
-        air_locks::events::{AirLockLockClosed, AirLockLockOpen, InputAirLockToggleOpen},
-        construction_tool_admin::events::{
-            InputConstruct, InputConstructionOptions, InputDeconstruct,
-        },
-        counter_windows::events::{
-            CounterWindowLockClosed, CounterWindowLockOpen, InputCounterWindowToggleOpen,
-        },
+    entities::construction_tool_admin::events::{
+        InputConstruct, InputConstructionOptions, InputDeconstruct,
     },
 };
 
 pub fn tab_action(
-    events: (
-        EventReader<InputTabAction>,
-        EventWriter<InputExamineEntity>,
-        EventWriter<InputExamineMap>,
-        EventWriter<InputConstruct>,
-        EventWriter<InputDeconstruct>,
-        EventWriter<InputUseWorldItem>,
-        EventWriter<AirLockLockOpen>,
-        EventWriter<AirLockLockClosed>,
-    ),
+    mut events: EventReader<InputTabAction>,
+    mut event_examine_entity: EventWriter<InputExamineEntity>,
+    mut event_examine_map: EventWriter<InputExamineMap>,
+    mut event_construct: EventWriter<InputConstruct>,
+    mut event_deconstruct: EventWriter<InputDeconstruct>,
+    mut pickup_world_item_event: EventWriter<InputUseWorldItem>,
     mut event_construction_options: EventWriter<InputConstructionOptions>,
-    mut air_lock_toggle_open_event: EventWriter<InputAirLockToggleOpen>,
-    mut counter_window_toggle_open_event: EventWriter<InputCounterWindowToggleOpen>,
-    mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
-    mut counter_window_lock_closed_event: EventWriter<CounterWindowLockClosed>,
-
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
-    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory, &DataLink)>,
-    targettable_entities: Query<(
-        Option<&RigidBodyPositionComponent>,
-        Option<&StaticTransform>,
-        Option<&TabActions>,
-    )>,
+    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
+    inventory_items: Query<&RigidBodyPositionComponent>,
 
     gridmap_main_data: Res<GridmapMain>,
     entity_data_resource: Res<EntityDataResource>,
     entity_datas: Query<&EntityData>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
-    let (
-        mut input_tab_action_events,
-        mut event_examine_entity,
-        mut event_examine_map,
-        mut event_construct,
-        mut event_deconstruct,
-        mut pickup_world_item_event,
-        mut air_lock_lock_open_event,
-        mut air_lock_lock_closed_event,
-    ) = events;
-
-    for event in input_tab_action_events.iter() {
+    for event in events.iter() {
         // Safety check.
         match criteria_query.get(event.player_entity) {
             Ok(_) => {}
@@ -91,14 +59,12 @@ pub fn tab_action(
         let pawn_component;
         let pawn_inventory_component;
         let pawn_rigid_body_position_component;
-        let data_link_component;
 
         match pawns.get(event.player_entity) {
-            Ok((c, c1, c2, c3)) => {
+            Ok((c, c1, c2)) => {
                 pawn_component = c;
                 pawn_rigid_body_position_component = c1;
                 pawn_inventory_component = c2;
-                data_link_component = c3;
             }
             Err(_rr) => {
                 warn!("Couldn't find pawn_component.");
@@ -114,36 +80,18 @@ pub fn tab_action(
             .translation
             .into();
 
-        let mut tab_actions_component_option = None;
-
         match event.target_entity_option {
             Some(target_entity_bits) => {
-                match targettable_entities.get(Entity::from_bits(target_entity_bits)) {
-                    Ok((
-                        rigid_body_position_comp_option,
-                        static_transform_comp_option,
-                        tab_actions_comp_option,
-                    )) => {
-                        match static_transform_comp_option {
-                            Some(static_transform_component) => {
-                                start_pos = static_transform_component.transform.translation;
-                            }
-                            None => {
-                                start_pos = rigid_body_position_comp_option
-                                    .unwrap()
-                                    .0
-                                    .position
-                                    .translation
-                                    .into();
-                            }
-                        }
-
-                        tab_actions_component_option = tab_actions_comp_option;
+                let rigid_body_position_component;
+                match inventory_items.get(Entity::from_bits(target_entity_bits)) {
+                    Ok(v) => {
+                        rigid_body_position_component = v;
                     }
                     Err(_) => {
                         continue;
                     }
                 }
+                start_pos = rigid_body_position_component.0.position.translation.into();
             }
             None => {
                 let cell_data;
@@ -165,27 +113,21 @@ pub fn tab_action(
 
         distance = start_pos.distance(end_pos);
 
-        let mut action_option = None;
+        let mut index_option = None;
 
         for (_entity_option, action_id_index_map) in pawn_component.tab_actions_data.layout.iter() {
             for (action_id, index) in action_id_index_map {
                 if action_id == &event.tab_id {
-                    action_option = Some(pawn_component.tab_actions.get(index).unwrap());
+                    index_option = Some(index);
                     break;
                 }
             }
         }
 
-        if action_option.is_none() && &tab_actions_component_option.is_some() == &true {
-            for act in &tab_actions_component_option.unwrap().tab_actions {
-                if act.id == event.tab_id {
-                    action_option = Some(act);
-                }
-            }
-        }
+        match index_option {
+            Some(index) => {
+                let action = pawn_component.tab_actions.get(index).unwrap();
 
-        match action_option {
-            Some(action) => {
                 let self_belonging_entity;
 
                 match event.belonging_entity {
@@ -234,7 +176,6 @@ pub fn tab_action(
                     pawn_inventory_component,
                     &entity_data_resource,
                     &entity_datas,
-                    &data_link_component,
                 ) {
                     true => {}
                     false => {
@@ -315,48 +256,6 @@ pub fn tab_action(
                 pickup_world_item_event.send(InputUseWorldItem {
                     pickuper_entity: event.player_entity,
                     pickupable_entity_bits: event.target_entity_option.unwrap(),
-                });
-            }
-        } else if event.tab_id == "airlocktoggleopen" {
-            if event.target_entity_option.is_some() {
-                air_lock_toggle_open_event.send(InputAirLockToggleOpen {
-                    opener: event.player_entity,
-                    opened: event.target_entity_option.unwrap(),
-                });
-            }
-        } else if event.tab_id == "counterwindowtoggleopen" {
-            if event.target_entity_option.is_some() {
-                counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
-                    opener: event.player_entity,
-                    opened: event.target_entity_option.unwrap(),
-                });
-            }
-        } else if event.tab_id == "counterwindowlockopen" {
-            if event.target_entity_option.is_some() {
-                counter_window_lock_open_event.send(CounterWindowLockOpen {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
-                });
-            }
-        } else if event.tab_id == "counterwindowlockclosed" {
-            if event.target_entity_option.is_some() {
-                counter_window_lock_closed_event.send(CounterWindowLockClosed {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
-                });
-            }
-        } else if event.tab_id == "airlocklockopen" {
-            if event.target_entity_option.is_some() {
-                air_lock_lock_open_event.send(AirLockLockOpen {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
-                });
-            }
-        } else if event.tab_id == "airlocklockclosed" {
-            if event.target_entity_option.is_some() {
-                air_lock_lock_closed_event.send(AirLockLockClosed {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
                 });
             }
         }
