@@ -117,8 +117,4 @@ impl Plugin for SpacePlugin {
             .add_plugin(InventoryItemPlugin)
             .add_plugin(SenserPlugin);
     }
-
-    fn name(&self) -> &str {
-        std::any::type_name::<Self>()
-    }
 }
