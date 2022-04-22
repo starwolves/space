@@ -35,6 +35,7 @@ doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
 
 voca_rs = "1.14.0"
 
+dotreds-binary-heap-plus = "1.0.3"
 
 [profile.dev]
 opt-level = 3

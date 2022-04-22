@@ -38,6 +38,7 @@ pub enum StartupLabels {
     BuildGridmap,
     InitAtmospherics,
     ListenConnections,
+    ServerIsLive,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
