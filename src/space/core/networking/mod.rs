@@ -2,29 +2,35 @@ pub mod resources;
 
 use std::net::SocketAddr;
 
-use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::{Commands, Query, Res, ResMut};
+use bevy_app::{App, EventReader, EventWriter, Plugin};
+use bevy_ecs::{
+    schedule::ParallelSystemDescriptorCoercion,
+    system::{Commands, Query, Res, ResMut},
+};
 use bevy_log::{info, warn};
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, NetworkEvent, NetworkResource};
 
-use crate::space::core::{
-    configuration::resources::{ServerId, TickRate},
-    gridmap::resources::{GridmapData, Vec3Int},
-    health::resources::ClientHealthUICache,
-    inventory::events::{
-        InputDropCurrentItem, InputSwitchHands, InputTakeOffItem, InputThrowItem,
-        InputUseWorldItem, InputWearItem,
+use crate::space::{
+    core::{
+        configuration::resources::{ServerId, TickRate},
+        gridmap::resources::{GridmapData, Vec3Int},
+        health::resources::ClientHealthUICache,
+        inventory::events::{
+            InputDropCurrentItem, InputSwitchHands, InputTakeOffItem, InputThrowItem,
+            InputUseWorldItem, InputWearItem,
+        },
+        map::events::{InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes, MapInput},
+        networking::resources::{
+            ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage,
+            UnreliableServerMessage, CLIENT_MESSAGE_RELIABLE, CLIENT_MESSAGE_UNRELIABLE,
+            SERVER_MESSAGE_RELIABLE, SERVER_MESSAGE_UNRELIABLE, SERVER_PORT,
+        },
+        pawn::{
+            components::{ControllerInput, PersistentPlayerData},
+            resources::{AuthidI, UsedNames},
+        },
     },
-    map::events::{InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes, MapInput},
-    networking::resources::{
-        ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage,
-        UnreliableServerMessage, CLIENT_MESSAGE_RELIABLE, CLIENT_MESSAGE_UNRELIABLE,
-        SERVER_MESSAGE_RELIABLE, SERVER_MESSAGE_UNRELIABLE, SERVER_PORT,
-    },
-    pawn::{
-        components::{ControllerInput, PersistentPlayerData},
-        resources::{AuthidI, UsedNames},
-    },
+    PostUpdateLabels, PreUpdateLabels, StartupLabels,
 };
 use crate::space::{
     core::{
@@ -1456,5 +1462,28 @@ pub fn net_send_message_event(
                 warn!("net_send_message_event.rs was unable to send net_atmospherics_notices message (1): {:?}", err);
             }
         };
+    }
+}
+
+pub struct NetworkingPlugin;
+
+use bevy_app::CoreStage::{PostUpdate, PreUpdate};
+
+impl Plugin for NetworkingPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(
+            startup_listen_connections
+                .label(StartupLabels::ListenConnections)
+                .after(StartupLabels::InitAtmospherics),
+        )
+        .add_system_to_stage(
+            PreUpdate,
+            messages_outgoing.after(PreUpdateLabels::NetEvents),
+        )
+        .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
+        .add_system_to_stage(
+            PostUpdate,
+            net_send_message_event.after(PostUpdateLabels::VisibleChecker),
+        );
     }
 }
