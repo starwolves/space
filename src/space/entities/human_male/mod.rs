@@ -9,14 +9,14 @@ use crate::space::{
     StartupLabels,
 };
 
-use self::spawn::JumpsuitSecurityBundle;
+use self::spawn::HumanMaleBundle;
 
-pub mod components;
+pub mod functions;
 pub mod spawn;
 
-pub struct JumpsuitsPlugin;
+pub struct HumanMalePlugin;
 
-impl Plugin for JumpsuitsPlugin {
+impl Plugin for HumanMalePlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities));
     }
@@ -24,9 +24,18 @@ impl Plugin for JumpsuitsPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "jumpsuitSecurity".to_string(),
+        name: "humanDummy".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(JumpsuitSecurityBundle::spawn),
+        spawn_function: Box::new(HumanMaleBundle::spawn),
+        ..Default::default()
+    };
+
+    initialize_entity_data(&mut entity_data, entity_properties);
+
+    let entity_properties = EntityDataProperties {
+        name: "humanMale".to_string(),
+        id: entity_data.get_id_inc(),
+        spawn_function: Box::new(HumanMaleBundle::spawn),
         ..Default::default()
     };
 

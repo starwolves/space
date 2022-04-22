@@ -7,7 +7,7 @@ use bevy_rapier3d::prelude::{
 
 use crate::space::{
     core::physics::functions::{get_bit_masks, ColliderGroup},
-    entities::human_male_pawn::spawn::CHARACTER_FLOOR_FRICTION,
+    entities::human_male::spawn::CHARACTER_FLOOR_FRICTION,
 };
 
 pub fn build_gridmap_floor(commands: &mut Commands) {

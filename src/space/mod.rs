@@ -24,7 +24,8 @@ use self::{
     entities::{
         air_locks::AirLocksPlugin, computers::ComputersPlugin,
         construction_tool_admin::ConstructionToolAdminPlugin,
-        counter_windows::CounterWindowsPlugin, omni_light::OmniLightPlugin,
+        counter_windows::CounterWindowsPlugin, helmet_security::HelmetsPlugin,
+        jumpsuit_security::JumpsuitsPlugin, omni_light::OmniLightPlugin, pistol_l1::PistolL1Plugin,
         reflection_probe::ReflectionProbePlugin,
     },
 };
@@ -38,6 +39,7 @@ pub enum StartupLabels {
     BuildGridmap,
     InitAtmospherics,
     ListenConnections,
+    InitEntities,
     ServerIsLive,
 }
 
@@ -116,6 +118,11 @@ impl Plugin for SpacePlugin {
             .add_plugin(OmniLightPlugin)
             .add_plugin(ReflectionProbePlugin)
             .add_plugin(InventoryItemPlugin)
-            .add_plugin(SenserPlugin);
+            .add_plugin(SenserPlugin)
+            .add_plugin(JumpsuitsPlugin)
+            .add_plugin(HelmetsPlugin)
+            .add_plugin(PistolL1Plugin)
+            .add_plugin(AirLocksPlugin)
+            .add_plugin(CounterWindowsPlugin);
     }
 }

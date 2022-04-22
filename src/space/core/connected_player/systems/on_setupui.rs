@@ -22,7 +22,7 @@ use crate::space::{
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
-    entities::human_male_pawn::spawn::HumanMalePawnBundle,
+    entities::human_male::spawn::HumanMaleBundle,
 };
 
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
@@ -76,7 +76,7 @@ pub fn on_setupui(
             ("holster".to_string(), "pistolL1".to_string()),
         ];
 
-        HumanMalePawnBundle::spawn(
+        HumanMaleBundle::spawn(
             Transform::identity(),
             &mut commands,
             true,
