@@ -58,7 +58,7 @@ There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) 
   
 
 To compile and run the game server:
-* Select latest branch from this repository and download that code.
+* Select latest branch (not master) from this repository and download that code.
 * In your terminal navigate to the project folder you have just obtained and run:
 
 ```
