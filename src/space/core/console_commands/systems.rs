@@ -1,4 +1,4 @@
-use bevy_app::{EventReader, EventWriter};
+use bevy_app::EventWriter;
 use bevy_ecs::system::{Commands, Local, Query, Res, ResMut};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
@@ -13,16 +13,14 @@ use crate::space::core::{
     entity::resources::EntityDataResource,
     gridmap::resources::GridmapMain,
     inventory::components::Inventory,
-    networking::resources::{
-        ConsoleCommandVariant, ConsoleCommandVariantValues, ReliableServerMessage,
-    },
+    networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
     pawn::{components::Pawn, resources::UsedNames},
 };
 
-use super::events::{InputConsoleCommand, NetConsoleCommands};
+use super::{events::NetConsoleCommands, resources::QueuedConsoleCommands};
 
 pub fn console_commands(
-    mut console_commands_events: EventReader<InputConsoleCommand>,
+    console_commands_events: Res<QueuedConsoleCommands>,
     mut rcon_bruteforce_protection: Local<BruteforceProtection>,
     mut connected_players: Query<&mut ConnectedPlayer>,
     mut rigid_body_positions: Query<(&RigidBodyPositionComponent, &Pawn)>,
@@ -36,7 +34,7 @@ pub fn console_commands(
     handle_to_entity: Res<HandleToEntity>,
     mut entity_data: ResMut<EntityDataResource>,
 ) {
-    for console_command_event in console_commands_events.iter() {
+    for console_command_event in console_commands_events.queue.iter() {
         if console_command_event.command_name == "rcon" {
             match &console_command_event.command_arguments[0] {
                 ConsoleCommandVariantValues::String(value) => {
@@ -171,54 +169,6 @@ pub fn console_commands(
     }
 }
 
-pub fn get_console_commands() -> Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)> {
-    vec![
-        (
-            "rcon".to_string(),
-            "For server administrators only. Obtaining rcon status allows for usage of rcon_* commands".to_string(),
-            vec![
-                (   
-                    "password".to_string(),
-                    ConsoleCommandVariant::String
-                ),
-            ]
-        ),
-        (
-            "rcon_status".to_string(),
-            "For server administrators only. Check if the server has granted you the RCON status.".to_string(),
-            vec![]
-        ),
-        (
-            "spawn_entity".to_string(),
-            "For server administrators only. Spawn in entities in proximity.".to_string(),
-            vec![
-                (
-                    "entity_name".to_string(),
-                    ConsoleCommandVariant::String
-                ),
-                (
-                    "amount".to_string(),
-                    ConsoleCommandVariant::Int
-                ),
-                (
-                    "player_selector".to_string(),
-                    ConsoleCommandVariant::String
-                ),
-            ]
-        ),
-        (
-            "spawn_held_entity".to_string(),
-            "For server administrators only. Spawn in held entities in hands or in proximity.".to_string(),
-            vec![
-                (
-                    "entity_name".to_string(),
-                    ConsoleCommandVariant::String
-                ),
-                (
-                    "player_selector".to_string(),
-                    ConsoleCommandVariant::String
-                ),
-            ]
-        )
-    ]
+pub fn console_commands_queue_clearer(mut queue: ResMut<QueuedConsoleCommands>) {
+    queue.queue.clear();
 }

@@ -2,7 +2,7 @@ use bevy_app::{App, Plugin};
 
 use self::{
     resources::{AuthidI, UsedNames},
-    systems::{user_name::user_name, toggle_combat_mode::toggle_combat_mode},
+    systems::{toggle_combat_mode::toggle_combat_mode, user_name::user_name},
 };
 
 pub mod components;
