@@ -18,6 +18,7 @@ use bevy_transform::TransformPlugin;
 
 use self::{
     core::{
+        artificial_unintelligence::systems::{find_path::find_path, steer::steer},
         asana::{
             resources::AsanaBoardingAnnouncements,
             systems::tick_asana_boarding_announcements::tick_asana_boarding_announcements,
@@ -60,13 +61,14 @@ use self::{
             systems::{
                 build_graphics_event::build_graphics_event, controller_input::controller_input,
                 done_boarding::done_boarding, examine_entity::examine_entity,
-                examine_map::examine_map, on_boarding::on_boarding, on_setupui::on_setupui,
+                examine_map::examine_map, mouse_direction_update::mouse_direction_update,
+                on_boarding::on_boarding, on_setupui::on_setupui, on_spawning::on_spawning,
                 player_input_event::player_input_event, scene_ready_event::scene_ready_event,
                 send_server_time::send_server_time,
                 text_tree_input_selection::text_tree_input_selection,
                 ui_input_event::ui_input_event,
                 ui_input_transmit_data_event::ui_input_transmit_data_event,
-                update_player_count::update_player_count, on_spawning::on_spawning, mouse_direction_update::mouse_direction_update,
+                update_player_count::update_player_count,
             },
         },
         console_commands::{
@@ -130,9 +132,7 @@ use self::{
         },
         pawn::{
             resources::{AuthidI, UsedNames},
-            systems::{
-                user_name::user_name,
-            },
+            systems::user_name::user_name,
         },
         physics::{entity_update::world_mode_update, systems::physics_events},
         rigid_body::systems::{
@@ -192,6 +192,7 @@ pub enum StartupLabels {
     BuildGridmap,
     InitAtmospherics,
     ListenConnections,
+    ServerIsLive,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -357,7 +358,11 @@ impl Plugin for SpacePlugin {
                     .label(StartupLabels::ListenConnections)
                     .after(StartupLabels::InitAtmospherics),
             )
-            .add_startup_system(server_is_live.after(StartupLabels::ListenConnections))
+            .add_startup_system(
+                server_is_live
+                    .label(StartupLabels::ServerIsLive)
+                    .after(StartupLabels::ListenConnections),
+            )
             .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
             .add_system_to_stage(
                 PreUpdate,
@@ -404,6 +409,8 @@ impl Plugin for SpacePlugin {
             .add_system(counter_window_default_map_added)
             .add_system(air_lock_default_map_added)
             .add_system(computer_added)
+            .add_system(find_path)
+            .add_system(steer)
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))

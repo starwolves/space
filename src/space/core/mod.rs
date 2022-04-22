@@ -1,5 +1,6 @@
 use bevy_log::info;
 
+pub mod artificial_unintelligence;
 pub mod asana;
 pub mod atmospherics;
 pub mod chat;

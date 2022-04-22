@@ -10,6 +10,7 @@ use bevy_rapier3d::prelude::{
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
+    artificial_unintelligence::components::{AiGoal, Blob, Path},
     connected_player::{
         components::ConnectedPlayer, functions::name_generator::get_dummy_name,
         systems::on_setupui::ENTITY_SPAWN_PARENT,
@@ -21,7 +22,7 @@ use crate::space::core::{
         functions::{
             spawn_entity::spawn_held_entity, transform_to_isometry::transform_to_isometry,
         },
-        resources::{SpawnHeldData, SpawnPawnData},
+        resources::{PawnDesignation, SpawnHeldData, SpawnPawnData},
     },
     examinable::components::{Examinable, RichName},
     health::components::{Health, HealthContainer, HumanoidHealth},
@@ -61,8 +62,7 @@ impl HumanMalePawnBundle {
             persistent_player_data_component,
             connected_player_component,
             passed_inventory_setup,
-            showcase_instance,
-            dummy_instance,
+            pawn_designation,
             used_names,
             mut net_showcase,
             default_user_name_option,
@@ -79,10 +79,16 @@ impl HumanMalePawnBundle {
 
         let character_name;
 
-        if dummy_instance {
-            character_name = get_dummy_name(used_names.unwrap());
-        } else {
-            character_name = persistent_player_data_component.character_name.clone();
+        match pawn_designation {
+            PawnDesignation::Dummy => {
+                character_name = get_dummy_name(used_names.unwrap());
+            }
+            PawnDesignation::Ai => {
+                character_name = "Ai".to_string();
+            }
+            _ => {
+                character_name = persistent_player_data_component.character_name.clone();
+            }
         }
 
         let r = 0.5;
@@ -127,10 +133,13 @@ impl HumanMalePawnBundle {
 
         let mut entity_builder;
 
-        if !showcase_instance {
-            entity_builder = commands.spawn_bundle(rigid_body_component);
-        } else {
-            entity_builder = commands.spawn();
+        match pawn_designation {
+            PawnDesignation::Showcase => {
+                entity_builder = commands.spawn();
+            }
+            _ => {
+                entity_builder = commands.spawn_bundle(rigid_body_component);
+            }
         }
 
         let user_name;
@@ -143,7 +152,10 @@ impl HumanMalePawnBundle {
                 user_name = "unknown".to_string();
             }
         }
-        if !showcase_instance {
+
+        if let PawnDesignation::Showcase = pawn_designation {
+            //do nothing
+        } else {
             entity_builder.insert_bundle(collider_component);
         }
 
@@ -186,12 +198,12 @@ impl HumanMalePawnBundle {
         for (slot_name, item_name) in passed_inventory_setup.iter() {
             let entity_option;
 
-            if showcase_instance {
+            if let PawnDesignation::Showcase = pawn_designation {
                 entity_option = spawn_held_entity(
                     item_name.to_string(),
                     commands,
                     human_male_entity,
-                    showcase_instance,
+                    true,
                     Some(connected_player_component.unwrap().handle),
                     &mut net_showcase,
                     entity_data,
@@ -201,7 +213,7 @@ impl HumanMalePawnBundle {
                     item_name.to_string(),
                     commands,
                     human_male_entity,
-                    showcase_instance,
+                    false,
                     None,
                     &mut net_showcase,
                     entity_data,
@@ -320,7 +332,7 @@ impl HumanMalePawnBundle {
 
         entity_commands.insert_bundle((inventory_component, examinable_component));
 
-        if showcase_instance {
+        if let PawnDesignation::Showcase = pawn_designation {
             entity_commands.insert(Showcase {
                 handle: connected_player_component.unwrap().handle,
             });
@@ -363,35 +375,52 @@ impl HumanMalePawnBundle {
                 ControllerInput::default(),
             ));
 
-            if !dummy_instance {
-                entity_commands.insert_bundle((
-                    ConnectedPlayer {
-                        handle: connected_player_component.unwrap().handle,
-                        authid: connected_player_component.unwrap().authid,
-                        ..Default::default()
-                    },
-                    DataLink {
-                        links: vec![DataLinkType::FullAtmospherics],
-                    },
-                    Map {
-                        available_display_modes: vec![
-                            ("Standard".to_string(), "standard".to_string()),
-                            (
-                                "Atmospherics Liveable".to_string(),
-                                "atmospherics_liveable".to_string(),
-                            ),
-                            (
-                                "Atmospherics Temperature".to_string(),
-                                "atmospherics_temperature".to_string(),
-                            ),
-                            (
-                                "Atmospherics Pressure".to_string(),
-                                "atmospherics_pressure".to_string(),
-                            ),
-                        ],
-                        ..Default::default()
-                    },
-                ));
+            match pawn_designation {
+                PawnDesignation::Player => {
+                    entity_commands.insert_bundle((
+                        ConnectedPlayer {
+                            handle: connected_player_component.unwrap().handle,
+                            authid: connected_player_component.unwrap().authid,
+                            ..Default::default()
+                        },
+                        DataLink {
+                            links: vec![DataLinkType::FullAtmospherics],
+                        },
+                        Map {
+                            available_display_modes: vec![
+                                ("Standard".to_string(), "standard".to_string()),
+                                (
+                                    "Atmospherics Liveable".to_string(),
+                                    "atmospherics_liveable".to_string(),
+                                ),
+                                (
+                                    "Atmospherics Temperature".to_string(),
+                                    "atmospherics_temperature".to_string(),
+                                ),
+                                (
+                                    "Atmospherics Pressure".to_string(),
+                                    "atmospherics_pressure".to_string(),
+                                ),
+                            ],
+                            ..Default::default()
+                        },
+                    ));
+                }
+                PawnDesignation::Ai => {
+                    entity_commands.insert_bundle((
+                        AiGoal {
+                            ..Default::default()
+                        },
+                        Blob {
+                            ..Default::default()
+                        },
+                        Path {
+                            ..Default::default()
+                        },
+                    ));
+                }
+                PawnDesignation::Dummy => {}
+                _ => {}
             }
         }
 
