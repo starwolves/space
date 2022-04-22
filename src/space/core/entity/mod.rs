@@ -1,13 +1,6 @@
-use bevy_app::CoreStage::PostUpdate;
-use bevy_app::{App, Plugin};
-use bevy_core::FixedTimestep;
-use bevy_ecs::{
-    schedule::{ParallelSystemDescriptorCoercion, SystemSet},
-    system::ResMut,
-};
+use bevy_ecs::system::ResMut;
 use bevy_log::info;
 use bevy_math::Quat;
-
 use bevy_transform::components::Transform;
 
 use crate::space::{
@@ -19,17 +12,9 @@ use crate::space::{
         human_male_pawn::spawn::HumanMalePawnBundle,
         jumpsuit_security::spawn::JumpsuitSecurityBundle, pistol_l1::spawn::PistolL1Bundle,
     },
-    PostUpdateLabels, StartupLabels,
 };
 
-use self::{
-    events::{NetLoadEntity, NetSendEntityUpdates, NetShowcase, NetUnloadEntity},
-    resources::EntityDataResource,
-    systems::{
-        broadcast_position_updates::{broadcast_position_updates, INTERPOLATION_LABEL1},
-        send_entity_updates::send_entity_updates,
-    },
-};
+use self::resources::EntityDataResource;
 
 pub mod components;
 pub mod events;
@@ -168,30 +153,5 @@ pub fn startup_entities(mut entity_data: ResMut<EntityDataResource>) {
             .insert(entity_properties.name.clone(), entity_properties.id);
 
         entity_data.data.push(entity_properties);
-    }
-}
-
-pub struct EntityPlugin;
-impl Plugin for EntityPlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<EntityDataResource>()
-            .add_system_to_stage(
-                PostUpdate,
-                send_entity_updates
-                    .after(PostUpdateLabels::EntityUpdate)
-                    .label(PostUpdateLabels::SendEntityUpdates),
-            )
-            .add_event::<NetShowcase>()
-            .add_event::<NetSendEntityUpdates>()
-            .add_event::<NetUnloadEntity>()
-            .add_event::<NetLoadEntity>()
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(
-                        FixedTimestep::step(1. / 2.).with_label(INTERPOLATION_LABEL1),
-                    )
-                    .with_system(broadcast_position_updates),
-            )
-            .add_startup_system(startup_entities.before(StartupLabels::BuildGridmap));
     }
 }

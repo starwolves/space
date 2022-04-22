@@ -1,9 +1,7 @@
 use bevy_core::Timer;
 use bevy_ecs::{entity::Entity, prelude::Component};
 
-use crate::space::{
-    core::pawn::components::SpaceAccessEnum, entities::air_locks::components::LockedStatus,
-};
+use crate::space::core::pawn::components::SpaceAccessEnum;
 
 #[derive(Component)]
 pub struct CounterWindowClosedTimer {
@@ -62,7 +60,6 @@ pub struct CounterWindow {
     pub status: CounterWindowStatus,
     pub access_lights: CounterWindowAccessLightsStatus,
     pub access_permissions: Vec<SpaceAccessEnum>,
-    pub locked_status: LockedStatus,
 }
 
 pub enum CounterWindowStatus {
@@ -82,7 +79,6 @@ impl Default for CounterWindow {
             status: CounterWindowStatus::Closed,
             access_lights: CounterWindowAccessLightsStatus::Neutral,
             access_permissions: vec![SpaceAccessEnum::Common],
-            locked_status: LockedStatus::None,
         }
     }
 }

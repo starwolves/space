@@ -42,13 +42,19 @@ impl FromWorld for EntityDataResource {
     }
 }
 
+pub enum PawnDesignation {
+    Showcase,
+    Player,
+    Dummy,
+    Ai,
+}
+
 pub struct SpawnPawnData<'a, 'b, 'c> {
     pub data: (
         &'a PersistentPlayerData,
         Option<&'a ConnectedPlayer>,
         Vec<(String, String)>,
-        bool,
-        bool,
+        PawnDesignation,
         Option<&'a mut ResMut<'b, UsedNames>>,
         Option<&'a mut EventWriter<'b, 'c, NetShowcase>>,
         Option<String>,

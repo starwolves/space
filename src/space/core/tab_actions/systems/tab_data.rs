@@ -12,7 +12,6 @@ use crate::space::core::{
         events::{InputTabDataEntity, InputTabDataMap, NetTabData},
         resources::HandleToEntity,
     },
-    data_link::components::DataLink,
     entity::{components::EntityData, resources::EntityDataResource},
     examinable::components::Examinable,
     gridmap::{
@@ -24,8 +23,6 @@ use crate::space::core::{
     pawn::components::Pawn,
     sensable::components::Sensable,
     senser::components::Senser,
-    static_body::components::StaticTransform,
-    tab_actions::components::TabActions,
 };
 
 pub fn tab_data(
@@ -33,20 +30,8 @@ pub fn tab_data(
     mut map_events: EventReader<InputTabDataMap>,
     mut net: EventWriter<NetTabData>,
 
-    pawn_query: Query<(
-        &Pawn,
-        &Senser,
-        &RigidBodyPositionComponent,
-        &Inventory,
-        &DataLink,
-    )>,
-    examinable_query: Query<(
-        &Examinable,
-        &Sensable,
-        Option<&RigidBodyPositionComponent>,
-        Option<&StaticTransform>,
-        Option<&TabActions>,
-    )>,
+    pawn_query: Query<(&Pawn, &Senser, &RigidBodyPositionComponent, &Inventory)>,
+    examinable_query: Query<(&Examinable, &Sensable, &RigidBodyPositionComponent)>,
     gridmap_data: Res<GridmapData>,
     gridmap_main: Res<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,
@@ -58,14 +43,12 @@ pub fn tab_data(
         let player_pawn_component;
         let pawn_body_position: Vec3;
         let player_inventory_component;
-        let data_link_component;
 
         match pawn_query.get(event.player_entity) {
-            Ok((pawn_c, _pawn_c2, pawn_c3, pawn_c4, pawn_c5)) => {
+            Ok((pawn_c, _pawn_c2, pawn_c3, pawn_c4)) => {
                 player_pawn_component = pawn_c;
                 pawn_body_position = pawn_c3.position.translation.into();
                 player_inventory_component = pawn_c4;
-                data_link_component = pawn_c5;
             }
             Err(_rr) => {
                 warn!("Couldn't find Pawn component belonging to player.");
@@ -75,73 +58,24 @@ pub fn tab_data(
 
         let mut tab_data = vec![];
 
-        let mut tab_actions = vec![];
-
-        let entity = Entity::from_bits(event.examine_entity_bits);
-
         for (_action_id, tab_action) in player_pawn_component.tab_actions.iter() {
-            tab_actions.push(tab_action);
-        }
+            let entity = Entity::from_bits(event.examine_entity_bits);
 
-        match examinable_query.get(entity) {
-            Ok((
-                _examinable_component,
-                _sensable_component,
-                _rigid_body_position_component_option,
-                _static_transform_component_option,
-                tab_actions_component_option,
-            )) => match tab_actions_component_option {
-                Some(tab_actions_component) => {
-                    for tab_action in tab_actions_component.tab_actions.iter() {
-                        tab_actions.push(tab_action);
-                    }
-                }
-                None => {}
-            },
-            Err(_rr) => {}
-        }
-
-        for tab_action in tab_actions {
             let s = Some(event.examine_entity_bits);
 
             match examinable_query.get(entity) {
-                Ok((
-                    examinable_component,
-                    sensable_component,
-                    rigid_body_position_component_option,
-                    static_transform_component_option,
-                    _tab_actions_component_option,
-                )) => {
-                    let entity_translation;
-
-                    if static_transform_component_option.is_some() {
-                        entity_translation = static_transform_component_option
-                            .unwrap()
-                            .transform
-                            .translation;
-                    } else {
-                        if rigid_body_position_component_option.is_some() {
-                            entity_translation = rigid_body_position_component_option
-                                .unwrap()
-                                .position
-                                .translation
-                                .into();
-                        } else {
-                            warn!("Entity with tab_action doesn't have any positional component!");
-                            continue;
-                        }
-                    }
-
+                Ok((examinable_component, sensable_component, rigid_body_position_component)) => {
                     if sensable_component.sensed_by.contains(&event.player_entity) {
                         if (tab_action.prerequisite_check)(
                             tab_action.belonging_entity,
                             s,
                             None,
-                            pawn_body_position.distance(entity_translation),
+                            pawn_body_position.distance(
+                                rigid_body_position_component.position.translation.into(),
+                            ),
                             player_inventory_component,
                             &entity_data_resource,
                             &entity_datas,
-                            &data_link_component,
                         ) {
                             tab_data.push(tab_action.into_net(
                                 examinable_component.name.get_name(),
@@ -171,15 +105,13 @@ pub fn tab_data(
         let player_senser_component;
         let player_body_position: Vec3;
         let player_inventory_component;
-        let data_link_component;
 
         match pawn_query.get(event.player_entity) {
-            Ok((pawn_c, pawn_c2, pawn_c3, pawn_c4, pawn_c5)) => {
+            Ok((pawn_c, pawn_c2, pawn_c3, pawn_c4)) => {
                 player_pawn_component = pawn_c;
                 player_senser_component = pawn_c2;
                 player_body_position = pawn_c3.position.translation.into();
                 player_inventory_component = pawn_c4;
-                data_link_component = pawn_c5;
             }
             Err(_rr) => {
                 warn!("Couldn't find Pawn component belonging to player (2).");
@@ -255,7 +187,6 @@ pub fn tab_data(
                     player_inventory_component,
                     &entity_data_resource,
                     &entity_datas,
-                    &data_link_component,
                 ) {
                     tab_data.push(tab_action.into_net(tab_data_name, None, cell_part_tuple));
                 }

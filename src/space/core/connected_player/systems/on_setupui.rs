@@ -17,7 +17,7 @@ use crate::space::{
         },
         entity::{
             events::NetShowcase,
-            resources::{EntityDataResource, SpawnPawnData},
+            resources::{EntityDataResource, PawnDesignation, SpawnPawnData},
         },
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
@@ -85,8 +85,7 @@ pub fn on_setupui(
                     persistent_player_data_component,
                     Some(connected_player_component),
                     passed_inventory_setup,
-                    true,
-                    false,
+                    PawnDesignation::Showcase,
                     None,
                     Some(&mut net_showcase),
                     None,

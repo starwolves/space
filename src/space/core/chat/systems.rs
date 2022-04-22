@@ -13,12 +13,11 @@ use crate::space::core::{
         resources::HandleToEntity,
     },
     entity::events::NetSendEntityUpdates,
-    pawn::components::{Pawn, PersistentPlayerData, SpaceJobsEnum},
+    pawn::components::{Pawn, PersistentPlayerData, Radio, SpaceJobsEnum},
     sensable::components::Sensable,
 };
 
 use super::{
-    components::Radio,
     events::{InputChatMessage, NetChatMessage},
     functions::{new_chat_message, Communicator, MessagingPlayerState},
 };

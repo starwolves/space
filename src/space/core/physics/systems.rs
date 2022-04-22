@@ -1,5 +1,5 @@
-use bevy_app::{App, EventReader, EventWriter, Plugin};
-use bevy_ecs::{entity::Entity, schedule::SystemSet, system::Query};
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::{entity::Entity, system::Query};
 use bevy_rapier3d::{
     prelude::{ContactEvent, IntersectionEvent, IntoEntity, RigidBodyPositionComponent},
     rapier::geometry::ColliderHandle,
@@ -10,7 +10,6 @@ use crate::space::{
     entities::{
         air_locks::events::AirLockCollision, counter_windows::events::CounterWindowSensorCollision,
     },
-    PostUpdateLabels,
 };
 
 pub fn physics_events(
@@ -113,22 +112,5 @@ fn process_physics_event(
 
             started: collision_started,
         });
-    }
-}
-
-pub struct PhysicsPlugin;
-
-use bevy_app::CoreStage::PostUpdate;
-
-use super::entity_update::world_mode_update;
-
-impl Plugin for PhysicsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system(physics_events).add_system_set_to_stage(
-            PostUpdate,
-            SystemSet::new()
-                .label(PostUpdateLabels::EntityUpdate)
-                .with_system(world_mode_update),
-        );
     }
 }

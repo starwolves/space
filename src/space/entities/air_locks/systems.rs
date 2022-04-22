@@ -36,24 +36,10 @@ use crate::space::{
     },
 };
 
-use super::{
-    components::LockedStatus,
-    events::{AirLockCollision, AirLockLockClosed, AirLockLockOpen, InputAirLockToggleOpen},
-};
-
-pub struct AirLockOpenRequest {
-    pub opener_option: Option<Entity>,
-    pub opened: Entity,
-}
-
-pub struct AirLockCloseRequest {
-    pub interacter_option: Option<Entity>,
-    pub interacted: Entity,
-}
+use super::events::AirLockCollision;
 
 pub fn air_lock_events(
     mut air_lock_collisions: EventReader<AirLockCollision>,
-    mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
     mut air_lock_query: Query<(
         &mut AirLock,
         &mut RigidBodyPositionComponent,
@@ -67,47 +53,7 @@ pub fn air_lock_events(
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
-    mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
-    mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
 ) {
-    let mut close_requests = vec![];
-    let mut open_requests = vec![];
-
-    for event in air_lock_lock_open_event.iter() {
-        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
-            Ok(mut air_lock_component) => {
-                air_lock_component.locked_status = LockedStatus::Open;
-                match air_lock_component.status {
-                    AirLockStatus::Open => {}
-                    AirLockStatus::Closed => {
-                        open_requests.push(AirLockOpenRequest {
-                            opener_option: None,
-                            opened: event.locked,
-                        });
-                    }
-                }
-            }
-            Err(_rr) => {}
-        }
-    }
-    for event in air_lock_lock_close_event.iter() {
-        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
-            Ok(mut air_lock_component) => {
-                air_lock_component.locked_status = LockedStatus::Closed;
-                match air_lock_component.status {
-                    AirLockStatus::Open => {
-                        close_requests.push(AirLockCloseRequest {
-                            interacter_option: None,
-                            interacted: event.locked,
-                        });
-                    }
-                    AirLockStatus::Closed => {}
-                }
-            }
-            Err(_rr) => {}
-        }
-    }
-
     for (
         mut air_lock_component,
         mut rigid_body_position_component,
@@ -123,10 +69,28 @@ pub fn air_lock_events(
                 if timer_component.timer.finished() == true {
                     timer_component.timer.pause();
                     timer_component.timer.reset();
-                    close_requests.push(AirLockCloseRequest {
-                        interacter_option: None,
-                        interacted: air_lock_entity,
-                    });
+
+                    let cell_id =
+                        world_to_cell_id(rigid_body_position_component.position.translation.into());
+                    let cell_id2 = Vec2Int {
+                        x: cell_id.x,
+                        y: cell_id.z,
+                    };
+                    if AtmosphericsResource::is_id_out_of_range(cell_id2) {
+                        continue;
+                    }
+                    let atmos_id = get_atmos_index(cell_id2);
+                    let atmospherics = atmospherics_resource
+                        .atmospherics
+                        .get_mut(atmos_id)
+                        .unwrap();
+
+                    atmospherics.blocked = true;
+                    air_lock_component.status = AirLockStatus::Closed;
+
+                    commands
+                        .entity(air_lock_entity)
+                        .insert(AirLockClosedTimer::default());
                 }
             }
             None => {}
@@ -171,34 +135,6 @@ pub fn air_lock_events(
         }
     }
 
-    for event in toggle_open_action.iter() {
-        match air_lock_query.get(Entity::from_bits(event.opened)) {
-            Ok((
-                air_lock_component,
-                _rigid_body_position_component,
-                _static_transform_component,
-                _timer_open_component_option,
-                _timer_denied_component_option,
-                _timer_closed_component_option,
-                _air_lock_entity,
-            )) => match air_lock_component.status {
-                AirLockStatus::Open => {
-                    close_requests.push(AirLockCloseRequest {
-                        interacter_option: Some(event.opener),
-                        interacted: Entity::from_bits(event.opened),
-                    });
-                }
-                AirLockStatus::Closed => {
-                    open_requests.push(AirLockOpenRequest {
-                        opener_option: Some(event.opener),
-                        opened: Entity::from_bits(event.opened),
-                    });
-                }
-            },
-            Err(_rr) => {}
-        }
-    }
-
     for collision_event in air_lock_collisions.iter() {
         if collision_event.started == false {
             continue;
@@ -215,14 +151,20 @@ pub fn air_lock_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
-        open_requests.push(AirLockOpenRequest {
-            opener_option: Some(pawn_entity),
-            opened: air_lock_entity,
-        });
-    }
+        let pawn_space_access_component_result =
+            pawn_query.get_component::<SpaceAccess>(pawn_entity);
+        let pawn_space_access_component;
 
-    for request in open_requests {
-        let air_lock_components_result = air_lock_query.get_mut(request.opened);
+        match pawn_space_access_component_result {
+            Ok(result) => {
+                pawn_space_access_component = result;
+            }
+            Err(_err) => {
+                continue;
+            }
+        }
+
+        let air_lock_components_result = air_lock_query.get_mut(air_lock_entity);
 
         let mut air_lock_component;
         let mut air_lock_rigid_body_position_component;
@@ -239,44 +181,16 @@ pub fn air_lock_events(
             }
         }
 
-        match air_lock_component.locked_status {
-            LockedStatus::Open => {}
-            LockedStatus::Closed => {
-                continue;
-            }
-            LockedStatus::None => {}
-        }
-
         let mut pawn_has_permission = false;
 
-        match request.opener_option {
-            Some(opener) => {
-                let pawn_space_access_component_result =
-                    pawn_query.get_component::<SpaceAccess>(opener);
-                let pawn_space_access_component;
-
-                match pawn_space_access_component_result {
-                    Ok(result) => {
-                        pawn_space_access_component = result;
-                    }
-                    Err(_err) => {
-                        continue;
-                    }
-                }
-
-                for space_permission in &air_lock_component.access_permissions {
-                    if pawn_space_access_component
-                        .access
-                        .contains(space_permission)
-                        == true
-                    {
-                        pawn_has_permission = true;
-                        break;
-                    }
-                }
-            }
-            None => {
+        for space_permission in &air_lock_component.access_permissions {
+            if pawn_space_access_component
+                .access
+                .contains(space_permission)
+                == true
+            {
                 pawn_has_permission = true;
+                break;
             }
         }
 
@@ -311,7 +225,7 @@ pub fn air_lock_events(
             air_lock_rigid_body_position_component.position = air_lock_rigid_body_position;
 
             commands
-                .entity(request.opened)
+                .entity(air_lock_entity)
                 .insert(AirLockOpenTimer::default());
 
             let sfx_entity = commands
@@ -325,7 +239,7 @@ pub fn air_lock_events(
             air_lock_component.access_lights = AccessLightsStatus::Denied;
 
             commands
-                .entity(request.opened)
+                .entity(air_lock_entity)
                 .insert(AirLockDeniedTimer::default());
 
             let sfx_entity = commands
@@ -335,89 +249,6 @@ pub fn air_lock_events(
                 ))
                 .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
-        }
-    }
-
-    for request in close_requests {
-        match air_lock_query.get_mut(request.interacted) {
-            Ok((
-                mut air_lock_component,
-                rigid_body_position_component,
-                _static_transform_component,
-                _timer_open_component_option,
-                _timer_denied_component_option,
-                _timer_closed_component_option,
-                air_lock_entity,
-            )) => {
-                match air_lock_component.locked_status {
-                    LockedStatus::Open => {
-                        continue;
-                    }
-                    LockedStatus::Closed => {}
-                    LockedStatus::None => {}
-                }
-
-                let mut pawn_has_permission = false;
-
-                match request.interacter_option {
-                    Some(interacter) => {
-                        let pawn_space_access_component_result =
-                            pawn_query.get_component::<SpaceAccess>(interacter);
-                        let pawn_space_access_component;
-
-                        match pawn_space_access_component_result {
-                            Ok(result) => {
-                                pawn_space_access_component = result;
-                            }
-                            Err(_err) => {
-                                continue;
-                            }
-                        }
-
-                        for space_permission in &air_lock_component.access_permissions {
-                            if pawn_space_access_component
-                                .access
-                                .contains(space_permission)
-                                == true
-                            {
-                                pawn_has_permission = true;
-                                break;
-                            }
-                        }
-                    }
-                    None => {
-                        pawn_has_permission = true;
-                    }
-                }
-
-                if pawn_has_permission == false {
-                    continue;
-                }
-
-                let cell_id =
-                    world_to_cell_id(rigid_body_position_component.position.translation.into());
-                let cell_id2 = Vec2Int {
-                    x: cell_id.x,
-                    y: cell_id.z,
-                };
-                if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                    continue;
-                }
-                let atmos_id = get_atmos_index(cell_id2);
-                let atmospherics = atmospherics_resource
-                    .atmospherics
-                    .get_mut(atmos_id)
-                    .unwrap();
-
-                atmospherics.blocked = true;
-                air_lock_component.status = AirLockStatus::Closed;
-
-                commands
-                    .entity(air_lock_entity)
-                    .insert(AirLockClosedTimer::default());
-            }
-
-            Err(_rr) => {}
         }
     }
 }

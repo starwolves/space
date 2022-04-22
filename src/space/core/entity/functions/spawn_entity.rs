@@ -10,7 +10,7 @@ use bevy_transform::components::Transform;
 use crate::space::core::{
     entity::{
         events::NetShowcase,
-        resources::{EntityDataResource, SpawnHeldData, SpawnPawnData},
+        resources::{EntityDataResource, PawnDesignation, SpawnHeldData, SpawnPawnData},
     },
     networking::resources::ConsoleCommandVariantValues,
     pawn::{components::PersistentPlayerData, resources::UsedNames},
@@ -61,8 +61,7 @@ pub fn spawn_entity(
                             &data.1,
                             None,
                             data.0,
-                            false,
-                            true,
+                            PawnDesignation::Dummy,
                             Some(used_names_option.unwrap()),
                             None,
                             None,

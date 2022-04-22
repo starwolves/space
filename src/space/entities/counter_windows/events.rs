@@ -11,17 +11,3 @@ pub struct CounterWindowSensorCollision {
 
     pub started: bool,
 }
-
-pub struct InputCounterWindowToggleOpen {
-    pub opener: Entity,
-    pub opened: u64,
-}
-pub struct CounterWindowLockOpen {
-    pub locked: Entity,
-    pub locker: Entity,
-}
-
-pub struct CounterWindowLockClosed {
-    pub locked: Entity,
-    pub locker: Entity,
-}
