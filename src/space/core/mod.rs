@@ -1,4 +1,8 @@
+use bevy_app::{App, Plugin};
+use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 use bevy_log::info;
+
+use super::StartupLabels;
 
 pub mod asana;
 pub mod atmospherics;
@@ -29,4 +33,12 @@ pub mod world_environment;
 
 pub fn server_is_live() {
     info!("Live.");
+}
+
+pub struct CorePlugin;
+
+impl Plugin for CorePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(server_is_live.after(StartupLabels::ListenConnections));
+    }
 }
