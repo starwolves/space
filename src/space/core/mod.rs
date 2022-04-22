@@ -4,6 +4,7 @@ use bevy_log::info;
 
 use super::StartupLabels;
 
+pub mod artificial_unintelligence;
 pub mod asana;
 pub mod atmospherics;
 pub mod chat;
@@ -39,6 +40,10 @@ pub struct CorePlugin;
 
 impl Plugin for CorePlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(server_is_live.after(StartupLabels::ListenConnections));
+        app.add_startup_system(
+            server_is_live
+                .label(StartupLabels::ServerIsLive)
+                .after(StartupLabels::ListenConnections),
+        );
     }
 }
