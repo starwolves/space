@@ -44,11 +44,11 @@ use crate::space::core::{
     tab_actions::functions::get_tab_action,
 };
 
-pub struct HumanMalePawnBundle;
+pub struct HumanMaleBundle;
 
 pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
 
-impl HumanMalePawnBundle {
+impl HumanMaleBundle {
     pub fn spawn(
         passed_transform: Transform,
         commands: &mut Commands,

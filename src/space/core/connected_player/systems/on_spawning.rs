@@ -18,7 +18,7 @@ use crate::space::{
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
-    entities::human_male_pawn::spawn::HumanMalePawnBundle,
+    entities::human_male::spawn::HumanMaleBundle,
 };
 
 pub fn on_spawning(
@@ -43,7 +43,7 @@ pub fn on_spawning(
             ("left_hand".to_string(), "constructionTool".to_string()),
         ];
 
-        let new_entity = HumanMalePawnBundle::spawn(
+        let new_entity = HumanMaleBundle::spawn(
             spawning_component.transform,
             &mut commands,
             true,
