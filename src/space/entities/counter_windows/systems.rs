@@ -83,9 +83,9 @@ pub fn counter_window_events(
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {}
                     CounterWindowStatus::Closed => {
-                        close_requests.push(AirLockCloseRequest {
-                            interacter_option: None,
-                            interacted: event.locked,
+                        open_requests.push(CounterWindowOpenRequest {
+                            opener_option: None,
+                            opened: event.locked,
                         });
                     }
                 }
@@ -99,9 +99,9 @@ pub fn counter_window_events(
                 counter_window_component.locked_status = LockedStatus::Closed;
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
-                        open_requests.push(CounterWindowOpenRequest {
-                            opener_option: None,
-                            opened: event.locked,
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
                         });
                     }
                     CounterWindowStatus::Closed => {}
@@ -334,7 +334,9 @@ pub fn counter_window_events(
                     }
                 }
             }
-            None => {}
+            None => {
+                pawn_has_permission = true;
+            }
         }
 
         match counter_window_closed_timer_option {
@@ -428,6 +430,9 @@ pub fn counter_window_events(
                     LockedStatus::Closed => {}
                     LockedStatus::None => {}
                 }
+
+                let mut pawn_has_permission = false;
+
                 match request.interacter_option {
                     Some(interacter) => {
                         let pawn_space_access_component_result =
@@ -443,8 +448,6 @@ pub fn counter_window_events(
                             }
                         }
 
-                        let mut pawn_has_permission = false;
-
                         for space_permission in &counter_window_component.access_permissions {
                             if pawn_space_access_component
                                 .access
@@ -455,12 +458,14 @@ pub fn counter_window_events(
                                 break;
                             }
                         }
-
-                        if pawn_has_permission == false {
-                            continue;
-                        }
                     }
-                    None => {}
+                    None => {
+                        pawn_has_permission = true;
+                    }
+                }
+
+                if pawn_has_permission == false {
+                    continue;
                 }
 
                 counter_window_component.status = CounterWindowStatus::Closed;

@@ -15,6 +15,7 @@ use crate::space::{
             events::{InputExamineEntity, InputExamineMap},
             resources::HandleToEntity,
         },
+        data_link::components::DataLink,
         entity::{components::EntityData, resources::EntityDataResource},
         gridmap::{
             functions::gridmap_functions::cell_id_to_world,
@@ -26,28 +27,36 @@ use crate::space::{
         tab_actions::{components::TabActions, events::InputTabAction},
     },
     entities::{
-        air_locks::events::InputAirLockToggleOpen,
+        air_locks::events::{AirLockLockClosed, AirLockLockOpen, InputAirLockToggleOpen},
         construction_tool_admin::events::{
             InputConstruct, InputConstructionOptions, InputDeconstruct,
         },
-        counter_windows::events::InputCounterWindowToggleOpen,
+        counter_windows::events::{
+            CounterWindowLockClosed, CounterWindowLockOpen, InputCounterWindowToggleOpen,
+        },
     },
 };
 
 pub fn tab_action(
-    mut events: EventReader<InputTabAction>,
-    mut event_examine_entity: EventWriter<InputExamineEntity>,
-    mut event_examine_map: EventWriter<InputExamineMap>,
-    mut event_construct: EventWriter<InputConstruct>,
-    mut event_deconstruct: EventWriter<InputDeconstruct>,
-    mut pickup_world_item_event: EventWriter<InputUseWorldItem>,
+    events: (
+        EventReader<InputTabAction>,
+        EventWriter<InputExamineEntity>,
+        EventWriter<InputExamineMap>,
+        EventWriter<InputConstruct>,
+        EventWriter<InputDeconstruct>,
+        EventWriter<InputUseWorldItem>,
+        EventWriter<AirLockLockOpen>,
+        EventWriter<AirLockLockClosed>,
+    ),
     mut event_construction_options: EventWriter<InputConstructionOptions>,
     mut air_lock_toggle_open_event: EventWriter<InputAirLockToggleOpen>,
     mut counter_window_toggle_open_event: EventWriter<InputCounterWindowToggleOpen>,
+    mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
+    mut counter_window_lock_closed_event: EventWriter<CounterWindowLockClosed>,
 
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
-    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
+    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory, &DataLink)>,
     targettable_entities: Query<(
         Option<&RigidBodyPositionComponent>,
         Option<&StaticTransform>,
@@ -59,7 +68,18 @@ pub fn tab_action(
     entity_datas: Query<&EntityData>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
-    for event in events.iter() {
+    let (
+        mut input_tab_action_events,
+        mut event_examine_entity,
+        mut event_examine_map,
+        mut event_construct,
+        mut event_deconstruct,
+        mut pickup_world_item_event,
+        mut air_lock_lock_open_event,
+        mut air_lock_lock_closed_event,
+    ) = events;
+
+    for event in input_tab_action_events.iter() {
         // Safety check.
         match criteria_query.get(event.player_entity) {
             Ok(_) => {}
@@ -71,12 +91,14 @@ pub fn tab_action(
         let pawn_component;
         let pawn_inventory_component;
         let pawn_rigid_body_position_component;
+        let data_link_component;
 
         match pawns.get(event.player_entity) {
-            Ok((c, c1, c2)) => {
+            Ok((c, c1, c2, c3)) => {
                 pawn_component = c;
                 pawn_rigid_body_position_component = c1;
                 pawn_inventory_component = c2;
+                data_link_component = c3;
             }
             Err(_rr) => {
                 warn!("Couldn't find pawn_component.");
@@ -212,6 +234,7 @@ pub fn tab_action(
                     pawn_inventory_component,
                     &entity_data_resource,
                     &entity_datas,
+                    &data_link_component,
                 ) {
                     true => {}
                     false => {
@@ -306,6 +329,34 @@ pub fn tab_action(
                 counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
                     opener: event.player_entity,
                     opened: event.target_entity_option.unwrap(),
+                });
+            }
+        } else if event.tab_id == "counterwindowlockopen" {
+            if event.target_entity_option.is_some() {
+                counter_window_lock_open_event.send(CounterWindowLockOpen {
+                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
+                    locker: event.player_entity,
+                });
+            }
+        } else if event.tab_id == "counterwindowlockclosed" {
+            if event.target_entity_option.is_some() {
+                counter_window_lock_closed_event.send(CounterWindowLockClosed {
+                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
+                    locker: event.player_entity,
+                });
+            }
+        } else if event.tab_id == "airlocklockopen" {
+            if event.target_entity_option.is_some() {
+                air_lock_lock_open_event.send(AirLockLockOpen {
+                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
+                    locker: event.player_entity,
+                });
+            }
+        } else if event.tab_id == "airlocklockclosed" {
+            if event.target_entity_option.is_some() {
+                air_lock_lock_closed_event.send(AirLockLockClosed {
+                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
+                    locker: event.player_entity,
                 });
             }
         }

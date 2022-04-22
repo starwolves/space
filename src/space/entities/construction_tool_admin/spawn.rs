@@ -19,6 +19,7 @@ use bevy_transform::components::Transform;
 
 use crate::space::{
     core::{
+        data_link::components::DataLink,
         entity::{
             components::{EntityData, EntityUpdates, Showcase},
             events::NetShowcase,
@@ -379,6 +380,7 @@ pub fn construct_action(
     _inventory_component: &Inventory,
     _entity_data_resource: &EntityDataResource,
     _entity_datas: &Query<&EntityData>,
+    _data_link_component: &DataLink,
 ) -> bool {
     distance < REACH_DISTANCE && cell_id_option.is_some()
 }
@@ -391,6 +393,7 @@ pub fn deconstruct_action(
     _inventory_component: &Inventory,
     entity_data_resource: &EntityDataResource,
     entity_datas: &Query<&EntityData>,
+    _data_link_component: &DataLink,
 ) -> bool {
     match entity_id_bits_option {
         Some(bits) => {
@@ -433,6 +436,7 @@ pub fn construction_option_action(
     inventory_component: &Inventory,
     _entity_data_resource: &EntityDataResource,
     _entity_datas: &Query<&EntityData>,
+    _data_link_component: &DataLink,
 ) -> bool {
     let is_self;
 

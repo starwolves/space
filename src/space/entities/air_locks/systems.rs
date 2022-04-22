@@ -80,9 +80,9 @@ pub fn air_lock_events(
                 match air_lock_component.status {
                     AirLockStatus::Open => {}
                     AirLockStatus::Closed => {
-                        close_requests.push(AirLockCloseRequest {
-                            interacter_option: None,
-                            interacted: event.locked,
+                        open_requests.push(AirLockOpenRequest {
+                            opener_option: None,
+                            opened: event.locked,
                         });
                     }
                 }
@@ -96,9 +96,9 @@ pub fn air_lock_events(
                 air_lock_component.locked_status = LockedStatus::Closed;
                 match air_lock_component.status {
                     AirLockStatus::Open => {
-                        open_requests.push(AirLockOpenRequest {
-                            opener_option: None,
-                            opened: event.locked,
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
                         });
                     }
                     AirLockStatus::Closed => {}
@@ -275,7 +275,9 @@ pub fn air_lock_events(
                     }
                 }
             }
-            None => {}
+            None => {
+                pawn_has_permission = true;
+            }
         }
 
         if pawn_has_permission == true {
@@ -355,6 +357,8 @@ pub fn air_lock_events(
                     LockedStatus::None => {}
                 }
 
+                let mut pawn_has_permission = false;
+
                 match request.interacter_option {
                     Some(interacter) => {
                         let pawn_space_access_component_result =
@@ -370,8 +374,6 @@ pub fn air_lock_events(
                             }
                         }
 
-                        let mut pawn_has_permission = false;
-
                         for space_permission in &air_lock_component.access_permissions {
                             if pawn_space_access_component
                                 .access
@@ -382,12 +384,14 @@ pub fn air_lock_events(
                                 break;
                             }
                         }
-
-                        if pawn_has_permission == false {
-                            continue;
-                        }
                     }
-                    None => {}
+                    None => {
+                        pawn_has_permission = true;
+                    }
+                }
+
+                if pawn_has_permission == false {
+                    continue;
                 }
 
                 let cell_id =
