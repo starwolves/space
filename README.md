@@ -16,8 +16,15 @@ This game server is designed to run well on modern processors that have multiple
 
 ### Media
 You can see gameplay videos of Space Frontiers on [YouTube, subscribe](https://www.youtube.com/channel/UC6D7lcx9eL_ChA7HzzvhLtA)!
-  
+
+### Documentation
+There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) available for code contributors or modders.
+
+### Discord
+[Official Space Frontiers Discord server.](https://discord.gg/Hdxz9h33E7)
+
 ### Features (All Moddable & Modular)
+* Decentralized gameplay, each community can host their own servers. 👑
 * Parallelized ECS (Entity Component System) architecture. 📡
 * Pure Rust. No garbage collection & high parallel game logic execution speeds. 🌟
 * Data-oriented, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project. 🔭
@@ -67,30 +74,27 @@ However, most devices made for video-games should expect no such problems.
 
 When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
 
-## Organization
+## More information
 
-### Space Frontiers
-Space Frontiers now has an official brand new community [Discord server](https://discord.gg/yYpMun9CTT).
-
-
+### Overview
+Space Frontiers has an official community [Discord server](https://discord.gg/yYpMun9CTT).
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for years to come.
-
 Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
 
-The idea is to financially reward and/or hire people for their contributions in the future, but it is too early for that kind of money now.
+### Contributing
+The hopes are to financially reward and/or hire the most suitable people for their contributions in the much further future.
 It is possible to contribute in all kinds of ways and you reaching out for possibilities will be appreciated!
-Also looking for both 2D & 3D digital artists, writers and game(play) designers.
-People who are genuinely interested in contributing are suggested to contact the developer on Discord, when this interest arises high priority will be put into creating project documentation, tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
+Also looking for both 2D & 3D digital artists, concept artists, writers and game(play) designers.
+People who are genuinely interested in contributing are suggested to contact the developers through Discord, when this interest arises high priority will be put into tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
 
 All contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on Github.
 
-Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain sovereign.
+When contributing please do not work on the `master` branch, but work on the snapshot branch (named `*-snap`). Create pull requests when you would like us to review and merge your code.
 
-A developer documentation website is planned.
+Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain decentralized and sovereign.
 
 A developer web forum is planned.
 ![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
-
 
 ### License
 
@@ -100,4 +104,4 @@ This repository is licensed under a [special license](https://github.com/starwol
 ### [StarWolves.io](https://starwolves.io)
 Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
 The roots of Space Frontiers are partially in this community, but Space Frontiers is managed in a way that effectively makes Space Frontiers and its community remain a predominantly separated entity; apart from the fact that Star Wolves technically owns Space Frontiers.
-Star Wolves will be one of the first community to host a 24/7 server for Space Frontiers.
+Star Wolves will be one of the first communities to host a 24/7 server for Space Frontiers.
