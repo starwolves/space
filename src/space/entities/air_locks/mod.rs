@@ -11,7 +11,7 @@ use crate::space::core::entity::resources::{
 use crate::space::core::tab_actions::TabActionsQueueLabels;
 use crate::space::{PostUpdateLabels, StartupLabels};
 
-use self::actions::air_locks_actions;
+use self::events::air_locks_actions;
 use self::spawn::AirlockBundle;
 use self::{
     entity_update::air_lock_update,
@@ -19,7 +19,6 @@ use self::{
     systems::{air_lock_added, air_lock_default_map_added, air_lock_events, air_lock_tick_timers},
 };
 
-pub mod actions;
 pub mod components;
 pub mod entity_update;
 pub mod events;

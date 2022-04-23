@@ -13,16 +13,14 @@ use crate::space::{
 };
 
 use self::{
-    actions::construction_tool_actions,
     events::{
         InputConstruct, InputConstructionOptions, InputConstructionOptionsSelection,
-        InputDeconstruct, NetConstructionTool,
+        InputDeconstruct, NetConstructionTool, construction_tool_actions,
     },
     spawn::ConstructionToolBundle,
     systems::construction_tool,
 };
 
-pub mod actions;
 pub mod components;
 pub mod events;
 pub mod spawn;

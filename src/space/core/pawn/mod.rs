@@ -2,14 +2,14 @@ use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 
 use self::{
-    actions::pawn_actions,
+    events::pawn_actions,
     resources::{AuthidI, UsedNames},
     systems::{toggle_combat_mode::toggle_combat_mode, user_name::user_name},
 };
 
 use super::tab_actions::TabActionsQueueLabels;
 
-pub mod actions;
+pub mod events;
 pub mod components;
 pub mod functions;
 pub mod resources;
