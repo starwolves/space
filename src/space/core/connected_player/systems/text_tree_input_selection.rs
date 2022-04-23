@@ -97,7 +97,7 @@ pub fn text_tree_input_selection(
             && belonging_entity.is_some()
         {
             input_construction_options_selection.send(InputConstructionOptionsSelection {
-                handle: event.handle,
+                handle_option: Some(event.handle),
                 menu_selection: event.menu_selection.clone(),
                 entity: belonging_entity.unwrap(),
             });

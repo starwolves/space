@@ -5,7 +5,7 @@ use crate::space::core::networking::resources::{
 use super::resources::{CellData, Vec3Int};
 
 pub struct RemoveCell {
-    pub handle: u32,
+    pub handle_option: Option<u32>,
     pub gridmap_type: GridMapType,
     pub id: Vec3Int,
     pub cell_data: CellData,

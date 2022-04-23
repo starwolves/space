@@ -51,7 +51,7 @@ pub fn tab_action(
 
     for event in input_tab_action_events.iter() {
         // Safety check.
-        match criteria_query.get(event.player_entity) {
+        match criteria_query.get(event.action_performing_entity) {
             Ok(_) => {}
             Err(_rr) => {
                 continue;
@@ -63,7 +63,7 @@ pub fn tab_action(
         let pawn_rigid_body_position_component;
         let data_link_component;
 
-        match pawns.get(event.player_entity) {
+        match pawns.get(event.action_performing_entity) {
             Ok((c, c1, c2, c3)) => {
                 pawn_component = c;
                 pawn_rigid_body_position_component = c1;
@@ -217,25 +217,25 @@ pub fn tab_action(
             }
         }
 
-        let handle;
+        let mut handle = None;
 
-        match handle_to_entity.inv_map.get(&event.player_entity) {
+        match handle_to_entity
+            .inv_map
+            .get(&event.action_performing_entity)
+        {
             Some(x) => {
-                handle = x;
+                handle = Some(*x);
             }
-            None => {
-                warn!("Couldn't find handle.");
-                continue;
-            }
+            None => {}
         }
 
         queue.queue.push(QueuedTabAction {
-            handle: *handle,
+            handle_option: handle,
             target_cell_option: event.target_cell_option.clone(),
             target_entity_option: event.target_entity_option,
             belonging_entity_option: event.belonging_entity_option,
             tab_id: event.tab_id.clone(),
-            player_entity: event.player_entity,
+            player_entity: event.action_performing_entity,
         });
     }
 }
