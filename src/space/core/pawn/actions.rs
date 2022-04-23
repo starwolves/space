@@ -1,5 +1,5 @@
 use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, system::Res};
+use bevy_ecs::system::Res;
 
 use crate::space::core::{
     connected_player::events::{InputExamineEntity, InputExamineMap},
@@ -20,14 +20,14 @@ pub fn pawn_actions(
                     event_examine_entity.send(InputExamineEntity {
                         handle: queued.handle,
                         examine_entity_bits: entity_bits,
-                        entity: Entity::from_bits(queued.belonging_entity),
+                        entity: queued.player_entity,
                     });
                 }
                 None => match &queued.target_cell_option {
                     Some((gridmap_type, idx, idy, idz)) => {
                         event_examine_map.send(InputExamineMap {
                             handle: queued.handle,
-                            entity: Entity::from_bits(queued.belonging_entity),
+                            entity: queued.player_entity,
                             gridmap_type: gridmap_type.clone(),
                             gridmap_cell_id: Vec3Int {
                                 x: *idx,

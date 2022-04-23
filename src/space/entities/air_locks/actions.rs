@@ -15,7 +15,7 @@ pub fn air_locks_actions(
         if queued.tab_id == "airlocktoggleopen" {
             if queued.target_entity_option.is_some() {
                 air_lock_toggle_open_event.send(InputAirLockToggleOpen {
-                    opener: Entity::from_bits(queued.belonging_entity),
+                    opener: queued.player_entity,
                     opened: queued.target_entity_option.unwrap(),
                 });
             }
@@ -23,14 +23,14 @@ pub fn air_locks_actions(
             if queued.target_entity_option.is_some() {
                 air_lock_lock_open_event.send(AirLockLockOpen {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
-                    locker: Entity::from_bits(queued.belonging_entity),
+                    locker: queued.player_entity,
                 });
             }
         } else if queued.tab_id == "airlocklockclosed" {
             if queued.target_entity_option.is_some() {
                 air_lock_lock_closed_event.send(AirLockLockClosed {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
-                    locker: Entity::from_bits(queued.belonging_entity),
+                    locker: queued.player_entity,
                 });
             }
         }

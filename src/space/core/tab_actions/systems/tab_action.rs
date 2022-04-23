@@ -158,7 +158,7 @@ pub fn tab_action(
             Some(action) => {
                 let self_belonging_entity;
 
-                match event.belonging_entity {
+                match event.belonging_entity_option {
                     Some(e) => {
                         self_belonging_entity = Some(Entity::from_bits(e));
                     }
@@ -233,8 +233,9 @@ pub fn tab_action(
             handle: *handle,
             target_cell_option: event.target_cell_option.clone(),
             target_entity_option: event.target_entity_option,
-            belonging_entity: event.belonging_entity,
+            belonging_entity_option: event.belonging_entity_option,
             tab_id: event.tab_id.clone(),
+            player_entity: event.player_entity,
         });
     }
 }

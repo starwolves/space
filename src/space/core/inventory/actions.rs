@@ -1,5 +1,5 @@
 use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, system::Res};
+use bevy_ecs::system::Res;
 
 use crate::space::core::tab_actions::resources::QueuedTabActions;
 
@@ -14,7 +14,7 @@ pub fn inventory_actions(
         if queued.tab_id == "pickup" {
             if queued.target_entity_option.is_some() {
                 pickup_world_item_event.send(InputUseWorldItem {
-                    pickuper_entity: Entity::from_bits(queued.belonging_entity),
+                    pickuper_entity: queued.player_entity,
                     pickupable_entity_bits: queued.target_entity_option.unwrap(),
                 });
             }

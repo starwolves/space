@@ -544,7 +544,7 @@ pub fn messages_outgoing(
                             player_entity: *player_entity,
                             target_entity_option: entity_option,
                             target_cell_option: cell_option,
-                            belonging_entity,
+                            belonging_entity_option: belonging_entity,
                         });
                     }
                     None => {
