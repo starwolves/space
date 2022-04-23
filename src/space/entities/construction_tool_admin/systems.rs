@@ -187,8 +187,8 @@ pub fn construction_tool(
             handle: event.handle,
             message: ReliableServerMessage::TextTreeSelection(
                 Some(event.belonging_entity),
-                "constructionoptions".to_string(),
-                "constructiontoolco".to_string(),
+                "entities/construction_tool_admin/constructionoptions".to_string(),
+                "entities/construction_tool_admin/constructionoptionslist".to_string(),
                 "Construction Options".to_string(),
                 text_tree_selection_map,
             ),

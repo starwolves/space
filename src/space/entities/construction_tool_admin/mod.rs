@@ -14,8 +14,8 @@ use crate::space::{
 
 use self::{
     events::{
-        InputConstruct, InputConstructionOptions, InputConstructionOptionsSelection,
-        InputDeconstruct, NetConstructionTool, construction_tool_actions,
+        construction_tool_actions, InputConstruct, InputConstructionOptions,
+        InputConstructionOptionsSelection, InputDeconstruct, NetConstructionTool,
     },
     spawn::ConstructionToolBundle,
     systems::construction_tool,
