@@ -9,8 +9,10 @@ use crate::space::core::entity::functions::initialize_entity_data::initialize_en
 use crate::space::core::entity::resources::{
     EntityDataProperties, EntityDataResource, GridItemData,
 };
+use crate::space::core::tab_actions::TabActionsQueueLabels;
 use crate::space::{PostUpdateLabels, StartupLabels};
 
+use self::actions::counter_windows_actions;
 use self::spawn::CounterWindowBundle;
 use self::{
     entity_update::counter_window_update,
@@ -24,6 +26,7 @@ use self::{
     },
 };
 
+pub mod actions;
 pub mod components;
 pub mod entity_update;
 pub mod events;
@@ -49,7 +52,8 @@ impl Plugin for CounterWindowsPlugin {
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(counter_window_update),
             )
-            .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap));
+            .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
+            .add_system(counter_windows_actions.after(TabActionsQueueLabels::TabAction));
     }
 }
 

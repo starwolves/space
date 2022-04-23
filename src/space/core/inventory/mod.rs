@@ -4,6 +4,7 @@ use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
 use crate::space::{PostUpdateLabels, UpdateLabels};
 
+use self::actions::inventory_actions;
 use self::{
     entity_update::inventory_update,
     events::{
@@ -18,6 +19,9 @@ use self::{
     },
 };
 
+use super::tab_actions::TabActionsQueueLabels;
+
+pub mod actions;
 pub mod components;
 pub mod entity_update;
 pub mod events;
@@ -51,6 +55,7 @@ impl Plugin for InventoryPlugin {
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(inventory_update),
             )
-            .add_system(drop_current_item.label(UpdateLabels::DropCurrentItem));
+            .add_system(drop_current_item.label(UpdateLabels::DropCurrentItem))
+            .add_system(inventory_actions.after(TabActionsQueueLabels::TabAction));
     }
 }
