@@ -1,4 +1,7 @@
-use bevy_ecs::prelude::{FromWorld, World};
+use bevy_ecs::{
+    entity::Entity,
+    prelude::{FromWorld, World},
+};
 
 use crate::space::core::networking::resources::GridMapType;
 
@@ -11,7 +14,8 @@ pub struct QueuedTabAction {
     pub handle: u32,
     pub target_cell_option: Option<(GridMapType, i16, i16, i16)>,
     pub target_entity_option: Option<u64>,
-    pub belonging_entity: u64,
+    pub belonging_entity_option: Option<u64>,
+    pub player_entity: Entity,
 }
 
 impl FromWorld for QueuedTabActions {

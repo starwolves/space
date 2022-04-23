@@ -16,7 +16,7 @@ pub fn counter_windows_actions(
         if queued.tab_id == "counterwindowtoggleopen" {
             if queued.target_entity_option.is_some() {
                 counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
-                    opener: Entity::from_bits(queued.belonging_entity),
+                    opener: queued.player_entity,
                     opened: queued.target_entity_option.unwrap(),
                 });
             }
@@ -24,14 +24,14 @@ pub fn counter_windows_actions(
             if queued.target_entity_option.is_some() {
                 counter_window_lock_open_event.send(CounterWindowLockOpen {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
-                    locker: Entity::from_bits(queued.belonging_entity),
+                    locker: queued.player_entity,
                 });
             }
         } else if queued.tab_id == "counterwindowlockclosed" {
             if queued.target_entity_option.is_some() {
                 counter_window_lock_closed_event.send(CounterWindowLockClosed {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
-                    locker: Entity::from_bits(queued.belonging_entity),
+                    locker: queued.player_entity,
                 });
             }
         }
