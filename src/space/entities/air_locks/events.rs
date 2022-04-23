@@ -27,6 +27,11 @@ pub struct AirLockLockClosed {
     pub locker: Entity,
 }
 
+pub struct AirLockUnlock {
+    pub locked: Entity,
+    pub locker: Entity,
+}
+
 use bevy_app::EventWriter;
 use bevy_ecs::system::Res;
 
@@ -37,6 +42,7 @@ pub fn air_locks_actions(
     mut air_lock_toggle_open_event: EventWriter<InputAirLockToggleOpen>,
     mut air_lock_lock_open_event: EventWriter<AirLockLockOpen>,
     mut air_lock_lock_closed_event: EventWriter<AirLockLockClosed>,
+    mut air_lock_unlock_event: EventWriter<AirLockUnlock>,
 ) {
     for queued in queue.queue.iter() {
         if queued.tab_id == "actions::air_locks/toggleopen" {
@@ -56,6 +62,13 @@ pub fn air_locks_actions(
         } else if queued.tab_id == "actions::air_locks/lockclosed" {
             if queued.target_entity_option.is_some() {
                 air_lock_lock_closed_event.send(AirLockLockClosed {
+                    locked: Entity::from_bits(queued.target_entity_option.unwrap()),
+                    locker: queued.player_entity,
+                });
+            }
+        } else if queued.tab_id == "actions::air_locks/unlock" {
+            if queued.target_entity_option.is_some() {
+                air_lock_unlock_event.send(AirLockUnlock {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
                 });
