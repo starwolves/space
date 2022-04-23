@@ -2,14 +2,18 @@ use bevy_app::{App, Plugin};
 use bevy_ecs::{schedule::ParallelSystemDescriptorCoercion, system::ResMut};
 
 use crate::space::{
-    core::entity::{
-        functions::initialize_entity_data::initialize_entity_data,
-        resources::{EntityDataProperties, EntityDataResource},
+    core::{
+        entity::{
+            functions::initialize_entity_data::initialize_entity_data,
+            resources::{EntityDataProperties, EntityDataResource},
+        },
+        tab_actions::TabActionsQueueLabels,
     },
     StartupLabels, UpdateLabels,
 };
 
 use self::{
+    actions::construction_tool_actions,
     events::{
         InputConstruct, InputConstructionOptions, InputConstructionOptionsSelection,
         InputDeconstruct, NetConstructionTool,
@@ -18,6 +22,7 @@ use self::{
     systems::construction_tool,
 };
 
+pub mod actions;
 pub mod components;
 pub mod events;
 pub mod spawn;
@@ -37,7 +42,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                     .after(UpdateLabels::TextTreeInputSelection)
                     .before(UpdateLabels::DeconstructCell),
             )
-            .add_startup_system(content_initialization.before(StartupLabels::InitEntities));
+            .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
+            .add_system(construction_tool_actions.after(TabActionsQueueLabels::TabAction));
     }
 }
 

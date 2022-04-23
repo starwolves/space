@@ -5,6 +5,7 @@ use self::{
     systems::{toggle_combat_mode::toggle_combat_mode, user_name::user_name},
 };
 
+pub mod actions;
 pub mod components;
 pub mod functions;
 pub mod resources;

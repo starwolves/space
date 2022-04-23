@@ -1,58 +1,36 @@
-use bevy_app::{EventReader, EventWriter};
+use bevy_app::EventReader;
 use bevy_ecs::{
     entity::Entity,
     prelude::Without,
-    system::{Query, Res},
+    system::{Query, Res, ResMut},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
-use crate::space::{
-    core::{
-        connected_player::{
-            components::{ConnectedPlayer, SoftPlayer},
-            events::{InputExamineEntity, InputExamineMap},
-            resources::HandleToEntity,
-        },
-        data_link::components::DataLink,
-        entity::{components::EntityData, resources::EntityDataResource},
-        gridmap::{
-            functions::gridmap_functions::cell_id_to_world,
-            resources::{GridmapMain, Vec3Int},
-        },
-        inventory::{components::Inventory, events::InputUseWorldItem},
-        pawn::components::Pawn,
-        static_body::components::StaticTransform,
-        tab_actions::{components::TabActions, events::InputTabAction},
+use crate::space::core::{
+    connected_player::{
+        components::{ConnectedPlayer, SoftPlayer},
+        resources::HandleToEntity,
     },
-    entities::{
-        air_locks::events::{AirLockLockClosed, AirLockLockOpen, InputAirLockToggleOpen},
-        construction_tool_admin::events::{
-            InputConstruct, InputConstructionOptions, InputDeconstruct,
-        },
-        counter_windows::events::{
-            CounterWindowLockClosed, CounterWindowLockOpen, InputCounterWindowToggleOpen,
-        },
+    data_link::components::DataLink,
+    entity::{components::EntityData, resources::EntityDataResource},
+    gridmap::{
+        functions::gridmap_functions::cell_id_to_world,
+        resources::{GridmapMain, Vec3Int},
+    },
+    inventory::components::Inventory,
+    pawn::components::Pawn,
+    static_body::components::StaticTransform,
+    tab_actions::{
+        components::TabActions,
+        events::InputTabAction,
+        resources::{QueuedTabAction, QueuedTabActions},
     },
 };
 
 pub fn tab_action(
-    events: (
-        EventReader<InputTabAction>,
-        EventWriter<InputExamineEntity>,
-        EventWriter<InputExamineMap>,
-        EventWriter<InputConstruct>,
-        EventWriter<InputDeconstruct>,
-        EventWriter<InputUseWorldItem>,
-        EventWriter<AirLockLockOpen>,
-        EventWriter<AirLockLockClosed>,
-    ),
-    mut event_construction_options: EventWriter<InputConstructionOptions>,
-    mut air_lock_toggle_open_event: EventWriter<InputAirLockToggleOpen>,
-    mut counter_window_toggle_open_event: EventWriter<InputCounterWindowToggleOpen>,
-    mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
-    mut counter_window_lock_closed_event: EventWriter<CounterWindowLockClosed>,
+    events: EventReader<InputTabAction>,
 
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
@@ -67,17 +45,9 @@ pub fn tab_action(
     entity_data_resource: Res<EntityDataResource>,
     entity_datas: Query<&EntityData>,
     handle_to_entity: Res<HandleToEntity>,
+    mut queue: ResMut<QueuedTabActions>,
 ) {
-    let (
-        mut input_tab_action_events,
-        mut event_examine_entity,
-        mut event_examine_map,
-        mut event_construct,
-        mut event_deconstruct,
-        mut pickup_world_item_event,
-        mut air_lock_lock_open_event,
-        mut air_lock_lock_closed_event,
-    ) = events;
+    let mut input_tab_action_events = events;
 
     for event in input_tab_action_events.iter() {
         // Safety check.
@@ -259,106 +229,12 @@ pub fn tab_action(
             }
         }
 
-        if event.tab_id == "examine" {
-            match event.target_entity_option {
-                Some(entity_bits) => {
-                    event_examine_entity.send(InputExamineEntity {
-                        handle: *handle,
-                        examine_entity_bits: entity_bits,
-                        entity: event.player_entity,
-                    });
-                }
-                None => match &event.target_cell_option {
-                    Some((gridmap_type, idx, idy, idz)) => {
-                        event_examine_map.send(InputExamineMap {
-                            handle: *handle,
-                            entity: event.player_entity,
-                            gridmap_type: gridmap_type.clone(),
-                            gridmap_cell_id: Vec3Int {
-                                x: *idx,
-                                y: *idy,
-                                z: *idz,
-                            },
-                        });
-                    }
-                    None => {}
-                },
-            }
-        } else if event.tab_id == "construct" {
-            if event.target_cell_option.is_some() && event.belonging_entity.is_some() {
-                event_construct.send(InputConstruct {
-                    handle: *handle,
-                    target_cell: event.target_cell_option.as_ref().unwrap().clone(),
-                    belonging_entity: event.belonging_entity.unwrap(),
-                });
-            }
-        } else if event.tab_id == "deconstruct" {
-            if (event.target_entity_option.is_some() || event.target_cell_option.is_some())
-                && event.belonging_entity.is_some()
-            {
-                event_deconstruct.send(InputDeconstruct {
-                    handle: *handle,
-                    target_cell_option: event.target_cell_option.clone(),
-                    target_entity_option: event.target_entity_option,
-                    belonging_entity: event.belonging_entity.unwrap(),
-                });
-            }
-        } else if event.tab_id == "constructionoptions" {
-            if event.belonging_entity.is_some() {
-                event_construction_options.send(InputConstructionOptions {
-                    handle: *handle,
-                    belonging_entity: event.belonging_entity.unwrap(),
-                });
-            }
-        } else if event.tab_id == "pickup" {
-            if event.target_entity_option.is_some() {
-                pickup_world_item_event.send(InputUseWorldItem {
-                    pickuper_entity: event.player_entity,
-                    pickupable_entity_bits: event.target_entity_option.unwrap(),
-                });
-            }
-        } else if event.tab_id == "airlocktoggleopen" {
-            if event.target_entity_option.is_some() {
-                air_lock_toggle_open_event.send(InputAirLockToggleOpen {
-                    opener: event.player_entity,
-                    opened: event.target_entity_option.unwrap(),
-                });
-            }
-        } else if event.tab_id == "counterwindowtoggleopen" {
-            if event.target_entity_option.is_some() {
-                counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
-                    opener: event.player_entity,
-                    opened: event.target_entity_option.unwrap(),
-                });
-            }
-        } else if event.tab_id == "counterwindowlockopen" {
-            if event.target_entity_option.is_some() {
-                counter_window_lock_open_event.send(CounterWindowLockOpen {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
-                });
-            }
-        } else if event.tab_id == "counterwindowlockclosed" {
-            if event.target_entity_option.is_some() {
-                counter_window_lock_closed_event.send(CounterWindowLockClosed {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
-                });
-            }
-        } else if event.tab_id == "airlocklockopen" {
-            if event.target_entity_option.is_some() {
-                air_lock_lock_open_event.send(AirLockLockOpen {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
-                });
-            }
-        } else if event.tab_id == "airlocklockclosed" {
-            if event.target_entity_option.is_some() {
-                air_lock_lock_closed_event.send(AirLockLockClosed {
-                    locked: Entity::from_bits(event.target_entity_option.unwrap()),
-                    locker: event.player_entity,
-                });
-            }
-        }
+        queue.queue.push(QueuedTabAction {
+            handle: *handle,
+            target_cell_option: event.target_cell_option.clone(),
+            target_entity_option: event.target_entity_option,
+            belonging_entity: event.belonging_entity,
+            tab_id: event.tab_id.clone(),
+        });
     }
 }

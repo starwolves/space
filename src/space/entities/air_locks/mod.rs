@@ -8,8 +8,10 @@ use crate::space::core::entity::functions::initialize_entity_data::initialize_en
 use crate::space::core::entity::resources::{
     EntityDataProperties, EntityDataResource, GridItemData,
 };
+use crate::space::core::tab_actions::TabActionsQueueLabels;
 use crate::space::{PostUpdateLabels, StartupLabels};
 
+use self::actions::air_locks_actions;
 use self::spawn::AirlockBundle;
 use self::{
     entity_update::air_lock_update,
@@ -17,6 +19,7 @@ use self::{
     systems::{air_lock_added, air_lock_default_map_added, air_lock_events, air_lock_tick_timers},
 };
 
+pub mod actions;
 pub mod components;
 pub mod entity_update;
 pub mod events;
@@ -42,7 +45,8 @@ impl Plugin for AirLocksPlugin {
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(air_lock_update),
             )
-            .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap));
+            .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
+            .add_system(air_locks_actions.after(TabActionsQueueLabels::TabAction));
     }
 }
 
