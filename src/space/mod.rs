@@ -19,7 +19,7 @@ use self::{
         inventory_item::InventoryItemPlugin, map::MapPlugin, networking::NetworkingPlugin,
         pawn::PawnPlugin, physics::systems::PhysicsPlugin, rigid_body::systems::RigidBodyPlugin,
         senser::SenserPlugin, sfx::SfxPlugin, tab_actions::TabActionsPlugin,
-        world_environment::WorldEnvironmentPlugin, CorePlugin,
+        world_environment::WorldEnvironmentPlugin, CorePlugin, artificial_unintelligence::ArtificialUnintelligencePlugin,
     },
     entities::{
         air_locks::AirLocksPlugin, computers::ComputersPlugin,
@@ -122,6 +122,7 @@ impl Plugin for SpacePlugin {
             .add_plugin(SenserPlugin)
             .add_plugin(JumpsuitsPlugin)
             .add_plugin(HelmetsPlugin)
-            .add_plugin(PistolL1Plugin);
+            .add_plugin(PistolL1Plugin)
+            .add_plugin(ArtificialUnintelligencePlugin);
     }
 }
