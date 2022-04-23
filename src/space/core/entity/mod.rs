@@ -2,7 +2,7 @@ use bevy_app::CoreStage::PostUpdate;
 use bevy_app::{App, Plugin};
 use bevy_core::FixedTimestep;
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
-use bevy_ecs::system::Res;
+use bevy_ecs::system::{Res, ResMut};
 use bevy_log::info;
 
 use crate::space::{PostUpdateLabels, StartupLabels};
@@ -16,6 +16,10 @@ use self::{
         send_entity_updates::send_entity_updates,
     },
 };
+
+use super::console_commands::resources::ConsoleCommands;
+use super::console_commands::ConsoleCommandsLabels;
+use super::networking::resources::ConsoleCommandVariant;
 
 pub mod components;
 pub mod events;
@@ -53,6 +57,21 @@ impl Plugin for EntityPlugin {
                     .before(StartupLabels::BuildGridmap)
                     .label(StartupLabels::InitEntities),
             )
-            .add_system(entity_console_commands);
+            .add_system(entity_console_commands)
+            .add_startup_system(
+                initialize_console_commands.before(ConsoleCommandsLabels::Finalize),
+            );
     }
+}
+
+pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
+    commands.list.push((
+        "spawn_entity".to_string(),
+        "For server administrators only. Spawn in entities in proximity.".to_string(),
+        vec![
+            ("entity_name".to_string(), ConsoleCommandVariant::String),
+            ("amount".to_string(), ConsoleCommandVariant::Int),
+            ("player_selector".to_string(), ConsoleCommandVariant::String),
+        ],
+    ));
 }
