@@ -9,8 +9,8 @@ use self::{
 
 use super::tab_actions::TabActionsQueueLabels;
 
-pub mod events;
 pub mod components;
+pub mod events;
 pub mod functions;
 pub mod resources;
 pub mod systems;

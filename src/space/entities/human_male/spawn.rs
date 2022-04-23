@@ -356,9 +356,16 @@ impl HumanMaleBundle {
                 ..Default::default()
             };
 
-            // Add default "examine" tab action.
-            pawn_component.tab_actions_add("examine", None, get_tab_action("examine").unwrap());
-            pawn_component.tab_actions_add("pickup", None, get_tab_action("pickup").unwrap());
+            pawn_component.tab_actions_add(
+                "core/pawn/examine",
+                None,
+                get_tab_action("core/pawn/examine").unwrap(),
+            );
+            pawn_component.tab_actions_add(
+                "core/inventory/pickup",
+                None,
+                get_tab_action("core/inventory/pickup").unwrap(),
+            );
 
             entity_commands.insert_bundle((
                 Senser::default(),

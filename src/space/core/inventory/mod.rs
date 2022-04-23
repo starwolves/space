@@ -2,7 +2,6 @@ use bevy_app::CoreStage::PostUpdate;
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
-use crate::space::{PostUpdateLabels, UpdateLabels};
 use self::events::inventory_actions;
 use self::{
     entity_update::inventory_update,
@@ -17,6 +16,7 @@ use self::{
         take_off_item::take_off_item, throw_item::throw_item, wear_item::wear_item,
     },
 };
+use crate::space::{PostUpdateLabels, UpdateLabels};
 
 use super::tab_actions::TabActionsQueueLabels;
 

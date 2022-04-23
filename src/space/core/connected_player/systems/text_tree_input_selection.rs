@@ -93,7 +93,7 @@ pub fn text_tree_input_selection(
             None => {}
         }
 
-        if event.menu_id == "constructiontoolco" && belonging_entity.is_some() {
+        if event.menu_id == "entities/construction_tool_admin/constructionoptionslist" && belonging_entity.is_some() {
             input_construction_options_selection.send(InputConstructionOptionsSelection {
                 handle: event.handle,
                 menu_selection: event.menu_selection.clone(),

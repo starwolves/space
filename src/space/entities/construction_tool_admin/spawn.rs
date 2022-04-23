@@ -287,21 +287,21 @@ fn spawn_entity(
             trigger_projectile_text_set: None,
             active_slot_tab_actions: vec![
                 TabAction {
-                    id: "construct".to_string(),
+                    id: "entities/construction_tool_admin/construct".to_string(),
                     text: "Construct".to_string(),
                     tab_list_priority: 50,
                     prerequisite_check: Arc::new(construct_action),
                     belonging_entity: Some(entity_id),
                 },
                 TabAction {
-                    id: "deconstruct".to_string(),
+                    id: "entities/construction_tool_admin/deconstruct".to_string(),
                     text: "Deconstruct".to_string(),
                     tab_list_priority: 49,
                     prerequisite_check: Arc::new(deconstruct_action),
                     belonging_entity: Some(entity_id),
                 },
                 TabAction {
-                    id: "constructionoptions".to_string(),
+                    id: "entities/construction_tool_admin/constructionoptions".to_string(),
                     text: "Construction Options".to_string(),
                     tab_list_priority: 48,
                     prerequisite_check: Arc::new(construction_option_action),
