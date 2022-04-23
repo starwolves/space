@@ -18,20 +18,20 @@ pub fn construction_tool_actions(
                     target_cell: queued.target_cell_option.as_ref().unwrap().clone(),
                     belonging_entity: queued.belonging_entity_option.unwrap(),
                 });
-            } else if queued.tab_id == "constructionoptions" {
-                event_construction_options.send(InputConstructionOptions {
+            }
+        } else if queued.tab_id == "constructionoptions" {
+            event_construction_options.send(InputConstructionOptions {
+                handle: queued.handle,
+                belonging_entity: queued.belonging_entity_option.unwrap(),
+            });
+        } else if queued.tab_id == "deconstruct" {
+            if queued.target_entity_option.is_some() || queued.target_cell_option.is_some() {
+                event_deconstruct.send(InputDeconstruct {
                     handle: queued.handle,
+                    target_cell_option: queued.target_cell_option.clone(),
+                    target_entity_option: queued.target_entity_option,
                     belonging_entity: queued.belonging_entity_option.unwrap(),
                 });
-            } else if queued.tab_id == "deconstruct" {
-                if queued.target_entity_option.is_some() || queued.target_cell_option.is_some() {
-                    event_deconstruct.send(InputDeconstruct {
-                        handle: queued.handle,
-                        target_cell_option: queued.target_cell_option.clone(),
-                        target_entity_option: queued.target_entity_option,
-                        belonging_entity: queued.belonging_entity_option.unwrap(),
-                    });
-                }
             }
         }
     }
