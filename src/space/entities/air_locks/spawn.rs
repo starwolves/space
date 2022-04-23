@@ -134,21 +134,21 @@ impl AirlockBundle {
             TabActions {
                 tab_actions: vec![
                     TabAction {
-                        id: "entities/air_locks/toggleopen".to_string(),
+                        id: "actions::air_locks/toggleopen".to_string(),
                         text: "Toggle Open".to_string(),
                         tab_list_priority: 100,
                         prerequisite_check: Arc::new(toggle_open_action),
                         belonging_entity: Some(entity_id),
                     },
                     TabAction {
-                        id: "entities/air_locks/lockopen".to_string(),
+                        id: "actions::air_locks/lockopen".to_string(),
                         text: "Lock Open".to_string(),
                         tab_list_priority: 99,
                         prerequisite_check: Arc::new(lock_open_action),
                         belonging_entity: Some(entity_id),
                     },
                     TabAction {
-                        id: "entities/air_locks/lockclosed".to_string(),
+                        id: "actions::air_locks/lockclosed".to_string(),
                         text: "Lock Closed".to_string(),
                         tab_list_priority: 98,
                         prerequisite_check: Arc::new(lock_closed_action),

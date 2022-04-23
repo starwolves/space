@@ -16,7 +16,7 @@ use super::components::TabAction;
 pub fn get_tab_action(id: &str) -> Option<TabAction> {
     let result;
 
-    if id == "core/pawn/examine" {
+    if id == "actions::pawn/examine" {
         result = Some(TabAction {
             id: id.to_string(),
             text: "Examine".to_string(),
@@ -24,7 +24,7 @@ pub fn get_tab_action(id: &str) -> Option<TabAction> {
             prerequisite_check: Arc::new(examine_tab_prerequisite_check),
             belonging_entity: None,
         });
-    } else if id == "core/inventory/pickup" {
+    } else if id == "actions::inventory/pickup" {
         result = Some(TabAction {
             id: id.to_string(),
             text: "Pickup".to_string(),

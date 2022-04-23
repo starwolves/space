@@ -14,7 +14,7 @@ pub fn pawn_actions(
     mut event_examine_map: EventWriter<InputExamineMap>,
 ) {
     for queued in queue.queue.iter() {
-        if queued.tab_id == "core/pawn/examine" {
+        if queued.tab_id == "actions::pawn/examine" {
             match queued.target_entity_option {
                 Some(entity_bits) => {
                     event_examine_entity.send(InputExamineEntity {

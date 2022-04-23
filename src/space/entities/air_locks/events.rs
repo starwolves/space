@@ -39,21 +39,21 @@ pub fn air_locks_actions(
     mut air_lock_lock_closed_event: EventWriter<AirLockLockClosed>,
 ) {
     for queued in queue.queue.iter() {
-        if queued.tab_id == "entities/air_locks/toggleopen" {
+        if queued.tab_id == "actions::air_locks/toggleopen" {
             if queued.target_entity_option.is_some() {
                 air_lock_toggle_open_event.send(InputAirLockToggleOpen {
                     opener: queued.player_entity,
                     opened: queued.target_entity_option.unwrap(),
                 });
             }
-        } else if queued.tab_id == "entities/air_locks/lockopen" {
+        } else if queued.tab_id == "actions::air_locks/lockopen" {
             if queued.target_entity_option.is_some() {
                 air_lock_lock_open_event.send(AirLockLockOpen {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
                 });
             }
-        } else if queued.tab_id == "entities/air_locks/lockclosed" {
+        } else if queued.tab_id == "actions::air_locks/lockclosed" {
             if queued.target_entity_option.is_some() {
                 air_lock_lock_closed_event.send(AirLockLockClosed {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
