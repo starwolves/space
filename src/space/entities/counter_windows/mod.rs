@@ -12,7 +12,7 @@ use crate::space::core::entity::resources::{
 use crate::space::core::tab_actions::TabActionsQueueLabels;
 use crate::space::{PostUpdateLabels, StartupLabels};
 
-use self::actions::counter_windows_actions;
+use self::events::counter_windows_actions;
 use self::spawn::CounterWindowBundle;
 use self::{
     entity_update::counter_window_update,
@@ -26,7 +26,6 @@ use self::{
     },
 };
 
-pub mod actions;
 pub mod components;
 pub mod entity_update;
 pub mod events;
