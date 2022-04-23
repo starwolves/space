@@ -32,7 +32,7 @@ use crate::space::{
     entities::air_locks::components::AirLock,
 };
 
-use super::functions::{lock_closed_action, lock_open_action, toggle_open_action};
+use super::functions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action};
 
 pub struct AirlockBundle;
 
@@ -152,6 +152,13 @@ impl AirlockBundle {
                         text: "Lock Closed".to_string(),
                         tab_list_priority: 98,
                         prerequisite_check: Arc::new(lock_closed_action),
+                        belonging_entity: Some(entity_id),
+                    },
+                    TabAction {
+                        id: "actions::air_locks/unlock".to_string(),
+                        text: "Unlock".to_string(),
+                        tab_list_priority: 97,
+                        prerequisite_check: Arc::new(unlock_action),
                         belonging_entity: Some(entity_id),
                     },
                 ],

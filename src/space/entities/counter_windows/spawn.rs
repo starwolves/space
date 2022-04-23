@@ -31,7 +31,7 @@ use crate::space::{
     entities::counter_windows::components::{CounterWindow, CounterWindowSensor},
 };
 
-use super::functions::{lock_closed_action, lock_open_action, toggle_open_action};
+use super::functions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action};
 
 pub struct CounterWindowBundle;
 
@@ -164,6 +164,13 @@ impl CounterWindowBundle {
                             text: "Lock Closed".to_string(),
                             tab_list_priority: 98,
                             prerequisite_check: Arc::new(lock_closed_action),
+                            belonging_entity: Some(parent),
+                        },
+                        TabAction {
+                            id: "actions::counter_windows/unlock".to_string(),
+                            text: "Unlock".to_string(),
+                            tab_list_priority: 97,
+                            prerequisite_check: Arc::new(unlock_action),
                             belonging_entity: Some(parent),
                         },
                     ],

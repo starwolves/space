@@ -43,7 +43,7 @@ use super::{
     },
     events::{
         CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowSensorCollision,
-        InputCounterWindowToggleOpen,
+        CounterWindowUnlock, InputCounterWindowToggleOpen,
     },
 };
 
@@ -72,9 +72,28 @@ pub fn counter_window_events(
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
     mut counter_window_lock_open_events: EventReader<CounterWindowLockOpen>,
     mut counter_window_lock_close_events: EventReader<CounterWindowLockClosed>,
+    mut unlock_events: EventReader<CounterWindowUnlock>,
 ) {
     let mut close_requests = vec![];
     let mut open_requests = vec![];
+
+    for event in unlock_events.iter() {
+        match counter_window_query.get_component_mut::<CounterWindow>(event.locked) {
+            Ok(mut counter_window_component) => {
+                counter_window_component.locked_status = LockedStatus::None;
+                match counter_window_component.status {
+                    CounterWindowStatus::Open => {
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
+                        });
+                    }
+                    CounterWindowStatus::Closed => {}
+                }
+            }
+            Err(_rr) => {}
+        }
+    }
 
     for event in counter_window_lock_open_events.iter() {
         match counter_window_query.get_component_mut::<CounterWindow>(event.locked) {

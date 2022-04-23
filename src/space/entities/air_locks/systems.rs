@@ -38,7 +38,9 @@ use crate::space::{
 
 use super::{
     components::LockedStatus,
-    events::{AirLockCollision, AirLockLockClosed, AirLockLockOpen, InputAirLockToggleOpen},
+    events::{
+        AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
+    },
 };
 
 pub struct AirLockOpenRequest {
@@ -69,9 +71,28 @@ pub fn air_lock_events(
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
     mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
     mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
+    mut unlock_events: EventReader<AirLockUnlock>,
 ) {
     let mut close_requests = vec![];
     let mut open_requests = vec![];
+
+    for event in unlock_events.iter() {
+        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
+            Ok(mut counter_window_component) => {
+                counter_window_component.locked_status = LockedStatus::None;
+                match counter_window_component.status {
+                    AirLockStatus::Open => {
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
+                        });
+                    }
+                    AirLockStatus::Closed => {}
+                }
+            }
+            Err(_rr) => {}
+        }
+    }
 
     for event in air_lock_lock_open_event.iter() {
         match air_lock_query.get_component_mut::<AirLock>(event.locked) {

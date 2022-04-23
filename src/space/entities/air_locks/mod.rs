@@ -11,7 +11,7 @@ use crate::space::core::entity::resources::{
 use crate::space::core::tab_actions::TabActionsQueueLabels;
 use crate::space::{PostUpdateLabels, StartupLabels};
 
-use self::events::air_locks_actions;
+use self::events::{air_locks_actions, AirLockUnlock};
 use self::spawn::AirlockBundle;
 use self::{
     entity_update::air_lock_update,
@@ -37,6 +37,7 @@ impl Plugin for AirLocksPlugin {
             .add_system(air_lock_tick_timers)
             .add_system(air_lock_default_map_added)
             .add_event::<AirLockLockClosed>()
+            .add_event::<AirLockUnlock>()
             .add_system(air_lock_events)
             .add_system_set_to_stage(
                 PostUpdate,
