@@ -383,7 +383,7 @@ impl HumanMaleBundle {
                             ..Default::default()
                         },
                         DataLink {
-                            links: vec![DataLinkType::FullAtmospherics],
+                            links: vec![DataLinkType::FullAtmospherics, DataLinkType::RemoteLock],
                         },
                         Map {
                             available_display_modes: vec![
