@@ -43,7 +43,7 @@ pub fn construction_tool_actions(
     mut event_deconstruct: EventWriter<InputDeconstruct>,
 ) {
     for queued in queue.queue.iter() {
-        if queued.tab_id == "entities/construction_tool_admin/construct" {
+        if queued.tab_id == "action::construction_tool_admin/construct" {
             if queued.target_cell_option.is_some() {
                 event_construct.send(InputConstruct {
                     handle: queued.handle,
@@ -51,12 +51,12 @@ pub fn construction_tool_actions(
                     belonging_entity: queued.belonging_entity_option.unwrap(),
                 });
             }
-        } else if queued.tab_id == "entities/construction_tool_admin/constructionoptions" {
+        } else if queued.tab_id == "action::construction_tool_admin/constructionoptions" {
             event_construction_options.send(InputConstructionOptions {
                 handle: queued.handle,
                 belonging_entity: queued.belonging_entity_option.unwrap(),
             });
-        } else if queued.tab_id == "entities/construction_tool_admin/deconstruct" {
+        } else if queued.tab_id == "action::construction_tool_admin/deconstruct" {
             if queued.target_entity_option.is_some() || queued.target_cell_option.is_some() {
                 event_deconstruct.send(InputDeconstruct {
                     handle: queued.handle,

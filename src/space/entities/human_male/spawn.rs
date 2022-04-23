@@ -357,14 +357,14 @@ impl HumanMaleBundle {
             };
 
             pawn_component.tab_actions_add(
-                "core/pawn/examine",
+                "actions::pawn/examine",
                 None,
-                get_tab_action("core/pawn/examine").unwrap(),
+                get_tab_action("actions::pawn/examine").unwrap(),
             );
             pawn_component.tab_actions_add(
-                "core/inventory/pickup",
+                "actions::inventory/pickup",
                 None,
-                get_tab_action("core/inventory/pickup").unwrap(),
+                get_tab_action("actions::inventory/pickup").unwrap(),
             );
 
             entity_commands.insert_bundle((

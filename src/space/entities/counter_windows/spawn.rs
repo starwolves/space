@@ -146,21 +146,21 @@ impl CounterWindowBundle {
                 TabActions {
                     tab_actions: vec![
                         TabAction {
-                            id: "entities/counter_windows/toggleopen".to_string(),
+                            id: "actions::counter_windows/toggleopen".to_string(),
                             text: "Toggle Open".to_string(),
                             tab_list_priority: 100,
                             prerequisite_check: Arc::new(toggle_open_action),
                             belonging_entity: Some(parent),
                         },
                         TabAction {
-                            id: "entities/counter_windows/lockopen".to_string(),
+                            id: "actions::counter_windows/lockopen".to_string(),
                             text: "Lock Open".to_string(),
                             tab_list_priority: 99,
                             prerequisite_check: Arc::new(lock_open_action),
                             belonging_entity: Some(parent),
                         },
                         TabAction {
-                            id: "entities/counter_windows/lockclosed".to_string(),
+                            id: "actions::counter_windows/lockclosed".to_string(),
                             text: "Lock Closed".to_string(),
                             tab_list_priority: 98,
                             prerequisite_check: Arc::new(lock_closed_action),

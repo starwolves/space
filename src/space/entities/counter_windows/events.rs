@@ -39,21 +39,21 @@ pub fn counter_windows_actions(
     mut counter_window_lock_closed_event: EventWriter<CounterWindowLockClosed>,
 ) {
     for queued in queue.queue.iter() {
-        if queued.tab_id == "entities/counter_windows/toggleopen" {
+        if queued.tab_id == "actions::counter_windows/toggleopen" {
             if queued.target_entity_option.is_some() {
                 counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
                     opener: queued.player_entity,
                     opened: queued.target_entity_option.unwrap(),
                 });
             }
-        } else if queued.tab_id == "entities/counter_windows/lockopen" {
+        } else if queued.tab_id == "actions::counter_windows/lockopen" {
             if queued.target_entity_option.is_some() {
                 counter_window_lock_open_event.send(CounterWindowLockOpen {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
                 });
             }
-        } else if queued.tab_id == "entities/counter_windows/lockclosed" {
+        } else if queued.tab_id == "actions::counter_windows/lockclosed" {
             if queued.target_entity_option.is_some() {
                 counter_window_lock_closed_event.send(CounterWindowLockClosed {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
