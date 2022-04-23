@@ -3,7 +3,7 @@ use bevy_ecs::system::{Commands, Query, Res, ResMut};
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::space::core::{
-    connected_player::{resources::HandleToEntity, components::ConnectedPlayer},
+    connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
     console_commands::{
         events::NetConsoleCommands, functions::rcon_spawn_held_entity::rcon_spawn_held_entity,
         resources::QueuedConsoleCommands,
@@ -29,7 +29,6 @@ pub fn inventory_item_console_commands(
     mut entity_data: ResMut<EntityDataResource>,
 ) {
     for console_command_event in queue.queue.iter() {
-
         let player_entity;
         match connected_players.get(console_command_event.entity) {
             Ok(s) => {

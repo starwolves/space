@@ -956,11 +956,11 @@ impl Plugin for GridmapPlugin {
             .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
             .add_event::<NetProjectileFOV>()
             .add_event::<RemoveCell>()
-            .add_startup_system(startup_misc_resources.label(StartupLabels::Launch))
+            .add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
             .add_startup_system(
                 startup_map_cells
                     .label(StartupLabels::InitDefaultGridmapData)
-                    .after(StartupLabels::Launch),
+                    .after(StartupLabels::MiscResources),
             )
             .init_resource::<GridmapDetails1>()
             .add_startup_system(

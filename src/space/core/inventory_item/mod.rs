@@ -1,11 +1,16 @@
 use bevy_app::CoreStage::PostUpdate;
 use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::SystemSet;
+use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
+use bevy_ecs::system::ResMut;
 
 use crate::space::PostUpdateLabels;
 
 use self::entity_update::inventory_item_update;
 use self::systems::inventory_item_console_commands;
+
+use super::console_commands::resources::ConsoleCommands;
+use super::console_commands::ConsoleCommandsLabels;
+use super::networking::resources::ConsoleCommandVariant;
 
 pub mod components;
 pub mod entity_update;
@@ -21,6 +26,19 @@ impl Plugin for InventoryItemPlugin {
                 .label(PostUpdateLabels::EntityUpdate)
                 .with_system(inventory_item_update),
         )
-        .add_system(inventory_item_console_commands);
+        .add_system(inventory_item_console_commands)
+        .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize));
     }
+}
+
+pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
+    commands.list.push((
+        "spawn_held_entity".to_string(),
+        "For server administrators only. Spawn in held entities in hands or in proximity."
+            .to_string(),
+        vec![
+            ("entity_name".to_string(), ConsoleCommandVariant::String),
+            ("player_selector".to_string(), ConsoleCommandVariant::String),
+        ],
+    ));
 }

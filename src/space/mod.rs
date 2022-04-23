@@ -34,7 +34,8 @@ pub struct SpacePlugin;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum StartupLabels {
-    Launch,
+    ConsoleCommands,
+    MiscResources,
     InitDefaultGridmapData,
     BuildGridmap,
     InitAtmospherics,

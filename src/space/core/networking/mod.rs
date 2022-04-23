@@ -71,7 +71,7 @@ use super::{
     },
     console_commands::{
         events::NetConsoleCommands,
-        resources::{InputConsoleCommand, QueuedConsoleCommands},
+        resources::{ConsoleCommands, InputConsoleCommand, QueuedConsoleCommands},
     },
     humanoid::components::Humanoid,
     map::resources::MapData,
@@ -684,6 +684,7 @@ pub fn connections(
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
     gridmap_data: Res<GridmapData>,
     map_data: Res<MapData>,
+    console_commands: Res<ConsoleCommands>,
 ) {
     for event in reader.iter() {
         match event {
@@ -719,6 +720,7 @@ pub fn connections(
                     &mut used_names,
                     &gridmap_data,
                     &map_data,
+                    &console_commands,
                 );
             }
 
