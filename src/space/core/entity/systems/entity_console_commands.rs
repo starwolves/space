@@ -39,12 +39,17 @@ pub fn entity_console_commands(
         }
 
         if player_entity.rcon == false {
-            net_console_commands.send(NetConsoleCommands {
-                handle: console_command_event.handle,
-                message: ReliableServerMessage::ConsoleWriteLine(
-                    "[color=#ff6600]RCON status denied.[/color]".to_string(),
-                ),
-            });
+            match console_command_event.handle_option {
+                Some(t) => {
+                    net_console_commands.send(NetConsoleCommands {
+                        handle: t,
+                        message: ReliableServerMessage::ConsoleWriteLine(
+                            "[color=#ff6600]RCON status denied.[/color]".to_string(),
+                        ),
+                    });
+                }
+                None => {}
+            }
             return;
         }
 
@@ -88,7 +93,7 @@ pub fn entity_console_commands(
                 spawn_amount,
                 &mut commands,
                 console_command_event.entity,
-                console_command_event.handle,
+                console_command_event.handle_option,
                 &mut rigid_body_positions,
                 &mut net_console_commands,
                 &gridmap_main,

@@ -19,13 +19,15 @@ pub fn console_commands(
     mut net_console_commands: EventWriter<NetConsoleCommands>,
 ) {
     for console_command_event in console_commands_events.queue.iter() {
-        if console_command_event.command_name == "rcon" {
+        if console_command_event.command_name == "rcon"
+            && console_command_event.handle_option.is_some()
+        {
             match &console_command_event.command_arguments[0] {
                 ConsoleCommandVariantValues::String(value) => {
                     rcon_authorization(
                         &mut rcon_bruteforce_protection,
                         &mut connected_players,
-                        console_command_event.handle,
+                        console_command_event.handle_option.unwrap(),
                         console_command_event.entity,
                         &mut net_console_commands,
                         value.to_string(),
@@ -33,10 +35,12 @@ pub fn console_commands(
                 }
                 _ => (),
             }
-        } else if console_command_event.command_name == "rcon_status" {
+        } else if console_command_event.command_name == "rcon_status"
+            && console_command_event.handle_option.is_some()
+        {
             rcon_status(
                 &mut connected_players,
-                console_command_event.handle,
+                console_command_event.handle_option.unwrap(),
                 console_command_event.entity,
                 &mut net_console_commands,
             );

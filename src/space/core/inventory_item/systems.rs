@@ -40,12 +40,18 @@ pub fn inventory_item_console_commands(
         }
 
         if player_entity.rcon == false {
-            net_console_commands.send(NetConsoleCommands {
-                handle: console_command_event.handle,
-                message: ReliableServerMessage::ConsoleWriteLine(
-                    "[color=#ff6600]RCON status denied.[/color]".to_string(),
-                ),
-            });
+            match console_command_event.handle_option {
+                Some(t) => {
+                    net_console_commands.send(NetConsoleCommands {
+                        handle: t,
+                        message: ReliableServerMessage::ConsoleWriteLine(
+                            "[color=#ff6600]RCON status denied.[/color]".to_string(),
+                        ),
+                    });
+                }
+                None => {}
+            }
+
             return;
         }
 
@@ -77,7 +83,7 @@ pub fn inventory_item_console_commands(
                 player_selector.to_string(),
                 &mut commands,
                 console_command_event.entity,
-                console_command_event.handle,
+                console_command_event.handle_option,
                 &mut net_console_commands,
                 &mut inventory_components,
                 &mut rigid_body_positions,

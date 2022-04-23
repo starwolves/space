@@ -8,7 +8,7 @@ use crate::space::core::networking::resources::{
 };
 
 pub struct InputConsoleCommand {
-    pub handle: u32,
+    pub handle_option: Option<u32>,
     pub entity: Entity,
     pub command_name: String,
     pub command_arguments: Vec<ConsoleCommandVariantValues>,

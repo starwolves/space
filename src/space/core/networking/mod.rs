@@ -373,7 +373,7 @@ pub fn messages_outgoing(
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
                             console_commands_queue.queue.push(InputConsoleCommand {
-                                handle: *handle,
+                                handle_option: Some(*handle),
                                 entity: *player_entity,
                                 command_name: command_name,
                                 command_arguments: variant_arguments,

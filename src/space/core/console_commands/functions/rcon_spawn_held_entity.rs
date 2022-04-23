@@ -26,7 +26,7 @@ pub fn rcon_spawn_held_entity(
     target_selector: String,
     mut commands: &mut Commands,
     command_executor_entity: Entity,
-    command_executor_handle: u32,
+    command_executor_handle_option: Option<u32>,
     mut net_console_commands: &mut EventWriter<NetConsoleCommands>,
     player_inventory_query: &mut Query<&mut Inventory>,
     mut rigid_body_positions: &mut Query<(&RigidBodyPositionComponent, &Pawn)>,
@@ -37,7 +37,7 @@ pub fn rcon_spawn_held_entity(
 ) {
     for target_entity in player_selector_to_entities(
         command_executor_entity,
-        command_executor_handle,
+        command_executor_handle_option,
         &target_selector,
         used_names,
         net_console_commands,
@@ -51,13 +51,19 @@ pub fn rcon_spawn_held_entity(
                 player_inventory = inventory;
             }
             Err(_rr) => {
+                match command_executor_handle_option {
+                    Some(t) => {
+                        net_console_commands.send(NetConsoleCommands {
+                            handle: t,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
+                            ),
+                        });
+                    }
+                    None => {}
+                }
                 warn!("spawn_held_entity console command couldn't find inventory component beloning to player target.");
-                net_console_commands.send(NetConsoleCommands {
-                    handle: command_executor_handle,
-                    message: ReliableServerMessage::ConsoleWriteLine(
-                        "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
-                    ),
-                });
+
                 continue;
             }
         }
@@ -69,12 +75,18 @@ pub fn rcon_spawn_held_entity(
                 player_handle = *handle;
             }
             None => {
-                net_console_commands.send(NetConsoleCommands {
-                    handle: command_executor_handle,
-                    message: ReliableServerMessage::ConsoleWriteLine(
-                        "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
-                    ),
-                });
+                match command_executor_handle_option {
+                    Some(t) => {
+                        net_console_commands.send(NetConsoleCommands {
+                            handle: t,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
+                            ),
+                        });
+                    }
+                    None => {}
+                }
+
                 warn!("spawn_held_entity console command couldn't find handle belonging to target entity.");
                 continue;
             }
@@ -122,18 +134,21 @@ pub fn rcon_spawn_held_entity(
                             ),
                         });
                     }
-                    None => {
-                        net_console_commands.send(NetConsoleCommands {
-                            handle: command_executor_handle,
-                            message: ReliableServerMessage::ConsoleWriteLine(
-                                "[color=".to_string()
-                                    + CONSOLE_ERROR_COLOR
-                                    + "]Unknown entity name \""
-                                    + &entity_name
-                                    + " \" was provided.[/color]",
-                            ),
-                        });
-                    }
+                    None => match command_executor_handle_option {
+                        Some(t) => {
+                            net_console_commands.send(NetConsoleCommands {
+                                handle: t,
+                                message: ReliableServerMessage::ConsoleWriteLine(
+                                    "[color=".to_string()
+                                        + CONSOLE_ERROR_COLOR
+                                        + "]Unknown entity name \""
+                                        + &entity_name
+                                        + " \" was provided.[/color]",
+                                ),
+                            });
+                        }
+                        None => {}
+                    },
                 }
             }
             None => {
@@ -143,7 +158,7 @@ pub fn rcon_spawn_held_entity(
                     1,
                     &mut commands,
                     command_executor_entity,
-                    command_executor_handle,
+                    command_executor_handle_option,
                     &mut rigid_body_positions,
                     &mut net_console_commands,
                     &gridmap_main,
