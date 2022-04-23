@@ -541,7 +541,7 @@ pub fn messages_outgoing(
                     Some(player_entity) => {
                         input_tab_action.send(InputTabAction {
                             tab_id,
-                            player_entity: *player_entity,
+                            action_performing_entity: *player_entity,
                             target_entity_option: entity_option,
                             target_cell_option: cell_option,
                             belonging_entity_option: belonging_entity,
