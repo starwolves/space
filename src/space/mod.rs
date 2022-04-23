@@ -122,8 +122,6 @@ impl Plugin for SpacePlugin {
             .add_plugin(SenserPlugin)
             .add_plugin(JumpsuitsPlugin)
             .add_plugin(HelmetsPlugin)
-            .add_plugin(PistolL1Plugin)
-            .add_plugin(AirLocksPlugin)
-            .add_plugin(CounterWindowsPlugin);
+            .add_plugin(PistolL1Plugin);
     }
 }
