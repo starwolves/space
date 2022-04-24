@@ -273,7 +273,7 @@ pub fn air_lock_events(
 
                     let mut air_lock_rigid_body_position = rigid_body_position_component.position;
 
-                    air_lock_rigid_body_position.translation.y -= 2.;
+                    air_lock_rigid_body_position.translation.y = 0.;
 
                     rigid_body_position_component.position = air_lock_rigid_body_position;
 
@@ -439,8 +439,7 @@ pub fn air_lock_events(
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
             let mut air_lock_rigid_body_position = air_lock_rigid_body_position_component.position;
-
-            air_lock_rigid_body_position.translation.y += 2.;
+            air_lock_rigid_body_position.translation.y = 2.;
 
             air_lock_rigid_body_position_component.position = air_lock_rigid_body_position;
 
