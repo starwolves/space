@@ -93,6 +93,8 @@ pub fn air_lock_events(
                 mut examinable_component,
             )) => {
                 air_lock_component.locked_status = LockedStatus::None;
+                air_lock_component.access_lights = AccessLightsStatus::Neutral;
+
                 match air_lock_component.status {
                     AirLockStatus::Open => {
                         close_requests.push(AirLockCloseRequest {
@@ -235,6 +237,20 @@ pub fn air_lock_events(
         _examinable_component,
     ) in air_lock_query.iter_mut()
     {
+        match air_lock_component.locked_status {
+            LockedStatus::Open => {
+                if !matches!(air_lock_component.access_lights, AccessLightsStatus::Denied) {
+                    air_lock_component.access_lights = AccessLightsStatus::Denied;
+                }
+            }
+            LockedStatus::Closed => {
+                if !matches!(air_lock_component.access_lights, AccessLightsStatus::Denied) {
+                    air_lock_component.access_lights = AccessLightsStatus::Denied;
+                }
+            }
+            LockedStatus::None => {}
+        }
+
         match timer_open_component_option {
             Some(mut timer_component) => {
                 if timer_component.timer.finished() == true {
