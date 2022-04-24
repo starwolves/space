@@ -94,6 +94,8 @@ pub fn counter_window_events(
                 mut examinable_component,
             )) => {
                 counter_window_component.locked_status = LockedStatus::None;
+                counter_window_component.access_lights = CounterWindowAccessLightsStatus::Neutral;
+
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
                         close_requests.push(AirLockCloseRequest {
@@ -241,6 +243,28 @@ pub fn counter_window_events(
         _examinable_component,
     ) in counter_window_query.iter_mut()
     {
+        match counter_window_component.locked_status {
+            LockedStatus::Open => {
+                if !matches!(
+                    counter_window_component.access_lights,
+                    CounterWindowAccessLightsStatus::Denied
+                ) {
+                    counter_window_component.access_lights =
+                        CounterWindowAccessLightsStatus::Denied;
+                }
+            }
+            LockedStatus::Closed => {
+                if !matches!(
+                    counter_window_component.access_lights,
+                    CounterWindowAccessLightsStatus::Denied
+                ) {
+                    counter_window_component.access_lights =
+                        CounterWindowAccessLightsStatus::Denied;
+                }
+            }
+            LockedStatus::None => {}
+        }
+
         match counter_window_open_timer_option {
             Some(mut timer_component) => {
                 if timer_component.timer.finished() == true {
