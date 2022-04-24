@@ -164,35 +164,46 @@ pub fn construction_tool(
             .get_component::<Sensable>(entity)
             .unwrap();
 
-        for sensed_by_entity in sensable_component.sensed_by.iter() {
-            match handle_to_entity.inv_map.get(sensed_by_entity) {
-                Some(senser_handle) => {
-                    if senser_handle != &event.handle {
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: *senser_handle,
-                            message: ReliableServerMessage::ChatMessage(
-                                public_notification.clone(),
-                            ),
-                        });
+        match event.handle_option {
+            Some(t) => {
+                for sensed_by_entity in sensable_component.sensed_by.iter() {
+                    match handle_to_entity.inv_map.get(sensed_by_entity) {
+                        Some(senser_handle) => {
+                            if senser_handle != &t {
+                                net_construction_tool.send(NetConstructionTool {
+                                    handle: *senser_handle,
+                                    message: ReliableServerMessage::ChatMessage(
+                                        public_notification.clone(),
+                                    ),
+                                });
+                            }
+                        }
+                        None => {
+                            warn!("Couldn't find handle for entity!");
+                        }
                     }
                 }
-                None => {
-                    warn!("Couldn't find handle for entity!");
-                }
             }
+            None => {}
         }
 
         // Make a generic GUI netcode call now.
-        net_construction_tool.send(NetConstructionTool {
-            handle: event.handle,
-            message: ReliableServerMessage::TextTreeSelection(
-                Some(event.belonging_entity),
-                "constructionoptions".to_string(),
-                "constructiontoolco".to_string(),
-                "Construction Options".to_string(),
-                text_tree_selection_map,
-            ),
-        });
+        match event.handle_option {
+            Some(t) => {
+                net_construction_tool.send(NetConstructionTool {
+                    handle: t,
+                    message: ReliableServerMessage::TextTreeSelection(
+                        Some(event.belonging_entity),
+                        "action::construction_tool_admin/constructionoptions".to_string(),
+                        "textselection::construction_tool_admin/constructionoptionslist"
+                            .to_string(),
+                        "Construction Options".to_string(),
+                        text_tree_selection_map,
+                    ),
+                });
+            }
+            None => {}
+        }
     }
 
     for event in input_construction_options_selection_event.iter() {
@@ -228,10 +239,15 @@ pub fn construction_tool(
             + &event.menu_selection
             + ".[/font]";
 
-        net_construction_tool.send(NetConstructionTool {
-            handle: event.handle,
-            message: ReliableServerMessage::ChatMessage(personal_update_text),
-        });
+        match event.handle_option {
+            Some(t) => {
+                net_construction_tool.send(NetConstructionTool {
+                    handle: t,
+                    message: ReliableServerMessage::ChatMessage(personal_update_text),
+                });
+            }
+            None => {}
+        }
 
         let mut pawn_name = "";
 
@@ -258,22 +274,27 @@ pub fn construction_tool(
             + pawn_name
             + " cycles the options of the construction tool.[/font]";
 
-        for sensed_by_entity in sensable_component.sensed_by.iter() {
-            match handle_to_entity.inv_map.get(sensed_by_entity) {
-                Some(senser_handle) => {
-                    if senser_handle != &event.handle {
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: *senser_handle,
-                            message: ReliableServerMessage::ChatMessage(
-                                public_notification.clone(),
-                            ),
-                        });
+        match event.handle_option {
+            Some(t) => {
+                for sensed_by_entity in sensable_component.sensed_by.iter() {
+                    match handle_to_entity.inv_map.get(sensed_by_entity) {
+                        Some(senser_handle) => {
+                            if senser_handle != &t {
+                                net_construction_tool.send(NetConstructionTool {
+                                    handle: *senser_handle,
+                                    message: ReliableServerMessage::ChatMessage(
+                                        public_notification.clone(),
+                                    ),
+                                });
+                            }
+                        }
+                        None => {
+                            warn!("Couldn't find handle for entity! (1)");
+                        }
                     }
                 }
-                None => {
-                    warn!("Couldn't find handle for entity! (1)");
-                }
             }
+            None => {}
         }
 
         let mut rng = rand::thread_rng();
@@ -404,7 +425,7 @@ pub fn construction_tool(
                         y: *cell_y,
                         z: *cell_z,
                     },
-                    handle: event.handle,
+                    handle_option: event.handle_option,
                     cell_data: cell_data_clone,
                 });
             }
@@ -441,11 +462,15 @@ pub fn construction_tool(
             + "You've deconstructed the "
             + &deconstructed_item_name
             + ".[/font]";
-
-        net_construction_tool.send(NetConstructionTool {
-            handle: event.handle,
-            message: ReliableServerMessage::ChatMessage(personal_update_text),
-        });
+        match event.handle_option {
+            Some(t) => {
+                net_construction_tool.send(NetConstructionTool {
+                    handle: t,
+                    message: ReliableServerMessage::ChatMessage(personal_update_text),
+                });
+            }
+            None => {}
+        }
 
         let pawn_name;
 
@@ -472,23 +497,27 @@ pub fn construction_tool(
             + " has deconstructed "
             + &deconstructed_item_name
             + ".[/font]";
-
-        for sensed_by_entity in sensable_component.sensed_by.iter() {
-            match handle_to_entity.inv_map.get(sensed_by_entity) {
-                Some(senser_handle) => {
-                    if senser_handle != &event.handle {
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: *senser_handle,
-                            message: ReliableServerMessage::ChatMessage(
-                                public_notification.clone(),
-                            ),
-                        });
+        match event.handle_option {
+            Some(t) => {
+                for sensed_by_entity in sensable_component.sensed_by.iter() {
+                    match handle_to_entity.inv_map.get(sensed_by_entity) {
+                        Some(senser_handle) => {
+                            if senser_handle != &t {
+                                net_construction_tool.send(NetConstructionTool {
+                                    handle: *senser_handle,
+                                    message: ReliableServerMessage::ChatMessage(
+                                        public_notification.clone(),
+                                    ),
+                                });
+                            }
+                        }
+                        None => {
+                            warn!("Couldn't find handle for entity! (1)");
+                        }
                     }
                 }
-                None => {
-                    warn!("Couldn't find handle for entity! (1)");
-                }
             }
+            None => {}
         }
     }
 
@@ -526,10 +555,15 @@ pub fn construction_tool(
                     + FURTHER_ITALIC_FONT
                     + "]"
                     + "Please select a construction option first.[/font]";
-                net_construction_tool.send(NetConstructionTool {
-                    handle: event.handle,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
+                match event.handle_option {
+                    Some(t) => {
+                        net_construction_tool.send(NetConstructionTool {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
                 continue;
             }
         }
@@ -598,10 +632,15 @@ pub fn construction_tool(
                     + FURTHER_ITALIC_FONT
                     + "]"
                     + "Construction blocked.[/font]";
-                net_construction_tool.send(NetConstructionTool {
-                    handle: event.handle,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
+                match event.handle_option {
+                    Some(t) => {
+                        net_construction_tool.send(NetConstructionTool {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
                 continue;
             }
             None => {}
@@ -619,10 +658,15 @@ pub fn construction_tool(
                         + FURTHER_ITALIC_FONT
                         + "]"
                         + "Construction blocked.[/font]";
-                    net_construction_tool.send(NetConstructionTool {
-                        handle: event.handle,
-                        message: ReliableServerMessage::ChatMessage(personal_update_text),
-                    });
+                    match event.handle_option {
+                        Some(t) => {
+                            net_construction_tool.send(NetConstructionTool {
+                                handle: t,
+                                message: ReliableServerMessage::ChatMessage(personal_update_text),
+                            });
+                        }
+                        None => {}
+                    }
                     continue;
                 }
             }
@@ -654,10 +698,15 @@ pub fn construction_tool(
                         + FURTHER_ITALIC_FONT
                         + "]"
                         + "Construction blocked.[/font]";
-                    net_construction_tool.send(NetConstructionTool {
-                        handle: event.handle,
-                        message: ReliableServerMessage::ChatMessage(personal_update_text),
-                    });
+                    match event.handle_option {
+                        Some(t) => {
+                            net_construction_tool.send(NetConstructionTool {
+                                handle: t,
+                                message: ReliableServerMessage::ChatMessage(personal_update_text),
+                            });
+                        }
+                        None => {}
+                    }
                     continue;
                 }
             }
@@ -727,10 +776,15 @@ pub fn construction_tool(
                     + "Construction blocked by "
                     + &blocker_name
                     + ".[/font]";
-                net_construction_tool.send(NetConstructionTool {
-                    handle: event.handle,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
+                match event.handle_option {
+                    Some(t) => {
+                        net_construction_tool.send(NetConstructionTool {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
                 continue;
             }
             None => {}
@@ -797,10 +851,17 @@ pub fn construction_tool(
                             + FURTHER_ITALIC_FONT
                             + "]"
                             + "Please construct a wall and not a floor here![/font]";
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: event.handle,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        match event.handle_option {
+                            Some(t) => {
+                                net_construction_tool.send(NetConstructionTool {
+                                    handle: t,
+                                    message: ReliableServerMessage::ChatMessage(
+                                        personal_update_text,
+                                    ),
+                                });
+                            }
+                            None => {}
+                        }
                         continue;
                     }
 
@@ -826,10 +887,17 @@ pub fn construction_tool(
                             + FURTHER_ITALIC_FONT
                             + "]"
                             + "Please construct a floor and not a wall here![/font]";
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: event.handle,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        match event.handle_option {
+                            Some(t) => {
+                                net_construction_tool.send(NetConstructionTool {
+                                    handle: t,
+                                    message: ReliableServerMessage::ChatMessage(
+                                        personal_update_text,
+                                    ),
+                                });
+                            }
+                            None => {}
+                        }
                         continue;
                     }
                     new_entity = None;
@@ -1001,11 +1069,15 @@ pub fn construction_tool(
             + "You've constructed a "
             + construction_selection
             + "![/font]";
-
-        net_construction_tool.send(NetConstructionTool {
-            handle: event.handle,
-            message: ReliableServerMessage::ChatMessage(personal_update_text),
-        });
+        match event.handle_option {
+            Some(t) => {
+                net_construction_tool.send(NetConstructionTool {
+                    handle: t,
+                    message: ReliableServerMessage::ChatMessage(personal_update_text),
+                });
+            }
+            None => {}
+        }
 
         let public_notification = "[font=".to_owned()
             + FURTHER_ITALIC_FONT
@@ -1015,22 +1087,27 @@ pub fn construction_tool(
             + construction_selection
             + ".[/font]";
 
-        for sensed_by_entity in sensable_component.sensed_by.iter() {
-            match handle_to_entity.inv_map.get(sensed_by_entity) {
-                Some(senser_handle) => {
-                    if senser_handle != &event.handle {
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: *senser_handle,
-                            message: ReliableServerMessage::ChatMessage(
-                                public_notification.clone(),
-                            ),
-                        });
+        match event.handle_option {
+            Some(t) => {
+                for sensed_by_entity in sensable_component.sensed_by.iter() {
+                    match handle_to_entity.inv_map.get(sensed_by_entity) {
+                        Some(senser_handle) => {
+                            if senser_handle != &t {
+                                net_construction_tool.send(NetConstructionTool {
+                                    handle: *senser_handle,
+                                    message: ReliableServerMessage::ChatMessage(
+                                        public_notification.clone(),
+                                    ),
+                                });
+                            }
+                        }
+                        None => {
+                            warn!("Couldn't find handle for entity! (1)");
+                        }
                     }
                 }
-                None => {
-                    warn!("Couldn't find handle for entity! (1)");
-                }
             }
+            None => {}
         }
 
         // Send netcode message to all clients who see this tile that it has been updated.

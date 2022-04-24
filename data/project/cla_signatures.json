@@ -1,0 +1,20 @@
+{
+  "signedContributors": [
+    {
+      "name": "docDock",
+      "id": 78674418,
+      "comment_id": 1106737309,
+      "created_at": "2022-04-22T17:56:12Z",
+      "repoId": 346784644,
+      "pullRequestNo": 3
+    },
+    {
+      "name": "starwolfy",
+      "id": 9358177,
+      "comment_id": 1106742941,
+      "created_at": "2022-04-22T18:04:31Z",
+      "repoId": 346784644,
+      "pullRequestNo": 3
+    }
+  ]
+}

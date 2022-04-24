@@ -35,7 +35,7 @@ pub fn rcon_spawn_entity(
     mut spawn_amount: i64,
     commands: &mut Commands,
     command_executor_entity: Entity,
-    command_executor_handle: u32,
+    command_executor_handle_option: Option<u32>,
     rigid_body_positions: &mut Query<(&RigidBodyPositionComponent, &Pawn)>,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
     gridmap_main: &Res<GridmapMain>,
@@ -45,17 +45,22 @@ pub fn rcon_spawn_entity(
 ) {
     if spawn_amount > 5 {
         spawn_amount = 5;
-        net_console_commands.send(NetConsoleCommands {
-            handle: command_executor_handle,
-            message: ReliableServerMessage::ConsoleWriteLine(
-                "Capped amount to 5, maniac protection.".to_string(),
-            ),
-        });
+        match command_executor_handle_option {
+            Some(t) => {
+                net_console_commands.send(NetConsoleCommands {
+                    handle: t,
+                    message: ReliableServerMessage::ConsoleWriteLine(
+                        "Capped amount to 5, maniac protection.".to_string(),
+                    ),
+                });
+            }
+            None => {}
+        }
     }
 
     for target_entity in player_selector_to_entities(
         command_executor_entity,
-        command_executor_handle,
+        command_executor_handle_option,
         &target_selector,
         used_names,
         net_console_commands,
@@ -85,12 +90,18 @@ pub fn rcon_spawn_entity(
                 warn!(
                     "spawn_entity console command couldn't find handle belonging to target entity."
                 );
-                net_console_commands.send(NetConsoleCommands {
-                    handle: command_executor_handle,
-                    message: ReliableServerMessage::ConsoleWriteLine(
-                        "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
-                    ),
-                });
+                match command_executor_handle_option {
+                    Some(t) => {
+                        net_console_commands.send(NetConsoleCommands {
+                            handle: t,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
+                            ),
+                        });
+                    }
+                    None => {}
+                }
+
                 continue;
             }
         }
@@ -145,18 +156,21 @@ pub fn rcon_spawn_entity(
         if spawn_amount > 0 {
             match final_result {
                 Some(_) => {}
-                None => {
-                    net_console_commands.send(NetConsoleCommands {
-                        handle: command_executor_handle,
-                        message: ReliableServerMessage::ConsoleWriteLine(
-                            "[color=".to_string()
-                                + CONSOLE_ERROR_COLOR
-                                + "]Unknown entity name \""
-                                + &entity_name
-                                + " \" was provided.[/color]",
-                        ),
-                    });
-                }
+                None => match command_executor_handle_option {
+                    Some(t) => {
+                        net_console_commands.send(NetConsoleCommands {
+                            handle: t,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=".to_string()
+                                    + CONSOLE_ERROR_COLOR
+                                    + "]Unknown entity name \""
+                                    + &entity_name
+                                    + " \" was provided.[/color]",
+                            ),
+                        });
+                    }
+                    None => {}
+                },
             }
         }
 

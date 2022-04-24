@@ -9,6 +9,7 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::{
     core::{
         connected_player::events::TextTreeInputSelection,
+        data_link::components::DataLink,
         entity::{components::EntityData, resources::EntityDataResource},
         inventory::components::Inventory,
         inventory_item::components::InventoryItem,
@@ -22,7 +23,7 @@ pub fn text_tree_input_selection(
 
     mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,
 
-    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
+    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory, &DataLink)>,
     inventory_items: Query<(&RigidBodyPositionComponent, &InventoryItem)>,
 
     entity_data_resource: Res<EntityDataResource>,
@@ -45,6 +46,7 @@ pub fn text_tree_input_selection(
                                 pawn_component,
                                 rigid_body_position_component,
                                 inventory_component,
+                                data_link_component,
                             )) => match pawn_component.tab_actions_data.layout.get(&Some(entity)) {
                                 Some(layout) => match layout.get(&event.tab_action_id) {
                                     Some(index) => {
@@ -69,6 +71,7 @@ pub fn text_tree_input_selection(
                                             inventory_component,
                                             &entity_data_resource,
                                             &entity_datas,
+                                            &data_link_component,
                                         ) {
                                             true => {
                                                 belonging_entity = Some(entity);
@@ -90,9 +93,11 @@ pub fn text_tree_input_selection(
             None => {}
         }
 
-        if event.menu_id == "constructiontoolco" && belonging_entity.is_some() {
+        if event.menu_id == "textselection::construction_tool_admin/constructionoptionslist"
+            && belonging_entity.is_some()
+        {
             input_construction_options_selection.send(InputConstructionOptionsSelection {
-                handle: event.handle,
+                handle_option: Some(event.handle),
                 menu_selection: event.menu_selection.clone(),
                 entity: belonging_entity.unwrap(),
             });

@@ -9,7 +9,7 @@ use crate::space::{
         gridmap::{functions::gridmap_functions::cell_id_to_world, resources::Vec3Int},
         pawn::components::PersistentPlayerData,
     },
-    entities::human_male_pawn::spawn::HumanMalePawnBundle,
+    entities::human_male::spawn::HumanMaleBundle,
 };
 
 //to spawn an ai add this to the space plugin in space/mod.rs
@@ -24,7 +24,7 @@ pub fn spawn_ai(mut commands: Commands, entity_data: ResMut<EntityDataResource>)
         ("holster".to_string(), "pistolL1".to_string()),
         ("left_hand".to_string(), "constructionTool".to_string()),
     ];
-    HumanMalePawnBundle::spawn(
+    HumanMaleBundle::spawn(
         Transform::from_translation(cell_id_to_world(Vec3Int { x: 0, y: -1, z: 0 })),
         &mut commands,
         true,

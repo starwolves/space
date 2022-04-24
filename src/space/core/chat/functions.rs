@@ -17,7 +17,7 @@ use crate::space::{
         connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
         entity::events::NetSendEntityUpdates,
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
-        pawn::components::{PersistentPlayerData, Radio, RadioChannel, SpaceJobsEnum},
+        pawn::components::{PersistentPlayerData, SpaceJobsEnum},
     },
     entities::sfx::chat::{
         play_sound_proximity_message::PlaySoundProximityMessage,
@@ -25,7 +25,10 @@ use crate::space::{
     },
 };
 
-use super::events::NetChatMessage;
+use super::{
+    components::{Radio, RadioChannel},
+    events::NetChatMessage,
+};
 
 const BILLBOARD_SHOUT_FONT: &str =
     "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
@@ -87,6 +90,8 @@ pub const ASTRIX: &str = "[color=#bdbdbd]*******[/color]";
 
 pub const HEALTHY_COLOR: &str = "#3cff00";
 pub const UNHEALTHY_COLOR: &str = "#ff003c";
+pub const GOLD_COLOR: &str = "#ffea00";
+pub const WARNING_COLOR: &str = "#ffa600";
 
 const TALK_STYLE_STANDARD_STANDARD: &str = "says";
 const TALK_STYLE_STANDARD_EXCLAIMS: &str = "exclaims";

@@ -1,6 +1,7 @@
 pub mod entity_update_change_detection;
 pub mod entity_updates_personalise;
 pub mod get_entity_update_difference;
+pub mod initialize_entity_data;
 pub mod isometry_to_transform;
 pub mod load_entity_for_player;
 pub mod load_raw_map_entities;

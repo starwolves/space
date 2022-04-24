@@ -8,7 +8,7 @@ use crate::space::core::{
 
 pub fn player_selector_to_entities(
     command_executor_entity: Entity,
-    command_executor_handle: u32,
+    command_executor_handle_option: Option<u32>,
     player_selector_input: &str,
     used_names: &mut ResMut<UsedNames>,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
@@ -75,10 +75,15 @@ pub fn player_selector_to_entities(
 
             conflicting_message = conflicting_message + "[/color]";
 
-            net_console_commands.send(NetConsoleCommands {
-                handle: command_executor_handle,
-                message: ReliableServerMessage::ConsoleWriteLine(conflicting_message),
-            });
+            match command_executor_handle_option {
+                Some(t) => {
+                    net_console_commands.send(NetConsoleCommands {
+                        handle: t,
+                        message: ReliableServerMessage::ConsoleWriteLine(conflicting_message),
+                    });
+                }
+                None => {}
+            }
         }
     }
 
