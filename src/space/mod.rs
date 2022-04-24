@@ -11,15 +11,15 @@ use bevy_transform::TransformPlugin;
 
 use self::{
     core::{
-        asana::AsanaPlugin, atmospherics::AtmosphericsPlugin, chat::ChatPlugin,
-        combat::CombatPlugin, configuration::ConfigurationPlugin,
-        connected_player::ConnectedPlayerPlugin, console_commands::ConsoleCommandsPlugin,
-        entity::EntityPlugin, gridmap::GridmapPlugin, health::HealthPlugin,
-        humanoid::systems::HumanoidPlugin, inventory::InventoryPlugin,
+        artificial_unintelligence::ArtificialUnintelligencePlugin, asana::AsanaPlugin,
+        atmospherics::AtmosphericsPlugin, chat::ChatPlugin, combat::CombatPlugin,
+        configuration::ConfigurationPlugin, connected_player::ConnectedPlayerPlugin,
+        console_commands::ConsoleCommandsPlugin, entity::EntityPlugin, gridmap::GridmapPlugin,
+        health::HealthPlugin, humanoid::systems::HumanoidPlugin, inventory::InventoryPlugin,
         inventory_item::InventoryItemPlugin, map::MapPlugin, networking::NetworkingPlugin,
         pawn::PawnPlugin, physics::systems::PhysicsPlugin, rigid_body::systems::RigidBodyPlugin,
         senser::SenserPlugin, sfx::SfxPlugin, tab_actions::TabActionsPlugin,
-        world_environment::WorldEnvironmentPlugin, CorePlugin, artificial_unintelligence::ArtificialUnintelligencePlugin,
+        world_environment::WorldEnvironmentPlugin, CorePlugin,
     },
     entities::{
         air_locks::AirLocksPlugin, computers::ComputersPlugin,

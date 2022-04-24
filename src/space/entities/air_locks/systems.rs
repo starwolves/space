@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use bevy_app::EventReader;
+use bevy_app::{EventReader, EventWriter};
 use bevy_core::{Time, Timer};
 use bevy_ecs::{
     entity::Entity,
@@ -12,7 +12,7 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::{
     core::{
         atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
-        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR, WARNING_COLOR},
         entity::components::{DefaultMapEntity, EntityData, EntityGroup},
         examinable::components::{Examinable, RichName},
         gridmap::{
@@ -20,6 +20,7 @@ use crate::space::{
             resources::{EntityGridData, GridmapMain, Vec2Int},
         },
         map::resources::{MapData, GREEN_MAP_TILE_ENTRANCE},
+        networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, SpaceAccess},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
@@ -39,7 +40,8 @@ use crate::space::{
 use super::{
     components::LockedStatus,
     events::{
-        AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
+        AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock,
+        InputAirLockToggleOpen, NetAirLock,
     },
 };
 
@@ -64,6 +66,7 @@ pub fn air_lock_events(
         Option<&mut AirLockDeniedTimer>,
         Option<&mut AirLockClosedTimer>,
         Entity,
+        &mut Examinable,
     )>,
     pawn_query: Query<(&Pawn, &SpaceAccess)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
@@ -72,15 +75,25 @@ pub fn air_lock_events(
     mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
     mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
     mut unlock_events: EventReader<AirLockUnlock>,
+    mut net_airlocks: EventWriter<NetAirLock>,
 ) {
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 
     for event in unlock_events.iter() {
-        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
-            Ok(mut counter_window_component) => {
-                counter_window_component.locked_status = LockedStatus::None;
-                match counter_window_component.status {
+        match air_lock_query.get_mut(event.locked) {
+            Ok((
+                mut air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+                mut examinable_component,
+            )) => {
+                air_lock_component.locked_status = LockedStatus::None;
+                match air_lock_component.status {
                     AirLockStatus::Open => {
                         close_requests.push(AirLockCloseRequest {
                             interacter_option: None,
@@ -89,15 +102,56 @@ pub fn air_lock_events(
                     }
                     AirLockStatus::Closed => {}
                 }
+
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've unlocked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_airlocks.send(NetAirLock {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
+                examinable_component.assigned_texts.remove(&11);
             }
             Err(_rr) => {}
         }
     }
 
     for event in air_lock_lock_open_event.iter() {
-        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
-            Ok(mut air_lock_component) => {
+        match air_lock_query.get_mut(event.locked) {
+            Ok((
+                mut air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+                mut examinable_component,
+            )) => {
                 air_lock_component.locked_status = LockedStatus::Open;
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've opened and locked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_airlocks.send(NetAirLock {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
                 match air_lock_component.status {
                     AirLockStatus::Open => {}
                     AirLockStatus::Closed => {
@@ -107,14 +161,46 @@ pub fn air_lock_events(
                         });
                     }
                 }
+                examinable_component.assigned_texts.insert(
+                    11,
+                    "[font=".to_string()
+                        + FURTHER_ITALIC_FONT
+                        + "][color="
+                        + WARNING_COLOR
+                        + "]It is locked open.[/color][/font]",
+                );
             }
             Err(_rr) => {}
         }
     }
     for event in air_lock_lock_close_event.iter() {
-        match air_lock_query.get_component_mut::<AirLock>(event.locked) {
-            Ok(mut air_lock_component) => {
+        match air_lock_query.get_mut(event.locked) {
+            Ok((
+                mut air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+                mut examinable_component,
+            )) => {
                 air_lock_component.locked_status = LockedStatus::Closed;
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've closed and locked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_airlocks.send(NetAirLock {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
                 match air_lock_component.status {
                     AirLockStatus::Open => {
                         close_requests.push(AirLockCloseRequest {
@@ -124,6 +210,15 @@ pub fn air_lock_events(
                     }
                     AirLockStatus::Closed => {}
                 }
+
+                examinable_component.assigned_texts.insert(
+                    11,
+                    "[font=".to_string()
+                        + FURTHER_ITALIC_FONT
+                        + "][color="
+                        + WARNING_COLOR
+                        + "]It is locked shut.[/color][/font]",
+                );
             }
             Err(_rr) => {}
         }
@@ -137,6 +232,7 @@ pub fn air_lock_events(
         timer_denied_component_option,
         timer_closed_component_option,
         air_lock_entity,
+        _examinable_component,
     ) in air_lock_query.iter_mut()
     {
         match timer_open_component_option {
@@ -202,6 +298,7 @@ pub fn air_lock_events(
                 _timer_denied_component_option,
                 _timer_closed_component_option,
                 _air_lock_entity,
+                _examinable_component,
             )) => match air_lock_component.status {
                 AirLockStatus::Open => {
                     close_requests.push(AirLockCloseRequest {
@@ -369,6 +466,7 @@ pub fn air_lock_events(
                 _timer_denied_component_option,
                 _timer_closed_component_option,
                 air_lock_entity,
+                _examinable_component,
             )) => {
                 match air_lock_component.locked_status {
                     LockedStatus::Open => {
