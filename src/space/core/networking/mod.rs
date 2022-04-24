@@ -30,6 +30,7 @@ use crate::space::{
             resources::{AuthidI, UsedNames},
         },
     },
+    entities::{air_locks::events::NetAirLock, counter_windows::events::NetCounterWindow},
     PostUpdateLabels, PreUpdateLabels, StartupLabels,
 };
 use crate::space::{
@@ -779,6 +780,8 @@ pub fn net_send_message_event(
     tuple2: (
         EventReader<NetMapHoverAtmospherics>,
         EventReader<NetAtmosphericsNotices>,
+        EventReader<NetAirLock>,
+        EventReader<NetCounterWindow>,
     ),
     connected_players: Query<&ConnectedPlayer>,
 ) {
@@ -819,7 +822,12 @@ pub fn net_send_message_event(
         mut net_display_atmospherics,
     ) = tuple1;
 
-    let (mut net_map_hover_atmospherics, mut net_atmospherics_notices) = tuple2;
+    let (
+        mut net_map_hover_atmospherics,
+        mut net_atmospherics_notices,
+        mut net_airlocks,
+        mut net_counterwindows,
+    ) = tuple2;
 
     let mut not_connected_handles = vec![];
 
@@ -1377,6 +1385,47 @@ pub fn net_send_message_event(
             },
             Err(err) => {
                 warn!("net_send_message_event.rs was unable to send net_request_display_modes message (1): {:?}", err);
+            }
+        };
+    }
+
+    for new_event in net_airlocks.iter() {
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => {
+                match msg {
+                    Some(msg) => {
+                        warn!("net_send_message_event.rs was unable to send net_airlocks message: {:?}", msg);
+                    }
+                    None => {}
+                }
+            }
+            Err(err) => {
+                warn!(
+                    "net_send_message_event.rs was unable to send net_airlocks message (1): {:?}",
+                    err
+                );
+            }
+        };
+    }
+
+    for new_event in net_counterwindows.iter() {
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_counterwindows message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_counterwindows message (1): {:?}", err);
             }
         };
     }

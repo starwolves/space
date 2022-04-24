@@ -90,6 +90,9 @@ pub const ASTRIX: &str = "[color=#bdbdbd]*******[/color]";
 
 pub const HEALTHY_COLOR: &str = "#3cff00";
 pub const UNHEALTHY_COLOR: &str = "#ff003c";
+pub const GOLD_COLOR: &str = "#ffea00";
+pub const WARNING_COLOR: &str = "#ffa600";
+
 
 const TALK_STYLE_STANDARD_STANDARD: &str = "says";
 const TALK_STYLE_STANDARD_EXCLAIMS: &str = "exclaims";

@@ -1,6 +1,8 @@
 use bevy_ecs::entity::Entity;
 
-use crate::space::core::entity::components::EntityGroup;
+use crate::space::core::{
+    entity::components::EntityGroup, networking::resources::ReliableServerMessage,
+};
 
 pub struct AirLockCollision {
     pub collider1_entity: Entity,
@@ -13,21 +15,33 @@ pub struct AirLockCollision {
 }
 
 pub struct InputAirLockToggleOpen {
+    pub handle_option: Option<u32>,
+
     pub opener: Entity,
     pub opened: u64,
 }
 
 pub struct AirLockLockOpen {
+    pub handle_option: Option<u32>,
+
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct AirLockLockClosed {
+    pub handle_option: Option<u32>,
+
     pub locked: Entity,
     pub locker: Entity,
 }
 
+pub struct NetAirLock {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
+}
+
 pub struct AirLockUnlock {
+    pub handle_option: Option<u32>,
     pub locked: Entity,
     pub locker: Entity,
 }
@@ -50,6 +64,7 @@ pub fn air_locks_actions(
                 air_lock_toggle_open_event.send(InputAirLockToggleOpen {
                     opener: queued.player_entity,
                     opened: queued.target_entity_option.unwrap(),
+                    handle_option: queued.handle_option,
                 });
             }
         } else if queued.tab_id == "actions::air_locks/lockopen" {
@@ -57,6 +72,7 @@ pub fn air_locks_actions(
                 air_lock_lock_open_event.send(AirLockLockOpen {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
+                    handle_option: queued.handle_option,
                 });
             }
         } else if queued.tab_id == "actions::air_locks/lockclosed" {
@@ -64,6 +80,7 @@ pub fn air_locks_actions(
                 air_lock_lock_closed_event.send(AirLockLockClosed {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
+                    handle_option: queued.handle_option,
                 });
             }
         } else if queued.tab_id == "actions::air_locks/unlock" {
@@ -71,6 +88,7 @@ pub fn air_locks_actions(
                 air_lock_unlock_event.send(AirLockUnlock {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
+                    handle_option: queued.handle_option,
                 });
             }
         }

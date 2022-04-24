@@ -1,6 +1,8 @@
 use bevy_ecs::entity::Entity;
 
-use crate::space::core::entity::components::EntityGroup;
+use crate::space::core::{
+    entity::components::EntityGroup, networking::resources::ReliableServerMessage,
+};
 
 pub struct CounterWindowSensorCollision {
     pub collider1_entity: Entity,
@@ -13,22 +15,35 @@ pub struct CounterWindowSensorCollision {
 }
 
 pub struct InputCounterWindowToggleOpen {
+    pub handle_option: Option<u32>,
+
     pub opener: Entity,
     pub opened: u64,
 }
 pub struct CounterWindowLockOpen {
+    pub handle_option: Option<u32>,
+
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct CounterWindowLockClosed {
+    pub handle_option: Option<u32>,
+
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct CounterWindowUnlock {
+    pub handle_option: Option<u32>,
+
     pub locked: Entity,
     pub locker: Entity,
+}
+
+pub struct NetCounterWindow {
+    pub handle: u32,
+    pub message: ReliableServerMessage,
 }
 
 use bevy_app::EventWriter;
@@ -50,6 +65,7 @@ pub fn counter_windows_actions(
                 counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
                     opener: queued.player_entity,
                     opened: queued.target_entity_option.unwrap(),
+                    handle_option: queued.handle_option,
                 });
             }
         } else if queued.tab_id == "actions::counter_windows/lockopen" {
@@ -57,6 +73,7 @@ pub fn counter_windows_actions(
                 counter_window_lock_open_event.send(CounterWindowLockOpen {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
+                    handle_option: queued.handle_option,
                 });
             }
         } else if queued.tab_id == "actions::counter_windows/lockclosed" {
@@ -64,6 +81,7 @@ pub fn counter_windows_actions(
                 counter_window_lock_closed_event.send(CounterWindowLockClosed {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
+                    handle_option: queued.handle_option,
                 });
             }
         } else if queued.tab_id == "actions::counter_windows/unlock" {
@@ -71,6 +89,7 @@ pub fn counter_windows_actions(
                 counter_window_unlock_event.send(CounterWindowUnlock {
                     locked: Entity::from_bits(queued.target_entity_option.unwrap()),
                     locker: queued.player_entity,
+                    handle_option: queued.handle_option,
                 });
             }
         }

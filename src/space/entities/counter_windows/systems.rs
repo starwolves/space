@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use bevy_app::EventReader;
+use bevy_app::{EventReader, EventWriter};
 use bevy_core::{Time, Timer};
 use bevy_ecs::{
     entity::Entity,
@@ -14,7 +14,7 @@ use bevy_transform::components::Children;
 use crate::space::{
     core::{
         atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
-        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR, WARNING_COLOR},
         entity::components::{DefaultMapEntity, EntityData, EntityGroup},
         examinable::components::{Examinable, RichName},
         gridmap::{
@@ -22,6 +22,7 @@ use crate::space::{
             resources::{EntityGridData, GridmapMain, Vec2Int},
         },
         map::resources::{MapData, GREEN_MAP_TILE_COUNTER},
+        networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, SpaceAccess},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
@@ -43,7 +44,7 @@ use super::{
     },
     events::{
         CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowSensorCollision,
-        CounterWindowUnlock, InputCounterWindowToggleOpen,
+        CounterWindowUnlock, InputCounterWindowToggleOpen, NetCounterWindow,
     },
 };
 
@@ -64,6 +65,7 @@ pub fn counter_window_events(
         Option<&mut CounterWindowClosedTimer>,
         Entity,
         &Children,
+        &mut Examinable,
     )>,
     counter_window_sensor_query: Query<&CounterWindowSensor>,
     pawn_query: Query<(&Pawn, &SpaceAccess)>,
@@ -73,13 +75,24 @@ pub fn counter_window_events(
     mut counter_window_lock_open_events: EventReader<CounterWindowLockOpen>,
     mut counter_window_lock_close_events: EventReader<CounterWindowLockClosed>,
     mut unlock_events: EventReader<CounterWindowUnlock>,
+    mut net_counterwindows: EventWriter<NetCounterWindow>,
 ) {
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 
     for event in unlock_events.iter() {
-        match counter_window_query.get_component_mut::<CounterWindow>(event.locked) {
-            Ok(mut counter_window_component) => {
+        match counter_window_query.get_mut(event.locked) {
+            Ok((
+                mut counter_window_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _counter_window_open_timer_option,
+                _counter_window_denied_timer_option,
+                _counter_window_closed_timer_option,
+                _counter_window_entity,
+                _children_component,
+                mut examinable_component,
+            )) => {
                 counter_window_component.locked_status = LockedStatus::None;
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
@@ -90,14 +103,42 @@ pub fn counter_window_events(
                     }
                     CounterWindowStatus::Closed => {}
                 }
+
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've unlocked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_counterwindows.send(NetCounterWindow {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
+
+                examinable_component.assigned_texts.remove(&11);
             }
             Err(_rr) => {}
         }
     }
 
     for event in counter_window_lock_open_events.iter() {
-        match counter_window_query.get_component_mut::<CounterWindow>(event.locked) {
-            Ok(mut counter_window_component) => {
+        match counter_window_query.get_mut(event.locked) {
+            Ok((
+                mut counter_window_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _counter_window_open_timer_option,
+                _counter_window_denied_timer_option,
+                _counter_window_closed_timer_option,
+                _counter_window_entity,
+                _children_component,
+                mut examinable_component,
+            )) => {
                 counter_window_component.locked_status = LockedStatus::Open;
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {}
@@ -108,13 +149,47 @@ pub fn counter_window_events(
                         });
                     }
                 }
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've opened and locked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_counterwindows.send(NetCounterWindow {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
+
+                examinable_component.assigned_texts.insert(
+                    11,
+                    "[font=".to_string()
+                        + FURTHER_ITALIC_FONT
+                        + "][color="
+                        + WARNING_COLOR
+                        + "]It is locked open.[/color][/font]",
+                );
             }
             Err(_rr) => {}
         }
     }
     for event in counter_window_lock_close_events.iter() {
-        match counter_window_query.get_component_mut::<CounterWindow>(event.locked) {
-            Ok(mut counter_window_component) => {
+        match counter_window_query.get_mut(event.locked) {
+            Ok((
+                mut counter_window_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _counter_window_open_timer_option,
+                _counter_window_denied_timer_option,
+                _counter_window_closed_timer_option,
+                _counter_window_entity,
+                _children_component,
+                mut examinable_component,
+            )) => {
                 counter_window_component.locked_status = LockedStatus::Closed;
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
@@ -125,6 +200,30 @@ pub fn counter_window_events(
                     }
                     CounterWindowStatus::Closed => {}
                 }
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've closed and locked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_counterwindows.send(NetCounterWindow {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
+
+                examinable_component.assigned_texts.insert(
+                    11,
+                    "[font=".to_string()
+                        + FURTHER_ITALIC_FONT
+                        + "][color="
+                        + WARNING_COLOR
+                        + "]It is locked shut.[/color][/font]",
+                );
             }
             Err(_rr) => {}
         }
@@ -139,6 +238,7 @@ pub fn counter_window_events(
         counter_window_closed_timer_option,
         counter_window_entity,
         _children_component,
+        _examinable_component,
     ) in counter_window_query.iter_mut()
     {
         match counter_window_open_timer_option {
@@ -250,6 +350,7 @@ pub fn counter_window_events(
                 _counter_window_closed_timer_option,
                 _counter_window_entity,
                 _children_component,
+                _examinable_component,
             )) => {
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
@@ -441,6 +542,7 @@ pub fn counter_window_events(
                 _counter_window_closed_timer_option,
                 counter_window_entity,
                 _children_component,
+                _examinable_component,
             )) => {
                 match counter_window_component.locked_status {
                     LockedStatus::Open => {
