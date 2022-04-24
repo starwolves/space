@@ -289,7 +289,7 @@ pub fn counter_window_events(
                     let mut counter_window_rigid_body_position =
                         rigid_body_position_component.position;
 
-                    counter_window_rigid_body_position.translation.y -= 2.;
+                    counter_window_rigid_body_position.translation.y = 0.943;
 
                     rigid_body_position_component.position = counter_window_rigid_body_position;
 
@@ -530,7 +530,7 @@ pub fn counter_window_events(
             let mut counter_window_rigid_body_position =
                 counter_window_rigid_body_position_component.position;
 
-            counter_window_rigid_body_position.translation.y += 2.;
+            counter_window_rigid_body_position.translation.y = 2.943;
 
             counter_window_rigid_body_position_component.position =
                 counter_window_rigid_body_position;
