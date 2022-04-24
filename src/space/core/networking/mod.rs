@@ -2,29 +2,36 @@ pub mod resources;
 
 use std::net::SocketAddr;
 
-use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::{Commands, Query, Res, ResMut};
+use bevy_app::{App, EventReader, EventWriter, Plugin};
+use bevy_ecs::{
+    schedule::ParallelSystemDescriptorCoercion,
+    system::{Commands, Query, Res, ResMut},
+};
 use bevy_log::{info, warn};
 use bevy_networking_turbulence::{ConnectionChannelsBuilder, NetworkEvent, NetworkResource};
 
-use crate::space::core::{
-    configuration::resources::{ServerId, TickRate},
-    gridmap::resources::{GridmapData, Vec3Int},
-    health::resources::ClientHealthUICache,
-    inventory::events::{
-        InputDropCurrentItem, InputSwitchHands, InputTakeOffItem, InputThrowItem,
-        InputUseWorldItem, InputWearItem,
+use crate::space::{
+    core::{
+        configuration::resources::{ServerId, TickRate},
+        gridmap::resources::{GridmapData, Vec3Int},
+        health::resources::ClientHealthUICache,
+        inventory::events::{
+            InputDropCurrentItem, InputSwitchHands, InputTakeOffItem, InputThrowItem,
+            InputUseWorldItem, InputWearItem,
+        },
+        map::events::{InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes, MapInput},
+        networking::resources::{
+            ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage,
+            UnreliableServerMessage, CLIENT_MESSAGE_RELIABLE, CLIENT_MESSAGE_UNRELIABLE,
+            SERVER_MESSAGE_RELIABLE, SERVER_MESSAGE_UNRELIABLE, SERVER_PORT,
+        },
+        pawn::{
+            components::{ControllerInput, PersistentPlayerData},
+            resources::{AuthidI, UsedNames},
+        },
     },
-    map::events::{InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes, MapInput},
-    networking::resources::{
-        ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage,
-        UnreliableServerMessage, CLIENT_MESSAGE_RELIABLE, CLIENT_MESSAGE_UNRELIABLE,
-        SERVER_MESSAGE_RELIABLE, SERVER_MESSAGE_UNRELIABLE, SERVER_PORT,
-    },
-    pawn::{
-        components::{ControllerInput, PersistentPlayerData},
-        resources::{AuthidI, UsedNames},
-    },
+    entities::{air_locks::events::NetAirLock, counter_windows::events::NetCounterWindow},
+    PostUpdateLabels, PreUpdateLabels, StartupLabels,
 };
 use crate::space::{
     core::{
@@ -63,7 +70,10 @@ use super::{
         },
         resources::HandleToEntity,
     },
-    console_commands::events::{InputConsoleCommand, NetConsoleCommands},
+    console_commands::{
+        events::NetConsoleCommands,
+        resources::{ConsoleCommands, InputConsoleCommand, QueuedConsoleCommands},
+    },
     humanoid::components::Humanoid,
     map::resources::MapData,
     tab_actions::events::InputTabAction,
@@ -114,7 +124,6 @@ pub fn messages_outgoing(
     ),
 
     tuple1: (
-        EventWriter<InputConsoleCommand>,
         EventWriter<InputToggleCombatMode>,
         EventWriter<InputMouseDirectionUpdate>,
         EventWriter<InputMouseAction>,
@@ -137,6 +146,8 @@ pub fn messages_outgoing(
         EventWriter<InputMap>,
     ),
 
+    mut console_commands_queue: ResMut<QueuedConsoleCommands>,
+
     handle_to_entity: Res<HandleToEntity>,
 ) {
     let (
@@ -158,7 +169,6 @@ pub fn messages_outgoing(
     ) = tuple0;
 
     let (
-        mut console_command,
         mut input_toggle_combat_mode,
         mut mouse_direction_update,
         mut input_mouse_action,
@@ -363,8 +373,8 @@ pub fn messages_outgoing(
                 ReliableClientMessage::ConsoleCommand(command_name, variant_arguments) => {
                     match handle_to_entity.map.get(handle) {
                         Some(player_entity) => {
-                            console_command.send(InputConsoleCommand {
-                                handle: *handle,
+                            console_commands_queue.queue.push(InputConsoleCommand {
+                                handle_option: Some(*handle),
                                 entity: *player_entity,
                                 command_name: command_name,
                                 command_arguments: variant_arguments,
@@ -532,10 +542,10 @@ pub fn messages_outgoing(
                     Some(player_entity) => {
                         input_tab_action.send(InputTabAction {
                             tab_id,
-                            player_entity: *player_entity,
+                            action_performing_entity: *player_entity,
                             target_entity_option: entity_option,
                             target_cell_option: cell_option,
-                            belonging_entity,
+                            belonging_entity_option: belonging_entity,
                         });
                     }
                     None => {
@@ -675,6 +685,7 @@ pub fn connections(
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
     gridmap_data: Res<GridmapData>,
     map_data: Res<MapData>,
+    console_commands: Res<ConsoleCommands>,
 ) {
     for event in reader.iter() {
         match event {
@@ -710,6 +721,7 @@ pub fn connections(
                     &mut used_names,
                     &gridmap_data,
                     &map_data,
+                    &console_commands,
                 );
             }
 
@@ -768,6 +780,8 @@ pub fn net_send_message_event(
     tuple2: (
         EventReader<NetMapHoverAtmospherics>,
         EventReader<NetAtmosphericsNotices>,
+        EventReader<NetAirLock>,
+        EventReader<NetCounterWindow>,
     ),
     connected_players: Query<&ConnectedPlayer>,
 ) {
@@ -808,7 +822,12 @@ pub fn net_send_message_event(
         mut net_display_atmospherics,
     ) = tuple1;
 
-    let (mut net_map_hover_atmospherics, mut net_atmospherics_notices) = tuple2;
+    let (
+        mut net_map_hover_atmospherics,
+        mut net_atmospherics_notices,
+        mut net_airlocks,
+        mut net_counterwindows,
+    ) = tuple2;
 
     let mut not_connected_handles = vec![];
 
@@ -1370,6 +1389,47 @@ pub fn net_send_message_event(
         };
     }
 
+    for new_event in net_airlocks.iter() {
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => {
+                match msg {
+                    Some(msg) => {
+                        warn!("net_send_message_event.rs was unable to send net_airlocks message: {:?}", msg);
+                    }
+                    None => {}
+                }
+            }
+            Err(err) => {
+                warn!(
+                    "net_send_message_event.rs was unable to send net_airlocks message (1): {:?}",
+                    err
+                );
+            }
+        };
+    }
+
+    for new_event in net_counterwindows.iter() {
+        if not_connected_handles.contains(&new_event.handle) {
+            continue;
+        }
+
+        match net.send_message(new_event.handle, new_event.message.clone()) {
+            Ok(msg) => match msg {
+                Some(msg) => {
+                    warn!("net_send_message_event.rs was unable to send net_counterwindows message: {:?}", msg);
+                }
+                None => {}
+            },
+            Err(err) => {
+                warn!("net_send_message_event.rs was unable to send net_counterwindows message (1): {:?}", err);
+            }
+        };
+    }
+
     for new_event in net_display_atmospherics.iter() {
         if not_connected_handles.contains(&new_event.handle) {
             continue;
@@ -1456,5 +1516,28 @@ pub fn net_send_message_event(
                 warn!("net_send_message_event.rs was unable to send net_atmospherics_notices message (1): {:?}", err);
             }
         };
+    }
+}
+
+pub struct NetworkingPlugin;
+
+use bevy_app::CoreStage::{PostUpdate, PreUpdate};
+
+impl Plugin for NetworkingPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(
+            startup_listen_connections
+                .label(StartupLabels::ListenConnections)
+                .after(StartupLabels::InitAtmospherics),
+        )
+        .add_system_to_stage(
+            PreUpdate,
+            messages_outgoing.after(PreUpdateLabels::NetEvents),
+        )
+        .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
+        .add_system_to_stage(
+            PostUpdate,
+            net_send_message_event.after(PostUpdateLabels::VisibleChecker),
+        );
     }
 }

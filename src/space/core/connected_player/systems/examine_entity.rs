@@ -23,7 +23,7 @@ use crate::space::{
         sensable::components::Sensable,
         senser::components::Senser,
     },
-    entities::human_male_pawn::functions::generate_human_examine_text,
+    entities::human_male::functions::generate_human_examine_text,
 };
 
 pub fn examine_entity(

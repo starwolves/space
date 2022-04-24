@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use bevy_app::EventReader;
+use bevy_app::{EventReader, EventWriter};
 use bevy_core::{Time, Timer};
 use bevy_ecs::{
     entity::Entity,
@@ -12,7 +12,7 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::space::{
     core::{
         atmospherics::{functions::get_atmos_index, resources::AtmosphericsResource},
-        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+        chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR, WARNING_COLOR},
         entity::components::{DefaultMapEntity, EntityData, EntityGroup},
         examinable::components::{Examinable, RichName},
         gridmap::{
@@ -20,6 +20,7 @@ use crate::space::{
             resources::{EntityGridData, GridmapMain, Vec2Int},
         },
         map::resources::{MapData, GREEN_MAP_TILE_ENTRANCE},
+        networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, SpaceAccess},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
@@ -36,10 +37,27 @@ use crate::space::{
     },
 };
 
-use super::events::AirLockCollision;
+use super::{
+    components::LockedStatus,
+    events::{
+        AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock,
+        InputAirLockToggleOpen, NetAirLock,
+    },
+};
+
+pub struct AirLockOpenRequest {
+    pub opener_option: Option<Entity>,
+    pub opened: Entity,
+}
+
+pub struct AirLockCloseRequest {
+    pub interacter_option: Option<Entity>,
+    pub interacted: Entity,
+}
 
 pub fn air_lock_events(
     mut air_lock_collisions: EventReader<AirLockCollision>,
+    mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
     mut air_lock_query: Query<(
         &mut AirLock,
         &mut RigidBodyPositionComponent,
@@ -48,12 +66,166 @@ pub fn air_lock_events(
         Option<&mut AirLockDeniedTimer>,
         Option<&mut AirLockClosedTimer>,
         Entity,
+        &mut Examinable,
     )>,
     pawn_query: Query<(&Pawn, &SpaceAccess)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
+    mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
+    mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
+    mut unlock_events: EventReader<AirLockUnlock>,
+    mut net_airlocks: EventWriter<NetAirLock>,
 ) {
+    let mut close_requests = vec![];
+    let mut open_requests = vec![];
+
+    for event in unlock_events.iter() {
+        match air_lock_query.get_mut(event.locked) {
+            Ok((
+                mut air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+                mut examinable_component,
+            )) => {
+                air_lock_component.locked_status = LockedStatus::None;
+                air_lock_component.access_lights = AccessLightsStatus::Neutral;
+
+                match air_lock_component.status {
+                    AirLockStatus::Open => {
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
+                        });
+                    }
+                    AirLockStatus::Closed => {}
+                }
+
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've unlocked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_airlocks.send(NetAirLock {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
+                examinable_component.assigned_texts.remove(&11);
+            }
+            Err(_rr) => {}
+        }
+    }
+
+    for event in air_lock_lock_open_event.iter() {
+        match air_lock_query.get_mut(event.locked) {
+            Ok((
+                mut air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+                mut examinable_component,
+            )) => {
+                air_lock_component.locked_status = LockedStatus::Open;
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've opened and locked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_airlocks.send(NetAirLock {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
+                match air_lock_component.status {
+                    AirLockStatus::Open => {}
+                    AirLockStatus::Closed => {
+                        open_requests.push(AirLockOpenRequest {
+                            opener_option: None,
+                            opened: event.locked,
+                        });
+                    }
+                }
+                examinable_component.assigned_texts.insert(
+                    11,
+                    "[font=".to_string()
+                        + FURTHER_ITALIC_FONT
+                        + "][color="
+                        + WARNING_COLOR
+                        + "]It is locked open.[/color][/font]",
+                );
+            }
+            Err(_rr) => {}
+        }
+    }
+    for event in air_lock_lock_close_event.iter() {
+        match air_lock_query.get_mut(event.locked) {
+            Ok((
+                mut air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+                mut examinable_component,
+            )) => {
+                air_lock_component.locked_status = LockedStatus::Closed;
+                let personal_update_text = "[font=".to_owned()
+                    + FURTHER_ITALIC_FONT
+                    + "]"
+                    + "You've closed and locked the "
+                    + &examinable_component.name.get_name()
+                    + ".[/font]";
+                match event.handle_option {
+                    Some(t) => {
+                        net_airlocks.send(NetAirLock {
+                            handle: t,
+                            message: ReliableServerMessage::ChatMessage(personal_update_text),
+                        });
+                    }
+                    None => {}
+                }
+                match air_lock_component.status {
+                    AirLockStatus::Open => {
+                        close_requests.push(AirLockCloseRequest {
+                            interacter_option: None,
+                            interacted: event.locked,
+                        });
+                    }
+                    AirLockStatus::Closed => {}
+                }
+
+                examinable_component.assigned_texts.insert(
+                    11,
+                    "[font=".to_string()
+                        + FURTHER_ITALIC_FONT
+                        + "][color="
+                        + WARNING_COLOR
+                        + "]It is locked shut.[/color][/font]",
+                );
+            }
+            Err(_rr) => {}
+        }
+    }
+
     for (
         mut air_lock_component,
         mut rigid_body_position_component,
@@ -62,35 +234,32 @@ pub fn air_lock_events(
         timer_denied_component_option,
         timer_closed_component_option,
         air_lock_entity,
+        _examinable_component,
     ) in air_lock_query.iter_mut()
     {
+        match air_lock_component.locked_status {
+            LockedStatus::Open => {
+                if !matches!(air_lock_component.access_lights, AccessLightsStatus::Denied) {
+                    air_lock_component.access_lights = AccessLightsStatus::Denied;
+                }
+            }
+            LockedStatus::Closed => {
+                if !matches!(air_lock_component.access_lights, AccessLightsStatus::Denied) {
+                    air_lock_component.access_lights = AccessLightsStatus::Denied;
+                }
+            }
+            LockedStatus::None => {}
+        }
+
         match timer_open_component_option {
             Some(mut timer_component) => {
                 if timer_component.timer.finished() == true {
                     timer_component.timer.pause();
                     timer_component.timer.reset();
-
-                    let cell_id =
-                        world_to_cell_id(rigid_body_position_component.position.translation.into());
-                    let cell_id2 = Vec2Int {
-                        x: cell_id.x,
-                        y: cell_id.z,
-                    };
-                    if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                        continue;
-                    }
-                    let atmos_id = get_atmos_index(cell_id2);
-                    let atmospherics = atmospherics_resource
-                        .atmospherics
-                        .get_mut(atmos_id)
-                        .unwrap();
-
-                    atmospherics.blocked = true;
-                    air_lock_component.status = AirLockStatus::Closed;
-
-                    commands
-                        .entity(air_lock_entity)
-                        .insert(AirLockClosedTimer::default());
+                    close_requests.push(AirLockCloseRequest {
+                        interacter_option: None,
+                        interacted: air_lock_entity,
+                    });
                 }
             }
             None => {}
@@ -104,7 +273,7 @@ pub fn air_lock_events(
 
                     let mut air_lock_rigid_body_position = rigid_body_position_component.position;
 
-                    air_lock_rigid_body_position.translation.y -= 2.;
+                    air_lock_rigid_body_position.translation.y = 0.;
 
                     rigid_body_position_component.position = air_lock_rigid_body_position;
 
@@ -135,6 +304,35 @@ pub fn air_lock_events(
         }
     }
 
+    for event in toggle_open_action.iter() {
+        match air_lock_query.get(Entity::from_bits(event.opened)) {
+            Ok((
+                air_lock_component,
+                _rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                _air_lock_entity,
+                _examinable_component,
+            )) => match air_lock_component.status {
+                AirLockStatus::Open => {
+                    close_requests.push(AirLockCloseRequest {
+                        interacter_option: Some(event.opener),
+                        interacted: Entity::from_bits(event.opened),
+                    });
+                }
+                AirLockStatus::Closed => {
+                    open_requests.push(AirLockOpenRequest {
+                        opener_option: Some(event.opener),
+                        opened: Entity::from_bits(event.opened),
+                    });
+                }
+            },
+            Err(_rr) => {}
+        }
+    }
+
     for collision_event in air_lock_collisions.iter() {
         if collision_event.started == false {
             continue;
@@ -151,20 +349,14 @@ pub fn air_lock_events(
             pawn_entity = collision_event.collider1_entity;
         }
 
-        let pawn_space_access_component_result =
-            pawn_query.get_component::<SpaceAccess>(pawn_entity);
-        let pawn_space_access_component;
+        open_requests.push(AirLockOpenRequest {
+            opener_option: Some(pawn_entity),
+            opened: air_lock_entity,
+        });
+    }
 
-        match pawn_space_access_component_result {
-            Ok(result) => {
-                pawn_space_access_component = result;
-            }
-            Err(_err) => {
-                continue;
-            }
-        }
-
-        let air_lock_components_result = air_lock_query.get_mut(air_lock_entity);
+    for request in open_requests {
+        let air_lock_components_result = air_lock_query.get_mut(request.opened);
 
         let mut air_lock_component;
         let mut air_lock_rigid_body_position_component;
@@ -181,16 +373,44 @@ pub fn air_lock_events(
             }
         }
 
+        match air_lock_component.locked_status {
+            LockedStatus::Open => {}
+            LockedStatus::Closed => {
+                continue;
+            }
+            LockedStatus::None => {}
+        }
+
         let mut pawn_has_permission = false;
 
-        for space_permission in &air_lock_component.access_permissions {
-            if pawn_space_access_component
-                .access
-                .contains(space_permission)
-                == true
-            {
+        match request.opener_option {
+            Some(opener) => {
+                let pawn_space_access_component_result =
+                    pawn_query.get_component::<SpaceAccess>(opener);
+                let pawn_space_access_component;
+
+                match pawn_space_access_component_result {
+                    Ok(result) => {
+                        pawn_space_access_component = result;
+                    }
+                    Err(_err) => {
+                        continue;
+                    }
+                }
+
+                for space_permission in &air_lock_component.access_permissions {
+                    if pawn_space_access_component
+                        .access
+                        .contains(space_permission)
+                        == true
+                    {
+                        pawn_has_permission = true;
+                        break;
+                    }
+                }
+            }
+            None => {
                 pawn_has_permission = true;
-                break;
             }
         }
 
@@ -219,13 +439,12 @@ pub fn air_lock_events(
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
             let mut air_lock_rigid_body_position = air_lock_rigid_body_position_component.position;
-
-            air_lock_rigid_body_position.translation.y += 2.;
+            air_lock_rigid_body_position.translation.y = 2.;
 
             air_lock_rigid_body_position_component.position = air_lock_rigid_body_position;
 
             commands
-                .entity(air_lock_entity)
+                .entity(request.opened)
                 .insert(AirLockOpenTimer::default());
 
             let sfx_entity = commands
@@ -239,7 +458,7 @@ pub fn air_lock_events(
             air_lock_component.access_lights = AccessLightsStatus::Denied;
 
             commands
-                .entity(air_lock_entity)
+                .entity(request.opened)
                 .insert(AirLockDeniedTimer::default());
 
             let sfx_entity = commands
@@ -249,6 +468,90 @@ pub fn air_lock_events(
                 ))
                 .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
+        }
+    }
+
+    for request in close_requests {
+        match air_lock_query.get_mut(request.interacted) {
+            Ok((
+                mut air_lock_component,
+                rigid_body_position_component,
+                _static_transform_component,
+                _timer_open_component_option,
+                _timer_denied_component_option,
+                _timer_closed_component_option,
+                air_lock_entity,
+                _examinable_component,
+            )) => {
+                match air_lock_component.locked_status {
+                    LockedStatus::Open => {
+                        continue;
+                    }
+                    LockedStatus::Closed => {}
+                    LockedStatus::None => {}
+                }
+
+                let mut pawn_has_permission = false;
+
+                match request.interacter_option {
+                    Some(interacter) => {
+                        let pawn_space_access_component_result =
+                            pawn_query.get_component::<SpaceAccess>(interacter);
+                        let pawn_space_access_component;
+
+                        match pawn_space_access_component_result {
+                            Ok(result) => {
+                                pawn_space_access_component = result;
+                            }
+                            Err(_err) => {
+                                continue;
+                            }
+                        }
+
+                        for space_permission in &air_lock_component.access_permissions {
+                            if pawn_space_access_component
+                                .access
+                                .contains(space_permission)
+                                == true
+                            {
+                                pawn_has_permission = true;
+                                break;
+                            }
+                        }
+                    }
+                    None => {
+                        pawn_has_permission = true;
+                    }
+                }
+
+                if pawn_has_permission == false {
+                    continue;
+                }
+
+                let cell_id =
+                    world_to_cell_id(rigid_body_position_component.position.translation.into());
+                let cell_id2 = Vec2Int {
+                    x: cell_id.x,
+                    y: cell_id.z,
+                };
+                if AtmosphericsResource::is_id_out_of_range(cell_id2) {
+                    continue;
+                }
+                let atmos_id = get_atmos_index(cell_id2);
+                let atmospherics = atmospherics_resource
+                    .atmospherics
+                    .get_mut(atmos_id)
+                    .unwrap();
+
+                atmospherics.blocked = true;
+                air_lock_component.status = AirLockStatus::Closed;
+
+                commands
+                    .entity(air_lock_entity)
+                    .insert(AirLockClosedTimer::default());
+            }
+
+            Err(_rr) => {}
         }
     }
 }

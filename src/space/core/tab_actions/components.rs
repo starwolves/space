@@ -1,8 +1,9 @@
 use std::{collections::HashMap, sync::Arc};
 
-use bevy_ecs::{entity::Entity, system::Query};
+use bevy_ecs::{entity::Entity, prelude::Component, system::Query};
 
 use crate::space::core::{
+    data_link::components::DataLink,
     entity::{components::EntityData, resources::EntityDataResource},
     gridmap::resources::CellData,
     inventory::components::Inventory,
@@ -23,6 +24,11 @@ impl Default for TabActionsData {
     }
 }
 
+#[derive(Component)]
+pub struct TabActions {
+    pub tab_actions: Vec<TabAction>,
+}
+
 #[derive(Clone)]
 pub struct TabAction {
     pub id: String,
@@ -38,6 +44,7 @@ pub struct TabAction {
                 &Inventory,
                 &EntityDataResource,
                 &Query<&EntityData>,
+                &DataLink,
             ) -> bool
             + Sync
             + Send,

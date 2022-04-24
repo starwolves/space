@@ -4,7 +4,7 @@ pub mod construction_tool_admin;
 pub mod counter_windows;
 pub mod gi_probe;
 pub mod helmet_security;
-pub mod human_male_pawn;
+pub mod human_male;
 pub mod jumpsuit_security;
 pub mod omni_light;
 pub mod pistol_l1;

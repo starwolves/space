@@ -1,55 +1,57 @@
-use bevy_app::{EventReader, EventWriter};
+use bevy_app::EventReader;
 use bevy_ecs::{
     entity::Entity,
     prelude::Without,
-    system::{Query, Res},
+    system::{Query, Res, ResMut},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
-use crate::space::{
-    core::{
-        connected_player::{
-            components::{ConnectedPlayer, SoftPlayer},
-            events::{InputExamineEntity, InputExamineMap},
-            resources::HandleToEntity,
-        },
-        entity::{components::EntityData, resources::EntityDataResource},
-        gridmap::{
-            functions::gridmap_functions::cell_id_to_world,
-            resources::{GridmapMain, Vec3Int},
-        },
-        inventory::{components::Inventory, events::InputUseWorldItem},
-        pawn::components::Pawn,
-        tab_actions::events::InputTabAction,
+use crate::space::core::{
+    connected_player::{
+        components::{ConnectedPlayer, SoftPlayer},
+        resources::HandleToEntity,
     },
-    entities::construction_tool_admin::events::{
-        InputConstruct, InputConstructionOptions, InputDeconstruct,
+    data_link::components::DataLink,
+    entity::{components::EntityData, resources::EntityDataResource},
+    gridmap::{
+        functions::gridmap_functions::cell_id_to_world,
+        resources::{GridmapMain, Vec3Int},
+    },
+    inventory::components::Inventory,
+    pawn::components::Pawn,
+    static_body::components::StaticTransform,
+    tab_actions::{
+        components::TabActions,
+        events::InputTabAction,
+        resources::{QueuedTabAction, QueuedTabActions},
     },
 };
 
 pub fn tab_action(
-    mut events: EventReader<InputTabAction>,
-    mut event_examine_entity: EventWriter<InputExamineEntity>,
-    mut event_examine_map: EventWriter<InputExamineMap>,
-    mut event_construct: EventWriter<InputConstruct>,
-    mut event_deconstruct: EventWriter<InputDeconstruct>,
-    mut pickup_world_item_event: EventWriter<InputUseWorldItem>,
-    mut event_construction_options: EventWriter<InputConstructionOptions>,
+    events: EventReader<InputTabAction>,
+
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
-    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory)>,
-    inventory_items: Query<&RigidBodyPositionComponent>,
+    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory, &DataLink)>,
+    targettable_entities: Query<(
+        Option<&RigidBodyPositionComponent>,
+        Option<&StaticTransform>,
+        Option<&TabActions>,
+    )>,
 
     gridmap_main_data: Res<GridmapMain>,
     entity_data_resource: Res<EntityDataResource>,
     entity_datas: Query<&EntityData>,
     handle_to_entity: Res<HandleToEntity>,
+    mut queue: ResMut<QueuedTabActions>,
 ) {
-    for event in events.iter() {
+    let mut input_tab_action_events = events;
+
+    for event in input_tab_action_events.iter() {
         // Safety check.
-        match criteria_query.get(event.player_entity) {
+        match criteria_query.get(event.action_performing_entity) {
             Ok(_) => {}
             Err(_rr) => {
                 continue;
@@ -59,12 +61,14 @@ pub fn tab_action(
         let pawn_component;
         let pawn_inventory_component;
         let pawn_rigid_body_position_component;
+        let data_link_component;
 
-        match pawns.get(event.player_entity) {
-            Ok((c, c1, c2)) => {
+        match pawns.get(event.action_performing_entity) {
+            Ok((c, c1, c2, c3)) => {
                 pawn_component = c;
                 pawn_rigid_body_position_component = c1;
                 pawn_inventory_component = c2;
+                data_link_component = c3;
             }
             Err(_rr) => {
                 warn!("Couldn't find pawn_component.");
@@ -80,18 +84,36 @@ pub fn tab_action(
             .translation
             .into();
 
+        let mut tab_actions_component_option = None;
+
         match event.target_entity_option {
             Some(target_entity_bits) => {
-                let rigid_body_position_component;
-                match inventory_items.get(Entity::from_bits(target_entity_bits)) {
-                    Ok(v) => {
-                        rigid_body_position_component = v;
+                match targettable_entities.get(Entity::from_bits(target_entity_bits)) {
+                    Ok((
+                        rigid_body_position_comp_option,
+                        static_transform_comp_option,
+                        tab_actions_comp_option,
+                    )) => {
+                        match static_transform_comp_option {
+                            Some(static_transform_component) => {
+                                start_pos = static_transform_component.transform.translation;
+                            }
+                            None => {
+                                start_pos = rigid_body_position_comp_option
+                                    .unwrap()
+                                    .0
+                                    .position
+                                    .translation
+                                    .into();
+                            }
+                        }
+
+                        tab_actions_component_option = tab_actions_comp_option;
                     }
                     Err(_) => {
                         continue;
                     }
                 }
-                start_pos = rigid_body_position_component.0.position.translation.into();
             }
             None => {
                 let cell_data;
@@ -113,24 +135,30 @@ pub fn tab_action(
 
         distance = start_pos.distance(end_pos);
 
-        let mut index_option = None;
+        let mut action_option = None;
 
         for (_entity_option, action_id_index_map) in pawn_component.tab_actions_data.layout.iter() {
             for (action_id, index) in action_id_index_map {
                 if action_id == &event.tab_id {
-                    index_option = Some(index);
+                    action_option = Some(pawn_component.tab_actions.get(index).unwrap());
                     break;
                 }
             }
         }
 
-        match index_option {
-            Some(index) => {
-                let action = pawn_component.tab_actions.get(index).unwrap();
+        if action_option.is_none() && &tab_actions_component_option.is_some() == &true {
+            for act in &tab_actions_component_option.unwrap().tab_actions {
+                if act.id == event.tab_id {
+                    action_option = Some(act);
+                }
+            }
+        }
 
+        match action_option {
+            Some(action) => {
                 let self_belonging_entity;
 
-                match event.belonging_entity {
+                match event.belonging_entity_option {
                     Some(e) => {
                         self_belonging_entity = Some(Entity::from_bits(e));
                     }
@@ -176,6 +204,7 @@ pub fn tab_action(
                     pawn_inventory_component,
                     &entity_data_resource,
                     &entity_datas,
+                    &data_link_component,
                 ) {
                     true => {}
                     false => {
@@ -188,76 +217,25 @@ pub fn tab_action(
             }
         }
 
-        let handle;
+        let mut handle = None;
 
-        match handle_to_entity.inv_map.get(&event.player_entity) {
+        match handle_to_entity
+            .inv_map
+            .get(&event.action_performing_entity)
+        {
             Some(x) => {
-                handle = x;
+                handle = Some(*x);
             }
-            None => {
-                warn!("Couldn't find handle.");
-                continue;
-            }
+            None => {}
         }
 
-        if event.tab_id == "examine" {
-            match event.target_entity_option {
-                Some(entity_bits) => {
-                    event_examine_entity.send(InputExamineEntity {
-                        handle: *handle,
-                        examine_entity_bits: entity_bits,
-                        entity: event.player_entity,
-                    });
-                }
-                None => match &event.target_cell_option {
-                    Some((gridmap_type, idx, idy, idz)) => {
-                        event_examine_map.send(InputExamineMap {
-                            handle: *handle,
-                            entity: event.player_entity,
-                            gridmap_type: gridmap_type.clone(),
-                            gridmap_cell_id: Vec3Int {
-                                x: *idx,
-                                y: *idy,
-                                z: *idz,
-                            },
-                        });
-                    }
-                    None => {}
-                },
-            }
-        } else if event.tab_id == "construct" {
-            if event.target_cell_option.is_some() && event.belonging_entity.is_some() {
-                event_construct.send(InputConstruct {
-                    handle: *handle,
-                    target_cell: event.target_cell_option.as_ref().unwrap().clone(),
-                    belonging_entity: event.belonging_entity.unwrap(),
-                });
-            }
-        } else if event.tab_id == "deconstruct" {
-            if (event.target_entity_option.is_some() || event.target_cell_option.is_some())
-                && event.belonging_entity.is_some()
-            {
-                event_deconstruct.send(InputDeconstruct {
-                    handle: *handle,
-                    target_cell_option: event.target_cell_option.clone(),
-                    target_entity_option: event.target_entity_option,
-                    belonging_entity: event.belonging_entity.unwrap(),
-                });
-            }
-        } else if event.tab_id == "constructionoptions" {
-            if event.belonging_entity.is_some() {
-                event_construction_options.send(InputConstructionOptions {
-                    handle: *handle,
-                    belonging_entity: event.belonging_entity.unwrap(),
-                });
-            }
-        } else if event.tab_id == "pickup" {
-            if event.target_entity_option.is_some() {
-                pickup_world_item_event.send(InputUseWorldItem {
-                    pickuper_entity: event.player_entity,
-                    pickupable_entity_bits: event.target_entity_option.unwrap(),
-                });
-            }
-        }
+        queue.queue.push(QueuedTabAction {
+            handle_option: handle,
+            target_cell_option: event.target_cell_option.clone(),
+            target_entity_option: event.target_entity_option,
+            belonging_entity_option: event.belonging_entity_option,
+            tab_id: event.tab_id.clone(),
+            player_entity: event.action_performing_entity,
+        });
     }
 }
