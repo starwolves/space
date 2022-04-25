@@ -6,8 +6,8 @@ use bevy_ecs::{
 };
 
 pub struct HandleToEntity {
-    pub map: HashMap<u32, Entity>,
-    pub inv_map: HashMap<Entity, u32>,
+    pub map: HashMap<u64, Entity>,
+    pub inv_map: HashMap<Entity, u64>,
 }
 
 impl FromWorld for HandleToEntity {

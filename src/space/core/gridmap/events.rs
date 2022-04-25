@@ -5,14 +5,14 @@ use crate::space::core::networking::resources::{
 use super::resources::{CellData, Vec3Int};
 
 pub struct RemoveCell {
-    pub handle_option: Option<u32>,
+    pub handle_option: Option<u64>,
     pub gridmap_type: GridMapType,
     pub id: Vec3Int,
     pub cell_data: CellData,
 }
 
 pub struct NetGridmapUpdates {
-    pub handle: u32,
+    pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
@@ -21,6 +21,6 @@ pub struct ProjectileFOV {
 }
 
 pub struct NetProjectileFOV {
-    pub handle: u32,
+    pub handle: u64,
     pub message: ReliableServerMessage,
 }

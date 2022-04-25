@@ -17,14 +17,14 @@ const RCON_PASSWORD: &str = "KA-BAR";
 
 #[derive(Default)]
 pub struct BruteforceProtection {
-    pub tracking_data: HashMap<u32, u8>,
-    pub blacklist: Vec<u32>,
+    pub tracking_data: HashMap<u64, u8>,
+    pub blacklist: Vec<u64>,
 }
 
 pub fn rcon_authorization(
     bruteforce_protection: &mut Local<BruteforceProtection>,
     connected_players: &mut Query<&mut ConnectedPlayer>,
-    client_handle: u32,
+    client_handle: u64,
     client_entity: Entity,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
     input_password: String,
