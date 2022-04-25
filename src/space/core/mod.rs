@@ -43,7 +43,7 @@ impl Plugin for CorePlugin {
         app.add_startup_system(
             server_is_live
                 .label(StartupLabels::ServerIsLive)
-                .after(StartupLabels::ListenConnections),
+                .after(StartupLabels::InitEntities),
         );
     }
 }

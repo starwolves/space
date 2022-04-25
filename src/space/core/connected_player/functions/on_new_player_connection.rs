@@ -21,7 +21,7 @@ use crate::space::core::{
 
 pub fn on_new_player_connection(
     net_on_new_player_connection: &mut EventWriter<NetOnNewPlayerConnection>,
-    handle: &u32,
+    handle: &u64,
     tick_rate: &Res<TickRate>,
     auth_id_i: &mut ResMut<AuthidI>,
     server_id: &Res<ServerId>,

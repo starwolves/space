@@ -4,11 +4,11 @@ use bevy_ecs::{
     system::{Query, Res, ResMut},
 };
 use bevy_log::warn;
-use bevy_networking_turbulence::NetworkResource;
+use bevy_renet::renet::RenetServer;
 
 use crate::space::core::{
     connected_player::resources::HandleToEntity,
-    networking::resources::UnreliableServerMessage,
+    networking::{resources::UnreliableServerMessage, UNRELIABLE_CHANNEL},
     rigid_body::components::{CachedBroadcastTransform, UpdateTransform},
     sensable::components::Sensable,
     static_body::components::StaticTransform,
@@ -20,7 +20,7 @@ pub fn broadcast_position_updates(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
 
-    mut net: ResMut<NetworkResource>,
+    mut net: ResMut<RenetServer>,
     handle_to_entity: Res<HandleToEntity>,
     mut query_update_transform_entities: Query<(
         Entity,
@@ -65,20 +65,17 @@ pub fn broadcast_position_updates(
                 Some(handle) => {
                     match net.send_message(
                         *handle,
-                        UnreliableServerMessage::PositionUpdate(
+                        UNRELIABLE_CHANNEL,
+                        bincode::serialize(&UnreliableServerMessage::PositionUpdate(
                             entity.to_bits(),
                             new_position,
                             current_time_stamp as u64,
-                        ),
+                        ))
+                        .unwrap(),
                     ) {
-                        Ok(msg) => match msg {
-                            Some(msg) => {
-                                warn!("was unable to send PositionUpdate message: {:?}", msg);
-                            }
-                            None => {}
-                        },
+                        Ok(()) => {}
                         Err(err) => {
-                            warn!("was unable to send PositionUpdate message (1): {:?}", err);
+                            warn!("was unable to send PositionUpdate message: {:?}", err);
                         }
                     };
                 }

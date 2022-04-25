@@ -66,7 +66,7 @@ pub struct SpawnHeldData<'a, 'b, 'c, 'd> {
     pub data: (
         Entity,
         bool,
-        Option<u32>,
+        Option<u64>,
         &'c mut Option<&'b mut EventWriter<'a, 'd, NetShowcase>>,
     ),
 }
