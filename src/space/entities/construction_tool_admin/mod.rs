@@ -9,12 +9,12 @@ use crate::space::{
         },
         tab_actions::TabActionsQueueLabels,
     },
-    StartupLabels, UpdateLabels,
+    PostUpdateLabels, StartupLabels, UpdateLabels,
 };
 
 use self::{
     events::{
-        construction_tool_actions, InputConstruct, InputConstructionOptions,
+        construction_tool_actions, net_system, InputConstruct, InputConstructionOptions,
         InputConstructionOptionsSelection, InputDeconstruct, NetConstructionTool,
     },
     spawn::ConstructionToolBundle,
@@ -41,9 +41,15 @@ impl Plugin for ConstructionToolAdminPlugin {
                     .before(UpdateLabels::DeconstructCell),
             )
             .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system(construction_tool_actions.after(TabActionsQueueLabels::TabAction));
+            .add_system(construction_tool_actions.after(TabActionsQueueLabels::TabAction))
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }
+
+use bevy_app::CoreStage::PostUpdate;
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {

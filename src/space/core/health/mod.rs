@@ -1,9 +1,10 @@
 use bevy_app::CoreStage::PostUpdate;
 use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::SystemSet;
+use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
 use crate::space::PostUpdateLabels;
 
+use self::events::net_system;
 use self::{
     entity_update::health_ui_update,
     events::{Attack, NetHealthUpdate},
@@ -27,6 +28,10 @@ impl Plugin for HealthPlugin {
                 SystemSet::new()
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(health_ui_update),
+            )
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
             );
     }
 }

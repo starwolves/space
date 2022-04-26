@@ -7,6 +7,7 @@ use bevy_log::info;
 
 use crate::space::{PostUpdateLabels, StartupLabels};
 
+use self::events::net_system;
 use self::systems::entity_console_commands::entity_console_commands;
 use self::{
     events::{NetLoadEntity, NetSendEntityUpdates, NetShowcase, NetUnloadEntity},
@@ -58,8 +59,10 @@ impl Plugin for EntityPlugin {
                     .label(StartupLabels::InitEntities),
             )
             .add_system(entity_console_commands)
-            .add_startup_system(
-                initialize_console_commands.before(ConsoleCommandsLabels::Finalize),
+            .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
             );
     }
 }

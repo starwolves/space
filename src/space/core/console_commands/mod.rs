@@ -5,10 +5,10 @@ use bevy_ecs::{
 };
 use bevy_log::info;
 
-use crate::space::StartupLabels;
+use crate::space::{PostUpdateLabels, StartupLabels};
 
 use self::{
-    events::NetConsoleCommands,
+    events::{net_system, NetConsoleCommands},
     resources::{ConsoleCommands, QueuedConsoleCommands},
     systems::{console_commands, console_commands_queue_clearer},
 };
@@ -42,6 +42,10 @@ impl Plugin for ConsoleCommandsPlugin {
                 initialize_console_commands
                     .label(ConsoleCommandsLabels::Finalize)
                     .label(StartupLabels::ConsoleCommands),
+            )
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
             );
     }
 }

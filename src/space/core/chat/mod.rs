@@ -1,7 +1,10 @@
 use bevy_app::{App, Plugin};
+use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
+
+use crate::space::PostUpdateLabels;
 
 use self::{
-    events::{InputChatMessage, NetChatMessage},
+    events::{net_system, InputChatMessage, NetChatMessage},
     systems::chat_message_input_event,
 };
 
@@ -15,6 +18,11 @@ impl Plugin for ChatPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<InputChatMessage>()
             .add_system(chat_message_input_event)
-            .add_event::<NetChatMessage>();
+            .add_event::<NetChatMessage>()
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }
+use bevy_app::CoreStage::PostUpdate;

@@ -2,18 +2,18 @@ use bevy_app::{App, Plugin};
 use bevy_core::FixedTimestep;
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
-use crate::space::UpdateLabels;
+use crate::space::{PostUpdateLabels, UpdateLabels};
 
 use self::{
     events::{
-        BoardingPlayer, InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics,
-        InputExamineEntity, InputExamineMap, InputMouseAction, InputMouseDirectionUpdate,
-        InputMovementInput, InputSceneReady, InputSelectBodyPart, InputSprinting,
-        InputTabDataEntity, InputTabDataMap, InputToggleAutoMove, InputToggleCombatMode,
-        InputUIInput, InputUIInputTransmitText, InputUserName, NetDoneBoarding, NetExamineEntity,
-        NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI, NetOnSpawning, NetSendServerTime,
-        NetSendWorldEnvironment, NetTabData, NetUIInputTransmitData, NetUpdatePlayerCount,
-        NetUserName, TextTreeInputSelection,
+        net_system, BoardingPlayer, InputAltItemAttack, InputAttackCell, InputAttackEntity,
+        InputBuildGraphics, InputExamineEntity, InputExamineMap, InputMouseAction,
+        InputMouseDirectionUpdate, InputMovementInput, InputSceneReady, InputSelectBodyPart,
+        InputSprinting, InputTabDataEntity, InputTabDataMap, InputToggleAutoMove,
+        InputToggleCombatMode, InputUIInput, InputUIInputTransmitText, InputUserName,
+        NetDoneBoarding, NetExamineEntity, NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI,
+        NetOnSpawning, NetSendServerTime, NetSendWorldEnvironment, NetTabData,
+        NetUIInputTransmitData, NetUpdatePlayerCount, NetUserName, TextTreeInputSelection,
     },
     resources::HandleToEntity,
     systems::{
@@ -91,6 +91,11 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_event::<NetDoneBoarding>()
             .add_event::<NetOnSetupUI>()
             .add_event::<InputUIInput>()
-            .add_event::<InputSceneReady>();
+            .add_event::<InputSceneReady>()
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }
+use bevy_app::CoreStage::PostUpdate;

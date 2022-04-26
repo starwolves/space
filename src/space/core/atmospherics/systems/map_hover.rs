@@ -13,7 +13,7 @@ use crate::space::core::{
     connected_player::components::ConnectedPlayer,
     gridmap::resources::Vec2Int,
     map::components::Map,
-    networking::resources::{NetMessageType, ReliableServerMessage},
+    networking::resources::ReliableServerMessage,
 };
 
 pub fn atmospherics_map_hover(
@@ -55,8 +55,8 @@ pub fn atmospherics_map_hover(
                         if map_holder_data.hovering_data != data {
                             net.send(NetMapHoverAtmospherics {
                                 handle: connected_player_component.handle,
-                                message: NetMessageType::Reliable(
-                                    ReliableServerMessage::MapOverlayHoverData(data.to_string()),
+                                message: ReliableServerMessage::MapOverlayHoverData(
+                                    data.to_string(),
                                 ),
                             });
                             map_holder_data.hovering_data = data;

@@ -12,7 +12,7 @@ use crate::space::core::entity::resources::{
 use crate::space::core::tab_actions::TabActionsQueueLabels;
 use crate::space::{PostUpdateLabels, StartupLabels};
 
-use self::events::{counter_windows_actions, CounterWindowUnlock, NetCounterWindow};
+use self::events::{counter_windows_actions, net_system, CounterWindowUnlock, NetCounterWindow};
 use self::spawn::CounterWindowBundle;
 use self::{
     entity_update::counter_window_update,
@@ -54,7 +54,11 @@ impl Plugin for CounterWindowsPlugin {
                     .with_system(counter_window_update),
             )
             .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(counter_windows_actions.after(TabActionsQueueLabels::TabAction));
+            .add_system(counter_windows_actions.after(TabActionsQueueLabels::TabAction))
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }
 
