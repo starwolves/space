@@ -10,7 +10,7 @@ use crate::space::core::{
 
 pub fn rcon_status(
     connected_players: &mut Query<&mut ConnectedPlayer>,
-    client_handle: u64,
+    client_handle: u32,
     client_entity: Entity,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
 ) {

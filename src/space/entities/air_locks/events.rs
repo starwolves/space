@@ -15,33 +15,33 @@ pub struct AirLockCollision {
 }
 
 pub struct InputAirLockToggleOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
 
     pub opener: Entity,
     pub opened: u64,
 }
 
 pub struct AirLockLockOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
 
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct AirLockLockClosed {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
 
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct NetAirLock {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 
 pub struct AirLockUnlock {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
     pub locked: Entity,
     pub locker: Entity,
 }

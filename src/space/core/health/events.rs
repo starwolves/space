@@ -30,6 +30,6 @@ pub struct Attack {
 }
 
 pub struct NetHealthUpdate {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }

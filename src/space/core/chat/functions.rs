@@ -1172,8 +1172,8 @@ pub fn new_chat_message(
 
     // Send radio message to all radio_pawns who can listen to that channel.
 
-    let mut handles_direct_proximity: Vec<u64> = vec![];
-    let mut handles_radio: Vec<u64> = vec![];
+    let mut handles_direct_proximity: Vec<u32> = vec![];
+    let mut handles_radio: Vec<u32> = vec![];
 
     if exclusive_proximity == false {
         let mut has_radio_permission = false;

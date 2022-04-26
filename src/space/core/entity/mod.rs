@@ -54,7 +54,7 @@ impl Plugin for EntityPlugin {
             )
             .add_startup_system(
                 startup_entities
-                    .after(StartupLabels::InitAtmospherics)
+                    .before(StartupLabels::BuildGridmap)
                     .label(StartupLabels::InitEntities),
             )
             .add_system(entity_console_commands)

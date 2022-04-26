@@ -35,32 +35,32 @@ pub struct InputWearItem {
 }
 
 pub struct NetDropCurrentItem {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 
 pub struct NetPickupWorldItem {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 
 pub struct NetSwitchHands {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 
 pub struct NetTakeOffItem {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 
 pub struct NetThrowItem {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 
 pub struct NetWearItem {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 

@@ -94,7 +94,7 @@ fn spawn_entity(
     holder_entity_option: Option<Entity>,
 
     showcase_instance: bool,
-    showcase_handle_option: Option<u64>,
+    showcase_handle_option: Option<u32>,
 
     net_showcase: &mut Option<&mut EventWriter<NetShowcase>>,
 

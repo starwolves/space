@@ -26,7 +26,7 @@ pub fn rcon_spawn_held_entity(
     target_selector: String,
     mut commands: &mut Commands,
     command_executor_entity: Entity,
-    command_executor_handle_option: Option<u64>,
+    command_executor_handle_option: Option<u32>,
     mut net_console_commands: &mut EventWriter<NetConsoleCommands>,
     player_inventory_query: &mut Query<&mut Inventory>,
     mut rigid_body_positions: &mut Query<(&RigidBodyPositionComponent, &Pawn)>,

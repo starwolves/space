@@ -6,7 +6,7 @@ use crate::space::core::{
 };
 
 pub fn unload_entity(
-    player_handle: u64,
+    player_handle: u32,
     entity_id: Entity,
     net_unload_entity: &mut EventWriter<NetUnloadEntity>,
     unload_entirely: bool,

@@ -34,7 +34,7 @@ pub struct EntityUpdates {
     pub updates: HashMap<String, HashMap<String, EntityUpdateData>>,
     pub updates_difference: Vec<HashMap<String, HashMap<String, EntityUpdateData>>>,
     pub changed_parameters: Vec<String>,
-    pub excluded_handles: HashMap<String, Vec<u64>>,
+    pub excluded_handles: HashMap<String, Vec<u32>>,
 }
 
 impl Default for EntityUpdates {
@@ -55,7 +55,7 @@ pub struct Server;
 
 #[derive(Component)]
 pub struct Showcase {
-    pub handle: u64,
+    pub handle: u32,
 }
 
 #[derive(Component)]

@@ -3,7 +3,7 @@ use bevy_transform::components::Transform;
 
 #[derive(Component)]
 pub struct ConnectedPlayer {
-    pub handle: u64,
+    pub handle: u32,
     pub authid: u16,
     pub rcon: bool,
     pub connected: bool,
