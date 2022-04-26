@@ -22,7 +22,7 @@ use crate::space::core::{
         components::Map,
         functions::{get_overlay_tile_item, get_overlay_tile_priority, OverlayTile},
     },
-    networking::resources::{NetMessageType, ReliableServerMessage},
+    networking::resources::ReliableServerMessage,
 };
 
 const MAX_VALIDS_PER_BATCH: u16 = 2500;
@@ -266,7 +266,7 @@ pub fn atmospherics_map(
 
         net.send(NetMapDisplayAtmospherics {
             handle: connected_player_component.handle,
-            message: NetMessageType::Reliable(ReliableServerMessage::MapOverlayUpdate(batch)),
+            message: ReliableServerMessage::MapOverlayUpdate(batch),
         });
 
         map_holder_data.batch_i = adjusted_cell_i;

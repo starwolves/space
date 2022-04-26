@@ -1,8 +1,16 @@
-use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, system::Res};
+use bevy_app::{EventReader, EventWriter};
+use bevy_ecs::{
+    entity::Entity,
+    system::{Query, Res, ResMut},
+};
+use bevy_networking_turbulence::NetworkResource;
 
 use crate::space::core::{
-    networking::resources::{GridMapType, ReliableServerMessage},
+    connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
+    networking::{
+        resources::{GridMapType, ReliableServerMessage},
+        send_net, NetEvent,
+    },
     tab_actions::resources::QueuedTabActions,
 };
 
@@ -66,5 +74,25 @@ pub fn construction_tool_actions(
                 });
             }
         }
+    }
+}
+
+pub fn net_system(
+    mut net: ResMut<NetworkResource>,
+    connected_players: Query<&ConnectedPlayer>,
+    handle_to_entity: Res<HandleToEntity>,
+
+    mut net1: EventReader<NetConstructionTool>,
+) {
+    for new_event in net1.iter() {
+        send_net(
+            &mut net,
+            &connected_players,
+            &handle_to_entity,
+            &NetEvent {
+                handle: new_event.handle,
+                message: new_event.message.clone(),
+            },
+        );
     }
 }

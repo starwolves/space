@@ -21,11 +21,14 @@ use crate::space::{
         },
         gridmap::resources::{GridmapMain, Vec2Int, Vec3Int, FOV_MAP_WIDTH},
     },
-    AtmosphericsLabels, MapLabels, StartupLabels, ATMOS_DIFFUSION_LABEL, ATMOS_LABEL,
+    AtmosphericsLabels, MapLabels, PostUpdateLabels, StartupLabels, ATMOS_DIFFUSION_LABEL,
+    ATMOS_LABEL,
 };
 
 use self::{
-    events::{NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
+    events::{
+        net_system, NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics,
+    },
     resources::{MapHolders, RigidBodyForcesAccumulation},
     systems::{
         diffusion::{atmos_diffusion, DIFFUSION_STEP},
@@ -176,6 +179,11 @@ impl Plugin for AtmosphericsPlugin {
                     .label(StartupLabels::InitAtmospherics)
                     .after(StartupLabels::BuildGridmap),
             )
-            .add_event::<NetAtmosphericsNotices>();
+            .add_event::<NetAtmosphericsNotices>()
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }
+use bevy_app::CoreStage::PostUpdate;

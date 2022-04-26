@@ -1,7 +1,13 @@
-use bevy_ecs::entity::Entity;
+use bevy_ecs::{
+    entity::Entity,
+    system::{Query, ResMut},
+};
+use bevy_networking_turbulence::NetworkResource;
 
 use crate::space::core::{
-    entity::components::EntityGroup, networking::resources::ReliableServerMessage,
+    connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
+    entity::components::EntityGroup,
+    networking::{resources::ReliableServerMessage, send_net, NetEvent},
 };
 
 pub struct AirLockCollision {
@@ -46,7 +52,7 @@ pub struct AirLockUnlock {
     pub locker: Entity,
 }
 
-use bevy_app::EventWriter;
+use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::system::Res;
 
 use crate::space::core::tab_actions::resources::QueuedTabActions;
@@ -92,5 +98,25 @@ pub fn air_locks_actions(
                 });
             }
         }
+    }
+}
+
+pub fn net_system(
+    mut net: ResMut<NetworkResource>,
+    connected_players: Query<&ConnectedPlayer>,
+    handle_to_entity: Res<HandleToEntity>,
+
+    mut net1: EventReader<NetAirLock>,
+) {
+    for new_event in net1.iter() {
+        send_net(
+            &mut net,
+            &connected_players,
+            &handle_to_entity,
+            &NetEvent {
+                handle: new_event.handle,
+                message: new_event.message.clone(),
+            },
+        );
     }
 }

@@ -2,7 +2,7 @@ use bevy_app::CoreStage::PostUpdate;
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
-use self::events::inventory_actions;
+use self::events::{inventory_actions, net_system};
 use self::{
     entity_update::inventory_update,
     events::{
@@ -54,6 +54,10 @@ impl Plugin for InventoryPlugin {
                     .with_system(inventory_update),
             )
             .add_system(drop_current_item.label(UpdateLabels::DropCurrentItem))
-            .add_system(inventory_actions.after(TabActionsQueueLabels::TabAction));
+            .add_system(inventory_actions.after(TabActionsQueueLabels::TabAction))
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }

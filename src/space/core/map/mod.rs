@@ -1,11 +1,12 @@
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 
-use crate::space::MapLabels;
+use crate::space::{MapLabels, PostUpdateLabels};
 
 use self::{
     events::{
-        InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes, NetRequestDisplayModes,
+        net_system, InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes,
+        NetRequestDisplayModes,
     },
     resources::MapData,
     systems::{
@@ -31,6 +32,11 @@ impl Plugin for MapPlugin {
             .add_event::<InputMap>()
             .add_system(change_display_mode.label(MapLabels::ChangeMode))
             .add_system(request_display_modes)
-            .add_system(map_input.label(MapLabels::ChangeMode));
+            .add_system(map_input.label(MapLabels::ChangeMode))
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }
+use bevy_app::CoreStage::PostUpdate;

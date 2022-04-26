@@ -40,11 +40,11 @@ use crate::space::{
         world_environment::resources::WorldEnvironmentRaw,
     },
     entities::sfx::ambience::ambience_sfx::AmbienceSfxBundle,
-    StartupLabels, UpdateLabels,
+    PostUpdateLabels, StartupLabels, UpdateLabels,
 };
 
 use self::{
-    events::{NetGridmapUpdates, NetProjectileFOV, ProjectileFOV, RemoveCell},
+    events::{net_system, NetGridmapUpdates, NetProjectileFOV, ProjectileFOV, RemoveCell},
     resources::SpawnPoints,
     systems::{
         gridmap_updates::gridmap_updates, projectile_fov::projectile_fov, remove_cell::remove_cell,
@@ -973,6 +973,11 @@ impl Plugin for GridmapPlugin {
                     .with_run_criteria(FixedTimestep::step(1. / 4.))
                     .with_system(gridmap_updates),
             )
-            .init_resource::<GridmapMain>();
+            .init_resource::<GridmapMain>()
+            .add_system_to_stage(
+                PostUpdate,
+                net_system.after(PostUpdateLabels::VisibleChecker),
+            );
     }
 }
+use bevy_app::CoreStage::PostUpdate;
