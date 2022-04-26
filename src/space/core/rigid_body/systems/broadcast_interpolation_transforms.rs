@@ -6,13 +6,13 @@ use bevy_ecs::{
 };
 use bevy_log::warn;
 use bevy_math::{Quat, Vec3};
+use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::prelude::{RigidBodyPositionComponent, RigidBodyVelocityComponent};
-use bevy_renet::renet::RenetServer;
 use bevy_transform::components::Transform;
 
 use crate::space::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    networking::{resources::UnreliableServerMessage, UNRELIABLE_CHANNEL},
+    networking::resources::UnreliableServerMessage,
     rigid_body::components::{CachedBroadcastTransform, RigidBodyDisabled},
     sensable::components::Sensable,
     static_body::components::StaticTransform,
@@ -36,7 +36,7 @@ pub const BROADCAST_INTERPOLATION_TRANSFORM_RATE: f64 = 24.;
 pub fn broadcast_interpolation_transforms(
     time: Res<Time>,
 
-    mut net: ResMut<RenetServer>,
+    mut net: ResMut<NetworkResource>,
     handle_to_entity: Res<HandleToEntity>,
     mut query_interpolated_entities: Query<
         (
@@ -161,20 +161,23 @@ pub fn broadcast_interpolation_transforms(
                 Some(handle) => {
                     match net.send_message(
                         *handle,
-                        UNRELIABLE_CHANNEL,
-                        bincode::serialize(&UnreliableServerMessage::TransformUpdate(
+                        UnreliableServerMessage::TransformUpdate(
                             interpolated_entity.to_bits(),
                             rigid_body_translation,
                             rigid_body_rotation,
                             velocity_option,
                             current_time_stamp as u64,
                             rate_u,
-                        ))
-                        .unwrap(),
+                        ),
                     ) {
-                        Ok(()) => {}
+                        Ok(msg) => match msg {
+                            Some(msg) => {
+                                warn!("was unable to send TransformUpdate message: {:?}", msg);
+                            }
+                            None => {}
+                        },
                         Err(err) => {
-                            warn!("was unable to send TransformUpdate message: {:?}", err);
+                            warn!("was unable to send TransformUpdate message (1): {:?}", err);
                         }
                     };
                 }

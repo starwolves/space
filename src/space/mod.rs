@@ -5,6 +5,7 @@ use bevy_app::{App, Plugin, ScheduleRunnerPlugin};
 use bevy_core::CorePlugin as BCorePlugin;
 use bevy_ecs::schedule::SystemLabel;
 use bevy_log::LogPlugin;
+use bevy_networking_turbulence::NetworkingPlugin as TBNetworkingPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use bevy_transform::TransformPlugin;
 
@@ -38,6 +39,7 @@ pub enum StartupLabels {
     InitDefaultGridmapData,
     BuildGridmap,
     InitAtmospherics,
+    ListenConnections,
     InitEntities,
     ServerIsLive,
 }
@@ -85,6 +87,10 @@ impl Plugin for SpacePlugin {
             .add_plugin(LogPlugin::default())
             .add_plugin(TransformPlugin::default())
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+            .add_plugin(TBNetworkingPlugin {
+                idle_timeout_ms: Some(40000),
+                ..Default::default()
+            })
             .add_plugin(ConfigurationPlugin)
             .add_plugin(ConnectedPlayerPlugin)
             .add_plugin(AsanaPlugin)
@@ -104,6 +110,7 @@ impl Plugin for SpacePlugin {
             .add_plugin(TabActionsPlugin)
             .add_plugin(ConstructionToolAdminPlugin)
             .add_plugin(NetworkingPlugin)
+            .add_plugin(CorePlugin)
             .add_plugin(PhysicsPlugin)
             .add_plugin(HumanoidPlugin)
             .add_plugin(RigidBodyPlugin)
@@ -116,7 +123,6 @@ impl Plugin for SpacePlugin {
             .add_plugin(JumpsuitsPlugin)
             .add_plugin(HelmetsPlugin)
             .add_plugin(PistolL1Plugin)
-            .add_plugin(ArtificialUnintelligencePlugin)
-            .add_plugin(CorePlugin);
+            .add_plugin(ArtificialUnintelligencePlugin);
     }
 }

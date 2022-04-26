@@ -6,7 +6,7 @@ use crate::space::core::{
 
 pub fn personalise(
     updates_data: &mut HashMap<String, HashMap<String, EntityUpdateData>>,
-    player_handle: u64,
+    player_handle: u32,
     entity_updates_component: &EntityUpdates,
 ) {
     let mut to_be_removed_parameters = vec![];

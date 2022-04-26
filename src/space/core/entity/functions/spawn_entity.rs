@@ -26,7 +26,7 @@ pub fn spawn_entity(
     held_data_option: Option<(
         Entity,
         bool,
-        Option<u64>,
+        Option<u32>,
         &mut Option<&mut EventWriter<NetShowcase>>,
     )>,
     pawn_data_option: Option<(Vec<(String, String)>, PersistentPlayerData)>,
@@ -104,7 +104,7 @@ pub fn spawn_held_entity(
     commands: &mut Commands,
     holder_entity: Entity,
     showcase_instance: bool,
-    showcase_handle_option: Option<u64>,
+    showcase_handle_option: Option<u32>,
     net_showcase: &mut Option<&mut EventWriter<NetShowcase>>,
     entity_data: &ResMut<EntityDataResource>,
 ) -> Option<Entity> {

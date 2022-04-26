@@ -8,6 +8,6 @@ pub struct InputChatMessage {
 }
 
 pub struct NetChatMessage {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }

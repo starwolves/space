@@ -1,8 +1,9 @@
-use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
+use std::{collections::HashMap, time::Duration};
 
-use bevy_log::info;
 use bevy_math::{Quat, Vec2, Vec3};
-use bevy_renet::renet::{RenetConnectionConfig, RenetServer, ServerConfig, NETCODE_KEY_BYTES};
+use bevy_networking_turbulence::{
+    MessageChannelMode, MessageChannelSettings, ReliableChannelSettings,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::space::core::world_environment::resources::WorldEnvironment;
@@ -214,22 +215,60 @@ pub enum NetMessageType {
     Unreliable(UnreliableServerMessage),
 }
 
+pub const SERVER_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 0,
+    channel_mode: MessageChannelMode::Reliable {
+        reliability_settings: ReliableChannelSettings {
+            bandwidth: 163840,
+            recv_window_size: 1024,
+            send_window_size: 1024,
+            burst_bandwidth: 1024,
+            init_send: 512,
+            wakeup_time: Duration::from_millis(100),
+            initial_rtt: Duration::from_millis(200),
+            max_rtt: Duration::from_secs(2),
+            rtt_update_factor: 0.1,
+            rtt_resend_factor: 1.5,
+        },
+        max_message_len: 32765,
+    },
+    message_buffer_size: 1024,
+    packet_buffer_size: 1024,
+};
+
+pub const CLIENT_MESSAGE_RELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 1,
+    channel_mode: MessageChannelMode::Reliable {
+        reliability_settings: ReliableChannelSettings {
+            bandwidth: 163840,
+            recv_window_size: 1024,
+            send_window_size: 1024,
+            burst_bandwidth: 1024,
+            init_send: 512,
+            wakeup_time: Duration::from_millis(100),
+            initial_rtt: Duration::from_millis(200),
+            max_rtt: Duration::from_secs(2),
+            rtt_update_factor: 0.1,
+            rtt_resend_factor: 1.5,
+        },
+        max_message_len: 1024,
+    },
+    message_buffer_size: 64,
+    packet_buffer_size: 64,
+};
+
+pub const SERVER_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 2,
+    channel_mode: MessageChannelMode::Unreliable,
+    message_buffer_size: 256,
+    packet_buffer_size: 256,
+};
+
+pub const CLIENT_MESSAGE_UNRELIABLE: MessageChannelSettings = MessageChannelSettings {
+    channel: 3,
+    channel_mode: MessageChannelMode::Unreliable,
+    message_buffer_size: 64,
+    packet_buffer_size: 64,
+};
+
 pub const SERVER_PORT: u16 = 57713;
-
-const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"an example very very secret key."; // 32-bytes
-const PROTOCOL_ID: u64 = 7;
-
-pub fn new_renet_server() -> RenetServer {
-    let connect_string =
-        local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string();
-    let server_addr = connect_string.parse().unwrap();
-    let socket = UdpSocket::bind(server_addr).unwrap();
-    let connection_config = RenetConnectionConfig::default();
-    let server_config = ServerConfig::new(256, PROTOCOL_ID, server_addr, *PRIVATE_KEY);
-    let current_time = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap();
-
-    info!("Server is live.");
-    RenetServer::new(current_time, server_config, connection_config, socket).unwrap()
-}

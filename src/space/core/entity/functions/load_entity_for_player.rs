@@ -19,7 +19,7 @@ pub fn load_entity(
     entity_transform: Transform,
     interpolated_transform: bool,
     net_load_entity: &mut EventWriter<NetLoadEntity>,
-    player_handle: u64,
+    player_handle: u32,
     entity_data: &EntityData,
     entity_updates_component: &EntityUpdates,
     entity_id: Entity,

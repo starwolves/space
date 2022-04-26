@@ -15,34 +15,34 @@ pub struct CounterWindowSensorCollision {
 }
 
 pub struct InputCounterWindowToggleOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
 
     pub opener: Entity,
     pub opened: u64,
 }
 pub struct CounterWindowLockOpen {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
 
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct CounterWindowLockClosed {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
 
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct CounterWindowUnlock {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
 
     pub locked: Entity,
     pub locker: Entity,
 }
 
 pub struct NetCounterWindow {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 

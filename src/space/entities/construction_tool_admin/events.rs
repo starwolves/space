@@ -7,32 +7,32 @@ use crate::space::core::{
 };
 
 pub struct InputConstruct {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
     pub target_cell: (GridMapType, i16, i16, i16),
     pub belonging_entity: u64,
 }
 
 pub struct InputConstructionOptionsSelection {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
     pub menu_selection: String,
     // Entity has been validated.
     pub entity: Entity,
 }
 
 pub struct InputConstructionOptions {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
     pub belonging_entity: u64,
 }
 
 pub struct InputDeconstruct {
-    pub handle_option: Option<u64>,
+    pub handle_option: Option<u32>,
     pub target_cell_option: Option<(GridMapType, i16, i16, i16)>,
     pub target_entity_option: Option<u64>,
     pub belonging_entity: u64,
 }
 
 pub struct NetConstructionTool {
-    pub handle: u64,
+    pub handle: u32,
     pub message: ReliableServerMessage,
 }
 
