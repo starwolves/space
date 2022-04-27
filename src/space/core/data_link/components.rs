@@ -15,4 +15,5 @@ impl Default for DataLink {
 pub enum DataLinkType {
     FullAtmospherics,
     RemoteLock,
+    ShipEngineeringKnowledge,
 }

@@ -86,7 +86,7 @@ pub fn examine_map(
 
         for sensing_ability in examiner_senser_component.sensing_abilities.iter() {
             match sensing_ability {
-                SensingAbility::Atmospherics => {
+                SensingAbility::AtmosphericsSensor => {
                     let id = Vec2Int {
                         x: examine_event.gridmap_cell_id.x,
                         y: examine_event.gridmap_cell_id.z,
@@ -124,6 +124,23 @@ pub fn examine_map(
                         + " kpa"
                         + "[/font]";
                 }
+                SensingAbility::ShipEngineerKnowledge => {
+                    examine_text = examine_text
+                        + "[font="
+                        + FURTHER_ITALIC_FONT
+                        + "][color="
+                        + ENGINEERING_TEXT_COLOR
+                        + "]"
+                        + "\n"
+                        + "Ship Engineer Knowledge: [/color]"
+                        + "\n"
+                        + "Reference code shows coordinates ("
+                        + &examine_event.gridmap_cell_id.x.to_string()
+                        + " , "
+                        + &examine_event.gridmap_cell_id.z.to_string()
+                        + ")."
+                        + "[/font]";
+                }
             }
         }
 
@@ -137,3 +154,4 @@ pub fn examine_map(
 }
 
 pub const ATMOSPHERICS_TEXT_COLOR: &str = "#1797ff";
+pub const ENGINEERING_TEXT_COLOR: &str = "#ff992b";
