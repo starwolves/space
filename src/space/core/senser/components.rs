@@ -5,7 +5,8 @@ use crate::space::core::gridmap::resources::{Vec2Int, FOV_MAP_WIDTH};
 
 #[derive(PartialEq)]
 pub enum SensingAbility {
-    Atmospherics,
+    AtmosphericsSensor,
+    ShipEngineerKnowledge,
 }
 
 #[derive(Component)]

@@ -5,33 +5,33 @@ use crate::space::core::{
     senser::components::{Senser, SensingAbility},
 };
 
-pub fn atmospherics_sensing_ability(
+pub fn gridmap_sensing_ability(
     mut data_linked: Query<(&DataLink, &mut Senser), Changed<DataLink>>,
 ) {
     for (data_link_component, mut senser_component) in data_linked.iter_mut() {
         if data_link_component
             .links
-            .contains(&DataLinkType::FullAtmospherics)
+            .contains(&DataLinkType::ShipEngineeringKnowledge)
             && senser_component
                 .sensing_abilities
-                .contains(&SensingAbility::AtmosphericsSensor)
+                .contains(&SensingAbility::ShipEngineerKnowledge)
                 == false
         {
             senser_component
                 .sensing_abilities
-                .push(SensingAbility::AtmosphericsSensor);
+                .push(SensingAbility::ShipEngineerKnowledge);
         } else if data_link_component
             .links
-            .contains(&DataLinkType::FullAtmospherics)
+            .contains(&DataLinkType::ShipEngineeringKnowledge)
             == false
             && senser_component
                 .sensing_abilities
-                .contains(&SensingAbility::AtmosphericsSensor)
+                .contains(&SensingAbility::ShipEngineerKnowledge)
         {
             let index = senser_component
                 .sensing_abilities
                 .iter()
-                .position(|r| r == &SensingAbility::AtmosphericsSensor)
+                .position(|r| r == &SensingAbility::ShipEngineerKnowledge)
                 .unwrap();
 
             senser_component.sensing_abilities.remove(index);

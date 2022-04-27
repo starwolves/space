@@ -48,7 +48,7 @@ use self::{
     resources::SpawnPoints,
     systems::{
         gridmap_updates::gridmap_updates, projectile_fov::projectile_fov, remove_cell::remove_cell,
-        senser_update_fov::senser_update_fov,
+        senser_update_fov::senser_update_fov, sensing_ability::gridmap_sensing_ability,
     },
 };
 
@@ -977,7 +977,8 @@ impl Plugin for GridmapPlugin {
             .add_system_to_stage(
                 PostUpdate,
                 net_system.after(PostUpdateLabels::VisibleChecker),
-            );
+            )
+            .add_system(gridmap_sensing_ability);
     }
 }
 use bevy_app::CoreStage::PostUpdate;
