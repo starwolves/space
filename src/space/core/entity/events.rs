@@ -37,7 +37,6 @@ pub fn net_system(
     mut net3: EventReader<NetSendEntityUpdates>,
     mut net4: EventReader<NetShowcase>,
 ) {
-
     for new_event in net2.iter() {
         send_net(
             &mut net,

@@ -6,6 +6,7 @@ pub mod gi_probe;
 pub mod helmet_security;
 pub mod human_male;
 pub mod jumpsuit_security;
+pub mod long_line_arrow;
 pub mod omni_light;
 pub mod pistol_l1;
 pub mod reflection_probe;
