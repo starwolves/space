@@ -68,7 +68,7 @@ impl Plugin for EntityPlugin {
 
 pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
     commands.list.push((
-        "spawn_entity".to_string(),
+        "spawn".to_string(),
         "For server administrators only. Spawn in entities in proximity.".to_string(),
         vec![
             ("entity_name".to_string(), ConsoleCommandVariant::String),

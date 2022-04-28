@@ -53,7 +53,7 @@ pub fn entity_console_commands(
             return;
         }
 
-        if console_command_event.command_name == "spawn_entity" {
+        if console_command_event.command_name == "spawn" {
             let entity_name;
 
             match &console_command_event.command_arguments[0] {
