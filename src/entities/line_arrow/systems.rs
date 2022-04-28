@@ -15,14 +15,14 @@ use crate::core::{
     sensable::components::Sensable,
 };
 
-use super::{components::PointArrow, spawn::LongLineArrowBundle};
+use super::{components::PointArrow, spawn::LineArrowBundle};
 
 pub fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
 ) {
     for command in queue.iter() {
-        if command.command_name == "arrow_point" {
+        if command.command_name == "point_arrow" {
             let x;
             let y;
             let z;
@@ -120,7 +120,7 @@ pub fn entity_console_commands(
             let mut passed_transform = Transform::identity();
             passed_transform.translation = translation;
 
-            LongLineArrowBundle::spawn(
+            LineArrowBundle::spawn(
                 passed_transform,
                 &mut commands,
                 false,

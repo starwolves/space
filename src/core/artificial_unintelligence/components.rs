@@ -1,9 +1,7 @@
 use bevy_ecs::prelude::Component;
 use bevy_math::{Vec2, Vec3};
 
-use crate::core::gridmap::{
-    functions::gridmap_functions::cell_id_to_world, resources::Vec3Int,
-};
+use crate::core::gridmap::{functions::gridmap_functions::cell_id_to_world, resources::Vec3Int};
 
 #[derive(Copy, Clone)]
 pub enum Action {

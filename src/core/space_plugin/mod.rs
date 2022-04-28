@@ -24,7 +24,7 @@ use super::super::{
         counter_windows::CounterWindowsPlugin,
         helmet_security::HelmetsPlugin,
         jumpsuit_security::JumpsuitsPlugin,
-        long_line_arrow::{LongLineArrowPlugin, PointArrowPlugin},
+        line_arrow::{LineArrowPlugin, PointArrowPlugin},
         omni_light::OmniLightPlugin,
         pistol_l1::PistolL1Plugin,
         reflection_probe::ReflectionProbePlugin,
@@ -118,7 +118,7 @@ impl Plugin for SpacePlugin {
             .add_plugin(HelmetsPlugin)
             .add_plugin(PistolL1Plugin)
             .add_plugin(ArtificialUnintelligencePlugin)
-            .add_plugin(LongLineArrowPlugin)
+            .add_plugin(LineArrowPlugin)
             .add_plugin(PointArrowPlugin);
     }
 }
