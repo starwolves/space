@@ -22,7 +22,7 @@ pub fn entity_console_commands(
     mut commands: Commands,
 ) {
     for command in queue.iter() {
-        if command.command_name == "point_arrow" {
+        if command.command_name == "pointArrow" {
             let x;
             let y;
             let z;

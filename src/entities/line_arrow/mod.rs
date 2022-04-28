@@ -44,7 +44,7 @@ impl Plugin for PointArrowPlugin {
 
 pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
     commands.list.push((
-        "point_arrow".to_string(),
+        "pointArrow".to_string(),
         "Spawn an arrow with a specified duration and world position to point at.".to_string(),
         vec![
             ("x".to_string(), ConsoleCommandVariant::Float),
