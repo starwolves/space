@@ -1,10 +1,11 @@
+pub mod core;
+pub mod entities;
+pub mod plugins;
+
+use crate::core::space_plugin::SpacePlugin;
+
 use bevy_app::App;
 use bevy_core::DefaultTaskPoolOptions;
-use space::SpacePlugin;
-
-pub mod plugins;
-pub mod space;
-
 fn main() {
     App::new()
         //.insert_resource(ReportExecutionOrderAmbiguities)
