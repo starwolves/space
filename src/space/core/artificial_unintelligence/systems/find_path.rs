@@ -3,7 +3,7 @@ use bevy_ecs::{prelude::Entity, system::Res};
 use rand::Rng;
 
 use crate::space::core::artificial_unintelligence::components::{Action, AiGoal, Path};
-use crate::space::core::artificial_unintelligence::functions::pathfinding::generate_path_astar;
+use crate::space::core::artificial_unintelligence::functions::pathing_et_steering::generate_path_astar;
 use crate::space::core::gridmap::functions::gridmap_functions::world_to_cell_id;
 use crate::space::core::gridmap::resources::{GridmapData, GridmapMain, Vec3Int};
 use crate::space::core::rigid_body::components::CachedBroadcastTransform;
@@ -14,13 +14,17 @@ pub fn find_path(
     gridmap_data: Res<GridmapData>,
 ) {
     let location_list = [
-        Vec3Int { x: 0, y: -1, z: -5 },
+        Vec3Int {
+            x: 0,
+            y: -1,
+            z: -20,
+        },
         Vec3Int {
             x: 100,
             y: -1,
             z: -4,
         },
-        Vec3Int { x: 15, y: -1, z: 0 },
+        Vec3Int { x: 0, y: -1, z: 10 },
         Vec3Int {
             x: -42,
             y: -1,

@@ -1,2 +1,1 @@
-pub mod pathfinding;
-pub mod steer;
+pub mod pathing_et_steering;
