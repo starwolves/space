@@ -20,11 +20,11 @@ use crate::core::{
     static_body::components::StaticTransform,
 };
 
-use super::components::{LongLineArrow, PointArrow};
+use super::components::{LineArrow, PointArrow};
 
-pub struct LongLineArrowBundle;
+pub struct LineArrowBundle;
 
-impl LongLineArrowBundle {
+impl LineArrowBundle {
     pub fn spawn(
         passed_transform: Transform,
         commands: &mut Commands,
@@ -99,7 +99,7 @@ fn spawn_entity(
     let mut builder = commands.spawn_bundle((
         EntityData {
             entity_class: "entity".to_string(),
-            entity_name: "longLineArrow".to_string(),
+            entity_name: "lineArrow".to_string(),
             ..Default::default()
         },
         EntityUpdates::default(),
@@ -122,7 +122,7 @@ fn spawn_entity(
         DefaultTransform {
             transform: default_transform,
         },
-        LongLineArrow,
+        LineArrow,
         PointArrow {
             timer: Timer::from_seconds(*duration as f32, false),
         },
