@@ -5,6 +5,7 @@ use crate::space::core::gridmap::{
     functions::gridmap_functions::cell_id_to_world, resources::Vec3Int,
 };
 
+#[derive(Copy, Clone)]
 pub enum Action {
     GoToPoint,
     PassiveStandby,
