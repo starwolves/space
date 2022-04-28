@@ -32,7 +32,7 @@ impl Plugin for InventoryItemPlugin {
 
 pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
     commands.list.push((
-        "spawn_held".to_string(),
+        "spawnHeld".to_string(),
         "For server administrators only. Spawn in held entities in hands or in proximity."
             .to_string(),
         vec![

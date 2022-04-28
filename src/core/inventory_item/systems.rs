@@ -55,7 +55,7 @@ pub fn inventory_item_console_commands(
             return;
         }
 
-        if console_command_event.command_name == "spawn_held" {
+        if console_command_event.command_name == "spawnHeld" {
             let entity_name;
 
             match &console_command_event.command_arguments[0] {
