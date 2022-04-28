@@ -1,6 +1,5 @@
 pub mod core;
 pub mod entities;
-pub mod plugins;
 
 use crate::core::space_plugin::SpacePlugin;
 
