@@ -9,7 +9,7 @@ use crate::core::{
         events::NetOnNewPlayerConnection,
         resources::HandleToEntity,
     },
-    console_commands::resources::ConsoleCommands,
+    console_commands::resources::AllConsoleCommands,
     gridmap::resources::GridmapData,
     map::resources::MapData,
     networking::resources::{ReliableServerMessage, ServerConfigMessage},
@@ -30,7 +30,7 @@ pub fn on_new_player_connection(
     used_names: &mut ResMut<UsedNames>,
     gridmap_data: &Res<GridmapData>,
     map_data: &Res<MapData>,
-    console_commands: &Res<ConsoleCommands>,
+    console_commands: &Res<AllConsoleCommands>,
 ) {
     net_on_new_player_connection.send(NetOnNewPlayerConnection {
         handle: *handle,

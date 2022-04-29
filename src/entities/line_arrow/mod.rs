@@ -2,7 +2,7 @@ use bevy_app::{App, Plugin};
 use bevy_ecs::{schedule::ParallelSystemDescriptorCoercion, system::ResMut};
 
 use crate::core::{
-    console_commands::{resources::ConsoleCommands, ConsoleCommandsLabels},
+    console_commands::{resources::AllConsoleCommands, ConsoleCommandsLabels},
     entity::{
         functions::initialize_entity_data::initialize_entity_data,
         resources::{EntityDataProperties, EntityDataResource},
@@ -42,7 +42,7 @@ impl Plugin for PointArrowPlugin {
     }
 }
 
-pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
+pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "pointArrow".to_string(),
         "Spawn an arrow with a specified duration and world position to point at.".to_string(),

@@ -6,7 +6,7 @@ use bevy_ecs::system::ResMut;
 use self::entity_update::inventory_item_update;
 use self::systems::inventory_item_console_commands;
 
-use super::console_commands::resources::ConsoleCommands;
+use super::console_commands::resources::AllConsoleCommands;
 use super::console_commands::ConsoleCommandsLabels;
 use super::networking::resources::ConsoleCommandVariant;
 use super::space_plugin::PostUpdateLabels;
@@ -30,7 +30,7 @@ impl Plugin for InventoryItemPlugin {
     }
 }
 
-pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
+pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "spawnHeld".to_string(),
         "For server administrators only. Spawn in held entities in hands or in proximity."

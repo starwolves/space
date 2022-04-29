@@ -5,8 +5,8 @@ use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
     console_commands::{
-        events::NetConsoleCommands, functions::rcon_spawn_entity::rcon_spawn_entity,
-        resources::InputConsoleCommand,
+        events::{InputConsoleCommand, NetConsoleCommands},
+        functions::rcon_spawn_entity::rcon_spawn_entity,
     },
     entity::resources::EntityDataResource,
     gridmap::resources::GridmapMain,

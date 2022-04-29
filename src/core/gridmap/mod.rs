@@ -807,6 +807,90 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
             description: "A glorious Red Dragon poster for security personnel to remind you of the collective's might. \n\"Protect\nControl\nPrevent\nSecure\"".to_string()
         }
     );
+
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data
+            .details1_name_id_map
+            .get("redDragonBridgePoster1")
+            .unwrap(),
+        name: RichName {
+            name: "bridge poster".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A poster for bridge personnel to remind you to lead. \n\"Take Charge\""
+            .to_string(),
+    });
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data
+            .details1_name_id_map
+            .get("redDragonBridgePoster2")
+            .unwrap(),
+        name: RichName {
+            name: "bridge poster".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A poster for bridge personnel showing artwork of the moon from back home."
+            .to_string(),
+    });
+    details1_cells_data.push(
+        Details1CellProperties{
+            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster3").unwrap(),
+            name: RichName {
+                name: "bridge poster".to_string() ,
+                n: false,
+                the: false,
+            },
+            description: "A poster for bridge personnel to showcase the utmost importance of sharing data. \n\"Broadcast\nStream\"".to_string()
+        }
+    );
+    details1_cells_data.push(
+        Details1CellProperties{
+            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster4").unwrap(),
+            name: RichName {
+                name: "bridge poster".to_string() ,
+                n: false,
+                the: false,
+            },
+            description: "A poster for bridge personnel showing a brand new space fighter, usually carried on-board of large flagships. \n\"Vigilant\"".to_string()
+        }
+    );
+    details1_cells_data.push(
+        Details1CellProperties{
+            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster5").unwrap(),
+            name: RichName {
+                name: "bridge poster".to_string() ,
+                n: false,
+                the: false,
+            },
+            description: "A poster for bridge personnel reminding the importance of the connectivity of technology. The logo disturbingly reminds you of chains. \n\"Connect\"".to_string()
+        }
+    );
+    details1_cells_data.push(Details1CellProperties {
+        id: *gridmap_data
+            .details1_name_id_map
+            .get("redDragonBridgePoster6")
+            .unwrap(),
+        name: RichName {
+            name: "bridge poster".to_string(),
+            n: false,
+            the: false,
+        },
+        description: "A poster for bridge personnel. \n\"Remotely connected\"".to_string(),
+    });
+    details1_cells_data.push(
+        Details1CellProperties{
+            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster7").unwrap(),
+            name: RichName {
+                name: "bridge poster".to_string() ,
+                n: false,
+                the: false,
+            },
+            description: "A poster for bridge personnel promoting its staff to be watchful with the help of security cameras installed around the ship. \n\"Watchful\"".to_string()
+        }
+    );
+
     details1_cells_data.push(Details1CellProperties {
         id: *gridmap_data
             .details1_name_id_map
