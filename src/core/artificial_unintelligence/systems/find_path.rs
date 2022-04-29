@@ -38,12 +38,7 @@ pub fn find_path(
     ];
     for (_entity, goal, transform, mut path) in ai_query.iter_mut() {
         match goal.action {
-            Action::PassiveStandby => {
-                if let Some(_) = path.cell_path {
-                    path.remove_paths();
-                }
-            }
-            Action::AggressiveStandby => {
+            Action::Standby => {
                 if let Some(_) = path.cell_path {
                     path.remove_paths();
                 }

@@ -7,7 +7,10 @@ use std::{
 };
 
 use crate::core::{
-    artificial_unintelligence::{components::Action, resources::CONTEXT_MAP_RESOLUTION},
+    artificial_unintelligence::{
+        components::{ContextMap, Waypoint, WaypointType},
+        resources::CONTEXT_MAP_RESOLUTION,
+    },
     gridmap::{
         functions::gridmap_functions::cell_id_to_world,
         resources::{CellData, Vec3Int, FOV_MAP_WIDTH},
@@ -264,55 +267,65 @@ fn get_above_cell(cell: &Vec3Int) -> Vec3Int {
     }
 }
 
-pub fn get_vector(target: Vec3, current: Vec3) -> Vec2 {
+pub fn get_vector(target: Waypoint, current: Vec3) -> Vec2 {
+    let target = target.position;
     let x = target.x - current.x;
     let y = target.z - current.z;
 
     Vec2::new(x * -1., y).normalize_or_zero()
 }
 
-pub fn waypoint_interest_distribution(
-    waypoint: Vec3,
-    current_location: Vec3,
-) -> Option<((Vec2, i32), (Vec2, i32))> {
-    let waypoint = get_vector(waypoint, current_location);
-    if waypoint != Vec2::ZERO {
-        let mapped_vectors: [Vec2; 8] = [
-            Vec2::new(0., -1.),
-            Vec2::new(-0.70710677, -0.70710677),
-            Vec2::new(-1., 0.),
-            Vec2::new(-0.70710677, 0.70710677),
-            Vec2::new(0., 1.),
-            Vec2::new(0.70710677, 0.70710677),
-            Vec2::new(1., 0.),
-            Vec2::new(0.70710677, -0.70710677),
-        ];
-        let uniform_distance: f32 = mapped_vectors[0].distance(mapped_vectors[1]);
-        let mut dist = waypoint.distance(mapped_vectors[0]);
-        let mut closest = (0, dist);
-        let mut next_closest = (0, dist);
-        for i in 0..mapped_vectors.len() {
-            dist = waypoint.distance(mapped_vectors[i]);
-            if dist < closest.1 {
-                next_closest = closest;
-                closest = (i, dist);
-            } else if dist < next_closest.1 {
-                next_closest = (i, dist);
-            }
+pub fn find_closest_two_vectors_and_strength(
+    vector: Vec2,
+    mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION],
+) -> ((usize, i32), (usize, i32)) {
+    let uniform_distance: f32 = mapped_vectors[0].distance(mapped_vectors[1]);
+    let mut dist = vector.distance(mapped_vectors[0]);
+    let mut closest = (0, dist);
+    let mut next_closest = closest;
+    for i in 0..mapped_vectors.len() {
+        dist = vector.distance(mapped_vectors[i]);
+        if dist < closest.1 {
+            next_closest = closest;
+            closest = (i, dist);
+        } else if dist < next_closest.1 {
+            next_closest = (i, dist);
         }
-
-        let closest_distribution = (closest.1 / uniform_distance) * 100.;
-        let next_closest_distribution = (next_closest.1 / uniform_distance) * 100.;
-        let closest_distribution = closest_distribution.round() as i32;
-        let next_closest_distribution = next_closest_distribution.round() as i32;
-
-        Some((
-            (mapped_vectors[closest.0], closest_distribution),
-            (mapped_vectors[next_closest.0], next_closest_distribution),
-        ))
-    } else {
-        None
     }
+
+    let closest_distribution = (closest.1 / uniform_distance) * 100.;
+    let next_closest_distribution = (next_closest.1 / uniform_distance) * 100.;
+    let closest_distribution = closest_distribution.round() as i32;
+    let next_closest_distribution = next_closest_distribution.round() as i32;
+
+    (
+        (closest.0, closest_distribution),
+        (next_closest.0, next_closest_distribution),
+    )
+}
+
+pub fn find_closest_two_vectors_and_dot(
+    vector: Vec2,
+    mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION],
+) -> ((usize, i32), (usize, i32)) {
+    let mut dot = vector.dot(mapped_vectors[0]);
+    let mut closest = (0, dot);
+    let mut next_closest = closest;
+    for i in 0..mapped_vectors.len() {
+        dot = vector.dot(mapped_vectors[i]);
+        if dot > closest.1 {
+            next_closest = closest;
+            closest = (i, dot);
+        } else if dot > next_closest.1 {
+            next_closest = (i, dot);
+        }
+    }
+    closest.1 = (closest.1 * 100.).round();
+    next_closest.1 = (next_closest.1 * 100.).round();
+    (
+        (closest.0, closest.1 as i32),
+        (next_closest.0, next_closest.1 as i32),
+    )
 }
 
 pub fn create_surroundings_map(
@@ -320,18 +333,22 @@ pub fn create_surroundings_map(
     _radius: i32,
     gridmap: &HashMap<Vec3Int, CellData>,
     main_id_name_map: &HashMap<i64, String>,
-) -> [Option<Vec3>; 8] {
+) -> [Option<Waypoint>; 8] {
     let mut blocked_waypoints = [None; 8];
     let neighbouring_cells = get_neighbouring_cells(current_cell);
     for i in 0..neighbouring_cells.len() {
         if !is_pathable(&neighbouring_cells[i], gridmap, main_id_name_map) {
-            blocked_waypoints[i] = Some(cell_id_to_world(neighbouring_cells[i]));
+            blocked_waypoints[i] = Some(Waypoint {
+                position: cell_id_to_world(neighbouring_cells[i]),
+                waypoint_type: WaypointType::CollisionObject,
+            });
         }
     }
     blocked_waypoints
 }
 
-pub fn get_proximity(target: Vec3, current: Vec3) -> f32 {
+pub fn get_proximity(target: Waypoint, current: Vec3) -> f32 {
+    let target = target.position;
     let x_dist = (target.x - current.x).abs();
     let y_dist = (target.z - current.z).abs();
     x_dist + y_dist
@@ -339,67 +356,32 @@ pub fn get_proximity(target: Vec3, current: Vec3) -> f32 {
 
 // A context map is an array of integers representing how desireable
 // or undesirable the direction that corresponds with a given index is
-pub fn create_context_map(
-    waypoints: [Option<Vec3>; 8],
+pub fn choose_vector(
+    waypoints: Vec<Waypoint>,
     current_location: Vec3,
-    action: Action,
     mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION],
-) -> [i32; CONTEXT_MAP_RESOLUTION] {
-    let mut context_map = [0; CONTEXT_MAP_RESOLUTION];
-    match action {
-        Action::GoToPoint => {
-            for waypoint_option in waypoints {
-                if let Some(waypoint) = waypoint_option {
-                    if let Some((
-                        (primary_direction, primary_intensity),
-                        (secondary_direction, secondary_intensity),
-                    )) = waypoint_interest_distribution(waypoint, current_location)
-                    {
-                        for i in 0..mapped_vectors.len() {
-                            if primary_direction == mapped_vectors[i] {
-                                context_map[i] = primary_intensity;
-                            } else if secondary_direction == mapped_vectors[i] {
-                                context_map[i] = secondary_intensity;
-                            }
-                        }
-                    }
-                }
+) -> Vec2 {
+    let mut interest_map = ContextMap::new_interest_map();
+    let mut danger_map = ContextMap::new_danger_map();
+    for waypoint in waypoints {
+        match waypoint.waypoint_type {
+            WaypointType::Pathing => {
+                let vector = get_vector(waypoint, current_location);
+                let mut new_interest_map = ContextMap::new_interest_map();
+                new_interest_map.overwrite_all_slots_with_dot(vector, mapped_vectors);
+                interest_map.combine(new_interest_map);
             }
-        }
-        _ => {}
-    }
-    context_map
-}
-
-// Uses the dot product of a given vector and each vector of a
-// context map to fill the values of a context map
-pub fn fill_interest_map_with_dot(
-    desired_vector: Vec2,
-    mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION],
-) -> [i32; CONTEXT_MAP_RESOLUTION] {
-    let mut interest_map = [0; CONTEXT_MAP_RESOLUTION];
-    for i in 0..mapped_vectors.len() {
-        interest_map[i] = (desired_vector.dot(mapped_vectors[i]) * 100.).round() as i32;
-    }
-    interest_map
-}
-
-pub fn get_two_greatest(
-    interest_map: [i32; CONTEXT_MAP_RESOLUTION],
-) -> ((usize, i32), (usize, i32)) {
-    let mut greatest = (0, interest_map[0]);
-    let mut next_greatest = greatest;
-    for i in 0..interest_map.len() {
-        let currently_testing = interest_map[i];
-        if currently_testing > greatest.1 {
-            next_greatest = greatest;
-            greatest = (i, currently_testing);
-        } else if currently_testing > next_greatest.1 {
-            next_greatest = (i, currently_testing);
+            WaypointType::CollisionObject => {
+                let vector = get_vector(waypoint, current_location);
+                let (closest, _next_closest) =
+                    find_closest_two_vectors_and_strength(vector, mapped_vectors);
+                danger_map.write_to_slot(closest.0, closest.1);
+            }
+            _ => todo!(),
         }
     }
-
-    (greatest, next_greatest)
+    interest_map.combine_with_danger(danger_map);
+    mapped_vectors[interest_map.highest_value().0]
 }
 
 // You can use this to get an approximation of the original vector
@@ -445,11 +427,11 @@ pub fn get_weighted_vector_strength(
     let mut vector_b = mapped_vectors[context_map_slot_b.0];
 
     let total_strength = context_map_slot_a.1 + context_map_slot_b.1;
-    let weight_a = context_map_slot_a.1 / total_strength;
-    let weight_b = context_map_slot_b.1 / total_strength;
+    let weight_a = context_map_slot_a.1 as f32 / total_strength as f32;
+    let weight_b = context_map_slot_b.1 as f32 / total_strength as f32;
 
-    vector_a = Vec2::new(weight_a as f32 * vector_a.x, weight_a as f32 * vector_a.y);
-    vector_b = Vec2::new(weight_b as f32 * vector_b.x, weight_b as f32 * vector_b.y);
+    vector_a = Vec2::new(weight_a * vector_a.x, weight_a * vector_a.y);
+    vector_b = Vec2::new(weight_b * vector_b.x, weight_b * vector_b.y);
 
     weighted_vector.x = vector_a.x + vector_b.x;
     weighted_vector.y = vector_a.y + vector_b.y;
@@ -477,29 +459,6 @@ pub fn highest_context_map_value(context_map: [i32; CONTEXT_MAP_RESOLUTION]) -> 
     highest_value
 }
 
-pub fn choose_vector(
-    interest_map: [i32; CONTEXT_MAP_RESOLUTION],
-    danger_map: [i32; CONTEXT_MAP_RESOLUTION],
-    mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION],
-) -> Vec2 {
-    let mut final_interest_map = interest_map;
-    let mut chosen_vector = Vec2::ZERO;
-    let lowest_danger_value = lowest_context_map_value(danger_map);
-    for i in 0..danger_map.len() {
-        if danger_map[i] > lowest_danger_value {
-            final_interest_map[i] = 0;
-        }
-    }
-    let highest_interest_value = highest_context_map_value(final_interest_map);
-    for i in 0..final_interest_map.len() {
-        if final_interest_map[i] >= highest_interest_value {
-            chosen_vector = mapped_vectors[i];
-            break;
-        }
-    }
-    chosen_vector
-}
-
 pub fn build_mapped_vectors() -> [Vec2; CONTEXT_MAP_RESOLUTION] {
     let mut mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION] = [Vec2::ZERO; 8];
     let starting_vec2 = Vec2::new(0., -1.);
@@ -516,27 +475,3 @@ pub fn build_mapped_vectors() -> [Vec2; CONTEXT_MAP_RESOLUTION] {
 
     mapped_vectors
 }
-
-// pub fn create_danger_map(
-//     current_location: Vec3,
-//     action: Action,
-//     gridmap: &HashMap<Vec3Int, CellData>,
-//     main_id_name_map: &HashMap<i64, String>,
-// ) -> [i32; CONTEXT_MAP_RESOLUTION] {
-//     let current_cell = world_to_cell_id(current_location);
-//     let danger_map = [0; 8];
-//     match action {
-//         Action::GoToPoint => {
-//             for waypoint in surroundings_map {
-//                 if let Some(blocked_waypoint) = waypoint {
-//                     if let Some((
-//                         (primary_direction, primary_intensity),
-//                         (secondary_direction, secondary_intensity),
-//                     )) = waypoint_interest_distribution(waypoint, current_location);
-//                 }
-//             }
-//         }
-//         _ => {}
-//     }
-//     danger_map
-// }
