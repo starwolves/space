@@ -16,7 +16,7 @@ use self::{
     },
 };
 
-use super::console_commands::resources::ConsoleCommands;
+use super::console_commands::resources::AllConsoleCommands;
 use super::console_commands::ConsoleCommandsLabels;
 use super::networking::resources::ConsoleCommandVariant;
 use super::space_plugin::{PostUpdateLabels, StartupLabels};
@@ -66,7 +66,7 @@ impl Plugin for EntityPlugin {
     }
 }
 
-pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
+pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "spawn".to_string(),
         "For server administrators only. Spawn in entities in proximity.".to_string(),

@@ -6,8 +6,8 @@ use bevy_ecs::{
 use bevy_log::info;
 
 use self::{
-    events::NetConsoleCommands,
-    resources::{ConsoleCommands, InputConsoleCommand},
+    events::{InputConsoleCommand, NetConsoleCommands},
+    resources::AllConsoleCommands,
     systems::{console_commands, net_system},
 };
 
@@ -31,7 +31,7 @@ pub struct ConsoleCommandsPlugin;
 
 impl Plugin for ConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<ConsoleCommands>()
+        app.init_resource::<AllConsoleCommands>()
             .add_event::<NetConsoleCommands>()
             .add_event::<InputConsoleCommand>()
             .add_system(console_commands)
@@ -47,7 +47,7 @@ impl Plugin for ConsoleCommandsPlugin {
     }
 }
 
-pub fn initialize_console_commands(mut commands: ResMut<ConsoleCommands>) {
+pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "rcon".to_string(),
         "For server administrators only. Obtaining rcon status allows for usage of rcon_* commands"

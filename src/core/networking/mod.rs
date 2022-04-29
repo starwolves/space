@@ -48,7 +48,7 @@ use super::{
         },
         resources::HandleToEntity,
     },
-    console_commands::resources::{ConsoleCommands, InputConsoleCommand},
+    console_commands::{events::InputConsoleCommand, resources::AllConsoleCommands},
     humanoid::components::Humanoid,
     map::resources::MapData,
     space_plugin::{PreUpdateLabels, StartupLabels},
@@ -661,7 +661,7 @@ pub fn connections(
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
     gridmap_data: Res<GridmapData>,
     map_data: Res<MapData>,
-    console_commands: Res<ConsoleCommands>,
+    console_commands: Res<AllConsoleCommands>,
 ) {
     for event in reader.iter() {
         match event {

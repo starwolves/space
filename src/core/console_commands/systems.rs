@@ -11,7 +11,7 @@ use crate::core::{
     networking::{resources::ConsoleCommandVariantValues, send_net, NetEvent},
 };
 
-use super::{events::NetConsoleCommands, resources::InputConsoleCommand};
+use super::events::{InputConsoleCommand, NetConsoleCommands};
 
 pub fn console_commands(
     mut console_commands_events: EventReader<InputConsoleCommand>,

@@ -10,7 +10,7 @@ use bevy_math::Vec3;
 use bevy_transform::components::Transform;
 
 use crate::core::{
-    connected_player::resources::HandleToEntity, console_commands::resources::InputConsoleCommand,
+    connected_player::resources::HandleToEntity, console_commands::events::InputConsoleCommand,
     entity::events::NetUnloadEntity, networking::resources::ConsoleCommandVariantValues,
     sensable::components::Sensable,
 };
