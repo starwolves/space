@@ -12,8 +12,8 @@ use crate::{
     entities::human_male::spawn::HumanMaleBundle,
 };
 
-//to spawn an ai add this to the space plugin in space/mod.rs
-// .add_startup_system(spawn_ai.after(StartupLabels::ServerIsLive))
+// to spawn an ai add this to the ArtificialUnintelligencePlugin in artificial_unintelligence/mod.rs
+// .add_startup_system(spawn_ai.after(StartupLabels::InitDefaultGridmapData))
 
 pub fn spawn_ai(mut commands: Commands, entity_data: ResMut<EntityDataResource>) {
     let persistent_player_placeholder = PersistentPlayerData::default();
