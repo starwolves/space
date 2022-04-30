@@ -1,7 +1,16 @@
-use bevy_ecs::prelude::Component;
-use bevy_math::{Vec2, Vec3};
+use std::collections::HashMap;
 
-use crate::core::gridmap::{functions::gridmap_functions::cell_id_to_world, resources::Vec3Int};
+use bevy_ecs::{prelude::Component, system::Commands};
+use bevy_math::{Vec2, Vec3};
+use bevy_transform::components::Transform;
+
+use crate::{
+    core::{
+        gridmap::{functions::gridmap_functions::cell_id_to_world, resources::Vec3Int},
+        networking::resources::ConsoleCommandVariantValues,
+    },
+    entities::line_arrow::spawn::LineArrowBundle,
+};
 
 use super::resources::CONTEXT_MAP_RESOLUTION;
 
@@ -47,7 +56,7 @@ impl Path {
         self.waypoint_progress = 0;
     }
 
-    pub fn create_waypoints(&mut self) {
+    pub fn create_waypoints(&mut self, commands: &mut Commands) {
         const PATH_PRECISION: usize = 3; // A value of 1 results in maximum precision
         let mut waypoints_vec = Vec::new();
         let mut direction_old = Vec2::ZERO;
@@ -63,11 +72,35 @@ impl Path {
                     cell_path[i - 1].z as f32 - cell_path[i].z as f32,
                 );
                 if direction_old != direction_new {
+                    LineArrowBundle::spawn(
+                        Transform::from_translation(cell_id_to_world(cell_path[i])),
+                        commands,
+                        true,
+                        None,
+                        None,
+                        false,
+                        HashMap::from([(
+                            "duration".to_string(),
+                            ConsoleCommandVariantValues::Int(30),
+                        )]),
+                    );
                     waypoints_vec.push(Waypoint {
                         position: cell_id_to_world(cell_path[i]),
                         waypoint_type: WaypointType::Pathing,
                     });
                 } else if i % PATH_PRECISION == 0 {
+                    LineArrowBundle::spawn(
+                        Transform::from_translation(cell_id_to_world(cell_path[i])),
+                        commands,
+                        true,
+                        None,
+                        None,
+                        false,
+                        HashMap::from([(
+                            "duration".to_string(),
+                            ConsoleCommandVariantValues::Int(30),
+                        )]),
+                    );
                     waypoints_vec.push(Waypoint {
                         position: cell_id_to_world(cell_path[i]),
                         waypoint_type: WaypointType::Pathing,
@@ -131,7 +164,7 @@ impl Default for Blob {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct ContextMap {
     pub map: [i32; CONTEXT_MAP_RESOLUTION],
     pub is_danger: bool,
@@ -147,7 +180,7 @@ impl ContextMap {
 
     pub fn new_danger_map() -> Self {
         Self {
-            map: [-100; CONTEXT_MAP_RESOLUTION],
+            map: [0; CONTEXT_MAP_RESOLUTION],
             is_danger: true,
         }
     }
@@ -169,7 +202,7 @@ impl ContextMap {
             let (_, lowest_danger_value) = danger_map.lowest_value();
             for i in 0..danger_map.map.len() {
                 if danger_map.map[i] > lowest_danger_value {
-                    self.map[i] = 0;
+                    self.map[i] = -100;
                 }
             }
         } else {
@@ -211,8 +244,6 @@ impl ContextMap {
         }
 
         let (greatest, next_greatest) = map.get_two_greatest_values();
-
-        println!("self: {:?}, map: {:?}", self.map, map.map);
 
         if greatest.1 >= 98 {
             self.map[greatest.0] = greatest.1;
@@ -275,7 +306,7 @@ impl ContextMap {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum WaypointType {
     Pathing,
     CollisionObject,
@@ -283,7 +314,7 @@ pub enum WaypointType {
     Cover,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Waypoint {
     pub position: Vec3,
     pub waypoint_type: WaypointType,

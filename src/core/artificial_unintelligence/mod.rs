@@ -10,7 +10,7 @@ use super::space_plugin::StartupLabels;
 
 pub mod components;
 pub mod functions;
-mod resources;
+pub mod resources;
 pub mod systems;
 
 pub struct ArtificialUnintelligencePlugin;

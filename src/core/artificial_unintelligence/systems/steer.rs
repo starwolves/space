@@ -2,7 +2,8 @@ use bevy_ecs::{
     entity::Entity,
     system::{Query, Res},
 };
-use bevy_math::Vec2;
+use bevy_math::{Vec2, Vec3};
+use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::core::{
     artificial_unintelligence::{
@@ -15,7 +16,6 @@ use crate::core::{
         resources::{GridmapData, GridmapMain},
     },
     pawn::components::ControllerInput,
-    rigid_body::components::CachedBroadcastTransform,
 };
 
 pub fn steer(
@@ -24,22 +24,25 @@ pub fn steer(
         &AiGoal,
         &mut Blob,
         &mut Path,
-        &CachedBroadcastTransform,
+        &RigidBodyPositionComponent,
         &mut ControllerInput,
     )>,
     gridmap: Res<GridmapMain>,
     gridmap_data: Res<GridmapData>,
     mapped_vectors: Res<ContextMapVectors>,
 ) -> () {
-    for (_entity, goal, mut blob, mut path, transform, mut controller) in ai_query.iter_mut() {
+    for (_entity, goal, mut blob, mut path, rigid_body_position, mut controller) in
+        ai_query.iter_mut()
+    {
         if let Action::Standby = goal.action {
             continue;
         }
         let mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION] = mapped_vectors.context_map_vectors;
         let mut all_waypoints = Vec::new();
         let mut _chosen_vector = Vec2::ZERO;
-        let current_location = transform.transform.translation;
-        let current_cell = world_to_cell_id(transform.transform.translation);
+        let mut current_location: Vec3 = rigid_body_position.position.translation.into();
+        current_location.y = -1.;
+        let current_cell = world_to_cell_id(current_location);
         for waypoint_option in create_surroundings_map(
             current_cell,
             0,
@@ -53,8 +56,9 @@ pub fn steer(
         match goal.action {
             Action::GoToPoint => {
                 if let Some(path_waypoints) = &path.waypoints {
+                    // Having this here might cause the AI to overshoot but I think its ok for now
                     all_waypoints.push(path_waypoints[0]);
-                    if get_proximity(path_waypoints[0], current_location) < 0.3 {
+                    if get_proximity(path_waypoints[0], current_location) < 1.0 {
                         path.update_waypoints();
                     }
 
@@ -69,7 +73,7 @@ pub fn steer(
         }
 
         let old_position = blob.temp_position;
-        blob.temp_position = world_to_cell_id(transform.transform.translation);
+        blob.temp_position = world_to_cell_id(current_location);
 
         if old_position != blob.temp_position && false {
             println!("chosen vector: {:?}", _chosen_vector);

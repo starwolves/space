@@ -280,11 +280,10 @@ pub fn find_closest_two_vectors_and_strength(
     mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION],
 ) -> ((usize, i32), (usize, i32)) {
     let uniform_distance: f32 = mapped_vectors[0].distance(mapped_vectors[1]);
-    let mut dist = vector.distance(mapped_vectors[0]);
-    let mut closest = (0, dist);
-    let mut next_closest = closest;
+    let mut closest = (0, 100.0);
+    let mut next_closest = (0, 100.0);
     for i in 0..mapped_vectors.len() {
-        dist = vector.distance(mapped_vectors[i]);
+        let dist = vector.distance(mapped_vectors[i]);
         if dist < closest.1 {
             next_closest = closest;
             closest = (i, dist);
@@ -293,8 +292,8 @@ pub fn find_closest_two_vectors_and_strength(
         }
     }
 
-    let closest_distribution = (closest.1 / uniform_distance) * 100.;
-    let next_closest_distribution = (next_closest.1 / uniform_distance) * 100.;
+    let closest_distribution = (next_closest.1 / uniform_distance) * 100.;
+    let next_closest_distribution = (closest.1 / uniform_distance) * 100.;
     let closest_distribution = closest_distribution.round() as i32;
     let next_closest_distribution = next_closest_distribution.round() as i32;
 
@@ -361,6 +360,14 @@ pub fn choose_vector(
     current_location: Vec3,
     mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION],
 ) -> Vec2 {
+    // Base distance is the closest possible distance a humanoid pawn can get to the center of a
+    // cell wich has a standard collision object placed on it such as a wall or table.
+    const BASE_DIST: f32 = 1.5;
+    // Stop distance is the distance from the rim of a cell with a collision object placed
+    // at which an ai should stop considering moving in the direction of a collision object
+    const STOP_DIST: f32 = 1.;
+    // if you would like the ai to be able to move closer or further from standard collision objects
+    // change STOP_DIST not BASE_DIST
     let mut interest_map = ContextMap::new_interest_map();
     let mut danger_map = ContextMap::new_danger_map();
     for waypoint in waypoints {
@@ -373,15 +380,25 @@ pub fn choose_vector(
             }
             WaypointType::CollisionObject => {
                 let vector = get_vector(waypoint, current_location);
-                let (closest, _next_closest) =
+                let proximity = waypoint.position.distance(current_location);
+                let (closest, next_closest) =
                     find_closest_two_vectors_and_strength(vector, mapped_vectors);
-                danger_map.write_to_slot(closest.0, closest.1);
+                // this math contains magic that makes things work DO NOT CHANGE
+                if proximity <= ((1. - (closest.1 as f32 * 0.01)) * 0.41) + BASE_DIST + STOP_DIST {
+                    danger_map.write_to_slot(closest.0, closest.1);
+                }
+                if proximity
+                    <= ((1. - (next_closest.1 as f32 * 0.01)) * 0.41) + BASE_DIST + STOP_DIST
+                {
+                    danger_map.write_to_slot(next_closest.0, next_closest.1);
+                }
             }
             _ => todo!(),
         }
     }
     interest_map.combine_with_danger(danger_map);
-    mapped_vectors[interest_map.highest_value().0]
+    let chosen_vector = mapped_vectors[interest_map.highest_value().0];
+    chosen_vector
 }
 
 // You can use this to get an approximation of the original vector
