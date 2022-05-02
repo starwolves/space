@@ -15,6 +15,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+          key: ${{ runner.os }}-cargo-build-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
