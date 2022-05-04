@@ -1,6 +1,10 @@
 # Space Frontiers pre-alpha
 <img src="/data/project/sflogo.png?raw=true" data-canonical-src="/data/project/sflogo.png?raw=true" width="175" height="175"/>
 
+<a href="https://discord.gg/yYpMun9CTT">
+    <img src="https://img.shields.io/discord/942798229953716274.svg?logo=discord&colorB=7289DA">
+</a>
+
 ![Continuous integration](https://github.com/starwolves/space/actions/workflows/rust.yml/badge.svg?branch=0.0.3-snap)
 
 ![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg) ![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
