@@ -1,5 +1,7 @@
-use bevy_app::EventReader;
-use bevy_ecs::system::{Commands, Query, Res};
+use bevy_ecs::{
+    event::EventReader,
+    system::{Commands, Query, Res},
+};
 
 use crate::core::{
     connected_player::{

@@ -1,6 +1,8 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_core::Timer;
-use bevy_ecs::system::{Commands, ResMut};
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::{Commands, ResMut},
+};
 use bevy_log::info;
 
 use crate::core::{

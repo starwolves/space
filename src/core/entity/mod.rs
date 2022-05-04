@@ -19,7 +19,7 @@ use self::{
 use super::console_commands::resources::AllConsoleCommands;
 use super::console_commands::ConsoleCommandsLabels;
 use super::networking::resources::ConsoleCommandVariant;
-use super::space_plugin::{PostUpdateLabels, StartupLabels};
+use super::plugin::{PostUpdateLabels, StartupLabels};
 
 pub mod components;
 pub mod events;

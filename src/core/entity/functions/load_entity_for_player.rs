@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use bevy_app::EventWriter;
-use bevy_ecs::entity::Entity;
+use bevy_ecs::{entity::Entity, event::EventWriter};
 use bevy_transform::components::Transform;
 
 use crate::core::{

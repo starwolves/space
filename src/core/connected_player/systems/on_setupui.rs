@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use bevy_app::EventWriter;
 use bevy_ecs::{
+    event::EventWriter,
     prelude::Added,
     system::{Commands, Query, Res, ResMut},
 };

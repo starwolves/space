@@ -1,5 +1,5 @@
-use bevy_app::EventReader;
 use bevy_ecs::{
+    event::EventReader,
     prelude::Without,
     system::{Commands, Query, Res},
 };

@@ -9,8 +9,7 @@ use self::{
 };
 
 use super::{
-    entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1,
-    space_plugin::PostUpdateLabels,
+    entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1, plugin::PostUpdateLabels,
 };
 
 pub mod components;

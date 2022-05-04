@@ -5,7 +5,7 @@ use bevy_ecs::{
     prelude::Added,
     system::{Query, ResMut},
 };
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
@@ -25,7 +25,7 @@ pub fn counter_window_default_map_added(
     mut default_counter_windows: Query<
         (
             Entity,
-            &RigidBodyPositionComponent,
+            &Transform,
             &DefaultMapEntity,
             &EntityData,
             &mut Examinable,
@@ -43,7 +43,7 @@ pub fn counter_window_default_map_added(
         mut examinable_component,
     ) in default_counter_windows.iter_mut()
     {
-        let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+        let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
         let cell_id2 = Vec2Int {
             x: cell_id.x,
             y: cell_id.z,

@@ -1,5 +1,7 @@
-use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::Query;
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::Query,
+};
 
 use crate::core::{
     map::{

@@ -1,5 +1,4 @@
-use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, prelude::Component, system::Res};
+use bevy_ecs::{entity::Entity, event::EventWriter, prelude::Component, system::Res};
 
 use crate::core::{
     connected_player::resources::HandleToEntity,

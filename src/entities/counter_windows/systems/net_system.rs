@@ -1,5 +1,7 @@
-use bevy_app::EventReader;
-use bevy_ecs::system::{Query, Res, ResMut};
+use bevy_ecs::{
+    event::EventReader,
+    system::{Query, Res, ResMut},
+};
 use bevy_networking_turbulence::NetworkResource;
 
 use crate::{

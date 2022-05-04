@@ -1,5 +1,4 @@
-use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, system::ResMut};
+use bevy_ecs::{entity::Entity, event::EventWriter, system::ResMut};
 
 use crate::core::{
     console_commands::events::NetConsoleCommands, networking::resources::ReliableServerMessage,

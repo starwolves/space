@@ -1,8 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy_app::EventWriter;
 use bevy_core::Timer;
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::{entity::Entity, event::EventWriter, system::Commands};
 use bevy_log::warn;
 use bevy_transform::components::Transform;
 

@@ -5,10 +5,8 @@ use bevy_ecs::{
     system::{Commands, ResMut},
 };
 use bevy_log::warn;
-use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderType,
-    InteractionGroups, RigidBodyBundle, RigidBodyType,
-};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, CollisionGroups, Friction, RigidBody};
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     entity::functions::string_to_type_converters::string_vec3_to_vec3,
@@ -146,11 +144,10 @@ pub fn spawn_main_cell(
 ) -> Entity {
     let world_position = cell_id_to_world(cell_id);
 
-    let mut entity_builder = commands.spawn_bundle(RigidBodyBundle {
-        body_type: RigidBodyType::Static.into(),
-        position: world_position.into(),
-        ..Default::default()
-    });
+    let mut entity_builder = commands.spawn_bundle((
+        RigidBody::Fixed,
+        Transform::from_translation(world_position),
+    ));
 
     let entity_id = entity_builder.id();
 
@@ -181,24 +178,15 @@ pub fn spawn_main_cell(
 
     let masks = get_bit_masks(ColliderGroup::Standard);
 
+    let mut friction_component = Friction::coefficient(friction);
+    friction_component.combine_rule = friction_combine_rule;
+
     entity_builder
-        .insert_bundle(ColliderBundle {
-            shape: cell_properties.collider_shape.clone().into(),
-            position: cell_properties.collider_position.into(),
-            collider_type: ColliderType::Solid.into(),
-            material: ColliderMaterial {
-                friction_combine_rule: friction_combine_rule,
-                friction: friction,
-                ..Default::default()
-            }
-            .into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        })
+        .insert_bundle((
+            cell_properties.collider.clone(),
+            friction_component,
+            CollisionGroups::new(masks.0, masks.1),
+        ))
         .insert(Cell { id: cell_id });
 
     entity_id

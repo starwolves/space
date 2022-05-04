@@ -1,8 +1,8 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use bevy_app::EventReader;
 use bevy_ecs::{
     entity::Entity,
+    event::EventReader,
     system::{Local, Query},
 };
 

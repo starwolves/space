@@ -4,19 +4,18 @@ use std::{
 };
 
 use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_hierarchy::BuildChildren;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
-    ActiveEvents, CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial,
-    ColliderShape, ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyType,
+    ActiveEvents, CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody, Sensor,
 };
-use bevy_transform::{components::Transform, hierarchy::BuildChildren};
+use bevy_transform::components::Transform;
 
 use crate::{
     core::{
         chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         entity::{
             components::{DefaultMapEntity, EntityData, EntityGroup, EntityUpdates},
-            functions::transform_to_isometry::transform_to_isometry,
             resources::{SpawnHeldData, SpawnPawnData},
         },
         examinable::components::{Examinable, RichName},
@@ -49,51 +48,22 @@ impl CounterWindowBundle {
             transform: entity_transform,
         };
 
-        let window_rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Static.into(),
-            position: transform_to_isometry(entity_transform).into(),
-            ..Default::default()
-        };
+        let rigid_body = RigidBody::Fixed;
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        let window_collider_component = ColliderBundle {
-            shape: ColliderShape::cuboid(0.1, 0.593, 1.).into(),
-            position: Vec3::new(0., 0., 1.).into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                ..Default::default()
-            }
-            .into(),
-            material: ColliderMaterial {
-                friction: 0.,
-                friction_combine_rule: CoefficientCombineRule::Average,
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
+        let mut friction = Friction::coefficient(0.);
+        friction.combine_rule = CoefficientCombineRule::Average;
 
-        let sensor_rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Static.into(),
-            position: transform_to_isometry(entity_transform).into(),
-            ..Default::default()
-        };
+        let mut parent_builder = commands.spawn_bundle((rigid_body, entity_transform));
+        let parent = parent_builder.id();
 
-        let masks = get_bit_masks(ColliderGroup::Standard);
-
-        let sensor_collider_component = ColliderBundle {
-            collider_type: ColliderType::Sensor.into(),
-            shape: ColliderShape::cuboid(1., 1., 1.).into(),
-            position: Vec3::new(0., -1., 1.).into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                active_events: (ActiveEvents::INTERSECTION_EVENTS),
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
+        parent_builder.insert_bundle((
+            Collider::cuboid(0.1, 0.593, 1.),
+            Transform::from_translation(Vec3::new(0., 0., 1.)),
+            friction,
+            CollisionGroups::new(masks.0, masks.1),
+        ));
 
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
@@ -110,81 +80,92 @@ impl CounterWindowBundle {
                 + "]It is fully operational.[/color][/font]",
         );
 
-        let mut parent_builder = commands.spawn_bundle(window_rigid_body_component);
-        let parent = parent_builder.id();
-
-        parent_builder
-            .insert_bundle(window_collider_component)
-            .insert_bundle((
-                static_transform_component,
-                Sensable::default(),
-                CounterWindow {
-                    access_permissions: vec![SpaceAccessEnum::Security],
+        parent_builder.insert_bundle((
+            static_transform_component,
+            Sensable::default(),
+            CounterWindow {
+                access_permissions: vec![SpaceAccessEnum::Security],
+                ..Default::default()
+            },
+            EntityData {
+                entity_class: "entity".to_string(),
+                entity_name: "securityCounterWindow".to_string(),
+                entity_group: EntityGroup::AirLock,
+            },
+            EntityUpdates::default(),
+            Examinable {
+                name: RichName {
+                    name: "security counter window".to_string(),
+                    n: false,
                     ..Default::default()
                 },
-                EntityData {
-                    entity_class: "entity".to_string(),
-                    entity_name: "securityCounterWindow".to_string(),
-                    entity_group: EntityGroup::AirLock,
-                },
-                EntityUpdates::default(),
-                Examinable {
-                    name: RichName {
-                        name: "security counter window".to_string(),
-                        n: false,
-                        ..Default::default()
+                assigned_texts: examine_map,
+                ..Default::default()
+            },
+            Health {
+                is_combat_obstacle: true,
+                is_laser_obstacle: false,
+                is_reach_obstacle: true,
+                ..Default::default()
+            },
+            TabActions {
+                tab_actions: vec![
+                    TabAction {
+                        id: "actions::counter_windows/toggleopen".to_string(),
+                        text: "Toggle Open".to_string(),
+                        tab_list_priority: 100,
+                        prerequisite_check: Arc::new(toggle_open_action),
+                        belonging_entity: Some(parent),
                     },
-                    assigned_texts: examine_map,
-                    ..Default::default()
-                },
-                Health {
-                    is_combat_obstacle: true,
-                    is_laser_obstacle: false,
-                    is_reach_obstacle: true,
-                    ..Default::default()
-                },
-                TabActions {
-                    tab_actions: vec![
-                        TabAction {
-                            id: "actions::counter_windows/toggleopen".to_string(),
-                            text: "Toggle Open".to_string(),
-                            tab_list_priority: 100,
-                            prerequisite_check: Arc::new(toggle_open_action),
-                            belonging_entity: Some(parent),
-                        },
-                        TabAction {
-                            id: "actions::counter_windows/lockopen".to_string(),
-                            text: "Lock Open".to_string(),
-                            tab_list_priority: 99,
-                            prerequisite_check: Arc::new(lock_open_action),
-                            belonging_entity: Some(parent),
-                        },
-                        TabAction {
-                            id: "actions::counter_windows/lockclosed".to_string(),
-                            text: "Lock Closed".to_string(),
-                            tab_list_priority: 98,
-                            prerequisite_check: Arc::new(lock_closed_action),
-                            belonging_entity: Some(parent),
-                        },
-                        TabAction {
-                            id: "actions::counter_windows/unlock".to_string(),
-                            text: "Unlock".to_string(),
-                            tab_list_priority: 97,
-                            prerequisite_check: Arc::new(unlock_action),
-                            belonging_entity: Some(parent),
-                        },
-                    ],
-                },
-            ))
-            .id();
+                    TabAction {
+                        id: "actions::counter_windows/lockopen".to_string(),
+                        text: "Lock Open".to_string(),
+                        tab_list_priority: 99,
+                        prerequisite_check: Arc::new(lock_open_action),
+                        belonging_entity: Some(parent),
+                    },
+                    TabAction {
+                        id: "actions::counter_windows/lockclosed".to_string(),
+                        text: "Lock Closed".to_string(),
+                        tab_list_priority: 98,
+                        prerequisite_check: Arc::new(lock_closed_action),
+                        belonging_entity: Some(parent),
+                    },
+                    TabAction {
+                        id: "actions::counter_windows/unlock".to_string(),
+                        text: "Unlock".to_string(),
+                        tab_list_priority: 97,
+                        prerequisite_check: Arc::new(unlock_action),
+                        belonging_entity: Some(parent),
+                    },
+                ],
+            },
+        ));
 
         if default_map_spawn {
             parent_builder.insert(DefaultMapEntity);
         }
 
-        let child = commands
-            .spawn_bundle(sensor_rigid_body_component)
-            .insert_bundle(sensor_collider_component)
+        let rigid_body = RigidBody::Fixed;
+
+        let masks = get_bit_masks(ColliderGroup::Standard);
+
+        let mut friction = Friction::coefficient(0.);
+        friction.combine_rule = CoefficientCombineRule::Average;
+
+        let sensor = Sensor(true);
+
+        let mut sensor_builder = commands.spawn_bundle((rigid_body, entity_transform));
+        sensor_builder.insert_bundle((
+            Collider::cuboid(1., 1., 1.),
+            Transform::from_translation(Vec3::new(0., -1., 1.)),
+            friction,
+            CollisionGroups::new(masks.0, masks.1),
+            ActiveEvents::COLLISION_EVENTS,
+            sensor,
+        ));
+
+        let child = sensor_builder
             .insert_bundle((
                 CounterWindowSensor { parent: parent },
                 static_transform_component,

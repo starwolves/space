@@ -1,5 +1,4 @@
-use bevy_app::EventWriter;
-use bevy_ecs::{prelude::Added, system::Query};
+use bevy_ecs::{event::EventWriter, prelude::Added, system::Query};
 
 use crate::core::{
     connected_player::{

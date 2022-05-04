@@ -1,8 +1,7 @@
 use bevy_math::Vec3;
 use bevy_rapier3d::{
     na::Quaternion,
-    prelude::Translation,
-    rapier::math::{Isometry, Real, Rotation},
+    rapier::math::{Isometry, Real, Rotation, Translation},
 };
 use bevy_transform::components::Transform;
 

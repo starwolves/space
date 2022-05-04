@@ -1,5 +1,7 @@
-use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::{Commands, Query, Res, ResMut};
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::{Commands, Query, Res, ResMut},
+};
 use bevy_log::warn;
 
 use crate::core::{

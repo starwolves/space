@@ -1,33 +1,26 @@
 use std::f32::consts::PI;
 
-use bevy_app::EventWriter;
+use bevy::prelude::Without;
 use bevy_core::Time;
 use bevy_ecs::{
     entity::Entity,
+    event::EventWriter,
     system::{Commands, Query, Res},
 };
 use bevy_log::warn;
 use bevy_math::{Quat, Vec2, Vec3};
 use bevy_rapier3d::{
     na::UnitQuaternion,
-    prelude::{
-        CoefficientCombineRule, ColliderMaterialComponent, RigidBodyDominanceComponent,
-        RigidBodyForcesComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
-    },
+    prelude::{CoefficientCombineRule, Dominance, ExternalForce, Friction, Velocity},
 };
+use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
         atmospherics::components::ZeroGravity,
         configuration::resources::TickRate,
         connected_player::resources::HandleToEntity,
-        entity::{
-            events::NetUnloadEntity,
-            functions::{
-                isometry_to_transform::isometry_to_transform,
-                transform_to_isometry::transform_to_isometry,
-            },
-        },
+        entity::{components::Showcase, events::NetUnloadEntity},
         examinable::components::Examinable,
         gridmap::{functions::gridmap_functions::world_to_cell_id, resources::GridmapMain},
         health::events::Attack,
@@ -52,9 +45,10 @@ use crate::{
 };
 
 const JOG_SPEED: f32 = 3031.44;
+const RUN_SPEED: f32 = 3031.44;
+
 const MAX_JOG_SPEED: f32 = 10.;
 const MAX_RUN_SPEED: f32 = 14.;
-const RUN_SPEED: f32 = 3031.44;
 
 const MELEE_FISTS_REACH: f32 = 1.2;
 const COMBAT_ROTATION_SPEED: f32 = 18.;
@@ -67,22 +61,25 @@ enum CharacterMovementState {
 }
 
 pub fn humanoids(
-    mut humanoids_query: Query<(
-        Entity,
-        &mut ControllerInput,
-        &RigidBodyVelocityComponent,
-        &mut RigidBodyDominanceComponent,
-        &mut RigidBodyForcesComponent,
-        &mut Humanoid,
-        &mut RigidBodyPositionComponent,
-        Option<&LinkedFootstepsWalking>,
-        Option<&LinkedFootstepsSprinting>,
-        &mut Pawn,
-        &Inventory,
-        Option<&ZeroGravity>,
-        &mut ColliderMaterialComponent,
-        &RigidBodyData,
-    )>,
+    mut humanoids_query: Query<
+        (
+            Entity,
+            &mut ControllerInput,
+            &Velocity,
+            &mut Dominance,
+            &mut ExternalForce,
+            &mut Humanoid,
+            &mut Transform,
+            Option<&LinkedFootstepsWalking>,
+            Option<&LinkedFootstepsSprinting>,
+            &mut Pawn,
+            &Inventory,
+            Option<&ZeroGravity>,
+            &mut Friction,
+            &RigidBodyData,
+        ),
+        Without<Showcase>,
+    >,
     inventory_items_query: Query<(&InventoryItem, &Examinable)>,
     mut footsteps_query: Query<(
         Option<&FootstepsWalking>,
@@ -185,7 +182,7 @@ pub fn humanoids(
         let bevy_vec: Vec3 = rigid_body_forces.force.into();
         netto_force += bevy_vec;
 
-        let mut rigid_body_position = rigid_body_position_component.position.clone();
+        let mut rigid_body_position = rigid_body_position_component.clone();
 
         let mut movement_index: usize = 0;
 
@@ -251,8 +248,7 @@ pub fn humanoids(
                 -standard_character_component.facing_direction - 0.5 * PI + rotation_offset,
             );
 
-            let mut rigid_body_transform =
-                isometry_to_transform(rigid_body_position_component.position);
+            let mut rigid_body_transform = rigid_body_position_component;
 
             let slerp_rotation;
 
@@ -268,7 +264,7 @@ pub fn humanoids(
 
             rigid_body_transform.rotation = slerp_rotation;
 
-            rigid_body_position_component.position = transform_to_isometry(rigid_body_transform);
+            rigid_body_position_component = rigid_body_transform;
 
             let mut attacking_this_frame = false;
 
@@ -372,9 +368,9 @@ pub fn humanoids(
                     weapon_entity: active_slot.slot_item,
                     weapon_name: inventory_item_slot_name,
                     attacker_position: Vec3::new(
-                        rigid_body_position_component.position.translation.x,
+                        rigid_body_position_component.translation.x,
                         1.0,
-                        rigid_body_position_component.position.translation.z,
+                        rigid_body_position_component.translation.z,
                     ),
                     angle: angle,
                     damage_model: combat_damage_model.clone(),
@@ -565,8 +561,10 @@ pub fn humanoids(
                     || player_input_component.sprinting
                 {
                     rigid_body_position.rotation =
-                        UnitQuaternion::from_quaternion(movement_options[movement_index]);
-                    rigid_body_position_component.position = rigid_body_position;
+                        UnitQuaternion::from_quaternion(movement_options[movement_index]).into();
+                    rigid_body_position_component.translation = rigid_body_position.translation;
+                    rigid_body_position_component.rotation = rigid_body_position.rotation;
+                    rigid_body_position_component.scale = rigid_body_position.scale;
                 }
 
                 if !player_input_component.sprinting
@@ -610,9 +608,7 @@ pub fn humanoids(
 
                     if zero_gravity_component_option.is_none() {
                         let repeating_sfx_id = commands
-                            .spawn_bundle(FootstepsWalkingSfxBundle::new(isometry_to_transform(
-                                rigid_body_position,
-                            )))
+                            .spawn_bundle(FootstepsWalkingSfxBundle::new(rigid_body_position))
                             .id();
 
                         commands
@@ -639,8 +635,7 @@ pub fn humanoids(
                                     _footsteps_sprinting_component,
                                     mut static_transform_component,
                                 )) => {
-                                    static_transform_component.transform =
-                                        isometry_to_transform(rigid_body_position);
+                                    static_transform_component.transform = rigid_body_position;
                                 }
                                 Err(err) => {
                                     warn!("linked_footsteps_walking err: {}", err);
@@ -690,9 +685,7 @@ pub fn humanoids(
 
                     if zero_gravity_component_option.is_none() {
                         let repeating_sfx_id = commands
-                            .spawn_bundle(FootstepsSprintingSfxBundle::new(isometry_to_transform(
-                                rigid_body_position,
-                            )))
+                            .spawn_bundle(FootstepsSprintingSfxBundle::new(rigid_body_position))
                             .id();
 
                         commands.entity(standard_character_entity).insert(
@@ -719,8 +712,7 @@ pub fn humanoids(
                                     _footsteps_sprinting_component,
                                     mut static_transform_component,
                                 )) => {
-                                    static_transform_component.transform =
-                                        isometry_to_transform(rigid_body_position);
+                                    static_transform_component.transform = rigid_body_position;
                                 }
                                 Err(err) => {
                                     warn!("linked_footsteps_sprinting err: {}", err);
@@ -761,7 +753,7 @@ pub fn humanoids(
 
             if zero_gravity_component_option.is_some() {
                 let mut cell_id =
-                    world_to_cell_id(rigid_body_position_component.position.translation.into());
+                    world_to_cell_id(rigid_body_position_component.translation.into());
 
                 cell_id.y = 0;
 
@@ -802,15 +794,15 @@ pub fn humanoids(
                 }
                 if !bordering_wall {
                     should_apply = false;
-                    if collider_material_component.friction != 0. {
-                        collider_material_component.friction = 0.;
-                        collider_material_component.friction_combine_rule =
-                            CoefficientCombineRule::Min;
+                    if collider_material_component.coefficient != 0. {
+                        collider_material_component.coefficient = 0.;
+                        collider_material_component.combine_rule = CoefficientCombineRule::Min;
                     }
                 } else {
-                    if rigidbody_data_component.friction != collider_material_component.friction {
-                        collider_material_component.friction = rigidbody_data_component.friction;
-                        collider_material_component.friction_combine_rule =
+                    if rigidbody_data_component.friction != collider_material_component.coefficient
+                    {
+                        collider_material_component.coefficient = rigidbody_data_component.friction;
+                        collider_material_component.combine_rule =
                             rigidbody_data_component.friction_combine_rule;
                     }
                 }
@@ -819,6 +811,7 @@ pub fn humanoids(
             if should_apply {
                 let rapier_vector = netto_force.into();
                 if rigid_body_forces.force != rapier_vector {
+                    //info!("{}",rapier_vector * (1. / tick_rate.rate as f32));
                     rigid_body_forces.force = rapier_vector * (1. / tick_rate.rate as f32);
                 }
             }
@@ -826,12 +819,12 @@ pub fn humanoids(
 
         // Change physics dominance based on if moving or not moving.
         if speed > 0.1 {
-            if rigid_body_dominance.0 .0 != 9 {
-                rigid_body_dominance.0 .0 = 9;
+            if rigid_body_dominance.groups != 9 {
+                rigid_body_dominance.groups = 9;
             }
         } else {
-            if rigid_body_dominance.0 .0 != 10 {
-                rigid_body_dominance.0 .0 = 10;
+            if rigid_body_dominance.groups != 10 {
+                rigid_body_dominance.groups = 10;
             }
         }
 

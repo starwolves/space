@@ -1,12 +1,12 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Query, Res, ResMut},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_networking_turbulence::NetworkResource;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::{
@@ -28,13 +28,8 @@ use super::{
 pub fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
     handle_to_entity: Res<HandleToEntity>,
-    player_pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Sensable)>,
-    radio_pawns: Query<(
-        Entity,
-        &Radio,
-        &RigidBodyPositionComponent,
-        &PersistentPlayerData,
-    )>,
+    player_pawns: Query<(&Pawn, &Transform, &Sensable)>,
+    radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,
     soft_player_query: Query<&SoftPlayer>,
     mut net_new_chat_message_event: EventWriter<NetChatMessage>,
     mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
@@ -50,7 +45,7 @@ pub fn chat_message_input_event(
             Ok(player_components) => {
                 let player_position;
 
-                let translation = player_components.1.position.translation;
+                let translation = player_components.1.translation;
                 player_position = Vec3::new(translation.x, translation.y, translation.z);
 
                 new_chat_message(

@@ -5,9 +5,8 @@ use bevy_ecs::{
     system::{Query, Res, ResMut},
 };
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::{
-    RigidBodyForcesComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
-};
+use bevy_rapier3d::prelude::{ExternalForce, Velocity};
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     atmospherics::{
@@ -44,13 +43,7 @@ pub enum AdjacentTileDirection {
 }
 
 pub fn rigidbody_forces_accumulation(
-    mut rigid_bodies: Query<(
-        Entity,
-        &RigidBodyPositionComponent,
-        &RigidBodyForcesComponent,
-        Option<&Pawn>,
-        &RigidBodyVelocityComponent,
-    )>,
+    mut rigid_bodies: Query<(Entity, &Transform, &ExternalForce, Option<&Pawn>, &Velocity)>,
     atmospherics_resource: Res<AtmosphericsResource>,
     mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,
     gridmap_main: Res<GridmapMain>,
@@ -63,7 +56,7 @@ pub fn rigidbody_forces_accumulation(
         rigidbody_velocity_component,
     ) in rigid_bodies.iter_mut()
     {
-        let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+        let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
 
         if cell_id.x >= FOV_MAP_WIDTH as i16 / 2
             || cell_id.x <= -(FOV_MAP_WIDTH as i16 / 2)

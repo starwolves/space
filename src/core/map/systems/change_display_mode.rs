@@ -1,5 +1,7 @@
-use bevy_app::EventReader;
-use bevy_ecs::system::{Query, ResMut};
+use bevy_ecs::{
+    event::EventReader,
+    system::{Query, ResMut},
+};
 
 use crate::core::{
     atmospherics::resources::MapHolders,

@@ -1,7 +1,5 @@
-use bevy_app::EventWriter;
-use bevy_ecs::{change_detection::Mut, entity::Entity, system::Query};
+use bevy_ecs::{change_detection::Mut, entity::Entity, event::EventWriter, system::Query};
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use bevy_transform::components::Transform;
 
 use crate::core::{
@@ -9,10 +7,7 @@ use crate::core::{
     entity::{
         components::{EntityData, EntityUpdates},
         events::{NetLoadEntity, NetUnloadEntity},
-        functions::{
-            isometry_to_transform::isometry_to_transform, load_entity_for_player::load_entity,
-            unload_entity_for_player::unload_entity,
-        },
+        functions::{load_entity_for_player::load_entity, unload_entity_for_player::unload_entity},
     },
     gridmap::{functions::gridmap_functions::world_to_cell_id, resources::to_doryen_coordinates},
     physics::components::{WorldMode, WorldModes},
@@ -26,7 +21,7 @@ pub fn visible_checker(
         Entity,
         &mut Sensable,
         Option<&StaticTransform>,
-        Option<&RigidBodyPositionComponent>,
+        Option<&Transform>,
         &EntityData,
         &EntityUpdates,
         Option<&WorldMode>,
@@ -34,7 +29,7 @@ pub fn visible_checker(
     mut query_visible_checker_entities_rigid: Query<(
         Entity,
         &mut Senser,
-        &RigidBodyPositionComponent,
+        &Transform,
         Option<&ConnectedPlayer>,
     )>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
@@ -47,9 +42,7 @@ pub fn visible_checker(
         visible_checker_connected_player_component_option,
     ) in query_visible_checker_entities_rigid.iter_mut()
     {
-        let visible_checker_translation = visible_checker_rigid_body_position_component
-            .position
-            .translation;
+        let visible_checker_translation = visible_checker_rigid_body_position_component.translation;
 
         let visible_checker_translation_vec = Vec3::new(
             visible_checker_translation.x,
@@ -91,10 +84,9 @@ pub fn visible_checker(
                         }
                     }
 
-                    let visible_entity_isometry =
-                        rigid_body_position_component_option.unwrap().position;
+                    let visible_entity_isometry = rigid_body_position_component_option.unwrap();
 
-                    visible_entity_transform = isometry_to_transform(visible_entity_isometry);
+                    visible_entity_transform = *visible_entity_isometry;
                 }
             }
 

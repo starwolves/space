@@ -1,13 +1,10 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::{entity::Entity, event::EventWriter, system::Commands};
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition,
-    ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyForces,
-    RigidBodyType,
+    CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
 };
 use bevy_transform::components::Transform;
 
@@ -16,7 +13,6 @@ use crate::{
         entity::{
             components::{EntityData, EntityUpdates, Showcase},
             events::NetShowcase,
-            functions::transform_to_isometry::transform_to_isometry,
             resources::{SpawnHeldData, SpawnPawnData},
         },
         examinable::components::{Examinable, RichName},
@@ -66,7 +62,7 @@ fn spawn_entity(
 
     passed_transform_option: Option<Transform>,
 
-    held: bool,
+    _held: bool,
     _holder_entity_option: Option<Entity>,
 
     showcase_instance: bool,
@@ -109,89 +105,42 @@ fn spawn_entity(
         this_transform.rotation = default_transform.rotation;
     }
 
-    let rigid_body_component;
-    let collider_component;
-
-    let shape = ColliderShape::cuboid(1., 0.7, 1.);
-
-    let collider_position: ColliderPosition = Vec3::new(0., 0., 0.).into();
-    let friction = STANDARD_BODY_FRICTION;
+    let friction_val = STANDARD_BODY_FRICTION;
     let friction_combine_rule = CoefficientCombineRule::Min;
 
-    if held == false {
-        rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Static.into(),
-            position: transform_to_isometry(this_transform).into(),
-            ..Default::default()
-        };
+    let mut t = Transform::from_translation(this_transform.translation);
+    t.rotation = this_transform.rotation;
+    let mut friction = Friction::coefficient(friction_val);
+    friction.combine_rule = friction_combine_rule;
 
-        let masks = get_bit_masks(ColliderGroup::Standard);
+    let shape = Collider::cuboid(1., 0.7, 1.);
 
-        collider_component = ColliderBundle {
-            shape: shape.into(),
-            position: collider_position.into(),
-            material: ColliderMaterial {
-                friction,
-                friction_combine_rule,
-                ..Default::default()
-            }
-            .into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
-    } else {
-        rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic.into(),
-            position: transform_to_isometry(this_transform).into(),
-            forces: RigidBodyForces {
-                gravity_scale: 0.,
-                ..Default::default()
-            }
-            .into(),
-            activation: RigidBodyActivation {
-                sleeping: true,
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
+    let collider_position = Vec3::new(0., 0., 0.).into();
+    let rigid_body;
 
-        let masks = get_bit_masks(ColliderGroup::NoCollision);
+    rigid_body = RigidBody::Fixed;
 
-        collider_component = ColliderBundle {
-            shape: shape.into(),
-            position: collider_position.into(),
-            material: ColliderMaterial {
-                friction,
-                friction_combine_rule,
-                ..Default::default()
-            }
-            .into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
-    }
+    let masks = get_bit_masks(ColliderGroup::Standard);
+
+    let mut builder = commands.spawn_bundle((rigid_body, t));
+
+    builder.insert_bundle((
+        shape,
+        Transform::from_translation(collider_position),
+        friction,
+        CollisionGroups::new(masks.0, masks.1),
+    ));
 
     let template_examine_text = "A computer used by bridge personnel.".to_string();
     let mut examine_map = BTreeMap::new();
     examine_map.insert(0, template_examine_text);
-
-    let mut builder = commands.spawn_bundle(rigid_body_component);
 
     let entity_id = builder.id();
 
     let mut melee_damage_flags = HashMap::new();
     melee_damage_flags.insert(0, DamageFlag::SoftDamage);
 
-    builder.insert_bundle(collider_component).insert_bundle((
+    builder.insert_bundle((
         EntityData {
             entity_class: "entity".to_string(),
             entity_name: "bridgeComputer".to_string(),
@@ -215,8 +164,8 @@ fn spawn_entity(
             transform: this_transform,
         },
         RigidBodyData {
-            friction,
-            friction_combine_rule,
+            friction: friction.coefficient,
+            friction_combine_rule: friction.combine_rule,
         },
     ));
 

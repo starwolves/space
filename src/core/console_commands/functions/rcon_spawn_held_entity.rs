@@ -1,10 +1,10 @@
-use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
+    event::EventWriter,
     system::{Commands, Query, Res, ResMut},
 };
 use bevy_log::warn;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::{
@@ -29,7 +29,7 @@ pub fn rcon_spawn_held_entity(
     command_executor_handle_option: Option<u32>,
     mut net_console_commands: &mut EventWriter<NetConsoleCommands>,
     player_inventory_query: &mut Query<&mut Inventory>,
-    mut rigid_body_positions: &mut Query<(&RigidBodyPositionComponent, &Pawn)>,
+    mut rigid_body_positions: &mut Query<(&Transform, &Pawn)>,
     gridmap_main: &Res<GridmapMain>,
     mut used_names: &mut ResMut<UsedNames>,
     handle_to_entity: &Res<HandleToEntity>,

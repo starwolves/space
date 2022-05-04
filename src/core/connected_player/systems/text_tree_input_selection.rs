@@ -1,10 +1,10 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Query, Res},
 };
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
@@ -23,8 +23,8 @@ pub fn text_tree_input_selection(
 
     mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,
 
-    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory, &DataLink)>,
-    inventory_items: Query<(&RigidBodyPositionComponent, &InventoryItem)>,
+    pawns: Query<(&Pawn, &Transform, &Inventory, &DataLink)>,
+    inventory_items: Query<(&Transform, &InventoryItem)>,
 
     entity_data_resource: Res<EntityDataResource>,
     entity_datas: Query<&EntityData>,
@@ -55,13 +55,10 @@ pub fn text_tree_input_selection(
 
                                         let pos1: Vec3 =
                                             inventory_item_rigid_body_position_component
-                                                .position
                                                 .translation
                                                 .into();
-                                        let pos2: Vec3 = rigid_body_position_component
-                                            .position
-                                            .translation
-                                            .into();
+                                        let pos2: Vec3 =
+                                            rigid_body_position_component.translation.into();
 
                                         match (tab_action.prerequisite_check)(
                                             Some(entity),

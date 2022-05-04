@@ -6,7 +6,7 @@ use crate::core::{
         functions::initialize_entity_data::initialize_entity_data,
         resources::{EntityDataProperties, EntityDataResource},
     },
-    space_plugin::StartupLabels,
+    plugin::StartupLabels,
 };
 
 use self::{spawn::ComputerBundle, systems::computer_added};

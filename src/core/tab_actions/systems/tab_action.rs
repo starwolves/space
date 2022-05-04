@@ -1,12 +1,12 @@
-use bevy_app::EventReader;
 use bevy_ecs::{
     entity::Entity,
+    event::EventReader,
     prelude::Without,
     system::{Query, Res, ResMut},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::{
@@ -34,9 +34,9 @@ pub fn tab_action(
 
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
-    pawns: Query<(&Pawn, &RigidBodyPositionComponent, &Inventory, &DataLink)>,
+    pawns: Query<(&Pawn, &Transform, &Inventory, &DataLink)>,
     targettable_entities: Query<(
-        Option<&RigidBodyPositionComponent>,
+        Option<&Transform>,
         Option<&StaticTransform>,
         Option<&TabActions>,
     )>,
@@ -78,11 +78,7 @@ pub fn tab_action(
 
         let distance;
         let start_pos: Vec3;
-        let end_pos: Vec3 = pawn_rigid_body_position_component
-            .0
-            .position
-            .translation
-            .into();
+        let end_pos: Vec3 = pawn_rigid_body_position_component.translation.into();
 
         let mut tab_actions_component_option = None;
 
@@ -99,12 +95,8 @@ pub fn tab_action(
                                 start_pos = static_transform_component.transform.translation;
                             }
                             None => {
-                                start_pos = rigid_body_position_comp_option
-                                    .unwrap()
-                                    .0
-                                    .position
-                                    .translation
-                                    .into();
+                                start_pos =
+                                    rigid_body_position_comp_option.unwrap().translation.into();
                             }
                         }
 

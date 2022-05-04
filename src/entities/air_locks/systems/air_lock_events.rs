@@ -1,9 +1,9 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Commands, Query, ResMut},
 };
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
@@ -50,7 +50,7 @@ pub fn air_lock_events(
     mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
     mut air_lock_query: Query<(
         &mut AirLock,
-        &mut RigidBodyPositionComponent,
+        &mut Transform,
         &StaticTransform,
         Option<&mut AirLockOpenTimer>,
         Option<&mut AirLockDeniedTimer>,
@@ -261,11 +261,14 @@ pub fn air_lock_events(
                     timer_component.timer.pause();
                     timer_component.timer.reset();
 
-                    let mut air_lock_rigid_body_position = rigid_body_position_component.position;
+                    let mut air_lock_rigid_body_position = rigid_body_position_component.clone();
 
                     air_lock_rigid_body_position.translation.y = 0.;
 
-                    rigid_body_position_component.position = air_lock_rigid_body_position;
+                    rigid_body_position_component.translation =
+                        air_lock_rigid_body_position.translation;
+                    rigid_body_position_component.rotation = air_lock_rigid_body_position.rotation;
+                    rigid_body_position_component.scale = air_lock_rigid_body_position.scale;
 
                     air_lock_component.access_lights = AccessLightsStatus::Neutral;
 
@@ -405,12 +408,8 @@ pub fn air_lock_events(
         }
 
         if pawn_has_permission == true {
-            let cell_id = world_to_cell_id(
-                air_lock_rigid_body_position_component
-                    .position
-                    .translation
-                    .into(),
-            );
+            let cell_id =
+                world_to_cell_id(air_lock_rigid_body_position_component.translation.into());
             let cell_id2 = Vec2Int {
                 x: cell_id.x,
                 y: cell_id.z,
@@ -428,10 +427,13 @@ pub fn air_lock_events(
             air_lock_component.status = AirLockStatus::Open;
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
-            let mut air_lock_rigid_body_position = air_lock_rigid_body_position_component.position;
+            let mut air_lock_rigid_body_position = air_lock_rigid_body_position_component.clone();
             air_lock_rigid_body_position.translation.y = 2.;
 
-            air_lock_rigid_body_position_component.position = air_lock_rigid_body_position;
+            air_lock_rigid_body_position_component.translation =
+                air_lock_rigid_body_position.translation;
+            air_lock_rigid_body_position_component.scale = air_lock_rigid_body_position.scale;
+            air_lock_rigid_body_position_component.rotation = air_lock_rigid_body_position.rotation;
 
             commands
                 .entity(request.opened)
@@ -518,8 +520,7 @@ pub fn air_lock_events(
                     continue;
                 }
 
-                let cell_id =
-                    world_to_cell_id(rigid_body_position_component.position.translation.into());
+                let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
                 let cell_id2 = Vec2Int {
                     x: cell_id.x,
                     y: cell_id.z,

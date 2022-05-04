@@ -4,10 +4,7 @@ use bevy_ecs::{
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::{
-    InteractionGroups, IntoEntity, QueryPipeline, QueryPipelineColliderComponentsQuery,
-    QueryPipelineColliderComponentsSet, Ray,
-};
+use bevy_rapier3d::{parry::query::Ray, plugin::RapierContext, prelude::InteractionGroups};
 
 use crate::core::{
     gridmap::{
@@ -27,8 +24,8 @@ struct ReachResult {
 }
 
 pub fn can_reach_entity(
-    query_pipeline: &Res<QueryPipeline>,
-    collider_query: &QueryPipelineColliderComponentsQuery,
+    query_pipeline: &Res<RapierContext>,
+
     mut start_point: Vec3,
     end_point: Vec3,
     target_entity: &Entity,
@@ -43,8 +40,6 @@ pub fn can_reach_entity(
 
     let direction = (end_point - start_point).normalize();
 
-    let collider_set = QueryPipelineColliderComponentsSet(&collider_query);
-
     let ray = Ray::new(start_point.into(), direction.into());
     let max_toi = REACH_DISTANCE;
     let solid = true;
@@ -55,15 +50,13 @@ pub fn can_reach_entity(
     let mut collided_entities = vec![];
 
     query_pipeline.intersections_with_ray(
-        &collider_set,
-        &ray,
+        ray.origin.into(),
+        ray.dir.into(),
         max_toi,
         solid,
         interaction_groups,
         None,
-        |handle, ray_intersection| {
-            let collided_entity = handle.entity();
-
+        |collided_entity, ray_intersection| {
             if collided_entity == *reacher_entity {
                 return true;
             }

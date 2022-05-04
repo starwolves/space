@@ -5,7 +5,7 @@ use bevy_ecs::{
     system::{Query, Res, ResMut},
 };
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     asana::resources::AsanaBoardingAnnouncements,
@@ -21,12 +21,7 @@ use crate::core::{
 pub fn tick_asana_boarding_announcements(
     mut net_new_chat_message_event: EventWriter<NetChatMessage>,
     handle_to_entity: Res<HandleToEntity>,
-    radio_pawns: Query<(
-        Entity,
-        &Radio,
-        &RigidBodyPositionComponent,
-        &PersistentPlayerData,
-    )>,
+    radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,
     mut asana_boarding_announcements: ResMut<AsanaBoardingAnnouncements>,
     time: Res<Time>,
     global_listeners: Query<(&ConnectedPlayer, &PersistentPlayerData)>,

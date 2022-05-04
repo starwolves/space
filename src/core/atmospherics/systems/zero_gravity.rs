@@ -2,9 +2,8 @@ use bevy_ecs::{
     entity::Entity,
     system::{Commands, Query, Res},
 };
-use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, ColliderMaterialComponent, RigidBodyPositionComponent,
-};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Friction};
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     atmospherics::components::ZeroGravity,
@@ -15,9 +14,9 @@ use crate::core::{
 pub fn zero_gravity(
     mut rigid_bodies: Query<(
         Entity,
-        &RigidBodyPositionComponent,
+        &Transform,
         Option<&ZeroGravity>,
-        &mut ColliderMaterialComponent,
+        &mut Friction,
         &RigidBodyData,
     )>,
     gridmap_main: Res<GridmapMain>,
@@ -31,24 +30,23 @@ pub fn zero_gravity(
         rigidbody_data_component,
     ) in rigid_bodies.iter_mut()
     {
-        let mut cell_id =
-            world_to_cell_id(rigidbody_position_component.position.translation.into());
+        let mut cell_id = world_to_cell_id(rigidbody_position_component.translation.into());
 
         cell_id.y = -1;
 
         match gridmap_main.grid_data.get(&cell_id) {
             Some(_) => {
                 if zero_gravity_component_option.is_some() {
-                    collider_material_component.friction = rigidbody_data_component.friction;
-                    collider_material_component.friction_combine_rule =
+                    collider_material_component.coefficient = rigidbody_data_component.friction;
+                    collider_material_component.combine_rule =
                         rigidbody_data_component.friction_combine_rule;
                     commands.entity(rigidbody_entity).remove::<ZeroGravity>();
                 }
             }
             None => {
                 if zero_gravity_component_option.is_none() {
-                    collider_material_component.friction = 0.;
-                    collider_material_component.friction_combine_rule = CoefficientCombineRule::Min;
+                    collider_material_component.coefficient = 0.;
+                    collider_material_component.combine_rule = CoefficientCombineRule::Min;
                     commands.entity(rigidbody_entity).insert(ZeroGravity);
                 }
             }

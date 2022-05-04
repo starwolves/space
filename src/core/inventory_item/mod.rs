@@ -9,7 +9,7 @@ use self::systems::inventory_item_console_commands;
 use super::console_commands::resources::AllConsoleCommands;
 use super::console_commands::ConsoleCommandsLabels;
 use super::networking::resources::ConsoleCommandVariant;
-use super::space_plugin::PostUpdateLabels;
+use super::plugin::PostUpdateLabels;
 
 pub mod components;
 pub mod entity_update;
