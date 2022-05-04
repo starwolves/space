@@ -2,8 +2,9 @@ pub mod resources;
 
 use std::net::SocketAddr;
 
-use bevy_app::{App, EventReader, EventWriter, Plugin};
+use bevy_app::{App, Plugin};
 use bevy_ecs::{
+    event::{EventReader, EventWriter},
     schedule::ParallelSystemDescriptorCoercion,
     system::{Commands, Query, Res, ResMut},
 };
@@ -51,7 +52,7 @@ use super::{
     console_commands::{events::InputConsoleCommand, resources::AllConsoleCommands},
     humanoid::components::Humanoid,
     map::resources::MapData,
-    space_plugin::{PreUpdateLabels, StartupLabels},
+    plugin::{PreUpdateLabels, StartupLabels},
     tab_actions::events::InputTabAction,
 };
 

@@ -1,5 +1,4 @@
-use bevy_app::EventReader;
-use bevy_ecs::system::Query;
+use bevy_ecs::{event::EventReader, system::Query};
 use bevy_math::Vec2;
 
 use crate::core::{

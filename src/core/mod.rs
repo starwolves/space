@@ -2,7 +2,7 @@ use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 use bevy_log::info;
 
-use self::space_plugin::StartupLabels;
+use self::plugin::StartupLabels;
 
 pub mod artificial_unintelligence;
 pub mod asana;
@@ -24,11 +24,11 @@ pub mod map;
 pub mod networking;
 pub mod pawn;
 pub mod physics;
+pub mod plugin;
 pub mod rigid_body;
 pub mod sensable;
 pub mod senser;
 pub mod sfx;
-pub mod space_plugin;
 pub mod static_body;
 pub mod tab_actions;
 pub mod world_environment;

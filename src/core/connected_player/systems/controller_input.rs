@@ -1,5 +1,4 @@
-use bevy_app::EventReader;
-use bevy_ecs::{entity::Entity, system::Query};
+use bevy_ecs::{entity::Entity, event::EventReader, system::Query};
 use bevy_log::warn;
 
 use crate::core::{

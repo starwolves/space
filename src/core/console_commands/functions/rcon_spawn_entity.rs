@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
+    event::EventWriter,
     system::{Commands, Query, Res, ResMut},
 };
 use bevy_log::warn;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::{
@@ -14,10 +14,7 @@ use crate::core::{
         resources::HandleToEntity,
     },
     console_commands::events::NetConsoleCommands,
-    entity::{
-        functions::{isometry_to_transform::isometry_to_transform, spawn_entity::spawn_entity},
-        resources::EntityDataResource,
-    },
+    entity::{functions::spawn_entity::spawn_entity, resources::EntityDataResource},
     gridmap::resources::GridmapMain,
     networking::resources::ReliableServerMessage,
     pawn::{
@@ -36,7 +33,7 @@ pub fn rcon_spawn_entity(
     commands: &mut Commands,
     command_executor_entity: Entity,
     command_executor_handle_option: Option<u32>,
-    rigid_body_positions: &mut Query<(&RigidBodyPositionComponent, &Pawn)>,
+    rigid_body_positions: &mut Query<(&Transform, &Pawn)>,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
     gridmap_main: &Res<GridmapMain>,
     used_names: &mut ResMut<UsedNames>,
@@ -72,7 +69,7 @@ pub fn rcon_spawn_entity(
 
         match rigid_body_positions.get(*target_entity) {
             Ok((position, pawn_component)) => {
-                player_position = position.position.clone();
+                player_position = position.clone();
                 standard_character_component = pawn_component;
             }
             Err(_rr) => {
@@ -107,7 +104,7 @@ pub fn rcon_spawn_entity(
         }
 
         let spawn_position = entity_spawn_position_for_player(
-            isometry_to_transform(player_position),
+            player_position,
             Some(&standard_character_component.facing_direction),
             None,
             gridmap_main,

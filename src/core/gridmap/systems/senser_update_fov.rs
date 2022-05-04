@@ -1,5 +1,5 @@
 use bevy_ecs::system::{Query, ResMut};
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 use doryen_fov::FovAlgorithm;
 
 use crate::core::{
@@ -13,12 +13,11 @@ use crate::core::{
 pub const FOV_DISTANCE: usize = 23;
 
 pub fn senser_update_fov(
-    mut senser_entities: Query<(&mut Senser, &RigidBodyPositionComponent)>,
+    mut senser_entities: Query<(&mut Senser, &Transform)>,
     mut map: ResMut<DoryenMap>,
 ) {
     for (mut senser_component, rigid_body_position_component) in senser_entities.iter_mut() {
-        let senser_cell_id_3 =
-            world_to_cell_id(rigid_body_position_component.position.translation.into());
+        let senser_cell_id_3 = world_to_cell_id(rigid_body_position_component.translation.into());
         let senser_cell_id = Vec2Int {
             x: senser_cell_id_3.x,
             y: senser_cell_id_3.z,

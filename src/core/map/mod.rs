@@ -38,4 +38,4 @@ impl Plugin for MapPlugin {
 }
 use bevy_app::CoreStage::PostUpdate;
 
-use super::space_plugin::{MapLabels, PostUpdateLabels};
+use super::plugin::{MapLabels, PostUpdateLabels};

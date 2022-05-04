@@ -9,7 +9,7 @@ use self::{
     resources::ClientHealthUICache,
 };
 
-use super::space_plugin::PostUpdateLabels;
+use super::plugin::PostUpdateLabels;
 
 pub mod components;
 pub mod entity_update;

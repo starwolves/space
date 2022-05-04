@@ -4,14 +4,13 @@ pub mod functions;
 pub mod resources;
 pub mod systems;
 
-use bevy_app::{App, Plugin};
+use bevy_app::{App, CoreStage, Plugin};
 use bevy_core::FixedTimestep;
 use bevy_ecs::{
     schedule::{ParallelSystemDescriptorCoercion, SystemLabel, SystemSet},
     system::{Res, ResMut},
 };
 use bevy_log::info;
-use bevy_rapier3d::physics::{PhysicsStages, PhysicsSystems};
 
 use crate::core::{
     atmospherics::{
@@ -40,7 +39,7 @@ use self::{
 
 use super::{
     gridmap::resources::GridmapData,
-    space_plugin::{MapLabels, PostUpdateLabels, StartupLabels},
+    plugin::{MapLabels, PostUpdateLabels, StartupLabels},
 };
 
 pub fn startup_atmospherics(
@@ -144,14 +143,8 @@ impl Plugin for AtmosphericsPlugin {
         app.init_resource::<AtmosphericsResource>()
             .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
             .add_system(atmospherics_sensing_ability)
-            .add_system_to_stage(
-                PhysicsStages::SyncTransforms,
-                rigidbody_forces_physics.after(PhysicsSystems::SyncTransforms),
-            )
-            .add_system_to_stage(
-                PhysicsStages::SyncTransforms,
-                zero_gravity.after(PhysicsSystems::SyncTransforms),
-            )
+            .add_system_to_stage(CoreStage::Update, rigidbody_forces_physics)
+            .add_system_to_stage(CoreStage::Update, zero_gravity)
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))

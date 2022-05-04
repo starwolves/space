@@ -3,7 +3,7 @@ use bevy_ecs::{
     prelude::Added,
     system::{Query, ResMut},
 };
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
@@ -18,22 +18,14 @@ use crate::{
 };
 
 pub fn air_lock_default_map_added(
-    airlock_windows: Query<
-        (
-            Entity,
-            &RigidBodyPositionComponent,
-            &DefaultMapEntity,
-            &EntityData,
-        ),
-        Added<AirLock>,
-    >,
+    airlock_windows: Query<(Entity, &Transform, &DefaultMapEntity, &EntityData), Added<AirLock>>,
     mut map_data: ResMut<MapData>,
     mut gridmap_main: ResMut<GridmapMain>,
 ) {
     for (airlock_entity, rigid_body_position_component, _, entity_data_component) in
         airlock_windows.iter()
     {
-        let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+        let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
         let cell_id2 = Vec2Int {
             x: cell_id.x,
             y: cell_id.z,

@@ -14,8 +14,8 @@ use bevy_ecs::{
 };
 use bevy_log::info;
 use bevy_rapier3d::{
-    physics::TimestepMode,
-    prelude::{ColliderPosition, ColliderShape, IntegrationParameters, RapierConfiguration},
+    prelude::{Collider, RapierConfiguration},
+    rapier::prelude::ColliderPosition,
 };
 use bevy_transform::components::Transform;
 
@@ -58,7 +58,7 @@ use super::{
     configuration::resources::{ServerId, TickRate},
     entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1,
     examinable::components::RichName,
-    space_plugin::{PostUpdateLabels, StartupLabels, UpdateLabels},
+    plugin::{PostUpdateLabels, StartupLabels, UpdateLabels},
     world_environment::resources::WorldEnvironment,
 };
 
@@ -135,7 +135,7 @@ pub struct MainCellProperties {
     pub combat_obstacle: bool,
     pub placeable_item_surface: bool,
     pub laser_combat_obstacle: bool,
-    pub collider_shape: ColliderShape,
+    pub collider: Collider,
     pub collider_position: ColliderPosition,
     pub constructable: bool,
     pub floor_cell: bool,
@@ -170,7 +170,7 @@ impl Default for MainCellProperties {
             combat_obstacle: true,
             placeable_item_surface: false,
             laser_combat_obstacle: true,
-            collider_shape: ColliderShape::cuboid(1., 1., 1.),
+            collider: Collider::cuboid(1., 1., 1.),
             collider_position: ColliderPosition::identity(),
             constructable: false,
             floor_cell: false,
@@ -225,7 +225,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         non_fov_blocker: true,
         combat_obstacle: false,
         placeable_item_surface: true,
-        collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
+        collider: Collider::cuboid(1., 0.5, 1.),
         collider_position: default_isometry,
         constructable: true,
         ..Default::default()
@@ -248,7 +248,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         non_fov_blocker: true,
         combat_obstacle: false,
         placeable_item_surface: true,
-        collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
+        collider: Collider::cuboid(1., 0.5, 1.),
         collider_position: default_isometry,
         constructable: true,
         ..Default::default()
@@ -271,7 +271,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         non_fov_blocker: true,
         combat_obstacle: false,
         placeable_item_surface: true,
-        collider_shape: ColliderShape::cuboid(1., 0.5, 1.),
+        collider: Collider::cuboid(1., 0.5, 1.),
         collider_position: default_isometry,
         constructable: true,
         ..Default::default()
@@ -317,7 +317,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         non_fov_blocker: true,
         combat_obstacle: false,
         placeable_item_surface: true,
-        collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
+        collider: Collider::cuboid(1., 0.5, 0.5),
         collider_position: default_isometry,
         constructable: true,
         atmospherics_blocker: false,
@@ -348,7 +348,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         non_fov_blocker: true,
         combat_obstacle: false,
         placeable_item_surface: true,
-        collider_shape: ColliderShape::cuboid(1., 0.5, 0.5),
+        collider: Collider::cuboid(1., 0.5, 0.5),
         collider_position: default_isometry,
         constructable: true,
         atmospherics_blocker: false,
@@ -924,14 +924,13 @@ pub fn startup_misc_resources(
     mut map_environment: ResMut<WorldEnvironment>,
     mut gridmap_data: ResMut<GridmapData>,
     mut spawn_points_res: ResMut<SpawnPoints>,
-    mut rapier_configuration: ResMut<RapierConfiguration>,
-    mut rapier_integration_params: ResMut<IntegrationParameters>,
-    tick_rate: Res<TickRate>,
+    mut _rapier_configuration: ResMut<RapierConfiguration>,
+    _tick_rate: Res<TickRate>,
     mut commands: Commands,
 ) {
     // Init Bevy Rapier physics.
-    rapier_configuration.timestep_mode = TimestepMode::VariableTimestep;
-    rapier_integration_params.dt = 1. / tick_rate.rate as f32;
+    //rapier_configuration.timestep_mode = TimestepMode::VariableTimestep;
+    //rapier_integration_params.dt = 1. / tick_rate.rate as f32;
 
     let environment_json_location = Path::new("data")
         .join("maps")

@@ -5,9 +5,9 @@ use bevy_ecs::{
     system::{Local, Query, Res, ResMut},
 };
 use bevy_log::warn;
-use bevy_math::{Quat, Vec3};
+use bevy_math::Vec3;
 use bevy_networking_turbulence::NetworkResource;
-use bevy_rapier3d::prelude::{RigidBodyPositionComponent, RigidBodyVelocityComponent};
+use bevy_rapier3d::prelude::Velocity;
 use bevy_transform::components::Transform;
 
 use crate::core::{
@@ -42,8 +42,8 @@ pub fn broadcast_interpolation_transforms(
         (
             Entity,
             &Sensable,
-            &RigidBodyPositionComponent,
-            &RigidBodyVelocityComponent,
+            &Transform,
+            &Velocity,
             &mut CachedBroadcastTransform,
             Option<&ConnectedPlayer>,
         ),
@@ -68,29 +68,11 @@ pub fn broadcast_interpolation_transforms(
         connected_player_component_option,
     ) in query_interpolated_entities.iter_mut()
     {
-        let rigid_body_position = rigid_body_position_component.position;
+        let rigid_body_position = rigid_body_position_component;
 
-        let rigid_body_translation_rapier = rigid_body_position.translation;
-        let rigid_body_velocity_rapier = rigid_body_velocity_component.linvel;
-        let rigid_body_rotation_rapier = rigid_body_position.rotation;
-
-        let rigid_body_translation = Vec3::new(
-            rigid_body_translation_rapier.x,
-            rigid_body_translation_rapier.y,
-            rigid_body_translation_rapier.z,
-        );
-
-        let rigid_body_velocity = Vec3::new(
-            rigid_body_velocity_rapier.x,
-            rigid_body_velocity_rapier.y,
-            rigid_body_velocity_rapier.z,
-        );
-        let rigid_body_rotation = Quat::from_xyzw(
-            rigid_body_rotation_rapier.i,
-            rigid_body_rotation_rapier.j,
-            rigid_body_rotation_rapier.k,
-            rigid_body_rotation_rapier.w,
-        );
+        let rigid_body_translation = rigid_body_position.translation;
+        let rigid_body_velocity = rigid_body_velocity_component.linvel;
+        let rigid_body_rotation = rigid_body_position.rotation;
 
         let this_transform = Transform {
             translation: rigid_body_translation,

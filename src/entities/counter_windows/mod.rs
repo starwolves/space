@@ -7,7 +7,7 @@ use bevy_transform::components::Transform;
 
 use crate::core::entity::functions::initialize_entity_data::initialize_entity_data;
 use crate::core::entity::resources::{EntityDataProperties, EntityDataResource, GridItemData};
-use crate::core::space_plugin::{PostUpdateLabels, StartupLabels};
+use crate::core::plugin::{PostUpdateLabels, StartupLabels};
 use crate::core::tab_actions::TabActionsQueueLabels;
 
 use self::events::{CounterWindowUnlock, NetCounterWindow};
@@ -15,7 +15,8 @@ use self::spawn::CounterWindowBundle;
 use self::systems::actions::actions;
 use self::systems::counter_window_added::counter_window_added;
 use self::systems::counter_window_default_map_added::counter_window_default_map_added;
-use self::systems::counter_window_events::{counter_window_events, counter_window_tick_timers};
+use self::systems::counter_window_events::counter_window_events;
+use self::systems::counter_window_tick_timers::counter_window_tick_timers;
 use self::systems::net_system::net_system;
 use self::{
     entity_update::counter_window_update,

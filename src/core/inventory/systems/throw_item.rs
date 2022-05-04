@@ -1,27 +1,23 @@
 use std::collections::HashMap;
 
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Commands, Query, Res, ResMut},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
 
 use bevy_rapier3d::prelude::{
-    ColliderFlagsComponent, RigidBodyActivationComponent, RigidBodyForcesComponent,
-    RigidBodyMassPropsComponent, RigidBodyPositionComponent, RigidBodyVelocityComponent,
+    CollisionGroups, ExternalForce, ExternalImpulse, GravityScale, MassProperties, Sleeping,
 };
+use bevy_transform::prelude::Transform;
 use rand::Rng;
 
 use crate::{
     core::{
         atmospherics::components::ZeroGravity,
         connected_player::resources::HandleToEntity,
-        entity::functions::{
-            isometry_to_transform::isometry_to_transform,
-            transform_to_isometry::transform_to_isometry,
-        },
         examinable::components::Examinable,
         gridmap::resources::GridmapMain,
         humanoid::components::{CharacterAnimationState, Humanoid},
@@ -45,7 +41,7 @@ use crate::{
 
 pub fn throw_item(
     mut throw_item_events: EventReader<InputThrowItem>,
-    mut rigidbody_positions: Query<&mut RigidBodyPositionComponent>,
+    mut rigidbody_positions: Query<&mut Transform>,
     examinables: Query<&Examinable>,
     mut inventory_entities: Query<(
         &mut Inventory,
@@ -60,13 +56,14 @@ pub fn throw_item(
         Entity,
         &mut InventoryItem,
         &mut WorldMode,
-        &mut RigidBodyActivationComponent,
-        &mut ColliderFlagsComponent,
-        &mut RigidBodyForcesComponent,
+        &mut Sleeping,
+        &mut CollisionGroups,
+        &mut ExternalForce,
         &mut RigidBodyLinkTransform,
-        &RigidBodyMassPropsComponent,
+        &MassProperties,
+        &mut GravityScale,
+        &mut ExternalImpulse,
     )>,
-    mut rigidbody_velocites: Query<&mut RigidBodyVelocityComponent>,
     mut commands: Commands,
     mut net_throw_item: EventWriter<NetThrowItem>,
     gridmap_main: Res<GridmapMain>,
@@ -109,9 +106,11 @@ pub fn throw_item(
             mut pickupable_world_mode_component,
             mut pickupable_rigidbody_activation,
             mut pickupable_rigidbody_collider_flags,
-            mut pickupable_rigidbody_forces,
+            mut _pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
-            pickupable_rigidbody_props,
+            _pickupable_rigidbody_props,
+            mut gravity_component,
+            mut _external_impulse,
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
 
@@ -125,7 +124,7 @@ pub fn throw_item(
         enable_rigidbody(
             &mut pickupable_rigidbody_activation,
             &mut pickupable_rigidbody_collider_flags,
-            &mut pickupable_rigidbody_forces,
+            &mut gravity_component,
             &mut commands,
             pickupable_entity,
         );
@@ -138,10 +137,9 @@ pub fn throw_item(
 
         let new_transform;
 
-        match rigidbody_positions.get_component_mut::<RigidBodyPositionComponent>(pickupable_entity)
-        {
+        match rigidbody_positions.get_component_mut::<Transform>(pickupable_entity) {
             Ok(mut position) => {
-                let mut new_pickupable_transform = isometry_to_transform(position.position);
+                let mut new_pickupable_transform = position.clone();
 
                 let results = entity_spawn_position_for_player(
                     new_pickupable_transform,
@@ -159,7 +157,9 @@ pub fn throw_item(
                     _ => (),
                 }
 
-                new_pickupable_transform = results.0;
+                new_pickupable_transform.translation = results.0.translation;
+                new_pickupable_transform.scale = results.0.scale;
+                new_pickupable_transform.rotation = results.0.rotation;
 
                 new_pickupable_transform.translation.y = 1.5;
 
@@ -168,7 +168,9 @@ pub fn throw_item(
 
                 new_transform = new_pickupable_transform.clone();
 
-                position.position = transform_to_isometry(new_pickupable_transform);
+                position.translation = new_pickupable_transform.translation;
+                position.rotation = new_pickupable_transform.rotation;
+                position.scale = new_pickupable_transform.scale;
             }
             Err(_rr) => {
                 warn!("Couldn't find RigidBodyPosition of entity that is dropped.");
@@ -180,7 +182,7 @@ pub fn throw_item(
 
         match rigidbody_positions.get(pickuper_components.6) {
             Ok(pos) => {
-                thrower_vec3 = pos.position.translation.into();
+                thrower_vec3 = pos.translation.into();
             }
             Err(_rr) => {
                 warn!("Couldn't find rigidbodyposition of thrower!");
@@ -210,19 +212,18 @@ pub fn throw_item(
         impulse *= inventory_item_component.throw_force_factor;
         impulse_absolute *= inventory_item_component.throw_force_factor;
 
-        match rigidbody_velocites.get_mut(pickupable_entity) {
-            Ok(mut pickupable_rigidbody_velocity) => {
-                pickupable_rigidbody_velocity
-                    .apply_impulse(pickupable_rigidbody_props, impulse.into());
+        match pickupable_entities.get_component_mut::<ExternalImpulse>(pickupable_entity) {
+            Ok(mut external_force_component) => {
+                external_force_component.impulse = impulse;
             }
             Err(_rr) => {}
         }
 
         if pickuper_components.5.is_some() {
             // Thrower has zerogravity, apply inverse impulse energy.
-            match rigidbody_velocites.get_mut(pickuper_components.6) {
+            match pickupable_entities.get_component_mut::<ExternalImpulse>(pickuper_components.6) {
                 Ok(mut s) => {
-                    s.apply_impulse(pickupable_rigidbody_props, (-impulse_absolute).into());
+                    s.impulse = -impulse_absolute;
                 }
                 Err(_rr) => {}
             }

@@ -1,14 +1,13 @@
 use std::collections::HashMap;
 
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     prelude::Without,
     system::{Commands, Query, Res, ResMut},
 };
 use bevy_log::{info, warn};
 use bevy_math::Quat;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 use bevy_transform::components::Transform;
 use doryen_fov::FovAlgorithm;
 use rand::Rng;
@@ -22,10 +21,7 @@ use crate::{
         },
         chat::functions::FURTHER_ITALIC_FONT,
         connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-        entity::{
-            components::EntityData, functions::isometry_to_transform::isometry_to_transform,
-            resources::EntityDataResource,
-        },
+        entity::{components::EntityData, resources::EntityDataResource},
         gridmap::{
             events::RemoveCell,
             functions::{
@@ -89,7 +85,7 @@ pub fn construction_tool(
         &mut ConstructionTool,
         &Sensable,
         &InventoryItem,
-        &RigidBodyPositionComponent,
+        &Transform,
     )>,
     pawns: Query<&Pawn>,
     mut commands: Commands,
@@ -97,7 +93,7 @@ pub fn construction_tool(
     mut fov_map: ResMut<DoryenMap>,
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
-    rigid_bodies: Query<(&RigidBodyPositionComponent, &EntityData), Without<RigidBodyDisabled>>,
+    rigid_bodies: Query<(&Transform, &EntityData), Without<RigidBodyDisabled>>,
 ) {
     let (
         mut input_construct_event,
@@ -303,11 +299,11 @@ pub fn construction_tool(
         let sfx_bundle;
 
         if random_pick == 0 {
-            sfx_bundle = UIInteraction1SfxBundle::new(isometry_to_transform(rgpc.position));
+            sfx_bundle = UIInteraction1SfxBundle::new(*rgpc);
         } else if random_pick == 1 {
-            sfx_bundle = UIInteraction2SfxBundle::new(isometry_to_transform(rgpc.position));
+            sfx_bundle = UIInteraction2SfxBundle::new(*rgpc);
         } else {
-            sfx_bundle = UIInteraction3SfxBundle::new(isometry_to_transform(rgpc.position));
+            sfx_bundle = UIInteraction3SfxBundle::new(*rgpc);
         }
 
         let sfx_entity = commands.spawn().insert_bundle(sfx_bundle).id();
@@ -374,9 +370,7 @@ pub fn construction_tool(
                             }
                         }
 
-                        sfx_bundle = Deconstruct1SfxBundle::new(isometry_to_transform(
-                            rigid_body_position_component.position,
-                        ));
+                        sfx_bundle = Deconstruct1SfxBundle::new(*rigid_body_position_component);
                     }
                     GridMapType::Details1 => {
                         match &gridmap_details1.data.get(&cell_id_int) {
@@ -394,13 +388,11 @@ pub fn construction_tool(
                         let random_pick: i32 = rng.gen_range(0..2);
 
                         if random_pick == 0 {
-                            sfx_bundle = ConstructLight1SfxBundle::new(isometry_to_transform(
-                                rigid_body_position_component.position,
-                            ));
+                            sfx_bundle =
+                                ConstructLight1SfxBundle::new(*rigid_body_position_component);
                         } else {
-                            sfx_bundle = ConstructLight2SfxBundle::new(isometry_to_transform(
-                                rigid_body_position_component.position,
-                            ));
+                            sfx_bundle =
+                                ConstructLight2SfxBundle::new(*rigid_body_position_component);
                         }
                     }
                 }
@@ -439,16 +431,13 @@ pub fn construction_tool(
 
                 deconstructed_item_name = &entity_data.entity_name;
 
-                let cell_id =
-                    world_to_cell_id(entity_position_component.position.translation.into());
+                let cell_id = world_to_cell_id(entity_position_component.translation.into());
 
                 gridmap_main.entity_data.remove(&cell_id);
 
                 commands.entity(deconstruct_entity).despawn();
 
-                sfx_bundle = Deconstruct1SfxBundle::new(isometry_to_transform(
-                    rigid_body_position_component.position,
-                ));
+                sfx_bundle = Deconstruct1SfxBundle::new(*rigid_body_position_component);
             }
         }
 
@@ -737,7 +726,7 @@ pub fn construction_tool(
         let mut blockers = vec![];
 
         for (rigid_body, entity_data_component) in rigid_bodies.iter() {
-            let pos = rigid_body.position.translation.into();
+            let pos = rigid_body.translation;
 
             let cell_id = world_to_cell_id(pos);
             let cell_id_2 = Vec2Int {
@@ -1131,13 +1120,9 @@ pub fn construction_tool(
         let sfx_bundle;
 
         if random_pick == 0 {
-            sfx_bundle = Construct1SfxBundle::new(isometry_to_transform(
-                rigid_body_position_component.position,
-            ));
+            sfx_bundle = Construct1SfxBundle::new(*rigid_body_position_component);
         } else {
-            sfx_bundle = Construct2SfxBundle::new(isometry_to_transform(
-                rigid_body_position_component.position,
-            ));
+            sfx_bundle = Construct2SfxBundle::new(*rigid_body_position_component);
         }
 
         let sfx_entity = commands.spawn().insert_bundle(sfx_bundle).id();

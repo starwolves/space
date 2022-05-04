@@ -1,11 +1,11 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Query, Res},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::{
@@ -33,17 +33,11 @@ pub fn tab_data(
     mut map_events: EventReader<InputTabDataMap>,
     mut net: EventWriter<NetTabData>,
 
-    pawn_query: Query<(
-        &Pawn,
-        &Senser,
-        &RigidBodyPositionComponent,
-        &Inventory,
-        &DataLink,
-    )>,
+    pawn_query: Query<(&Pawn, &Senser, &Transform, &Inventory, &DataLink)>,
     examinable_query: Query<(
         &Examinable,
         &Sensable,
-        Option<&RigidBodyPositionComponent>,
+        Option<&Transform>,
         Option<&StaticTransform>,
         Option<&TabActions>,
     )>,
@@ -63,7 +57,7 @@ pub fn tab_data(
         match pawn_query.get(event.player_entity) {
             Ok((pawn_c, _pawn_c2, pawn_c3, pawn_c4, pawn_c5)) => {
                 player_pawn_component = pawn_c;
-                pawn_body_position = pawn_c3.position.translation.into();
+                pawn_body_position = pawn_c3.translation.into();
                 player_inventory_component = pawn_c4;
                 data_link_component = pawn_c5;
             }
@@ -123,7 +117,6 @@ pub fn tab_data(
                         if rigid_body_position_component_option.is_some() {
                             entity_translation = rigid_body_position_component_option
                                 .unwrap()
-                                .position
                                 .translation
                                 .into();
                         } else {
@@ -177,7 +170,7 @@ pub fn tab_data(
             Ok((pawn_c, pawn_c2, pawn_c3, pawn_c4, pawn_c5)) => {
                 player_pawn_component = pawn_c;
                 player_senser_component = pawn_c2;
-                player_body_position = pawn_c3.position.translation.into();
+                player_body_position = pawn_c3.translation.into();
                 player_inventory_component = pawn_c4;
                 data_link_component = pawn_c5;
             }

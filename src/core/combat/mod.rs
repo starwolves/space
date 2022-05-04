@@ -1,11 +1,12 @@
 use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 
 use self::systems::attack;
 
-use super::space_plugin::UpdateLabels;
+use super::plugin::UpdateLabels;
 
 pub mod systems;
+
+use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 
 pub struct CombatPlugin;
 

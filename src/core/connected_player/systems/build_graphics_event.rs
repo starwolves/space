@@ -1,6 +1,6 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Query, Res},
 };
 

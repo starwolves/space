@@ -1,5 +1,4 @@
-use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, system::Res};
+use bevy_ecs::{entity::Entity, event::EventWriter, system::Res};
 
 use crate::{
     core::tab_actions::resources::QueuedTabActions,

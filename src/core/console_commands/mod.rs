@@ -13,7 +13,7 @@ use self::{
 
 use super::{
     networking::resources::ConsoleCommandVariant,
-    space_plugin::{PostUpdateLabels, StartupLabels},
+    plugin::{PostUpdateLabels, StartupLabels},
 };
 
 pub mod events;

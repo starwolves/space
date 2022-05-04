@@ -8,7 +8,7 @@ use crate::core::{
         resources::{EntityDataProperties, EntityDataResource},
     },
     networking::resources::ConsoleCommandVariant,
-    space_plugin::StartupLabels,
+    plugin::StartupLabels,
 };
 
 use self::{

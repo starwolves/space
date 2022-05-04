@@ -1,4 +1,4 @@
-use bevy_ecs::entity::Entity;
+use bevy_ecs::{entity::Entity, event::EventWriter};
 
 use crate::core::{entity::components::EntityGroup, networking::resources::ReliableServerMessage};
 
@@ -44,7 +44,6 @@ pub struct AirLockUnlock {
     pub locker: Entity,
 }
 
-use bevy_app::EventWriter;
 use bevy_ecs::system::Res;
 
 use crate::core::tab_actions::resources::QueuedTabActions;

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
+    event::EventWriter,
     system::{Commands, ResMut},
 };
 use bevy_transform::components::Transform;

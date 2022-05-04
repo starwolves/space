@@ -1,5 +1,7 @@
-use bevy_app::EventReader;
-use bevy_ecs::system::{Commands, Query, ResMut};
+use bevy_ecs::{
+    event::EventReader,
+    system::{Commands, Query, ResMut},
+};
 use doryen_fov::FovAlgorithm;
 
 use crate::core::{

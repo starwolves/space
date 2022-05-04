@@ -1,16 +1,15 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
-    prelude::QueryState,
-    system::{Commands, Query, QuerySet, Res},
+    event::{EventReader, EventWriter},
+    system::{Commands, Query, Res},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
-
-use bevy_rapier3d::prelude::{
-    ColliderFlagsComponent, ColliderPositionComponent, ColliderShapeComponent, QueryPipeline,
-    RigidBodyActivationComponent, RigidBodyForcesComponent, RigidBodyPositionComponent,
+use bevy_rapier3d::{
+    plugin::RapierContext,
+    prelude::{CollisionGroups, ExternalForce, GravityScale, Sleeping},
 };
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::resources::HandleToEntity,
@@ -36,25 +35,18 @@ pub fn pickup_world_item<'a>(
     mut inventory_entities: Query<&mut Inventory>,
     mut inventory_items_query: Query<&mut InventoryItem>,
     health_query: Query<&Health>,
-    mut q: QuerySet<(
-        QueryState<(
-            &mut WorldMode,
-            &mut RigidBodyActivationComponent,
-            &mut ColliderFlagsComponent,
-            &mut RigidBodyForcesComponent,
-            &EntityData,
-        )>,
-        QueryState<(
-            Entity,
-            &'a ColliderPositionComponent,
-            &'a ColliderShapeComponent,
-            &'a ColliderFlagsComponent,
-        )>,
+    mut q: Query<(
+        &mut WorldMode,
+        &mut Sleeping,
+        &mut CollisionGroups,
+        &mut ExternalForce,
+        &EntityData,
+        &mut GravityScale,
     )>,
-    rigidbody_positions: Query<&RigidBodyPositionComponent>,
+    rigidbody_positions: Query<&Transform>,
     mut commands: Commands,
     mut net_pickup_world_item: EventWriter<NetPickupWorldItem>,
-    query_pipeline: Res<QueryPipeline>,
+    query_pipeline: Res<RapierContext>,
     handle_to_entity: Res<HandleToEntity>,
     gridmap_main: Res<GridmapMain>,
     gridmap_data: Res<GridmapData>,
@@ -103,14 +95,13 @@ pub fn pickup_world_item<'a>(
 
         let pickupable_position : Vec3 = rigidbody_positions.get(pickupable_entity)
         .expect("pickup_world_item.rs pickupable_entity was not found in rigidbody_positions query.")
-        .position.translation.into();
+        .translation.into();
 
         let pickuper_position: Vec3 = rigidbody_positions
             .get(event.pickuper_entity)
             .expect(
                 "pickup_world_item.rs pickuper_entity was not found in rigidbody_positions query.",
             )
-            .position
             .translation
             .into();
 
@@ -120,7 +111,6 @@ pub fn pickup_world_item<'a>(
 
         if !can_reach_entity(
             &query_pipeline,
-            &q.q1(),
             pickuper_position,
             pickupable_position,
             &pickupable_entity,
@@ -136,9 +126,7 @@ pub fn pickup_world_item<'a>(
 
         let pickupable_entities_components;
 
-        let mut q0 = q.q0();
-
-        match q0.get_mut(pickupable_entity) {
+        match q.get_mut(pickupable_entity) {
             Ok(s) => {
                 pickupable_entities_components = s;
             }
@@ -151,14 +139,15 @@ pub fn pickup_world_item<'a>(
         let mut pickupable_world_mode = pickupable_entities_components.0;
         let mut pickupable_rigid_body_activation = pickupable_entities_components.1;
         let mut pickupable_collider_bundle = pickupable_entities_components.2;
-        let mut pickupable_rigid_body_forces = pickupable_entities_components.3;
+        let mut _pickupable_rigid_body_forces = pickupable_entities_components.3;
+        let mut pickupable_rigid_body_gravity = pickupable_entities_components.5;
 
         let pickupable_entity_data = pickupable_entities_components.4;
 
         disable_rigidbody(
             &mut pickupable_rigid_body_activation,
             &mut pickupable_collider_bundle,
-            &mut pickupable_rigid_body_forces,
+            &mut pickupable_rigid_body_gravity,
             &mut commands,
             pickupable_entity,
         );

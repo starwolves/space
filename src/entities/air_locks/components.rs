@@ -9,6 +9,11 @@ pub struct AirLock {
     pub access_lights: AccessLightsStatus,
     pub access_permissions: Vec<SpaceAccessEnum>,
     pub locked_status: LockedStatus,
+
+    pub timer: Timer,
+    pub denied_timer: Timer,
+    pub open_timer: Timer,
+    pub closed_timer: Timer,
 }
 
 pub enum AirLockStatus {
@@ -29,6 +34,10 @@ impl Default for AirLock {
             access_lights: AccessLightsStatus::Neutral,
             access_permissions: vec![SpaceAccessEnum::Common],
             locked_status: LockedStatus::None,
+            timer: Timer::default(),
+            denied_timer: Timer::default(),
+            open_timer: Timer::default(),
+            closed_timer: Timer::default(),
         }
     }
 }

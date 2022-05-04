@@ -1,9 +1,9 @@
-use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
+    event::EventWriter,
     system::{Local, Query, Res},
 };
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 use std::collections::HashMap;
 
 use crate::core::{
@@ -33,7 +33,7 @@ pub fn atmospherics_notices(
     pawns: Query<(
         Entity,
         &Pawn,
-        &RigidBodyPositionComponent,
+        &Transform,
         &ConnectedPlayer,
         Option<&ZeroGravity>,
     )>,
@@ -59,7 +59,7 @@ pub fn atmospherics_notices(
             }
         }
 
-        let cell_id = world_to_cell_id(rigid_body_position_component.position.translation.into());
+        let cell_id = world_to_cell_id(rigid_body_position_component.translation);
 
         let atmospherics = atmospherics_resource
             .atmospherics

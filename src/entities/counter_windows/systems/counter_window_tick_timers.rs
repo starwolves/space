@@ -4,20 +4,23 @@ use bevy_ecs::{
     system::{Commands, Query, Res, ResMut},
 };
 
-use crate::{core::sfx::resources::SfxAutoDestroyTimers, entities::air_locks::components::AirLock};
+use crate::{
+    core::sfx::resources::SfxAutoDestroyTimers,
+    entities::counter_windows::components::CounterWindow,
+};
 
-pub fn air_lock_tick_timers(
+pub fn counter_window_tick_timers(
+    mut counter_windows: Query<&mut CounterWindow>,
     time: Res<Time>,
-    mut air_locks: Query<&mut AirLock>,
 
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
 ) {
-    for mut air_lock_component in air_locks.iter_mut() {
-        air_lock_component.timer.tick(time.delta());
-        air_lock_component.denied_timer.tick(time.delta());
-        air_lock_component.open_timer.tick(time.delta());
-        air_lock_component.closed_timer.tick(time.delta());
+    for mut counter_window_component in counter_windows.iter_mut() {
+        counter_window_component.timer.tick(time.delta());
+        counter_window_component.denied_timer.tick(time.delta());
+        counter_window_component.open_timer.tick(time.delta());
+        counter_window_component.closed_timer.tick(time.delta());
     }
 
     let mut expired_sfx_entities: Vec<Entity> = vec![];

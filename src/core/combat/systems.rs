@@ -1,12 +1,13 @@
-use bevy_app::{EventReader, EventWriter};
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Commands, Query, Res, ResMut},
 };
 use bevy_math::{Quat, Vec3};
-use bevy_rapier3d::prelude::{
-    ColliderHandle, Cuboid, InteractionGroups, QueryPipeline, QueryPipelineColliderComponentsQuery,
-    QueryPipelineColliderComponentsSet, Ray, RigidBodyPositionComponent,
+use bevy_rapier3d::{
+    parry::query::Ray,
+    plugin::RapierContext,
+    prelude::{Collider, InteractionGroups},
 };
 use bevy_transform::components::Transform;
 
@@ -34,15 +35,13 @@ use crate::core::{
     sfx::resources::SfxAutoDestroyTimers,
 };
 
-use bevy_rapier3d::physics::IntoEntity;
-
 #[derive(Debug)]
 struct AttackResult {
     entity_option: Option<Entity>,
     cell_id_option: Option<Vec3Int>,
     distance: f32,
     rigid_body_position: Vec3,
-    collider_handle: ColliderHandle,
+    collider_handle: Entity,
     is_combat_obstacle: bool,
     is_laser_obstacle: bool,
 }
@@ -51,9 +50,8 @@ const ATTACK_HEIGHT: f32 = 1.6;
 
 pub fn attack(
     mut attack_events: EventReader<Attack>,
-    query_pipeline: Res<QueryPipeline>,
-    collider_query: QueryPipelineColliderComponentsQuery,
-    mut rigidbody_query: Query<(&mut Health, &Examinable, &RigidBodyPositionComponent)>,
+    rapier_context: Res<RapierContext>,
+    mut rigidbody_query: Query<(&mut Health, &Examinable, &Transform)>,
     mut world_cells: ResMut<GridmapMain>,
     physics_cells: Query<&Cell>,
     mut net_message_event: EventWriter<NetChatMessage>,
@@ -99,23 +97,19 @@ pub fn attack(
                     cast_vertical_extents = 0.1;
                 }
 
-                query_pipeline.intersections_with_shape(
-                    &QueryPipelineColliderComponentsSet(&collider_query),
-                    &(
-                        Vec3::new(
-                            attack_event.attacker_position.x,
-                            attack_height,
-                            attack_event.attacker_position.z,
-                        ) - additive,
-                        Quat::from_rotation_y(attack_event.angle),
-                    )
-                        .into(),
-                    &Cuboid::new(Vec3::new(attack_event.range, cast_vertical_extents, 0.1).into()),
+                let shape_vec = Vec3::new(attack_event.range, cast_vertical_extents, 0.1);
+
+                rapier_context.intersections_with_shape(
+                    Vec3::new(
+                        attack_event.attacker_position.x,
+                        attack_height,
+                        attack_event.attacker_position.z,
+                    ) - additive,
+                    Quat::from_rotation_y(attack_event.angle).into(),
+                    &Collider::cuboid(shape_vec.x, shape_vec.y, shape_vec.z),
                     interaction_groups,
                     None,
-                    |collider_handle| {
-                        let collider_entity = collider_handle.entity();
-
+                    |collider_entity| {
                         if collider_entity == attack_event.attacker_entity {
                             return true;
                         }
@@ -136,9 +130,9 @@ pub fn attack(
                                 rigid_body_position_component,
                             )) => {
                                 let position = Vec3::new(
-                                    rigid_body_position_component.position.translation.x,
-                                    rigid_body_position_component.position.translation.y,
-                                    rigid_body_position_component.position.translation.z,
+                                    rigid_body_position_component.translation.x,
+                                    rigid_body_position_component.translation.y,
+                                    rigid_body_position_component.translation.z,
                                 );
 
                                 hit_entities.push(AttackResult {
@@ -146,7 +140,7 @@ pub fn attack(
                                     cell_id_option: None,
                                     distance: attack_event.attacker_position.distance(position),
                                     rigid_body_position: position,
-                                    collider_handle,
+                                    collider_handle: collider_entity,
                                     is_combat_obstacle: health_component.is_combat_obstacle,
                                     is_laser_obstacle: health_component.is_laser_obstacle,
                                 });
@@ -166,7 +160,7 @@ pub fn attack(
                                     cell_id_option: Some(cell_component.id),
                                     distance: attack_event.attacker_position.distance(position),
                                     rigid_body_position: position,
-                                    collider_handle,
+                                    collider_handle: collider_entity,
                                     is_combat_obstacle: !gridmap_data
                                         .non_combat_obstacle_cells_list
                                         .contains(&cell_data.item),
@@ -277,7 +271,7 @@ pub fn attack(
                                 rigid_body_position_component,
                             )) => {
                                 let attacked_cell_id = world_to_cell_id(
-                                    rigid_body_position_component.position.translation.into(),
+                                    rigid_body_position_component.translation.into(),
                                 );
 
                                 hit_result = health_component.apply_damage(
@@ -371,8 +365,6 @@ pub fn attack(
 
                         let mut hit_entities: Vec<AttackResult> = vec![];
 
-                        let colliders = &QueryPipelineColliderComponentsSet(&collider_query);
-
                         let attack_height;
                         let cast_vertical_extents;
 
@@ -395,21 +387,15 @@ pub fn attack(
 
                         let projectile_rough_end_position = projectile_start_position - additive;
 
-                        query_pipeline.intersections_with_shape(
-                            colliders,
-                            &(
-                                projectile_rough_end_position,
-                                Quat::from_rotation_y(attack_event.angle),
-                            )
-                                .into(),
-                            &Cuboid::new(
-                                Vec3::new(*laser_range, cast_vertical_extents, 0.1).into(),
-                            ),
+                        let points_vec = Vec3::new(*laser_range, cast_vertical_extents, 0.1);
+
+                        rapier_context.intersections_with_shape(
+                            projectile_rough_end_position,
+                            Quat::from_rotation_y(attack_event.angle).into(),
+                            &Collider::cuboid(points_vec.x, points_vec.y, points_vec.z),
                             interaction_groups,
                             None,
-                            |collider_handle| {
-                                let collider_entity = collider_handle.entity();
-
+                            |collider_entity| {
                                 if collider_entity == attack_event.attacker_entity {
                                     return true;
                                 }
@@ -427,9 +413,9 @@ pub fn attack(
                                         rigid_body_position_component,
                                     )) => {
                                         let position = Vec3::new(
-                                            rigid_body_position_component.position.translation.x,
-                                            rigid_body_position_component.position.translation.y,
-                                            rigid_body_position_component.position.translation.z,
+                                            rigid_body_position_component.translation.x,
+                                            rigid_body_position_component.translation.y,
+                                            rigid_body_position_component.translation.z,
                                         );
 
                                         sound_transform.translation = position;
@@ -441,7 +427,7 @@ pub fn attack(
                                                 .attacker_position
                                                 .distance(position),
                                             rigid_body_position: position,
-                                            collider_handle,
+                                            collider_handle: collider_entity,
                                             is_combat_obstacle: health_component.is_combat_obstacle,
                                             is_laser_obstacle: health_component.is_laser_obstacle,
                                         });
@@ -467,7 +453,7 @@ pub fn attack(
                                                 .attacker_position
                                                 .distance(position),
                                             rigid_body_position: position,
-                                            collider_handle,
+                                            collider_handle: collider_entity,
                                             is_combat_obstacle: !gridmap_data
                                                 .non_combat_obstacle_cells_list
                                                 .contains(&cell_data.item),
@@ -582,10 +568,10 @@ pub fn attack(
                                 );
                                 let max_toi = attack_result.distance * 1.2;
 
-                                if let Some((_hit_collider_handle, hit_toi)) = query_pipeline
+                                if let Some((_hit_collider_handle, hit_toi)) = rapier_context
                                     .cast_ray(
-                                        colliders,
-                                        &ray,
+                                        ray.origin.into(),
+                                        ray.dir.into(),
                                         max_toi,
                                         true,
                                         interaction_groups,
@@ -615,7 +601,6 @@ pub fn attack(
                                                 )) => {
                                                     let attacked_cell_id = world_to_cell_id(
                                                         rigid_body_position_component
-                                                            .position
                                                             .translation
                                                             .into(),
                                                     );

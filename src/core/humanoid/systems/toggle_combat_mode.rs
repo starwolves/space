@@ -1,5 +1,4 @@
-use bevy_app::EventReader;
-use bevy_ecs::system::Query;
+use bevy_ecs::{event::EventReader, system::Query};
 
 use crate::core::{
     connected_player::events::InputToggleCombatMode, humanoid::components::Humanoid,

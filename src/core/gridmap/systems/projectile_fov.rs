@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
-use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::{Query, Res};
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::{Query, Res},
+};
 use bevy_math::Vec3;
 
 use crate::core::{

@@ -1,13 +1,10 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy_app::EventWriter;
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::{entity::Entity, event::EventWriter, system::Commands};
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderPosition,
-    ColliderShape, InteractionGroups, RigidBodyActivation, RigidBodyBundle, RigidBodyForces,
-    RigidBodyType,
+    CoefficientCombineRule, Collider, CollisionGroups, Friction, GravityScale, RigidBody, Sleeping,
 };
 use bevy_transform::components::Transform;
 
@@ -16,7 +13,6 @@ use crate::{
         entity::{
             components::{EntityData, EntityUpdates, Showcase},
             events::NetShowcase,
-            functions::transform_to_isometry::transform_to_isometry,
             resources::{SpawnHeldData, SpawnPawnData},
         },
         examinable::components::{Examinable, RichName},
@@ -119,76 +115,37 @@ fn spawn_entity(
     if correct_transform {
         this_transform.rotation = default_transform.rotation;
     }
-    let friction = STANDARD_BODY_FRICTION;
+    let friction_val = STANDARD_BODY_FRICTION;
     let friction_combine_rule = CoefficientCombineRule::Multiply;
 
-    let rigid_body_component;
-    let collider_component;
+    let shape = Collider::cuboid(0.047, 0.219, 0.199);
 
-    let shape = ColliderShape::cuboid(0.047, 0.219, 0.199);
+    let collider_position = Vec3::new(0., 0.087, 0.).into();
 
-    let collider_position: ColliderPosition = Vec3::new(0., 0.087, 0.).into();
+    let rigid_body = RigidBody::Dynamic;
+
+    let mut builder = commands.spawn_bundle((rigid_body, this_transform));
+
+    let mut friction = Friction::coefficient(friction_val);
+    friction.combine_rule = friction_combine_rule;
+
+    let t = Transform::from_translation(collider_position);
 
     if held == false {
-        rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic.into(),
-            position: transform_to_isometry(this_transform).into(),
-            ..Default::default()
-        };
-
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        collider_component = ColliderBundle {
-            shape: shape.into(),
-            position: collider_position.into(),
-            material: ColliderMaterial {
-                friction,
-                friction_combine_rule,
-                ..Default::default()
-            }
-            .into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
+        builder.insert_bundle((shape, t, friction, CollisionGroups::new(masks.0, masks.1)));
     } else {
-        rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic.into(),
-            position: transform_to_isometry(this_transform).into(),
-            forces: RigidBodyForces {
-                gravity_scale: 0.,
-                ..Default::default()
-            }
-            .into(),
-            activation: RigidBodyActivation {
-                sleeping: true,
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
-
         let masks = get_bit_masks(ColliderGroup::NoCollision);
 
-        collider_component = ColliderBundle {
-            shape: shape.into(),
-            position: collider_position.into(),
-            material: ColliderMaterial {
-                friction,
-                friction_combine_rule,
-                ..Default::default()
-            }
-            .into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                ..Default::default()
-            }
-            .into(),
+        let sleeping = Sleeping {
+            sleeping: true,
             ..Default::default()
         };
+
+        builder
+            .insert_bundle((shape, t, friction, CollisionGroups::new(masks.0, masks.1)))
+            .insert_bundle((GravityScale(0.), sleeping));
     }
 
     let template_examine_text = "A standard issue laser pistol. It is a lethal weapon.".to_string();
@@ -224,8 +181,6 @@ fn spawn_entity(
         )),
     );
 
-    let mut builder = commands.spawn_bundle(rigid_body_component);
-
     let entity_id = builder.id();
 
     let mut melee_damage_flags = HashMap::new();
@@ -234,7 +189,7 @@ fn spawn_entity(
     let mut projectile_damage_flags = HashMap::new();
     projectile_damage_flags.insert(0, DamageFlag::WeakLethalLaser);
 
-    builder.insert_bundle(collider_component).insert_bundle((
+    builder.insert_bundle((
         EntityData {
             entity_class: "entity".to_string(),
             entity_name: "pistolL1".to_string(),
@@ -292,8 +247,8 @@ fn spawn_entity(
             transform: default_transform,
         },
         RigidBodyData {
-            friction,
-            friction_combine_rule,
+            friction: friction.coefficient,
+            friction_combine_rule: friction.combine_rule,
         },
     ));
 

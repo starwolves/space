@@ -1,5 +1,4 @@
-use bevy_app::EventWriter;
-use bevy_ecs::system::Query;
+use bevy_ecs::{event::EventWriter, system::Query};
 
 use crate::core::{
     connected_player::{components::ConnectedPlayer, events::NetSendServerTime},

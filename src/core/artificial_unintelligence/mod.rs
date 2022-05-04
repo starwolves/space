@@ -6,7 +6,7 @@ use self::{
     systems::{find_path::find_path, spawn_ai::spawn_ai, steer::steer},
 };
 
-use super::space_plugin::StartupLabels;
+use super::plugin::StartupLabels;
 
 pub mod components;
 pub mod functions;

@@ -3,9 +3,8 @@ use std::collections::HashMap;
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, ColliderBundle, ColliderFlags, ColliderMaterial, ColliderShape,
-    ColliderType, InteractionGroups, RigidBodyBundle, RigidBodyDominance, RigidBodyMassPropsFlags,
-    RigidBodyType,
+    CoefficientCombineRule, Collider, CollisionGroups, Dominance, ExternalForce, Friction,
+    RigidBody, Velocity, LockedAxes,
 };
 use bevy_transform::components::Transform;
 
@@ -20,9 +19,7 @@ use crate::core::{
     entity::{
         components::{EntityData, EntityGroup, EntityUpdates, Showcase},
         events::NetShowcase,
-        functions::{
-            spawn_entity::spawn_held_entity, transform_to_isometry::transform_to_isometry,
-        },
+        functions::spawn_entity::spawn_held_entity,
         resources::{PawnDesignation, SpawnHeldData, SpawnPawnData},
     },
     examinable::components::{Examinable, RichName},
@@ -98,47 +95,39 @@ impl HumanMaleBundle {
         let friction = CHARACTER_FLOOR_FRICTION;
         let friction_combine_rule = CoefficientCombineRule::Min;
 
-        let rigid_body_component = RigidBodyBundle {
-            body_type: RigidBodyType::Dynamic.into(),
-            position: transform_to_isometry(this_transform).into(),
-            mass_properties: RigidBodyMassPropsFlags::ROTATION_LOCKED.into(),
-            dominance: RigidBodyDominance(10).into(),
-            ..Default::default()
-        };
-
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        let collider_component = ColliderBundle {
-            shape: ColliderShape::capsule(
-                Vec3::new(0.0, 0.0 + r, 0.0).into(),
-                Vec3::new(0.0, 1.8 - r, 0.0).into(),
-                r,
-            )
-            .into(),
-            position: Vec3::ZERO.into(),
-            collider_type: ColliderType::Solid.into(),
-            material: ColliderMaterial {
-                friction,
-                friction_combine_rule,
-                ..Default::default()
-            }
-            .into(),
-            flags: ColliderFlags {
-                collision_groups: InteractionGroups::new(masks.0, masks.1),
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
+        let collider = Collider::capsule(
+            Vec3::new(0.0, 0.0 + r, 0.0).into(),
+            Vec3::new(0.0, 1.8 - r, 0.0).into(),
+            r,
+        );
 
-        let mut entity_builder;
+        let mut friction = Friction::coefficient(friction);
+        friction.combine_rule = friction_combine_rule;
+
+        let entity_builder = &mut commands.spawn();
 
         match pawn_designation {
             PawnDesignation::Showcase => {
-                entity_builder = commands.spawn();
+                //Nothing.
             }
             _ => {
-                entity_builder = commands.spawn_bundle(rigid_body_component);
+                entity_builder
+                    .insert_bundle((
+                        RigidBody::Dynamic,
+                        this_transform,
+                        Dominance::group(10),
+                        Velocity::default(),
+                        ExternalForce::default(),
+                        LockedAxes::ROTATION_LOCKED,
+                    ))
+                    .insert_bundle((
+                        collider,
+                        Transform::from_translation(Vec3::ZERO),
+                        friction,
+                        CollisionGroups::new(masks.0, masks.1),
+                    ));
             }
         }
 
@@ -151,11 +140,6 @@ impl HumanMaleBundle {
             None => {
                 user_name = "unknown".to_string();
             }
-        }
-        if let PawnDesignation::Showcase = pawn_designation {
-            //do nothing
-        } else {
-            entity_builder.insert_bundle(collider_component);
         }
 
         entity_builder.insert_bundle((
@@ -185,8 +169,8 @@ impl HumanMaleBundle {
                 ..Default::default()
             },
             RigidBodyData {
-                friction,
-                friction_combine_rule,
+                friction: friction.coefficient,
+                friction_combine_rule: friction.combine_rule,
             },
         ));
 

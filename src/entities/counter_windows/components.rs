@@ -63,6 +63,11 @@ pub struct CounterWindow {
     pub access_lights: CounterWindowAccessLightsStatus,
     pub access_permissions: Vec<SpaceAccessEnum>,
     pub locked_status: LockedStatus,
+
+    pub timer: Timer,
+    pub denied_timer: Timer,
+    pub open_timer: Timer,
+    pub closed_timer: Timer,
 }
 
 pub enum CounterWindowStatus {
@@ -83,6 +88,10 @@ impl Default for CounterWindow {
             access_lights: CounterWindowAccessLightsStatus::Neutral,
             access_permissions: vec![SpaceAccessEnum::Common],
             locked_status: LockedStatus::None,
+            timer: Timer::default(),
+            denied_timer: Timer::default(),
+            open_timer: Timer::default(),
+            closed_timer: Timer::default(),
         }
     }
 }

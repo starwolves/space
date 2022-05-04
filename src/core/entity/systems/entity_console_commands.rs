@@ -1,6 +1,8 @@
-use bevy_app::{EventReader, EventWriter};
-use bevy_ecs::system::{Commands, Query, Res, ResMut};
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::{Commands, Query, Res, ResMut},
+};
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
@@ -21,7 +23,7 @@ pub fn entity_console_commands(
     mut net_console_commands: EventWriter<NetConsoleCommands>,
     gridmap_main: Res<GridmapMain>,
     mut used_names: ResMut<UsedNames>,
-    mut rigid_body_positions: Query<(&RigidBodyPositionComponent, &Pawn)>,
+    mut rigid_body_positions: Query<(&Transform, &Pawn)>,
     connected_players: Query<&ConnectedPlayer>,
 
     handle_to_entity: Res<HandleToEntity>,

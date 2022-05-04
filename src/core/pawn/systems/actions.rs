@@ -1,5 +1,4 @@
-use bevy_app::EventWriter;
-use bevy_ecs::system::Res;
+use bevy_ecs::{event::EventWriter, system::Res};
 
 use crate::core::{
     connected_player::events::{InputExamineEntity, InputExamineMap},

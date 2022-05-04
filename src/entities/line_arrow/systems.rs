@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use bevy_app::{EventReader, EventWriter};
 use bevy_core::Time;
 use bevy_ecs::{
     entity::Entity,
+    event::{EventReader, EventWriter},
     system::{Commands, Query, Res},
 };
 use bevy_math::Vec3;

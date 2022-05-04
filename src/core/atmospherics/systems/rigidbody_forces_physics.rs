@@ -2,13 +2,13 @@
 
 use bevy_ecs::system::{Query, ResMut};
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::RigidBodyForcesComponent;
+use bevy_rapier3d::prelude::ExternalForce;
 
 use crate::core::atmospherics::resources::RigidBodyForcesAccumulation;
 
 pub fn rigidbody_forces_physics(
     mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,
-    mut rigidbodies: Query<&mut RigidBodyForcesComponent>,
+    mut rigidbodies: Query<&mut ExternalForce>,
 ) {
     for (entity, accumulated) in &mut forces_accumulation.data {
         let mut net_force = Vec3::ZERO;

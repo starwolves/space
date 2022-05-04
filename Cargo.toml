@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "space"
 version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <nikitaab98@gmail.com>"]
 description="A high performance multi-threaded ECS game server for Space Frontiers."
@@ -11,19 +11,22 @@ edition = "2021"
 
 [dependencies]
 
-bevy_core = "0.6.0"
-bevy_app = "0.6.0"
-bevy_ecs = "0.6.1"
-bevy_log = "0.6.0"
-bevy_transform = "0.6.0"
-bevy_math = "0.6.0"
+bevy_hierarchy = "0.7.0"
+bevy_core = "0.7.0"
+bevy_app = "0.7.0"
+bevy_ecs = "0.7.0"
+bevy_log = "0.7.0"
+bevy_transform = "0.7.0"
+bevy_math = "0.7.0"
 
-bevy_rapier3d = { git = "https://github.com/dimforge/bevy_rapier.git", rev = "11605d0", version= "0.12.1" ,default-features = false, features = [ "dim3" ]}
+bevy = "0.7.0"
+
+bevy_rapier3d = "0.13.1"
 
 serde = {version= "1.0.130"}
 serde_json = {version= "1.0.78"}
 
-bevy_networking_turbulence = "0.4.1"
+bevy_networking_turbulence = { git = "https://github.com/starwolfy/bevy_networking_turbulence_star" }
 
 rand = "0.8.4"
 

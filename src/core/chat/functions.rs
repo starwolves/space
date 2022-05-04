@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use bevy_app::EventWriter;
 use bevy_ecs::{
     entity::Entity,
+    event::EventWriter,
     system::{Query, Res},
 };
 use bevy_log::{error, warn};
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
+use bevy_transform::prelude::Transform;
 use const_format::concatcp;
 
 use voca_rs::*;
@@ -433,12 +433,7 @@ pub fn new_chat_message(
     mut raw_message: String,
     communicator: Communicator,
     exclusive_radio: bool,
-    radio_pawns: &Query<(
-        Entity,
-        &Radio,
-        &RigidBodyPositionComponent,
-        &PersistentPlayerData,
-    )>,
+    radio_pawns: &Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,
     global_listeners: &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
     messenger_entity_option: Option<&Entity>,
     mut net_send_entity_updates_option: Option<&mut EventWriter<NetSendEntityUpdates>>,
@@ -1274,11 +1269,11 @@ pub fn new_chat_message(
 
                     match listener_handle_result {
                         Some(listener_handle) => {
-                            let listener_rigid_body_transform = rigid_body_position.position;
+                            let listener_rigid_body_transform = rigid_body_position.translation;
                             let listener_position = Vec3::new(
-                                listener_rigid_body_transform.translation.x,
-                                listener_rigid_body_transform.translation.y,
-                                listener_rigid_body_transform.translation.z,
+                                listener_rigid_body_transform.x,
+                                listener_rigid_body_transform.y,
+                                listener_rigid_body_transform.z,
                             );
 
                             let listener_distance = position.distance(listener_position);

@@ -1,12 +1,11 @@
-use bevy_app::{EventReader, EventWriter};
-use bevy_core::{Time, Timer};
 use bevy_ecs::{
     entity::Entity,
-    system::{Commands, Query, Res, ResMut},
+    event::{EventReader, EventWriter},
+    system::{Commands, Query, ResMut},
 };
+use bevy_hierarchy::Children;
 use bevy_log::{info, warn};
-use bevy_rapier3d::prelude::RigidBodyPositionComponent;
-use bevy_transform::components::Children;
+use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
@@ -51,7 +50,7 @@ pub fn counter_window_events(
     mut counter_window_toggle_open_action: EventReader<InputCounterWindowToggleOpen>,
     mut counter_window_query: Query<(
         &mut CounterWindow,
-        &mut RigidBodyPositionComponent,
+        &mut Transform,
         &StaticTransform,
         Option<&mut CounterWindowOpenTimer>,
         Option<&mut CounterWindowDeniedTimer>,
@@ -280,11 +279,15 @@ pub fn counter_window_events(
                     timer_component.timer.reset();
 
                     let mut counter_window_rigid_body_position =
-                        rigid_body_position_component.position;
+                        rigid_body_position_component.clone();
 
                     counter_window_rigid_body_position.translation.y = 0.943;
 
-                    rigid_body_position_component.position = counter_window_rigid_body_position;
+                    rigid_body_position_component.translation =
+                        counter_window_rigid_body_position.translation;
+                    rigid_body_position_component.rotation =
+                        counter_window_rigid_body_position.rotation;
+                    rigid_body_position_component.scale = counter_window_rigid_body_position.scale;
 
                     counter_window_component.access_lights =
                         CounterWindowAccessLightsStatus::Neutral;
@@ -497,7 +500,6 @@ pub fn counter_window_events(
 
             let cell_id = world_to_cell_id(
                 counter_window_rigid_body_position_component
-                    .position
                     .translation
                     .into(),
             );
@@ -521,12 +523,12 @@ pub fn counter_window_events(
             counter_window_component.access_lights = CounterWindowAccessLightsStatus::Granted;
 
             let mut counter_window_rigid_body_position =
-                counter_window_rigid_body_position_component.position;
+                counter_window_rigid_body_position_component.clone();
 
             counter_window_rigid_body_position.translation.y = 2.943;
 
-            counter_window_rigid_body_position_component.position =
-                counter_window_rigid_body_position;
+            counter_window_rigid_body_position_component.translation =
+                counter_window_rigid_body_position.translation;
 
             commands
                 .entity(counter_window_sensor_component.parent)
@@ -608,8 +610,7 @@ pub fn counter_window_events(
 
                 counter_window_component.status = CounterWindowStatus::Closed;
 
-                let cell_id =
-                    world_to_cell_id(rigid_body_position_component.position.translation.into());
+                let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
                 let cell_id2 = Vec2Int {
                     x: cell_id.x,
                     y: cell_id.z,
@@ -632,54 +633,5 @@ pub fn counter_window_events(
             }
             Err(_rr) => {}
         }
-    }
-}
-
-pub fn counter_window_tick_timers(
-    time: Res<Time>,
-    mut query_timer: Query<&mut Timer>,
-    mut query_counter_window_open_timer: Query<&mut CounterWindowOpenTimer>,
-    mut query_counter_window_denied_timer: Query<&mut CounterWindowDeniedTimer>,
-    mut query_counter_window_closed_timer: Query<&mut CounterWindowClosedTimer>,
-
-    mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
-    mut commands: Commands,
-) {
-    for mut timer in query_timer.iter_mut() {
-        timer.tick(time.delta());
-    }
-    for mut timer in query_counter_window_open_timer.iter_mut() {
-        timer.timer.tick(time.delta());
-    }
-    for mut timer in query_counter_window_denied_timer.iter_mut() {
-        timer.timer.tick(time.delta());
-    }
-    for mut timer in query_counter_window_closed_timer.iter_mut() {
-        timer.timer.tick(time.delta());
-    }
-
-    let mut expired_sfx_entities: Vec<Entity> = vec![];
-
-    for (sfx_entity, incremental) in &mut sfx_auto_destroy_timers.timers {
-        *incremental += 1;
-        if incremental >= &mut 2 {
-            expired_sfx_entities.push(*sfx_entity);
-        }
-    }
-
-    for i in 0..expired_sfx_entities.len() {
-        let this_entity_id = expired_sfx_entities[i];
-
-        let mut j = 0;
-        for (sfx_entity, _timer) in &mut sfx_auto_destroy_timers.timers {
-            if this_entity_id == *sfx_entity {
-                break;
-            }
-            j += 1;
-        }
-
-        sfx_auto_destroy_timers.timers.remove(j);
-
-        commands.entity(this_entity_id).despawn();
     }
 }

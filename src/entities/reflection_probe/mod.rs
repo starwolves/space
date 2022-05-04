@@ -3,7 +3,7 @@ use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::SystemSet;
 
 use crate::core::inventory_item::entity_update::inventory_item_update;
-use crate::core::space_plugin::PostUpdateLabels;
+use crate::core::plugin::PostUpdateLabels;
 
 use self::entity_update::reflection_probe_update;
 

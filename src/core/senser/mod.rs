@@ -5,7 +5,7 @@ use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 
 use self::systems::visible_checker::visible_checker;
 
-use super::space_plugin::PostUpdateLabels;
+use super::plugin::PostUpdateLabels;
 
 pub struct SenserPlugin;
 
