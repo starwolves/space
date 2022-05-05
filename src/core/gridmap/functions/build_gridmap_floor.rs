@@ -19,15 +19,12 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
     friction_component.combine_rule = CoefficientCombineRule::Average;
 
     commands
-        .spawn_bundle((
-            RigidBody::Fixed,
-            Transform::from_translation(Vec3::new(0., -1., 0.)),
-        ))
-        .insert_bundle((
-            Collider::cuboid(500., 1., 500.),
-            friction_component,
-            CollisionGroups::new(masks.0, masks.1),
-        ));
+        .spawn()
+        .insert(RigidBody::Fixed)
+        .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
+        .insert(Collider::cuboid(500., 1., 500.))
+        .insert(friction_component)
+        .insert(CollisionGroups::new(masks.0, masks.1));
 
     //Roof
 
@@ -35,13 +32,10 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
     friction_component.combine_rule = CoefficientCombineRule::Min;
 
     commands
-        .spawn_bundle((
-            RigidBody::Fixed,
-            Transform::from_translation(Vec3::new(0., 3., 0.)),
-        ))
-        .insert_bundle((
-            Collider::cuboid(500., 1., 500.),
-            friction_component,
-            CollisionGroups::new(masks.0, masks.1),
-        ));
+        .spawn()
+        .insert(RigidBody::Fixed)
+        .insert(Transform::from_translation(Vec3::new(0., 3., 0.)))
+        .insert(Collider::cuboid(500., 1., 500.))
+        .insert(friction_component)
+        .insert(CollisionGroups::new(masks.0, masks.1));
 }

@@ -125,16 +125,16 @@ fn spawn_entity(
 
     let rigid_body = RigidBody::Dynamic;
 
-    let mut builder = commands.spawn_bundle((rigid_body, t));
+    let mut builder = commands.spawn();
+    builder.insert(rigid_body).insert(t);
     if held == false {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        builder.insert_bundle((
-            shape,
-            Transform::from_translation(collider_position),
-            friction,
-            CollisionGroups::new(masks.0, masks.1),
-        ));
+        builder
+            .insert(shape)
+            .insert(Transform::from_translation(collider_position))
+            .insert(friction)
+            .insert(CollisionGroups::new(masks.0, masks.1));
     } else {
         let masks = get_bit_masks(ColliderGroup::NoCollision);
 
@@ -144,13 +144,12 @@ fn spawn_entity(
         };
 
         builder
-            .insert_bundle((
-                shape,
-                Transform::from_translation(collider_position),
-                friction,
-                CollisionGroups::new(masks.0, masks.1),
-            ))
-            .insert_bundle((GravityScale(0.), sleeping));
+            .insert(shape)
+            .insert(Transform::from_translation(collider_position))
+            .insert(friction)
+            .insert(CollisionGroups::new(masks.0, masks.1))
+            .insert(GravityScale(0.))
+            .insert(sleeping);
     }
 
     let template_examine_text = "A standard issue helmet used by Security Officers.".to_string();

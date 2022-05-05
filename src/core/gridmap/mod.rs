@@ -14,6 +14,7 @@ use bevy_ecs::{
 };
 use bevy_log::info;
 use bevy_rapier3d::{
+    plugin::TimestepMode,
     prelude::{Collider, RapierConfiguration},
     rapier::prelude::ColliderPosition,
 };
@@ -924,13 +925,16 @@ pub fn startup_misc_resources(
     mut map_environment: ResMut<WorldEnvironment>,
     mut gridmap_data: ResMut<GridmapData>,
     mut spawn_points_res: ResMut<SpawnPoints>,
-    mut _rapier_configuration: ResMut<RapierConfiguration>,
-    _tick_rate: Res<TickRate>,
+    mut rapier_configuration: ResMut<RapierConfiguration>,
+    tick_rate: Res<TickRate>,
     mut commands: Commands,
 ) {
     // Init Bevy Rapier physics.
-    //rapier_configuration.timestep_mode = TimestepMode::VariableTimestep;
-    //rapier_integration_params.dt = 1. / tick_rate.rate as f32;
+    rapier_configuration.timestep_mode = TimestepMode::Variable {
+        max_dt: 1. / tick_rate.rate as f32,
+        time_scale: 1.,
+        substeps: 1,
+    };
 
     let environment_json_location = Path::new("data")
         .join("maps")
