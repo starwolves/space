@@ -66,7 +66,7 @@ To compile and run the game server:
 * In your terminal navigate to the project folder you have just obtained and run:
 
 ```
-cargo run
+cargo run --release
 ```
 
 ### Space Frontiers client

@@ -23,14 +23,14 @@ bevy = "0.7.0"
 
 bevy_rapier3d = { git = "https://github.com/dimforge/bevy_rapier" }
 
-serde = {version= "1.0.130"}
-serde_json = {version= "1.0.78"}
+serde = {version= "1.0.137"}
+serde_json = {version= "1.0.81"}
 
 bevy_networking_turbulence = { git = "https://github.com/starwolfy/bevy_networking_turbulence_star" }
 
-rand = "0.8.4"
+rand = "0.8.5"
 
-const_format = "0.2.21"
+const_format = "0.2.23"
 
 vector2math = "0.13.0"
 
@@ -39,6 +39,3 @@ doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
 voca_rs = "1.14.0"
 
 dotreds-binary-heap-plus = { git = "https://github.com/starwolfy/dotreds-binary-heap-plus" }
-
-[profile.dev]
-opt-level = 3
