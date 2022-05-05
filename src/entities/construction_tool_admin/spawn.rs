@@ -134,19 +134,18 @@ fn spawn_entity(
     let mut friction = Friction::coefficient(friction_val);
     friction.combine_rule = friction_combine_rule;
 
-    let mut builder;
+    let mut builder = commands.spawn();
     if held == false {
         let rigid_body = RigidBody::Fixed;
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        builder = commands.spawn_bundle((rigid_body, t));
-        builder.insert_bundle((
-            shape,
-            Transform::from_translation(collider_position),
-            friction,
-            CollisionGroups::new(masks.0, masks.1),
-        ));
+        builder.insert(rigid_body).insert(t);
+        builder
+            .insert(shape)
+            .insert(Transform::from_translation(collider_position))
+            .insert(friction)
+            .insert(CollisionGroups::new(masks.0, masks.1));
     } else {
         let rigid_body = RigidBody::Dynamic;
 
@@ -157,13 +156,16 @@ fn spawn_entity(
             ..Default::default()
         };
 
-        builder = commands.spawn_bundle((rigid_body, t, GravityScale(0.), sleeping));
-        builder.insert_bundle((
-            shape,
-            Transform::from_translation(collider_position),
-            friction,
-            CollisionGroups::new(masks.0, masks.1),
-        ));
+        builder
+            .insert(rigid_body)
+            .insert(t)
+            .insert(GravityScale(0.))
+            .insert(sleeping);
+        builder
+            .insert(shape)
+            .insert(Transform::from_translation(collider_position))
+            .insert(friction)
+            .insert(CollisionGroups::new(masks.0, masks.1));
     }
 
     let template_examine_text =

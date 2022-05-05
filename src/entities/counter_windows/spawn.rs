@@ -55,15 +55,15 @@ impl CounterWindowBundle {
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Average;
 
-        let mut parent_builder = commands.spawn_bundle((rigid_body, entity_transform));
+        let mut parent_builder = commands.spawn();
+        parent_builder.insert(rigid_body).insert(entity_transform);
         let parent = parent_builder.id();
 
-        parent_builder.insert_bundle((
-            Collider::cuboid(0.1, 0.593, 1.),
-            Transform::from_translation(Vec3::new(0., 0., 1.)),
-            friction,
-            CollisionGroups::new(masks.0, masks.1),
-        ));
+        parent_builder
+            .insert(Collider::cuboid(0.1, 0.593, 1.))
+            .insert(Transform::from_translation(Vec3::new(0., 0., 1.)))
+            .insert(friction)
+            .insert(CollisionGroups::new(masks.0, masks.1));
 
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
@@ -155,15 +155,15 @@ impl CounterWindowBundle {
 
         let sensor = Sensor(true);
 
-        let mut sensor_builder = commands.spawn_bundle((rigid_body, entity_transform));
-        sensor_builder.insert_bundle((
-            Collider::cuboid(1., 1., 1.),
-            Transform::from_translation(Vec3::new(0., -1., 1.)),
-            friction,
-            CollisionGroups::new(masks.0, masks.1),
-            ActiveEvents::COLLISION_EVENTS,
-            sensor,
-        ));
+        let mut sensor_builder = commands.spawn();
+        sensor_builder.insert(rigid_body).insert(entity_transform);
+        sensor_builder
+            .insert(Collider::cuboid(1., 1., 1.))
+            .insert(Transform::from_translation(Vec3::new(0., -1., 1.)))
+            .insert(friction)
+            .insert(CollisionGroups::new(masks.0, masks.1))
+            .insert(ActiveEvents::COLLISION_EVENTS)
+            .insert(sensor);
 
         let child = sensor_builder
             .insert_bundle((

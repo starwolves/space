@@ -144,10 +144,10 @@ pub fn spawn_main_cell(
 ) -> Entity {
     let world_position = cell_id_to_world(cell_id);
 
-    let mut entity_builder = commands.spawn_bundle((
-        RigidBody::Fixed,
-        Transform::from_translation(world_position),
-    ));
+    let mut entity_builder = commands.spawn();
+    entity_builder
+        .insert(RigidBody::Fixed)
+        .insert(Transform::from_translation(world_position));
 
     let entity_id = entity_builder.id();
 
@@ -182,11 +182,9 @@ pub fn spawn_main_cell(
     friction_component.combine_rule = friction_combine_rule;
 
     entity_builder
-        .insert_bundle((
-            cell_properties.collider.clone(),
-            friction_component,
-            CollisionGroups::new(masks.0, masks.1),
-        ))
+        .insert(cell_properties.collider.clone())
+        .insert(friction_component)
+        .insert(CollisionGroups::new(masks.0, masks.1))
         .insert(Cell { id: cell_id });
 
     entity_id

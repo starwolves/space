@@ -122,14 +122,15 @@ fn spawn_entity(
 
     let masks = get_bit_masks(ColliderGroup::Standard);
 
-    let mut builder = commands.spawn_bundle((rigid_body, t));
+    let mut builder = commands.spawn();
 
-    builder.insert_bundle((
-        shape,
-        Transform::from_translation(collider_position),
-        friction,
-        CollisionGroups::new(masks.0, masks.1),
-    ));
+    builder.insert(rigid_body).insert(t);
+
+    builder
+        .insert(shape)
+        .insert(Transform::from_translation(collider_position))
+        .insert(friction)
+        .insert(CollisionGroups::new(masks.0, masks.1));
 
     let template_examine_text = "A computer used by bridge personnel.".to_string();
     let mut examine_map = BTreeMap::new();
