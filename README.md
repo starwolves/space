@@ -52,7 +52,7 @@ There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) 
 
 
 * [Rust](https://www.rust-lang.org/)
-
+* [Bevy ECS dependencies](https://bevyengine.org/learn/book/getting-started/setup/#install-os-dependencies)
   
 
   
@@ -62,7 +62,7 @@ There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) 
   
 
 To compile and run the game server:
-* Select latest branch (not master) from this repository and download that code.
+* Select latest versioned branch (not master) from this repository and clone it.
 * In your terminal navigate to the project folder you have just obtained and run:
 
 ```
