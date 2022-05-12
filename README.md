@@ -13,25 +13,21 @@
 
 ## Description
 
-  
+*Space Frontiers is an online multiplayer game in which players find themselves in a large spaceship operations crew who have to work together to run and maintain a spaceship. Crew members are assigned different roles with different levels of responsbilities and authorization. The manned spaceship will be tasked to jump from sector to sector which triggers random events; events will include player antagonists, traitor roles, alien investations and more. Therefore player communication is key, putting emphasis on the chat with optional roleplay features. A wide variety of simulated spaceship and gameplay elements will be included to ensure these scenarios will be as fun as possible.*
 
-A modular & moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust).
-This game server is designed to run well on modern processors that have multiple CPU cores.
+The repository of a modular and moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official moddable Space Frontiers client which is being built with the [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust). Designed to run well on modern processors that have multiple CPU cores.
 
-### Media
-You can see gameplay videos of Space Frontiers on [YouTube, subscribe](https://www.youtube.com/channel/UC6D7lcx9eL_ChA7HzzvhLtA)!
+There is an [official Discord server](https://discord.gg/yYpMun9CTT).
 
-### Documentation
+You can see gameplay videos of Space Frontiers on [YouTube](https://www.youtube.com/channel/UC6D7lcx9eL_ChA7HzzvhLtA).
+
 There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) available for code contributors or modders.
-
-### Discord
-[Official Space Frontiers Discord server.](https://discord.gg/Hdxz9h33E7)
 
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own server. 👑
-* Parallelized ECS (Entity Component System) architecture. 📡
+* Parallelized Entity Component System architecture. 📡
 * Pure Rust. No garbage collection. Fast code execution. 🌟
-* Data-oriented, everything is its own entity with components within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project. 🔭
+* Data-oriented and modular within a thread-safe and strictly compiled environment. It is easy to add and remove entities, systems, components, map cells and more simply by managing [plugins](https://bevyengine.org/learn/book/getting-started/plugins/) that will get compiled with the project. 🔭
 * Using the cutting-edge [Rapier 3D Physics engine](https://rapier.rs/). 🚀
 * Character meshes and animations are integrated with [Mixamo](https://www.mixamo.com/) for rigging. ☄
 * Inventory system, pick up, wear, attach, place and equip items with character entities.
@@ -39,10 +35,11 @@ There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) 
 * Advanced bbcode chat, with support for examining entities, modular (radio) channels and proximity communication.
 * Actions and tab menu's to easily interact with the world while also offering protection against cheaters.
 * Configurable console commands, including rcon admin commands.
-* Clients can load in custom content on a per server basis thanks to a traditional shared content folder approach. Allowing modders to create new entities such as items, characters, sounds, ship cells and more.
+* Clients can load in custom content on a per server basis thanks to a traditional automatically shared and downloaded content folder approach.
 * Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
-* Cell based map support including a GUI editor with support for sizes up to 1km by 1km with 100k+ dynamic (de)constructable ship cells as map size is currently bottlenecked by the FOV algorithm. 
+* Cell based map support with a graphical user interface map, world and entities editor with support for sizes up to 1km by 1km with 100,000+ dynamic (de)constructable ship cells.
 * Atmospherics simulation including temperature, pressure, diffusion, gravity and the vacuum of space.
+
 ![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
 ## Getting Started
@@ -52,7 +49,7 @@ There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) 
 
 
 * [Rust](https://www.rust-lang.org/)
-
+* [Bevy ECS dependencies](https://bevyengine.org/learn/book/getting-started/setup/#install-os-dependencies)
   
 
   
@@ -62,47 +59,30 @@ There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) 
   
 
 To compile and run the game server:
-* Select latest branch (not master) from this repository and download that code.
+* Select latest versioned branch (not master) from this repository and clone it.
 * In your terminal navigate to the project folder you have just obtained and run:
 
 ```
 cargo run --release
 ```
 
-### Space Frontiers client
-You can get the latest stable releases of the closed-source client on [Discord](https://discord.gg/yYpMun9CTT).
+### Client
+You can obtain the latest stable release of the client on [Discord](https://discord.gg/yYpMun9CTT).
 Ensure your server has the right git branch with the same version as the obtained client and not the master branch!
 
-The client is built on top of the latest stable Godot 3.4.x release. This also means that there are graphical artifacts present on certain hardware. The client is relatively demanding of hardware it runs on due to the limited dynamic lighting rendering performance of Godot 3.
-However, most devices made for video-games should expect no such problems.
+The client is built on top of the latest stable Godot 3.4.x release. The client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API.
 
-When Godot 4 is stable enough, the client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API  which aims to resolve the aforementioned issues.
+## Contributing
+This project is oriented towards long-term development, meaning it is here to stay and to be developed for some years to come.
+Feedback, bug reports, suggestions and critique are very much appreciated. Github issues and pull requests will be reviewed and considered.
 
-## More information
-
-### Overview
-Space Frontiers has an official community [Discord server](https://discord.gg/yYpMun9CTT).
-This project is oriented towards long-term development, meaning it is here to stay and to be developed for years to come.
-Feedback, bug reports, suggestions and critique are very much appreciated. Github issues will be reviewed and considered.
-
-### Contributing
 The hopes are to financially reward and/or hire the most suitable people for their contributions in the much further future.
-It is possible to contribute in all kinds of ways and you reaching out for possibilities will be appreciated!
-Also looking for both 2D & 3D digital artists, concept artists, writers and game(play) designers.
-People who are genuinely interested in contributing are suggested to contact the developers through Discord, when this interest arises high priority will be put into tutorial videos and releasing the GUI tools of the project for custom map and custom entity creation.
 
 All contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on Github.
 
-If you are interested on contributing you can get more information on which branch to work on and what changes to expect on Discord. Create pull requests when you would like us to review and merge your code.
+If you are interested on contributing you can get more information on which branch to work on and what changes to expect on Discord.
 
-Space Frontiers allows each community of players to compile and host a server instance themselves meaning the gameplay, community moderation & servers remain decentralized and sovereign.
-
-### License
+## License
 
 This repository is licensed under a [special license](https://github.com/starwolves/space/blob/master/LICENSE).
 
-
-### [StarWolves.io](https://starwolves.io)
-Star Wolves is a gaming community that is pioneering the game Space Frontiers by hosting official servers for it and more.
-The roots of Space Frontiers are partially in this community, but Space Frontiers is managed in a way that effectively makes Space Frontiers and its community remain a predominantly separated entity; apart from the fact that Star Wolves technically owns Space Frontiers.
-Star Wolves will be one of the first communities to host a 24/7 server for Space Frontiers.
