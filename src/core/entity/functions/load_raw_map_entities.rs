@@ -79,7 +79,7 @@ pub fn load_raw_map_entities(
             match entity_data.name_to_id.get(&raw_entity.entity_type) {
                 Some(entity_type_id) => {
                     let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
-                    Some((*entity_properties.spawn_function)(
+                    let entity_option = Some((*entity_properties.spawn_function)(
                         entity_transform,
                         commands,
                         false,
@@ -88,6 +88,13 @@ pub fn load_raw_map_entities(
                         true,
                         data,
                     ));
+                    match entity_option {
+                        Some(_entity) => {
+
+                            //info!("{:?}", entity);
+                        }
+                        None => {}
+                    }
                 }
                 None => {}
             }

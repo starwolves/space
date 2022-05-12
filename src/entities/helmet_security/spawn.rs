@@ -4,7 +4,8 @@ use bevy_ecs::{entity::Entity, event::EventWriter, system::Commands};
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, Friction, GravityScale, RigidBody, Sleeping,
+    CoefficientCombineRule, Collider, CollisionGroups, ExternalForce, ExternalImpulse, Friction,
+    GravityScale, RigidBody, Sleeping, Velocity,
 };
 use bevy_transform::components::Transform;
 
@@ -126,11 +127,19 @@ fn spawn_entity(
     let rigid_body = RigidBody::Dynamic;
 
     let mut builder = commands.spawn();
-    builder.insert(rigid_body).insert(t);
+    builder
+        .insert(rigid_body)
+        .insert(t)
+        .insert(Velocity::default())
+        .insert(ExternalForce::default())
+        .insert(ExternalImpulse::default());
+
     if held == false {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         builder
+            .insert(Sleeping::default())
+            .insert(GravityScale::default())
             .insert(shape)
             .insert(Transform::from_translation(collider_position))
             .insert(friction)

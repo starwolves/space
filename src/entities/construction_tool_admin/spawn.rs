@@ -11,7 +11,8 @@ use bevy_ecs::{
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, Friction, GravityScale, RigidBody, Sleeping,
+    CoefficientCombineRule, Collider, CollisionGroups, ExternalForce, ExternalImpulse, Friction,
+    GravityScale, RigidBody, Sleeping, Velocity,
 };
 use bevy_transform::components::Transform;
 
@@ -140,8 +141,14 @@ fn spawn_entity(
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        builder.insert(rigid_body).insert(t);
         builder
+            .insert(rigid_body)
+            .insert(t)
+            .insert(Velocity::default())
+            .insert(ExternalForce::default())
+            .insert(Sleeping::default())
+            .insert(GravityScale::default())
+            .insert(ExternalImpulse::default())
             .insert(shape)
             .insert(Transform::from_translation(collider_position))
             .insert(friction)
@@ -157,11 +164,13 @@ fn spawn_entity(
         };
 
         builder
+            .insert(ExternalImpulse::default())
+            .insert(ExternalForce::default())
+            .insert(Velocity::default())
             .insert(rigid_body)
             .insert(t)
             .insert(GravityScale(0.))
-            .insert(sleeping);
-        builder
+            .insert(sleeping)
             .insert(shape)
             .insert(Transform::from_translation(collider_position))
             .insert(friction)

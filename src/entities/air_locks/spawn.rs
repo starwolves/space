@@ -79,13 +79,11 @@ impl AirlockBundle {
         health_flags.insert(0, HealthFlag::ArmourPlated);
 
         let mut builder = commands.spawn();
-        builder
-            .insert(RigidBody::Fixed)
-            .insert(Transform::from(entity_transform));
-
         let entity_id = builder.id();
 
         builder
+            .insert(RigidBody::Fixed)
+            .insert(Transform::from(entity_transform))
             .insert(Collider::cuboid(1., 1., 0.2))
             .insert(Transform::from_translation(Vec3::new(0., 1., 0.)))
             .insert(ActiveEvents::COLLISION_EVENTS)
