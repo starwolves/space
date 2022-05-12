@@ -21,7 +21,7 @@ bevy_math = "0.7.0"
 
 bevy = "0.7.0"
 
-bevy_rapier3d = "0.13.1"
+bevy_rapier3d = "0.13.2"
 
 serde = {version= "1.0.137"}
 serde_json = {version= "1.0.81"}

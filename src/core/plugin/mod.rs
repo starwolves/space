@@ -12,9 +12,8 @@ use super::{
             console_commands::ConsoleCommandsPlugin, entity::EntityPlugin, gridmap::GridmapPlugin,
             health::HealthPlugin, inventory::InventoryPlugin, inventory_item::InventoryItemPlugin,
             map::MapPlugin, networking::NetworkingPlugin, pawn::PawnPlugin,
-            physics::systems::PhysicsPlugin, rigid_body::systems::RigidBodyPlugin,
-            senser::SenserPlugin, sfx::SfxPlugin, tab_actions::TabActionsPlugin,
-            world_environment::WorldEnvironmentPlugin, CorePlugin,
+            rigid_body::systems::RigidBodyPlugin, senser::SenserPlugin, sfx::SfxPlugin,
+            tab_actions::TabActionsPlugin, world_environment::WorldEnvironmentPlugin, CorePlugin,
         },
         entities::{
             air_locks::AirLocksPlugin,
@@ -30,6 +29,7 @@ use super::{
         },
     },
     humanoid::HumanoidPlugin,
+    physics::PhysicsPlugin,
 };
 
 use bevy_ecs::schedule::SystemLabel;

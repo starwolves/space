@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, Dominance, ExternalForce, Friction,
-    LockedAxes, RigidBody, Velocity,
+    CoefficientCombineRule, Collider, CollisionGroups, Dominance, ExternalForce,
+    ExternalImpulse, Friction, GravityScale, LockedAxes, RigidBody, Sleeping, Velocity,
 };
 use bevy_transform::components::Transform;
 
@@ -123,6 +123,9 @@ impl HumanMaleBundle {
                     .insert(Dominance::group(10))
                     .insert(LockedAxes::ROTATION_LOCKED)
                     .insert(CollisionGroups::new(masks.0, masks.1))
+                    .insert(ExternalImpulse::default())
+                    .insert(Sleeping::default())
+                    .insert(GravityScale::default())
                     .insert(friction);
             }
         }

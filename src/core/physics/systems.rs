@@ -1,18 +1,14 @@
-use bevy_app::{App, Plugin};
 use bevy_ecs::{
     entity::Entity,
     event::{EventReader, EventWriter},
-    schedule::SystemSet,
     system::Query,
 };
+use bevy_log::info;
 use bevy_rapier3d::pipeline::CollisionEvent;
 use bevy_transform::prelude::Transform;
 
 use crate::{
-    core::{
-        entity::components::{EntityData, EntityGroup},
-        plugin::PostUpdateLabels,
-    },
+    core::entity::components::{EntityData, EntityGroup},
     entities::{
         air_locks::events::AirLockCollision, counter_windows::events::CounterWindowSensorCollision,
     },
@@ -27,6 +23,7 @@ pub fn physics_events(
     for collision_event in collision_events.iter() {
         match collision_event {
             CollisionEvent::Started(collider1_handle, collider2_handle, _flags) => {
+                info!("Collision!");
                 process_physics_event(
                     *collider1_handle,
                     *collider2_handle,
@@ -61,8 +58,27 @@ fn process_physics_event(
     let mut first_collider_group = EntityGroup::None;
     let mut second_collider_group = EntityGroup::None;
 
-    let collider1_components = interesting_entities_query.get(collider1_entity).unwrap();
-    let collider2_components = interesting_entities_query.get(collider2_entity).unwrap();
+    let collider1_components;
+
+    match interesting_entities_query.get(collider1_entity) {
+        Ok(t) => {
+            collider1_components = t;
+        }
+        Err(_) => {
+            return;
+        }
+    }
+
+    let collider2_components;
+
+    match interesting_entities_query.get(collider2_entity) {
+        Ok(t) => {
+            collider2_components = t;
+        }
+        Err(_) => {
+            return;
+        }
+    }
 
     if matches!(collider1_components.1.entity_group, EntityGroup::None) == false {
         first_collider_group = collider1_components.1.entity_group;
@@ -96,22 +112,5 @@ fn process_physics_event(
 
             started: collision_started,
         });
-    }
-}
-
-pub struct PhysicsPlugin;
-
-use bevy_app::CoreStage::PostUpdate;
-
-use super::entity_update::world_mode_update;
-
-impl Plugin for PhysicsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system(physics_events).add_system_set_to_stage(
-            PostUpdate,
-            SystemSet::new()
-                .label(PostUpdateLabels::EntityUpdate)
-                .with_system(world_mode_update),
-        );
     }
 }

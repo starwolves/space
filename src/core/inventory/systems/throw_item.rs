@@ -9,7 +9,7 @@ use bevy_log::warn;
 use bevy_math::Vec3;
 
 use bevy_rapier3d::prelude::{
-    CollisionGroups, ExternalForce, ExternalImpulse, GravityScale, MassProperties, Sleeping,
+    CollisionGroups, ExternalForce, ExternalImpulse, GravityScale, Sleeping,
 };
 use bevy_transform::prelude::Transform;
 use rand::Rng;
@@ -60,7 +60,6 @@ pub fn throw_item(
         &mut CollisionGroups,
         &mut ExternalForce,
         &mut RigidBodyLinkTransform,
-        &MassProperties,
         &mut GravityScale,
         &mut ExternalImpulse,
     )>,
@@ -100,6 +99,18 @@ pub fn throw_item(
             }
         }
 
+        let pickuper_transform;
+
+        match rigidbody_positions.get_component::<Transform>(event.entity) {
+            Ok(t) => {
+                pickuper_transform = t.clone();
+            }
+            Err(_rr) => {
+                warn!("!");
+                continue;
+            }
+        }
+
         let (
             pickupable_entity,
             mut inventory_item_component,
@@ -108,7 +119,6 @@ pub fn throw_item(
             mut pickupable_rigidbody_collider_flags,
             mut _pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
-            _pickupable_rigidbody_props,
             mut gravity_component,
             mut _external_impulse,
         ) = pickupable_entities.get_mut(pickupable_entity)
@@ -139,7 +149,7 @@ pub fn throw_item(
 
         match rigidbody_positions.get_component_mut::<Transform>(pickupable_entity) {
             Ok(mut position) => {
-                let mut new_pickupable_transform = position.clone();
+                let mut new_pickupable_transform = pickuper_transform;
 
                 let results = entity_spawn_position_for_player(
                     new_pickupable_transform,

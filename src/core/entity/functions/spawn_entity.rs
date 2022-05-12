@@ -96,6 +96,13 @@ pub fn spawn_entity(
         }
     };
 
+    match return_entity {
+        Some(_entity) => {
+            //info!("{:?}",entity);
+        }
+        None => {}
+    }
+
     return_entity
 }
 
@@ -140,6 +147,13 @@ pub fn spawn_held_entity(
         None => {
             return_entity = None;
         }
+    }
+
+    match return_entity {
+        Some(_entity) => {
+            //info!("(0) {:?}",entity);
+        }
+        None => {}
     }
 
     return_entity

@@ -90,13 +90,25 @@ pub fn drop_current_item<'a>(
         }
 
         let inventory_item_component_prev = inventory_items_query.get_component_mut::<InventoryItem>(pickupable_entity)
-        .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
+        .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query. (0)");
 
         let mut new_position;
 
         let pawn_component = pickuper_components.2;
 
         let pickuper_position: Vec3;
+
+        let pickuper_transform;
+
+        match rigidbody_positions.get_component::<Transform>(event.pickuper_entity) {
+            Ok(t) => {
+                pickuper_transform = t.clone();
+            }
+            Err(_rr) => {
+                warn!("!");
+                continue;
+            }
+        }
 
         match event.input_position_option {
             Some(placing_position) => {
@@ -121,23 +133,21 @@ pub fn drop_current_item<'a>(
                 }
             }
             None => match rigidbody_positions.get_component_mut::<Transform>(pickupable_entity) {
-                Ok(pickupable_rigidbody_position) => {
-                    let mut new_pickupable_transform = pickupable_rigidbody_position;
-
+                Ok(mut pickupable_rigidbody_position) => {
                     let new_results = entity_spawn_position_for_player(
-                        *new_pickupable_transform,
+                        pickuper_transform,
                         Some(&pawn_component.facing_direction),
                         None,
                         &gridmap_main,
                     );
 
-                    new_pickupable_transform.translation = new_results.0.translation;
-                    new_pickupable_transform.scale = new_results.0.scale;
+                    pickupable_rigidbody_position.translation = new_results.0.translation;
+                    pickupable_rigidbody_position.scale = new_results.0.scale;
 
-                    new_pickupable_transform.rotation =
+                    pickupable_rigidbody_position.rotation =
                         inventory_item_component_prev.drop_transform.rotation;
 
-                    new_position = new_pickupable_transform.clone();
+                    new_position = pickupable_rigidbody_position.clone();
 
                     match rigidbody_positions.get_component_mut::<Transform>(event.pickuper_entity)
                     {
@@ -198,7 +208,7 @@ pub fn drop_current_item<'a>(
             mut pickupable_rigidbody_link_transform_component,
             mut pickupable_rigidbody_collision_groups,
         ) = q.get_mut(pickupable_entity)
-        .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
+        .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query. (1)");
 
         drop_slot.slot_item = None;
         pickupable_world_mode_component.mode = WorldModes::Physics;
