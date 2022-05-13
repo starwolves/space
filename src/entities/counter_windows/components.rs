@@ -2,7 +2,7 @@ use bevy_core::Timer;
 use bevy_ecs::{entity::Entity, prelude::Component};
 
 use crate::{
-    core::pawn::components::SpaceAccessEnum, entities::air_locks::components::LockedStatus,
+    core::pawn::components::ShipAuthorizationEnum, entities::air_locks::components::LockedStatus,
 };
 
 #[derive(Component)]
@@ -61,7 +61,7 @@ impl Default for CounterWindowSensor {
 pub struct CounterWindow {
     pub status: CounterWindowStatus,
     pub access_lights: CounterWindowAccessLightsStatus,
-    pub access_permissions: Vec<SpaceAccessEnum>,
+    pub access_permissions: Vec<ShipAuthorizationEnum>,
     pub locked_status: LockedStatus,
 
     pub timer: Timer,
@@ -86,7 +86,7 @@ impl Default for CounterWindow {
         Self {
             status: CounterWindowStatus::Closed,
             access_lights: CounterWindowAccessLightsStatus::Neutral,
-            access_permissions: vec![SpaceAccessEnum::Common],
+            access_permissions: vec![ShipAuthorizationEnum::Common],
             locked_status: LockedStatus::None,
             timer: Timer::default(),
             denied_timer: Timer::default(),

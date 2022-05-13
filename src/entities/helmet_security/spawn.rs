@@ -124,11 +124,9 @@ fn spawn_entity(
     let mut friction = Friction::coefficient(friction_val);
     friction.combine_rule = friction_combine_rule;
 
-    let rigid_body = RigidBody::Dynamic;
-
     let mut builder = commands.spawn();
     builder
-        .insert(rigid_body)
+        .insert(RigidBody::Dynamic)
         .insert(t)
         .insert(Velocity::default())
         .insert(ExternalForce::default())

@@ -3,7 +3,6 @@ use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::Query,
 };
-use bevy_log::info;
 use bevy_rapier3d::pipeline::CollisionEvent;
 use bevy_transform::prelude::Transform;
 
@@ -23,7 +22,6 @@ pub fn physics_events(
     for collision_event in collision_events.iter() {
         match collision_event {
             CollisionEvent::Started(collider1_handle, collider2_handle, _flags) => {
-                info!("Collision!");
                 process_physics_event(
                     *collider1_handle,
                     *collider2_handle,

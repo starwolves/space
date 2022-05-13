@@ -21,7 +21,7 @@ use crate::{
         examinable::components::{Examinable, RichName},
         health::components::Health,
         networking::resources::ConsoleCommandVariantValues,
-        pawn::components::SpaceAccessEnum,
+        pawn::components::ShipAuthorizationEnum,
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
         static_body::components::StaticTransform,
@@ -84,7 +84,7 @@ impl CounterWindowBundle {
             static_transform_component,
             Sensable::default(),
             CounterWindow {
-                access_permissions: vec![SpaceAccessEnum::Security],
+                access_permissions: vec![ShipAuthorizationEnum::Security],
                 ..Default::default()
             },
             EntityData {

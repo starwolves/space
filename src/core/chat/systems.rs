@@ -15,7 +15,7 @@ use crate::core::{
     },
     entity::events::NetSendEntityUpdates,
     networking::{send_net, NetEvent},
-    pawn::components::{Pawn, PersistentPlayerData, SpaceJobsEnum},
+    pawn::components::{Pawn, PersistentPlayerData, ShipJobsEnum},
     sensable::components::Sensable,
 };
 
@@ -96,7 +96,7 @@ pub fn chat_message_input_event(
                     &vec![],
                     Vec3::ZERO,
                     persistent_player_data_component.user_name.clone(),
-                    SpaceJobsEnum::Security,
+                    ShipJobsEnum::Security,
                     chat_message_input_event.message.clone(),
                     Communicator::Standard,
                     false,

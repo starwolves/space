@@ -15,7 +15,7 @@ use crate::core::{
         functions::{new_chat_message, Communicator, MessagingPlayerState},
     },
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    pawn::components::{PersistentPlayerData, SpaceJobsEnum},
+    pawn::components::{PersistentPlayerData, ShipJobsEnum},
 };
 
 pub fn tick_asana_boarding_announcements(
@@ -43,7 +43,7 @@ pub fn tick_asana_boarding_announcements(
                 &sensed_by_vec,
                 Vec3::ZERO,
                 "ASANA".to_string(),
-                SpaceJobsEnum::Control,
+                ShipJobsEnum::Control,
                 announcement_message.to_string(),
                 Communicator::Machine,
                 true,

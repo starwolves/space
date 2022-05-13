@@ -13,15 +13,15 @@ use crate::{
         examinable::components::Examinable,
         gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
         networking::resources::ReliableServerMessage,
-        pawn::components::{Pawn, SpaceAccess},
+        pawn::components::{Pawn, ShipAuthorization},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
     },
     entities::{
         air_locks::{
             components::{
-                AccessLightsStatus, AirLock, AirLockClosedTimer, AirLockDeniedTimer,
-                AirLockOpenTimer, AirLockStatus, LockedStatus,
+                closed_timer, denied_timer, open_timer, AccessLightsStatus, AirLock, AirLockStatus,
+                LockedStatus,
             },
             events::{
                 AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock,
@@ -52,13 +52,10 @@ pub fn air_lock_events(
         &mut AirLock,
         &mut Transform,
         &StaticTransform,
-        Option<&mut AirLockOpenTimer>,
-        Option<&mut AirLockDeniedTimer>,
-        Option<&mut AirLockClosedTimer>,
         Entity,
         &mut Examinable,
     )>,
-    pawn_query: Query<(&Pawn, &SpaceAccess)>,
+    pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
@@ -76,9 +73,6 @@ pub fn air_lock_events(
                 mut air_lock_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _timer_open_component_option,
-                _timer_denied_component_option,
-                _timer_closed_component_option,
                 _air_lock_entity,
                 mut examinable_component,
             )) => {
@@ -122,9 +116,6 @@ pub fn air_lock_events(
                 mut air_lock_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _timer_open_component_option,
-                _timer_denied_component_option,
-                _timer_closed_component_option,
                 _air_lock_entity,
                 mut examinable_component,
             )) => {
@@ -171,9 +162,6 @@ pub fn air_lock_events(
                 mut air_lock_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _timer_open_component_option,
-                _timer_denied_component_option,
-                _timer_closed_component_option,
                 _air_lock_entity,
                 mut examinable_component,
             )) => {
@@ -220,9 +208,6 @@ pub fn air_lock_events(
         mut air_lock_component,
         mut rigid_body_position_component,
         static_transform_component,
-        timer_open_component_option,
-        timer_denied_component_option,
-        timer_closed_component_option,
         air_lock_entity,
         _examinable_component,
     ) in air_lock_query.iter_mut()
@@ -241,11 +226,11 @@ pub fn air_lock_events(
             LockedStatus::None => {}
         }
 
-        match timer_open_component_option {
-            Some(mut timer_component) => {
-                if timer_component.timer.finished() == true {
-                    timer_component.timer.pause();
-                    timer_component.timer.reset();
+        match air_lock_component.open_timer_option.as_mut() {
+            Some(timer_component) => {
+                if timer_component.finished() == true {
+                    timer_component.pause();
+                    timer_component.reset();
                     close_requests.push(AirLockCloseRequest {
                         interacter_option: None,
                         interacted: air_lock_entity,
@@ -255,11 +240,11 @@ pub fn air_lock_events(
             None => {}
         }
 
-        match timer_closed_component_option {
-            Some(mut timer_component) => {
-                if timer_component.timer.finished() == true {
-                    timer_component.timer.pause();
-                    timer_component.timer.reset();
+        match air_lock_component.closed_timer_option.as_mut() {
+            Some(timer_component) => {
+                if timer_component.finished() == true {
+                    timer_component.pause();
+                    timer_component.reset();
 
                     let mut air_lock_rigid_body_position = rigid_body_position_component.clone();
 
@@ -284,11 +269,11 @@ pub fn air_lock_events(
             None => {}
         }
 
-        match timer_denied_component_option {
-            Some(mut timer_component) => {
-                if timer_component.timer.finished() == true {
-                    timer_component.timer.pause();
-                    timer_component.timer.reset();
+        match air_lock_component.denied_timer_option.as_mut() {
+            Some(timer_component) => {
+                if timer_component.finished() == true {
+                    timer_component.pause();
+                    timer_component.reset();
 
                     air_lock_component.access_lights = AccessLightsStatus::Neutral;
                 }
@@ -303,9 +288,6 @@ pub fn air_lock_events(
                 air_lock_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _timer_open_component_option,
-                _timer_denied_component_option,
-                _timer_closed_component_option,
                 _air_lock_entity,
                 _examinable_component,
             )) => match air_lock_component.status {
@@ -369,6 +351,7 @@ pub fn air_lock_events(
         match air_lock_component.locked_status {
             LockedStatus::Open => {}
             LockedStatus::Closed => {
+                // Locked and closed, won't open.
                 continue;
             }
             LockedStatus::None => {}
@@ -379,7 +362,7 @@ pub fn air_lock_events(
         match request.opener_option {
             Some(opener) => {
                 let pawn_space_access_component_result =
-                    pawn_query.get_component::<SpaceAccess>(opener);
+                    pawn_query.get_component::<ShipAuthorization>(opener);
                 let pawn_space_access_component;
 
                 match pawn_space_access_component_result {
@@ -435,9 +418,7 @@ pub fn air_lock_events(
             air_lock_rigid_body_position_component.scale = air_lock_rigid_body_position.scale;
             air_lock_rigid_body_position_component.rotation = air_lock_rigid_body_position.rotation;
 
-            commands
-                .entity(request.opened)
-                .insert(AirLockOpenTimer::default());
+            air_lock_component.open_timer_option = Some(open_timer());
 
             let sfx_entity = commands
                 .spawn()
@@ -449,9 +430,7 @@ pub fn air_lock_events(
         } else {
             air_lock_component.access_lights = AccessLightsStatus::Denied;
 
-            commands
-                .entity(request.opened)
-                .insert(AirLockDeniedTimer::default());
+            air_lock_component.denied_timer_option = Some(denied_timer());
 
             let sfx_entity = commands
                 .spawn()
@@ -469,10 +448,7 @@ pub fn air_lock_events(
                 mut air_lock_component,
                 rigid_body_position_component,
                 _static_transform_component,
-                _timer_open_component_option,
-                _timer_denied_component_option,
-                _timer_closed_component_option,
-                air_lock_entity,
+                _air_lock_entity,
                 _examinable_component,
             )) => {
                 match air_lock_component.locked_status {
@@ -488,7 +464,7 @@ pub fn air_lock_events(
                 match request.interacter_option {
                     Some(interacter) => {
                         let pawn_space_access_component_result =
-                            pawn_query.get_component::<SpaceAccess>(interacter);
+                            pawn_query.get_component::<ShipAuthorization>(interacter);
                         let pawn_space_access_component;
 
                         match pawn_space_access_component_result {
@@ -537,9 +513,7 @@ pub fn air_lock_events(
                 atmospherics.blocked = true;
                 air_lock_component.status = AirLockStatus::Closed;
 
-                commands
-                    .entity(air_lock_entity)
-                    .insert(AirLockClosedTimer::default());
+                air_lock_component.closed_timer_option = Some(closed_timer());
             }
 
             Err(_rr) => {}
