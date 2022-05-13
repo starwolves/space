@@ -9,7 +9,7 @@ use std::collections::HashMap;
 #[derive(Component)]
 pub struct Pawn {
     pub name: String,
-    pub job: SpaceJobsEnum,
+    pub job: ShipJobsEnum,
     pub facing_direction: FacingDirection,
     pub tab_actions: HashMap<u32, TabAction>,
     pub tab_actions_data: TabActionsData,
@@ -19,7 +19,7 @@ impl Default for Pawn {
     fn default() -> Self {
         Self {
             name: "".to_string(),
-            job: SpaceJobsEnum::Security,
+            job: ShipJobsEnum::Security,
             facing_direction: FacingDirection::Up,
             tab_actions: HashMap::new(),
             tab_actions_data: TabActionsData::default(),
@@ -53,13 +53,13 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
 }
 
 #[derive(Copy, Clone)]
-pub enum SpaceJobsEnum {
+pub enum ShipJobsEnum {
     Security,
     Control,
 }
 
 #[derive(PartialEq)]
-pub enum SpaceAccessEnum {
+pub enum ShipAuthorizationEnum {
     Security,
     Common,
 }
@@ -170,6 +170,6 @@ impl Default for ControllerInput {
 }
 
 #[derive(Component)]
-pub struct SpaceAccess {
-    pub access: Vec<SpaceAccessEnum>,
+pub struct ShipAuthorization {
+    pub access: Vec<ShipAuthorizationEnum>,
 }

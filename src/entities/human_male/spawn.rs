@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, Dominance, ExternalForce,
-    ExternalImpulse, Friction, GravityScale, LockedAxes, RigidBody, Sleeping, Velocity,
+    CoefficientCombineRule, Collider, CollisionGroups, Dominance, ExternalForce, ExternalImpulse,
+    Friction, GravityScale, LockedAxes, RigidBody, Sleeping, Velocity,
 };
 use bevy_transform::components::Transform;
 
@@ -29,7 +29,8 @@ use crate::core::{
     map::components::Map,
     networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
     pawn::components::{
-        ControllerInput, Pawn, PersistentPlayerData, SpaceAccess, SpaceAccessEnum, SpaceJobsEnum,
+        ControllerInput, Pawn, PersistentPlayerData, ShipAuthorization, ShipAuthorizationEnum,
+        ShipJobsEnum,
     },
     physics::{
         components::{WorldMode, WorldModes},
@@ -333,7 +334,7 @@ impl HumanMaleBundle {
         } else {
             let mut pawn_component = Pawn {
                 name: character_name.clone(),
-                job: SpaceJobsEnum::Security,
+                job: ShipJobsEnum::Security,
                 ..Default::default()
             };
 
@@ -355,8 +356,8 @@ impl HumanMaleBundle {
                     listen_access: vec![RadioChannel::Common, RadioChannel::Security],
                     speak_access: vec![RadioChannel::Common, RadioChannel::Security],
                 },
-                SpaceAccess {
-                    access: vec![SpaceAccessEnum::Security],
+                ShipAuthorization {
+                    access: vec![ShipAuthorizationEnum::Security],
                 },
                 pawn_component,
                 ControllerInput::default(),

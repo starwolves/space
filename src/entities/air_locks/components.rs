@@ -1,19 +1,18 @@
 use bevy_core::Timer;
 use bevy_ecs::prelude::Component;
 
-use crate::core::pawn::components::SpaceAccessEnum;
+use crate::core::pawn::components::ShipAuthorizationEnum;
 
 #[derive(Component)]
 pub struct AirLock {
     pub status: AirLockStatus,
     pub access_lights: AccessLightsStatus,
-    pub access_permissions: Vec<SpaceAccessEnum>,
+    pub access_permissions: Vec<ShipAuthorizationEnum>,
     pub locked_status: LockedStatus,
 
-    pub timer: Timer,
-    pub denied_timer: Timer,
-    pub open_timer: Timer,
-    pub closed_timer: Timer,
+    pub denied_timer_option: Option<Timer>,
+    pub open_timer_option: Option<Timer>,
+    pub closed_timer_option: Option<Timer>,
 }
 
 pub enum AirLockStatus {
@@ -32,12 +31,11 @@ impl Default for AirLock {
         Self {
             status: AirLockStatus::Closed,
             access_lights: AccessLightsStatus::Neutral,
-            access_permissions: vec![SpaceAccessEnum::Common],
+            access_permissions: vec![ShipAuthorizationEnum::Common],
             locked_status: LockedStatus::None,
-            timer: Timer::default(),
-            denied_timer: Timer::default(),
-            open_timer: Timer::default(),
-            closed_timer: Timer::default(),
+            denied_timer_option: None,
+            open_timer_option: None,
+            closed_timer_option: None,
         }
     }
 }
@@ -48,41 +46,14 @@ pub enum LockedStatus {
     None,
 }
 
-#[derive(Component)]
-pub struct AirLockOpenTimer {
-    pub timer: Timer,
+pub fn open_timer() -> Timer {
+    Timer::from_seconds(5.0, false)
 }
 
-impl Default for AirLockOpenTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(5.0, false),
-        }
-    }
+pub fn denied_timer() -> Timer {
+    Timer::from_seconds(5.0, false)
 }
 
-#[derive(Component)]
-pub struct AirLockDeniedTimer {
-    pub timer: Timer,
-}
-
-impl Default for AirLockDeniedTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(5.0, false),
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct AirLockClosedTimer {
-    pub timer: Timer,
-}
-
-impl Default for AirLockClosedTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(1.1, false),
-        }
-    }
+pub fn closed_timer() -> Timer {
+    Timer::from_seconds(1.1, false)
 }

@@ -6,7 +6,7 @@ use std::{
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::{ActiveEvents, Collider, CollisionGroups, RigidBody};
+use bevy_rapier3d::prelude::{ActiveEvents, Collider, CollisionGroups};
 use bevy_transform::components::Transform;
 
 use crate::{
@@ -19,7 +19,7 @@ use crate::{
         examinable::components::{Examinable, RichName},
         health::components::{Health, HealthFlag},
         networking::resources::ConsoleCommandVariantValues,
-        pawn::components::SpaceAccessEnum,
+        pawn::components::ShipAuthorizationEnum,
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
         static_body::components::StaticTransform,
@@ -81,18 +81,22 @@ impl AirlockBundle {
         let mut builder = commands.spawn();
         let entity_id = builder.id();
 
+        let mut t = entity_transform.clone();
+
+        let collision_body_translation = Vec3::new(0., 1., 0.);
+
+        t.translation += collision_body_translation;
+
         builder
-            .insert(RigidBody::Fixed)
-            .insert(Transform::from(entity_transform))
-            .insert(Collider::cuboid(1., 1., 0.2))
-            .insert(Transform::from_translation(Vec3::new(0., 1., 0.)))
+            .insert(Collider::cuboid(1., 1., 1.))
+            .insert(t)
             .insert(ActiveEvents::COLLISION_EVENTS)
             .insert(CollisionGroups::new(masks.0, masks.1))
             .insert_bundle((
                 static_transform_component,
                 Sensable::default(),
                 AirLock {
-                    access_permissions: vec![SpaceAccessEnum::Security],
+                    access_permissions: vec![ShipAuthorizationEnum::Security],
                     ..Default::default()
                 },
                 EntityData {

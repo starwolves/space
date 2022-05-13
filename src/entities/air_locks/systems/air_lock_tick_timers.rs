@@ -14,10 +14,24 @@ pub fn air_lock_tick_timers(
     mut commands: Commands,
 ) {
     for mut air_lock_component in air_locks.iter_mut() {
-        air_lock_component.timer.tick(time.delta());
-        air_lock_component.denied_timer.tick(time.delta());
-        air_lock_component.open_timer.tick(time.delta());
-        air_lock_component.closed_timer.tick(time.delta());
+        match air_lock_component.denied_timer_option.as_mut() {
+            Some(x) => {
+                x.tick(time.delta());
+            }
+            None => {}
+        }
+        match air_lock_component.open_timer_option.as_mut() {
+            Some(x) => {
+                x.tick(time.delta());
+            }
+            None => {}
+        }
+        match air_lock_component.closed_timer_option.as_mut() {
+            Some(x) => {
+                x.tick(time.delta());
+            }
+            None => {}
+        }
     }
 
     let mut expired_sfx_entities: Vec<Entity> = vec![];

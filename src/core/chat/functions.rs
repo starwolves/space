@@ -17,7 +17,7 @@ use crate::{
         connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
         entity::events::NetSendEntityUpdates,
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
-        pawn::components::{PersistentPlayerData, SpaceJobsEnum},
+        pawn::components::{PersistentPlayerData, ShipJobsEnum},
     },
     entities::sfx::chat::{
         play_sound_proximity_message::PlaySoundProximityMessage,
@@ -429,7 +429,7 @@ pub fn new_chat_message(
     sensed_by_distance: &Vec<Entity>,
     position: Vec3,
     name: String,
-    job: SpaceJobsEnum,
+    job: ShipJobsEnum,
     mut raw_message: String,
     communicator: Communicator,
     exclusive_radio: bool,
@@ -680,10 +680,10 @@ pub fn new_chat_message(
 
         let rank_word;
         match job {
-            SpaceJobsEnum::Security => {
+            ShipJobsEnum::Security => {
                 rank_word = JOB_SECURITY_WORD;
             }
-            SpaceJobsEnum::Control => {
+            ShipJobsEnum::Control => {
                 rank_word = JOB_CONTROL_WORD;
             }
         }
@@ -791,10 +791,10 @@ pub fn new_chat_message(
 
         let rank_word;
         match job {
-            SpaceJobsEnum::Security => {
+            ShipJobsEnum::Security => {
                 rank_word = JOB_SECURITY_WORD;
             }
-            SpaceJobsEnum::Control => {
+            ShipJobsEnum::Control => {
                 rank_word = JOB_CONTROL_WORD;
             }
         }

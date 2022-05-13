@@ -15,7 +15,7 @@ use crate::{
         examinable::components::Examinable,
         gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
         networking::resources::ReliableServerMessage,
-        pawn::components::{Pawn, SpaceAccess},
+        pawn::components::{Pawn, ShipAuthorization},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
         static_body::components::StaticTransform,
     },
@@ -60,7 +60,7 @@ pub fn counter_window_events(
         &mut Examinable,
     )>,
     counter_window_sensor_query: Query<&CounterWindowSensor>,
-    pawn_query: Query<(&Pawn, &SpaceAccess)>,
+    pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
@@ -451,7 +451,7 @@ pub fn counter_window_events(
         match request.opener_option {
             Some(opener) => {
                 let pawn_space_access_component_result =
-                    pawn_query.get_component::<SpaceAccess>(opener);
+                    pawn_query.get_component::<ShipAuthorization>(opener);
                 let pawn_space_access_component;
 
                 match pawn_space_access_component_result {
@@ -576,7 +576,7 @@ pub fn counter_window_events(
                 match request.interacter_option {
                     Some(interacter) => {
                         let pawn_space_access_component_result =
-                            pawn_query.get_component::<SpaceAccess>(interacter);
+                            pawn_query.get_component::<ShipAuthorization>(interacter);
                         let pawn_space_access_component;
 
                         match pawn_space_access_component_result {
