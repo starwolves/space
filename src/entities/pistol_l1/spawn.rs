@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use bevy_ecs::{entity::Entity, event::EventWriter, system::Commands};
+use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
@@ -145,10 +146,14 @@ fn spawn_entity(
         builder
             .insert(Sleeping::default())
             .insert(GravityScale::default())
-            .insert(shape)
-            .insert(t)
-            .insert(friction)
-            .insert(CollisionGroups::new(masks.0, masks.1));
+            .with_children(|children| {
+                children
+                    .spawn()
+                    .insert(shape)
+                    .insert(t)
+                    .insert(friction)
+                    .insert(CollisionGroups::new(masks.0, masks.1));
+            });
     } else {
         let masks = get_bit_masks(ColliderGroup::NoCollision);
 
@@ -160,10 +165,14 @@ fn spawn_entity(
         builder
             .insert(GravityScale(0.))
             .insert(sleeping)
-            .insert(shape)
-            .insert(t)
-            .insert(friction)
-            .insert(CollisionGroups::new(masks.0, masks.1));
+            .with_children(|children| {
+                children
+                    .spawn()
+                    .insert(shape)
+                    .insert(t)
+                    .insert(friction)
+                    .insert(CollisionGroups::new(masks.0, masks.1));
+            });
     }
 
     let template_examine_text = "A standard issue laser pistol. It is a lethal weapon.".to_string();

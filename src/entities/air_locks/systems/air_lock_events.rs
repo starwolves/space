@@ -3,6 +3,8 @@ use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::{Commands, Query, ResMut},
 };
+use bevy_hierarchy::Children;
+use bevy_log::warn;
 use bevy_transform::prelude::Transform;
 
 use crate::{
@@ -48,12 +50,13 @@ pub struct AirLockCloseRequest {
 pub fn air_lock_events(
     mut air_lock_collisions: EventReader<AirLockCollision>,
     mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
+    mut transforms: Query<&mut Transform>,
     mut air_lock_query: Query<(
         &mut AirLock,
-        &mut Transform,
         &StaticTransform,
         Entity,
         &mut Examinable,
+        &Children,
     )>,
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
@@ -71,10 +74,10 @@ pub fn air_lock_events(
         match air_lock_query.get_mut(event.locked) {
             Ok((
                 mut air_lock_component,
-                _rigid_body_position_component,
                 _static_transform_component,
                 _air_lock_entity,
                 mut examinable_component,
+                _children,
             )) => {
                 air_lock_component.locked_status = LockedStatus::None;
                 air_lock_component.access_lights = AccessLightsStatus::Neutral;
@@ -114,10 +117,10 @@ pub fn air_lock_events(
         match air_lock_query.get_mut(event.locked) {
             Ok((
                 mut air_lock_component,
-                _rigid_body_position_component,
                 _static_transform_component,
                 _air_lock_entity,
                 mut examinable_component,
+                _children,
             )) => {
                 air_lock_component.locked_status = LockedStatus::Open;
                 let personal_update_text = "[font=".to_owned()
@@ -160,10 +163,10 @@ pub fn air_lock_events(
         match air_lock_query.get_mut(event.locked) {
             Ok((
                 mut air_lock_component,
-                _rigid_body_position_component,
                 _static_transform_component,
                 _air_lock_entity,
                 mut examinable_component,
+                _children,
             )) => {
                 air_lock_component.locked_status = LockedStatus::Closed;
                 let personal_update_text = "[font=".to_owned()
@@ -206,12 +209,24 @@ pub fn air_lock_events(
 
     for (
         mut air_lock_component,
-        mut rigid_body_position_component,
         static_transform_component,
         air_lock_entity,
         _examinable_component,
+        _children,
     ) in air_lock_query.iter_mut()
     {
+        let mut rigid_body_position_component;
+
+        match transforms.get_mut(air_lock_entity) {
+            Ok(tra) => {
+                rigid_body_position_component = tra;
+            }
+            Err(_rr) => {
+                warn!("Couldnt find transform!");
+                continue;
+            }
+        }
+
         match air_lock_component.locked_status {
             LockedStatus::Open => {
                 if !matches!(air_lock_component.access_lights, AccessLightsStatus::Denied) {
@@ -286,10 +301,10 @@ pub fn air_lock_events(
         match air_lock_query.get(Entity::from_bits(event.opened)) {
             Ok((
                 air_lock_component,
-                _rigid_body_position_component,
                 _static_transform_component,
                 _air_lock_entity,
                 _examinable_component,
+                _children,
             )) => match air_lock_component.status {
                 AirLockStatus::Open => {
                     close_requests.push(AirLockCloseRequest {
@@ -334,14 +349,14 @@ pub fn air_lock_events(
         let air_lock_components_result = air_lock_query.get_mut(request.opened);
 
         let mut air_lock_component;
-        let mut air_lock_rigid_body_position_component;
+        let children;
         let air_lock_static_transform_component;
 
         match air_lock_components_result {
             Ok(result) => {
                 air_lock_component = result.0;
-                air_lock_rigid_body_position_component = result.1;
-                air_lock_static_transform_component = result.2;
+                air_lock_static_transform_component = result.1;
+                children = result.4;
             }
             Err(_err) => {
                 continue;
@@ -390,9 +405,26 @@ pub fn air_lock_events(
             }
         }
 
+        let mut collision_transform_component;
+
+        let child_option = children.get(0);
+        match child_option {
+            Some(child) => match transforms.get_mut(*child) {
+                Ok(t) => {
+                    collision_transform_component = t;
+                }
+                Err(_rr) => {
+                    continue;
+                }
+            },
+            None => {
+                warn!("No children!");
+                continue;
+            }
+        }
+
         if pawn_has_permission == true {
-            let cell_id =
-                world_to_cell_id(air_lock_rigid_body_position_component.translation.into());
+            let cell_id = world_to_cell_id(collision_transform_component.translation.into());
             let cell_id2 = Vec2Int {
                 x: cell_id.x,
                 y: cell_id.z,
@@ -410,13 +442,12 @@ pub fn air_lock_events(
             air_lock_component.status = AirLockStatus::Open;
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
-            let mut air_lock_rigid_body_position = air_lock_rigid_body_position_component.clone();
+            let mut air_lock_rigid_body_position = collision_transform_component.clone();
             air_lock_rigid_body_position.translation.y = 2.;
 
-            air_lock_rigid_body_position_component.translation =
-                air_lock_rigid_body_position.translation;
-            air_lock_rigid_body_position_component.scale = air_lock_rigid_body_position.scale;
-            air_lock_rigid_body_position_component.rotation = air_lock_rigid_body_position.rotation;
+            collision_transform_component.translation = air_lock_rigid_body_position.translation;
+            collision_transform_component.scale = air_lock_rigid_body_position.scale;
+            collision_transform_component.rotation = air_lock_rigid_body_position.rotation;
 
             air_lock_component.open_timer_option = Some(open_timer());
 
@@ -446,11 +477,23 @@ pub fn air_lock_events(
         match air_lock_query.get_mut(request.interacted) {
             Ok((
                 mut air_lock_component,
-                rigid_body_position_component,
                 _static_transform_component,
                 _air_lock_entity,
                 _examinable_component,
+                _children,
             )) => {
+                let rigid_body_position_component;
+
+                match transforms.get(request.interacted) {
+                    Ok(tra) => {
+                        rigid_body_position_component = tra;
+                    }
+                    Err(_rr) => {
+                        warn!("Couldnt find transform!");
+                        continue;
+                    }
+                }
+
                 match air_lock_component.locked_status {
                     LockedStatus::Open => {
                         continue;

@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use bevy_ecs::{entity::Entity, event::EventWriter, system::Commands};
+use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
@@ -126,11 +127,14 @@ fn spawn_entity(
 
     builder.insert(rigid_body).insert(t);
 
-    builder
-        .insert(shape)
-        .insert(Transform::from_translation(collider_position))
-        .insert(friction)
-        .insert(CollisionGroups::new(masks.0, masks.1));
+    builder.with_children(|children| {
+        children
+            .spawn()
+            .insert(shape)
+            .insert(Transform::from_translation(collider_position))
+            .insert(friction)
+            .insert(CollisionGroups::new(masks.0, masks.1));
+    });
 
     let template_examine_text = "A computer used by bridge personnel.".to_string();
     let mut examine_map = BTreeMap::new();

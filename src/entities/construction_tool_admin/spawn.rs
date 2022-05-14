@@ -8,6 +8,7 @@ use bevy_ecs::{
     event::EventWriter,
     system::{Commands, Query},
 };
+use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_rapier3d::prelude::{
@@ -149,10 +150,14 @@ fn spawn_entity(
             .insert(Sleeping::default())
             .insert(GravityScale::default())
             .insert(ExternalImpulse::default())
-            .insert(shape)
-            .insert(Transform::from_translation(collider_position))
-            .insert(friction)
-            .insert(CollisionGroups::new(masks.0, masks.1));
+            .with_children(|children| {
+                children
+                    .spawn()
+                    .insert(shape)
+                    .insert(Transform::from_translation(collider_position))
+                    .insert(friction)
+                    .insert(CollisionGroups::new(masks.0, masks.1));
+            });
     } else {
         let rigid_body = RigidBody::Dynamic;
 
@@ -171,10 +176,14 @@ fn spawn_entity(
             .insert(t)
             .insert(GravityScale(0.))
             .insert(sleeping)
-            .insert(shape)
-            .insert(Transform::from_translation(collider_position))
-            .insert(friction)
-            .insert(CollisionGroups::new(masks.0, masks.1));
+            .with_children(|children| {
+                children
+                    .spawn()
+                    .insert(shape)
+                    .insert(Transform::from_translation(collider_position))
+                    .insert(friction)
+                    .insert(CollisionGroups::new(masks.0, masks.1));
+            });
     }
 
     let template_examine_text =

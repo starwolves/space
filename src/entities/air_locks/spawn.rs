@@ -4,9 +4,10 @@ use std::{
 };
 
 use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_rapier3d::prelude::{ActiveEvents, Collider, CollisionGroups};
+use bevy_rapier3d::prelude::{ActiveEvents, Collider, CollisionGroups, RigidBody};
 use bevy_transform::components::Transform;
 
 use crate::{
@@ -88,10 +89,20 @@ impl AirlockBundle {
         t.translation += collision_body_translation;
 
         builder
-            .insert(Collider::cuboid(1., 1., 1.))
+            .insert(RigidBody::Fixed)
             .insert(t)
-            .insert(ActiveEvents::COLLISION_EVENTS)
-            .insert(CollisionGroups::new(masks.0, masks.1))
+            .with_children(|children| {
+                children
+                    .spawn()
+                    .insert(Collider::cuboid(1., 1., 0.2))
+                    .insert(Transform::from_translation(Vec3::new(0., 1., 0.)))
+                    .insert(ActiveEvents::COLLISION_EVENTS)
+                    .insert(CollisionGroups::new(masks.0, masks.1));
+            });
+
+        builder
+            .insert(Collider::cuboid(1., 1., 0.2))
+            .insert(t)
             .insert_bundle((
                 static_transform_component,
                 Sensable::default(),
