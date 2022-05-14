@@ -17,8 +17,8 @@ use self::{
         take_off_item::take_off_item, throw_item::throw_item, wear_item::wear_item,
     },
 };
-use super::plugin::{PostUpdateLabels, UpdateLabels};
 use super::tab_actions::TabActionsQueueLabels;
+use super::{PostUpdateLabels, UpdateLabels};
 
 pub mod components;
 pub mod entity_update;

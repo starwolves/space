@@ -59,8 +59,8 @@ use super::{
     configuration::resources::{ServerId, TickRate},
     entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1,
     examinable::components::RichName,
-    plugin::{PostUpdateLabels, StartupLabels, UpdateLabels},
     world_environment::resources::WorldEnvironment,
+    PostUpdateLabels, StartupLabels, UpdateLabels,
 };
 
 pub fn startup_build_map(

@@ -52,8 +52,8 @@ use super::{
     console_commands::{events::InputConsoleCommand, resources::AllConsoleCommands},
     humanoid::components::Humanoid,
     map::resources::MapData,
-    plugin::{PreUpdateLabels, StartupLabels},
     tab_actions::events::InputTabAction,
+    PreUpdateLabels, StartupLabels,
 };
 
 pub fn startup_listen_connections(mut net: ResMut<NetworkResource>) {

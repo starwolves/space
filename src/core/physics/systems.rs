@@ -1,7 +1,7 @@
-use bevy::prelude::With;
 use bevy_ecs::{
     entity::Entity,
     event::{EventReader, EventWriter},
+    prelude::With,
     system::Query,
 };
 use bevy_hierarchy::Parent;

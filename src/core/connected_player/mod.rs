@@ -98,4 +98,4 @@ impl Plugin for ConnectedPlayerPlugin {
 }
 use bevy_app::CoreStage::PostUpdate;
 
-use super::plugin::{PostUpdateLabels, UpdateLabels};
+use super::{PostUpdateLabels, UpdateLabels};

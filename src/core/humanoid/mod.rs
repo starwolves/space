@@ -4,11 +4,11 @@ pub mod systems;
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 
-use crate::core::plugin::{PostUpdateLabels, UpdateLabels};
-
 use bevy_app::CoreStage::PostUpdate;
 
 use self::{entity_update::humanoid_update, systems::humanoid::humanoids};
+
+use super::{PostUpdateLabels, UpdateLabels};
 
 pub struct HumanoidPlugin;
 

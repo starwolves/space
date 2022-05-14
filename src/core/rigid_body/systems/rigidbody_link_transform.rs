@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{ParamSet, Query};
-use bevy_ecs::{entity::Entity, prelude::Without};
+use bevy_ecs::{
+    entity::Entity,
+    prelude::Without,
+    system::{ParamSet, Query},
+};
 use bevy_log::warn;
 use bevy_transform::components::Transform;
 

@@ -349,14 +349,14 @@ pub fn air_lock_events(
         let air_lock_components_result = air_lock_query.get_mut(request.opened);
 
         let mut air_lock_component;
-        let children;
+        let _children;
         let air_lock_static_transform_component;
 
         match air_lock_components_result {
             Ok(result) => {
                 air_lock_component = result.0;
                 air_lock_static_transform_component = result.1;
-                children = result.4;
+                _children = result.4;
             }
             Err(_err) => {
                 continue;
@@ -407,18 +407,11 @@ pub fn air_lock_events(
 
         let mut collision_transform_component;
 
-        let child_option = children.get(0);
-        match child_option {
-            Some(child) => match transforms.get_mut(*child) {
-                Ok(t) => {
-                    collision_transform_component = t;
-                }
-                Err(_rr) => {
-                    continue;
-                }
-            },
-            None => {
-                warn!("No children!");
+        match transforms.get_mut(request.opened) {
+            Ok(t) => {
+                collision_transform_component = t;
+            }
+            Err(_rr) => {
                 continue;
             }
         }

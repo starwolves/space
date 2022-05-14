@@ -6,7 +6,7 @@ use crate::core::{
         functions::initialize_entity_data::initialize_entity_data,
         resources::{EntityDataProperties, EntityDataResource},
     },
-    plugin::StartupLabels,
+    StartupLabels,
 };
 
 use self::spawn::PistolL1Bundle;

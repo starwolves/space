@@ -25,4 +25,4 @@ impl Plugin for ChatPlugin {
 }
 use bevy_app::CoreStage::PostUpdate;
 
-use super::plugin::PostUpdateLabels;
+use super::PostUpdateLabels;

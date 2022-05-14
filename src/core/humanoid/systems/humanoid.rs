@@ -1,10 +1,10 @@
 use std::f32::consts::PI;
 
-use bevy::prelude::Without;
 use bevy_core::Time;
 use bevy_ecs::{
     entity::Entity,
     event::EventWriter,
+    prelude::Without,
     system::{Commands, Query, Res},
 };
 use bevy_log::warn;
