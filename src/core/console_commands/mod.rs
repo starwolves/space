@@ -11,10 +11,7 @@ use self::{
     systems::{console_commands, net_system},
 };
 
-use super::{
-    networking::resources::ConsoleCommandVariant,
-    plugin::{PostUpdateLabels, StartupLabels},
-};
+use super::{networking::resources::ConsoleCommandVariant, PostUpdateLabels, StartupLabels};
 
 pub mod events;
 pub mod functions;

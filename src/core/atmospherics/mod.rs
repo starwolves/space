@@ -37,10 +37,7 @@ use self::{
     },
 };
 
-use super::{
-    gridmap::resources::GridmapData,
-    plugin::{MapLabels, PostUpdateLabels, StartupLabels},
-};
+use super::{gridmap::resources::GridmapData, MapLabels, PostUpdateLabels, StartupLabels};
 
 pub fn startup_atmospherics(
     gridmap_main: Res<GridmapMain>,

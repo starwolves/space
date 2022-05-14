@@ -6,8 +6,8 @@ use crate::core::{
         functions::initialize_entity_data::initialize_entity_data,
         resources::{EntityDataProperties, EntityDataResource},
     },
-    plugin::{PostUpdateLabels, StartupLabels, UpdateLabels},
     tab_actions::TabActionsQueueLabels,
+    PostUpdateLabels, StartupLabels, UpdateLabels,
 };
 
 use self::{

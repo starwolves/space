@@ -1,7 +1,7 @@
 pub mod core;
 pub mod entities;
 
-use crate::core::plugin::SpacePlugin;
+use self::core::SpacePlugin;
 
 use bevy_app::App;
 use bevy_core::DefaultTaskPoolOptions;

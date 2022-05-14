@@ -8,7 +8,7 @@ pub mod spawn;
 
 use bevy_app::CoreStage::PostUpdate;
 
-use crate::core::plugin::PostUpdateLabels;
+use crate::core::PostUpdateLabels;
 
 use self::entity_update::omni_light_update;
 

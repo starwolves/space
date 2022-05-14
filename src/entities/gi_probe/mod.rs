@@ -7,7 +7,7 @@ pub mod spawn;
 use bevy_app::CoreStage::PostUpdate;
 use bevy_ecs::schedule::SystemSet;
 
-use crate::core::plugin::PostUpdateLabels;
+use crate::core::PostUpdateLabels;
 
 use self::entity_update::gi_probe_update;
 

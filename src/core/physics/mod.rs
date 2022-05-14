@@ -5,12 +5,12 @@ pub mod systems;
 
 pub struct PhysicsPlugin;
 
-use bevy::prelude::SystemSet;
 use bevy_app::{App, CoreStage::PostUpdate, Plugin};
+use bevy_ecs::schedule::SystemSet;
 
 use self::{entity_update::world_mode_update, systems::physics_events};
 
-use super::plugin::PostUpdateLabels;
+use super::PostUpdateLabels;
 
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {

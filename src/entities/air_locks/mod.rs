@@ -6,8 +6,8 @@ use bevy_transform::components::Transform;
 
 use crate::core::entity::functions::initialize_entity_data::initialize_entity_data;
 use crate::core::entity::resources::{EntityDataProperties, EntityDataResource, GridItemData};
-use crate::core::plugin::{PostUpdateLabels, StartupLabels};
 use crate::core::tab_actions::TabActionsQueueLabels;
+use crate::core::{PostUpdateLabels, StartupLabels};
 
 use self::events::{air_locks_actions, AirLockUnlock, NetAirLock};
 use self::spawn::AirlockBundle;

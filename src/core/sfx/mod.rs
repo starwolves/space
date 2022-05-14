@@ -8,9 +8,7 @@ use self::{
     systems::tick_timers_slowed,
 };
 
-use super::{
-    entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1, plugin::PostUpdateLabels,
-};
+use super::{entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1, PostUpdateLabels};
 
 pub mod components;
 pub mod entity_update;

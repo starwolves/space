@@ -19,7 +19,7 @@ use self::{
 use super::console_commands::resources::AllConsoleCommands;
 use super::console_commands::ConsoleCommandsLabels;
 use super::networking::resources::ConsoleCommandVariant;
-use super::plugin::{PostUpdateLabels, StartupLabels};
+use super::{PostUpdateLabels, StartupLabels};
 
 pub mod components;
 pub mod events;
@@ -63,6 +63,10 @@ impl Plugin for EntityPlugin {
                 PostUpdate,
                 net_system.after(PostUpdateLabels::VisibleChecker),
             );
+    }
+
+    fn name(&self) -> &str {
+        std::any::type_name::<Self>()
     }
 }
 
