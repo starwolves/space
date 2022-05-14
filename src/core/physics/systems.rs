@@ -1,9 +1,11 @@
+use bevy::prelude::With;
 use bevy_ecs::{
     entity::Entity,
     event::{EventReader, EventWriter},
     system::Query,
 };
-use bevy_rapier3d::pipeline::CollisionEvent;
+use bevy_hierarchy::Parent;
+use bevy_rapier3d::{pipeline::CollisionEvent, prelude::Collider};
 use bevy_transform::prelude::Transform;
 
 use crate::{
@@ -16,15 +18,38 @@ use crate::{
 pub fn physics_events(
     mut collision_events: EventReader<CollisionEvent>,
     interesting_entities_query: Query<(Entity, &EntityData, &Transform)>,
+    parents: Query<&Parent, With<Collider>>,
     mut air_lock_collision_event: EventWriter<AirLockCollision>,
     mut counter_window_collision_event: EventWriter<CounterWindowSensorCollision>,
 ) {
     for collision_event in collision_events.iter() {
         match collision_event {
             CollisionEvent::Started(collider1_handle, collider2_handle, _flags) => {
+                let collider1_parent;
+
+                match parents.get(*collider1_handle) {
+                    Ok(parent_component) => {
+                        collider1_parent = parent_component.0;
+                    }
+                    Err(_rr) => {
+                        collider1_parent = *collider1_handle;
+                    }
+                }
+
+                let collider2_parent;
+
+                match parents.get(*collider2_handle) {
+                    Ok(parent_component) => {
+                        collider2_parent = parent_component.0;
+                    }
+                    Err(_rr) => {
+                        collider2_parent = *collider2_handle;
+                    }
+                }
+
                 process_physics_event(
-                    *collider1_handle,
-                    *collider2_handle,
+                    collider1_parent,
+                    collider2_parent,
                     true,
                     &interesting_entities_query,
                     &mut air_lock_collision_event,
