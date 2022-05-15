@@ -6,45 +6,6 @@ use crate::{
 };
 
 #[derive(Component)]
-pub struct CounterWindowClosedTimer {
-    pub timer: Timer,
-}
-
-impl Default for CounterWindowClosedTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(1.1, false),
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct CounterWindowDeniedTimer {
-    pub timer: Timer,
-}
-
-impl Default for CounterWindowDeniedTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(5.0, false),
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct CounterWindowOpenTimer {
-    pub timer: Timer,
-}
-
-impl Default for CounterWindowOpenTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(5.0, false),
-        }
-    }
-}
-
-#[derive(Component)]
 pub struct CounterWindowSensor {
     pub parent: Entity,
 }
@@ -64,10 +25,9 @@ pub struct CounterWindow {
     pub access_permissions: Vec<ShipAuthorizationEnum>,
     pub locked_status: LockedStatus,
 
-    pub timer: Timer,
-    pub denied_timer: Timer,
-    pub open_timer: Timer,
-    pub closed_timer: Timer,
+    pub denied_timer: Option<Timer>,
+    pub open_timer: Option<Timer>,
+    pub closed_timer: Option<Timer>,
 }
 
 pub enum CounterWindowStatus {
@@ -88,10 +48,21 @@ impl Default for CounterWindow {
             access_lights: CounterWindowAccessLightsStatus::Neutral,
             access_permissions: vec![ShipAuthorizationEnum::Common],
             locked_status: LockedStatus::None,
-            timer: Timer::default(),
-            denied_timer: Timer::default(),
-            open_timer: Timer::default(),
-            closed_timer: Timer::default(),
+            denied_timer: None,
+            open_timer: None,
+            closed_timer: None,
         }
     }
+}
+
+pub fn open_timer() -> Timer {
+    Timer::from_seconds(5.0, false)
+}
+
+pub fn close_timer() -> Timer {
+    Timer::from_seconds(1.1, false)
+}
+
+pub fn denied_timer() -> Timer {
+    Timer::from_seconds(5.0, false)
 }

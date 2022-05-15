@@ -164,7 +164,7 @@ impl CounterWindowBundle {
             children
                 .spawn()
                 .insert(Collider::cuboid(1., 1., 1.))
-                .insert(Transform::from_translation(Vec3::new(0., -1., 1.)))
+                .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
                 .insert(friction)
                 .insert(CollisionGroups::new(masks.0, masks.1))
                 .insert(ActiveEvents::COLLISION_EVENTS)

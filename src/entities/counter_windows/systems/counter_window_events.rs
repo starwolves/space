@@ -23,9 +23,8 @@ use crate::{
         air_locks::{components::LockedStatus, systems::air_lock_events::AirLockCloseRequest},
         counter_windows::{
             components::{
-                CounterWindow, CounterWindowAccessLightsStatus, CounterWindowClosedTimer,
-                CounterWindowDeniedTimer, CounterWindowOpenTimer, CounterWindowSensor,
-                CounterWindowStatus,
+                close_timer, denied_timer, open_timer, CounterWindow,
+                CounterWindowAccessLightsStatus, CounterWindowSensor, CounterWindowStatus,
             },
             events::{
                 CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowSensorCollision,
@@ -52,9 +51,6 @@ pub fn counter_window_events(
         &mut CounterWindow,
         &mut Transform,
         &StaticTransform,
-        Option<&mut CounterWindowOpenTimer>,
-        Option<&mut CounterWindowDeniedTimer>,
-        Option<&mut CounterWindowClosedTimer>,
         Entity,
         &Children,
         &mut Examinable,
@@ -78,9 +74,6 @@ pub fn counter_window_events(
                 mut counter_window_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _counter_window_open_timer_option,
-                _counter_window_denied_timer_option,
-                _counter_window_closed_timer_option,
                 _counter_window_entity,
                 _children_component,
                 mut examinable_component,
@@ -126,9 +119,6 @@ pub fn counter_window_events(
                 mut counter_window_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _counter_window_open_timer_option,
-                _counter_window_denied_timer_option,
-                _counter_window_closed_timer_option,
                 _counter_window_entity,
                 _children_component,
                 mut examinable_component,
@@ -177,9 +167,6 @@ pub fn counter_window_events(
                 mut counter_window_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _counter_window_open_timer_option,
-                _counter_window_denied_timer_option,
-                _counter_window_closed_timer_option,
                 _counter_window_entity,
                 _children_component,
                 mut examinable_component,
@@ -227,9 +214,6 @@ pub fn counter_window_events(
         mut counter_window_component,
         mut rigid_body_position_component,
         static_transform_component,
-        counter_window_open_timer_option,
-        counter_window_denied_timer_option,
-        counter_window_closed_timer_option,
         counter_window_entity,
         _children_component,
         _examinable_component,
@@ -257,11 +241,11 @@ pub fn counter_window_events(
             LockedStatus::None => {}
         }
 
-        match counter_window_open_timer_option {
-            Some(mut timer_component) => {
-                if timer_component.timer.finished() == true {
-                    timer_component.timer.pause();
-                    timer_component.timer.reset();
+        match counter_window_component.open_timer.as_mut() {
+            Some(timer_component) => {
+                if timer_component.finished() == true {
+                    timer_component.pause();
+                    timer_component.reset();
 
                     close_requests.push(AirLockCloseRequest {
                         interacter_option: None,
@@ -272,11 +256,11 @@ pub fn counter_window_events(
             None => {}
         }
 
-        match counter_window_closed_timer_option {
-            Some(mut timer_component) => {
-                if timer_component.timer.finished() == true {
-                    timer_component.timer.pause();
-                    timer_component.timer.reset();
+        match counter_window_component.closed_timer.as_mut() {
+            Some(timer_component) => {
+                if timer_component.finished() == true {
+                    timer_component.pause();
+                    timer_component.reset();
 
                     let mut counter_window_rigid_body_position =
                         rigid_body_position_component.clone();
@@ -304,11 +288,11 @@ pub fn counter_window_events(
             None => {}
         }
 
-        match counter_window_denied_timer_option {
-            Some(mut timer_component) => {
-                if timer_component.timer.finished() == true {
-                    timer_component.timer.pause();
-                    timer_component.timer.reset();
+        match counter_window_component.denied_timer.as_mut() {
+            Some(timer_component) => {
+                if timer_component.finished() == true {
+                    timer_component.pause();
+                    timer_component.reset();
 
                     counter_window_component.access_lights =
                         CounterWindowAccessLightsStatus::Neutral;
@@ -365,9 +349,6 @@ pub fn counter_window_events(
                 counter_window_component,
                 _rigid_body_position_component,
                 _static_transform_component,
-                _counter_window_open_timer_option,
-                _counter_window_denied_timer_option,
-                _counter_window_closed_timer_option,
                 _counter_window_entity,
                 _children_component,
                 _examinable_component,
@@ -401,7 +382,6 @@ pub fn counter_window_events(
         let mut counter_window_component;
         let mut counter_window_rigid_body_position_component;
         let counter_window_static_transform_component;
-        let counter_window_closed_timer_option;
         let children;
 
         match counter_window_components_result {
@@ -409,8 +389,7 @@ pub fn counter_window_events(
                 counter_window_component = result.0;
                 counter_window_rigid_body_position_component = result.1;
                 counter_window_static_transform_component = result.2;
-                counter_window_closed_timer_option = result.5;
-                children = result.7;
+                children = result.4;
             }
             Err(_err) => {
                 continue;
@@ -425,23 +404,28 @@ pub fn counter_window_events(
             LockedStatus::None => {}
         }
 
-        let mut opened_sensor = Entity::from_bits(0);
+        let mut opened_sensor_option = None;
 
         for child in children.iter() {
-            opened_sensor = *child;
-            break;
+            match counter_window_sensor_query.get(*child) {
+                Ok(_) => {
+                    opened_sensor_option = Some(*child);
+
+                    break;
+                }
+                Err(_) => {}
+            }
             // Should only have one child.
         }
 
-        let counter_window_sensor_components_result =
-            counter_window_sensor_query.get_component::<CounterWindowSensor>(opened_sensor);
-        let counter_window_sensor_component;
+        let _opened_sensor;
 
-        match counter_window_sensor_components_result {
-            Ok(counter_window_sensor) => {
-                counter_window_sensor_component = counter_window_sensor;
+        match opened_sensor_option {
+            Some(t) => {
+                _opened_sensor = t;
             }
-            Err(_err) => {
+            None => {
+                warn!("Couldnt find child yo!");
                 continue;
             }
         }
@@ -479,10 +463,10 @@ pub fn counter_window_events(
             }
         }
 
-        match counter_window_closed_timer_option {
-            Some(mut counter_window_closed_timer) => {
-                counter_window_closed_timer.timer.pause();
-                counter_window_closed_timer.timer.reset();
+        match counter_window_component.closed_timer.as_mut() {
+            Some(counter_window_closed_timer) => {
+                counter_window_closed_timer.pause();
+                counter_window_closed_timer.reset();
             }
             None => {}
         }
@@ -530,15 +514,11 @@ pub fn counter_window_events(
             counter_window_rigid_body_position_component.translation =
                 counter_window_rigid_body_position.translation;
 
-            commands
-                .entity(counter_window_sensor_component.parent)
-                .insert(CounterWindowOpenTimer::default());
+            counter_window_component.open_timer = Some(open_timer())
         } else {
             counter_window_component.access_lights = CounterWindowAccessLightsStatus::Denied;
 
-            commands
-                .entity(counter_window_sensor_component.parent)
-                .insert(CounterWindowDeniedTimer::default());
+            counter_window_component.denied_timer = Some(denied_timer());
 
             let sfx_entity = commands
                 .spawn()
@@ -556,10 +536,7 @@ pub fn counter_window_events(
                 mut counter_window_component,
                 rigid_body_position_component,
                 _static_transform_component,
-                _counter_window_open_timer_option,
-                _counter_window_denied_timer_option,
-                _counter_window_closed_timer_option,
-                counter_window_entity,
+                _counter_window_entity,
                 _children_component,
                 _examinable_component,
             )) => {
@@ -627,9 +604,7 @@ pub fn counter_window_events(
                 atmospherics.blocked = true;
                 atmospherics.forces_push_up = false;
 
-                commands
-                    .entity(counter_window_entity)
-                    .insert(CounterWindowClosedTimer::default());
+                counter_window_component.closed_timer = Some(close_timer());
             }
             Err(_rr) => {}
         }

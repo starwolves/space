@@ -17,10 +17,24 @@ pub fn counter_window_tick_timers(
     mut commands: Commands,
 ) {
     for mut counter_window_component in counter_windows.iter_mut() {
-        counter_window_component.timer.tick(time.delta());
-        counter_window_component.denied_timer.tick(time.delta());
-        counter_window_component.open_timer.tick(time.delta());
-        counter_window_component.closed_timer.tick(time.delta());
+        match counter_window_component.denied_timer.as_mut() {
+            Some(x) => {
+                x.tick(time.delta());
+            }
+            None => {}
+        }
+        match counter_window_component.open_timer.as_mut() {
+            Some(x) => {
+                x.tick(time.delta());
+            }
+            None => {}
+        }
+        match counter_window_component.closed_timer.as_mut() {
+            Some(x) => {
+                x.tick(time.delta());
+            }
+            None => {}
+        }
     }
 
     let mut expired_sfx_entities: Vec<Entity> = vec![];
