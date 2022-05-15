@@ -34,9 +34,9 @@ pub fn server_is_live() {
     info!("Live.");
 }
 
-pub struct CorePlugin;
+pub struct LivePlugin;
 
-impl Plugin for CorePlugin {
+impl Plugin for LivePlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(
             server_is_live
@@ -166,7 +166,7 @@ impl Plugin for SpacePlugin {
             .add_plugin(TabActionsPlugin)
             .add_plugin(ConstructionToolAdminPlugin)
             .add_plugin(NetworkingPlugin)
-            .add_plugin(CorePlugin)
+            .add_plugin(LivePlugin)
             .add_plugin(PhysicsPlugin)
             .add_plugin(HumanoidPlugin)
             .add_plugin(RigidBodyPlugin)

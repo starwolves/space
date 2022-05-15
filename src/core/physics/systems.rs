@@ -26,7 +26,6 @@ pub fn physics_events(
         match collision_event {
             CollisionEvent::Started(collider1_handle, collider2_handle, _flags) => {
                 let collider1_parent;
-
                 match parents.get(*collider1_handle) {
                     Ok(parent_component) => {
                         collider1_parent = parent_component.0;
