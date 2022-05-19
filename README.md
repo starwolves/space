@@ -13,7 +13,7 @@
 
 ## Description
 
-*Space Frontiers is an online multiplayer game in which players find themselves in a large spaceship operations crew who have to work together to run and maintain a spaceship. Crew members are assigned different roles with different levels of responsbilities and authorization. The manned spaceship will be tasked to jump from sector to sector which triggers random events; events will include player antagonists, traitor roles, alien investations and more. Therefore player communication is key, putting emphasis on the chat with optional roleplay features. A wide variety of simulated spaceship and gameplay elements will be included to ensure these scenarios will be as fun as possible.*
+*Space Frontiers is an online multiplayer game in which players find themselves in a large spaceship operations crew who have to work together to run and maintain a spaceship. Crew members are assigned different roles with different levels of responsibilities and authorization. The manned spaceship will be tasked to jump from sector to sector which triggers random events; events will include player antagonists, traitor roles, alien infestations and more. Therefore player communication is key, putting emphasis on the chat with optional roleplay features. A wide variety of simulated spaceship and gameplay elements will be included to ensure these scenarios will be as fun as possible.*
 
 The repository of a modular and moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official closed-source Space Frontiers client. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
 
