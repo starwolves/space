@@ -23,6 +23,8 @@ You can see gameplay videos of Space Frontiers on [YouTube](https://www.youtube.
 
 There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) available for code contributors or modders.
 
+Check out our [Github project workspace](https://github.com/starwolves/space/projects/1) for upcoming improvements to the game!
+
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own server. 👑
 * Parallelized Entity Component System architecture. 📡
