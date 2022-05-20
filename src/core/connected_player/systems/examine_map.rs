@@ -136,7 +136,7 @@ pub fn examine_map(
                         + "\n"
                         + "Ship Engineer Knowledge: [/color]"
                         + "\n"
-                        + "Reference code shows coordinates ("
+                        + "Reference shows coordinates ("
                         + &examine_event.gridmap_cell_id.x.to_string()
                         + " , "
                         + &examine_event.gridmap_cell_id.z.to_string()
