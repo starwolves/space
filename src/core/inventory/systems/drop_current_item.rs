@@ -4,6 +4,7 @@ use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::{Commands, Query, Res},
 };
+use bevy_hierarchy::Children;
 use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::{
@@ -50,8 +51,9 @@ pub fn drop_current_item<'a>(
         &mut GravityScale,
         &mut ExternalForce,
         &mut RigidBodyLinkTransform,
-        &mut CollisionGroups,
+        &Children,
     )>,
+    mut collision_groups: Query<&mut CollisionGroups>,
     mut commands: Commands,
     mut net_drop_current_item: EventWriter<NetDropCurrentItem>,
     handle_to_entity: Res<HandleToEntity>,
@@ -206,7 +208,7 @@ pub fn drop_current_item<'a>(
             mut pickupable_rigidbody_gravity,
             mut _pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
-            mut pickupable_rigidbody_collision_groups,
+            children,
         ) = q.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query. (1)");
 
@@ -214,9 +216,32 @@ pub fn drop_current_item<'a>(
         pickupable_world_mode_component.mode = WorldModes::Physics;
         inventory_item_component.in_inventory_of_entity = None;
 
+        let mut collision_child_option = None;
+
+        for child in children.iter() {
+            match collision_groups.get(*child) {
+                Ok(_r) => {
+                    collision_child_option = Some(*child);
+                }
+                Err(_rr) => {}
+            }
+        }
+
+        let mut group;
+
+        match collision_child_option {
+            Some(collision_entity) => {
+                group = collision_groups.get_mut(collision_entity).unwrap();
+            }
+            None => {
+                warn!("Couldnt find collider child!");
+                break;
+            }
+        }
+
         enable_rigidbody(
             &mut pickupable_rigidbody_activation,
-            &mut pickupable_rigidbody_collision_groups,
+            &mut group,
             &mut pickupable_rigidbody_gravity,
             &mut commands,
             pickupable_entity,

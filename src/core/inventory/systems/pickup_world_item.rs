@@ -3,7 +3,8 @@ use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::{Commands, Query, Res},
 };
-use bevy_log::warn;
+use bevy_hierarchy::Children;
+use bevy_log::{warn};
 use bevy_math::Vec3;
 use bevy_rapier3d::{
     plugin::RapierContext,
@@ -38,11 +39,12 @@ pub fn pickup_world_item<'a>(
     mut q: Query<(
         &mut WorldMode,
         &mut Sleeping,
-        &mut CollisionGroups,
+        &Children,
         &mut ExternalForce,
         &EntityData,
         &mut GravityScale,
     )>,
+    mut collision_groups: Query<&mut CollisionGroups>,
     rigidbody_positions: Query<&Transform>,
     mut commands: Commands,
     mut net_pickup_world_item: EventWriter<NetPickupWorldItem>,
@@ -53,6 +55,9 @@ pub fn pickup_world_item<'a>(
     cell_query: Query<&Cell>,
 ) {
     for event in use_world_item_events.iter() {
+
+
+
         let pickuper_components_option = inventory_entities.get_mut(event.pickuper_entity);
         let pickuper_components;
 
@@ -121,6 +126,7 @@ pub fn pickup_world_item<'a>(
             &gridmap_data,
             false,
         ) {
+            warn!("cant reahc m8");
             continue;
         }
 
@@ -138,15 +144,37 @@ pub fn pickup_world_item<'a>(
 
         let mut pickupable_world_mode = pickupable_entities_components.0;
         let mut pickupable_rigid_body_activation = pickupable_entities_components.1;
-        let mut pickupable_collider_bundle = pickupable_entities_components.2;
+        let children = pickupable_entities_components.2;
         let mut _pickupable_rigid_body_forces = pickupable_entities_components.3;
         let mut pickupable_rigid_body_gravity = pickupable_entities_components.5;
 
         let pickupable_entity_data = pickupable_entities_components.4;
 
+        let mut collision_entity_option = None;
+
+        for child in children.iter() {
+            match collision_groups.get(*child) {
+                Ok(_col) => {
+                    collision_entity_option = Some(child);
+                    break;
+                }
+                Err(_rr) => {}
+            }
+        }
+
+        let mut collision_group;
+
+        match collision_entity_option {
+            Some(ent) => collision_group = collision_groups.get_mut(*ent).unwrap(),
+            None => {
+                warn!("couldnt find collider child");
+                break;
+            }
+        }
+
         disable_rigidbody(
             &mut pickupable_rigid_body_activation,
-            &mut pickupable_collider_bundle,
+            &mut collision_group,
             &mut pickupable_rigid_body_gravity,
             &mut commands,
             pickupable_entity,
