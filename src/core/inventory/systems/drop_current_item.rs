@@ -2,14 +2,15 @@ use std::collections::HashMap;
 
 use bevy_ecs::{
     event::{EventReader, EventWriter},
+    prelude::With,
     system::{Commands, Query, Res},
 };
-use bevy_hierarchy::Children;
+use bevy_hierarchy::{Children, Parent};
 use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::{
     plugin::RapierContext,
-    prelude::{CollisionGroups, ExternalForce, GravityScale, Sleeping},
+    prelude::{Collider, CollisionGroups, ExternalForce, GravityScale, Sleeping},
 };
 use bevy_transform::components::Transform;
 
@@ -53,6 +54,8 @@ pub fn drop_current_item<'a>(
         &mut RigidBodyLinkTransform,
         &Children,
     )>,
+    colliders: Query<&Parent, With<Collider>>,
+
     mut collision_groups: Query<&mut CollisionGroups>,
     mut commands: Commands,
     mut net_drop_current_item: EventWriter<NetDropCurrentItem>,
@@ -181,6 +184,7 @@ pub fn drop_current_item<'a>(
                 &gridmap_main,
                 &gridmap_data,
                 true,
+                &colliders,
             ) {
                 continue;
             }

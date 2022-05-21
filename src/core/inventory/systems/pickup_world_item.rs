@@ -1,14 +1,15 @@
 use bevy_ecs::{
     entity::Entity,
     event::{EventReader, EventWriter},
+    prelude::With,
     system::{Commands, Query, Res},
 };
-use bevy_hierarchy::Children;
-use bevy_log::{warn};
+use bevy_hierarchy::{Children, Parent};
+use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::{
     plugin::RapierContext,
-    prelude::{CollisionGroups, ExternalForce, GravityScale, Sleeping},
+    prelude::{Collider, CollisionGroups, ExternalForce, GravityScale, Sleeping},
 };
 use bevy_transform::prelude::Transform;
 
@@ -45,6 +46,7 @@ pub fn pickup_world_item<'a>(
         &mut GravityScale,
     )>,
     mut collision_groups: Query<&mut CollisionGroups>,
+    colliders: Query<&Parent, With<Collider>>,
     rigidbody_positions: Query<&Transform>,
     mut commands: Commands,
     mut net_pickup_world_item: EventWriter<NetPickupWorldItem>,
@@ -55,9 +57,6 @@ pub fn pickup_world_item<'a>(
     cell_query: Query<&Cell>,
 ) {
     for event in use_world_item_events.iter() {
-
-
-
         let pickuper_components_option = inventory_entities.get_mut(event.pickuper_entity);
         let pickuper_components;
 
@@ -125,6 +124,7 @@ pub fn pickup_world_item<'a>(
             &gridmap_main,
             &gridmap_data,
             false,
+            &colliders,
         ) {
             warn!("cant reahc m8");
             continue;

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_hierarchy::BuildChildren;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Dominance, ExternalForce, ExternalImpulse,
@@ -120,14 +121,18 @@ impl HumanMaleBundle {
                     .insert(this_transform)
                     .insert(Velocity::default())
                     .insert(ExternalForce::default())
-                    .insert(collider)
                     .insert(Dominance::group(10))
                     .insert(LockedAxes::ROTATION_LOCKED)
-                    .insert(CollisionGroups::new(masks.0, masks.1))
                     .insert(ExternalImpulse::default())
                     .insert(Sleeping::default())
                     .insert(GravityScale::default())
-                    .insert(friction);
+                    .with_children(|children| {
+                        children
+                            .spawn()
+                            .insert(collider)
+                            .insert(CollisionGroups::new(masks.0, masks.1))
+                            .insert(friction);
+                    });
             }
         }
 

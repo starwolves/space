@@ -1,10 +1,16 @@
 use bevy_ecs::{
     entity::Entity,
+    prelude::With,
     system::{Query, Res},
 };
+use bevy_hierarchy::Parent;
 use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_rapier3d::{parry::query::Ray, plugin::RapierContext, prelude::InteractionGroups};
+use bevy_rapier3d::{
+    parry::query::Ray,
+    plugin::RapierContext,
+    prelude::{Collider, InteractionGroups},
+};
 
 use crate::core::{
     gridmap::{
@@ -35,6 +41,7 @@ pub fn can_reach_entity(
     _world_cells: &Res<GridmapMain>,
     _gridmap_data: &Res<GridmapData>,
     no_result_is_valid: bool,
+    collider_parents: &Query<&Parent, With<Collider>>,
 ) -> bool {
     start_point.y = 1.8;
 
@@ -57,13 +64,23 @@ pub fn can_reach_entity(
         interaction_groups,
         None,
         |collided_entity, ray_intersection| {
-            if collided_entity == *reacher_entity {
+            let parent_entity;
+            match collider_parents.get(collided_entity) {
+                Ok(s) => {
+                    parent_entity = s.0;
+                }
+                Err(_rr) => {
+                    parent_entity = collided_entity;
+                }
+            }
+
+            if parent_entity == *reacher_entity {
                 return true;
             }
 
             let hit_cell;
 
-            match cells_query.get(collided_entity) {
+            match cells_query.get(parent_entity) {
                 Ok(cell_id) => {
                     hit_cell = Some(cell_id.id);
                 }
@@ -74,9 +91,9 @@ pub fn can_reach_entity(
 
             let hit_entity;
 
-            match health_entities_query.get(collided_entity) {
+            match health_entities_query.get(parent_entity) {
                 Ok(h) => {
-                    hit_entity = Some((collided_entity, h.is_reach_obstacle));
+                    hit_entity = Some((parent_entity, h.is_reach_obstacle));
                 }
                 Err(_rr) => {
                     hit_entity = None;
