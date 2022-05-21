@@ -47,15 +47,14 @@ use self::{
     events::{NetGridmapUpdates, NetProjectileFOV, ProjectileFOV, RemoveCell},
     resources::SpawnPoints,
     systems::{
-        gridmap_updates::gridmap_updates, projectile_fov::projectile_fov, remove_cell::remove_cell,
-        senser_update_fov::senser_update_fov, sensing_ability::gridmap_sensing_ability,
+        gridmap_updates::gridmap_updates, net_system::net_system, projectile_fov::projectile_fov,
+        remove_cell::remove_cell, senser_update_fov::senser_update_fov,
+        sensing_ability::gridmap_sensing_ability,
     },
 };
 
 use super::{
-    atmospherics::systems::{
-        net_system::net_system, rigidbody_forces_atmospherics::AdjacentTileDirection,
-    },
+    atmospherics::systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
     configuration::resources::{ServerId, TickRate},
     entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1,
     examinable::components::RichName,
@@ -1031,13 +1030,6 @@ impl Plugin for GridmapPlugin {
             .init_resource::<GridmapData>()
             .init_resource::<DoryenMap>()
             .init_resource::<SpawnPoints>()
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(
-                        FixedTimestep::step(1. / 2.).with_label(INTERPOLATION_LABEL1),
-                    )
-                    .with_system(gridmap_updates),
-            )
             .add_event::<NetGridmapUpdates>()
             .add_event::<ProjectileFOV>()
             .add_system(senser_update_fov)
@@ -1059,7 +1051,9 @@ impl Plugin for GridmapPlugin {
             )
             .add_system_set(
                 SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(1. / 4.))
+                    .with_run_criteria(
+                        FixedTimestep::step(1. / 4.).with_label(INTERPOLATION_LABEL1),
+                    )
                     .with_system(gridmap_updates),
             )
             .init_resource::<GridmapMain>()

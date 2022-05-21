@@ -22,7 +22,6 @@ pub fn gridmap_updates(
 ) {
     for (cell_id, cell_update) in gridmap_main.updates.iter_mut() {
         let cell_coords = to_doryen_coordinates(cell_id.x, cell_id.z);
-
         for (senser_entity, senser_component, connected_player_component) in sensers.iter() {
             if connected_player_component.connected
                 && !cell_update.entities_received.contains(&senser_entity)

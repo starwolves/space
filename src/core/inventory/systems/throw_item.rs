@@ -63,6 +63,7 @@ pub fn throw_item(
         &mut RigidBodyLinkTransform,
         &mut GravityScale,
     )>,
+    mut external_impulses: Query<&mut ExternalImpulse>,
     mut collision_groups: Query<&mut CollisionGroups>,
     mut commands: Commands,
     mut net_throw_item: EventWriter<NetThrowItem>,
@@ -243,7 +244,7 @@ pub fn throw_item(
         impulse *= inventory_item_component.throw_force_factor;
         impulse_absolute *= inventory_item_component.throw_force_factor;
 
-        match pickupable_entities.get_component_mut::<ExternalImpulse>(pickupable_entity) {
+        match external_impulses.get_mut(pickupable_entity) {
             Ok(mut external_force_component) => {
                 external_force_component.impulse = impulse;
             }
@@ -252,7 +253,7 @@ pub fn throw_item(
 
         if pickuper_components.5.is_some() {
             // Thrower has zerogravity, apply inverse impulse energy.
-            match pickupable_entities.get_component_mut::<ExternalImpulse>(pickuper_components.6) {
+            match external_impulses.get_mut(pickuper_components.6) {
                 Ok(mut s) => {
                     s.impulse = -impulse_absolute;
                 }
