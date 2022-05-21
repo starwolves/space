@@ -5,6 +5,7 @@ use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::{Commands, Query, Res, ResMut},
 };
+use bevy_hierarchy::Children;
 use bevy_log::warn;
 use bevy_math::Vec3;
 
@@ -57,12 +58,12 @@ pub fn throw_item(
         &mut InventoryItem,
         &mut WorldMode,
         &mut Sleeping,
-        &mut CollisionGroups,
+        &Children,
         &mut ExternalForce,
         &mut RigidBodyLinkTransform,
         &mut GravityScale,
-        &mut ExternalImpulse,
     )>,
+    mut collision_groups: Query<&mut CollisionGroups>,
     mut commands: Commands,
     mut net_throw_item: EventWriter<NetThrowItem>,
     gridmap_main: Res<GridmapMain>,
@@ -116,11 +117,10 @@ pub fn throw_item(
             mut inventory_item_component,
             mut pickupable_world_mode_component,
             mut pickupable_rigidbody_activation,
-            mut pickupable_rigidbody_collider_flags,
-            mut _pickupable_rigidbody_forces,
+            children,
+            mut _external_force_component,
             mut pickupable_rigidbody_link_transform_component,
             mut gravity_component,
-            mut _external_impulse,
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
 
@@ -131,9 +131,30 @@ pub fn throw_item(
         pickupable_world_mode_component.mode = WorldModes::Physics;
         inventory_item_component.in_inventory_of_entity = None;
 
+        let mut collider_child_option = None;
+
+        for child in children.iter() {
+            match collision_groups.get(*child) {
+                Ok(_l) => collider_child_option = Some(child),
+                Err(_rr) => {}
+            }
+        }
+
+        let mut collider_groups;
+
+        match collider_child_option {
+            Some(ent) => {
+                collider_groups = collision_groups.get_mut(*ent).unwrap();
+            }
+            None => {
+                warn!("Couldnt find collider child.");
+                break;
+            }
+        }
+
         enable_rigidbody(
             &mut pickupable_rigidbody_activation,
-            &mut pickupable_rigidbody_collider_flags,
+            &mut collider_groups,
             &mut gravity_component,
             &mut commands,
             pickupable_entity,

@@ -237,9 +237,6 @@ fn spawn_entity(
             ..Default::default()
         },
         EntityUpdates::default(),
-        WorldMode {
-            mode: WorldModes::Physics,
-        },
         CachedBroadcastTransform::default(),
         Examinable {
             assigned_texts: examine_map,
