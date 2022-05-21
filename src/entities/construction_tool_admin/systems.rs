@@ -174,9 +174,7 @@ pub fn construction_tool(
                                 });
                             }
                         }
-                        None => {
-                            warn!("Couldn't find handle for entity!");
-                        }
+                        None => {}
                     }
                 }
             }
@@ -284,9 +282,7 @@ pub fn construction_tool(
                                 });
                             }
                         }
-                        None => {
-                            warn!("Couldn't find handle for entity! (1)");
-                        }
+                        None => {}
                     }
                 }
             }
@@ -500,9 +496,7 @@ pub fn construction_tool(
                                 });
                             }
                         }
-                        None => {
-                            warn!("Couldn't find handle for entity! (1)");
-                        }
+                        None => {}
                     }
                 }
             }
@@ -1091,7 +1085,7 @@ pub fn construction_tool(
                             }
                         }
                         None => {
-                            warn!("Couldn't find handle for entity! (1)");
+                            warn!("Couldn't find handle for entity! (3)");
                         }
                     }
                 }

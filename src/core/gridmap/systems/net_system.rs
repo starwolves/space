@@ -1,16 +1,14 @@
-
-use bevy_app::EventReader;
-use bevy_ecs::system::{Query, Res, ResMut};
+use bevy_ecs::{
+    event::EventReader,
+    system::{Query, Res, ResMut},
+};
 use bevy_networking_turbulence::NetworkResource;
 
 use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    networking::{
-        resources::{GridMapType, NetProjectileType, ReliableServerMessage},
-        send_net, NetEvent,
-    },
+    gridmap::events::{NetGridmapUpdates, NetProjectileFOV},
+    networking::{send_net, NetEvent},
 };
-
 
 pub fn net_system(
     mut net: ResMut<NetworkResource>,
