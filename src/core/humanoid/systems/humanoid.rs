@@ -4,14 +4,15 @@ use bevy_core::Time;
 use bevy_ecs::{
     entity::Entity,
     event::EventWriter,
-    prelude::Without,
+    prelude::{With, Without},
     system::{Commands, Query, Res},
 };
+use bevy_hierarchy::Children;
 use bevy_log::warn;
 use bevy_math::{Quat, Vec2, Vec3};
 use bevy_rapier3d::{
     na::UnitQuaternion,
-    prelude::{CoefficientCombineRule, Dominance, ExternalForce, Friction, Velocity},
+    prelude::{CoefficientCombineRule, Collider, Dominance, ExternalForce, Friction, Velocity},
 };
 use bevy_transform::prelude::Transform;
 
@@ -75,11 +76,12 @@ pub fn humanoids(
             &mut Pawn,
             &Inventory,
             Option<&ZeroGravity>,
-            &mut Friction,
             &RigidBodyData,
+            &Children,
         ),
         Without<Showcase>,
     >,
+    mut colliders: Query<&mut Friction, With<Collider>>,
     inventory_items_query: Query<(&InventoryItem, &Examinable)>,
     mut footsteps_query: Query<(
         Option<&FootstepsWalking>,
@@ -110,10 +112,33 @@ pub fn humanoids(
         mut pawn_component,
         inventory_component,
         zero_gravity_component_option,
-        mut collider_material_component,
         rigidbody_data_component,
+        children,
     ) in humanoids_query.iter_mut()
     {
+        let mut collider_child_entity_option = None;
+
+        for child in children.iter() {
+            match colliders.get(*child) {
+                Ok(_f) => {
+                    collider_child_entity_option = Some(*child);
+                }
+                Err(_rr) => {}
+            }
+        }
+
+        let mut collider_material_component;
+
+        match collider_child_entity_option {
+            Some(c) => {
+                collider_material_component = colliders.get_mut(c).unwrap();
+            }
+            None => {
+                warn!("Couldnt find collider child of pawn.");
+                continue;
+            }
+        }
+
         let movement_options = PawnYAxisRotations::new();
 
         let character_movement_state;
