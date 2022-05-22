@@ -84,6 +84,8 @@ Contributors of this project have to agree to our [Collaberative License Agreeme
 
 It is recommended to develop on the latest snapshot branch and to submit pull requests. Snapshot branches get regularly merged with the master branch. Each time a merge with the master branch occurs a new snapshot releases. To stay up to date with this process check out our [Discord](https://discord.gg/yYpMun9CTT) and our [Github project workspace](https://github.com/starwolves/space/projects/1).
 
+![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
+
 ## License
 
 This repository is licensed under a [special license](https://github.com/starwolves/space/blob/master/LICENSE).
