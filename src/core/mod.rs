@@ -56,7 +56,7 @@ use bevy_render::{settings::WgpuSettings, RenderPlugin};
 use bevy_transform::TransformPlugin;
 use bevy_window::WindowPlugin;
 
-use self::{humanoid::HumanoidPlugin, physics::PhysicsPlugin};
+use self::{humanoid::HumanoidPlugin, physics::PhysicsPlugin, rigid_body::RigidBodyPlugin};
 
 use super::{
     core::{
@@ -65,9 +65,8 @@ use super::{
         configuration::ConfigurationPlugin, connected_player::ConnectedPlayerPlugin,
         console_commands::ConsoleCommandsPlugin, entity::EntityPlugin, gridmap::GridmapPlugin,
         health::HealthPlugin, inventory::InventoryPlugin, inventory_item::InventoryItemPlugin,
-        map::MapPlugin, networking::NetworkingPlugin, pawn::PawnPlugin,
-        rigid_body::systems::RigidBodyPlugin, senser::SenserPlugin, sfx::SfxPlugin,
-        tab_actions::TabActionsPlugin, world_environment::WorldEnvironmentPlugin,
+        map::MapPlugin, networking::NetworkingPlugin, pawn::PawnPlugin, senser::SenserPlugin,
+        sfx::SfxPlugin, tab_actions::TabActionsPlugin, world_environment::WorldEnvironmentPlugin,
     },
     entities::{
         air_locks::AirLocksPlugin,
