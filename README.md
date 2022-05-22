@@ -80,9 +80,9 @@ Feedback, bug reports, suggestions and critique are very much appreciated. Githu
 
 The hopes are to financially reward and/or hire the most suitable people for their contributions in the much further future.
 
-All contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on Github.
+Contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on Github.
 
-If you are interested on contributing you can get more information on which branch to work on and what changes to expect on Discord.
+It is recommended to develop on the latest snapshot branch and to submit pull requests. Snapshot branches get regularly merged with the master branch. Each time a merge with the master branch occurs a new snapshot releases. To stay up to date with this process check out our [Discord](https://discord.gg/yYpMun9CTT) and our [Github project workspace](https://github.com/starwolves/space/projects/1).
 
 ## License
 
