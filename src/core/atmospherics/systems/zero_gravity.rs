@@ -1,8 +1,11 @@
 use bevy_ecs::{
     entity::Entity,
+    prelude::With,
     system::{Commands, Query, Res},
 };
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Friction};
+use bevy_hierarchy::Children;
+use bevy_log::warn;
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
@@ -16,9 +19,10 @@ pub fn zero_gravity(
         Entity,
         &Transform,
         Option<&ZeroGravity>,
-        &mut Friction,
+        &Children,
         &RigidBodyData,
     )>,
+    mut colliders: Query<&mut Friction, With<Collider>>,
     gridmap_main: Res<GridmapMain>,
     mut commands: Commands,
 ) {
@@ -26,10 +30,34 @@ pub fn zero_gravity(
         rigidbody_entity,
         rigidbody_position_component,
         zero_gravity_component_option,
-        mut collider_material_component,
+        children,
         rigidbody_data_component,
     ) in rigid_bodies.iter_mut()
     {
+        let mut collider_child_entity_option = None;
+
+        for child in children.iter() {
+            match colliders.get(*child) {
+                Ok(_friction_component) => {
+                    collider_child_entity_option = Some(child);
+                    break;
+                }
+                Err(_rr) => {}
+            }
+        }
+
+        let mut collider_material_component;
+
+        match collider_child_entity_option {
+            Some(ent) => {
+                collider_material_component = colliders.get_mut(*ent).unwrap();
+            }
+            None => {
+                warn!("Couldnt find collider child!");
+                continue;
+            }
+        }
+
         let mut cell_id = world_to_cell_id(rigidbody_position_component.translation.into());
 
         cell_id.y = -1;

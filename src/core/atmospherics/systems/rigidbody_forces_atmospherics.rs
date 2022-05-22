@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use bevy_ecs::{
     entity::Entity,
+    prelude::Without,
     system::{Query, Res, ResMut},
 };
 use bevy_math::Vec3;
@@ -18,12 +19,13 @@ use crate::core::{
         resources::{GridmapMain, Vec2Int, FOV_MAP_WIDTH},
     },
     pawn::components::Pawn,
+    rigid_body::components::RigidBodyDisabled,
 };
 
 use super::diffusion::DIFFUSION_STEP;
 
-const ATMOSPHERICS_FORCES_SENSITIVITY_PAWN: f32 = 50.;
-const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 300.;
+const ATMOSPHERICS_FORCES_SENSITIVITY_PAWN: f32 = 100.;
+const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 1250.;
 
 const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 1.;
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX: f32 = 8.;
@@ -43,7 +45,10 @@ pub enum AdjacentTileDirection {
 }
 
 pub fn rigidbody_forces_accumulation(
-    mut rigid_bodies: Query<(Entity, &Transform, &ExternalForce, Option<&Pawn>, &Velocity)>,
+    mut rigid_bodies: Query<
+        (Entity, &Transform, &ExternalForce, Option<&Pawn>, &Velocity),
+        Without<RigidBodyDisabled>,
+    >,
     atmospherics_resource: Res<AtmosphericsResource>,
     mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,
     gridmap_main: Res<GridmapMain>,

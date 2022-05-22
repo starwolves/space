@@ -836,7 +836,6 @@ pub fn humanoids(
             if should_apply {
                 let rapier_vector = netto_force.into();
                 if rigid_body_forces.force != rapier_vector {
-                    //info!("{}",rapier_vector * (1. / tick_rate.rate as f32));
                     rigid_body_forces.force = rapier_vector * (1. / tick_rate.rate as f32);
                 }
             }
