@@ -143,7 +143,7 @@ pub fn rcon_spawn_held_entity(
                                         + CONSOLE_ERROR_COLOR
                                         + "]Unknown entity name \""
                                         + &entity_name
-                                        + " \" was provided.[/color]",
+                                        + "\" was provided.[/color]",
                                 ),
                             });
                         }
