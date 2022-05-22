@@ -1084,9 +1084,7 @@ pub fn construction_tool(
                                 });
                             }
                         }
-                        None => {
-                            warn!("Couldn't find handle for entity! (3)");
-                        }
+                        None => {}
                     }
                 }
             }
