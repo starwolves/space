@@ -1,8 +1,10 @@
 use bevy_ecs::{
     entity::Entity,
     event::{EventReader, EventWriter},
+    prelude::With,
     system::{Commands, Query, Res, ResMut},
 };
+use bevy_hierarchy::Parent;
 use bevy_math::{Quat, Vec3};
 use bevy_rapier3d::{
     parry::query::Ray,
@@ -61,6 +63,7 @@ pub fn attack(
     mut projectile_fov: EventWriter<ProjectileFOV>,
     sensers: Query<(Entity, &Senser)>,
     gridmap_data: Res<GridmapData>,
+    colliders: Query<&Parent, With<Collider>>,
 ) {
     for attack_event in attack_events.iter() {
         let direction_additive = Vec3::new(-attack_event.angle.cos(), 0., attack_event.angle.sin());
@@ -109,7 +112,18 @@ pub fn attack(
                     &Collider::cuboid(shape_vec.x, shape_vec.y, shape_vec.z),
                     interaction_groups,
                     None,
-                    |collider_entity| {
+                    |child_entity| {
+                        let collider_entity;
+
+                        match colliders.get(child_entity) {
+                            Ok(parent_entity) => {
+                                collider_entity = parent_entity.0;
+                            }
+                            Err(_rr) => {
+                                collider_entity = child_entity;
+                            }
+                        }
+
                         if collider_entity == attack_event.attacker_entity {
                             return true;
                         }
@@ -395,7 +409,18 @@ pub fn attack(
                             &Collider::cuboid(points_vec.x, points_vec.y, points_vec.z),
                             interaction_groups,
                             None,
-                            |collider_entity| {
+                            |child_entity| {
+                                let collider_entity;
+
+                                match colliders.get(child_entity) {
+                                    Ok(parent_entity) => {
+                                        collider_entity = parent_entity.0;
+                                    }
+                                    Err(_rr) => {
+                                        collider_entity = child_entity;
+                                    }
+                                }
+
                                 if collider_entity == attack_event.attacker_entity {
                                     return true;
                                 }
@@ -575,8 +600,18 @@ pub fn attack(
                                         max_toi,
                                         true,
                                         interaction_groups,
-                                        Some(&|collider_handle| {
-                                            collider_handle == attack_result.collider_handle
+                                        Some(&|child_entity| {
+                                            let collider_entity;
+
+                                            match colliders.get(child_entity) {
+                                                Ok(parent_entity) => {
+                                                    collider_entity = parent_entity.0;
+                                                }
+                                                Err(_rr) => {
+                                                    collider_entity = child_entity;
+                                                }
+                                            }
+                                            collider_entity == attack_result.collider_handle
                                         }),
                                     )
                                 {
