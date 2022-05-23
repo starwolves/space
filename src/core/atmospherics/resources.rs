@@ -27,17 +27,10 @@ impl FromWorld for AtmosphericsResource {
 
 impl AtmosphericsResource {
     pub fn is_id_out_of_range(id: Vec2Int) -> bool {
-        if id.x < -(FOV_MAP_WIDTH as i16 / 2) {
-            true
-        } else if id.x > FOV_MAP_WIDTH as i16 / 2 {
-            true
-        } else if id.y < -(FOV_MAP_WIDTH as i16 / 2) {
-            true
-        } else if id.y > FOV_MAP_WIDTH as i16 / 2 {
-            true
-        } else {
-            false
-        }
+        let half_width = FOV_MAP_WIDTH as i16 / 2;
+        let range = -half_width..half_width;
+        let in_range = range.contains(&id.x) && range.contains(&id.y);
+        !in_range
     }
 }
 

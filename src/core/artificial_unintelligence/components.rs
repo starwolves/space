@@ -51,9 +51,7 @@ impl Path {
                     cell_path[i - 1].x as f32 - cell_path[i].x as f32,
                     cell_path[i - 1].z as f32 - cell_path[i].z as f32,
                 );
-                if direction_old != direction_new {
-                    waypoints_vec.push(cell_id_to_world(cell_path[i]));
-                } else if i % WAYPOINT_PRECISION == 0 {
+                if direction_old != direction_new || i % WAYPOINT_PRECISION == 0 {
                     waypoints_vec.push(cell_id_to_world(cell_path[i]));
                 }
                 direction_old = direction_new;

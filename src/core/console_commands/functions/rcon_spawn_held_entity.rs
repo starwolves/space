@@ -95,9 +95,8 @@ pub fn rcon_spawn_held_entity(
         let mut available_slot = None;
 
         for slot in player_inventory.slots.iter_mut() {
-            if slot.slot_name == "left_hand" && matches!(slot.slot_item, None) {
-                available_slot = Some(slot);
-            } else if slot.slot_name == "right_hand" && matches!(slot.slot_item, None) {
+            let is_hand = matches!(slot.slot_name.as_str(), "left_hand" | "right_hand");
+            if is_hand && slot.slot_item.is_none() {
                 available_slot = Some(slot);
             }
         }
