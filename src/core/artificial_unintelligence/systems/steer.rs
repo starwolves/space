@@ -80,15 +80,5 @@ pub fn steer(
 
         let old_position = blob.temp_position;
         blob.temp_position = world_to_cell_id(transform.transform.translation);
-
-        if old_position != blob.temp_position && false {
-            println!("final interest map: {:?}", interest_map);
-            println!("danger map: {:?}", danger_map);
-            println!("chosen vector: {:?}", _chosen_vector);
-            blob.count = blob.count + 1;
-            if blob.count % 3 == 0 {
-                println!("{:?}), Position {:?}", blob.count, blob.temp_position);
-            }
-        }
     }
 }

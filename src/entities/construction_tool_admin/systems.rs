@@ -355,9 +355,9 @@ pub fn construction_tool(
 
                 match gridmap_type {
                     GridMapType::Main => {
-                        match &gridmap_main.grid_data.get(&cell_id_int) {
+                        match gridmap_main.grid_data.get(&cell_id_int) {
                             Some(cell_data_passed) => {
-                                cell_data = cell_data_passed.clone();
+                                cell_data = cell_data_passed;
                                 text_names_map = &gridmap_data.main_text_names;
                             }
                             None => {
@@ -369,9 +369,9 @@ pub fn construction_tool(
                         sfx_bundle = Deconstruct1SfxBundle::new(*rigid_body_position_component);
                     }
                     GridMapType::Details1 => {
-                        match &gridmap_details1.data.get(&cell_id_int) {
+                        match gridmap_details1.data.get(&cell_id_int) {
                             Some(cell_data_passed) => {
-                                cell_data = cell_data_passed.clone();
+                                cell_data = cell_data_passed;
                                 text_names_map = &gridmap_data.details1_text_names;
                             }
                             None => {
@@ -393,7 +393,7 @@ pub fn construction_tool(
                     }
                 }
 
-                let mut cell_data_clone = cell_data.clone();
+                let mut cell_data_clone = (*cell_data).clone();
                 cell_data_clone.item = -1;
 
                 deconstructed_item_name = text_names_map.get(&cell_data.item).unwrap().get_name();
