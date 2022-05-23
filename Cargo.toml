@@ -48,3 +48,9 @@ opt-level = 3
 # Compile self
 [profile.dev]
 opt-level = 1
+
+# Compile test / CI
+[profile.test]
+opt-level = 0   
+[profile.test.package."*"]
+opt-level = 0
