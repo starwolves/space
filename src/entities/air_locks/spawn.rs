@@ -30,20 +30,19 @@ use crate::{
 
 use super::functions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action};
 
+pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
 pub struct AirlockBundle;
 
 impl AirlockBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
-        _correct_transform: bool,
+        correct_transform: bool,
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
         default_map_spawn: bool,
         properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
-        let static_transform_component = entity_transform;
-
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         let mut entity_name = "";
@@ -81,9 +80,9 @@ impl AirlockBundle {
 
         let mut t = entity_transform.clone();
 
-        let collision_body_translation = Vec3::new(0., 1., 0.);
-
-        t.translation += collision_body_translation;
+        if correct_transform {
+            t.translation.y = 0.;
+        }
 
         builder
             .insert(RigidBody::Fixed)
@@ -92,71 +91,73 @@ impl AirlockBundle {
                 children
                     .spawn()
                     .insert(Collider::cuboid(1., 1., 0.2))
-                    .insert(Transform::from_translation(Vec3::new(0., 1., 0.)))
+                    .insert(Transform::from_translation(Vec3::new(
+                        0.,
+                        DEFAULT_AIR_LOCK_Y,
+                        0.,
+                    )))
                     .insert(ActiveEvents::COLLISION_EVENTS)
                     .insert(CollisionGroups::new(masks.0, masks.1));
-            });
-
-        builder.insert_bundle((
-            static_transform_component,
-            Sensable::default(),
-            AirLock {
-                access_permissions: vec![ShipAuthorizationEnum::Security],
-                ..Default::default()
-            },
-            EntityData {
-                entity_class: "entity".to_string(),
-                entity_name: entity_name.to_string(),
-                entity_group: EntityGroup::AirLock,
-            },
-            EntityUpdates::default(),
-            Examinable {
-                name: RichName {
-                    name: "bridge airlock".to_string(),
-                    n: false,
+            })
+            .insert_bundle((
+                Sensable::default(),
+                AirLock {
+                    access_permissions: vec![ShipAuthorizationEnum::Security],
                     ..Default::default()
                 },
-                assigned_texts: examine_map,
-                ..Default::default()
-            },
-            Health {
-                is_combat_obstacle: true,
-                is_reach_obstacle: true,
-                ..Default::default()
-            },
-            TabActions {
-                tab_actions: vec![
-                    TabAction {
-                        id: "actions::air_locks/toggleopen".to_string(),
-                        text: "Toggle Open".to_string(),
-                        tab_list_priority: 100,
-                        prerequisite_check: Arc::new(toggle_open_action),
-                        belonging_entity: Some(entity_id),
+                EntityData {
+                    entity_class: "entity".to_string(),
+                    entity_name: entity_name.to_string(),
+                    entity_group: EntityGroup::AirLock,
+                },
+                EntityUpdates::default(),
+                Examinable {
+                    name: RichName {
+                        name: "bridge airlock".to_string(),
+                        n: false,
+                        ..Default::default()
                     },
-                    TabAction {
-                        id: "actions::air_locks/lockopen".to_string(),
-                        text: "Lock Open".to_string(),
-                        tab_list_priority: 99,
-                        prerequisite_check: Arc::new(lock_open_action),
-                        belonging_entity: Some(entity_id),
-                    },
-                    TabAction {
-                        id: "actions::air_locks/lockclosed".to_string(),
-                        text: "Lock Closed".to_string(),
-                        tab_list_priority: 98,
-                        prerequisite_check: Arc::new(lock_closed_action),
-                        belonging_entity: Some(entity_id),
-                    },
-                    TabAction {
-                        id: "actions::air_locks/unlock".to_string(),
-                        text: "Unlock".to_string(),
-                        tab_list_priority: 97,
-                        prerequisite_check: Arc::new(unlock_action),
-                        belonging_entity: Some(entity_id),
-                    },
-                ],
-            },
-        ));
+                    assigned_texts: examine_map,
+                    ..Default::default()
+                },
+                Health {
+                    is_combat_obstacle: true,
+                    is_reach_obstacle: true,
+                    ..Default::default()
+                },
+                TabActions {
+                    tab_actions: vec![
+                        TabAction {
+                            id: "actions::air_locks/toggleopen".to_string(),
+                            text: "Toggle Open".to_string(),
+                            tab_list_priority: 100,
+                            prerequisite_check: Arc::new(toggle_open_action),
+                            belonging_entity: Some(entity_id),
+                        },
+                        TabAction {
+                            id: "actions::air_locks/lockopen".to_string(),
+                            text: "Lock Open".to_string(),
+                            tab_list_priority: 99,
+                            prerequisite_check: Arc::new(lock_open_action),
+                            belonging_entity: Some(entity_id),
+                        },
+                        TabAction {
+                            id: "actions::air_locks/lockclosed".to_string(),
+                            text: "Lock Closed".to_string(),
+                            tab_list_priority: 98,
+                            prerequisite_check: Arc::new(lock_closed_action),
+                            belonging_entity: Some(entity_id),
+                        },
+                        TabAction {
+                            id: "actions::air_locks/unlock".to_string(),
+                            text: "Unlock".to_string(),
+                            tab_list_priority: 97,
+                            prerequisite_check: Arc::new(unlock_action),
+                            belonging_entity: Some(entity_id),
+                        },
+                    ],
+                },
+            ));
 
         if default_map_spawn {
             builder.insert(DefaultMapEntity);
