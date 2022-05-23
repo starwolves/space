@@ -1,13 +1,13 @@
 use bevy_core::Time;
 use bevy_ecs::{
     entity::Entity,
-    prelude::Without,
+    prelude::{With, Without},
     system::{Local, Query, Res, ResMut},
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_networking_turbulence::NetworkResource;
-use bevy_rapier3d::prelude::Velocity;
+use bevy_rapier3d::prelude::{RigidBody, Velocity};
 use bevy_transform::components::Transform;
 
 use crate::core::{
@@ -15,7 +15,6 @@ use crate::core::{
     networking::resources::UnreliableServerMessage,
     rigid_body::components::{CachedBroadcastTransform, RigidBodyDisabled},
     sensable::components::Sensable,
-    static_body::components::StaticTransform,
 };
 
 #[derive(Debug)]
@@ -47,7 +46,7 @@ pub fn broadcast_interpolation_transforms(
             &mut CachedBroadcastTransform,
             Option<&ConnectedPlayer>,
         ),
-        (Without<StaticTransform>, Without<RigidBodyDisabled>),
+        (With<RigidBody>, Without<RigidBodyDisabled>),
     >,
     mut interpolation_frame: Local<InterpolationFrame>,
 ) {

@@ -36,8 +36,6 @@ use crate::{
         },
         rigid_body::components::RigidBodyData,
         sensable::components::Sensable,
-        sfx::components::{FootstepsSprinting, FootstepsWalking},
-        static_body::components::StaticTransform,
     },
     entities::sfx::actions::{
         footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
@@ -70,7 +68,6 @@ pub fn humanoids(
             &mut Dominance,
             &mut ExternalForce,
             &mut Humanoid,
-            &mut Transform,
             Option<&LinkedFootstepsWalking>,
             Option<&LinkedFootstepsSprinting>,
             &mut Pawn,
@@ -81,13 +78,9 @@ pub fn humanoids(
         ),
         Without<Showcase>,
     >,
+    mut transforms: Query<&mut Transform>,
     mut colliders: Query<&mut Friction, With<Collider>>,
     inventory_items_query: Query<(&InventoryItem, &Examinable)>,
-    mut footsteps_query: Query<(
-        Option<&FootstepsWalking>,
-        Option<&FootstepsSprinting>,
-        &mut StaticTransform,
-    )>,
     mut sensable_entities: Query<&mut Sensable>,
     time: Res<Time>,
     handle_to_entity: Res<HandleToEntity>,
@@ -106,7 +99,6 @@ pub fn humanoids(
         mut rigid_body_dominance,
         mut rigid_body_forces,
         mut standard_character_component,
-        mut rigid_body_position_component,
         linked_footsteps_walking_option,
         linked_footsteps_sprinting_option,
         mut pawn_component,
@@ -207,7 +199,19 @@ pub fn humanoids(
         let bevy_vec: Vec3 = rigid_body_forces.force.into();
         netto_force += bevy_vec;
 
-        let mut rigid_body_position = rigid_body_position_component.clone();
+        let mut rigid_body_position;
+        let character_pos;
+
+        match transforms.get(standard_character_entity) {
+            Ok(rigid_body_position_component) => {
+                rigid_body_position = rigid_body_position_component.clone();
+                character_pos = rigid_body_position.clone();
+            }
+            Err(_) => {
+                warn!("Couldnt find pawn transform!");
+                continue;
+            }
+        }
 
         let mut movement_index: usize = 0;
 
@@ -273,7 +277,7 @@ pub fn humanoids(
                 -standard_character_component.facing_direction - 0.5 * PI + rotation_offset,
             );
 
-            let mut rigid_body_transform = rigid_body_position_component;
+            let mut rigid_body_transform = character_pos;
 
             let slerp_rotation;
 
@@ -289,7 +293,17 @@ pub fn humanoids(
 
             rigid_body_transform.rotation = slerp_rotation;
 
-            rigid_body_position_component = rigid_body_transform;
+            match transforms.get_mut(standard_character_entity) {
+                Ok(mut rigid_body_position_component) => {
+                    rigid_body_position_component.translation = rigid_body_transform.translation;
+                    rigid_body_position_component.rotation = rigid_body_transform.rotation;
+                    rigid_body_position_component.scale = rigid_body_transform.scale;
+                }
+                Err(_) => {
+                    warn!("Couldnt find pawn transform!1");
+                    continue;
+                }
+            }
 
             let mut attacking_this_frame = false;
 
@@ -387,6 +401,18 @@ pub fn humanoids(
                 let sensable_component = sensable_entities
                     .get_mut(standard_character_entity)
                     .unwrap();
+
+                let rigid_body_position_component;
+
+                match transforms.get(standard_character_entity) {
+                    Ok(t) => {
+                        rigid_body_position_component = t;
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find pawn transform!2");
+                        continue;
+                    }
+                }
 
                 attack_event_writer.send(Attack {
                     attacker_entity: standard_character_entity,
@@ -587,9 +613,19 @@ pub fn humanoids(
                 {
                     rigid_body_position.rotation =
                         UnitQuaternion::from_quaternion(movement_options[movement_index]).into();
-                    rigid_body_position_component.translation = rigid_body_position.translation;
-                    rigid_body_position_component.rotation = rigid_body_position.rotation;
-                    rigid_body_position_component.scale = rigid_body_position.scale;
+
+                    match transforms.get_mut(standard_character_entity) {
+                        Ok(mut rigid_body_position_component) => {
+                            rigid_body_position_component.translation =
+                                rigid_body_position.translation;
+                            rigid_body_position_component.rotation = rigid_body_position.rotation;
+                            rigid_body_position_component.scale = rigid_body_position.scale;
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find pawn transform!3");
+                            continue;
+                        }
+                    }
                 }
 
                 if !player_input_component.sprinting
@@ -653,14 +689,14 @@ pub fn humanoids(
                     match linked_footsteps_walking_option {
                         Some(linked_footsteps_walking_component) => {
                             let linked_footsteps_walking =
-                                footsteps_query.get_mut(linked_footsteps_walking_component.entity);
+                                transforms.get_mut(linked_footsteps_walking_component.entity);
                             match linked_footsteps_walking {
-                                Ok((
-                                    _footsteps_walking_component,
-                                    _footsteps_sprinting_component,
-                                    mut static_transform_component,
-                                )) => {
-                                    static_transform_component.transform = rigid_body_position;
+                                Ok(mut static_transform_component) => {
+                                    static_transform_component.translation =
+                                        rigid_body_position.translation;
+                                    static_transform_component.rotation =
+                                        rigid_body_position.rotation;
+                                    static_transform_component.scale = rigid_body_position.scale;
                                 }
                                 Err(err) => {
                                     warn!("linked_footsteps_walking err: {}", err);
@@ -729,15 +765,15 @@ pub fn humanoids(
 
                     match linked_footsteps_sprinting_option {
                         Some(linked_footsteps_sprinting_component) => {
-                            let linked_footsteps_sprinting = footsteps_query
-                                .get_mut(linked_footsteps_sprinting_component.entity);
+                            let linked_footsteps_sprinting =
+                                transforms.get_mut(linked_footsteps_sprinting_component.entity);
                             match linked_footsteps_sprinting {
-                                Ok((
-                                    _footsteps_walking_component,
-                                    _footsteps_sprinting_component,
-                                    mut static_transform_component,
-                                )) => {
-                                    static_transform_component.transform = rigid_body_position;
+                                Ok(mut static_transform_component) => {
+                                    static_transform_component.translation =
+                                        rigid_body_position.translation;
+                                    static_transform_component.rotation =
+                                        rigid_body_position.rotation;
+                                    static_transform_component.scale = rigid_body_position.scale;
                                 }
                                 Err(err) => {
                                     warn!("linked_footsteps_sprinting err: {}", err);
@@ -774,6 +810,18 @@ pub fn humanoids(
                 should_apply = false;
             } else {
                 should_apply = true;
+            }
+
+            let rigid_body_position_component;
+
+            match transforms.get(standard_character_entity) {
+                Ok(t) => {
+                    rigid_body_position_component = t.clone();
+                }
+                Err(_) => {
+                    warn!("Couldnt find pawn transform!4");
+                    continue;
+                }
             }
 
             if zero_gravity_component_option.is_some() {

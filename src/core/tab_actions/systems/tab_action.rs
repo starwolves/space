@@ -21,7 +21,6 @@ use crate::core::{
     },
     inventory::components::Inventory,
     pawn::components::Pawn,
-    static_body::components::StaticTransform,
     tab_actions::{
         components::TabActions,
         events::InputTabAction,
@@ -35,11 +34,7 @@ pub fn tab_action(
     criteria_query: Query<&ConnectedPlayer, Without<SoftPlayer>>,
 
     pawns: Query<(&Pawn, &Transform, &Inventory, &DataLink)>,
-    targettable_entities: Query<(
-        Option<&Transform>,
-        Option<&StaticTransform>,
-        Option<&TabActions>,
-    )>,
+    targettable_entities: Query<(&Transform, Option<&TabActions>)>,
 
     gridmap_main_data: Res<GridmapMain>,
     entity_data_resource: Res<EntityDataResource>,
@@ -85,21 +80,8 @@ pub fn tab_action(
         match event.target_entity_option {
             Some(target_entity_bits) => {
                 match targettable_entities.get(Entity::from_bits(target_entity_bits)) {
-                    Ok((
-                        rigid_body_position_comp_option,
-                        static_transform_comp_option,
-                        tab_actions_comp_option,
-                    )) => {
-                        match static_transform_comp_option {
-                            Some(static_transform_component) => {
-                                start_pos = static_transform_component.transform.translation;
-                            }
-                            None => {
-                                start_pos =
-                                    rigid_body_position_comp_option.unwrap().translation.into();
-                            }
-                        }
-
+                    Ok((rigid_body_position, tab_actions_comp_option)) => {
+                        start_pos = rigid_body_position.translation;
                         tab_actions_component_option = tab_actions_comp_option;
                     }
                     Err(_) => {

@@ -4,6 +4,7 @@ use bevy_ecs::{
     entity::Entity,
     system::{Commands, ResMut},
 };
+use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, CollisionGroups, Friction, RigidBody};
 use bevy_transform::prelude::Transform;
@@ -134,7 +135,6 @@ pub fn build_details1_gridmap(
     }
 }
 
-// We also build cells in systems/construction_tool.rs
 pub fn spawn_main_cell(
     commands: &mut Commands,
     cell_id: Vec3Int,
@@ -147,23 +147,12 @@ pub fn spawn_main_cell(
     let mut entity_builder = commands.spawn();
     entity_builder
         .insert(RigidBody::Fixed)
-        .insert(Transform::from_translation(world_position));
+        .insert(Transform::from_translation(world_position))
+        .insert(Cell { id: cell_id });
 
     let entity_id = entity_builder.id();
 
-    let friction;
-    let friction_combine_rule;
-
-    if gridmap_data
-        .placeable_items_cells_list
-        .contains(&cell_item_id)
-    {
-        friction = 0.2;
-        friction_combine_rule = CoefficientCombineRule::Min;
-    } else {
-        friction_combine_rule = CoefficientCombineRule::Min;
-        friction = 0.;
-    }
+    let friction_combine_rule = CoefficientCombineRule::Min;
 
     let cell_properties;
     match gridmap_data.main_cell_properties.get(&cell_item_id) {
@@ -178,14 +167,17 @@ pub fn spawn_main_cell(
 
     let masks = get_bit_masks(ColliderGroup::Standard);
 
-    let mut friction_component = Friction::coefficient(friction);
+    let mut friction_component = Friction::coefficient(cell_properties.friction);
     friction_component.combine_rule = friction_combine_rule;
 
-    entity_builder
-        .insert(cell_properties.collider.clone())
-        .insert(friction_component)
-        .insert(CollisionGroups::new(masks.0, masks.1))
-        .insert(Cell { id: cell_id });
+    entity_builder.with_children(|children| {
+        children
+            .spawn()
+            .insert(cell_properties.collider.clone())
+            .insert(cell_properties.collider_position)
+            .insert(friction_component)
+            .insert(CollisionGroups::new(masks.0, masks.1));
+    });
 
     entity_id
 }

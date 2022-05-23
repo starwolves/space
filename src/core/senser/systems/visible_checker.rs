@@ -1,5 +1,7 @@
 use bevy_ecs::{change_detection::Mut, entity::Entity, event::EventWriter, system::Query};
+use bevy_log::warn;
 use bevy_math::Vec3;
+use bevy_rapier3d::prelude::RigidBody;
 use bevy_transform::components::Transform;
 
 use crate::core::{
@@ -13,15 +15,14 @@ use crate::core::{
     physics::components::{WorldMode, WorldModes},
     sensable::components::Sensable,
     senser::components::Senser,
-    static_body::components::StaticTransform,
 };
 
 pub fn visible_checker(
     mut query_visible_entities: Query<(
         Entity,
         &mut Sensable,
-        Option<&StaticTransform>,
-        Option<&Transform>,
+        &Transform,
+        Option<&RigidBody>,
         &EntityData,
         &EntityUpdates,
         Option<&WorldMode>,
@@ -53,8 +54,8 @@ pub fn visible_checker(
         for (
             visible_entity_id,
             mut visible_component,
-            static_transform_component_option,
-            rigid_body_position_component_option,
+            transform_component,
+            rigid_body_component_option,
             entity_data_component,
             entity_updates_component,
             entity_world_mode_option,
@@ -63,13 +64,11 @@ pub fn visible_checker(
             let visible_entity_transform;
 
             let mut is_interpolated = false;
+            visible_entity_transform = transform_component;
 
-            match static_transform_component_option {
-                Some(static_transform) => {
-                    visible_entity_transform = static_transform.transform;
-                }
-                None => {
-                    match entity_world_mode_option {
+            match rigid_body_component_option {
+                Some(rigid_body_component) => match rigid_body_component {
+                    RigidBody::Dynamic => match entity_world_mode_option {
                         Some(entity_world_mode) => {
                             if matches!(entity_world_mode.mode, WorldModes::Held)
                                 || matches!(entity_world_mode.mode, WorldModes::Worn)
@@ -82,18 +81,20 @@ pub fn visible_checker(
                         None => {
                             is_interpolated = false;
                         }
+                    },
+                    RigidBody::Fixed => {}
+                    _ => {
+                        warn!("Unexpected rigidbody type.");
+                        continue;
                     }
-
-                    let visible_entity_isometry = rigid_body_position_component_option.unwrap();
-
-                    visible_entity_transform = *visible_entity_isometry;
-                }
+                },
+                None => {}
             }
 
             visible_check(
                 &mut visible_component,
                 &mut visible_checker_component,
-                visible_entity_transform,
+                *visible_entity_transform,
                 visible_checker_translation_vec,
                 entity,
                 &mut net_load_entity,

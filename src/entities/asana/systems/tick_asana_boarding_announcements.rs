@@ -7,15 +7,17 @@ use bevy_ecs::{
 use bevy_math::Vec3;
 use bevy_transform::prelude::Transform;
 
-use crate::core::{
-    asana::resources::AsanaBoardingAnnouncements,
-    chat::{
-        components::Radio,
-        events::NetChatMessage,
-        functions::{new_chat_message, Communicator, MessagingPlayerState},
+use crate::{
+    core::{
+        chat::{
+            components::Radio,
+            events::NetChatMessage,
+            functions::{new_chat_message, Communicator, MessagingPlayerState},
+        },
+        connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
+        pawn::components::{PersistentPlayerData, ShipJobsEnum},
     },
-    connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    pawn::components::{PersistentPlayerData, ShipJobsEnum},
+    entities::asana::resources::AsanaBoardingAnnouncements,
 };
 
 pub fn tick_asana_boarding_announcements(

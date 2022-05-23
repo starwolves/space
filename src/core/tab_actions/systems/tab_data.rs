@@ -24,7 +24,6 @@ use crate::core::{
     pawn::components::Pawn,
     sensable::components::Sensable,
     senser::components::Senser,
-    static_body::components::StaticTransform,
     tab_actions::components::TabActions,
 };
 
@@ -34,13 +33,7 @@ pub fn tab_data(
     mut net: EventWriter<NetTabData>,
 
     pawn_query: Query<(&Pawn, &Senser, &Transform, &Inventory, &DataLink)>,
-    examinable_query: Query<(
-        &Examinable,
-        &Sensable,
-        Option<&Transform>,
-        Option<&StaticTransform>,
-        Option<&TabActions>,
-    )>,
+    examinable_query: Query<(&Examinable, &Sensable, &Transform, Option<&TabActions>)>,
     gridmap_data: Res<GridmapData>,
     gridmap_main: Res<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,
@@ -82,7 +75,6 @@ pub fn tab_data(
                 _examinable_component,
                 _sensable_component,
                 _rigid_body_position_component_option,
-                _static_transform_component_option,
                 tab_actions_component_option,
             )) => match tab_actions_component_option {
                 Some(tab_actions_component) => {
@@ -102,28 +94,10 @@ pub fn tab_data(
                 Ok((
                     examinable_component,
                     sensable_component,
-                    rigid_body_position_component_option,
-                    static_transform_component_option,
+                    rigid_body_position_component,
                     _tab_actions_component_option,
                 )) => {
-                    let entity_translation;
-
-                    if static_transform_component_option.is_some() {
-                        entity_translation = static_transform_component_option
-                            .unwrap()
-                            .transform
-                            .translation;
-                    } else {
-                        if rigid_body_position_component_option.is_some() {
-                            entity_translation = rigid_body_position_component_option
-                                .unwrap()
-                                .translation
-                                .into();
-                        } else {
-                            warn!("Entity with tab_action doesn't have any positional component!");
-                            continue;
-                        }
-                    }
+                    let entity_translation = rigid_body_position_component.translation;
 
                     if sensable_component.sensed_by.contains(&event.player_entity) {
                         if (tab_action.prerequisite_check)(

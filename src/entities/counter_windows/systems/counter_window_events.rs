@@ -17,7 +17,6 @@ use crate::{
         networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, ShipAuthorization},
         sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
-        static_body::components::StaticTransform,
     },
     entities::{
         air_locks::{components::LockedStatus, systems::air_lock_events::AirLockCloseRequest},
@@ -30,6 +29,7 @@ use crate::{
                 CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowSensorCollision,
                 CounterWindowUnlock, InputCounterWindowToggleOpen, NetCounterWindow,
             },
+            spawn::COUNTER_WINDOW_COLLISION_Y,
         },
         sfx::counter_window::{
             counter_window_closed_sfx::CounterWindowClosedSfxBundle,
@@ -50,7 +50,6 @@ pub fn counter_window_events(
     mut counter_window_query: Query<(
         &mut CounterWindow,
         &mut Transform,
-        &StaticTransform,
         Entity,
         &Children,
         &mut Examinable,
@@ -73,7 +72,6 @@ pub fn counter_window_events(
             Ok((
                 mut counter_window_component,
                 _rigid_body_position_component,
-                _static_transform_component,
                 _counter_window_entity,
                 _children_component,
                 mut examinable_component,
@@ -118,7 +116,6 @@ pub fn counter_window_events(
             Ok((
                 mut counter_window_component,
                 _rigid_body_position_component,
-                _static_transform_component,
                 _counter_window_entity,
                 _children_component,
                 mut examinable_component,
@@ -166,7 +163,6 @@ pub fn counter_window_events(
             Ok((
                 mut counter_window_component,
                 _rigid_body_position_component,
-                _static_transform_component,
                 _counter_window_entity,
                 _children_component,
                 mut examinable_component,
@@ -213,7 +209,6 @@ pub fn counter_window_events(
     for (
         mut counter_window_component,
         mut rigid_body_position_component,
-        static_transform_component,
         counter_window_entity,
         _children_component,
         _examinable_component,
@@ -265,7 +260,7 @@ pub fn counter_window_events(
                     let mut counter_window_rigid_body_position =
                         rigid_body_position_component.clone();
 
-                    counter_window_rigid_body_position.translation.y = 0.943;
+                    counter_window_rigid_body_position.translation.y = COUNTER_WINDOW_COLLISION_Y;
 
                     rigid_body_position_component.translation =
                         counter_window_rigid_body_position.translation;
@@ -279,7 +274,7 @@ pub fn counter_window_events(
                     let sfx_entity = commands
                         .spawn()
                         .insert_bundle(CounterWindowClosedSfxBundle::new(
-                            static_transform_component.transform,
+                            *rigid_body_position_component,
                         ))
                         .id();
                     sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
@@ -348,7 +343,6 @@ pub fn counter_window_events(
             Ok((
                 counter_window_component,
                 _rigid_body_position_component,
-                _static_transform_component,
                 _counter_window_entity,
                 _children_component,
                 _examinable_component,
@@ -381,15 +375,13 @@ pub fn counter_window_events(
 
         let mut counter_window_component;
         let mut counter_window_rigid_body_position_component;
-        let counter_window_static_transform_component;
         let children;
 
         match counter_window_components_result {
             Ok(result) => {
                 counter_window_component = result.0;
                 counter_window_rigid_body_position_component = result.1;
-                counter_window_static_transform_component = result.2;
-                children = result.4;
+                children = result.3;
             }
             Err(_err) => {
                 continue;
@@ -476,7 +468,7 @@ pub fn counter_window_events(
                 let sfx_entity = commands
                     .spawn()
                     .insert_bundle(CounterWindowOpenSfxBundle::new(
-                        counter_window_static_transform_component.transform,
+                        *counter_window_rigid_body_position_component,
                     ))
                     .id();
                 sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
@@ -509,7 +501,7 @@ pub fn counter_window_events(
             let mut counter_window_rigid_body_position =
                 counter_window_rigid_body_position_component.clone();
 
-            counter_window_rigid_body_position.translation.y = 2.943;
+            counter_window_rigid_body_position.translation.y = COUNTER_WINDOW_COLLISION_Y + 2.;
 
             counter_window_rigid_body_position_component.translation =
                 counter_window_rigid_body_position.translation;
@@ -523,7 +515,7 @@ pub fn counter_window_events(
             let sfx_entity = commands
                 .spawn()
                 .insert_bundle(CounterWindowDeniedSfxBundle::new(
-                    counter_window_static_transform_component.transform,
+                    *counter_window_rigid_body_position_component,
                 ))
                 .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
@@ -535,7 +527,6 @@ pub fn counter_window_events(
             Ok((
                 mut counter_window_component,
                 rigid_body_position_component,
-                _static_transform_component,
                 _counter_window_entity,
                 _children_component,
                 _examinable_component,

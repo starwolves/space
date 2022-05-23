@@ -23,7 +23,6 @@ use crate::{
         pawn::components::ShipAuthorizationEnum,
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
-        static_body::components::StaticTransform,
         tab_actions::components::{TabAction, TabActions},
     },
     entities::air_locks::components::AirLock,
@@ -43,9 +42,7 @@ impl AirlockBundle {
         default_map_spawn: bool,
         properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
-        let static_transform_component = StaticTransform {
-            transform: entity_transform,
-        };
+        let static_transform_component = entity_transform;
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 

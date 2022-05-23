@@ -27,8 +27,8 @@ use super::diffusion::DIFFUSION_STEP;
 const ATMOSPHERICS_FORCES_SENSITIVITY_PAWN: f32 = 100.;
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 1250.;
 
-const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 1.;
-const ATMOSPHERICS_FORCES_ACCELERATION_MAX: f32 = 8.;
+const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 2.;
+const ATMOSPHERICS_FORCES_ACCELERATION_MAX: f32 = 16.;
 
 const ATMOSHPERICS_MAX_VELOCITY: f32 = 10.;
 
@@ -254,7 +254,7 @@ pub fn rigidbody_forces_accumulation(
             Vec3::new(forces_max, forces_max, forces_max),
         );
 
-        if push_up && !over_max_speed {
+        if push_up && !over_max_speed && atmos_force.length() > 0.1 {
             atmos_force.y = ATMOSPHERICS_PUSHING_UP_FORCE * (64. / DIFFUSION_STEP as f32);
         }
 

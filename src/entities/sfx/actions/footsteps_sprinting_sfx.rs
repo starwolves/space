@@ -5,7 +5,6 @@ use crate::core::{
     rigid_body::components::{CachedBroadcastTransform, UpdateTransform},
     sensable::components::Sensable,
     sfx::components::{get_random_pitch_scale, FootstepsWalking, RepeatingSfx},
-    static_body::components::StaticTransform,
 };
 
 pub struct FootstepsSprintingSfxBundle;
@@ -14,7 +13,7 @@ impl FootstepsSprintingSfxBundle {
     pub fn new(
         passed_transform: Transform,
     ) -> (
-        StaticTransform,
+        Transform,
         EntityData,
         Sensable,
         RepeatingSfx,
@@ -24,9 +23,7 @@ impl FootstepsSprintingSfxBundle {
         CachedBroadcastTransform,
     ) {
         (
-            StaticTransform {
-                transform: passed_transform,
-            },
+            passed_transform,
             EntityData {
                 entity_class: "RepeatingSFX".to_string(),
                 ..Default::default()

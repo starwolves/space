@@ -4,7 +4,6 @@ use crate::core::{
     entity::components::{EntityData, EntityUpdates},
     sensable::components::Sensable,
     sfx::components::{get_random_pitch_scale, Sfx},
-    static_body::components::StaticTransform,
 };
 
 pub struct LaserLightShot1Bundle;
@@ -14,11 +13,9 @@ pub const LASER_LIGHT_SHOT1_PLAY_BACK_DURATION: f32 = 0.7 + 1.;
 impl LaserLightShot1Bundle {
     pub fn new(
         passed_transform: Transform,
-    ) -> (StaticTransform, EntityData, Sensable, Sfx, EntityUpdates) {
+    ) -> (Transform, EntityData, Sensable, Sfx, EntityUpdates) {
         (
-            StaticTransform {
-                transform: passed_transform,
-            },
+            passed_transform,
             EntityData {
                 entity_class: "SFX".to_string(),
                 ..Default::default()

@@ -24,13 +24,14 @@ use crate::{
         pawn::components::ShipAuthorizationEnum,
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
-        static_body::components::StaticTransform,
         tab_actions::components::{TabAction, TabActions},
     },
     entities::counter_windows::components::{CounterWindow, CounterWindowSensor},
 };
 
 use super::functions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action};
+
+pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
 pub struct CounterWindowBundle;
 
@@ -44,9 +45,7 @@ impl CounterWindowBundle {
         default_map_spawn: bool,
         _properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
-        let static_transform_component = StaticTransform {
-            transform: entity_transform,
-        };
+        let static_transform_component = entity_transform;
 
         let rigid_body = RigidBody::Fixed;
 
@@ -62,8 +61,12 @@ impl CounterWindowBundle {
         parent_builder.with_children(|children| {
             children
                 .spawn()
-                .insert(Collider::cuboid(0.1, 0.593, 1.))
-                .insert(Transform::from_translation(Vec3::new(0., 0., 1.)))
+                .insert(Collider::cuboid(0.1, 0.5, 1.))
+                .insert(Transform::from_translation(Vec3::new(
+                    0.,
+                    COUNTER_WINDOW_COLLISION_Y,
+                    0.,
+                )))
                 .insert(friction)
                 .insert(CollisionGroups::new(masks.0, masks.1));
         });

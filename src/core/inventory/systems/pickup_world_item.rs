@@ -126,7 +126,6 @@ pub fn pickup_world_item<'a>(
             false,
             &colliders,
         ) {
-            warn!("cant reahc m8");
             continue;
         }
 

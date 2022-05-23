@@ -5,7 +5,6 @@ use crate::core::{
     entity::components::{EntityData, EntityUpdates},
     physics::components::{WorldMode, WorldModes},
     sensable::components::Sensable,
-    static_body::components::StaticTransform,
 };
 
 use super::components::OmniLight;
@@ -19,9 +18,7 @@ impl OmniLightBundle {
         _correct_transform: bool,
         omni_light_component: OmniLight,
     ) {
-        let static_transform_component = StaticTransform {
-            transform: entity_transform,
-        };
+        let static_transform_component = entity_transform;
 
         commands.spawn_bundle((
             omni_light_component,

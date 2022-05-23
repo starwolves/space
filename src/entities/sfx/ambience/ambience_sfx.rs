@@ -4,7 +4,6 @@ use crate::core::{
     entity::components::{EntityData, EntityUpdates},
     sensable::components::Sensable,
     sfx::components::{AmbienceSfxTimer, Sfx},
-    static_body::components::StaticTransform,
 };
 
 pub struct AmbienceSfxBundle;
@@ -15,7 +14,7 @@ impl AmbienceSfxBundle {
     pub fn new(
         passed_transform: Transform,
     ) -> (
-        StaticTransform,
+        Transform,
         EntityData,
         Sensable,
         Sfx,
@@ -23,9 +22,7 @@ impl AmbienceSfxBundle {
         AmbienceSfxTimer,
     ) {
         (
-            StaticTransform {
-                transform: passed_transform,
-            },
+            passed_transform,
             EntityData {
                 entity_class: "SFX".to_string(),
                 ..Default::default()

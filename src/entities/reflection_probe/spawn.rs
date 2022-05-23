@@ -1,10 +1,7 @@
 use bevy_ecs::system::Commands;
 use bevy_transform::components::Transform;
 
-use crate::core::{
-    entity::components::{EntityData, EntityUpdates},
-    static_body::components::StaticTransform,
-};
+use crate::core::entity::components::{EntityData, EntityUpdates};
 
 use super::components::ReflectionProbe;
 
@@ -17,9 +14,7 @@ impl ReflectionProbeBundle {
         _correct_transform: bool,
         reflection_probe_component: ReflectionProbe,
     ) {
-        let static_transform_component = StaticTransform {
-            transform: entity_transform,
-        };
+        let static_transform_component = entity_transform;
 
         commands.spawn_bundle((
             reflection_probe_component,
