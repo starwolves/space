@@ -3,7 +3,6 @@ use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 use bevy_log::info;
 
 pub mod artificial_unintelligence;
-pub mod asana;
 pub mod atmospherics;
 pub mod chat;
 pub mod combat;
@@ -26,7 +25,6 @@ pub mod rigid_body;
 pub mod sensable;
 pub mod senser;
 pub mod sfx;
-pub mod static_body;
 pub mod tab_actions;
 pub mod world_environment;
 
@@ -56,11 +54,13 @@ use bevy_render::{settings::WgpuSettings, RenderPlugin};
 use bevy_transform::TransformPlugin;
 use bevy_window::WindowPlugin;
 
+use crate::entities::asana::AsanaPlugin;
+
 use self::{humanoid::HumanoidPlugin, physics::PhysicsPlugin, rigid_body::RigidBodyPlugin};
 
 use super::{
     core::{
-        artificial_unintelligence::ArtificialUnintelligencePlugin, asana::AsanaPlugin,
+        artificial_unintelligence::ArtificialUnintelligencePlugin,
         atmospherics::AtmosphericsPlugin, chat::ChatPlugin, combat::CombatPlugin,
         configuration::ConfigurationPlugin, connected_player::ConnectedPlayerPlugin,
         console_commands::ConsoleCommandsPlugin, entity::EntityPlugin, gridmap::GridmapPlugin,
@@ -156,14 +156,14 @@ impl Plugin for SpacePlugin {
             .add_plugin(HealthPlugin)
             .add_plugin(EntityPlugin)
             .add_plugin(AtmosphericsPlugin)
-            .add_plugin(MapPlugin)
+            .add_plugin(ConsoleCommandsPlugin)
+            .add_plugin(ConstructionToolAdminPlugin)
+            .add_plugin(TabActionsPlugin)
             .add_plugin(ChatPlugin)
+            .add_plugin(MapPlugin)
             .add_plugin(AirLocksPlugin)
             .add_plugin(CounterWindowsPlugin)
             .add_plugin(InventoryPlugin)
-            .add_plugin(ConsoleCommandsPlugin)
-            .add_plugin(TabActionsPlugin)
-            .add_plugin(ConstructionToolAdminPlugin)
             .add_plugin(NetworkingPlugin)
             .add_plugin(LivePlugin)
             .add_plugin(PhysicsPlugin)

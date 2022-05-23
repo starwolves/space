@@ -1,7 +1,11 @@
 use bevy_ecs::{
     event::EventReader,
+    prelude::With,
     system::{Commands, Query, ResMut},
 };
+use bevy_hierarchy::Children;
+use bevy_log::warn;
+use bevy_rapier3d::prelude::RigidBody;
 use doryen_fov::FovAlgorithm;
 
 use crate::core::{
@@ -32,6 +36,7 @@ pub fn remove_cell(
     mut commands: Commands,
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
+    rigid_bodies: Query<&Children, With<RigidBody>>,
 ) {
     for event in deconstruct_cell_events.iter() {
         match event.gridmap_type {
@@ -54,6 +59,18 @@ pub fn remove_cell(
                         .unwrap()
                         .entity
                         .unwrap();
+
+                    match rigid_bodies.get(cell_entity) {
+                        Ok(children) => {
+                            for child in children.iter() {
+                                commands.entity(*child).despawn();
+                            }
+                        }
+                        Err(_rr) => {
+                            warn!("Couldnt find rigidbody beloning to cell!");
+                        }
+                    }
+
                     commands.entity(cell_entity).despawn();
                     fov_map.map.set_transparent(coords.0, coords.1, true);
                     atmospherics.blocked = false;

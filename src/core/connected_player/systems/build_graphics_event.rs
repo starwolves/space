@@ -3,6 +3,7 @@ use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::{Query, Res},
 };
+use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
@@ -13,7 +14,6 @@ use crate::{
             functions::load_entity_for_player::load_entity,
         },
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
-        static_body::components::StaticTransform,
         world_environment::resources::WorldEnvironment,
     },
     entities::{gi_probe::components::GIProbe, reflection_probe::components::ReflectionProbe},
@@ -27,17 +27,11 @@ pub fn build_graphics_event(
     reflection_probe_query: Query<(
         Entity,
         &ReflectionProbe,
-        &StaticTransform,
+        &Transform,
         &EntityData,
         &EntityUpdates,
     )>,
-    gi_probe_query: Query<(
-        Entity,
-        &GIProbe,
-        &StaticTransform,
-        &EntityData,
-        &EntityUpdates,
-    )>,
+    gi_probe_query: Query<(Entity, &GIProbe, &Transform, &EntityData, &EntityUpdates)>,
 ) {
     for build_graphics_event in build_graphics_events.iter() {
         net_send_world_environment.send(NetSendWorldEnvironment {
@@ -57,7 +51,7 @@ pub fn build_graphics_event(
         {
             load_entity(
                 &entity_updates_component.updates,
-                static_transform_component.transform,
+                *static_transform_component,
                 false,
                 &mut net_load_entity,
                 build_graphics_event.handle,
@@ -78,7 +72,7 @@ pub fn build_graphics_event(
         {
             load_entity(
                 &entity_updates_component.updates,
-                static_transform_component.transform,
+                *static_transform_component,
                 false,
                 &mut net_load_entity,
                 build_graphics_event.handle,

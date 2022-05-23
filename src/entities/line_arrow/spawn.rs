@@ -16,7 +16,6 @@ use crate::core::{
     physics::components::{WorldMode, WorldModes},
     rigid_body::components::{CachedBroadcastTransform, DefaultTransform},
     sensable::components::Sensable,
-    static_body::components::StaticTransform,
 };
 
 use super::components::{LineArrow, PointArrow};
@@ -105,9 +104,7 @@ fn spawn_entity(
         WorldMode {
             mode: WorldModes::Static,
         },
-        StaticTransform {
-            transform: this_transform,
-        },
+        this_transform,
         CachedBroadcastTransform::default(),
         Examinable {
             assigned_texts: examine_map,

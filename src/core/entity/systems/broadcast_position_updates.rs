@@ -5,13 +5,13 @@ use bevy_ecs::{
 };
 use bevy_log::warn;
 use bevy_networking_turbulence::NetworkResource;
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     connected_player::resources::HandleToEntity,
     networking::resources::UnreliableServerMessage,
     rigid_body::components::{CachedBroadcastTransform, UpdateTransform},
     sensable::components::Sensable,
-    static_body::components::StaticTransform,
 };
 
 pub const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
@@ -26,7 +26,7 @@ pub fn broadcast_position_updates(
         Entity,
         &Sensable,
         &UpdateTransform,
-        &StaticTransform,
+        &Transform,
         &mut CachedBroadcastTransform,
     )>,
 ) {
@@ -50,13 +50,13 @@ pub fn broadcast_position_updates(
         mut cached_transform_component,
     ) in query_update_transform_entities.iter_mut()
     {
-        if cached_transform_component.transform == static_transform_component.transform {
+        if cached_transform_component.transform == *static_transform_component {
             continue;
         }
 
-        cached_transform_component.transform = static_transform_component.transform;
+        cached_transform_component.transform = *static_transform_component;
 
-        let new_position = static_transform_component.transform.translation;
+        let new_position = static_transform_component.translation;
 
         for sensed_by_entity in visible_component.sensed_by.iter() {
             let player_handle_option = handle_to_entity.inv_map.get(&sensed_by_entity);

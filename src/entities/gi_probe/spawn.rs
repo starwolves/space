@@ -1,10 +1,7 @@
 use bevy_ecs::system::Commands;
 use bevy_transform::components::Transform;
 
-use crate::core::{
-    entity::components::{EntityData, EntityUpdates},
-    static_body::components::StaticTransform,
-};
+use crate::core::entity::components::{EntityData, EntityUpdates};
 
 use super::components::GIProbe;
 
@@ -17,9 +14,7 @@ impl GIProbeBundle {
         _correct_transform: bool,
         gi_probe_component: GIProbe,
     ) {
-        let static_transform_component = StaticTransform {
-            transform: entity_transform,
-        };
+        let static_transform_component = entity_transform;
 
         commands.spawn_bundle((
             gi_probe_component,

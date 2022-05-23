@@ -25,7 +25,6 @@ use crate::{
         },
         rigid_body::components::RigidBodyData,
         sensable::components::Sensable,
-        static_body::components::StaticTransform,
     },
     entities::computers::components::Computer,
 };
@@ -165,9 +164,7 @@ fn spawn_entity(
             ..Default::default()
         },
         Computer { computer_type },
-        StaticTransform {
-            transform: this_transform,
-        },
+        this_transform,
         RigidBodyData {
             friction: friction.coefficient,
             friction_combine_rule: friction.combine_rule,

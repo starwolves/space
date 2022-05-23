@@ -5,15 +5,17 @@ use bevy_ecs::{
 };
 use bevy_log::info;
 
-use crate::core::{
-    asana::resources::AsanaBoardingAnnouncements,
-    chat::functions::get_talk_spaces,
-    connected_player::{
-        components::{OnBoard, SetupPhase, SoftPlayer, Spawning},
-        events::{BoardingPlayer, NetDoneBoarding},
+use crate::{
+    core::{
+        chat::functions::get_talk_spaces,
+        connected_player::{
+            components::{OnBoard, SetupPhase, SoftPlayer, Spawning},
+            events::{BoardingPlayer, NetDoneBoarding},
+        },
+        gridmap::resources::SpawnPoints,
+        networking::resources::{ReliableServerMessage, ServerConfigMessage},
     },
-    gridmap::resources::SpawnPoints,
-    networking::resources::{ReliableServerMessage, ServerConfigMessage},
+    entities::asana::resources::AsanaBoardingAnnouncements,
 };
 
 pub fn done_boarding(
