@@ -12,7 +12,7 @@ pub fn player_selector_to_entities(
     used_names: &mut ResMut<UsedNames>,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
 ) -> Vec<Entity> {
-    let mut player_selector = player_selector_input.clone().to_string();
+    let mut player_selector = player_selector_input.to_string();
 
     let mut target_entities = vec![];
 
