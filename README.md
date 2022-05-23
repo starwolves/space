@@ -68,6 +68,11 @@ To compile and run the game server:
 cargo run
 ```
 
+To run the game server, but optimized:
+```
+cargo run --release
+```
+
 ### Client
 You can obtain the latest stable release of the client on [Discord](https://discord.gg/yYpMun9CTT).
 Ensure your server has the right git branch with the same version as the obtained client and not the master branch!
