@@ -54,3 +54,7 @@ opt-level = 1
 opt-level = 0   
 [profile.test.package."*"]
 opt-level = 0
+
+# Compile release
+[profile.release]
+lto = "thin"
