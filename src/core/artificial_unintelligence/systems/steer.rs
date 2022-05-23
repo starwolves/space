@@ -3,21 +3,19 @@ use bevy_ecs::{
     system::{Query, Res},
 };
 use bevy_math::{Vec2, Vec3};
+use bevy_rapier3d::prelude::RigidBodyPositionComponent;
 
 use crate::core::{
     artificial_unintelligence::{
-        components::{AiGoal, Blob, Path},
-        functions::pathing_et_steering::{
-            choose_vector, create_context_map, create_surroundings_map, get_proximity, get_vector,
-        },
-        resources::CONTEXT_MAP_RESOLUTION,
+        components::{Action, AiGoal, Blob, Path},
+        functions::pathing_et_steering::{choose_vector, create_surroundings_map, get_proximity},
+        resources::{ContextMapVectors, CONTEXT_MAP_RESOLUTION},
     },
     gridmap::{
         functions::gridmap_functions::world_to_cell_id,
         resources::{GridmapData, GridmapMain},
     },
     pawn::components::ControllerInput,
-    rigid_body::components::CachedBroadcastTransform,
 };
 
 pub fn steer(
@@ -26,70 +24,63 @@ pub fn steer(
         &AiGoal,
         &mut Blob,
         &mut Path,
-        &CachedBroadcastTransform,
+        &RigidBodyPositionComponent,
         &mut ControllerInput,
     )>,
     gridmap: Res<GridmapMain>,
     gridmap_data: Res<GridmapData>,
+    mapped_vectors: Res<ContextMapVectors>,
 ) -> () {
-    for (_entity, goal, mut blob, mut path, transform, mut controller) in ai_query.iter_mut() {
-        let mapped_vectors: [Vec2; 8] = [
-            Vec2::new(0., -1.),
-            Vec2::new(-0.70710677, -0.70710677),
-            Vec2::new(-1., 0.),
-            Vec2::new(-0.70710677, 0.70710677),
-            Vec2::new(0., 1.),
-            Vec2::new(0.70710677, 0.70710677),
-            Vec2::new(1., 0.),
-            Vec2::new(0.70710677, -0.70710677),
-        ];
-        let mut _interest_map: [i32; CONTEXT_MAP_RESOLUTION] = [-1; CONTEXT_MAP_RESOLUTION];
-        let mut _danger_map: [i32; CONTEXT_MAP_RESOLUTION] = [-1; CONTEXT_MAP_RESOLUTION];
-        let mut waypoints: [Option<Vec3>; 8] = [None; 8];
-        let danger_waypoints: [Option<Vec3>; 8];
+    for (_entity, goal, mut blob, mut path, rigid_body_position, mut controller) in
+        ai_query.iter_mut()
+    {
+        if let Action::Standby = goal.action {
+            continue;
+        }
+        let mapped_vectors: [Vec2; CONTEXT_MAP_RESOLUTION] = mapped_vectors.context_map_vectors;
+        let mut all_waypoints = Vec::new();
         let mut _chosen_vector = Vec2::ZERO;
-        if let Some(path_waypoints) = &path.waypoints {
-            let current_location = transform.transform.translation;
-            let current_cell = world_to_cell_id(transform.transform.translation);
-            waypoints[0] = Some(path_waypoints[0]);
-            if get_proximity(waypoints[0].unwrap(), current_location) < 0.3 {
-                path.update_waypoints();
+        let mut current_location: Vec3 = rigid_body_position.position.translation.into();
+        current_location.y = -1.;
+        let current_cell = world_to_cell_id(current_location);
+        for waypoint_option in create_surroundings_map(
+            current_cell,
+            0,
+            &gridmap.grid_data,
+            &gridmap_data.main_id_name_map,
+        ) {
+            if let Some(waypoint) = waypoint_option {
+                all_waypoints.push(waypoint);
             }
-            danger_waypoints = create_surroundings_map(
-                current_cell,
-                0,
-                &gridmap.grid_data,
-                &gridmap_data.main_id_name_map,
-            );
-            _interest_map =
-                create_context_map(waypoints, current_location, goal.action, mapped_vectors);
-            _danger_map = create_context_map(
-                danger_waypoints,
-                current_location,
-                goal.action,
-                mapped_vectors,
-            );
+        }
+        match goal.action {
+            Action::GoToPoint => {
+                if let Some(path_waypoints) = &path.waypoints {
+                    // Having this here might cause the AI to overshoot but I think its ok for now
+                    all_waypoints.push(path_waypoints[0]);
+                    if get_proximity(path_waypoints[0], current_location) < 1.0 {
+                        path.update_waypoints();
+                    }
 
-            _chosen_vector = choose_vector(_interest_map, _danger_map, mapped_vectors);
-            controller.movement_vector = get_vector(waypoints[0].unwrap(), current_location);
-        } else {
-            controller.movement_vector = Vec2::new(0., 0.);
-            path.remove_paths();
-            _chosen_vector = Vec2::new(-10., -10.);
+                    controller.movement_vector =
+                        choose_vector(all_waypoints, current_location, mapped_vectors);
+                } else {
+                    controller.movement_vector = Vec2::new(0., 0.);
+                    path.remove_paths();
+                }
+            }
+            _ => continue,
         }
 
-        let _old_position = blob.temp_position;
-        blob.temp_position = world_to_cell_id(transform.transform.translation);
+        let old_position = blob.temp_position;
+        blob.temp_position = world_to_cell_id(current_location);
 
-        //Never fires.
-        /*if old_position != blob.temp_position && false {
-            println!("final interest map: {:?}", interest_map);
-            println!("danger map: {:?}", danger_map);
+        if old_position != blob.temp_position && false {
             println!("chosen vector: {:?}", _chosen_vector);
             blob.count = blob.count + 1;
             if blob.count % 3 == 0 {
                 println!("{:?}), Position {:?}", blob.count, blob.temp_position);
             }
-        }*/
+        }
     }
 }
