@@ -5,6 +5,7 @@ use bevy_ecs::{
 };
 use bevy_hierarchy::Children;
 use bevy_log::warn;
+use bevy_rapier3d::prelude::{CollisionGroups};
 use bevy_transform::prelude::Transform;
 
 use crate::{
@@ -16,7 +17,7 @@ use crate::{
         gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
         networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, ShipAuthorization},
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, physics::functions::{get_bit_masks, ColliderGroup},
     },
     entities::{
         air_locks::{
@@ -49,7 +50,7 @@ pub struct AirLockCloseRequest {
 pub fn air_lock_events(
     mut air_lock_collisions: EventReader<AirLockCollision>,
     mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
-    mut transforms: Query<&mut Transform>,
+    transforms: Query<&Transform>,
     mut air_lock_query: Query<(&mut AirLock, Entity, &mut Examinable, &Children)>,
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
@@ -59,6 +60,7 @@ pub fn air_lock_events(
     mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
     mut unlock_events: EventReader<AirLockUnlock>,
     mut net_airlocks: EventWriter<NetAirLock>,
+    mut collision_groups : Query<&mut CollisionGroups>,
 ) {
     let mut close_requests = vec![];
     let mut open_requests = vec![];
@@ -182,14 +184,14 @@ pub fn air_lock_events(
         }
     }
 
-    for (mut air_lock_component, air_lock_entity, _examinable_component, _children) in
+    for (mut air_lock_component, air_lock_entity, _examinable_component, children) in
         air_lock_query.iter_mut()
     {
-        let mut rigid_body_position_component;
+        let rigid_body_position_component;
 
-        match transforms.get_mut(air_lock_entity) {
+        match transforms.get(air_lock_entity) {
             Ok(tra) => {
-                rigid_body_position_component = tra;
+                rigid_body_position_component = tra.clone();
             }
             Err(_rr) => {
                 warn!("Couldnt find transform!");
@@ -231,20 +233,36 @@ pub fn air_lock_events(
                     timer_component.pause();
                     timer_component.reset();
 
-                    let mut air_lock_rigid_body_position = rigid_body_position_component.clone();
+                    let mut child_collider_entity = None;
 
-                    air_lock_rigid_body_position.translation.y = 0.;
+                    for child in children.iter() {
+                        match collision_groups.get(*child) {
+                            Ok(_t) => {
+                                child_collider_entity = Some(*child);
+                            },
+                            Err(_) => {}
+                        }
+                    }
 
-                    rigid_body_position_component.translation =
-                        air_lock_rigid_body_position.translation;
-                    rigid_body_position_component.rotation = air_lock_rigid_body_position.rotation;
-                    rigid_body_position_component.scale = air_lock_rigid_body_position.scale;
+                    match child_collider_entity {
+                        Some(e) => {
+                            let mut r = collision_groups.get_mut(e).unwrap();
+                            let masks = get_bit_masks(ColliderGroup::Standard);
+
+                            r.memberships = masks.0;
+                            r.filters = masks.1;
+                        }
+                        None => {
+                            warn!("Couldnt find collider child");
+                            continue;
+                        }
+                    }
 
                     air_lock_component.access_lights = AccessLightsStatus::Neutral;
 
                     let sfx_entity = commands
                         .spawn()
-                        .insert_bundle(AirLockClosedSfxBundle::new(*rigid_body_position_component))
+                        .insert_bundle(AirLockClosedSfxBundle::new(rigid_body_position_component))
                         .id();
                     sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
                 }
@@ -313,13 +331,13 @@ pub fn air_lock_events(
         let air_lock_components_result = air_lock_query.get_mut(request.opened);
 
         let mut air_lock_component;
-        let _children;
+        let children;
         let air_lock_static_transform_component;
 
         match air_lock_components_result {
             Ok(result) => {
                 air_lock_component = result.0;
-                _children = result.3;
+                children = result.3;
             }
             Err(_err) => {
                 continue;
@@ -378,9 +396,9 @@ pub fn air_lock_events(
             }
         }
 
-        let mut collision_transform_component;
+        let collision_transform_component;
 
-        match transforms.get_mut(request.opened) {
+        match transforms.get(request.opened) {
             Ok(t) => {
                 collision_transform_component = t;
             }
@@ -391,7 +409,7 @@ pub fn air_lock_events(
         }
 
         if pawn_has_permission == true {
-            let cell_id = world_to_cell_id(collision_transform_component.translation.into());
+            let cell_id = world_to_cell_id(collision_transform_component.translation);
             let cell_id2 = Vec2Int {
                 x: cell_id.x,
                 y: cell_id.z,
@@ -409,12 +427,32 @@ pub fn air_lock_events(
             air_lock_component.status = AirLockStatus::Open;
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
-            let mut air_lock_rigid_body_position = collision_transform_component.clone();
-            air_lock_rigid_body_position.translation.y = 2.;
+            let mut collision_child_option = None;
 
-            collision_transform_component.translation = air_lock_rigid_body_position.translation;
-            collision_transform_component.scale = air_lock_rigid_body_position.scale;
-            collision_transform_component.rotation = air_lock_rigid_body_position.rotation;
+            for child in children.iter() {
+                match collision_groups.get(*child) {
+                    Ok(_col) => {
+                        collision_child_option = Some(*child);
+                    },
+                    Err(_rr) => {}
+                }
+            }
+
+            match collision_child_option {
+                Some(ent) => {
+                    let mut r = collision_groups.get_mut(ent).unwrap();
+                    
+                    
+                    let masks = get_bit_masks(ColliderGroup::NoCollision);
+
+                    r.memberships = masks.0;
+                    r.filters = masks.1;
+
+                }
+                None => {
+                    warn!("Couldnt find collider child..");
+                }
+            }
 
             air_lock_component.open_timer_option = Some(open_timer());
 

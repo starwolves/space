@@ -1,7 +1,9 @@
 pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
     match group {
         ColliderGroup::Standard => (
+            //membership
             0b00000000000000000000000000000001,
+            //filter
             0b00000000000000000000000000000001,
         ),
         ColliderGroup::NoCollision => (
