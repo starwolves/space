@@ -14,8 +14,8 @@ pub struct ArtificialUnintelligencePlugin;
 
 impl Plugin for ArtificialUnintelligencePlugin {
     fn build(&self, _app: &mut App) {
-       // app.init_resource::<ContextMapVectors>()
-         //   .add_system(find_path)
+        // app.init_resource::<ContextMapVectors>()
+        //   .add_system(find_path)
         //    .add_system(steer);
     }
 }

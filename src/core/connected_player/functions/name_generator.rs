@@ -140,7 +140,9 @@ pub fn get_full_name(gender: bool, unique: bool, used_names: &Res<UsedNames>) ->
     let first_name = match gender {
         true => MALE_FIRST_NAMES,
         false => FEMALE_FIRST_NAMES,
-    }.choose(rng).unwrap();
+    }
+    .choose(rng)
+    .unwrap();
 
     let full_name = format!("{first_name} {}", LAST_NAMES.choose(rng).unwrap());
 

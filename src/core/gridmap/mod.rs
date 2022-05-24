@@ -15,7 +15,7 @@ use bevy_ecs::{
 use bevy_log::info;
 use bevy_rapier3d::{
     plugin::TimestepMode,
-    prelude::{Collider, RapierConfiguration, CoefficientCombineRule},
+    prelude::{CoefficientCombineRule, Collider, RapierConfiguration},
 };
 use bevy_transform::components::Transform;
 
@@ -39,7 +39,9 @@ use crate::{
         },
         world_environment::resources::WorldEnvironmentRaw,
     },
-    entities::{sfx::ambience::ambience_sfx::AmbienceSfxBundle, human_male::spawn::CHARACTER_FLOOR_FRICTION},
+    entities::{
+        human_male::spawn::CHARACTER_FLOOR_FRICTION, sfx::ambience::ambience_sfx::AmbienceSfxBundle,
+    },
 };
 
 use self::{
@@ -142,7 +144,7 @@ pub struct MainCellProperties {
     pub atmospherics_pushes_up: bool,
     pub direction_rotations: GridDirectionRotations,
     pub friction: f32,
-    pub combine_rule : CoefficientCombineRule,
+    pub combine_rule: CoefficientCombineRule,
 }
 
 #[derive(Clone)]
@@ -179,7 +181,7 @@ impl Default for MainCellProperties {
             atmospherics_pushes_up: false,
             direction_rotations: GridDirectionRotations::default_wall_rotations(),
             friction: 0.,
-            combine_rule : CoefficientCombineRule::Min,
+            combine_rule: CoefficientCombineRule::Min,
         }
     }
 }

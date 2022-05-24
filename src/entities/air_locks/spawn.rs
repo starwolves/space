@@ -56,12 +56,37 @@ impl AirlockBundle {
             }
         }
 
+        let description;
+        let sub_name;
+
+        if entity_name == "securityAirLock1" {
+            sub_name = "security";
+            description = "An air lock with ".to_string()
+                + "security"
+                + " department colors. It will only grant access to security personnel.";
+        } else if entity_name == "bridgeAirLock" {
+            sub_name = "bridge";
+            description = "An air lock with ".to_string()
+                + "bridge"
+                + " department colors. It will only grant access to high ranked personnel.";
+        } else if entity_name == "governmentAirLock" {
+            sub_name = "government";
+
+            description = "An air lock with ".to_string()
+                + "government"
+                + " department colors. It will only grant access to a select few.";
+        } else if entity_name == "vacuumAirLock" {
+            sub_name = "vacuum";
+            description = "An air lock with ".to_string()
+                + "danger markings"
+                + ". On the other side is nothing but space.";
+        } else {
+            warn!("Unrecognized airlock sub-type {}", entity_name);
+            return Entity::from_bits(0);
+        }
+
         let mut examine_map = BTreeMap::new();
-        examine_map.insert(
-            0,
-            "An air lock with bridge department colors. Access is only granted to high ranking staff."
-                .to_string(),
-        );
+        examine_map.insert(0, description);
         examine_map.insert(
             1,
             "[font=".to_string()
@@ -113,7 +138,7 @@ impl AirlockBundle {
                 EntityUpdates::default(),
                 Examinable {
                     name: RichName {
-                        name: "bridge airlock".to_string(),
+                        name: sub_name.to_string() + " airlock",
                         n: false,
                         ..Default::default()
                     },
