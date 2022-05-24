@@ -70,8 +70,6 @@ impl CounterWindowBundle {
             return Entity::from_bits(0);
         }
 
-        info!("{}",entity_name);
-
         let rigid_body = RigidBody::Fixed;
 
         let masks = get_bit_masks(ColliderGroup::Standard);
