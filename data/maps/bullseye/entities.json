@@ -1,31 +1,21 @@
 [
 	{
-		"entity_type": "bridgeComputer",
-		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 41.0144, 1.01194, -67.290298",
-		"data": "[{\"value_type\":4,\"key\":\"computerType\",\"value\":\"remoteDoors\"}]"
-	},
-	{
-		"entity_type": "bridgeComputer",
-		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 33.030201, 1.01194, -67.290298",
-		"data": "[{\"value_type\":4,\"key\":\"computerType\",\"value\":\"remoteDoors\"}]"
-	},
-	{
-		"entity_type": "securityCounterWindow",
+		"entity_type": "bridgeCounterWindow",
 		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - -14.9648, 0.943471, -33.011902",
 		"data": ""
 	},
 	{
-		"entity_type": "securityCounterWindow",
+		"entity_type": "bridgeCounterWindow",
 		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - -16.9895, 0.943471, -33.011902",
 		"data": ""
 	},
 	{
-		"entity_type": "securityCounterWindow",
+		"entity_type": "bridgeCounterWindow",
 		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 17.101801, 0.943471, -33.011902",
 		"data": ""
 	},
 	{
-		"entity_type": "securityCounterWindow",
+		"entity_type": "bridgeCounterWindow",
 		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 15.0772, 0.943471, -33.011902",
 		"data": ""
 	},
@@ -51,7 +41,7 @@
 	},
 	{
 		"entity_type": "bridgeAirLock",
-		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 21, 0, -63",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 22.8333, 0, -63",
 		"data": ""
 	},
 	{
@@ -66,12 +56,12 @@
 	},
 	{
 		"entity_type": "bridgeAirLock",
-		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 7.06972, 0, -59.02",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 9.02396, 0, -59.02",
 		"data": ""
 	},
 	{
 		"entity_type": "bridgeAirLock",
-		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 7.06972, 0, -52.935902",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 9.02304, 0, -52.935902",
 		"data": ""
 	},
 	{
@@ -87,6 +77,11 @@
 	{
 		"entity_type": "vacuumAirLock",
 		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 215, 0, -251",
+		"data": ""
+	},
+	{
+		"entity_type": "vacuumAirLock",
+		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 38.851398, 0, 149",
 		"data": ""
 	},
 	{
@@ -116,7 +111,7 @@
 	},
 	{
 		"entity_type": "vacuumAirLock",
-		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 301, 0, -75",
+		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - 301, 0, -130.932999",
 		"data": ""
 	},
 	{
