@@ -6,7 +6,7 @@ use bevy_ecs::{
 };
 use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
-use bevy_rapier3d::prelude::{CoefficientCombineRule, CollisionGroups, Friction, RigidBody};
+use bevy_rapier3d::prelude::{CollisionGroups, Friction, RigidBody};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
@@ -152,8 +152,6 @@ pub fn spawn_main_cell(
 
     let entity_id = entity_builder.id();
 
-    let friction_combine_rule = CoefficientCombineRule::Min;
-
     let cell_properties;
     match gridmap_data.main_cell_properties.get(&cell_item_id) {
         Some(x) => {
@@ -168,7 +166,7 @@ pub fn spawn_main_cell(
     let masks = get_bit_masks(ColliderGroup::Standard);
 
     let mut friction_component = Friction::coefficient(cell_properties.friction);
-    friction_component.combine_rule = friction_combine_rule;
+    friction_component.combine_rule = cell_properties.combine_rule;
 
     entity_builder.with_children(|children| {
         children
