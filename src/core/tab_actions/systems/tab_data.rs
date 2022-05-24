@@ -170,13 +170,16 @@ pub fn tab_data(
                 to_doryen_coordinates(event.gridmap_cell_id.x, event.gridmap_cell_id.z);
 
             let this_map;
+            let this_names;
 
             match event.gridmap_type {
                 GridMapType::Main => {
                     this_map = &gridmap_main.grid_data;
+                    this_names = &gridmap_data.main_text_names;
                 }
                 GridMapType::Details1 => {
                     this_map = &gridmap_details1.data;
+                    this_names = &gridmap_data.details1_text_names;
                 }
             }
 
@@ -185,7 +188,7 @@ pub fn tab_data(
             match this_map.get(&event.gridmap_cell_id) {
                 Some(cell_data) => {
                     cell_item = Some(cell_data);
-                    match gridmap_data.main_text_names.get(&cell_data.item) {
+                    match this_names.get(&cell_data.item) {
                         Some(cell_name) => {
                             tab_data_name = cell_name.get_name();
                         }
