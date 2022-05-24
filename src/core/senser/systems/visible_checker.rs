@@ -159,7 +159,7 @@ pub fn visible_checker(
 
 const VIEW_DISTANCE: f32 = 90.;
 const HEAR_DISTANCE: f32 = 60.;
-const LIGHT_DISTANCE: f32 = 180.;
+const LIGHT_DISTANCE: f32 = 60.;
 
 fn visible_check(
     sensable_component: &mut Mut<Sensable>,
