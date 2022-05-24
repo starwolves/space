@@ -39,7 +39,7 @@ use crate::{
         },
         world_environment::resources::WorldEnvironmentRaw,
     },
-    entities::sfx::ambience::ambience_sfx::AmbienceSfxBundle,
+    entities::{sfx::ambience::ambience_sfx::AmbienceSfxBundle, human_male::spawn::CHARACTER_FLOOR_FRICTION},
 };
 
 use self::{
@@ -184,7 +184,7 @@ impl Default for MainCellProperties {
     }
 }
 
-pub const PLACEABLE_SURFACE_FRICTION: f32 = 7.2;
+pub const PLACEABLE_SURFACE_FRICTION: f32 = CHARACTER_FLOOR_FRICTION;
 pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
 #[allow(dead_code)]
