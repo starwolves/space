@@ -15,7 +15,7 @@ use bevy_ecs::{
 use bevy_log::info;
 use bevy_rapier3d::{
     plugin::TimestepMode,
-    prelude::{Collider, RapierConfiguration},
+    prelude::{Collider, RapierConfiguration, CoefficientCombineRule},
 };
 use bevy_transform::components::Transform;
 
@@ -142,6 +142,7 @@ pub struct MainCellProperties {
     pub atmospherics_pushes_up: bool,
     pub direction_rotations: GridDirectionRotations,
     pub friction: f32,
+    pub combine_rule : CoefficientCombineRule,
 }
 
 #[derive(Clone)]
@@ -178,11 +179,13 @@ impl Default for MainCellProperties {
             atmospherics_pushes_up: false,
             direction_rotations: GridDirectionRotations::default_wall_rotations(),
             friction: 0.,
+            combine_rule : CoefficientCombineRule::Min,
         }
     }
 }
 
-pub const PLACEABLE_SURFACE_FRICTION: f32 = 0.2;
+pub const PLACEABLE_SURFACE_FRICTION: f32 = 7.2;
+pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
 #[allow(dead_code)]
 pub struct Details1CellProperties {
@@ -232,6 +235,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         collider_position: default_isometry,
         constructable: true,
         friction: PLACEABLE_SURFACE_FRICTION,
+        combine_rule: PLACEABLE_FRICTION,
         ..Default::default()
     });
     let mut default_isometry = Transform::identity();
@@ -256,6 +260,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         collider_position: default_isometry,
         constructable: true,
         friction: PLACEABLE_SURFACE_FRICTION,
+        combine_rule: PLACEABLE_FRICTION,
         ..Default::default()
     });
     let mut default_isometry = Transform::identity();
@@ -280,6 +285,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         collider_position: default_isometry,
         constructable: true,
         friction: PLACEABLE_SURFACE_FRICTION,
+        combine_rule: PLACEABLE_FRICTION,
         ..Default::default()
     });
     main_cells_data.push(MainCellProperties {
@@ -330,6 +336,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         atmospherics_pushes_up: true,
         direction_rotations: rotation_struct,
         friction: PLACEABLE_SURFACE_FRICTION,
+        combine_rule: PLACEABLE_FRICTION,
         ..Default::default()
     });
 
@@ -362,6 +369,7 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         atmospherics_pushes_up: true,
         direction_rotations: rotation_struct,
         friction: PLACEABLE_SURFACE_FRICTION,
+        combine_rule: PLACEABLE_FRICTION,
         ..Default::default()
     });
 
