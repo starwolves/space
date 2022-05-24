@@ -5,7 +5,7 @@ use bevy_ecs::{
 };
 use bevy_hierarchy::Children;
 use bevy_log::warn;
-use bevy_rapier3d::prelude::{CollisionGroups};
+use bevy_rapier3d::prelude::CollisionGroups;
 use bevy_transform::prelude::Transform;
 
 use crate::{
@@ -17,7 +17,8 @@ use crate::{
         gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
         networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, ShipAuthorization},
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers}, physics::functions::{get_bit_masks, ColliderGroup},
+        physics::functions::{get_bit_masks, ColliderGroup},
+        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
     },
     entities::{
         air_locks::{
@@ -60,7 +61,7 @@ pub fn air_lock_events(
     mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
     mut unlock_events: EventReader<AirLockUnlock>,
     mut net_airlocks: EventWriter<NetAirLock>,
-    mut collision_groups : Query<&mut CollisionGroups>,
+    mut collision_groups: Query<&mut CollisionGroups>,
 ) {
     let mut close_requests = vec![];
     let mut open_requests = vec![];
@@ -239,7 +240,7 @@ pub fn air_lock_events(
                         match collision_groups.get(*child) {
                             Ok(_t) => {
                                 child_collider_entity = Some(*child);
-                            },
+                            }
                             Err(_) => {}
                         }
                     }
@@ -433,7 +434,7 @@ pub fn air_lock_events(
                 match collision_groups.get(*child) {
                     Ok(_col) => {
                         collision_child_option = Some(*child);
-                    },
+                    }
                     Err(_rr) => {}
                 }
             }
@@ -441,13 +442,11 @@ pub fn air_lock_events(
             match collision_child_option {
                 Some(ent) => {
                     let mut r = collision_groups.get_mut(ent).unwrap();
-                    
-                    
+
                     let masks = get_bit_masks(ColliderGroup::NoCollision);
 
                     r.memberships = masks.0;
                     r.filters = masks.1;
-
                 }
                 None => {
                     warn!("Couldnt find collider child..");

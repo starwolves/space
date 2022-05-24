@@ -5,6 +5,7 @@ use std::{
 
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_hierarchy::BuildChildren;
+use bevy_log::{warn, info};
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     ActiveEvents, CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody, Sensor,
@@ -43,9 +44,33 @@ impl CounterWindowBundle {
         _pawn_data_option: Option<SpawnPawnData>,
         _held_data_option: Option<SpawnHeldData>,
         default_map_spawn: bool,
-        _properties: HashMap<String, ConsoleCommandVariantValues>,
+        properties: HashMap<String, ConsoleCommandVariantValues>,
     ) -> Entity {
         let static_transform_component = entity_transform;
+
+        let mut entity_name = "";
+
+        match properties.get("entity_name").unwrap() {
+            ConsoleCommandVariantValues::String(name) => {
+                entity_name = name;
+            }
+            _ => {
+                warn!("Incorrect entity_name type.");
+            }
+        }
+
+        let department_name;
+
+        if entity_name == "securityCounterWindow" {
+            department_name = "security";
+        } else if entity_name == "bridgeCounterWindow" {
+            department_name = "bridge";
+        } else {
+            warn!("Unrecognized counterwindow sub-type {}", entity_name);
+            return Entity::from_bits(0);
+        }
+
+        info!("{}",entity_name);
 
         let rigid_body = RigidBody::Fixed;
 
@@ -74,8 +99,9 @@ impl CounterWindowBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
-            "An airtight security window. It will only grant access to those authorised to use it."
-                .to_string(),
+            "An airtight ".to_string()
+                + department_name
+                + " window. It will only grant access to those authorised to use it.",
         );
         examine_map.insert(
             1,
@@ -95,13 +121,13 @@ impl CounterWindowBundle {
             },
             EntityData {
                 entity_class: "entity".to_string(),
-                entity_name: "securityCounterWindow".to_string(),
+                entity_name: entity_name.to_string(),
                 entity_group: EntityGroup::AirLock,
             },
             EntityUpdates::default(),
             Examinable {
                 name: RichName {
-                    name: "security counter window".to_string(),
+                    name: department_name.to_string() + " window",
                     n: false,
                     ..Default::default()
                 },
