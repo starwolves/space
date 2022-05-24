@@ -5,7 +5,7 @@ use std::{
 
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_hierarchy::BuildChildren;
-use bevy_log::{warn, info};
+use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     ActiveEvents, CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody, Sensor,
