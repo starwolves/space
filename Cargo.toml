@@ -2,7 +2,7 @@
 name = "space"
 version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <nikitaab98@gmail.com>"]
-description="A high performance multi-threaded ECS game server for Space Frontiers."
+description="A modular Bevy ECS community game server for Space Frontiers."
 homepage="https://github.com/starwolves/space"
 license-file="LICENSE"
 edition = "2021"
