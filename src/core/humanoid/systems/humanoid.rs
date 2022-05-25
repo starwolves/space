@@ -36,6 +36,7 @@ use crate::{
         },
         rigid_body::components::RigidBodyData,
         sensable::components::Sensable,
+        sfx::functions::repeating_sfx_builder,
     },
     entities::sfx::actions::{
         footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
@@ -668,9 +669,12 @@ pub fn humanoids(
                     // Spawn FootstepsWalkingSfx entity here.
 
                     if zero_gravity_component_option.is_none() {
-                        let repeating_sfx_id = commands
-                            .spawn_bundle(FootstepsWalkingSfxBundle::new(rigid_body_position))
-                            .id();
+                        let repeating_sfx_id = repeating_sfx_builder(
+                            &mut commands,
+                            rigid_body_position,
+                            Box::new(FootstepsWalkingSfxBundle::new),
+                        )
+                        .id();
 
                         commands
                             .entity(standard_character_entity)
@@ -745,9 +749,12 @@ pub fn humanoids(
                     // Spawn FootstepsWalkingSfx entity here.
 
                     if zero_gravity_component_option.is_none() {
-                        let repeating_sfx_id = commands
-                            .spawn_bundle(FootstepsSprintingSfxBundle::new(rigid_body_position))
-                            .id();
+                        let repeating_sfx_id = repeating_sfx_builder(
+                            &mut commands,
+                            rigid_body_position,
+                            Box::new(FootstepsSprintingSfxBundle::new),
+                        )
+                        .id();
 
                         commands.entity(standard_character_entity).insert(
                             LinkedFootstepsSprinting {

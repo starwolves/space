@@ -1,37 +1,12 @@
-use bevy_transform::components::Transform;
+use bevy_ecs::system::EntityCommands;
 
-use crate::core::{
-    entity::components::{EntityData, EntityUpdates},
-    rigid_body::components::{CachedBroadcastTransform, UpdateTransform},
-    sensable::components::Sensable,
-    sfx::components::{get_random_pitch_scale, FootstepsWalking, RepeatingSfx},
-};
+use crate::core::sfx::components::{get_random_pitch_scale, FootstepsSprinting, RepeatingSfx};
 
 pub struct FootstepsSprintingSfxBundle;
 
 impl FootstepsSprintingSfxBundle {
-    pub fn new(
-        passed_transform: Transform,
-    ) -> (
-        Transform,
-        EntityData,
-        Sensable,
-        RepeatingSfx,
-        EntityUpdates,
-        FootstepsWalking,
-        UpdateTransform,
-        CachedBroadcastTransform,
-    ) {
-        (
-            passed_transform,
-            EntityData {
-                entity_class: "RepeatingSFX".to_string(),
-                ..Default::default()
-            },
-            Sensable {
-                is_audible: true,
-                ..Default::default()
-            },
+    pub fn new<'w, 's, 'a>(mut commands: EntityCommands<'w, 's, 'a>) -> EntityCommands<'w, 's, 'a> {
+        commands.insert_bundle((
             RepeatingSfx {
                 unit_db: 12.0,
                 unit_size: 1.,
@@ -41,10 +16,8 @@ impl FootstepsSprintingSfxBundle {
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()
             },
-            EntityUpdates::default(),
-            FootstepsWalking,
-            UpdateTransform,
-            CachedBroadcastTransform::default(),
-        )
+            FootstepsSprinting,
+        ));
+        commands
     }
 }

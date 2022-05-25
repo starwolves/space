@@ -40,7 +40,9 @@ use crate::{
         rigid_body::components::RigidBodyDisabled,
         sensable::components::Sensable,
         senser::components::Senser,
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        sfx::{
+            components::sfx_auto_destroy, functions::sfx_builder, resources::SfxAutoDestroyTimers,
+        },
     },
     entities::{
         construction_tool_admin::{
@@ -292,17 +294,19 @@ pub fn construction_tool(
         let mut rng = rand::thread_rng();
         let random_pick: i32 = rng.gen_range(0..3);
 
-        let sfx_bundle;
+        let sfx_entity;
 
         if random_pick == 0 {
-            sfx_bundle = UIInteraction1SfxBundle::new(*rgpc);
+            sfx_entity =
+                sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction1SfxBundle::new)).id();
         } else if random_pick == 1 {
-            sfx_bundle = UIInteraction2SfxBundle::new(*rgpc);
+            sfx_entity =
+                sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction2SfxBundle::new)).id();
         } else {
-            sfx_bundle = UIInteraction3SfxBundle::new(*rgpc);
+            sfx_entity =
+                sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction3SfxBundle::new)).id();
         }
 
-        let sfx_entity = commands.spawn().insert_bundle(sfx_bundle).id();
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
     }
 
@@ -338,7 +342,7 @@ pub fn construction_tool(
             }
         }
 
-        let sfx_bundle;
+        let sfx_entity;
         let deconstructed_item_name;
 
         match &event.target_cell_option {
@@ -366,7 +370,12 @@ pub fn construction_tool(
                             }
                         }
 
-                        sfx_bundle = Deconstruct1SfxBundle::new(*rigid_body_position_component);
+                        sfx_entity = sfx_builder(
+                            &mut commands,
+                            *rigid_body_position_component,
+                            Box::new(Deconstruct1SfxBundle::new),
+                        )
+                        .id();
                     }
                     GridMapType::Details1 => {
                         match gridmap_details1.data.get(&cell_id_int) {
@@ -384,11 +393,19 @@ pub fn construction_tool(
                         let random_pick: i32 = rng.gen_range(0..2);
 
                         if random_pick == 0 {
-                            sfx_bundle =
-                                ConstructLight1SfxBundle::new(*rigid_body_position_component);
+                            sfx_entity = sfx_builder(
+                                &mut commands,
+                                *rigid_body_position_component,
+                                Box::new(ConstructLight1SfxBundle::new),
+                            )
+                            .id();
                         } else {
-                            sfx_bundle =
-                                ConstructLight2SfxBundle::new(*rigid_body_position_component);
+                            sfx_entity = sfx_builder(
+                                &mut commands,
+                                *rigid_body_position_component,
+                                Box::new(ConstructLight2SfxBundle::new),
+                            )
+                            .id();
                         }
                     }
                 }
@@ -433,11 +450,14 @@ pub fn construction_tool(
 
                 commands.entity(deconstruct_entity).despawn();
 
-                sfx_bundle = Deconstruct1SfxBundle::new(*rigid_body_position_component);
+                sfx_entity = sfx_builder(
+                    &mut commands,
+                    *rigid_body_position_component,
+                    Box::new(Deconstruct1SfxBundle::new),
+                )
+                .id();
             }
         }
-
-        let sfx_entity = commands.spawn().insert_bundle(sfx_bundle).id();
 
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
 
@@ -1109,15 +1129,24 @@ pub fn construction_tool(
 
         let mut rng = rand::thread_rng();
         let random_pick: i32 = rng.gen_range(0..2);
-        let sfx_bundle;
+        let sfx_entity;
 
         if random_pick == 0 {
-            sfx_bundle = Construct1SfxBundle::new(*rigid_body_position_component);
+            sfx_entity = sfx_builder(
+                &mut commands,
+                *rigid_body_position_component,
+                Box::new(Construct1SfxBundle::new),
+            )
+            .id();
         } else {
-            sfx_bundle = Construct2SfxBundle::new(*rigid_body_position_component);
+            sfx_entity = sfx_builder(
+                &mut commands,
+                *rigid_body_position_component,
+                Box::new(Construct2SfxBundle::new),
+            )
+            .id();
         }
 
-        let sfx_entity = commands.spawn().insert_bundle(sfx_bundle).id();
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
     }
 }

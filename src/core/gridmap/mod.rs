@@ -37,6 +37,7 @@ use crate::{
                 SpawnPointRaw,
             },
         },
+        sfx::functions::ambience_sfx_builder,
         world_environment::resources::WorldEnvironmentRaw,
     },
     entities::{
@@ -1028,9 +1029,11 @@ pub fn startup_misc_resources(
     spawn_points_res.i = 0;
 
     // Spawn ambience SFX
-    commands
-        .spawn()
-        .insert_bundle(AmbienceSfxBundle::new(Transform::identity()));
+    ambience_sfx_builder(
+        &mut commands,
+        Transform::identity(),
+        Box::new(AmbienceSfxBundle::new),
+    );
 
     // So we have one reserved Id that isnt an entity for sure
     let server_component = Server;
