@@ -12,6 +12,7 @@ use super::{entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1, P
 
 pub mod components;
 pub mod entity_update;
+pub mod functions;
 pub mod resources;
 pub mod systems;
 

@@ -18,7 +18,9 @@ use crate::{
         networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, ShipAuthorization},
         physics::functions::{get_bit_masks, ColliderGroup},
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        sfx::{
+            components::sfx_auto_destroy, functions::sfx_builder, resources::SfxAutoDestroyTimers,
+        },
     },
     entities::{
         air_locks::{
@@ -261,10 +263,12 @@ pub fn air_lock_events(
 
                     air_lock_component.access_lights = AccessLightsStatus::Neutral;
 
-                    let sfx_entity = commands
-                        .spawn()
-                        .insert_bundle(AirLockClosedSfxBundle::new(rigid_body_position_component))
-                        .id();
+                    let sfx_entity = sfx_builder(
+                        &mut commands,
+                        rigid_body_position_component,
+                        Box::new(AirLockClosedSfxBundle::new),
+                    )
+                    .id();
                     sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
                 }
             }
@@ -455,24 +459,24 @@ pub fn air_lock_events(
 
             air_lock_component.open_timer_option = Some(open_timer());
 
-            let sfx_entity = commands
-                .spawn()
-                .insert_bundle(AirLockOpenSfxBundle::new(
-                    air_lock_static_transform_component,
-                ))
-                .id();
+            let sfx_entity = sfx_builder(
+                &mut commands,
+                air_lock_static_transform_component,
+                Box::new(AirLockOpenSfxBundle::new),
+            )
+            .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         } else {
             air_lock_component.access_lights = AccessLightsStatus::Denied;
 
             air_lock_component.denied_timer_option = Some(denied_timer());
 
-            let sfx_entity = commands
-                .spawn()
-                .insert_bundle(AirLockDeniedSfxBundle::new(
-                    air_lock_static_transform_component,
-                ))
-                .id();
+            let sfx_entity = sfx_builder(
+                &mut commands,
+                air_lock_static_transform_component,
+                Box::new(AirLockDeniedSfxBundle::new),
+            )
+            .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         }
     }

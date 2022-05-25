@@ -35,7 +35,9 @@ use crate::{
         physics::components::{WorldMode, WorldModes},
         rigid_body::{components::RigidBodyLinkTransform, functions::enable_rigidbody},
         sensable::components::Sensable,
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        sfx::{
+            components::sfx_auto_destroy, functions::sfx_builder, resources::SfxAutoDestroyTimers,
+        },
     },
     entities::sfx::actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},
 };
@@ -316,15 +318,16 @@ pub fn throw_item(
         let mut rng = rand::thread_rng();
         let random_pick: i32 = rng.gen_range(0..2);
 
-        let throw;
+        let sfx_entity;
 
         if random_pick == 0 {
-            throw = Throw1SfxBundle::new(new_transform);
+            sfx_entity =
+                sfx_builder(&mut commands, new_transform, Box::new(Throw1SfxBundle::new)).id();
         } else {
-            throw = Throw2SfxBundle::new(new_transform);
+            sfx_entity =
+                sfx_builder(&mut commands, new_transform, Box::new(Throw2SfxBundle::new)).id();
         }
 
-        let sfx_entity = commands.spawn().insert_bundle(throw).id();
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
 
         match handle_to_entity.inv_map.get(&event.entity) {

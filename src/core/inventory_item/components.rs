@@ -5,6 +5,7 @@ use bevy_ecs::{
     prelude::Component,
     system::{Commands, ResMut},
 };
+use bevy_log::warn;
 use bevy_transform::components::Transform;
 use rand::prelude::SliceRandom;
 
@@ -12,7 +13,9 @@ use crate::{
     core::{
         health::components::DamageModel,
         inventory::components::SlotType,
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        sfx::{
+            components::sfx_auto_destroy, functions::sfx_builder, resources::SfxAutoDestroyTimers,
+        },
         tab_actions::components::TabAction,
     },
     entities::sfx::{
@@ -150,59 +153,43 @@ impl CombatSoundSet {
     ) {
         match self.default.choose(&mut rand::thread_rng()).unwrap() {
             CombatSound::FistsSwing1 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Swing1SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Swing1SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsSwing2 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Swing2SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Swing2SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsSwing3 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Swing3SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Swing3SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsSwing4 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Swing4SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Swing4SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightShot1 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightShot1Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightShot1Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightShot2 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightShot2Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightShot2Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightShot3 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightShot3Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightShot3Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightShot4 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightShot4Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightShot4Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             _ => (),
@@ -217,59 +204,43 @@ impl CombatSoundSet {
     ) {
         match self.hit_soft.choose(&mut rand::thread_rng()).unwrap() {
             CombatSound::FistsPunch1 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Punch1SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Punch1SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsPunch2 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Punch2SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Punch2SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsPunch3 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Punch3SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Punch3SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsPunch4 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Punch4SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Punch4SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightHit1 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightHit1Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightHit1Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightHit2 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightHit2Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightHit2Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightHit3 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightHit3Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightHit3Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightHit4 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightHit4Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightHit4Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             _ => (),
@@ -284,55 +255,43 @@ impl CombatSoundSet {
     ) {
         match self.hit_blocked.choose(&mut rand::thread_rng()).unwrap() {
             CombatSound::FistsBlock1 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Block1SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Block1SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsBlock2 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Block2SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Block2SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::FistsBlock3 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(Block3SfxBundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(Block3SfxBundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightBlock1 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightBlock1Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightBlock1Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightBlock2 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightBlock2Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightBlock2Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightBlock3 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightBlock3Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightBlock3Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
             CombatSound::LaserLightBlock4 => {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(LaserLightBlock4Bundle::new(transform))
-                    .id();
+                let sfx_entity =
+                    sfx_builder(commands, transform, Box::new(LaserLightBlock4Bundle::new)).id();
                 sfx_auto_destroy(sfx_entity, auto_destroy_timers);
             }
-            _ => (),
+            _ => {
+                warn!("???");
+            }
         }
     }
 }

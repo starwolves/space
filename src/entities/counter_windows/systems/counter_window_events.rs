@@ -16,7 +16,9 @@ use crate::{
         gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
         networking::resources::ReliableServerMessage,
         pawn::components::{Pawn, ShipAuthorization},
-        sfx::{components::sfx_auto_destroy, resources::SfxAutoDestroyTimers},
+        sfx::{
+            components::sfx_auto_destroy, functions::sfx_builder, resources::SfxAutoDestroyTimers,
+        },
     },
     entities::{
         air_locks::{components::LockedStatus, systems::air_lock_events::AirLockCloseRequest},
@@ -271,12 +273,12 @@ pub fn counter_window_events(
                     counter_window_component.access_lights =
                         CounterWindowAccessLightsStatus::Neutral;
 
-                    let sfx_entity = commands
-                        .spawn()
-                        .insert_bundle(CounterWindowClosedSfxBundle::new(
-                            *rigid_body_position_component,
-                        ))
-                        .id();
+                    let sfx_entity = sfx_builder(
+                        &mut commands,
+                        *rigid_body_position_component,
+                        Box::new(CounterWindowClosedSfxBundle::new),
+                    )
+                    .id();
                     sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
                 }
             }
@@ -465,12 +467,12 @@ pub fn counter_window_events(
 
         if pawn_has_permission == true {
             if !matches!(counter_window_component.status, CounterWindowStatus::Open) {
-                let sfx_entity = commands
-                    .spawn()
-                    .insert_bundle(CounterWindowOpenSfxBundle::new(
-                        *counter_window_rigid_body_position_component,
-                    ))
-                    .id();
+                let sfx_entity = sfx_builder(
+                    &mut commands,
+                    *counter_window_rigid_body_position_component,
+                    Box::new(CounterWindowOpenSfxBundle::new),
+                )
+                .id();
                 sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
             }
 
@@ -512,12 +514,12 @@ pub fn counter_window_events(
 
             counter_window_component.denied_timer = Some(denied_timer());
 
-            let sfx_entity = commands
-                .spawn()
-                .insert_bundle(CounterWindowDeniedSfxBundle::new(
-                    *counter_window_rigid_body_position_component,
-                ))
-                .id();
+            let sfx_entity = sfx_builder(
+                &mut commands,
+                *counter_window_rigid_body_position_component,
+                Box::new(CounterWindowDeniedSfxBundle::new),
+            )
+            .id();
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         }
     }
