@@ -71,7 +71,7 @@ pub enum DamageFlag {
     Floor(f32),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct HumanoidHealth {
     pub head_brute: f32,
     pub head_burn: f32,
@@ -98,6 +98,7 @@ pub struct HumanoidHealth {
     pub left_leg_toxin: f32,
 }
 
+#[derive(Default)]
 pub struct EntityContainer {
     pub brute: f32,
     pub burn: f32,
@@ -503,45 +504,5 @@ impl Health {
         }
 
         hit_result
-    }
-}
-
-impl Default for EntityContainer {
-    fn default() -> Self {
-        Self {
-            brute: 0.,
-            burn: 0.,
-            toxin: 0.,
-        }
-    }
-}
-
-impl Default for HumanoidHealth {
-    fn default() -> Self {
-        Self {
-            head_brute: 0.,
-            head_burn: 0.,
-            head_toxin: 0.,
-
-            torso_brute: 0.,
-            torso_burn: 0.,
-            torso_toxin: 0.,
-
-            left_arm_brute: 0.,
-            left_arm_burn: 0.,
-            left_arm_toxin: 0.,
-
-            right_arm_brute: 0.,
-            right_arm_burn: 0.,
-            right_arm_toxin: 0.,
-
-            right_leg_brute: 0.,
-            right_leg_burn: 0.,
-            right_leg_toxin: 0.,
-
-            left_leg_brute: 0.,
-            left_leg_burn: 0.,
-            left_leg_toxin: 0.,
-        }
     }
 }
