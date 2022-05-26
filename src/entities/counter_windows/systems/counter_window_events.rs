@@ -277,8 +277,7 @@ pub fn counter_window_events(
                         &mut commands,
                         *rigid_body_position_component,
                         Box::new(CounterWindowClosedSfxBundle::new),
-                    )
-                    .id();
+                    );
                     sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
                 }
             }
@@ -471,8 +470,7 @@ pub fn counter_window_events(
                     &mut commands,
                     *counter_window_rigid_body_position_component,
                     Box::new(CounterWindowOpenSfxBundle::new),
-                )
-                .id();
+                );
                 sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
             }
 
@@ -518,8 +516,7 @@ pub fn counter_window_events(
                 &mut commands,
                 *counter_window_rigid_body_position_component,
                 Box::new(CounterWindowDeniedSfxBundle::new),
-            )
-            .id();
+            );
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         }
     }

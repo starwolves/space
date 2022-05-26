@@ -673,8 +673,7 @@ pub fn humanoids(
                             &mut commands,
                             rigid_body_position,
                             Box::new(FootstepsWalkingSfxBundle::new),
-                        )
-                        .id();
+                        );
 
                         commands
                             .entity(standard_character_entity)
@@ -753,8 +752,7 @@ pub fn humanoids(
                             &mut commands,
                             rigid_body_position,
                             Box::new(FootstepsSprintingSfxBundle::new),
-                        )
-                        .id();
+                        );
 
                         commands.entity(standard_character_entity).insert(
                             LinkedFootstepsSprinting {

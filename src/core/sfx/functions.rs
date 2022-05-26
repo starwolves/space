@@ -1,4 +1,4 @@
-use bevy_ecs::system::{Commands, EntityCommands};
+use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
@@ -7,12 +7,13 @@ use crate::core::{
     sensable::components::Sensable,
 };
 
-pub fn repeating_sfx_builder<'w, 's, 'a>(
-    commands: &'a mut Commands<'w, 's>,
+pub fn repeating_sfx_builder(
+    commands: &mut Commands,
     rigid_body_position: Transform,
-    builder: Box<dyn Fn(EntityCommands<'w, 's, 'a>) -> EntityCommands<'w, 's, 'a> + Sync + Send>,
-) -> EntityCommands<'w, 's, 'a> {
-    let commands = commands.spawn_bundle((
+    builder: Box<dyn Fn(&mut Commands) -> Entity + Sync + Send>,
+) -> Entity {
+    let entity = (builder)(commands);
+    commands.entity(entity).insert_bundle((
         rigid_body_position,
         EntityData {
             entity_class: "RepeatingSFX".to_string(),
@@ -26,15 +27,16 @@ pub fn repeating_sfx_builder<'w, 's, 'a>(
         UpdateTransform,
         CachedBroadcastTransform::default(),
     ));
-    (builder)(commands)
+    entity
 }
 
-pub fn sfx_builder<'w, 's, 'a>(
-    commands: &'a mut Commands<'w, 's>,
+pub fn sfx_builder(
+    commands: &mut Commands,
     rigid_body_position: Transform,
-    builder: Box<dyn Fn(EntityCommands<'w, 's, 'a>) -> EntityCommands<'w, 's, 'a> + Sync + Send>,
-) -> EntityCommands<'w, 's, 'a> {
-    let commands = commands.spawn_bundle((
+    builder: Box<dyn Fn(&mut Commands) -> Entity + Sync + Send>,
+) -> Entity {
+    let entity = (builder)(commands);
+    commands.entity(entity).insert_bundle((
         rigid_body_position,
         EntityData {
             entity_class: "SFX".to_string(),
@@ -46,15 +48,17 @@ pub fn sfx_builder<'w, 's, 'a>(
         },
         EntityUpdates::default(),
     ));
-    (builder)(commands)
+    entity
 }
 
-pub fn ambience_sfx_builder<'w, 's, 'a>(
-    commands: &'a mut Commands<'w, 's>,
+pub fn ambience_sfx_builder(
+    commands: &mut Commands,
     rigid_body_position: Transform,
-    builder: Box<dyn Fn(EntityCommands<'w, 's, 'a>) -> EntityCommands<'w, 's, 'a> + Sync + Send>,
-) -> EntityCommands<'w, 's, 'a> {
-    let commands = commands.spawn_bundle((
+    builder: Box<dyn Fn(&mut Commands) -> Entity + Sync + Send>,
+) -> Entity {
+    let entity = (builder)(commands);
+
+    commands.entity(entity).insert_bundle((
         rigid_body_position,
         EntityData {
             entity_class: "SFX".to_string(),
@@ -67,5 +71,6 @@ pub fn ambience_sfx_builder<'w, 's, 'a>(
         },
         EntityUpdates::default(),
     ));
-    (builder)(commands)
+
+    entity
 }

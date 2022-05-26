@@ -321,11 +321,9 @@ pub fn throw_item(
         let sfx_entity;
 
         if random_pick == 0 {
-            sfx_entity =
-                sfx_builder(&mut commands, new_transform, Box::new(Throw1SfxBundle::new)).id();
+            sfx_entity = sfx_builder(&mut commands, new_transform, Box::new(Throw1SfxBundle::new));
         } else {
-            sfx_entity =
-                sfx_builder(&mut commands, new_transform, Box::new(Throw2SfxBundle::new)).id();
+            sfx_entity = sfx_builder(&mut commands, new_transform, Box::new(Throw2SfxBundle::new));
         }
 
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
