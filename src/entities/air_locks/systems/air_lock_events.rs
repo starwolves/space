@@ -267,8 +267,8 @@ pub fn air_lock_events(
                         &mut commands,
                         rigid_body_position_component,
                         Box::new(AirLockClosedSfxBundle::new),
-                    )
-                    .id();
+                    );
+
                     sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
                 }
             }
@@ -463,8 +463,7 @@ pub fn air_lock_events(
                 &mut commands,
                 air_lock_static_transform_component,
                 Box::new(AirLockOpenSfxBundle::new),
-            )
-            .id();
+            );
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         } else {
             air_lock_component.access_lights = AccessLightsStatus::Denied;
@@ -475,8 +474,7 @@ pub fn air_lock_events(
                 &mut commands,
                 air_lock_static_transform_component,
                 Box::new(AirLockDeniedSfxBundle::new),
-            )
-            .id();
+            );
             sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
         }
     }

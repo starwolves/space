@@ -297,14 +297,11 @@ pub fn construction_tool(
         let sfx_entity;
 
         if random_pick == 0 {
-            sfx_entity =
-                sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction1SfxBundle::new)).id();
+            sfx_entity = sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction1SfxBundle::new));
         } else if random_pick == 1 {
-            sfx_entity =
-                sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction2SfxBundle::new)).id();
+            sfx_entity = sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction2SfxBundle::new));
         } else {
-            sfx_entity =
-                sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction3SfxBundle::new)).id();
+            sfx_entity = sfx_builder(&mut commands, *rgpc, Box::new(UIInteraction3SfxBundle::new));
         }
 
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
@@ -374,8 +371,7 @@ pub fn construction_tool(
                             &mut commands,
                             *rigid_body_position_component,
                             Box::new(Deconstruct1SfxBundle::new),
-                        )
-                        .id();
+                        );
                     }
                     GridMapType::Details1 => {
                         match gridmap_details1.data.get(&cell_id_int) {
@@ -397,15 +393,13 @@ pub fn construction_tool(
                                 &mut commands,
                                 *rigid_body_position_component,
                                 Box::new(ConstructLight1SfxBundle::new),
-                            )
-                            .id();
+                            );
                         } else {
                             sfx_entity = sfx_builder(
                                 &mut commands,
                                 *rigid_body_position_component,
                                 Box::new(ConstructLight2SfxBundle::new),
-                            )
-                            .id();
+                            );
                         }
                     }
                 }
@@ -454,8 +448,7 @@ pub fn construction_tool(
                     &mut commands,
                     *rigid_body_position_component,
                     Box::new(Deconstruct1SfxBundle::new),
-                )
-                .id();
+                );
             }
         }
 
@@ -1136,15 +1129,13 @@ pub fn construction_tool(
                 &mut commands,
                 *rigid_body_position_component,
                 Box::new(Construct1SfxBundle::new),
-            )
-            .id();
+            );
         } else {
             sfx_entity = sfx_builder(
                 &mut commands,
                 *rigid_body_position_component,
                 Box::new(Construct2SfxBundle::new),
-            )
-            .id();
+            );
         }
 
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
