@@ -3,11 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use bevy_ecs::{
-    entity::Entity,
-    event::EventWriter,
-    system::{Commands, Query},
-};
+use bevy_ecs::{entity::Entity, system::Query};
 use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
@@ -23,7 +19,7 @@ use crate::{
         entity::{
             components::{EntityData, EntityUpdates, Showcase},
             events::NetShowcase,
-            resources::{EntityDataResource, SpawnHeldData, SpawnPawnData},
+            resources::{EntityDataResource, SpawnData},
         },
         examinable::components::{Examinable, RichName},
         gridmap::resources::CellData,
@@ -33,7 +29,7 @@ use crate::{
             CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
             InventoryItem,
         },
-        networking::resources::{ConsoleCommandVariantValues, GridMapType, ReliableServerMessage},
+        networking::resources::{GridMapType, ReliableServerMessage},
         pawn::functions::can_reach_entity::REACH_DISTANCE,
         physics::{
             components::{WorldMode, WorldModes},
@@ -55,305 +51,263 @@ use crate::{
 pub struct ConstructionToolBundle;
 
 impl ConstructionToolBundle {
-    pub fn spawn(
-        passed_transform: Transform,
-        commands: &mut Commands,
-        correct_transform: bool,
-        _pawn_data_option: Option<SpawnPawnData>,
-        held_data_option: Option<SpawnHeldData>,
-        _default_map_spawn: bool,
-        _properties: HashMap<String, ConsoleCommandVariantValues>,
-    ) -> Entity {
-        match held_data_option {
-            Some(held_data) => {
-                let (holder_entity, showcase_instance, showcase_handle_option, net_showcase) =
-                    held_data.data;
-                spawn_entity(
-                    commands,
-                    None,
+    pub fn spawn(spawn_data: SpawnData) -> Entity {
+        let mut this_transform;
+        let default_transform = Transform::identity();
+
+        let held = spawn_data.held_data_option.is_some();
+
+        this_transform = spawn_data.entity_transform;
+
+        if spawn_data.correct_transform {
+            this_transform.rotation = default_transform.rotation;
+        }
+
+        let shape = Collider::cuboid(0.11 * 1.5, 0.1 * 1.5, 0.13 * 1.5);
+
+        let collider_position = Vec3::new(0., 0.087, 0.).into();
+
+        let friction_val = STANDARD_BODY_FRICTION;
+        let friction_combine_rule = CoefficientCombineRule::Multiply;
+
+        let mut t = Transform::from_translation(this_transform.translation);
+        t.rotation = this_transform.rotation;
+        let mut friction = Friction::coefficient(friction_val);
+        friction.combine_rule = friction_combine_rule;
+
+        let mut builder = spawn_data.commands.spawn();
+        if held == false {
+            let rigid_body = RigidBody::Fixed;
+
+            let masks = get_bit_masks(ColliderGroup::Standard);
+
+            builder
+                .insert(rigid_body)
+                .insert(t)
+                .insert(Velocity::default())
+                .insert(ExternalForce::default())
+                .insert(Sleeping::default())
+                .insert(GravityScale::default())
+                .insert(ExternalImpulse::default())
+                .with_children(|children| {
+                    children
+                        .spawn()
+                        .insert(shape)
+                        .insert(Transform::from_translation(collider_position))
+                        .insert(friction)
+                        .insert(CollisionGroups::new(masks.0, masks.1));
+                });
+        } else {
+            let rigid_body = RigidBody::Dynamic;
+
+            let masks = get_bit_masks(ColliderGroup::NoCollision);
+
+            let sleeping = Sleeping {
+                sleeping: true,
+                ..Default::default()
+            };
+
+            builder
+                .insert(ExternalImpulse::default())
+                .insert(ExternalForce::default())
+                .insert(Velocity::default())
+                .insert(rigid_body)
+                .insert(t)
+                .insert(GravityScale(0.))
+                .insert(sleeping)
+                .with_children(|children| {
+                    children
+                        .spawn()
+                        .insert(shape)
+                        .insert(Transform::from_translation(collider_position))
+                        .insert(friction)
+                        .insert(CollisionGroups::new(masks.0, masks.1));
+                });
+        }
+
+        let template_examine_text =
+            "A construction tool. Use this to construct or deconstruct ship hull cells."
+                .to_string();
+        let mut examine_map = BTreeMap::new();
+        examine_map.insert(0, template_examine_text);
+
+        let mut attachment_transforms = HashMap::new();
+
+        attachment_transforms.insert(
+            "left_hand".to_string(),
+            Transform::from_matrix(Mat4::from_scale_rotation_translation(
+                Vec3::new(0.5, 0.5, 0.5),
+                Quat::from_axis_angle(Vec3::new(0.0697873, -0.966557, -0.246774), 1.8711933),
+                Vec3::new(-0.047, 0.024, -0.035),
+            )),
+        );
+
+        attachment_transforms.insert(
+            "right_hand".to_string(),
+            Transform::from_matrix(Mat4::from_scale_rotation_translation(
+                Vec3::new(0.5, 0.5, 0.5),
+                Quat::from_axis_angle(Vec3::new(-0.1942536, 0.9779768, 0.076334), 2.1748603),
+                Vec3::new(0.042, -0., -0.021),
+            )),
+        );
+
+        attachment_transforms.insert(
+            "holster".to_string(),
+            Transform::from_matrix(Mat4::from_scale_rotation_translation(
+                Vec3::new(0.5, 0.5, 0.5),
+                Quat::from_axis_angle(Vec3::new(-0.6264298, -0.1219246, 0.7698832), 2.4247889),
+                Vec3::new(0., -0.093, 0.036),
+            )),
+        );
+
+        let entity_id = builder.id();
+
+        let mut melee_damage_flags = HashMap::new();
+        melee_damage_flags.insert(0, DamageFlag::SoftDamage);
+
+        let mut projectile_damage_flags = HashMap::new();
+        projectile_damage_flags.insert(0, DamageFlag::WeakLethalLaser);
+
+        let entity_type = "constructionTool";
+
+        let holder_entity_option;
+
+        match spawn_data.held_data_option {
+            Some(d) => {
+                holder_entity_option = Some(d.entity);
+            }
+            None => {
+                holder_entity_option = None;
+            }
+        }
+
+        builder.insert_bundle((
+            EntityData {
+                entity_class: "entity".to_string(),
+                entity_name: entity_type.to_string(),
+                ..Default::default()
+            },
+            EntityUpdates::default(),
+            CachedBroadcastTransform::default(),
+            Examinable {
+                assigned_texts: examine_map,
+                name: RichName {
+                    name: "admin construction tool".to_string(),
+                    n: false,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ConstructionTool::default(),
+            InventoryItem {
+                in_inventory_of_entity: holder_entity_option,
+                attachment_transforms: attachment_transforms,
+                drop_transform: default_transform,
+                slot_type: SlotType::Holster,
+                is_attached_when_worn: true,
+                combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
+                combat_type: CombatType::MeleeDirect,
+                combat_melee_damage_model: DamageModel {
+                    brute: 9.,
+                    damage_flags: melee_damage_flags,
+                    ..Default::default()
+                },
+                combat_projectile_damage_model: None,
+                combat_melee_sound_set: CombatSoundSet::default(),
+                combat_standard_animation: CombatStandardAnimation::StandardStance,
+                combat_projectile_sound_set: None,
+                combat_melee_text_set: InventoryItem::get_default_strike_words(),
+                combat_projectile_text_set: None,
+                trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
+                trigger_projectile_text_set: None,
+                active_slot_tab_actions: vec![
+                    TabAction {
+                        id: "action::construction_tool_admin/construct".to_string(),
+                        text: "Construct".to_string(),
+                        tab_list_priority: 50,
+                        prerequisite_check: Arc::new(construct_action),
+                        belonging_entity: Some(entity_id),
+                    },
+                    TabAction {
+                        id: "action::construction_tool_admin/deconstruct".to_string(),
+                        text: "Deconstruct".to_string(),
+                        tab_list_priority: 49,
+                        prerequisite_check: Arc::new(deconstruct_action),
+                        belonging_entity: Some(entity_id),
+                    },
+                    TabAction {
+                        id: "action::construction_tool_admin/constructionoptions".to_string(),
+                        text: "Construction Options".to_string(),
+                        tab_list_priority: 48,
+                        prerequisite_check: Arc::new(construction_option_action),
+                        belonging_entity: Some(entity_id),
+                    },
+                ],
+                throw_force_factor: 1.,
+            },
+            RigidBodyData {
+                friction: friction.coefficient,
+                friction_combine_rule: friction.combine_rule,
+            },
+            DefaultTransform {
+                transform: default_transform,
+            },
+        ));
+
+        if spawn_data.showcase_data_option.is_some() {
+            let handle = spawn_data.showcase_data_option.as_mut().unwrap();
+            builder.insert(Showcase {
+                handle: handle.handle,
+            });
+            let entity_updates = HashMap::new();
+            handle.event_writer.send(NetShowcase {
+                handle: handle.handle,
+                message: ReliableServerMessage::LoadEntity(
+                    "entity".to_string(),
+                    entity_type.to_string(),
+                    entity_updates,
+                    entity_id.to_bits(),
                     true,
-                    Some(holder_entity),
-                    showcase_instance,
-                    showcase_handle_option,
-                    net_showcase,
+                    "main".to_string(),
+                    "".to_string(),
                     false,
-                )
+                ),
+            });
+        } else {
+            builder.insert_bundle((Sensable::default(), Health::default()));
+        }
+
+        match held {
+            true => {
+                builder.insert_bundle((
+                    RigidBodyDisabled,
+                    WorldMode {
+                        mode: WorldModes::Worn,
+                    },
+                ));
             }
-            None => spawn_entity(
-                commands,
-                Some(passed_transform),
-                false,
-                None,
-                false,
-                None,
-                &mut None,
-                correct_transform,
-            ),
-        }
-    }
-}
-
-fn spawn_entity(
-    commands: &mut Commands,
-
-    passed_transform_option: Option<Transform>,
-
-    held: bool,
-    holder_entity_option: Option<Entity>,
-
-    showcase_instance: bool,
-    showcase_handle_option: Option<u32>,
-
-    net_showcase: &mut Option<&mut EventWriter<NetShowcase>>,
-
-    correct_transform: bool,
-) -> Entity {
-    let mut this_transform;
-    let default_transform = Transform::identity();
-
-    match passed_transform_option {
-        Some(transform) => {
-            this_transform = transform;
-        }
-        None => {
-            this_transform = default_transform;
-        }
-    }
-
-    if correct_transform {
-        this_transform.rotation = default_transform.rotation;
-    }
-
-    let shape = Collider::cuboid(0.11 * 1.5, 0.1 * 1.5, 0.13 * 1.5);
-
-    let collider_position = Vec3::new(0., 0.087, 0.).into();
-
-    let friction_val = STANDARD_BODY_FRICTION;
-    let friction_combine_rule = CoefficientCombineRule::Multiply;
-
-    let mut t = Transform::from_translation(this_transform.translation);
-    t.rotation = this_transform.rotation;
-    let mut friction = Friction::coefficient(friction_val);
-    friction.combine_rule = friction_combine_rule;
-
-    let mut builder = commands.spawn();
-    if held == false {
-        let rigid_body = RigidBody::Fixed;
-
-        let masks = get_bit_masks(ColliderGroup::Standard);
-
-        builder
-            .insert(rigid_body)
-            .insert(t)
-            .insert(Velocity::default())
-            .insert(ExternalForce::default())
-            .insert(Sleeping::default())
-            .insert(GravityScale::default())
-            .insert(ExternalImpulse::default())
-            .with_children(|children| {
-                children
-                    .spawn()
-                    .insert(shape)
-                    .insert(Transform::from_translation(collider_position))
-                    .insert(friction)
-                    .insert(CollisionGroups::new(masks.0, masks.1));
-            });
-    } else {
-        let rigid_body = RigidBody::Dynamic;
-
-        let masks = get_bit_masks(ColliderGroup::NoCollision);
-
-        let sleeping = Sleeping {
-            sleeping: true,
-            ..Default::default()
-        };
-
-        builder
-            .insert(ExternalImpulse::default())
-            .insert(ExternalForce::default())
-            .insert(Velocity::default())
-            .insert(rigid_body)
-            .insert(t)
-            .insert(GravityScale(0.))
-            .insert(sleeping)
-            .with_children(|children| {
-                children
-                    .spawn()
-                    .insert(shape)
-                    .insert(Transform::from_translation(collider_position))
-                    .insert(friction)
-                    .insert(CollisionGroups::new(masks.0, masks.1));
-            });
-    }
-
-    let template_examine_text =
-        "A construction tool. Use this to construct or deconstruct ship hull cells.".to_string();
-    let mut examine_map = BTreeMap::new();
-    examine_map.insert(0, template_examine_text);
-
-    let mut attachment_transforms = HashMap::new();
-
-    attachment_transforms.insert(
-        "left_hand".to_string(),
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(0.5, 0.5, 0.5),
-            Quat::from_axis_angle(Vec3::new(0.0697873, -0.966557, -0.246774), 1.8711933),
-            Vec3::new(-0.047, 0.024, -0.035),
-        )),
-    );
-
-    attachment_transforms.insert(
-        "right_hand".to_string(),
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(0.5, 0.5, 0.5),
-            Quat::from_axis_angle(Vec3::new(-0.1942536, 0.9779768, 0.076334), 2.1748603),
-            Vec3::new(0.042, -0., -0.021),
-        )),
-    );
-
-    attachment_transforms.insert(
-        "holster".to_string(),
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(0.5, 0.5, 0.5),
-            Quat::from_axis_angle(Vec3::new(-0.6264298, -0.1219246, 0.7698832), 2.4247889),
-            Vec3::new(0., -0.093, 0.036),
-        )),
-    );
-
-    let entity_id = builder.id();
-
-    let mut melee_damage_flags = HashMap::new();
-    melee_damage_flags.insert(0, DamageFlag::SoftDamage);
-
-    let mut projectile_damage_flags = HashMap::new();
-    projectile_damage_flags.insert(0, DamageFlag::WeakLethalLaser);
-
-    let entity_type = "constructionTool";
-
-    builder.insert_bundle((
-        EntityData {
-            entity_class: "entity".to_string(),
-            entity_name: entity_type.to_string(),
-            ..Default::default()
-        },
-        EntityUpdates::default(),
-        CachedBroadcastTransform::default(),
-        Examinable {
-            assigned_texts: examine_map,
-            name: RichName {
-                name: "admin construction tool".to_string(),
-                n: false,
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-        ConstructionTool::default(),
-        InventoryItem {
-            in_inventory_of_entity: holder_entity_option,
-            attachment_transforms: attachment_transforms,
-            drop_transform: default_transform,
-            slot_type: SlotType::Holster,
-            is_attached_when_worn: true,
-            combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
-            combat_type: CombatType::MeleeDirect,
-            combat_melee_damage_model: DamageModel {
-                brute: 9.,
-                damage_flags: melee_damage_flags,
-                ..Default::default()
-            },
-            combat_projectile_damage_model: None,
-            combat_melee_sound_set: CombatSoundSet::default(),
-            combat_standard_animation: CombatStandardAnimation::StandardStance,
-            combat_projectile_sound_set: None,
-            combat_melee_text_set: InventoryItem::get_default_strike_words(),
-            combat_projectile_text_set: None,
-            trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
-            trigger_projectile_text_set: None,
-            active_slot_tab_actions: vec![
-                TabAction {
-                    id: "action::construction_tool_admin/construct".to_string(),
-                    text: "Construct".to_string(),
-                    tab_list_priority: 50,
-                    prerequisite_check: Arc::new(construct_action),
-                    belonging_entity: Some(entity_id),
-                },
-                TabAction {
-                    id: "action::construction_tool_admin/deconstruct".to_string(),
-                    text: "Deconstruct".to_string(),
-                    tab_list_priority: 49,
-                    prerequisite_check: Arc::new(deconstruct_action),
-                    belonging_entity: Some(entity_id),
-                },
-                TabAction {
-                    id: "action::construction_tool_admin/constructionoptions".to_string(),
-                    text: "Construction Options".to_string(),
-                    tab_list_priority: 48,
-                    prerequisite_check: Arc::new(construction_option_action),
-                    belonging_entity: Some(entity_id),
-                },
-            ],
-            throw_force_factor: 1.,
-        },
-        RigidBodyData {
-            friction: friction.coefficient,
-            friction_combine_rule: friction.combine_rule,
-        },
-        DefaultTransform {
-            transform: default_transform,
-        },
-    ));
-
-    if showcase_instance {
-        let handle = showcase_handle_option.unwrap();
-        builder.insert(Showcase { handle: handle });
-        let entity_updates = HashMap::new();
-        net_showcase.as_deref_mut().unwrap().send(NetShowcase {
-            handle: handle,
-            message: ReliableServerMessage::LoadEntity(
-                "entity".to_string(),
-                entity_type.to_string(),
-                entity_updates,
-                entity_id.to_bits(),
-                true,
-                "main".to_string(),
-                "".to_string(),
-                false,
-            ),
-        });
-    } else {
-        builder.insert_bundle((Sensable::default(), Health::default()));
-    }
-
-    match held {
-        true => {
-            builder.insert_bundle((
-                RigidBodyDisabled,
-                WorldMode {
-                    mode: WorldModes::Worn,
-                },
-            ));
-        }
-        false => {
-            builder.insert(WorldMode {
-                mode: WorldModes::Physics,
-            });
-        }
-    }
-
-    match holder_entity_option {
-        Some(holder_entity) => {
-            builder.insert(RigidBodyLinkTransform {
-                follow_entity: holder_entity,
-                ..Default::default()
-            });
-        }
-        None => {
-            if held == true {
-                warn!("Spawned entity in held mode but holder_entity_option is none.");
+            false => {
+                builder.insert(WorldMode {
+                    mode: WorldModes::Physics,
+                });
             }
         }
+
+        match holder_entity_option {
+            Some(holder_entity) => {
+                builder.insert(RigidBodyLinkTransform {
+                    follow_entity: holder_entity,
+                    ..Default::default()
+                });
+            }
+            None => {
+                if held == true {
+                    warn!("Spawned entity in held mode but holder_entity_option is none.");
+                }
+            }
+        }
+        entity_id
     }
-    entity_id
 }
 
 pub fn construct_action(

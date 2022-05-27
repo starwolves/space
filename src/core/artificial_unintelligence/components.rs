@@ -6,6 +6,7 @@ use bevy_transform::components::Transform;
 
 use crate::{
     core::{
+        entity::resources::SpawnData,
         gridmap::{functions::gridmap_functions::cell_id_to_world, resources::Vec3Int},
         networking::resources::ConsoleCommandVariantValues,
     },
@@ -72,35 +73,43 @@ impl Path {
                     cell_path[i - 1].z as f32 - cell_path[i].z as f32,
                 );
                 if direction_old != direction_new {
-                    LineArrowBundle::spawn(
-                        Transform::from_translation(cell_id_to_world(cell_path[i])),
+                    LineArrowBundle::spawn(SpawnData {
+                        entity_transform: Transform::from_translation(cell_id_to_world(
+                            cell_path[i],
+                        )),
+
                         commands,
-                        true,
-                        None,
-                        None,
-                        false,
-                        HashMap::from([(
+                        correct_transform: true,
+                        pawn_data_option: None,
+                        held_data_option: None,
+                        default_map_spawn: false,
+                        properties: HashMap::from([(
                             "duration".to_string(),
                             ConsoleCommandVariantValues::Int(30),
                         )]),
-                    );
+                        showcase_data_option: &mut None,
+                    });
                     waypoints_vec.push(Waypoint {
                         position: cell_id_to_world(cell_path[i]),
                         waypoint_type: WaypointType::Pathing,
                     });
                 } else if i % PATH_PRECISION == 0 {
-                    LineArrowBundle::spawn(
-                        Transform::from_translation(cell_id_to_world(cell_path[i])),
+                    LineArrowBundle::spawn(SpawnData {
+                        entity_transform: Transform::from_translation(cell_id_to_world(
+                            cell_path[i],
+                        )),
+
                         commands,
-                        true,
-                        None,
-                        None,
-                        false,
-                        HashMap::from([(
+                        correct_transform: true,
+                        pawn_data_option: None,
+                        held_data_option: None,
+                        default_map_spawn: false,
+                        properties: HashMap::from([(
                             "duration".to_string(),
                             ConsoleCommandVariantValues::Int(30),
                         )]),
-                    );
+                        showcase_data_option: &mut None,
+                    });
                     waypoints_vec.push(Waypoint {
                         position: cell_id_to_world(cell_path[i]),
                         waypoint_type: WaypointType::Pathing,

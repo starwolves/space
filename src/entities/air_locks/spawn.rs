@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::entity::Entity;
 use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_math::Vec3;
@@ -15,7 +15,7 @@ use crate::{
         chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         entity::{
             components::{DefaultMapEntity, EntityData, EntityGroup, EntityUpdates},
-            resources::{SpawnHeldData, SpawnPawnData},
+            resources::SpawnData,
         },
         examinable::components::{Examinable, RichName},
         health::components::{Health, HealthFlag},
@@ -34,20 +34,12 @@ pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
 pub struct AirlockBundle;
 
 impl AirlockBundle {
-    pub fn spawn(
-        entity_transform: Transform,
-        commands: &mut Commands,
-        correct_transform: bool,
-        _pawn_data_option: Option<SpawnPawnData>,
-        _held_data_option: Option<SpawnHeldData>,
-        default_map_spawn: bool,
-        properties: HashMap<String, ConsoleCommandVariantValues>,
-    ) -> Entity {
+    pub fn spawn(spawn_data: SpawnData) -> Entity {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
         let mut entity_name = "";
 
-        match properties.get("entity_name").unwrap() {
+        match spawn_data.properties.get("entity_name").unwrap() {
             ConsoleCommandVariantValues::String(name) => {
                 entity_name = name;
             }
@@ -100,12 +92,12 @@ impl AirlockBundle {
 
         health_flags.insert(0, HealthFlag::ArmourPlated);
 
-        let mut builder = commands.spawn();
+        let mut builder = spawn_data.commands.spawn();
         let entity_id = builder.id();
 
-        let mut t = entity_transform.clone();
+        let mut t = spawn_data.entity_transform.clone();
 
-        if correct_transform {
+        if spawn_data.correct_transform {
             t.translation.y = 0.;
         }
 
@@ -184,7 +176,7 @@ impl AirlockBundle {
                 },
             ));
 
-        if default_map_spawn {
+        if spawn_data.default_map_spawn {
             builder.insert(DefaultMapEntity);
         }
 

@@ -17,7 +17,9 @@ use crate::{
         },
         entity::{
             events::NetShowcase,
-            resources::{EntityDataResource, PawnDesignation, SpawnPawnData},
+            resources::{
+                EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnPawnData,
+            },
         },
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
@@ -29,17 +31,17 @@ pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxConta
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 pub const ENTITY_SPAWN_PARENT : &str = "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial";
 
-pub fn on_setupui(
+pub fn on_setupui<'a, 'b, 'c, 'd, 'w, 's>(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,
 
     query: Query<(&ConnectedPlayer, &PersistentPlayerData), Added<SetupPhase>>,
-    mut net_showcase: EventWriter<NetShowcase>,
+    mut net_showcase: EventWriter<'b, 'c, NetShowcase>,
 
     entity_data: ResMut<EntityDataResource>,
 
     mut net_on_setupui: EventWriter<NetOnSetupUI>,
-    mut commands: Commands,
+    mut commands: Commands<'w, 's>,
     motd: Res<MOTD>,
 ) {
     for (connected_player_component, persistent_player_data_component) in query.iter() {
@@ -76,25 +78,29 @@ pub fn on_setupui(
             ("holster".to_string(), "pistolL1".to_string()),
         ];
 
-        HumanMaleBundle::spawn(
-            Transform::identity(),
-            &mut commands,
-            true,
-            Some(SpawnPawnData {
+        HumanMaleBundle::spawn(SpawnData {
+            entity_transform: Transform::identity(),
+            commands: &mut commands,
+
+            correct_transform: true,
+            pawn_data_option: Some(SpawnPawnData {
                 data: (
                     persistent_player_data_component,
                     Some(connected_player_component),
                     passed_inventory_setup,
                     PawnDesignation::Showcase,
                     None,
-                    Some(&mut net_showcase),
                     None,
                     &entity_data,
                 ),
             }),
-            None,
-            false,
-            HashMap::new(),
-        );
+            held_data_option: None,
+            default_map_spawn: false,
+            properties: HashMap::new(),
+            showcase_data_option: &mut Some(ShowcaseData {
+                handle: connected_player_component.handle,
+                event_writer: &mut net_showcase,
+            }),
+        });
     }
 }

@@ -6,7 +6,7 @@ use crate::{
     core::{
         entity::{
             functions::string_to_type_converters::string_transform_to_transform,
-            resources::EntityDataResource,
+            resources::{EntityDataResource, SpawnData},
         },
         networking::resources::ConsoleCommandVariantValues,
     },
@@ -79,15 +79,16 @@ pub fn load_raw_map_entities(
             match entity_data.name_to_id.get(&raw_entity.entity_type) {
                 Some(entity_type_id) => {
                     let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
-                    let entity_option = Some((*entity_properties.spawn_function)(
+                    let entity_option = Some((*entity_properties.spawn_function)(SpawnData {
                         entity_transform,
                         commands,
-                        false,
-                        None,
-                        None,
-                        true,
-                        data,
-                    ));
+                        correct_transform: false,
+                        pawn_data_option: None,
+                        held_data_option: None,
+                        default_map_spawn: true,
+                        properties: data,
+                        showcase_data_option: &mut None,
+                    }));
                     match entity_option {
                         Some(_entity) => {
 

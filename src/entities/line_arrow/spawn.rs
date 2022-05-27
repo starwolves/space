@@ -1,15 +1,14 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 use bevy_core::Timer;
-use bevy_ecs::{entity::Entity, event::EventWriter, system::Commands};
+use bevy_ecs::entity::Entity;
 use bevy_log::warn;
 use bevy_transform::components::Transform;
 
 use crate::core::{
     entity::{
         components::{EntityData, EntityUpdates},
-        events::NetShowcase,
-        resources::{SpawnHeldData, SpawnPawnData},
+        resources::SpawnData,
     },
     examinable::components::{Examinable, RichName},
     networking::resources::ConsoleCommandVariantValues,
@@ -23,109 +22,66 @@ use super::components::{LineArrow, PointArrow};
 pub struct LineArrowBundle;
 
 impl LineArrowBundle {
-    pub fn spawn(
-        passed_transform: Transform,
-        commands: &mut Commands,
-        correct_transform: bool,
-        _pawn_data_option: Option<SpawnPawnData>,
-        _held_data_option: Option<SpawnHeldData>,
-        _default_map_spawn: bool,
-        properties: HashMap<String, ConsoleCommandVariantValues>,
-    ) -> Entity {
-        spawn_entity(
-            commands,
-            Some(passed_transform),
-            false,
-            None,
-            false,
-            None,
-            &mut None,
-            correct_transform,
-            properties,
-        )
-    }
-}
+    pub fn spawn(spawn_data: SpawnData) -> Entity {
+        let mut this_transform;
+        let default_transform = Transform::identity();
 
-fn spawn_entity(
-    commands: &mut Commands,
+        this_transform = spawn_data.entity_transform;
 
-    passed_transform_option: Option<Transform>,
-
-    _held: bool,
-    _holder_entity_option: Option<Entity>,
-
-    _showcase_instance: bool,
-    _showcase_handle_option: Option<u32>,
-
-    _net_showcase: &mut Option<&mut EventWriter<NetShowcase>>,
-
-    correct_transform: bool,
-    properties: HashMap<String, ConsoleCommandVariantValues>,
-) -> Entity {
-    let mut this_transform;
-    let default_transform = Transform::identity();
-
-    match passed_transform_option {
-        Some(transform) => {
-            this_transform = transform;
+        if spawn_data.correct_transform {
+            this_transform.rotation = default_transform.rotation;
         }
-        None => {
-            this_transform = default_transform;
+
+        let duration;
+
+        match spawn_data.properties.get("duration").unwrap() {
+            ConsoleCommandVariantValues::Int(dur) => {
+                duration = dur;
+            }
+            _ => {
+                warn!("invalid duration type");
+                return Entity::from_bits(0);
+            }
         }
-    }
 
-    if correct_transform {
-        this_transform.rotation = default_transform.rotation;
-    }
+        let template_examine_text =
+            "A holographic arrow without additional data points.".to_string();
+        let mut examine_map = BTreeMap::new();
+        examine_map.insert(0, template_examine_text);
 
-    let duration;
-
-    match properties.get("duration").unwrap() {
-        ConsoleCommandVariantValues::Int(dur) => {
-            duration = dur;
-        }
-        _ => {
-            warn!("invalid duration type");
-            return Entity::from_bits(0);
-        }
-    }
-
-    let template_examine_text = "A holographic arrow without additional data points.".to_string();
-    let mut examine_map = BTreeMap::new();
-    examine_map.insert(0, template_examine_text);
-
-    let mut builder = commands.spawn_bundle((
-        EntityData {
-            entity_class: "entity".to_string(),
-            entity_name: "lineArrow".to_string(),
-            ..Default::default()
-        },
-        EntityUpdates::default(),
-        WorldMode {
-            mode: WorldModes::Static,
-        },
-        this_transform,
-        CachedBroadcastTransform::default(),
-        Examinable {
-            assigned_texts: examine_map,
-            name: RichName {
-                name: "arrow".to_string(),
-                n: true,
+        let mut builder = spawn_data.commands.spawn_bundle((
+            EntityData {
+                entity_class: "entity".to_string(),
+                entity_name: "lineArrow".to_string(),
                 ..Default::default()
             },
-            ..Default::default()
-        },
-        DefaultTransform {
-            transform: default_transform,
-        },
-        LineArrow,
-        PointArrow {
-            timer: Timer::from_seconds(*duration as f32, false),
-        },
-    ));
+            EntityUpdates::default(),
+            WorldMode {
+                mode: WorldModes::Static,
+            },
+            this_transform,
+            CachedBroadcastTransform::default(),
+            Examinable {
+                assigned_texts: examine_map,
+                name: RichName {
+                    name: "arrow".to_string(),
+                    n: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            DefaultTransform {
+                transform: default_transform,
+            },
+            LineArrow,
+            PointArrow {
+                timer: Timer::from_seconds(*duration as f32, false),
+            },
+        ));
 
-    let entity_id = builder.id();
-    builder.insert(Sensable::default());
+        let entity_id = builder.id();
+        builder.insert(Sensable::default());
 
-    entity_id
+        entity_id
+    }
 }

@@ -1,9 +1,6 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    sync::Arc,
-};
+use std::{collections::BTreeMap, sync::Arc};
 
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::entity::Entity;
 use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_math::Vec3;
@@ -17,7 +14,7 @@ use crate::{
         chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         entity::{
             components::{DefaultMapEntity, EntityData, EntityGroup, EntityUpdates},
-            resources::{SpawnHeldData, SpawnPawnData},
+            resources::SpawnData,
         },
         examinable::components::{Examinable, RichName},
         health::components::Health,
@@ -37,20 +34,12 @@ pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 pub struct CounterWindowBundle;
 
 impl CounterWindowBundle {
-    pub fn spawn(
-        entity_transform: Transform,
-        commands: &mut Commands,
-        _correct_transform: bool,
-        _pawn_data_option: Option<SpawnPawnData>,
-        _held_data_option: Option<SpawnHeldData>,
-        default_map_spawn: bool,
-        properties: HashMap<String, ConsoleCommandVariantValues>,
-    ) -> Entity {
-        let static_transform_component = entity_transform;
+    pub fn spawn(spawn_data: SpawnData) -> Entity {
+        let static_transform_component = spawn_data.entity_transform;
 
         let mut entity_name = "";
 
-        match properties.get("entity_name").unwrap() {
+        match spawn_data.properties.get("entity_name").unwrap() {
             ConsoleCommandVariantValues::String(name) => {
                 entity_name = name;
             }
@@ -77,8 +66,10 @@ impl CounterWindowBundle {
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Average;
 
-        let mut parent_builder = commands.spawn();
-        parent_builder.insert(rigid_body).insert(entity_transform);
+        let mut parent_builder = spawn_data.commands.spawn();
+        parent_builder
+            .insert(rigid_body)
+            .insert(spawn_data.entity_transform);
         let parent = parent_builder.id();
 
         parent_builder.with_children(|children| {
@@ -172,7 +163,7 @@ impl CounterWindowBundle {
             },
         ));
 
-        if default_map_spawn {
+        if spawn_data.default_map_spawn {
             parent_builder.insert(DefaultMapEntity);
         }
 
@@ -185,8 +176,10 @@ impl CounterWindowBundle {
 
         let sensor = Sensor(true);
 
-        let mut sensor_builder = commands.spawn();
-        sensor_builder.insert(rigid_body).insert(entity_transform);
+        let mut sensor_builder = spawn_data.commands.spawn();
+        sensor_builder
+            .insert(rigid_body)
+            .insert(spawn_data.entity_transform);
         sensor_builder.with_children(|children| {
             children
                 .spawn()
@@ -210,7 +203,7 @@ impl CounterWindowBundle {
             ))
             .id();
 
-        commands.entity(parent).push_children(&[child]);
+        spawn_data.commands.entity(parent).push_children(&[child]);
 
         parent
     }
