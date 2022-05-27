@@ -54,7 +54,7 @@ use bevy_render::{settings::WgpuSettings, RenderPlugin};
 use bevy_transform::TransformPlugin;
 use bevy_window::WindowPlugin;
 
-use crate::entities::asana::AsanaPlugin;
+use crate::entities::{asana::AsanaPlugin, human_male::HumanMalePlugin};
 
 use self::{humanoid::HumanoidPlugin, physics::PhysicsPlugin, rigid_body::RigidBodyPlugin};
 
@@ -152,6 +152,7 @@ impl Plugin for SpacePlugin {
             .add_plugin(WorldEnvironmentPlugin)
             .add_plugin(GridmapPlugin)
             .add_plugin(PawnPlugin)
+            .add_plugin(HumanMalePlugin)
             .add_plugin(SfxPlugin)
             .add_plugin(HealthPlugin)
             .add_plugin(EntityPlugin)
