@@ -18,7 +18,6 @@ use crate::{
         },
         examinable::components::{Examinable, RichName},
         health::components::Health,
-        networking::resources::ConsoleCommandVariantValues,
         pawn::components::ShipAuthorizationEnum,
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
@@ -37,17 +36,7 @@ impl CounterWindowBundle {
     pub fn spawn(spawn_data: SpawnData) -> Entity {
         let static_transform_component = spawn_data.entity_transform;
 
-        let mut entity_name = "";
-
-        match spawn_data.properties.get("entity_name").unwrap() {
-            ConsoleCommandVariantValues::String(name) => {
-                entity_name = name;
-            }
-            _ => {
-                warn!("Incorrect entity_name type.");
-            }
-        }
-
+        let entity_name = spawn_data.entity_name;
         let department_name;
 
         if entity_name == "securityCounterWindow" {

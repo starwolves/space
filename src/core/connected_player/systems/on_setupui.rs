@@ -101,6 +101,7 @@ pub fn on_setupui<'a, 'b, 'c, 'd, 'w, 's>(
                 handle: connected_player_component.handle,
                 event_writer: &mut net_showcase,
             }),
+            entity_name: "humanMale".to_string(),
         });
     }
 }
