@@ -139,6 +139,7 @@ pub fn rcon_spawn_entity(
                     persistent_player_data_component.clone(),
                 )),
                 HashMap::new(),
+                None,
             );
             individual_transform.translation.x += 0.5;
             individual_transform = entity_spawn_position_for_player(

@@ -10,8 +10,10 @@ use bevy_math::Vec3;
 use bevy_transform::components::Transform;
 
 use crate::core::{
-    connected_player::resources::HandleToEntity, console_commands::events::InputConsoleCommand,
-    entity::events::NetUnloadEntity, networking::resources::ConsoleCommandVariantValues,
+    connected_player::resources::HandleToEntity,
+    console_commands::events::InputConsoleCommand,
+    entity::{events::NetUnloadEntity, resources::SpawnData},
+    networking::resources::ConsoleCommandVariantValues,
     sensable::components::Sensable,
 };
 
@@ -120,15 +122,16 @@ pub fn entity_console_commands(
             let mut passed_transform = Transform::identity();
             passed_transform.translation = translation;
 
-            LineArrowBundle::spawn(
-                passed_transform,
-                &mut commands,
-                false,
-                None,
-                None,
-                false,
+            LineArrowBundle::spawn(SpawnData {
+                entity_transform: passed_transform,
+                commands: &mut commands,
+                correct_transform: false,
+                pawn_data_option: None,
+                held_data_option: None,
+                default_map_spawn: false,
                 properties,
-            );
+                showcase_data_option: &mut None,
+            });
         }
     }
 }

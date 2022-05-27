@@ -21,7 +21,10 @@ use crate::{
         },
         chat::functions::FURTHER_ITALIC_FONT,
         connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-        entity::{components::EntityData, resources::EntityDataResource},
+        entity::{
+            components::EntityData,
+            resources::{EntityDataResource, SpawnData},
+        },
         gridmap::{
             events::RemoveCell,
             functions::{
@@ -1039,15 +1042,16 @@ pub fn construction_tool(
                     .rotation
                     .mul_quat(spawn_rotation);
 
-                let new_entity = (built_entity_data.spawn_function)(
-                    spawn_transform,
-                    &mut commands,
-                    true,
-                    None,
-                    None,
-                    false,
-                    HashMap::new(),
-                );
+                let new_entity = (built_entity_data.spawn_function)(SpawnData {
+                    entity_transform: spawn_transform,
+                    commands: &mut commands,
+                    correct_transform: true,
+                    pawn_data_option: None,
+                    held_data_option: None,
+                    default_map_spawn: false,
+                    properties: HashMap::new(),
+                    showcase_data_option: &mut None,
+                });
 
                 gridmap_main.entity_data.insert(
                     target_cell_id,

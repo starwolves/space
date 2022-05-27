@@ -107,8 +107,6 @@ pub fn rcon_spawn_held_entity(
                     entity_name.clone(),
                     commands,
                     command_executor_entity,
-                    false,
-                    None,
                     &mut None,
                     &entity_data,
                 );

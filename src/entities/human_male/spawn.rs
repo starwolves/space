@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::entity::Entity;
 use bevy_hierarchy::BuildChildren;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
@@ -21,14 +21,14 @@ use crate::core::{
         components::{EntityData, EntityGroup, EntityUpdates, Showcase},
         events::NetShowcase,
         functions::spawn_entity::spawn_held_entity,
-        resources::{PawnDesignation, SpawnHeldData, SpawnPawnData},
+        resources::{PawnDesignation, SpawnData},
     },
     examinable::components::{Examinable, RichName},
     health::components::{Health, HealthContainer, HumanoidHealth},
     humanoid::components::Humanoid,
     inventory::components::{Inventory, Slot, SlotType},
     map::components::Map,
-    networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
+    networking::resources::ReliableServerMessage,
     pawn::components::{
         ControllerInput, Pawn, PersistentPlayerData, ShipAuthorization, ShipAuthorizationEnum,
         ShipJobsEnum,
@@ -48,31 +48,22 @@ pub struct HumanMaleBundle;
 pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
 
 impl HumanMaleBundle {
-    pub fn spawn(
-        passed_transform: Transform,
-        commands: &mut Commands,
-        correct_transform: bool,
-        pawn_data_option: Option<SpawnPawnData>,
-        _held_data_option: Option<SpawnHeldData>,
-        _default_map_spawn: bool,
-        _properties: HashMap<String, ConsoleCommandVariantValues>,
-    ) -> Entity {
+    pub fn spawn(mut spawn_data: SpawnData) -> Entity {
         let (
             persistent_player_data_component,
             connected_player_component,
             passed_inventory_setup,
             pawn_designation,
             used_names,
-            mut net_showcase,
             default_user_name_option,
             entity_data,
-        ) = pawn_data_option.unwrap().data;
+        ) = spawn_data.pawn_data_option.unwrap().data;
 
         let default_transform = Transform::identity();
 
-        let mut this_transform = passed_transform;
+        let mut this_transform = spawn_data.entity_transform;
 
-        if correct_transform {
+        if spawn_data.correct_transform {
             this_transform.rotation = default_transform.rotation;
         }
 
@@ -108,7 +99,7 @@ impl HumanMaleBundle {
         let mut friction = Friction::coefficient(friction);
         friction.combine_rule = friction_combine_rule;
 
-        let mut entity_builder = commands.spawn();
+        let mut entity_builder = spawn_data.commands.spawn();
         let human_male_entity = entity_builder.id();
 
         match pawn_designation {
@@ -187,21 +178,17 @@ impl HumanMaleBundle {
             if let PawnDesignation::Showcase = pawn_designation {
                 entity_option = spawn_held_entity(
                     item_name.to_string(),
-                    commands,
+                    spawn_data.commands,
                     human_male_entity,
-                    true,
-                    Some(connected_player_component.unwrap().handle),
-                    &mut net_showcase,
+                    &mut spawn_data.showcase_data_option,
                     entity_data,
                 );
             } else {
                 entity_option = spawn_held_entity(
                     item_name.to_string(),
-                    commands,
+                    spawn_data.commands,
                     human_male_entity,
-                    false,
-                    None,
-                    &mut net_showcase,
+                    &mut None,
                     entity_data,
                 );
             }
@@ -314,7 +301,7 @@ impl HumanMaleBundle {
             ..Default::default()
         };
 
-        let mut entity_commands = commands.entity(human_male_entity);
+        let mut entity_commands = spawn_data.commands.entity(human_male_entity);
 
         entity_commands.insert_bundle((inventory_component, examinable_component));
 
@@ -323,8 +310,11 @@ impl HumanMaleBundle {
                 handle: connected_player_component.unwrap().handle,
             });
             let entity_updates = HashMap::new();
-            net_showcase.unwrap().send(NetShowcase {
-                handle: connected_player_component.unwrap().handle,
+
+            let data = spawn_data.showcase_data_option.as_mut().unwrap();
+
+            data.event_writer.send(NetShowcase {
+                handle: data.handle,
                 message: ReliableServerMessage::LoadEntity(
                     "entity".to_string(),
                     "humanMale".to_string(),

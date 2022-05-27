@@ -2,35 +2,29 @@ use std::collections::HashMap;
 
 use bevy_ecs::{
     entity::Entity,
-    event::EventWriter,
     system::{Commands, ResMut},
 };
 use bevy_transform::components::Transform;
 
 use crate::core::{
-    entity::{
-        events::NetShowcase,
-        resources::{EntityDataResource, PawnDesignation, SpawnHeldData, SpawnPawnData},
+    entity::resources::{
+        EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnHeldData, SpawnPawnData,
     },
     networking::resources::ConsoleCommandVariantValues,
     pawn::{components::PersistentPlayerData, resources::UsedNames},
 };
 
-pub fn spawn_entity(
+pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
     entity_name: String,
     transform: Transform,
     commands: &mut Commands,
     correct_transform: bool,
-    used_names_option: Option<&mut ResMut<UsedNames>>,
-    entity_data: &ResMut<EntityDataResource>,
-    held_data_option: Option<(
-        Entity,
-        bool,
-        Option<u32>,
-        &mut Option<&mut EventWriter<NetShowcase>>,
-    )>,
+    used_names_option: Option<&'a mut ResMut<'b, UsedNames>>,
+    entity_data: &'a ResMut<'a, EntityDataResource>,
+    held_data_option: Option<Entity>,
     pawn_data_option: Option<(Vec<(String, String)>, PersistentPlayerData)>,
     mut properties: HashMap<String, ConsoleCommandVariantValues>,
+    mut showcase_handle_option: Option<ShowcaseData<'b, 'c, 'd>>,
 ) -> Option<Entity> {
     let return_entity;
 
@@ -46,8 +40,8 @@ pub fn spawn_entity(
             let held;
 
             match held_data_option {
-                Some(data) => {
-                    held = Some(SpawnHeldData { data });
+                Some(entity) => {
+                    held = Some(SpawnHeldData { entity: entity });
                 }
                 None => {
                     held = None;
@@ -64,30 +58,31 @@ pub fn spawn_entity(
                             PawnDesignation::Dummy,
                             Some(used_names_option.unwrap()),
                             None,
-                            None,
                             &entity_data,
                         ),
                     });
-                    return_entity = Some((*entity_properties.spawn_function)(
-                        transform,
+                    return_entity = Some((*entity_properties.spawn_function)(SpawnData {
+                        entity_transform: transform,
                         commands,
                         correct_transform,
-                        pawn,
-                        held,
-                        false,
-                        properties,
-                    ));
+                        pawn_data_option: pawn,
+                        held_data_option: held,
+                        default_map_spawn: false,
+                        properties: properties,
+                        showcase_data_option: &mut showcase_handle_option,
+                    }));
                 }
                 None => {
-                    return_entity = Some((*entity_properties.spawn_function)(
-                        transform,
+                    return_entity = Some((*entity_properties.spawn_function)(SpawnData {
+                        entity_transform: transform,
                         commands,
                         correct_transform,
-                        None,
-                        held,
-                        false,
-                        properties,
-                    ));
+                        pawn_data_option: None,
+                        held_data_option: held,
+                        default_map_spawn: false,
+                        properties: properties,
+                        showcase_data_option: &mut showcase_handle_option,
+                    }));
                 }
             }
         }
@@ -106,13 +101,11 @@ pub fn spawn_entity(
     return_entity
 }
 
-pub fn spawn_held_entity(
+pub fn spawn_held_entity<'a, 'b, 'c, 'd>(
     entity_name: String,
     commands: &mut Commands,
     holder_entity: Entity,
-    showcase_instance: bool,
-    showcase_handle_option: Option<u32>,
-    net_showcase: &mut Option<&mut EventWriter<NetShowcase>>,
+    showcase_handle_option: &mut Option<ShowcaseData<'b, 'c, 'd>>,
     entity_data: &ResMut<EntityDataResource>,
 ) -> Option<Entity> {
     let return_entity;
@@ -127,22 +120,18 @@ pub fn spawn_held_entity(
                 ConsoleCommandVariantValues::String(entity_name),
             );
 
-            return_entity = Some((*entity_properties.spawn_function)(
-                Transform::identity(),
+            return_entity = Some((*entity_properties.spawn_function)(SpawnData {
+                entity_transform: Transform::identity(),
                 commands,
-                false,
-                None,
-                Some(SpawnHeldData {
-                    data: (
-                        holder_entity,
-                        showcase_instance,
-                        showcase_handle_option,
-                        net_showcase,
-                    ),
+                correct_transform: false,
+                pawn_data_option: None,
+                held_data_option: Some(SpawnHeldData {
+                    entity: holder_entity,
                 }),
-                false,
-                map,
-            ));
+                default_map_spawn: true,
+                properties: map,
+                showcase_data_option: showcase_handle_option,
+            }));
         }
         None => {
             return_entity = None;

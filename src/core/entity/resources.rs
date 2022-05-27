@@ -49,42 +49,24 @@ pub enum PawnDesignation {
     Ai,
 }
 
-pub struct SpawnPawnData<'a, 'b, 'c> {
+pub struct SpawnPawnData<'a, 'b> {
     pub data: (
         &'a PersistentPlayerData,
         Option<&'a ConnectedPlayer>,
         Vec<(String, String)>,
         PawnDesignation,
         Option<&'a mut ResMut<'b, UsedNames>>,
-        Option<&'a mut EventWriter<'b, 'c, NetShowcase>>,
         Option<String>,
         &'a ResMut<'a, EntityDataResource>,
     ),
 }
 
-pub struct SpawnHeldData<'a, 'b, 'c, 'd> {
-    pub data: (
-        Entity,
-        bool,
-        Option<u32>,
-        &'c mut Option<&'b mut EventWriter<'a, 'd, NetShowcase>>,
-    ),
+pub struct SpawnHeldData {
+    pub entity: Entity,
 }
 
 pub struct EntityDataProperties {
-    pub spawn_function: Box<
-        dyn Fn(
-                Transform,
-                &mut Commands,
-                bool,
-                Option<SpawnPawnData>,
-                Option<SpawnHeldData>,
-                bool,
-                HashMap<String, ConsoleCommandVariantValues>,
-            ) -> Entity
-            + Sync
-            + Send,
-    >,
+    pub spawn_function: Box<dyn Fn(SpawnData) -> Entity + Sync + Send>,
     pub name: String,
     pub id: usize,
     pub grid_item: Option<GridItemData>,
@@ -98,10 +80,26 @@ pub struct GridItemData {
 impl Default for EntityDataProperties {
     fn default() -> Self {
         Self {
-            spawn_function: Box::new(|_, _, _, _, _, _, _| Entity::from_raw(0)),
+            spawn_function: Box::new(|_| Entity::from_raw(0)),
             name: Default::default(),
             id: Default::default(),
             grid_item: None,
         }
     }
+}
+
+pub struct ShowcaseData<'b, 'c, 'd> {
+    pub handle: u32,
+    pub event_writer: &'b mut EventWriter<'c, 'd, NetShowcase>,
+}
+
+pub struct SpawnData<'a, 'b, 'c, 'd, 'w, 's> {
+    pub entity_transform: Transform,
+    pub commands: &'a mut Commands<'w, 's>,
+    pub correct_transform: bool,
+    pub pawn_data_option: Option<SpawnPawnData<'a, 'b>>,
+    pub held_data_option: Option<SpawnHeldData>,
+    pub default_map_spawn: bool,
+    pub properties: HashMap<String, ConsoleCommandVariantValues>,
+    pub showcase_data_option: &'a mut Option<ShowcaseData<'b, 'c, 'd>>,
 }

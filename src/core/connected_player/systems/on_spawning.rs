@@ -14,7 +14,7 @@ use crate::{
             events::NetOnSpawning,
             resources::HandleToEntity,
         },
-        entity::resources::{EntityDataResource, PawnDesignation, SpawnPawnData},
+        entity::resources::{EntityDataResource, PawnDesignation, SpawnData, SpawnPawnData},
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
@@ -43,26 +43,29 @@ pub fn on_spawning(
             ("left_hand".to_string(), "constructionTool".to_string()),
         ];
 
-        let new_entity = HumanMaleBundle::spawn(
-            spawning_component.transform,
-            &mut commands,
-            true,
-            Some(SpawnPawnData {
+        let new_entity = HumanMaleBundle::spawn(SpawnData {
+            entity_transform: spawning_component.transform,
+
+            commands: &mut commands,
+
+            correct_transform: true,
+
+            pawn_data_option: Some(SpawnPawnData {
                 data: (
                     persistent_player_data_component,
                     Some(connected_player_component),
                     passed_inventory_setup,
                     PawnDesignation::Player,
                     None,
-                    None,
                     Some(persistent_player_data_component.user_name.clone()),
                     &entity_data,
                 ),
             }),
-            None,
-            false,
-            HashMap::new(),
-        );
+            held_data_option: None,
+            default_map_spawn: false,
+            properties: HashMap::new(),
+            showcase_data_option: &mut None,
+        });
 
         let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();
 
