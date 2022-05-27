@@ -104,7 +104,7 @@ impl HumanMaleBundle {
 
         match pawn_designation {
             PawnDesignation::Showcase => {
-                //Nothing.
+                entity_builder.insert(this_transform);
             }
             _ => {
                 entity_builder
@@ -175,23 +175,13 @@ impl HumanMaleBundle {
         for (slot_name, item_name) in passed_inventory_setup.iter() {
             let entity_option;
 
-            if let PawnDesignation::Showcase = pawn_designation {
-                entity_option = spawn_held_entity(
-                    item_name.to_string(),
-                    spawn_data.commands,
-                    human_male_entity,
-                    &mut spawn_data.showcase_data_option,
-                    entity_data,
-                );
-            } else {
-                entity_option = spawn_held_entity(
-                    item_name.to_string(),
-                    spawn_data.commands,
-                    human_male_entity,
-                    &mut None,
-                    entity_data,
-                );
-            }
+            entity_option = spawn_held_entity(
+                item_name.to_string(),
+                spawn_data.commands,
+                human_male_entity,
+                &mut spawn_data.showcase_data_option,
+                entity_data,
+            );
 
             match entity_option {
                 Some(entity) => {
@@ -410,7 +400,6 @@ impl HumanMaleBundle {
                 _ => {}
             }
         }
-
         human_male_entity
     }
 }

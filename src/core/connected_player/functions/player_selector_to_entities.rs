@@ -66,7 +66,7 @@ pub fn player_selector_to_entities(
         } else {
             let mut conflicting_message = "[color=#ff6600]Player selector \"".to_string()
                 + &player_selector
-                + " \" is not specific enough:\n";
+                + "\" is not specific enough:\n";
 
             for (name, _entity) in conflicting_names.iter() {
                 conflicting_message = conflicting_message + name + "\n";
