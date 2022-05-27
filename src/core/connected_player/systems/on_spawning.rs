@@ -65,6 +65,7 @@ pub fn on_spawning(
             default_map_spawn: false,
             properties: HashMap::new(),
             showcase_data_option: &mut None,
+            entity_name: "humanMale".to_string(),
         });
 
         let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();

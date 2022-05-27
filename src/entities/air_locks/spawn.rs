@@ -19,7 +19,6 @@ use crate::{
         },
         examinable::components::{Examinable, RichName},
         health::components::{Health, HealthFlag},
-        networking::resources::ConsoleCommandVariantValues,
         pawn::components::ShipAuthorizationEnum,
         physics::functions::{get_bit_masks, ColliderGroup},
         sensable::components::Sensable,
@@ -37,16 +36,7 @@ impl AirlockBundle {
     pub fn spawn(spawn_data: SpawnData) -> Entity {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        let mut entity_name = "";
-
-        match spawn_data.properties.get("entity_name").unwrap() {
-            ConsoleCommandVariantValues::String(name) => {
-                entity_name = name;
-            }
-            _ => {
-                warn!("Incorrect entity_name type.");
-            }
-        }
+        let entity_name = spawn_data.entity_name;
 
         let description;
         let sub_name;

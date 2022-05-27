@@ -131,6 +131,7 @@ pub fn entity_console_commands(
                 default_map_spawn: false,
                 properties,
                 showcase_data_option: &mut None,
+                entity_name: "lineArrow".to_string(),
             });
         }
     }

@@ -23,15 +23,10 @@ pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
     entity_data: &'a ResMut<'a, EntityDataResource>,
     held_data_option: Option<Entity>,
     pawn_data_option: Option<(Vec<(String, String)>, PersistentPlayerData)>,
-    mut properties: HashMap<String, ConsoleCommandVariantValues>,
+    properties: HashMap<String, ConsoleCommandVariantValues>,
     mut showcase_handle_option: Option<ShowcaseData<'b, 'c, 'd>>,
 ) -> Option<Entity> {
     let return_entity;
-
-    properties.insert(
-        "entity_name".to_string(),
-        ConsoleCommandVariantValues::String(entity_name.clone()),
-    );
 
     match entity_data.name_to_id.get(&entity_name) {
         Some(entity_type_id) => {
@@ -70,6 +65,7 @@ pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
                         default_map_spawn: false,
                         properties: properties,
                         showcase_data_option: &mut showcase_handle_option,
+                        entity_name,
                     }));
                 }
                 None => {
@@ -82,6 +78,8 @@ pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
                         default_map_spawn: false,
                         properties: properties,
                         showcase_data_option: &mut showcase_handle_option,
+
+                        entity_name,
                     }));
                 }
             }
@@ -114,11 +112,7 @@ pub fn spawn_held_entity<'a, 'b, 'c, 'd>(
         Some(entity_type_id) => {
             let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
 
-            let mut map = HashMap::new();
-            map.insert(
-                "entity_name".to_string(),
-                ConsoleCommandVariantValues::String(entity_name),
-            );
+            let map = HashMap::new();
 
             return_entity = Some((*entity_properties.spawn_function)(SpawnData {
                 entity_transform: Transform::identity(),
@@ -131,6 +125,7 @@ pub fn spawn_held_entity<'a, 'b, 'c, 'd>(
                 default_map_spawn: true,
                 properties: map,
                 showcase_data_option: showcase_handle_option,
+                entity_name,
             }));
         }
         None => {

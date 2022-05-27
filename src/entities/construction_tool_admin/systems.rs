@@ -1051,6 +1051,7 @@ pub fn construction_tool(
                     default_map_spawn: false,
                     properties: HashMap::new(),
                     showcase_data_option: &mut None,
+                    entity_name: construction_entity_name.to_string(),
                 });
 
                 gridmap_main.entity_data.insert(

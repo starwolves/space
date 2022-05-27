@@ -102,4 +102,5 @@ pub struct SpawnData<'a, 'b, 'c, 'd, 'w, 's> {
     pub default_map_spawn: bool,
     pub properties: HashMap<String, ConsoleCommandVariantValues>,
     pub showcase_data_option: &'a mut Option<ShowcaseData<'b, 'c, 'd>>,
+    pub entity_name: String,
 }

@@ -3,12 +3,9 @@ use std::collections::HashMap;
 use bevy_ecs::system::{Commands, Res};
 
 use crate::{
-    core::{
-        entity::{
-            functions::string_to_type_converters::string_transform_to_transform,
-            resources::{EntityDataResource, SpawnData},
-        },
-        networking::resources::ConsoleCommandVariantValues,
+    core::entity::{
+        functions::string_to_type_converters::string_transform_to_transform,
+        resources::{EntityDataResource, SpawnData},
     },
     entities::{
         gi_probe::{process_content::ExportData, spawn::GIProbeBundle},
@@ -56,7 +53,7 @@ pub fn load_raw_map_entities(
                 reflection_probe_component,
             );
         } else {
-            let mut data;
+            let data;
 
             if &raw_entity.data != "" {
                 let raw_export_data: super::process_entities_json_data::ExportDataRaw =
@@ -71,11 +68,6 @@ pub fn load_raw_map_entities(
                 data = HashMap::new();
             }
 
-            data.insert(
-                "entity_name".to_string(),
-                ConsoleCommandVariantValues::String(raw_entity.entity_type.clone()),
-            );
-
             match entity_data.name_to_id.get(&raw_entity.entity_type) {
                 Some(entity_type_id) => {
                     let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
@@ -88,6 +80,7 @@ pub fn load_raw_map_entities(
                         default_map_spawn: true,
                         properties: data,
                         showcase_data_option: &mut None,
+                        entity_name: raw_entity.entity_type.clone(),
                     }));
                     match entity_option {
                         Some(_entity) => {
