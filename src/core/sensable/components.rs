@@ -5,25 +5,13 @@ use crate::core::{
     entity::{events::NetUnloadEntity, functions::unload_entity_for_player::unload_entity},
 };
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Sensable {
     pub is_light: bool,
     pub is_audible: bool,
     pub sensed_by: Vec<Entity>,
     pub sensed_by_cached: Vec<Entity>,
     pub always_sensed: bool,
-}
-
-impl Default for Sensable {
-    fn default() -> Self {
-        Self {
-            is_audible: false,
-            is_light: false,
-            sensed_by_cached: vec![],
-            sensed_by: vec![],
-            always_sensed: false,
-        }
-    }
 }
 
 impl Sensable {

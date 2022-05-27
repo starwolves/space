@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{
-    entity::Entity,
-    prelude::{FromWorld, World},
-};
+use bevy_ecs::entity::Entity;
 use bevy_math::Vec3;
 
 use crate::core::{
@@ -17,8 +14,8 @@ pub struct AtmosphericsResource {
     pub atmospherics: Vec<Atmospherics>,
 }
 
-impl FromWorld for AtmosphericsResource {
-    fn from_world(_world: &mut World) -> Self {
+impl Default for AtmosphericsResource {
+    fn default() -> Self {
         AtmosphericsResource {
             atmospherics: vec![Atmospherics::default(); FOV_MAP_WIDTH * FOV_MAP_WIDTH],
         }
@@ -113,7 +110,7 @@ pub struct MapHolderData {
     pub hovering_data: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct AtmosphericsCache {
     pub tile_color: Option<OverlayTile>,
 }
@@ -131,20 +128,7 @@ impl Default for MapHolderData {
     }
 }
 
-impl Default for AtmosphericsCache {
-    fn default() -> Self {
-        Self { tile_color: None }
-    }
-}
-
+#[derive(Default)]
 pub struct RigidBodyForcesAccumulation {
     pub data: HashMap<Entity, Vec<Vec3>>,
-}
-
-impl Default for RigidBodyForcesAccumulation {
-    fn default() -> Self {
-        Self {
-            data: HashMap::new(),
-        }
-    }
 }

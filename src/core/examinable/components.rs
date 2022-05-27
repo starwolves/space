@@ -2,19 +2,10 @@ use std::collections::BTreeMap;
 
 use bevy_ecs::prelude::Component;
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Examinable {
     pub assigned_texts: BTreeMap<u32, String>,
     pub name: RichName,
-}
-
-impl Default for Examinable {
-    fn default() -> Self {
-        Self {
-            assigned_texts: BTreeMap::new(),
-            name: RichName::default(),
-        }
-    }
 }
 
 impl Default for RichName {

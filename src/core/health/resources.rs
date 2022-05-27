@@ -1,20 +1,10 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{
-    entity::Entity,
-    prelude::{FromWorld, World},
-};
+use bevy_ecs::entity::Entity;
 
+#[derive(Default)]
 pub struct ClientHealthUICache {
     pub cache: HashMap<Entity, ClientHealthUI>,
-}
-
-impl FromWorld for ClientHealthUICache {
-    fn from_world(_world: &mut World) -> Self {
-        ClientHealthUICache {
-            cache: HashMap::new(),
-        }
-    }
 }
 
 pub struct ClientHealthUI {
