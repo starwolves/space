@@ -8,102 +8,65 @@ use crate::core::{
 pub fn player_selector_to_entities(
     command_executor_entity: Entity,
     command_executor_handle_option: Option<u32>,
-    player_selector_input: &str,
+    mut player_selector: &str,
     used_names: &mut ResMut<UsedNames>,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
 ) -> Vec<Entity> {
-    let mut player_selector = player_selector_input.to_string();
-
-    let mut target_entities = vec![];
-
     if player_selector == "*" {
-        for entity in used_names.names.values() {
-            target_entities.push(*entity);
-        }
+        return used_names.names.values().copied().collect();
     } else if player_selector == "@me" {
-        target_entities.push(command_executor_entity);
-    } else {
-        // Assume we only target one player.
-
-        let mut found_one_match = false;
-        let mut conflicting_names = vec![];
-
-        let precise_match;
-
-        if (player_selector.starts_with("\"") || player_selector.starts_with("\'"))
-            && (player_selector.ends_with("\"") || player_selector.ends_with("\'"))
-        {
-            precise_match = true;
-            player_selector = player_selector.replace("\"", "");
-        } else {
-            precise_match = false;
-        }
-
-        for (player_name, entity) in used_names.names.iter() {
-            let matcher;
-
-            if precise_match == false {
-                matcher = player_name
-                    .to_lowercase()
-                    .contains(&player_selector.to_lowercase());
-            } else {
-                matcher = player_name.to_lowercase() == player_selector.to_lowercase();
-            }
-
-            if matcher {
-                if found_one_match {
-                    found_one_match = false;
-                    conflicting_names.push((player_name, entity));
-                } else {
-                    found_one_match = true;
-                    conflicting_names.push((player_name, entity));
-                }
-            }
-        }
-
-        if found_one_match {
-            target_entities.push(*conflicting_names[0].1);
-        } else if conflicting_names.len() == 0 {
-            let mut conflicting_message =
-                "[color=#ff6600]Couldn't find player \"".to_string() + &player_selector + "\"\n";
-
-            for (name, _entity) in conflicting_names.iter() {
-                conflicting_message = conflicting_message + name + "\n";
-            }
-
-            conflicting_message = conflicting_message + "[/color]";
-
-            match command_executor_handle_option {
-                Some(t) => {
-                    net_console_commands.send(NetConsoleCommands {
-                        handle: t,
-                        message: ReliableServerMessage::ConsoleWriteLine(conflicting_message),
-                    });
-                }
-                None => {}
-            }
-        } else {
-            let mut conflicting_message = "[color=#ff6600]Player selector \"".to_string()
-                + &player_selector
-                + "\" is not specific enough.\n";
-
-            for (name, _entity) in conflicting_names.iter() {
-                conflicting_message = conflicting_message + name + "\n";
-            }
-
-            conflicting_message = conflicting_message + "[/color]";
-
-            match command_executor_handle_option {
-                Some(t) => {
-                    net_console_commands.send(NetConsoleCommands {
-                        handle: t,
-                        message: ReliableServerMessage::ConsoleWriteLine(conflicting_message),
-                    });
-                }
-                None => {}
-            }
-        }
+        return vec![command_executor_entity];
     }
 
-    target_entities
+    let precise_match = if (player_selector.starts_with('"') && player_selector.ends_with('"'))
+        || (player_selector.starts_with('\'') && player_selector.ends_with('\''))
+    {
+        // Remove surrounding quotes
+        let mut chars = player_selector.chars();
+        chars.next();
+        chars.next_back();
+        player_selector = chars.as_str();
+        true
+    } else {
+        false
+    };
+
+    let matching_names: Vec<_> = used_names
+        .names
+        .iter()
+        .filter(|(player_name, _)| {
+            let player_name_lower = player_name.to_lowercase();
+            let player_selector = player_selector.to_lowercase();
+            if precise_match {
+                player_name_lower == player_selector
+            } else {
+                player_name_lower.contains(&player_selector)
+            }
+        })
+        .collect();
+
+    let message = match &matching_names[..] {
+        [(_, &entity)] => return vec![entity],
+        [] => {
+            format!("Couldn't find player \"{player_selector}\"")
+        }
+        [conflicts @ ..] => {
+            let mut names = String::new();
+            for (name, _entity) in conflicts.iter() {
+                names.push_str(name);
+                names.push('\n');
+            }
+
+            format!("Player selector \"{player_selector}\" is not specific enough.\n{names}")
+        }
+    };
+    if let Some(handle) = command_executor_handle_option {
+        net_console_commands.send(NetConsoleCommands {
+            handle,
+            message: ReliableServerMessage::ConsoleWriteLine(format!(
+                "[color=#ff6600]{message}[/color]"
+            )),
+        });
+    }
+    vec![]
 }
