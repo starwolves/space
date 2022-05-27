@@ -63,10 +63,29 @@ pub fn player_selector_to_entities(
 
         if found_one_match {
             target_entities.push(*conflicting_names[0].1);
+        } else if conflicting_names.len() == 0 {
+            let mut conflicting_message =
+                "[color=#ff6600]Couldn't find player \"".to_string() + &player_selector + "\"\n";
+
+            for (name, _entity) in conflicting_names.iter() {
+                conflicting_message = conflicting_message + name + "\n";
+            }
+
+            conflicting_message = conflicting_message + "[/color]";
+
+            match command_executor_handle_option {
+                Some(t) => {
+                    net_console_commands.send(NetConsoleCommands {
+                        handle: t,
+                        message: ReliableServerMessage::ConsoleWriteLine(conflicting_message),
+                    });
+                }
+                None => {}
+            }
         } else {
             let mut conflicting_message = "[color=#ff6600]Player selector \"".to_string()
                 + &player_selector
-                + "\" is not specific enough:\n";
+                + "\" is not specific enough.\n";
 
             for (name, _entity) in conflicting_names.iter() {
                 conflicting_message = conflicting_message + name + "\n";
