@@ -9,8 +9,8 @@ pub fn rigidbody_bundle() -> RigidbodyBundle {
     friction.combine_rule = CoefficientCombineRule::Multiply;
 
     RigidbodyBundle {
-        collider: Collider::cuboid(0.11 * 1.5, 0.1 * 1.5, 0.13 * 1.5),
-        collider_transform: Transform::from_translation(Vec3::new(0., 0.087, 0.)),
+        collider: Collider::cuboid(0.208, 0.277, 0.213),
+        collider_transform: Transform::from_translation(Vec3::new(0., 0.011, -0.004)),
         collider_friction: friction,
     }
 }

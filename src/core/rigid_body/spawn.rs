@@ -62,11 +62,11 @@ pub fn rigidbody_builder(
     if rigidbody_spawn_data.rigidbody_dynamic {
         match rigidbody_spawn_data.entity_is_stored_item {
             true => {
-                rigidbody = RigidBody::Dynamic;
+                rigidbody = RigidBody::Fixed;
                 masks = get_bit_masks(ColliderGroup::NoCollision);
             }
             false => {
-                rigidbody = RigidBody::Fixed;
+                rigidbody = RigidBody::Dynamic;
                 masks = (
                     rigidbody_spawn_data.collider_collision_groups.memberships,
                     rigidbody_spawn_data.collider_collision_groups.filters,

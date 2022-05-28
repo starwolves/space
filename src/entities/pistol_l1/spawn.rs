@@ -10,31 +10,29 @@ use bevy_rapier3d::prelude::{
 };
 use bevy_transform::components::Transform;
 
-use crate::{
-    core::{
-        entity::{
-            components::{EntityData, EntityUpdates, Showcase},
-            events::NetShowcase,
-            resources::SpawnData,
-        },
-        examinable::components::{Examinable, RichName},
-        health::components::{DamageFlag, DamageModel, Health},
-        inventory::components::SlotType,
-        inventory_item::components::{
-            CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
-            InventoryItem, ProjectileType,
-        },
-        networking::resources::ReliableServerMessage,
-        physics::{
-            components::{WorldMode, WorldModes},
-            functions::{get_bit_masks, ColliderGroup},
-        },
-        rigid_body::components::{
-            CachedBroadcastTransform, RigidBodyData, RigidBodyDisabled, RigidBodyLinkTransform,
-        },
-        sensable::components::Sensable,
+use crate::core::{
+    entity::{
+        components::{EntityData, EntityUpdates, Showcase},
+        events::NetShowcase,
+        resources::SpawnData,
     },
-    entities::helmet_security::spawn::STANDARD_BODY_FRICTION,
+    examinable::components::{Examinable, RichName},
+    health::components::{DamageFlag, DamageModel, Health},
+    inventory::components::SlotType,
+    inventory_item::components::{
+        CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType, InventoryItem,
+        ProjectileType,
+    },
+    networking::resources::ReliableServerMessage,
+    physics::{
+        components::{WorldMode, WorldModes},
+        functions::{get_bit_masks, ColliderGroup},
+    },
+    rigid_body::components::{
+        CachedBroadcastTransform, RigidBodyData, RigidBodyDisabled, RigidBodyLinkTransform,
+        STANDARD_BODY_FRICTION,
+    },
+    sensable::components::Sensable,
 };
 
 use super::components::PistolL1;
