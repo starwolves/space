@@ -13,7 +13,8 @@ use super::PostUpdateLabels;
 
 pub mod components;
 pub mod entity_update;
-mod systems;
+pub mod functions;
+pub mod systems;
 
 pub struct InventoryItemPlugin;
 

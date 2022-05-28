@@ -30,7 +30,7 @@ use crate::{
             functions::{get_bit_masks, ColliderGroup},
         },
         rigid_body::components::{
-            CachedBroadcastTransform, DefaultTransform, RigidBodyDisabled, RigidBodyLinkTransform,
+            CachedBroadcastTransform, RigidBodyDisabled, RigidBodyLinkTransform,
         },
         sensable::components::Sensable,
     },
@@ -153,8 +153,8 @@ impl JumpsuitSecurityBundle {
         let holder_entity_option;
 
         match spawn_data.held_data_option {
-            Some(d) => {
-                holder_entity_option = Some(d.entity);
+            Some(e) => {
+                holder_entity_option = Some(e);
             }
             None => {
                 holder_entity_option = None;
@@ -203,9 +203,6 @@ impl JumpsuitSecurityBundle {
                 active_slot_tab_actions: vec![],
 
                 throw_force_factor: 2.,
-            },
-            DefaultTransform {
-                transform: default_transform,
             },
         );
 

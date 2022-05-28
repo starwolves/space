@@ -4,42 +4,34 @@ use std::{
 };
 
 use bevy_ecs::{entity::Entity, system::Query};
-use bevy_hierarchy::BuildChildren;
-use bevy_log::warn;
 use bevy_math::{Mat4, Quat, Vec3};
-use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, ExternalForce, ExternalImpulse, Friction,
-    GravityScale, RigidBody, Sleeping, Velocity,
-};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use bevy_transform::components::Transform;
 
 use crate::{
     core::{
         data_link::components::DataLink,
         entity::{
-            components::{EntityData, EntityUpdates, Showcase},
-            events::NetShowcase,
+            components::EntityData,
+            functions::builder::{
+                base_entity_builder, showcase_builder, BaseEntityData, ShowCaseBuilderData,
+            },
             resources::{EntityDataResource, SpawnData},
         },
         examinable::components::{Examinable, RichName},
         gridmap::resources::CellData,
-        health::components::{DamageFlag, DamageModel, Health},
+        health::components::{DamageFlag, DamageModel},
         inventory::components::{Inventory, SlotType},
-        inventory_item::components::{
-            CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
-            InventoryItem,
+        inventory_item::{
+            components::{
+                CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
+                InventoryItem,
+            },
+            functions::{inventory_item_builder, InventoryBuilderData},
         },
-        networking::resources::{GridMapType, ReliableServerMessage},
+        networking::resources::GridMapType,
         pawn::functions::can_reach_entity::REACH_DISTANCE,
-        physics::{
-            components::{WorldMode, WorldModes},
-            functions::{get_bit_masks, ColliderGroup},
-        },
-        rigid_body::components::{
-            CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
-            RigidBodyLinkTransform,
-        },
-        sensable::components::Sensable,
+        rigid_body::functions::{rigidbody_builder, RigidBodySpawnData},
         tab_actions::components::TabAction,
     },
     entities::{
@@ -51,16 +43,10 @@ use crate::{
 pub struct ConstructionToolBundle;
 
 impl ConstructionToolBundle {
-    pub fn spawn(spawn_data: SpawnData) -> Entity {
-        let mut this_transform;
+    pub fn spawn(mut spawn_data: SpawnData) -> Entity {
         let default_transform = Transform::identity();
-
-        let held = spawn_data.held_data_option.is_some();
-
-        this_transform = spawn_data.entity_transform;
-
         if spawn_data.correct_transform {
-            this_transform.rotation = default_transform.rotation;
+            spawn_data.entity_transform.rotation = default_transform.rotation;
         }
 
         let shape = Collider::cuboid(0.11 * 1.5, 0.1 * 1.5, 0.13 * 1.5);
@@ -70,67 +56,23 @@ impl ConstructionToolBundle {
         let friction_val = STANDARD_BODY_FRICTION;
         let friction_combine_rule = CoefficientCombineRule::Multiply;
 
-        let mut t = Transform::from_translation(this_transform.translation);
-        t.rotation = this_transform.rotation;
+        let mut t = Transform::from_translation(spawn_data.entity_transform.translation);
+        t.rotation = spawn_data.entity_transform.rotation;
         let mut friction = Friction::coefficient(friction_val);
         friction.combine_rule = friction_combine_rule;
 
-        let mut builder = spawn_data.commands.spawn();
-        if held == false {
-            let rigid_body = RigidBody::Fixed;
+        let entity = spawn_data.commands.spawn().id();
 
-            let masks = get_bit_masks(ColliderGroup::Standard);
-
-            builder
-                .insert(rigid_body)
-                .insert(t)
-                .insert(Velocity::default())
-                .insert(ExternalForce::default())
-                .insert(Sleeping::default())
-                .insert(GravityScale::default())
-                .insert(ExternalImpulse::default())
-                .with_children(|children| {
-                    children
-                        .spawn()
-                        .insert(shape)
-                        .insert(Transform::from_translation(collider_position))
-                        .insert(friction)
-                        .insert(CollisionGroups::new(masks.0, masks.1));
-                });
-        } else {
-            let rigid_body = RigidBody::Dynamic;
-
-            let masks = get_bit_masks(ColliderGroup::NoCollision);
-
-            let sleeping = Sleeping {
-                sleeping: true,
-                ..Default::default()
-            };
-
-            builder
-                .insert(ExternalImpulse::default())
-                .insert(ExternalForce::default())
-                .insert(Velocity::default())
-                .insert(rigid_body)
-                .insert(t)
-                .insert(GravityScale(0.))
-                .insert(sleeping)
-                .with_children(|children| {
-                    children
-                        .spawn()
-                        .insert(shape)
-                        .insert(Transform::from_translation(collider_position))
-                        .insert(friction)
-                        .insert(CollisionGroups::new(masks.0, masks.1));
-                });
-        }
+        let entity_type = "constructionTool";
 
         let template_examine_text =
             "A construction tool. Use this to construct or deconstruct ship hull cells."
                 .to_string();
+
         let mut examine_map = BTreeMap::new();
         examine_map.insert(0, template_examine_text);
 
+        // Iventoryitem comps.
         let mut attachment_transforms = HashMap::new();
 
         attachment_transforms.insert(
@@ -160,153 +102,115 @@ impl ConstructionToolBundle {
             )),
         );
 
-        let entity_id = builder.id();
-
         let mut melee_damage_flags = HashMap::new();
         melee_damage_flags.insert(0, DamageFlag::SoftDamage);
 
         let mut projectile_damage_flags = HashMap::new();
         projectile_damage_flags.insert(0, DamageFlag::WeakLethalLaser);
 
-        let entity_type = "constructionTool";
-
-        let holder_entity_option;
-
-        match spawn_data.held_data_option {
-            Some(d) => {
-                holder_entity_option = Some(d.entity);
-            }
-            None => {
-                holder_entity_option = None;
-            }
-        }
-
-        builder.insert_bundle((
-            EntityData {
-                entity_class: "entity".to_string(),
-                entity_name: entity_type.to_string(),
+        rigidbody_builder(
+            &mut spawn_data.commands,
+            entity,
+            RigidBodySpawnData {
+                rigidbody_dynamic: true,
+                rigid_transform: t,
+                entity_is_stored_item: spawn_data.held_data_option.is_some(),
+                collider: shape,
+                collider_transform: Transform::from_translation(collider_position),
+                collider_friction: friction,
                 ..Default::default()
             },
-            EntityUpdates::default(),
-            CachedBroadcastTransform::default(),
-            Examinable {
-                assigned_texts: examine_map,
-                name: RichName {
-                    name: "admin construction tool".to_string(),
-                    n: false,
+        );
+
+        base_entity_builder(
+            &mut spawn_data.commands,
+            entity,
+            BaseEntityData {
+                dynamicbody: true,
+                entity_type: entity_type.to_string(),
+                examinable: Examinable {
+                    assigned_texts: examine_map,
+                    name: RichName {
+                        name: "admin construction tool".to_string(),
+                        n: false,
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
                 ..Default::default()
             },
-            ConstructionTool::default(),
-            InventoryItem {
-                in_inventory_of_entity: holder_entity_option,
-                attachment_transforms: attachment_transforms,
-                drop_transform: default_transform,
-                slot_type: SlotType::Holster,
-                is_attached_when_worn: true,
-                combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
-                combat_type: CombatType::MeleeDirect,
-                combat_melee_damage_model: DamageModel {
-                    brute: 9.,
-                    damage_flags: melee_damage_flags,
-                    ..Default::default()
+        );
+
+        inventory_item_builder(
+            &mut spawn_data.commands,
+            entity,
+            InventoryBuilderData {
+                inventory_item: InventoryItem {
+                    in_inventory_of_entity: spawn_data.held_data_option,
+                    attachment_transforms: attachment_transforms.clone(),
+                    drop_transform: default_transform,
+                    slot_type: SlotType::Holster,
+                    is_attached_when_worn: true,
+                    combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
+                    combat_type: CombatType::MeleeDirect,
+                    combat_melee_damage_model: DamageModel {
+                        brute: 9.,
+                        damage_flags: melee_damage_flags.clone(),
+                        ..Default::default()
+                    },
+                    combat_projectile_damage_model: None,
+                    combat_melee_sound_set: CombatSoundSet::default(),
+                    combat_standard_animation: CombatStandardAnimation::StandardStance,
+                    combat_projectile_sound_set: None,
+                    combat_melee_text_set: InventoryItem::get_default_strike_words(),
+                    combat_projectile_text_set: None,
+                    trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
+                    trigger_projectile_text_set: None,
+                    active_slot_tab_actions: vec![
+                        TabAction {
+                            id: "action::construction_tool_admin/construct".to_string(),
+                            text: "Construct".to_string(),
+                            tab_list_priority: 50,
+                            prerequisite_check: Arc::new(construct_action),
+                            belonging_entity: Some(entity),
+                        },
+                        TabAction {
+                            id: "action::construction_tool_admin/deconstruct".to_string(),
+                            text: "Deconstruct".to_string(),
+                            tab_list_priority: 49,
+                            prerequisite_check: Arc::new(deconstruct_action),
+                            belonging_entity: Some(entity),
+                        },
+                        TabAction {
+                            id: "action::construction_tool_admin/constructionoptions".to_string(),
+                            text: "Construction Options".to_string(),
+                            tab_list_priority: 48,
+                            prerequisite_check: Arc::new(construction_option_action),
+                            belonging_entity: Some(entity),
+                        },
+                    ],
+                    throw_force_factor: 1.,
                 },
-                combat_projectile_damage_model: None,
-                combat_melee_sound_set: CombatSoundSet::default(),
-                combat_standard_animation: CombatStandardAnimation::StandardStance,
-                combat_projectile_sound_set: None,
-                combat_melee_text_set: InventoryItem::get_default_strike_words(),
-                combat_projectile_text_set: None,
-                trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
-                trigger_projectile_text_set: None,
-                active_slot_tab_actions: vec![
-                    TabAction {
-                        id: "action::construction_tool_admin/construct".to_string(),
-                        text: "Construct".to_string(),
-                        tab_list_priority: 50,
-                        prerequisite_check: Arc::new(construct_action),
-                        belonging_entity: Some(entity_id),
-                    },
-                    TabAction {
-                        id: "action::construction_tool_admin/deconstruct".to_string(),
-                        text: "Deconstruct".to_string(),
-                        tab_list_priority: 49,
-                        prerequisite_check: Arc::new(deconstruct_action),
-                        belonging_entity: Some(entity_id),
-                    },
-                    TabAction {
-                        id: "action::construction_tool_admin/constructionoptions".to_string(),
-                        text: "Construction Options".to_string(),
-                        tab_list_priority: 48,
-                        prerequisite_check: Arc::new(construction_option_action),
-                        belonging_entity: Some(entity_id),
-                    },
-                ],
-                throw_force_factor: 1.,
+                holder_entity_option: spawn_data.held_data_option,
             },
-            RigidBodyData {
-                friction: friction.coefficient,
-                friction_combine_rule: friction.combine_rule,
+        );
+
+        showcase_builder(
+            &mut spawn_data.commands,
+            entity,
+            spawn_data.showcase_data_option,
+            ShowCaseBuilderData {
+                entity_type: entity_type.to_string(),
+                entity_updates: HashMap::new(),
             },
-            DefaultTransform {
-                transform: default_transform,
-            },
-        ));
+        );
 
-        if spawn_data.showcase_data_option.is_some() {
-            let handle = spawn_data.showcase_data_option.as_mut().unwrap();
-            builder.insert(Showcase {
-                handle: handle.handle,
-            });
-            let entity_updates = HashMap::new();
-            handle.event_writer.send(NetShowcase {
-                handle: handle.handle,
-                message: ReliableServerMessage::LoadEntity(
-                    "entity".to_string(),
-                    entity_type.to_string(),
-                    entity_updates,
-                    entity_id.to_bits(),
-                    true,
-                    "main".to_string(),
-                    "".to_string(),
-                    false,
-                ),
-            });
-        } else {
-            builder.insert_bundle((Sensable::default(), Health::default()));
-        }
+        spawn_data
+            .commands
+            .entity(entity)
+            .insert(ConstructionTool::default());
 
-        match held {
-            true => {
-                builder.insert_bundle((
-                    RigidBodyDisabled,
-                    WorldMode {
-                        mode: WorldModes::Worn,
-                    },
-                ));
-            }
-            false => {
-                builder.insert(WorldMode {
-                    mode: WorldModes::Physics,
-                });
-            }
-        }
-
-        match holder_entity_option {
-            Some(holder_entity) => {
-                builder.insert(RigidBodyLinkTransform {
-                    follow_entity: holder_entity,
-                    ..Default::default()
-                });
-            }
-            None => {
-                if held == true {
-                    warn!("Spawned entity in held mode but holder_entity_option is none.");
-                }
-            }
-        }
-        entity_id
+        entity
     }
 }
 

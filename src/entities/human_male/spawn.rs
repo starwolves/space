@@ -37,7 +37,7 @@ use crate::core::{
         components::{WorldMode, WorldModes},
         functions::{get_bit_masks, ColliderGroup},
     },
-    rigid_body::components::{CachedBroadcastTransform, DefaultTransform, RigidBodyData},
+    rigid_body::components::{CachedBroadcastTransform, RigidBodyData},
     sensable::components::Sensable,
     senser::components::Senser,
     tab_actions::functions::get_tab_action,
@@ -158,7 +158,6 @@ impl HumanMaleBundle {
                 user_name,
                 ..Default::default()
             },
-            DefaultTransform::default(),
             Health {
                 health_container: HealthContainer::Humanoid(HumanoidHealth::default()),
                 is_combat_obstacle: true,

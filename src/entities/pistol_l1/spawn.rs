@@ -30,8 +30,7 @@ use crate::{
             functions::{get_bit_masks, ColliderGroup},
         },
         rigid_body::components::{
-            CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
-            RigidBodyLinkTransform,
+            CachedBroadcastTransform, RigidBodyData, RigidBodyDisabled, RigidBodyLinkTransform,
         },
         sensable::components::Sensable,
     },
@@ -160,17 +159,6 @@ impl PistolL1Bundle {
         let mut projectile_damage_flags = HashMap::new();
         projectile_damage_flags.insert(0, DamageFlag::WeakLethalLaser);
 
-        let held_option;
-
-        match spawn_data.held_data_option {
-            Some(s) => {
-                held_option = Some(s.entity);
-            }
-            None => {
-                held_option = None;
-            }
-        }
-
         builder.insert_bundle((
         EntityData {
             entity_class: "entity".to_string(),
@@ -193,7 +181,7 @@ impl PistolL1Bundle {
         },
         PistolL1,
         InventoryItem {
-            in_inventory_of_entity: held_option,
+            in_inventory_of_entity: spawn_data.held_data_option,
             attachment_transforms: attachment_transforms,
             drop_transform: default_transform,
             slot_type: SlotType::Holster,
@@ -224,9 +212,6 @@ impl PistolL1Bundle {
             trigger_projectile_text_set: Some(InventoryItem::get_default_trigger_weapon_words()),
             active_slot_tab_actions: vec![],
             throw_force_factor: 1.,
-        },
-        DefaultTransform {
-            transform: default_transform,
         },
         RigidBodyData {
             friction: friction.coefficient,
@@ -273,7 +258,7 @@ impl PistolL1Bundle {
             }
         }
 
-        match held_option {
+        match spawn_data.held_data_option {
             Some(holder_entity) => {
                 builder.insert(RigidBodyLinkTransform {
                     follow_entity: holder_entity,
