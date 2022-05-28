@@ -28,8 +28,7 @@ use crate::core::{
         functions::{get_bit_masks, ColliderGroup},
     },
     rigid_body::components::{
-        CachedBroadcastTransform, DefaultTransform, RigidBodyData, RigidBodyDisabled,
-        RigidBodyLinkTransform,
+        CachedBroadcastTransform, RigidBodyData, RigidBodyDisabled, RigidBodyLinkTransform,
     },
     sensable::components::Sensable,
 };
@@ -160,7 +159,7 @@ impl HelmetSecurityBundle {
 
         match spawn_data.held_data_option {
             Some(spawnheld_data) => {
-                holder_entity_option = Some(spawnheld_data.entity);
+                holder_entity_option = Some(spawnheld_data);
             }
             None => {
                 holder_entity_option = None;
@@ -211,9 +210,6 @@ impl HelmetSecurityBundle {
                 trigger_projectile_text_set: None,
                 active_slot_tab_actions: vec![],
                 throw_force_factor: 2.,
-            },
-            DefaultTransform {
-                transform: default_transform,
             },
             RigidBodyData {
                 friction: friction.coefficient,

@@ -8,7 +8,7 @@ use bevy_transform::components::Transform;
 
 use crate::core::{
     entity::resources::{
-        EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnHeldData, SpawnPawnData,
+        EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnPawnData,
     },
     networking::resources::ConsoleCommandVariantValues,
     pawn::{components::PersistentPlayerData, resources::UsedNames},
@@ -36,7 +36,7 @@ pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
 
             match held_data_option {
                 Some(entity) => {
-                    held = Some(SpawnHeldData { entity: entity });
+                    held = Some(entity);
                 }
                 None => {
                     held = None;
@@ -119,9 +119,7 @@ pub fn spawn_held_entity<'a, 'b, 'c, 'd>(
                 commands,
                 correct_transform: false,
                 pawn_data_option: None,
-                held_data_option: Some(SpawnHeldData {
-                    entity: holder_entity,
-                }),
+                held_data_option: Some(holder_entity),
                 default_map_spawn: true,
                 properties: map,
                 showcase_data_option: showcase_handle_option,

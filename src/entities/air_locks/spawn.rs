@@ -36,34 +36,32 @@ impl AirlockBundle {
     pub fn spawn(spawn_data: SpawnData) -> Entity {
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        let entity_name = spawn_data.entity_name;
-
         let description;
         let sub_name;
 
-        if entity_name == "securityAirLock1" {
+        if spawn_data.entity_name == "securityAirLock1" {
             sub_name = "security";
             description = "An air lock with ".to_string()
                 + "security"
                 + " department colors. It will only grant access to security personnel.";
-        } else if entity_name == "bridgeAirLock" {
+        } else if spawn_data.entity_name == "bridgeAirLock" {
             sub_name = "bridge";
             description = "An air lock with ".to_string()
                 + "bridge"
                 + " department colors. It will only grant access to high ranked personnel.";
-        } else if entity_name == "governmentAirLock" {
+        } else if spawn_data.entity_name == "governmentAirLock" {
             sub_name = "government";
 
             description = "An air lock with ".to_string()
                 + "government"
                 + " department colors. It will only grant access to a select few.";
-        } else if entity_name == "vacuumAirLock" {
+        } else if spawn_data.entity_name == "vacuumAirLock" {
             sub_name = "vacuum";
             description = "An air lock with ".to_string()
                 + "danger markings"
                 + ". On the other side is nothing but space.";
         } else {
-            warn!("Unrecognized airlock sub-type {}", entity_name);
+            warn!("Unrecognized airlock sub-type {}", spawn_data.entity_name);
             return Entity::from_bits(0);
         }
 
@@ -114,7 +112,7 @@ impl AirlockBundle {
                 },
                 EntityData {
                     entity_class: "entity".to_string(),
-                    entity_name: entity_name.to_string(),
+                    entity_name: spawn_data.entity_name.to_string(),
                     entity_group: EntityGroup::AirLock,
                 },
                 EntityUpdates::default(),

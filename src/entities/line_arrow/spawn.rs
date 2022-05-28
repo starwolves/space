@@ -13,7 +13,7 @@ use crate::core::{
     examinable::components::{Examinable, RichName},
     networking::resources::ConsoleCommandVariantValues,
     physics::components::{WorldMode, WorldModes},
-    rigid_body::components::{CachedBroadcastTransform, DefaultTransform},
+    rigid_body::components::CachedBroadcastTransform,
     sensable::components::Sensable,
 };
 
@@ -69,9 +69,6 @@ impl LineArrowBundle {
                     ..Default::default()
                 },
                 ..Default::default()
-            },
-            DefaultTransform {
-                transform: default_transform,
             },
             LineArrow,
             PointArrow {

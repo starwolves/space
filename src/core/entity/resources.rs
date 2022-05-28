@@ -61,10 +61,6 @@ pub struct SpawnPawnData<'a, 'b> {
     ),
 }
 
-pub struct SpawnHeldData {
-    pub entity: Entity,
-}
-
 pub struct EntityDataProperties {
     pub spawn_function: Box<dyn Fn(SpawnData) -> Entity + Sync + Send>,
     pub name: String,
@@ -98,7 +94,7 @@ pub struct SpawnData<'a, 'b, 'c, 'd, 'w, 's> {
     pub commands: &'a mut Commands<'w, 's>,
     pub correct_transform: bool,
     pub pawn_data_option: Option<SpawnPawnData<'a, 'b>>,
-    pub held_data_option: Option<SpawnHeldData>,
+    pub held_data_option: Option<Entity>,
     pub default_map_spawn: bool,
     pub properties: HashMap<String, ConsoleCommandVariantValues>,
     pub showcase_data_option: &'a mut Option<ShowcaseData<'b, 'c, 'd>>,

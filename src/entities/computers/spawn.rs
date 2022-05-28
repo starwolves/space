@@ -36,24 +36,29 @@ impl ComputerBundle {
     pub fn spawn(spawn_data: SpawnData) -> Entity {
         let computer_type;
 
-        match spawn_data.properties.get("computerType").unwrap() {
-            ConsoleCommandVariantValues::String(s) => {
-                computer_type = s.to_string();
-            }
-            _ => {
-                warn!("computerType had incorrect variable type!");
+        match spawn_data.properties.get("computerType") {
+            Some(x) => match x {
+                ConsoleCommandVariantValues::String(s) => {
+                    computer_type = s.to_string();
+                }
+                _ => {
+                    warn!("computerType had incorrect variable type!");
+                    computer_type = "".to_string();
+                }
+            },
+            None => {
+                warn!("computerType not found.");
                 computer_type = "".to_string();
             }
         }
 
-        let mut this_transform;
         let default_transform = Transform::from_matrix(Mat4::from_scale_rotation_translation(
             Vec3::new(1., 1., 1.),
             Quat::from_axis_angle(Vec3::new(-0.0394818427, 0.00003351599, 1.), 3.124470974),
             Vec3::new(0., 0.355, 0.),
         ));
 
-        this_transform = spawn_data.entity_transform;
+        let mut this_transform = spawn_data.entity_transform.clone();
 
         if spawn_data.correct_transform {
             this_transform.rotation = default_transform.rotation;
