@@ -14,9 +14,9 @@ use crate::core::{
 use super::components::RigidBodyData;
 
 pub struct RigidbodyBundle {
-    collider : Collider,
-    collider_transform : Transform,
-    collider_friction : Friction,
+    collider: Collider,
+    collider_transform: Transform,
+    collider_friction: Friction,
 }
 
 pub fn disable_rigidbody(

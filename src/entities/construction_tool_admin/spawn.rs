@@ -44,7 +44,7 @@ use crate::{
 pub struct ConstructionToolBundle {
     entity_bundle: EntityBundle,
     rigidbody_bundle: RigidbodyBundle,
-    inventory_item_bundle : InventoryItemBundle,
+    inventory_item_bundle: InventoryItemBundle,
 }
 
 impl ConstructionToolBundle {
