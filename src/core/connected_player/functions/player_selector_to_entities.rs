@@ -8,7 +8,7 @@ use crate::core::{
 pub fn player_selector_to_entities(
     command_executor_entity: Entity,
     command_executor_handle_option: Option<u32>,
-    player_selector: &str,
+    mut player_selector: &str,
     used_names: &mut ResMut<UsedNames>,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
 ) -> Vec<Entity> {
@@ -18,12 +18,30 @@ pub fn player_selector_to_entities(
         return vec![command_executor_entity];
     }
 
+    let precise_match = if (player_selector.starts_with('"') && player_selector.ends_with('"'))
+        || (player_selector.starts_with('\'') && player_selector.ends_with('\''))
+    {
+        // Remove surrounding quotes
+        let mut chars = player_selector.chars();
+        chars.next();
+        chars.next_back();
+        player_selector = chars.as_str();
+        true
+    } else {
+        false
+    };
+
     let matching_names: Vec<_> = used_names
         .names
         .iter()
         .filter(|(player_name, _)| {
+            let player_name_lower = player_name.to_lowercase();
             let player_selector = player_selector.to_lowercase();
-            player_name.to_lowercase().contains(&player_selector)
+            if precise_match {
+                player_name_lower == player_selector
+            } else {
+                player_name_lower.contains(&player_selector)
+            }
         })
         .collect();
 

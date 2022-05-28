@@ -1,4 +1,4 @@
-use std::collections::{HashMap, BTreeMap};
+use std::collections::{BTreeMap, HashMap};
 
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_math::Quat;
@@ -28,7 +28,7 @@ pub struct BaseEntityData {
 
 pub struct EntityBundle {
     pub default_rotation: Quat,
-    pub examine_map: BTreeMap<u32,String>
+    pub examine_map: BTreeMap<u32, String>,
 }
 
 pub fn base_entity_builder(commands: &mut Commands, entity: Entity, data: BaseEntityData) {
