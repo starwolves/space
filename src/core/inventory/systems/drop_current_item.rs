@@ -10,7 +10,7 @@ use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::{
     plugin::RapierContext,
-    prelude::{Collider, CollisionGroups, ExternalForce, GravityScale, Sleeping},
+    prelude::{Collider, CollisionGroups, Damping, ExternalForce, GravityScale, Sleeping},
 };
 use bevy_transform::components::Transform;
 
@@ -55,6 +55,7 @@ pub fn drop_current_item<'a>(
         &mut ExternalForce,
         &mut RigidBodyLinkTransform,
         &Children,
+        &mut Damping,
     )>,
     colliders: Query<&Parent, With<Collider>>,
 
@@ -215,6 +216,7 @@ pub fn drop_current_item<'a>(
             mut _pickupable_rigidbody_forces,
             mut pickupable_rigidbody_link_transform_component,
             children,
+            mut damping_component,
         ) = q.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query. (1)");
 
@@ -251,6 +253,7 @@ pub fn drop_current_item<'a>(
             &mut pickupable_rigidbody_gravity,
             &mut commands,
             pickupable_entity,
+            &mut damping_component,
         );
 
         pickupable_rigidbody_link_transform_component.active = false;
