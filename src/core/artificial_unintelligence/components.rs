@@ -43,7 +43,7 @@ impl Default for AiGoal {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Path {
     pub cell_path: Option<Vec<Vec3Int>>,
     pub waypoints: Option<Vec<Waypoint>>,
@@ -144,16 +144,6 @@ impl Path {
         }
         if new_waypoints.len() > 0 {
             self.waypoints = Some(new_waypoints);
-        }
-    }
-}
-
-impl Default for Path {
-    fn default() -> Self {
-        Self {
-            cell_path: None,
-            waypoints: None,
-            waypoint_progress: 0,
         }
     }
 }

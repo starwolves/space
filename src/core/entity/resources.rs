@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use bevy_ecs::{
     entity::Entity,
     event::EventWriter,
-    prelude::{FromWorld, World},
     system::{Commands, ResMut},
 };
 use bevy_transform::components::Transform;
@@ -16,6 +15,7 @@ use crate::core::{
 
 use super::events::NetShowcase;
 
+#[derive(Default)]
 pub struct EntityDataResource {
     pub data: Vec<EntityDataProperties>,
     pub incremented_id: usize,
@@ -28,17 +28,6 @@ impl EntityDataResource {
         let return_val = self.incremented_id.clone();
         self.incremented_id += 1;
         return_val
-    }
-}
-
-impl FromWorld for EntityDataResource {
-    fn from_world(_world: &mut World) -> Self {
-        EntityDataResource {
-            data: vec![],
-            incremented_id: 0,
-            id_to_name: HashMap::new(),
-            name_to_id: HashMap::new(),
-        }
     }
 }
 
