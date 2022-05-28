@@ -25,6 +25,7 @@ pub mod components;
 pub mod events;
 pub mod functions;
 pub mod resources;
+pub mod spawn;
 pub mod systems;
 
 pub fn startup_entities(entity_data: Res<EntityDataResource>) {

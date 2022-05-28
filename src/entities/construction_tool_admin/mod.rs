@@ -21,6 +21,7 @@ use self::{
 
 pub mod components;
 pub mod events;
+pub mod functions;
 pub mod spawn;
 pub mod systems;
 

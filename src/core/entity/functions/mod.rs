@@ -1,4 +1,3 @@
-pub mod builder;
 pub mod entity_update_change_detection;
 pub mod entity_updates_personalise;
 pub mod get_entity_update_difference;

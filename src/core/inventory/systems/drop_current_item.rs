@@ -35,9 +35,11 @@ use crate::core::{
         },
     },
     physics::components::{WorldMode, WorldModes},
-    rigid_body::{components::RigidBodyLinkTransform, functions::enable_rigidbody},
+    rigid_body::components::RigidBodyLinkTransform,
     sensable::components::Sensable,
 };
+
+use super::functions::enable_rigidbody;
 
 pub fn drop_current_item<'a>(
     mut drop_current_item_events: EventReader<InputDropCurrentItem>,
