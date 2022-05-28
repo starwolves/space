@@ -21,6 +21,8 @@ impl Default for CachedBroadcastTransform {
     }
 }
 
+pub const STANDARD_BODY_FRICTION: f32 = 0.125;
+
 #[derive(Component)]
 pub struct RigidBodyDisabled;
 

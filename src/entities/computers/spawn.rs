@@ -22,13 +22,11 @@ use crate::{
             components::{WorldMode, WorldModes},
             functions::{get_bit_masks, ColliderGroup},
         },
-        rigid_body::components::RigidBodyData,
+        rigid_body::components::{RigidBodyData, STANDARD_BODY_FRICTION},
         sensable::components::Sensable,
     },
     entities::computers::components::Computer,
 };
-
-pub const STANDARD_BODY_FRICTION: f32 = 0.125;
 
 pub struct ComputerBundle;
 

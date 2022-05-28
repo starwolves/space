@@ -46,9 +46,6 @@ pub fn inventory_item_bundle(holder_option: Option<Entity>) -> InventoryItemBund
     let mut melee_damage_flags = HashMap::new();
     melee_damage_flags.insert(0, DamageFlag::SoftDamage);
 
-    let mut projectile_damage_flags = HashMap::new();
-    projectile_damage_flags.insert(0, DamageFlag::WeakLethalLaser);
-
     let default_transform = Transform::identity();
 
     InventoryItemBundle {
