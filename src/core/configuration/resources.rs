@@ -1,7 +1,4 @@
-use bevy_ecs::{
-    entity::Entity,
-    prelude::{FromWorld, World},
-};
+use bevy_ecs::entity::Entity;
 
 use crate::core::chat::functions::NEARBY_SHOUT_FONT;
 
@@ -13,8 +10,8 @@ const COMMUNITY_HREF_COLOR: &str = "#5c4aff";
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-impl FromWorld for MOTD {
-    fn from_world(_world: &mut World) -> Self {
+impl Default for MOTD {
+    fn default() -> Self {
         MOTD {
             message :  "[center]".to_string() +
             "[font=" + NEARBY_SHOUT_FONT + "][color=" + COMMUNITY_HREF_COLOR + "][url={\"type\": \"href\",\"data\":\"https://github.com/starwolves/space\"}]Space Frontiers[/url][/color][/font]\n" +
@@ -31,8 +28,8 @@ pub struct TickRate {
     pub rate: u8,
 }
 
-impl FromWorld for TickRate {
-    fn from_world(_world: &mut World) -> Self {
+impl Default for TickRate {
+    fn default() -> Self {
         TickRate { rate: 24 }
     }
 }
@@ -44,8 +41,8 @@ pub struct ServerId {
     pub id: Entity,
 }
 
-impl FromWorld for ServerId {
-    fn from_world(_world: &mut World) -> Self {
+impl Default for ServerId {
+    fn default() -> Self {
         ServerId {
             id: Entity::from_raw(0),
         }

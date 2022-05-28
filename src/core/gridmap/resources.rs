@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use bevy_ecs::{
     entity::Entity,
     event::EventWriter,
-    prelude::{FromWorld, World},
     system::{Query, Res},
 };
 use bevy_math::Quat;
@@ -25,6 +24,7 @@ use crate::core::{
 
 use super::MainCellProperties;
 
+#[derive(Default)]
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
     pub non_combat_obstacle_cells_list: Vec<i64>,
@@ -45,44 +45,13 @@ pub struct GridmapData {
     pub main_cell_properties: HashMap<i64, MainCellProperties>,
 }
 
-impl FromWorld for GridmapData {
-    fn from_world(_world: &mut World) -> Self {
-        GridmapData {
-            non_fov_blocking_cells_list: vec![],
-            non_combat_obstacle_cells_list: vec![],
-            non_laser_obstacle_cells_list: vec![],
-            placeable_items_cells_list: vec![],
-            ordered_main_names: vec![],
-            ordered_details1_names: vec![],
-            main_name_id_map: HashMap::new(),
-            main_id_name_map: HashMap::new(),
-            details1_name_id_map: HashMap::new(),
-            details1_id_name_map: HashMap::new(),
-            main_text_names: HashMap::new(),
-            details1_text_names: HashMap::new(),
-            main_text_examine_desc: HashMap::new(),
-            details1_text_examine_desc: HashMap::new(),
-            blackcell_id: 0,
-            blackcell_blocking_id: 0,
-            main_cell_properties: HashMap::new(),
-        }
-    }
-}
-
+#[derive(Default)]
 pub struct GridmapDetails1 {
     pub data: HashMap<Vec3Int, CellData>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
 }
 
-impl FromWorld for GridmapDetails1 {
-    fn from_world(_world: &mut World) -> Self {
-        GridmapDetails1 {
-            data: HashMap::new(),
-            updates: HashMap::new(),
-        }
-    }
-}
-
+#[derive(Default)]
 pub struct GridmapMain {
     pub grid_data: HashMap<Vec3Int, CellData>,
     pub entity_data: HashMap<Vec3Int, EntityGridData>,
@@ -246,22 +215,12 @@ impl StructureHealth {
     }
 }
 
-impl FromWorld for GridmapMain {
-    fn from_world(_world: &mut World) -> Self {
-        GridmapMain {
-            grid_data: HashMap::new(),
-            updates: HashMap::new(),
-            entity_data: HashMap::new(),
-        }
-    }
-}
-
 pub struct DoryenMap {
     pub map: MapData,
 }
 
-impl FromWorld for DoryenMap {
-    fn from_world(_world: &mut World) -> Self {
+impl Default for DoryenMap {
+    fn default() -> Self {
         DoryenMap {
             map: MapData::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
         }
@@ -284,16 +243,10 @@ pub fn doryen_coordinates_out_of_range(x: usize, y: usize) -> bool {
     x > FOV_MAP_WIDTH || y > FOV_MAP_WIDTH
 }
 
-#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug, Default)]
 pub struct Vec2Int {
     pub x: i16,
     pub y: i16,
-}
-
-impl Default for Vec2Int {
-    fn default() -> Self {
-        Self { x: 0, y: 0 }
-    }
 }
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug, Serialize, Deserialize)]
@@ -321,6 +274,7 @@ pub struct SpawnPoint {
     pub transform: Transform,
 }
 
+#[derive(Default)]
 pub struct SpawnPoints {
     pub list: Vec<SpawnPoint>,
     pub i: usize,
@@ -338,11 +292,5 @@ impl SpawnPoint {
             point_type: raw.point_type.clone(),
             transform: this_transform,
         }
-    }
-}
-
-impl FromWorld for SpawnPoints {
-    fn from_world(_world: &mut World) -> Self {
-        SpawnPoints { list: vec![], i: 0 }
     }
 }
