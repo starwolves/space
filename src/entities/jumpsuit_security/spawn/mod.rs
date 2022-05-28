@@ -5,6 +5,8 @@ pub mod rigidbody_bundle;
 use std::collections::HashMap;
 
 use bevy_ecs::entity::Entity;
+use bevy_math::{Mat4, Quat, Vec3};
+use bevy_transform::prelude::Transform;
 
 use crate::core::{
     entity::{
@@ -27,12 +29,19 @@ impl JumpsuitSecurityBundle {
     pub fn spawn(mut spawn_data: SpawnData) -> Entity {
         let entity = spawn_data.commands.spawn().id();
 
+        let default_transform = Transform::from_matrix(Mat4::from_scale_rotation_translation(
+            Vec3::new(1., 1., 1.),
+            Quat::from_axis_angle(Vec3::new(-0.00000035355248, 0.707105, 0.7071085), 3.1415951),
+            Vec3::new(0., 0.116, 0.),
+        ));
+
         let rigidbody_bundle = rigidbody_bundle();
-        let inventory_item_bundle = inventory_item_bundle(spawn_data.held_data_option);
-        let entity_bundle = entity_bundle();
+        let inventory_item_bundle =
+            inventory_item_bundle(spawn_data.held_data_option, default_transform);
+        let entity_bundle = entity_bundle(default_transform);
 
         if spawn_data.correct_transform {
-            spawn_data.entity_transform.rotation = entity_bundle.default_rotation;
+            spawn_data.entity_transform.rotation = default_transform.rotation;
         }
 
         rigidbody_builder(

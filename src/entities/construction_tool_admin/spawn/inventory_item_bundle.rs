@@ -16,7 +16,10 @@ use crate::{
     },
 };
 
-pub fn inventory_item_bundle(holder_option: Option<Entity>) -> InventoryItemBundle {
+pub fn inventory_item_bundle(
+    holder_option: Option<Entity>,
+    default_transform: Transform,
+) -> InventoryItemBundle {
     let mut attachment_transforms = HashMap::new();
     attachment_transforms.insert(
         "left_hand".to_string(),
@@ -45,8 +48,6 @@ pub fn inventory_item_bundle(holder_option: Option<Entity>) -> InventoryItemBund
 
     let mut melee_damage_flags = HashMap::new();
     melee_damage_flags.insert(0, DamageFlag::SoftDamage);
-
-    let default_transform = Transform::identity();
 
     InventoryItemBundle {
         inventory_item: InventoryItem {

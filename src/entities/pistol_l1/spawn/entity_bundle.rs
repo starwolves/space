@@ -11,7 +11,7 @@ pub fn entity_bundle(default_transform: Transform) -> EntityBundle {
     let mut examine_map = BTreeMap::new();
     examine_map.insert(
         0,
-        "A standard issue security jumpsuit used by Security Officers.".to_string(),
+        "A standard issue laser pistol. It is a lethal weapon.".to_string(),
     );
 
     EntityBundle {
@@ -19,12 +19,12 @@ pub fn entity_bundle(default_transform: Transform) -> EntityBundle {
         examinable: Examinable {
             assigned_texts: examine_map,
             name: RichName {
-                name: "security jumpsuit".to_string(),
+                name: "laser pistol".to_string(),
                 n: false,
                 ..Default::default()
             },
             ..Default::default()
         },
-        entity_name: "jumpsuitSecurity".to_string(),
+        entity_name: "pistolL1".to_string(),
     }
 }
