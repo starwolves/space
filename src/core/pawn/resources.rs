@@ -1,19 +1,11 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{
-    entity::Entity,
-    prelude::{FromWorld, World},
-};
+use bevy_ecs::entity::Entity;
 use bevy_rapier3d::na::Quaternion;
 
+#[derive(Default)]
 pub struct AuthidI {
     pub i: u16,
-}
-
-impl FromWorld for AuthidI {
-    fn from_world(_world: &mut World) -> Self {
-        AuthidI { i: 0 }
-    }
 }
 
 #[derive(Default)]

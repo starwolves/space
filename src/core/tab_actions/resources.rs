@@ -1,10 +1,8 @@
-use bevy_ecs::{
-    entity::Entity,
-    prelude::{FromWorld, World},
-};
+use bevy_ecs::entity::Entity;
 
 use crate::core::networking::resources::GridMapType;
 
+#[derive(Default)]
 pub struct QueuedTabActions {
     pub queue: Vec<QueuedTabAction>,
 }
@@ -16,10 +14,4 @@ pub struct QueuedTabAction {
     pub target_entity_option: Option<u64>,
     pub belonging_entity_option: Option<u64>,
     pub player_entity: Entity,
-}
-
-impl FromWorld for QueuedTabActions {
-    fn from_world(_world: &mut World) -> Self {
-        QueuedTabActions { queue: vec![] }
-    }
 }
