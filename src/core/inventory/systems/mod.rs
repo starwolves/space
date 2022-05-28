@@ -1,5 +1,6 @@
 pub mod actions;
 pub mod drop_current_item;
+pub mod functions;
 pub mod inventory_tab_data;
 pub mod net_system;
 pub mod pickup_world_item;

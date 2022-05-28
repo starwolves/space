@@ -6,7 +6,7 @@ use self::systems::{
 };
 
 pub mod components;
-pub mod functions;
+pub mod spawn;
 pub mod systems;
 
 pub struct RigidBodyPlugin;

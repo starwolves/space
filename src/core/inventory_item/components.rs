@@ -62,6 +62,31 @@ pub struct InventoryItem {
     pub throw_force_factor: f32,
 }
 
+impl Default for InventoryItem {
+    fn default() -> Self {
+        Self {
+            in_inventory_of_entity: None,
+            attachment_transforms: HashMap::default(),
+            drop_transform: Transform::default(),
+            slot_type: SlotType::Generic,
+            is_attached_when_worn: true,
+            combat_standard_animation: CombatStandardAnimation::StandardStance,
+            combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
+            combat_type: CombatType::MeleeDirect,
+            combat_melee_damage_model: DamageModel::default(),
+            combat_projectile_damage_model: None,
+            combat_melee_sound_set: CombatSoundSet::default(),
+            combat_projectile_sound_set: None,
+            combat_melee_text_set: InventoryItem::get_default_strike_words(),
+            combat_projectile_text_set: None,
+            trigger_melee_text_set: InventoryItem::get_default_trigger_melee_words(),
+            trigger_projectile_text_set: None,
+            active_slot_tab_actions: vec![],
+            throw_force_factor: 1.,
+        }
+    }
+}
+
 impl InventoryItem {
     pub fn get_default_strike_words() -> Vec<String> {
         vec![

@@ -1,8 +1,12 @@
+use super::components::InventoryItem;
+
 use bevy_ecs::{entity::Entity, system::Commands};
 
 use crate::core::rigid_body::components::RigidBodyLinkTransform;
 
-use super::components::InventoryItem;
+pub struct InventoryItemBundle {
+    pub inventory_item: InventoryItem,
+}
 
 pub struct InventoryBuilderData {
     pub inventory_item: InventoryItem,
@@ -21,8 +25,4 @@ pub fn inventory_item_builder(commands: &mut Commands, entity: Entity, data: Inv
         }
         None => {}
     }
-}
-
-pub struct InventoryItemBundle {
-    pub inventory_item: InventoryItem,
 }

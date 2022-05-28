@@ -33,7 +33,7 @@ use crate::{
             functions::entity_spawn_position_for_player::entity_spawn_position_for_player,
         },
         physics::components::{WorldMode, WorldModes},
-        rigid_body::{components::RigidBodyLinkTransform, functions::enable_rigidbody},
+        rigid_body::components::RigidBodyLinkTransform,
         sensable::components::Sensable,
         sfx::{
             components::sfx_auto_destroy, functions::sfx_builder, resources::SfxAutoDestroyTimers,
@@ -41,6 +41,8 @@ use crate::{
     },
     entities::sfx::actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},
 };
+
+use super::functions::enable_rigidbody;
 
 pub fn throw_item(
     mut throw_item_events: EventReader<InputThrowItem>,

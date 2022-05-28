@@ -29,8 +29,10 @@ use crate::core::{
     networking::resources::ReliableServerMessage,
     pawn::functions::can_reach_entity::{can_reach_entity, REACH_DISTANCE},
     physics::components::{WorldMode, WorldModes},
-    rigid_body::{components::RigidBodyLinkTransform, functions::disable_rigidbody},
+    rigid_body::components::RigidBodyLinkTransform,
 };
+
+use super::functions::disable_rigidbody;
 
 pub fn pickup_world_item<'a>(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
