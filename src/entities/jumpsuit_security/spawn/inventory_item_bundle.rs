@@ -10,7 +10,10 @@ use crate::core::{
     inventory_item::{components::InventoryItem, spawn::InventoryItemBundle},
 };
 
-pub fn inventory_item_bundle(holder_option: Option<Entity>) -> InventoryItemBundle {
+pub fn inventory_item_bundle(
+    holder_option: Option<Entity>,
+    default_transform: Transform,
+) -> InventoryItemBundle {
     let mut attachment_transforms = HashMap::new();
 
     let left_hand_rotation = Vec3::new(-0.324509068, -1.52304412, 2.79253);
@@ -39,12 +42,6 @@ pub fn inventory_item_bundle(holder_option: Option<Entity>) -> InventoryItemBund
 
     let mut melee_damage_flags = HashMap::new();
     melee_damage_flags.insert(0, DamageFlag::SoftDamage);
-
-    let default_transform = Transform::from_matrix(Mat4::from_scale_rotation_translation(
-        Vec3::new(1., 1., 1.),
-        Quat::from_axis_angle(Vec3::new(-0.00000035355248, 0.707105, 0.7071085), 3.1415951),
-        Vec3::new(0., 0.116, 0.),
-    ));
 
     InventoryItemBundle {
         inventory_item: InventoryItem {

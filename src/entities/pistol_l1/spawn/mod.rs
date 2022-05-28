@@ -21,18 +21,18 @@ use entity_bundle::entity_bundle;
 use inventory_item_bundle::inventory_item_bundle;
 use rigidbody_bundle::rigidbody_bundle;
 
-use super::components::Helmet;
+use super::components::PistolL1;
 
-pub struct HelmetSecurityBundle;
+pub struct PistolL1Bundle;
 
-impl HelmetSecurityBundle {
+impl PistolL1Bundle {
     pub fn spawn(mut spawn_data: SpawnData) -> Entity {
         let entity = spawn_data.commands.spawn().id();
 
         let default_transform = Transform::from_matrix(Mat4::from_scale_rotation_translation(
             Vec3::new(1., 1., 1.),
-            Quat::from_axis_angle(Vec3::new(-0.0394818427, 0.00003351599, 1.), 3.124470974),
-            Vec3::new(0., 0.355, 0.),
+            Quat::from_axis_angle(Vec3::new(-0.00000035355248, 0.707105, 0.7071085), 3.1415951),
+            Vec3::new(0., 0.116, 0.),
         ));
 
         let rigidbody_bundle = rigidbody_bundle();
@@ -89,7 +89,7 @@ impl HelmetSecurityBundle {
             },
         );
 
-        spawn_data.commands.entity(entity).insert(Helmet);
+        spawn_data.commands.entity(entity).insert(PistolL1);
 
         entity
     }

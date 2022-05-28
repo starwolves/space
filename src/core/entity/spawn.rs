@@ -1,4 +1,4 @@
-use bevy_math::Quat;
+use bevy_transform::prelude::Transform;
 use std::collections::HashMap;
 
 use bevy_ecs::{entity::Entity, system::Commands};
@@ -18,7 +18,7 @@ use crate::core::{
 };
 
 pub struct EntityBundle {
-    pub default_rotation: Quat,
+    pub default_transform: Transform,
     pub examinable: Examinable,
     pub entity_name: String,
 }

@@ -1,20 +1,19 @@
+use bevy_transform::prelude::Transform;
 use std::collections::BTreeMap;
-
-use bevy_math::Quat;
 
 use crate::core::{
     entity::spawn::EntityBundle,
     examinable::components::{Examinable, RichName},
 };
 
-pub fn entity_bundle() -> EntityBundle {
+pub fn entity_bundle(default_transform: Transform) -> EntityBundle {
     let mut examine_map = BTreeMap::new();
     examine_map.insert(
         0,
         "A standard issue helmet used by Security Officers.".to_string(),
     );
     EntityBundle {
-        default_rotation: Quat::IDENTITY,
+        default_transform,
         examinable: Examinable {
             assigned_texts: examine_map,
             name: RichName {
