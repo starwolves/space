@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 
 use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_math::Quat;
 
 use crate::core::{
     entity::{
@@ -23,6 +24,11 @@ pub struct BaseEntityData {
     pub sensable: Sensable,
     pub health: Health,
     pub is_item_in_storage: bool,
+}
+
+pub struct EntityBundle {
+    pub default_rotation: Quat,
+    pub examine_map: BTreeMap<u32,String>
 }
 
 pub fn base_entity_builder(commands: &mut Commands, entity: Entity, data: BaseEntityData) {

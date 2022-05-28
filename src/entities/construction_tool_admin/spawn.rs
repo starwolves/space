@@ -14,7 +14,8 @@ use crate::{
         entity::{
             components::EntityData,
             functions::builder::{
-                base_entity_builder, showcase_builder, BaseEntityData, ShowCaseBuilderData,
+                base_entity_builder, showcase_builder, BaseEntityData, EntityBundle,
+                ShowCaseBuilderData,
             },
             resources::{EntityDataResource, SpawnData},
         },
@@ -27,11 +28,11 @@ use crate::{
                 CombatAttackAnimation, CombatSoundSet, CombatStandardAnimation, CombatType,
                 InventoryItem,
             },
-            functions::{inventory_item_builder, InventoryBuilderData},
+            functions::{inventory_item_builder, InventoryBuilderData, InventoryItemBundle},
         },
         networking::resources::GridMapType,
         pawn::functions::can_reach_entity::REACH_DISTANCE,
-        rigid_body::functions::{rigidbody_builder, RigidBodySpawnData},
+        rigid_body::functions::{rigidbody_builder, RigidBodySpawnData, RigidbodyBundle},
         tab_actions::components::TabAction,
     },
     entities::{
@@ -40,7 +41,11 @@ use crate::{
     },
 };
 
-pub struct ConstructionToolBundle;
+pub struct ConstructionToolBundle {
+    entity_bundle: EntityBundle,
+    rigidbody_bundle: RigidbodyBundle,
+    inventory_item_bundle : InventoryItemBundle,
+}
 
 impl ConstructionToolBundle {
     pub fn spawn(mut spawn_data: SpawnData) -> Entity {

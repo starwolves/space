@@ -22,3 +22,7 @@ pub fn inventory_item_builder(commands: &mut Commands, entity: Entity, data: Inv
         None => {}
     }
 }
+
+pub struct InventoryItemBundle {
+    pub inventory_item: InventoryItem,
+}

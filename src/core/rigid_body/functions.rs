@@ -13,6 +13,12 @@ use crate::core::{
 
 use super::components::RigidBodyData;
 
+pub struct RigidbodyBundle {
+    collider : Collider,
+    collider_transform : Transform,
+    collider_friction : Friction,
+}
+
 pub fn disable_rigidbody(
     rigidbody_activation: &mut Sleeping,
     collider_flags: &mut CollisionGroups,
