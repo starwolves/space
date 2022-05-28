@@ -1,7 +1,4 @@
-use bevy_ecs::{
-    prelude::{FromWorld, World},
-    system::ResMut,
-};
+use bevy_ecs::system::ResMut;
 use bevy_math::Quat;
 use serde::{Deserialize, Serialize};
 
@@ -324,8 +321,8 @@ pub struct WorldEnvironmentRaw {
     glow_high_quality: bool,
 }
 
-impl FromWorld for WorldEnvironment {
-    fn from_world(_world: &mut World) -> Self {
+impl Default for WorldEnvironment {
+    fn default() -> Self {
         WorldEnvironment {
             adjustment_brightness: 0.,
             adjustment_contrast: 0.,

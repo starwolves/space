@@ -10,18 +10,10 @@ use crate::core::{
     networking::resources::{GridMapType, NetTabAction},
 };
 
+#[derive(Default)]
 pub struct TabActionsData {
     pub layout: HashMap<Option<Entity>, HashMap<String, u32>>,
     pub tab_action_i: u32,
-}
-
-impl Default for TabActionsData {
-    fn default() -> Self {
-        Self {
-            layout: HashMap::new(),
-            tab_action_i: 0,
-        }
-    }
 }
 
 #[derive(Component)]
