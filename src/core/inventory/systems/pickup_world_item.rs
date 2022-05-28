@@ -9,7 +9,7 @@ use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::{
     plugin::RapierContext,
-    prelude::{Collider, CollisionGroups, ExternalForce, GravityScale, Sleeping},
+    prelude::{Collider, CollisionGroups, Damping, ExternalForce, GravityScale, Sleeping},
 };
 use bevy_transform::prelude::Transform;
 
@@ -46,6 +46,7 @@ pub fn pickup_world_item<'a>(
         &mut ExternalForce,
         &EntityData,
         &mut GravityScale,
+        &mut Damping,
     )>,
     mut collision_groups: Query<&mut CollisionGroups>,
     colliders: Query<&Parent, With<Collider>>,
@@ -148,6 +149,7 @@ pub fn pickup_world_item<'a>(
         let children = pickupable_entities_components.2;
         let mut _pickupable_rigid_body_forces = pickupable_entities_components.3;
         let mut pickupable_rigid_body_gravity = pickupable_entities_components.5;
+        let mut damping_component = pickupable_entities_components.6;
 
         let pickupable_entity_data = pickupable_entities_components.4;
 
@@ -179,6 +181,7 @@ pub fn pickup_world_item<'a>(
             &mut pickupable_rigid_body_gravity,
             &mut commands,
             pickupable_entity,
+            &mut damping_component,
         );
 
         let mut pickupable_inventory_item_component;

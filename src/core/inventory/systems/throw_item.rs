@@ -10,7 +10,7 @@ use bevy_log::warn;
 use bevy_math::Vec3;
 
 use bevy_rapier3d::prelude::{
-    CollisionGroups, ExternalForce, ExternalImpulse, GravityScale, Sleeping,
+    CollisionGroups, Damping, ExternalForce, ExternalImpulse, GravityScale, Sleeping,
 };
 use bevy_transform::prelude::Transform;
 use rand::Rng;
@@ -66,6 +66,7 @@ pub fn throw_item(
         &mut ExternalForce,
         &mut RigidBodyLinkTransform,
         &mut GravityScale,
+        &mut Damping,
     )>,
     mut external_impulses: Query<&mut ExternalImpulse>,
     mut collision_groups: Query<&mut CollisionGroups>,
@@ -126,6 +127,7 @@ pub fn throw_item(
             mut _external_force_component,
             mut pickupable_rigidbody_link_transform_component,
             mut gravity_component,
+            mut damping_component,
         ) = pickupable_entities.get_mut(pickupable_entity)
         .expect("drop_current_item.rs couldnt find pickupable_components of pickupable_entity from query.");
 
@@ -163,6 +165,7 @@ pub fn throw_item(
             &mut gravity_component,
             &mut commands,
             pickupable_entity,
+            &mut damping_component,
         );
 
         pickupable_rigidbody_link_transform_component.active = false;

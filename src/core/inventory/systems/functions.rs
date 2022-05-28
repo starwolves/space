@@ -1,5 +1,5 @@
 use bevy_ecs::{entity::Entity, system::Commands};
-use bevy_rapier3d::prelude::{CollisionGroups, GravityScale, Sleeping};
+use bevy_rapier3d::prelude::{CollisionGroups, Damping, GravityScale, Sleeping};
 
 use crate::core::{
     physics::functions::{get_bit_masks, ColliderGroup},
@@ -12,6 +12,7 @@ pub fn disable_rigidbody(
     mut gravity: &mut GravityScale,
     commands: &mut Commands,
     rigidbody_entity: Entity,
+    damping: &mut Damping,
 ) {
     let masks = get_bit_masks(ColliderGroup::NoCollision);
 
@@ -22,6 +23,9 @@ pub fn disable_rigidbody(
 
     rigidbody_activation.sleeping = true;
 
+    damping.angular_damping = 10000.;
+    damping.linear_damping = 10000.;
+
     commands.entity(rigidbody_entity).insert(RigidBodyDisabled);
 }
 
@@ -31,6 +35,7 @@ pub fn enable_rigidbody(
     mut gravity: &mut GravityScale,
     commands: &mut Commands,
     rigidbody_entity: Entity,
+    damping: &mut Damping,
 ) {
     let masks = get_bit_masks(ColliderGroup::Standard);
 
@@ -41,7 +46,10 @@ pub fn enable_rigidbody(
 
     rigidbody_activation.sleeping = false;
 
+    damping.angular_damping = 0.;
+    damping.linear_damping = 0.;
+
     commands
         .entity(rigidbody_entity)
-        .remove_bundle::<(RigidBodyDisabled,)>();
+        .remove::<RigidBodyDisabled>();
 }

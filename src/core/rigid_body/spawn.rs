@@ -1,14 +1,14 @@
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_hierarchy::BuildChildren;
 use bevy_rapier3d::prelude::{
-    Collider, CollisionGroups, ExternalForce, ExternalImpulse, Friction, GravityScale, RigidBody,
-    Sleeping, Velocity,
+    Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction, GravityScale,
+    RigidBody, Sleeping, Velocity,
 };
 use bevy_transform::prelude::Transform;
 
 use crate::core::physics::functions::{get_bit_masks, ColliderGroup};
 
-use super::components::RigidBodyData;
+use super::components::{RigidBodyData, RigidBodyDisabled};
 
 pub struct RigidbodyBundle {
     pub collider: Collider,
@@ -60,13 +60,12 @@ pub fn rigidbody_builder(
     let masks;
 
     if rigidbody_spawn_data.rigidbody_dynamic {
+        rigidbody = RigidBody::Dynamic;
         match rigidbody_spawn_data.entity_is_stored_item {
             true => {
-                rigidbody = RigidBody::Fixed;
                 masks = get_bit_masks(ColliderGroup::NoCollision);
             }
             false => {
-                rigidbody = RigidBody::Dynamic;
                 masks = (
                     rigidbody_spawn_data.collider_collision_groups.memberships,
                     rigidbody_spawn_data.collider_collision_groups.filters,
@@ -95,13 +94,22 @@ pub fn rigidbody_builder(
         });
 
     match rigidbody_spawn_data.entity_is_stored_item {
-        true => builder.insert(GravityScale(0.)).insert(Sleeping {
-            sleeping: true,
-            ..Default::default()
-        }),
+        true => builder.insert_bundle((
+            GravityScale(0.),
+            Sleeping {
+                sleeping: true,
+                ..Default::default()
+            },
+            RigidBodyDisabled,
+            Damping {
+                linear_damping: 10000.,
+                angular_damping: 10000.,
+            },
+        )),
         false => builder
             .insert(Sleeping::default())
-            .insert(rigidbody_spawn_data.gravity_scale),
+            .insert(rigidbody_spawn_data.gravity_scale)
+            .insert(Damping::default()),
     }
     .with_children(|children| {
         children
