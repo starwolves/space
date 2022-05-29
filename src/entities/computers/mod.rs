@@ -31,6 +31,5 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
         spawn_function: Box::new(ComputerBundle::spawn),
         ..Default::default()
     };
-
     initialize_entity_data(&mut entity_data, entity_properties);
 }

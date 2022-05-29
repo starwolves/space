@@ -6,13 +6,13 @@ use crate::core::rigid_body::{components::STANDARD_BODY_FRICTION, spawn::Rigidbo
 
 pub fn rigidbody_bundle() -> RigidbodyBundle {
     let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
-    friction.combine_rule = CoefficientCombineRule::Multiply;
+    friction.combine_rule = CoefficientCombineRule::Min;
 
     RigidbodyBundle {
-        collider: Collider::cuboid(0.047, 0.219, 0.199),
-        collider_transform: Transform::from_translation(Vec3::new(0., 0.087, 0.)),
+        collider: Collider::cuboid(1., 0.7, 1.),
+        collider_transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
         collider_friction: friction,
-
-        ..Default::default()
+        rigidbody_dynamic: false,
+        collision_events: true,
     }
 }

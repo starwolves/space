@@ -25,5 +25,6 @@ pub fn entity_bundle(default_transform: Transform) -> EntityBundle {
             ..Default::default()
         },
         entity_name: "constructionTool".to_string(),
+        ..Default::default()
     }
 }

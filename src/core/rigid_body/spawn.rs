@@ -1,8 +1,8 @@
 use bevy_ecs::{entity::Entity, system::Commands};
 use bevy_hierarchy::BuildChildren;
 use bevy_rapier3d::prelude::{
-    Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction, GravityScale,
-    RigidBody, Sleeping, Velocity,
+    ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
+    GravityScale, RigidBody, Sleeping, Velocity,
 };
 use bevy_transform::prelude::Transform;
 
@@ -14,6 +14,20 @@ pub struct RigidbodyBundle {
     pub collider: Collider,
     pub collider_transform: Transform,
     pub collider_friction: Friction,
+    pub rigidbody_dynamic: bool,
+    pub collision_events: bool,
+}
+
+impl Default for RigidbodyBundle {
+    fn default() -> Self {
+        Self {
+            collider: Collider::cuboid(0.2, 0.2, 0.2),
+            collider_transform: Transform::default(),
+            collider_friction: Friction::default(),
+            rigidbody_dynamic: true,
+            collision_events: false,
+        }
+    }
 }
 
 pub struct RigidBodySpawnData {
@@ -29,6 +43,7 @@ pub struct RigidBodySpawnData {
     pub collider_transform: Transform,
     pub collider_friction: Friction,
     pub collider_collision_groups: CollisionGroups,
+    pub collision_events: bool,
 }
 
 impl Default for RigidBodySpawnData {
@@ -47,6 +62,7 @@ impl Default for RigidBodySpawnData {
             collider_transform: Transform::default(),
             collider_friction: Friction::default(),
             collider_collision_groups: CollisionGroups::new(masks.0, masks.1),
+            collision_events: false,
         }
     }
 }
@@ -112,11 +128,15 @@ pub fn rigidbody_builder(
             .insert(Damping::default()),
     }
     .with_children(|children| {
-        children
-            .spawn()
+        let mut child_builder = children.spawn();
+        child_builder
             .insert(rigidbody_spawn_data.collider)
             .insert(rigidbody_spawn_data.collider_transform)
             .insert(rigidbody_spawn_data.collider_friction)
             .insert(CollisionGroups::new(masks.0, masks.1));
+
+        if rigidbody_spawn_data.collision_events {
+            child_builder.insert(ActiveEvents::COLLISION_EVENTS);
+        }
     });
 }

@@ -1,5 +1,15 @@
 [
 	{
+		"entity_type": "bridgeComputer",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 41.0144, 1.01194, -67.290298",
+		"data": "[{\"key\":\"computerType\",\"value\":\"remoteDoors\",\"value_type\":4}]"
+	},
+	{
+		"entity_type": "bridgeComputer",
+		"transform": "-0, 0, -1, 0, 1, 0, 1, 0, -0 - 33.030201, 1.01194, -67.290298",
+		"data": "[{\"key\":\"computerType\",\"value\":\"remoteDoors\",\"value_type\":4}]"
+	},
+	{
 		"entity_type": "bridgeCounterWindow",
 		"transform": "-0, 0, 1, 0, 1, 0, -1, 0, -0 - -14.9648, 0.943471, -33.011902",
 		"data": ""

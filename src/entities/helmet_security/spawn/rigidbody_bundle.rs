@@ -12,5 +12,7 @@ pub fn rigidbody_bundle() -> RigidbodyBundle {
         collider: Collider::cuboid(0.208, 0.277, 0.213),
         collider_transform: Transform::from_translation(Vec3::new(0., 0.011, -0.004)),
         collider_friction: friction,
+
+        ..Default::default()
     }
 }
