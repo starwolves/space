@@ -26,5 +26,7 @@ pub fn entity_bundle(default_transform: Transform) -> EntityBundle {
             ..Default::default()
         },
         entity_name: "jumpsuitSecurity".to_string(),
+
+        ..Default::default()
     }
 }

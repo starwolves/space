@@ -16,7 +16,7 @@ pub struct TabActionsData {
     pub tab_action_i: u32,
 }
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct TabActions {
     pub tab_actions: Vec<TabAction>,
 }
