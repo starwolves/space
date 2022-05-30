@@ -103,20 +103,14 @@ pub fn base_entity_builder(commands: &mut Commands, entity: Entity, data: BaseEn
                 },
             ));
         }
-        false => {
-            match data.dynamicbody {
-                true => {
-                    builder.insert(WorldMode {
-                        mode: WorldModes::Physics,
-                    });
-                }
-                false => {
-                    /*builder.insert(WorldMode {
-                        mode: WorldModes::Physics,
-                    });*/
-                }
+        false => match data.dynamicbody {
+            true => {
+                builder.insert(WorldMode {
+                    mode: WorldModes::Physics,
+                });
             }
-        }
+            false => {}
+        },
     }
 }
 
