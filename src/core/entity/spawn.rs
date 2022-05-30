@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use bevy_ecs::{entity::Entity, system::Commands};
 
 use crate::core::{
+    connected_player::systems::on_setupui::ENTITY_SPAWN_PARENT,
     entity::{
         components::{EntityData, EntityUpdates, Showcase},
         events::NetShowcase,
@@ -54,6 +55,7 @@ pub struct BaseEntityData {
     pub entity_group: EntityGroup,
     pub tab_actions_option: Option<TabActions>,
     pub default_map_spawn: bool,
+    pub is_showcase: bool,
 }
 
 impl Default for BaseEntityData {
@@ -68,6 +70,7 @@ impl Default for BaseEntityData {
             is_item_in_storage: false,
             tab_actions_option: None,
             default_map_spawn: false,
+            is_showcase: false,
         }
     }
 }
@@ -82,10 +85,11 @@ pub fn base_entity_builder(commands: &mut Commands, entity: Entity, data: BaseEn
         },
         EntityUpdates::default(),
         CachedBroadcastTransform::default(),
-        data.examinable,
-        data.sensable,
-        data.health,
     ));
+
+    if !data.is_showcase {
+        builder.insert_bundle((data.sensable, data.examinable, data.health));
+    }
 
     match data.tab_actions_option {
         Some(a) => {
@@ -142,7 +146,7 @@ pub fn showcase_builder(
                     entity.to_bits(),
                     true,
                     "main".to_string(),
-                    "".to_string(),
+                    ENTITY_SPAWN_PARENT.to_string(),
                     false,
                 ),
             });

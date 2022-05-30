@@ -66,6 +66,8 @@ impl JumpsuitSecurityBundle {
                 entity_type: entity_bundle.entity_name.clone(),
                 examinable: entity_bundle.examinable,
                 is_item_in_storage: spawn_data.held_data_option.is_some(),
+
+                is_showcase: spawn_data.showcase_data_option.is_some(),
                 ..Default::default()
             },
         );
