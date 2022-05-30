@@ -133,7 +133,6 @@ pub fn humanoid_update(
                                     lower_body_animation_state = "Idle".to_string();
                                 },
                                 crate::core::inventory_item::components::CombatStandardAnimation::PistolStance => {
-                                    
                                     if !alt_attack_mode {
                                         upper_body_animation_state = "Pistol Idle".to_string();
                                         lower_body_animation_state = "Pistol Idle".to_string();
@@ -141,7 +140,6 @@ pub fn humanoid_update(
                                         upper_body_animation_state = "Idle Heightened".to_string();
                                         lower_body_animation_state = "Idle".to_string();
                                     }
-                                    
                                 },
                             }
                     }
@@ -187,7 +185,6 @@ pub fn humanoid_update(
                                         lower_body_animation_state = "JoggingStrafe".to_string();
                                     }
 
-                                    
                                 },
                             }
                         }
