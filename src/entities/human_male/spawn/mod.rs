@@ -26,7 +26,6 @@ use crate::core::{
     },
     physics::components::{WorldMode, WorldModes},
     rigid_body::spawn::{rigidbody_builder, RigidBodySpawnData},
-    sensable::components::Sensable,
     senser::components::Senser,
     tab_actions::functions::get_tab_action,
 };
@@ -117,6 +116,7 @@ impl HumanMaleBundle {
                     is_combat_obstacle: true,
                     ..Default::default()
                 },
+                is_showcase: spawn_data.showcase_data_option.is_some(),
                 ..Default::default()
             },
         );
@@ -133,40 +133,75 @@ impl HumanMaleBundle {
 
         let mut spawner = spawn_data.commands.entity(entity);
 
-        let mut pawn_component = Pawn {
-            name: character_name.clone(),
-            job: ShipJobsEnum::Security,
-            ..Default::default()
-        };
+        if spawn_data.showcase_data_option.is_none() {
+            let mut pawn_component = Pawn {
+                name: character_name.clone(),
+                job: ShipJobsEnum::Security,
+                ..Default::default()
+            };
 
-        pawn_component.tab_actions_add(
-            "actions::pawn/examine",
-            None,
-            get_tab_action("actions::pawn/examine").unwrap(),
-        );
-        pawn_component.tab_actions_add(
-            "actions::inventory/pickup",
-            None,
-            get_tab_action("actions::inventory/pickup").unwrap(),
-        );
+            pawn_component.tab_actions_add(
+                "actions::pawn/examine",
+                None,
+                get_tab_action("actions::pawn/examine").unwrap(),
+            );
+            pawn_component.tab_actions_add(
+                "actions::inventory/pickup",
+                None,
+                get_tab_action("actions::inventory/pickup").unwrap(),
+            );
 
-        spawner.insert_bundle((
-            Senser::default(),
-            Sensable::default(),
-            Radio {
-                listen_access: vec![RadioChannel::Common, RadioChannel::Security],
-                speak_access: vec![RadioChannel::Common, RadioChannel::Security],
-            },
-            ShipAuthorization {
-                access: vec![ShipAuthorizationEnum::Security],
-            },
-            pawn_component,
-            ControllerInput::default(),
-        ));
+            spawner.insert_bundle((
+                Senser::default(),
+                Radio {
+                    listen_access: vec![RadioChannel::Common, RadioChannel::Security],
+                    speak_access: vec![RadioChannel::Common, RadioChannel::Security],
+                },
+                ShipAuthorization {
+                    access: vec![ShipAuthorizationEnum::Security],
+                },
+                pawn_component,
+                ControllerInput::default(),
+            ));
 
-        spawner
-            .insert(Dominance::group(10))
-            .insert(LockedAxes::ROTATION_LOCKED);
+            match pawn_designation {
+                PawnDesignation::Player => {
+                    spawner.insert_bundle((
+                        ConnectedPlayer {
+                            handle: connected_player_component.unwrap().handle,
+                            authid: connected_player_component.unwrap().authid,
+                            ..Default::default()
+                        },
+                        DataLink {
+                            links: vec![
+                                DataLinkType::FullAtmospherics,
+                                DataLinkType::RemoteLock,
+                                DataLinkType::ShipEngineeringKnowledge,
+                            ],
+                        },
+                        Map {
+                            available_display_modes: vec![
+                                ("Standard".to_string(), "standard".to_string()),
+                                (
+                                    "Atmospherics Liveable".to_string(),
+                                    "atmospherics_liveable".to_string(),
+                                ),
+                                (
+                                    "Atmospherics Temperature".to_string(),
+                                    "atmospherics_temperature".to_string(),
+                                ),
+                                (
+                                    "Atmospherics Pressure".to_string(),
+                                    "atmospherics_pressure".to_string(),
+                                ),
+                            ],
+                            ..Default::default()
+                        },
+                    ));
+                }
+                _ => (),
+            }
+        }
 
         spawner.insert_bundle((
             Humanoid {
@@ -183,44 +218,9 @@ impl HumanMaleBundle {
             },
         ));
 
-        match pawn_designation {
-            PawnDesignation::Player => {
-                spawner.insert_bundle((
-                    ConnectedPlayer {
-                        handle: connected_player_component.unwrap().handle,
-                        authid: connected_player_component.unwrap().authid,
-                        ..Default::default()
-                    },
-                    DataLink {
-                        links: vec![
-                            DataLinkType::FullAtmospherics,
-                            DataLinkType::RemoteLock,
-                            DataLinkType::ShipEngineeringKnowledge,
-                        ],
-                    },
-                    Map {
-                        available_display_modes: vec![
-                            ("Standard".to_string(), "standard".to_string()),
-                            (
-                                "Atmospherics Liveable".to_string(),
-                                "atmospherics_liveable".to_string(),
-                            ),
-                            (
-                                "Atmospherics Temperature".to_string(),
-                                "atmospherics_temperature".to_string(),
-                            ),
-                            (
-                                "Atmospherics Pressure".to_string(),
-                                "atmospherics_pressure".to_string(),
-                            ),
-                        ],
-                        ..Default::default()
-                    },
-                ));
-            }
-            PawnDesignation::Ai => {}
-            _ => (),
-        }
+        spawner
+            .insert(Dominance::group(10))
+            .insert(LockedAxes::ROTATION_LOCKED);
 
         let mut slot_entities: HashMap<String, Entity> = HashMap::new();
 
