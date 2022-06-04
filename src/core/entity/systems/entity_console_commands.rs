@@ -10,7 +10,7 @@ use crate::core::{
         events::{InputConsoleCommand, NetConsoleCommands},
         functions::rcon_spawn_entity::rcon_spawn_entity,
     },
-    entity::resources::EntityDataResource,
+    entity::{resources::EntityDataResource, spawn::DefaultSpawnEvent},
     gridmap::resources::GridmapMain,
     networking::resources::{ConsoleCommandVariantValues, ReliableServerMessage},
     pawn::{components::Pawn, resources::UsedNames},
@@ -28,6 +28,7 @@ pub fn entity_console_commands(
 
     handle_to_entity: Res<HandleToEntity>,
     entity_data: ResMut<EntityDataResource>,
+    mut default_spawner: EventWriter<DefaultSpawnEvent>,
 ) {
     for console_command_event in queue.iter() {
         let player_entity;
@@ -102,6 +103,7 @@ pub fn entity_console_commands(
                 &mut used_names,
                 &handle_to_entity,
                 &entity_data,
+                &mut default_spawner,
             );
         }
     }

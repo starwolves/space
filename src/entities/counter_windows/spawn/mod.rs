@@ -1,11 +1,13 @@
 pub mod entity_bundle;
 pub mod rigidbody_bundle;
 
-use std::sync::Arc;
+use std::collections::HashMap;
 
-use bevy_ecs::entity::Entity;
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::Commands,
+};
 use bevy_hierarchy::BuildChildren;
-use bevy_log::warn;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     ActiveEvents, CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody, Sensor,
@@ -15,119 +17,35 @@ use bevy_transform::prelude::Transform;
 use crate::core::{
     entity::{
         components::{EntityData, EntityGroup},
+        events::RawSpawnEvent,
+        functions::{
+            process_entities_json_data::{ExportData, ExportDataRaw},
+            string_to_type_converters::string_transform_to_transform,
+        },
         resources::SpawnData,
-        spawn::{base_entity_builder, BaseEntityData},
+        spawn::{DefaultSpawnEvent, SpawnEvent},
     },
-    health::components::Health,
     pawn::components::ShipAuthorizationEnum,
     physics::functions::{get_bit_masks, ColliderGroup},
-    rigid_body::spawn::{rigidbody_builder, RigidBodySpawnData},
-    tab_actions::components::{TabAction, TabActions},
 };
 
-use entity_bundle::entity_bundle;
-use rigidbody_bundle::rigidbody_bundle;
-
-use super::{
-    components::{CounterWindow, CounterWindowSensor},
-    functions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action},
-};
+use super::components::{CounterWindow, CounterWindowSensor};
 
 pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
-pub struct CounterWindowBundle;
+pub struct CounterWindowSummoner;
 
-impl CounterWindowBundle {
-    pub fn spawn(mut spawn_data: SpawnData) -> Entity {
-        let entity_name = spawn_data.entity_name;
-        let department_name;
-
-        if entity_name == "securityCounterWindow" {
-            department_name = "security";
-        } else if entity_name == "bridgeCounterWindow" {
-            department_name = "bridge";
-        } else {
-            warn!("Unrecognized counterwindow sub-type {}", entity_name);
-            return Entity::from_bits(0);
-        }
-        let entity = spawn_data.commands.spawn().id();
-
-        let default_transform = Transform::identity();
-
-        let rigidbody_bundle = rigidbody_bundle();
-        let entity_bundle = entity_bundle(default_transform, department_name, entity_name);
-
-        if spawn_data.correct_transform {
-            spawn_data.entity_transform.rotation = default_transform.rotation;
-        }
-
-        rigidbody_builder(
-            &mut spawn_data.commands,
-            entity,
-            RigidBodySpawnData {
-                rigidbody_dynamic: false,
-                rigid_transform: spawn_data.entity_transform,
-                collider: rigidbody_bundle.collider,
-                collider_transform: rigidbody_bundle.collider_transform,
-                collider_friction: rigidbody_bundle.collider_friction,
+pub fn summon_counter_window(
+    mut commands: Commands,
+    mut spawn_events: EventReader<SpawnEvent<CounterWindowSummoner>>,
+) {
+    for spawn_event in spawn_events.iter() {
+        commands
+            .entity(spawn_event.spawn_data.entity)
+            .insert(CounterWindow {
+                access_permissions: vec![ShipAuthorizationEnum::Security],
                 ..Default::default()
-            },
-        );
-
-        base_entity_builder(
-            &mut spawn_data.commands,
-            entity,
-            BaseEntityData {
-                dynamicbody: false,
-                entity_type: entity_bundle.entity_name.clone(),
-                examinable: entity_bundle.examinable,
-                tab_actions_option: Some(TabActions {
-                    tab_actions: vec![
-                        TabAction {
-                            id: "actions::counter_windows/toggleopen".to_string(),
-                            text: "Toggle Open".to_string(),
-                            tab_list_priority: 100,
-                            prerequisite_check: Arc::new(toggle_open_action),
-                            belonging_entity: Some(entity),
-                        },
-                        TabAction {
-                            id: "actions::counter_windows/lockopen".to_string(),
-                            text: "Lock Open".to_string(),
-                            tab_list_priority: 99,
-                            prerequisite_check: Arc::new(lock_open_action),
-                            belonging_entity: Some(entity),
-                        },
-                        TabAction {
-                            id: "actions::counter_windows/lockclosed".to_string(),
-                            text: "Lock Closed".to_string(),
-                            tab_list_priority: 98,
-                            prerequisite_check: Arc::new(lock_closed_action),
-                            belonging_entity: Some(entity),
-                        },
-                        TabAction {
-                            id: "actions::counter_windows/unlock".to_string(),
-                            text: "Unlock".to_string(),
-                            tab_list_priority: 97,
-                            prerequisite_check: Arc::new(unlock_action),
-                            belonging_entity: Some(entity),
-                        },
-                    ],
-                }),
-                health: Health {
-                    is_combat_obstacle: true,
-                    is_laser_obstacle: false,
-                    is_reach_obstacle: true,
-                    ..Default::default()
-                },
-                entity_group: EntityGroup::AirLock,
-                ..Default::default()
-            },
-        );
-
-        spawn_data.commands.entity(entity).insert(CounterWindow {
-            access_permissions: vec![ShipAuthorizationEnum::Security],
-            ..Default::default()
-        });
+            });
 
         let rigid_body = RigidBody::Fixed;
 
@@ -138,10 +56,10 @@ impl CounterWindowBundle {
 
         let sensor = Sensor(true);
 
-        let mut sensor_builder = spawn_data.commands.spawn();
+        let mut sensor_builder = commands.spawn();
         sensor_builder
             .insert(rigid_body)
-            .insert(spawn_data.entity_transform);
+            .insert(spawn_event.spawn_data.entity_transform);
         sensor_builder.with_children(|children| {
             children
                 .spawn()
@@ -155,8 +73,10 @@ impl CounterWindowBundle {
 
         let child = sensor_builder
             .insert_bundle((
-                CounterWindowSensor { parent: entity },
-                spawn_data.entity_transform,
+                CounterWindowSensor {
+                    parent: spawn_event.spawn_data.entity,
+                },
+                spawn_event.spawn_data.entity_transform,
                 EntityData {
                     entity_class: "child".to_string(),
                     entity_name: "counterWindowSensor".to_string(),
@@ -165,8 +85,67 @@ impl CounterWindowBundle {
             ))
             .id();
 
-        spawn_data.commands.entity(entity).push_children(&[child]);
+        commands
+            .entity(spawn_event.spawn_data.entity)
+            .push_children(&[child]);
+    }
+}
 
-        entity
+pub fn summon_raw_counter_window(
+    mut spawn_events: EventReader<RawSpawnEvent>,
+    mut summon_computer: EventWriter<SpawnEvent<CounterWindowSummoner>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        if spawn_event.raw_entity.entity_type != "securityCounterWindow"
+            || spawn_event.raw_entity.entity_type != "bridgeCounterWindow"
+        {
+            continue;
+        }
+
+        let entity_transform = string_transform_to_transform(&spawn_event.raw_entity.transform);
+
+        let data;
+
+        if &spawn_event.raw_entity.data != "" {
+            let raw_export_data: ExportDataRaw = ExportDataRaw {
+                properties: serde_json::from_str(&spawn_event.raw_entity.data)
+                    .expect("load_raw_map_entities.rs Error parsing standard entity data."),
+            };
+
+            data = ExportData::new(raw_export_data).properties;
+        } else {
+            data = HashMap::new();
+        }
+
+        summon_computer.send(SpawnEvent {
+            spawn_data: SpawnData {
+                entity_transform: entity_transform,
+                correct_transform: true,
+                default_map_spawn: true,
+                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity: commands.spawn().id(),
+                properties: data,
+                ..Default::default()
+            },
+            summoner: CounterWindowSummoner,
+        });
+    }
+}
+
+pub fn default_summon_counter_window(
+    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut spawner: EventWriter<SpawnEvent<CounterWindowSummoner>>,
+) {
+    for spawn_event in default_spawner.iter() {
+        if spawn_event.spawn_data.entity_name != "securityCounterWindow"
+            || spawn_event.spawn_data.entity_name != "bridgeCounterWindow"
+        {
+            continue;
+        }
+        spawner.send(SpawnEvent {
+            spawn_data: spawn_event.spawn_data.clone(),
+            summoner: CounterWindowSummoner,
+        });
     }
 }

@@ -173,7 +173,9 @@ impl Plugin for AtmosphericsPlugin {
             .add_event::<NetAtmosphericsNotices>()
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             );
     }
 }

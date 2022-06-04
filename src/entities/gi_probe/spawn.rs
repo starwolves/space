@@ -1,29 +1,77 @@
-use bevy_ecs::system::Commands;
-use bevy_transform::components::Transform;
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::Commands,
+};
 
-use crate::core::entity::components::{EntityData, EntityUpdates};
+use crate::core::entity::{
+    components::{EntityData, EntityUpdates},
+    events::RawSpawnEvent,
+    functions::string_to_type_converters::string_transform_to_transform,
+    resources::SpawnData,
+    spawn::SpawnEvent,
+};
 
-use super::components::GIProbe;
+use super::{components::GIProbe, process_content::ExportData};
 
-pub struct GIProbeBundle;
+pub struct GIProbeSummoner {
+    pub probe: GIProbe,
+}
 
-impl GIProbeBundle {
-    pub fn spawn(
-        entity_transform: Transform,
-        commands: &mut Commands,
-        _correct_transform: bool,
-        gi_probe_component: GIProbe,
-    ) {
-        let static_transform_component = entity_transform;
+pub trait GIProbeSummonable {
+    fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
+}
 
+impl GIProbeSummonable for GIProbeSummoner {
+    fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
         commands.spawn_bundle((
-            gi_probe_component,
-            static_transform_component,
+            self.probe.clone(),
+            spawn_data.entity_transform,
             EntityData {
                 entity_class: "gi_probe".to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),
         ));
+    }
+}
+
+pub fn summon_gi_probe<T: GIProbeSummonable + Send + Sync + 'static>(
+    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        spawn_event
+            .summoner
+            .spawn(&spawn_event.spawn_data, &mut commands);
+    }
+}
+
+pub fn summon_raw_gi_probe(
+    mut spawn_events: EventReader<RawSpawnEvent>,
+    mut summon_gi_probe: EventWriter<SpawnEvent<GIProbeSummoner>>,
+    mut commands: Commands,
+) {
+    for event in spawn_events.iter() {
+        if event.raw_entity.entity_type == "GIProbe" {
+            let gi_probe_data: ExportData = serde_json::from_str(&event.raw_entity.data)
+                .expect("load_raw_map_entities.rs Error parsing entity raw GIProbe data.");
+            let gi_probe_component = gi_probe_data.to_component();
+
+            let entity_transform = string_transform_to_transform(&event.raw_entity.transform);
+
+            summon_gi_probe.send(SpawnEvent {
+                spawn_data: SpawnData {
+                    entity_transform: entity_transform,
+                    correct_transform: true,
+                    default_map_spawn: true,
+                    entity_name: event.raw_entity.entity_type.clone(),
+                    entity: commands.spawn().id(),
+                    ..Default::default()
+                },
+                summoner: GIProbeSummoner {
+                    probe: gi_probe_component,
+                },
+            });
+        }
     }
 }

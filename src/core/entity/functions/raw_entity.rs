@@ -1,7 +1,6 @@
 use serde::Deserialize;
 
-#[allow(dead_code)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct RawEntity {
     pub entity_type: String,
     pub transform: String,

@@ -10,7 +10,6 @@ use crate::{
         gridmap::{functions::gridmap_functions::cell_id_to_world, resources::Vec3Int},
         networking::resources::ConsoleCommandVariantValues,
     },
-    entities::line_arrow::spawn::LineArrowBundle,
 };
 
 use super::resources::CONTEXT_MAP_RESOLUTION;

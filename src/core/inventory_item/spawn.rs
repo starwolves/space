@@ -1,8 +1,11 @@
 use super::components::InventoryItem;
 
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::{entity::Entity, event::EventReader, system::Commands};
 
-use crate::core::rigid_body::components::RigidBodyLinkTransform;
+use crate::core::{
+    entity::{resources::SpawnData, spawn::SpawnEvent},
+    rigid_body::components::RigidBodyLinkTransform,
+};
 
 pub struct InventoryItemBundle {
     pub inventory_item: InventoryItem,
@@ -24,5 +27,26 @@ pub fn inventory_item_builder(commands: &mut Commands, entity: Entity, data: Inv
             });
         }
         None => {}
+    }
+}
+pub trait InventoryItemSummonable {
+    fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle;
+}
+
+pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>(
+    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        let inventory_item_bundle = spawn_event.summoner.get_bundle(&spawn_event.spawn_data);
+
+        inventory_item_builder(
+            &mut commands,
+            spawn_event.spawn_data.entity,
+            InventoryBuilderData {
+                inventory_item: inventory_item_bundle.inventory_item,
+                holder_entity_option: spawn_event.spawn_data.held_data_option,
+            },
+        );
     }
 }

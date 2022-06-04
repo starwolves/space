@@ -9,6 +9,7 @@ use std::{collections::HashMap, fs, path::Path};
 use bevy_app::{App, Plugin};
 use bevy_core::FixedTimestep;
 use bevy_ecs::{
+    event::EventWriter,
     schedule::{ParallelSystemDescriptorCoercion, SystemSet},
     system::{Commands, Res, ResMut},
 };
@@ -24,7 +25,6 @@ use crate::{
         entity::{
             components::Server,
             functions::{load_raw_map_entities::load_raw_map_entities, raw_entity::RawEntity},
-            resources::EntityDataResource,
         },
         gridmap::{
             functions::{
@@ -56,19 +56,19 @@ use self::{
 use super::{
     atmospherics::systems::rigidbody_forces_atmospherics::AdjacentTileDirection,
     configuration::resources::{ServerId, TickRate},
-    entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1,
+    entity::{events::RawSpawnEvent, systems::broadcast_position_updates::INTERPOLATION_LABEL1},
     examinable::components::RichName,
     world_environment::resources::WorldEnvironment,
-    PostUpdateLabels, StartupLabels, UpdateLabels,
+    PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
 
 pub fn startup_build_map(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
     mut gridmap_data: ResMut<GridmapData>,
-    entity_data: Res<EntityDataResource>,
     mut fov_map: ResMut<DoryenMap>,
     mut commands: Commands,
+    mut raw_spawner: EventWriter<RawSpawnEvent>,
 ) {
     // Load map json data into real static bodies.
     let main_json = Path::new("data")
@@ -121,7 +121,7 @@ pub fn startup_build_map(
         serde_json::from_str(&current_map_entities_raw_json)
             .expect("main.rs launch_server() Error parsing map entities.json String.");
 
-    load_raw_map_entities(&current_map_entities_data, &mut commands, &entity_data);
+    load_raw_map_entities(&current_map_entities_data, &mut raw_spawner);
 
     info!("Spawned {} entities.", current_map_entities_data.len());
 }
@@ -1060,6 +1060,7 @@ impl Plugin for GridmapPlugin {
             .add_startup_system(
                 startup_map_cells
                     .label(StartupLabels::InitDefaultGridmapData)
+                    .label(SummoningLabels::TriggerSummon)
                     .after(StartupLabels::MiscResources),
             )
             .init_resource::<GridmapDetails1>()
@@ -1078,7 +1079,9 @@ impl Plugin for GridmapPlugin {
             .init_resource::<GridmapMain>()
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             )
             .add_system(gridmap_sensing_ability);
     }

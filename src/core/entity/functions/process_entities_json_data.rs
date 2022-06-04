@@ -12,7 +12,6 @@ pub struct Property {
     pub key: String,
 }
 
-#[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct ExportDataRaw {
     pub properties: Vec<Property>,

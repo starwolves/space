@@ -2,16 +2,26 @@ use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use bevy_transform::prelude::Transform;
 
-use crate::core::rigid_body::{components::STANDARD_BODY_FRICTION, spawn::RigidbodyBundle};
+use crate::core::{
+    entity::resources::SpawnData,
+    rigid_body::{
+        components::STANDARD_BODY_FRICTION,
+        spawn::{RigidBodyBundle, RigidBodySummonable},
+    },
+};
 
-pub fn rigidbody_bundle() -> RigidbodyBundle {
-    let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
-    friction.combine_rule = CoefficientCombineRule::Multiply;
+use super::ConstructionToolSummoner;
 
-    RigidbodyBundle {
-        collider: Collider::cuboid(0.11 * 1.5, 0.1 * 1.5, 0.13 * 1.5),
-        collider_transform: Transform::from_translation(Vec3::new(0., 0.087, 0.)),
-        collider_friction: friction,
-        ..Default::default()
+impl RigidBodySummonable for ConstructionToolSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData) -> RigidBodyBundle {
+        let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
+        friction.combine_rule = CoefficientCombineRule::Multiply;
+
+        RigidBodyBundle {
+            collider: Collider::cuboid(0.11 * 1.5, 0.1 * 1.5, 0.13 * 1.5),
+            collider_transform: Transform::from_translation(Vec3::new(0., 0.087, 0.)),
+            collider_friction: friction,
+            ..Default::default()
+        }
     }
 }

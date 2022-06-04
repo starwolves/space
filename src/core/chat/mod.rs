@@ -19,7 +19,9 @@ impl Plugin for ChatPlugin {
             .add_event::<NetChatMessage>()
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             );
     }
 }

@@ -1,32 +1,48 @@
 use std::collections::BTreeMap;
 
+use bevy_math::{Mat4, Quat, Vec3};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
-    entity::spawn::EntityBundle,
+    entity::{
+        resources::SpawnData,
+        spawn::{BaseEntityBundle, BaseEntitySummonable, NoEntityData},
+    },
     examinable::components::{Examinable, RichName},
 };
 
-pub fn entity_bundle(default_transform: Transform) -> EntityBundle {
-    let mut examine_map = BTreeMap::new();
-    examine_map.insert(
-        0,
-        "A standard issue security jumpsuit used by Security Officers.".to_string(),
-    );
+use super::JumpsuitSummoner;
 
-    EntityBundle {
-        default_transform,
-        examinable: Examinable {
-            assigned_texts: examine_map,
-            name: RichName {
-                name: "security jumpsuit".to_string(),
-                n: false,
+pub fn get_default_transform() -> Transform {
+    Transform::from_matrix(Mat4::from_scale_rotation_translation(
+        Vec3::new(1., 1., 1.),
+        Quat::from_axis_angle(Vec3::new(-0.00000035355248, 0.707105, 0.7071085), 3.1415951),
+        Vec3::new(0., 0.116, 0.),
+    ))
+}
+
+impl BaseEntitySummonable<NoEntityData> for JumpsuitSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> BaseEntityBundle {
+        let mut examine_map = BTreeMap::new();
+        examine_map.insert(
+            0,
+            "A standard issue security jumpsuit used by Security Officers.".to_string(),
+        );
+
+        BaseEntityBundle {
+            default_transform: get_default_transform(),
+            examinable: Examinable {
+                assigned_texts: examine_map,
+                name: RichName {
+                    name: "security jumpsuit".to_string(),
+                    n: false,
+                    ..Default::default()
+                },
                 ..Default::default()
             },
-            ..Default::default()
-        },
-        entity_name: "jumpsuitSecurity".to_string(),
+            entity_name: "jumpsuitSecurity".to_string(),
 
-        ..Default::default()
+            ..Default::default()
+        }
     }
 }

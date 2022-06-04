@@ -12,7 +12,10 @@ use crate::core::{
         resources::HandleToEntity,
     },
     console_commands::events::NetConsoleCommands,
-    entity::{functions::spawn_entity::spawn_held_entity, resources::EntityDataResource},
+    entity::{
+        functions::spawn_entity::spawn_held_entity, resources::EntityDataResource,
+        spawn::DefaultSpawnEvent,
+    },
     gridmap::resources::GridmapMain,
     inventory::components::Inventory,
     networking::resources::ReliableServerMessage,
@@ -34,6 +37,7 @@ pub fn rcon_spawn_held_entity(
     mut used_names: &mut ResMut<UsedNames>,
     handle_to_entity: &Res<HandleToEntity>,
     entity_data: &mut ResMut<EntityDataResource>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
 ) {
     for target_entity in player_selector_to_entities(
         command_executor_entity,
@@ -107,8 +111,9 @@ pub fn rcon_spawn_held_entity(
                     entity_name.clone(),
                     commands,
                     command_executor_entity,
-                    &mut None,
+                    None,
                     &entity_data,
+                    default_spawner,
                 );
 
                 match entity_option {
@@ -162,6 +167,7 @@ pub fn rcon_spawn_held_entity(
                     &mut used_names,
                     handle_to_entity,
                     &entity_data,
+                    default_spawner,
                 );
             }
         }

@@ -9,7 +9,7 @@ use self::systems::inventory_item_console_commands;
 use super::console_commands::resources::AllConsoleCommands;
 use super::console_commands::ConsoleCommandsLabels;
 use super::networking::resources::ConsoleCommandVariant;
-use super::PostUpdateLabels;
+use super::{PostUpdateLabels, SummoningLabels};
 
 pub mod components;
 pub mod entity_update;
@@ -26,7 +26,7 @@ impl Plugin for InventoryItemPlugin {
                 .label(PostUpdateLabels::EntityUpdate)
                 .with_system(inventory_item_update),
         )
-        .add_system(inventory_item_console_commands)
+        .add_system(inventory_item_console_commands.label(SummoningLabels::TriggerSummon))
         .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize));
     }
 }

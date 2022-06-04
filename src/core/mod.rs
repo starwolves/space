@@ -2,7 +2,6 @@ use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 use bevy_log::info;
 
-pub mod artificial_unintelligence;
 pub mod atmospherics;
 pub mod chat;
 pub mod combat;
@@ -60,7 +59,6 @@ use self::{humanoid::HumanoidPlugin, physics::PhysicsPlugin, rigid_body::RigidBo
 
 use super::{
     core::{
-        artificial_unintelligence::ArtificialUnintelligencePlugin,
         atmospherics::AtmosphericsPlugin, chat::ChatPlugin, combat::CombatPlugin,
         configuration::ConfigurationPlugin, connected_player::ConnectedPlayerPlugin,
         console_commands::ConsoleCommandsPlugin, entity::EntityPlugin, gridmap::GridmapPlugin,
@@ -121,6 +119,13 @@ pub enum PostUpdateLabels {
     EntityUpdate,
     SendEntityUpdates,
     VisibleChecker,
+    Net,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum SummoningLabels {
+    TriggerSummon,
+    DefaultSummon,
 }
 
 pub struct SpacePlugin;
@@ -179,7 +184,6 @@ impl Plugin for SpacePlugin {
             .add_plugin(JumpsuitsPlugin)
             .add_plugin(HelmetsPlugin)
             .add_plugin(PistolL1Plugin)
-            .add_plugin(ArtificialUnintelligencePlugin)
             .add_plugin(LineArrowPlugin)
             .add_plugin(PointArrowPlugin);
     }

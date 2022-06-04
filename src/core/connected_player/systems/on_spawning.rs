@@ -14,11 +14,14 @@ use crate::{
             events::NetOnSpawning,
             resources::HandleToEntity,
         },
-        entity::resources::{EntityDataResource, PawnDesignation, SpawnData, SpawnPawnData},
+        entity::{
+            resources::{PawnDesignation, SpawnData, SpawnPawnData},
+            spawn::SpawnEvent,
+        },
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
-    entities::human_male::spawn::HumanMaleBundle,
+    entities::human_male::spawn::HumanMaleSummoner,
 };
 
 pub fn on_spawning(
@@ -27,7 +30,7 @@ pub fn on_spawning(
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut used_names: ResMut<UsedNames>,
-    entity_data: ResMut<EntityDataResource>,
+    mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
 ) {
     for (
         entity_id,
@@ -43,29 +46,32 @@ pub fn on_spawning(
             ("left_hand".to_string(), "constructionTool".to_string()),
         ];
 
-        let new_entity = HumanMaleBundle::spawn(SpawnData {
-            entity_transform: spawning_component.transform,
+        let new_entity = commands.spawn().id();
 
-            commands: &mut commands,
-
-            correct_transform: true,
-
-            pawn_data_option: Some(SpawnPawnData {
-                data: (
-                    persistent_player_data_component,
-                    Some(connected_player_component),
-                    passed_inventory_setup,
-                    PawnDesignation::Player,
-                    None,
-                    Some(persistent_player_data_component.user_name.clone()),
-                    &entity_data,
-                ),
-            }),
-            held_data_option: None,
-            default_map_spawn: false,
-            properties: HashMap::new(),
-            showcase_data_option: &mut None,
-            entity_name: "humanMale".to_string(),
+        summon_human_male.send(SpawnEvent {
+            spawn_data: SpawnData {
+                entity: new_entity,
+                entity_transform: spawning_component.transform,
+                correct_transform: true,
+                pawn_data_option: Some(SpawnPawnData {
+                    data: (
+                        persistent_player_data_component.clone(),
+                        Some(connected_player_component.clone()),
+                        passed_inventory_setup,
+                        PawnDesignation::Player,
+                        Some(persistent_player_data_component.user_name.clone()),
+                    ),
+                }),
+                held_data_option: None,
+                default_map_spawn: false,
+                properties: HashMap::new(),
+                showcase_data_option: None,
+                entity_name: "humanMale".to_string(),
+            },
+            summoner: HumanMaleSummoner {
+                character_name: persistent_player_data_component.character_name.clone(),
+                user_name: persistent_player_data_component.user_name.clone(),
+            },
         });
 
         let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();

@@ -39,7 +39,9 @@ impl Plugin for ConsoleCommandsPlugin {
             )
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             );
     }
 }

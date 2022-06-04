@@ -749,6 +749,7 @@ pub fn send_net(
     new_event: &NetEvent,
 ) {
     let mut connected = false;
+
     match handle_to_entity.map.get(&new_event.handle) {
         Some(r) => match connected_players.get(*r) {
             Ok(rr) => {
@@ -757,7 +758,10 @@ pub fn send_net(
                 }
             }
             Err(_rr) => {
-                warn!("Couldnt find ConnectedPlayer component.");
+                warn!(
+                    "Couldnt get handle from HandleToEntity for {:?} , message: {:?}",
+                    r, new_event.message
+                );
                 return;
             }
         },

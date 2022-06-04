@@ -6,15 +6,18 @@ use crate::core::{
     entity::{
         functions::initialize_entity_data::initialize_entity_data,
         resources::{EntityDataProperties, EntityDataResource},
+        spawn::{summon_base_entity, SpawnEvent},
     },
     networking::resources::ConsoleCommandVariant,
-    StartupLabels,
+    StartupLabels, SummoningLabels,
 };
 
 use self::{
-    spawn::LineArrowBundle,
+    spawn::{default_line_arrow, summon_line_arrow, LineArrowSummoner},
     systems::{entity_console_commands, point_arrow},
 };
+
+use super::jumpsuit_security::spawn::summon_jumpsuit;
 
 pub mod components;
 pub mod spawn;
@@ -29,8 +32,13 @@ impl Plugin for LineArrowPlugin {
                 .before(ConsoleCommandsLabels::Finalize)
                 .label(StartupLabels::ConsoleCommands),
         )
-        .add_system(entity_console_commands)
-        .add_startup_system(content_initialization.before(StartupLabels::InitEntities));
+        .add_system(entity_console_commands.label(SummoningLabels::TriggerSummon))
+        .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
+        .add_system(summon_jumpsuit.after(SummoningLabels::TriggerSummon))
+        .add_system((summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon))
+        .add_system(summon_line_arrow.after(SummoningLabels::TriggerSummon))
+        .add_event::<SpawnEvent<LineArrowSummoner>>()
+        .add_system((default_line_arrow).after(SummoningLabels::DefaultSummon));
     }
 }
 
@@ -38,7 +46,9 @@ pub struct PointArrowPlugin;
 
 impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(point_arrow);
+        app.add_system(point_arrow).add_system(
+            (summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon),
+        );
     }
 }
 
@@ -59,7 +69,6 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
         name: "lineArrow".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(LineArrowBundle::spawn),
         ..Default::default()
     };
 

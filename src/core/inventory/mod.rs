@@ -57,7 +57,9 @@ impl Plugin for InventoryPlugin {
             .add_system(actions.after(TabActionsQueueLabels::TabAction))
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             );
     }
 }

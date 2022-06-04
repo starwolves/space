@@ -1,77 +1,52 @@
 pub mod entity_bundle;
 
 use bevy_core::Timer;
-use bevy_ecs::entity::Entity;
-use bevy_log::warn;
-use bevy_transform::prelude::Transform;
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::Commands,
+};
 
 use crate::core::{
-    entity::{
-        resources::SpawnData,
-        spawn::{base_entity_builder, BaseEntityData},
-    },
-    networking::resources::ConsoleCommandVariantValues,
+    entity::spawn::{DefaultSpawnEvent, SpawnEvent},
     physics::components::{WorldMode, WorldModes},
 };
 
-use entity_bundle::entity_bundle;
-
 use super::components::{LineArrow, PointArrow};
 
-pub struct LineArrowBundle;
+pub struct LineArrowSummoner {
+    pub duration: f32,
+}
 
-impl LineArrowBundle {
-    pub fn spawn(mut spawn_data: SpawnData) -> Entity {
-        let default_transform = Transform::identity();
+pub fn summon_line_arrow(
+    mut commands: Commands,
+    mut spawn_events: EventReader<SpawnEvent<LineArrowSummoner>>,
+) {
+    for spawn_event in spawn_events.iter() {
+        commands
+            .entity(spawn_event.spawn_data.entity)
+            .insert_bundle((
+                spawn_event.spawn_data.entity_transform,
+                LineArrow,
+                PointArrow {
+                    timer: Timer::from_seconds(spawn_event.summoner.duration, false),
+                },
+                WorldMode {
+                    mode: WorldModes::Static,
+                },
+            ));
+    }
+}
 
-        if spawn_data.correct_transform {
-            spawn_data.entity_transform.rotation = default_transform.rotation;
+pub fn default_line_arrow(
+    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut spawner: EventWriter<SpawnEvent<LineArrowSummoner>>,
+) {
+    for spawn_event in default_spawner.iter() {
+        if spawn_event.spawn_data.entity_name == "lineArrow" {
+            spawner.send(SpawnEvent {
+                spawn_data: spawn_event.spawn_data.clone(),
+                summoner: LineArrowSummoner { duration: 6000.0 },
+            });
         }
-
-        let duration;
-
-        match spawn_data.properties.get("duration").unwrap() {
-            ConsoleCommandVariantValues::Int(dur) => {
-                duration = dur;
-            }
-            _ => {
-                warn!("invalid duration type");
-                return Entity::from_bits(0);
-            }
-        }
-
-        let entity = spawn_data.commands.spawn().id();
-
-        let default_transform = Transform::identity();
-
-        let entity_bundle = entity_bundle(default_transform);
-
-        if spawn_data.correct_transform {
-            spawn_data.entity_transform.rotation = default_transform.rotation;
-        }
-
-        base_entity_builder(
-            &mut spawn_data.commands,
-            entity,
-            BaseEntityData {
-                dynamicbody: false,
-                entity_type: entity_bundle.entity_name.clone(),
-                examinable: entity_bundle.examinable,
-                ..Default::default()
-            },
-        );
-
-        spawn_data.commands.entity(entity).insert_bundle((
-            spawn_data.entity_transform,
-            LineArrow,
-            PointArrow {
-                timer: Timer::from_seconds(*duration as f32, false),
-            },
-            WorldMode {
-                mode: WorldModes::Static,
-            },
-        ));
-
-        entity
     }
 }

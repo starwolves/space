@@ -8,7 +8,7 @@ pub struct AuthidI {
     pub i: u16,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct UsedNames {
     pub names: HashMap<String, Entity>,
     pub user_names: HashMap<String, Entity>,
