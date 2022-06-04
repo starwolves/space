@@ -191,6 +191,7 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 
                 entity_group: base_entity_bundle.entity_group,
                 tab_actions_option: base_entity_bundle.tab_actions_option,
                 default_map_spawn: base_entity_bundle.default_map_spawn,
+                is_item_in_storage: spawn_event.spawn_data.held_data_option.is_some(),
                 ..Default::default()
             },
             spawn_event.spawn_data.entity,
