@@ -32,7 +32,9 @@ impl Plugin for MapPlugin {
             .add_system(map_input.label(MapLabels::ChangeMode))
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             );
     }
 }

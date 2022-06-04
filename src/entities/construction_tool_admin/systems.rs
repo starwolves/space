@@ -24,6 +24,7 @@ use crate::{
         entity::{
             components::EntityData,
             resources::{EntityDataResource, SpawnData},
+            spawn::DefaultSpawnEvent,
         },
         gridmap::{
             events::RemoveCell,
@@ -99,6 +100,7 @@ pub fn construction_tool(
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
     rigid_bodies: Query<(&Transform, &EntityData), Without<RigidBodyDisabled>>,
+    mut default_spawner: EventWriter<DefaultSpawnEvent>,
 ) {
     let (
         mut input_construct_event,
@@ -1042,16 +1044,20 @@ pub fn construction_tool(
                     .rotation
                     .mul_quat(spawn_rotation);
 
-                let new_entity = (built_entity_data.spawn_function)(SpawnData {
-                    entity_transform: spawn_transform,
-                    commands: &mut commands,
-                    correct_transform: true,
-                    pawn_data_option: None,
-                    held_data_option: None,
-                    default_map_spawn: false,
-                    properties: HashMap::new(),
-                    showcase_data_option: &mut None,
-                    entity_name: construction_entity_name.to_string(),
+                let new_entity = commands.spawn().id();
+
+                default_spawner.send(DefaultSpawnEvent {
+                    spawn_data: SpawnData {
+                        entity_transform: spawn_transform,
+                        correct_transform: true,
+                        pawn_data_option: None,
+                        held_data_option: None,
+                        default_map_spawn: false,
+                        properties: HashMap::new(),
+                        showcase_data_option: None,
+                        entity_name: construction_entity_name.to_string(),
+                        entity: new_entity,
+                    },
                 });
 
                 gridmap_main.entity_data.insert(

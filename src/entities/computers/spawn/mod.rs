@@ -1,33 +1,74 @@
-use bevy_ecs::entity::Entity;
+use std::collections::HashMap;
+
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::Commands,
+};
 use bevy_log::warn;
-use bevy_math::{Mat4, Quat, Vec3};
-use bevy_transform::prelude::Transform;
 
 use crate::core::{
     entity::{
+        events::RawSpawnEvent,
+        functions::{
+            process_entities_json_data::{ExportData, ExportDataRaw},
+            string_to_type_converters::string_transform_to_transform,
+        },
         resources::SpawnData,
-        spawn::{base_entity_builder, BaseEntityData},
+        spawn::{DefaultSpawnEvent, SpawnEvent},
     },
     networking::resources::ConsoleCommandVariantValues,
-    rigid_body::spawn::{rigidbody_builder, RigidBodySpawnData},
 };
 
 pub mod entity_bundle;
 pub mod rigidbody_bundle;
 
-use entity_bundle::entity_bundle;
-use rigidbody_bundle::rigidbody_bundle;
-
 use super::components::Computer;
 
-pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
-pub struct ComputerBundle;
+pub struct ComputerSummoner {
+    pub computer_type: String,
+}
 
-impl ComputerBundle {
-    pub fn spawn(mut spawn_data: SpawnData) -> Entity {
+pub fn summon_computer(
+    mut commands: Commands,
+    mut spawn_events: EventReader<SpawnEvent<ComputerSummoner>>,
+) {
+    for spawn_event in spawn_events.iter() {
+        commands
+            .entity(spawn_event.spawn_data.entity)
+            .insert(Computer {
+                computer_type: spawn_event.summoner.computer_type.clone(),
+            });
+    }
+}
+
+pub fn summon_raw_computer(
+    mut spawn_events: EventReader<RawSpawnEvent>,
+    mut summon_computer: EventWriter<SpawnEvent<ComputerSummoner>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        if spawn_event.raw_entity.entity_type != "bridgeComputer" {
+            continue;
+        }
+
+        let entity_transform = string_transform_to_transform(&spawn_event.raw_entity.transform);
+
+        let data;
+
+        if &spawn_event.raw_entity.data != "" {
+            let raw_export_data: ExportDataRaw = ExportDataRaw {
+                properties: serde_json::from_str(&spawn_event.raw_entity.data)
+                    .expect("load_raw_map_entities.rs Error parsing standard entity data."),
+            };
+
+            data = ExportData::new(raw_export_data).properties;
+        } else {
+            data = HashMap::new();
+        }
+
         let computer_type;
 
-        match spawn_data.properties.get("computerType") {
+        match data.get("computerType") {
             Some(x) => match x {
                 ConsoleCommandVariantValues::String(s) => {
                     computer_type = s.to_string();
@@ -43,51 +84,34 @@ impl ComputerBundle {
             }
         }
 
-        let default_transform = Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(1., 1., 1.),
-            Quat::from_axis_angle(Vec3::new(-0.0394818427, 0.00003351599, 1.), 3.124470974),
-            Vec3::new(0., 0.355, 0.),
-        ));
+        summon_computer.send(SpawnEvent {
+            spawn_data: SpawnData {
+                entity_transform: entity_transform,
+                correct_transform: true,
+                default_map_spawn: true,
+                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity: commands.spawn().id(),
+                properties: data,
+                ..Default::default()
+            },
+            summoner: ComputerSummoner { computer_type },
+        });
+    }
+}
 
-        if spawn_data.correct_transform {
-            spawn_data.entity_transform.rotation = default_transform.rotation;
+pub fn default_summon_computer(
+    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut spawner: EventWriter<SpawnEvent<ComputerSummoner>>,
+) {
+    for spawn_event in default_spawner.iter() {
+        if spawn_event.spawn_data.entity_name != "bridgeComputer" {
+            continue;
         }
-
-        let entity = spawn_data.commands.spawn().id();
-
-        let rigidbody_bundle = rigidbody_bundle();
-        let entity_bundle = entity_bundle(default_transform);
-
-        rigidbody_builder(
-            &mut spawn_data.commands,
-            entity,
-            RigidBodySpawnData {
-                rigidbody_dynamic: false,
-                rigid_transform: spawn_data.entity_transform,
-                entity_is_stored_item: spawn_data.held_data_option.is_some(),
-                collider: rigidbody_bundle.collider,
-                collider_transform: rigidbody_bundle.collider_transform,
-                collider_friction: rigidbody_bundle.collider_friction,
-                ..Default::default()
+        spawner.send(SpawnEvent {
+            spawn_data: spawn_event.spawn_data.clone(),
+            summoner: ComputerSummoner {
+                computer_type: "".to_string(),
             },
-        );
-
-        base_entity_builder(
-            &mut spawn_data.commands,
-            entity,
-            BaseEntityData {
-                dynamicbody: false,
-                entity_type: entity_bundle.entity_name.clone(),
-                examinable: entity_bundle.examinable,
-                ..Default::default()
-            },
-        );
-
-        spawn_data
-            .commands
-            .entity(entity)
-            .insert(Computer { computer_type });
-
-        entity
+        });
     }
 }

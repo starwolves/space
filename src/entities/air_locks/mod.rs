@@ -6,11 +6,13 @@ use bevy_transform::components::Transform;
 
 use crate::core::entity::functions::initialize_entity_data::initialize_entity_data;
 use crate::core::entity::resources::{EntityDataProperties, EntityDataResource, GridItemData};
+use crate::core::entity::spawn::{summon_base_entity, SpawnEvent};
+use crate::core::rigid_body::spawn::summon_rigid_body;
 use crate::core::tab_actions::TabActionsQueueLabels;
-use crate::core::{PostUpdateLabels, StartupLabels};
+use crate::core::{PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use self::events::{air_locks_actions, AirLockUnlock, NetAirLock};
-use self::spawn::AirlockBundle;
+use self::spawn::{default_summon_air_lock, summon_air_lock, summon_raw_air_lock, AirlockSummoner};
 use self::systems::air_lock_added::air_lock_added;
 use self::systems::air_lock_default_map_added::air_lock_default_map_added;
 use self::systems::air_lock_events::air_lock_events;
@@ -41,6 +43,7 @@ impl Plugin for AirLocksPlugin {
             .add_system(air_lock_default_map_added)
             .add_event::<AirLockLockClosed>()
             .add_event::<AirLockUnlock>()
+            .add_event::<SpawnEvent<AirlockSummoner>>()
             .add_system(air_lock_events)
             .add_system_set_to_stage(
                 PostUpdate,
@@ -52,8 +55,19 @@ impl Plugin for AirLocksPlugin {
             .add_system(air_locks_actions.after(TabActionsQueueLabels::TabAction))
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
-            );
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
+            )
+            .add_system(summon_air_lock.after(SummoningLabels::TriggerSummon))
+            .add_system(
+                (summon_rigid_body::<AirlockSummoner>).after(SummoningLabels::TriggerSummon),
+            )
+            .add_system(
+                (summon_base_entity::<AirlockSummoner>).after(SummoningLabels::TriggerSummon),
+            )
+            .add_system((summon_raw_air_lock).after(SummoningLabels::TriggerSummon))
+            .add_system(default_summon_air_lock.after(SummoningLabels::DefaultSummon));
     }
 }
 
@@ -61,7 +75,6 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
         name: "securityAirLock1".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(AirlockBundle::spawn),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
             can_be_built_with_grid_item: vec![],
@@ -73,7 +86,6 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
         name: "vacuumAirLock".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(AirlockBundle::spawn),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
             can_be_built_with_grid_item: vec![],
@@ -85,7 +97,6 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
         name: "governmentAirLock".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(AirlockBundle::spawn),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
             can_be_built_with_grid_item: vec![],
@@ -97,7 +108,6 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
         name: "bridgeAirLock".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(AirlockBundle::spawn),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
             can_be_built_with_grid_item: vec![],

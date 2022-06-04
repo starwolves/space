@@ -14,7 +14,10 @@ use crate::core::{
         resources::HandleToEntity,
     },
     console_commands::events::NetConsoleCommands,
-    entity::{functions::spawn_entity::spawn_entity, resources::EntityDataResource},
+    entity::{
+        functions::spawn_entity::spawn_entity, resources::EntityDataResource,
+        spawn::DefaultSpawnEvent,
+    },
     gridmap::resources::GridmapMain,
     networking::resources::ReliableServerMessage,
     pawn::{
@@ -39,6 +42,7 @@ pub fn rcon_spawn_entity(
     used_names: &mut ResMut<UsedNames>,
     handle_to_entity: &Res<HandleToEntity>,
     entity_data: &ResMut<EntityDataResource>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
 ) {
     if spawn_amount > 5 {
         spawn_amount = 5;
@@ -131,7 +135,6 @@ pub fn rcon_spawn_entity(
                 individual_transform,
                 commands,
                 true,
-                Some(used_names),
                 entity_data,
                 None,
                 Some((
@@ -140,6 +143,7 @@ pub fn rcon_spawn_entity(
                 )),
                 HashMap::new(),
                 None,
+                default_spawner,
             );
             individual_transform.translation.x += 0.5;
             individual_transform = entity_spawn_position_for_player(

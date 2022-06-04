@@ -1,4 +1,4 @@
-use bevy_ecs::system::{Res, ResMut};
+use bevy_ecs::system::Res;
 use rand::seq::SliceRandom;
 
 use crate::core::pawn::resources::UsedNames;
@@ -135,16 +135,17 @@ const LAST_NAMES: &[&str] = &[
 ];
 
 pub fn get_full_name(gender: bool, unique: bool, used_names: &Res<UsedNames>) -> String {
-    let rng = &mut rand::thread_rng();
+    let rng_first = &mut rand::thread_rng();
+    let rng_last = &mut rand::thread_rng();
 
     let first_name = match gender {
         true => MALE_FIRST_NAMES,
         false => FEMALE_FIRST_NAMES,
     }
-    .choose(rng)
+    .choose(rng_first)
     .unwrap();
 
-    let full_name = format!("{first_name} {}", LAST_NAMES.choose(rng).unwrap());
+    let full_name = format!("{first_name} {}", LAST_NAMES.choose(rng_last).unwrap());
 
     if unique && used_names.names.contains_key(&full_name) {
         get_full_name(gender, unique, used_names)
@@ -153,7 +154,7 @@ pub fn get_full_name(gender: bool, unique: bool, used_names: &Res<UsedNames>) ->
     }
 }
 
-pub fn get_dummy_name(used_names: &mut ResMut<UsedNames>) -> String {
+pub fn get_dummy_name(used_names: &mut UsedNames) -> String {
     let return_name = format!("Dummy {}", used_names.dummy_i);
 
     used_names.dummy_i += 1;

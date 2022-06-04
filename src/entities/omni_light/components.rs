@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::Component;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct OmniLight {
     pub omni_attenuation: f32,
     pub omni_range: f32,

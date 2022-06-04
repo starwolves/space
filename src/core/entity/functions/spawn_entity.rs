@@ -2,36 +2,36 @@ use std::collections::HashMap;
 
 use bevy_ecs::{
     entity::Entity,
+    event::EventWriter,
     system::{Commands, ResMut},
 };
 use bevy_transform::components::Transform;
 
 use crate::core::{
-    entity::resources::{
-        EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnPawnData,
+    entity::{
+        resources::{EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnPawnData},
+        spawn::DefaultSpawnEvent,
     },
     networking::resources::ConsoleCommandVariantValues,
-    pawn::{components::PersistentPlayerData, resources::UsedNames},
+    pawn::components::PersistentPlayerData,
 };
 
-pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
+pub fn spawn_entity(
     entity_name: String,
     transform: Transform,
     commands: &mut Commands,
     correct_transform: bool,
-    used_names_option: Option<&'a mut ResMut<'b, UsedNames>>,
-    entity_data: &'a ResMut<'a, EntityDataResource>,
+    entity_data: &ResMut<EntityDataResource>,
     held_data_option: Option<Entity>,
     pawn_data_option: Option<(Vec<(String, String)>, PersistentPlayerData)>,
     properties: HashMap<String, ConsoleCommandVariantValues>,
-    mut showcase_handle_option: Option<ShowcaseData<'b, 'c, 'd>>,
+    showcase_handle_option: Option<ShowcaseData>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
 ) -> Option<Entity> {
     let return_entity;
 
     match entity_data.name_to_id.get(&entity_name) {
-        Some(entity_type_id) => {
-            let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
-
+        Some(_id) => {
             let held;
 
             match held_data_option {
@@ -42,45 +42,41 @@ pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
                     held = None;
                 }
             }
+            return_entity = Some(commands.spawn().id());
 
             match pawn_data_option {
                 Some(data) => {
                     let pawn = Some(SpawnPawnData {
-                        data: (
-                            &data.1,
-                            None,
-                            data.0,
-                            PawnDesignation::Dummy,
-                            Some(used_names_option.unwrap()),
-                            None,
-                            &entity_data,
-                        ),
+                        data: (data.1, None, data.0, PawnDesignation::Dummy, None),
                     });
-                    return_entity = Some((*entity_properties.spawn_function)(SpawnData {
-                        entity_transform: transform,
-                        commands,
-                        correct_transform,
-                        pawn_data_option: pawn,
-                        held_data_option: held,
-                        default_map_spawn: false,
-                        properties: properties,
-                        showcase_data_option: &mut showcase_handle_option,
-                        entity_name,
-                    }));
+                    default_spawner.send(DefaultSpawnEvent {
+                        spawn_data: SpawnData {
+                            entity_transform: transform,
+                            correct_transform,
+                            pawn_data_option: pawn,
+                            held_data_option: held,
+                            default_map_spawn: false,
+                            properties: properties,
+                            showcase_data_option: showcase_handle_option,
+                            entity_name,
+                            entity: return_entity.unwrap(),
+                        },
+                    });
                 }
                 None => {
-                    return_entity = Some((*entity_properties.spawn_function)(SpawnData {
-                        entity_transform: transform,
-                        commands,
-                        correct_transform,
-                        pawn_data_option: None,
-                        held_data_option: held,
-                        default_map_spawn: false,
-                        properties: properties,
-                        showcase_data_option: &mut showcase_handle_option,
-
-                        entity_name,
-                    }));
+                    default_spawner.send(DefaultSpawnEvent {
+                        spawn_data: SpawnData {
+                            entity_transform: transform,
+                            correct_transform,
+                            pawn_data_option: None,
+                            held_data_option: held,
+                            default_map_spawn: false,
+                            properties: properties,
+                            showcase_data_option: showcase_handle_option,
+                            entity_name,
+                            entity: return_entity.unwrap(),
+                        },
+                    });
                 }
             }
         }
@@ -99,43 +95,39 @@ pub fn spawn_entity<'a, 'b, 'c, 'd, 'w, 's>(
     return_entity
 }
 
-pub fn spawn_held_entity<'a, 'b, 'c, 'd>(
+pub fn spawn_held_entity(
     entity_name: String,
     commands: &mut Commands,
     holder_entity: Entity,
-    showcase_handle_option: &mut Option<ShowcaseData<'b, 'c, 'd>>,
+    showcase_handle_option: Option<ShowcaseData>,
     entity_data: &ResMut<EntityDataResource>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
 ) -> Option<Entity> {
     let return_entity;
 
     match entity_data.name_to_id.get(&entity_name) {
-        Some(entity_type_id) => {
-            let entity_properties = entity_data.data.get(*entity_type_id).unwrap();
-
+        Some(_id) => {
             let map = HashMap::new();
 
-            return_entity = Some((*entity_properties.spawn_function)(SpawnData {
-                entity_transform: Transform::identity(),
-                commands,
-                correct_transform: false,
-                pawn_data_option: None,
-                held_data_option: Some(holder_entity),
-                default_map_spawn: true,
-                properties: map,
-                showcase_data_option: showcase_handle_option,
-                entity_name,
-            }));
+            return_entity = Some(commands.spawn().id());
+
+            default_spawner.send(DefaultSpawnEvent {
+                spawn_data: SpawnData {
+                    entity_transform: Transform::identity(),
+                    correct_transform: false,
+                    pawn_data_option: None,
+                    held_data_option: Some(holder_entity),
+                    default_map_spawn: false,
+                    properties: map,
+                    showcase_data_option: showcase_handle_option,
+                    entity_name,
+                    entity: return_entity.unwrap(),
+                },
+            });
         }
         None => {
             return_entity = None;
         }
-    }
-
-    match return_entity {
-        Some(_entity) => {
-            //info!("(0) {:?}",entity);
-        }
-        None => {}
     }
 
     return_entity

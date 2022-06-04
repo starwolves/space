@@ -60,7 +60,6 @@ impl Plugin for ConnectedPlayerPlugin {
                     .with_system(update_player_count),
             )
             .add_event::<InputTabDataMap>()
-            .add_system(on_spawning)
             .add_system(ui_input_transmit_data_event)
             .add_system(on_boarding)
             .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
@@ -71,7 +70,8 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_system(build_graphics_event)
             .add_system(scene_ready_event)
             .add_event::<NetSendServerTime>()
-            .add_system(on_setupui)
+            .add_system(on_setupui.label(SummoningLabels::TriggerSummon))
+            .add_system_to_stage(PostUpdate, on_spawning.after(PostUpdateLabels::Net))
             .add_event::<InputMouseAction>()
             .add_event::<InputAttackCell>()
             .add_event::<InputAltItemAttack>()
@@ -92,10 +92,12 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_event::<InputSceneReady>()
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             );
     }
 }
 use bevy_app::CoreStage::PostUpdate;
 
-use super::{PostUpdateLabels, UpdateLabels};
+use super::{PostUpdateLabels, SummoningLabels, UpdateLabels};

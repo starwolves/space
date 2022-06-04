@@ -1,150 +1,104 @@
-use std::sync::Arc;
+use std::collections::HashMap;
 
-use bevy_ecs::entity::Entity;
-use bevy_log::warn;
-use bevy_transform::prelude::Transform;
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::Commands,
+};
 
 use crate::core::{
     entity::{
-        components::EntityGroup,
+        events::RawSpawnEvent,
+        functions::{
+            process_entities_json_data::{ExportData, ExportDataRaw},
+            string_to_type_converters::string_transform_to_transform,
+        },
         resources::SpawnData,
-        spawn::{base_entity_builder, BaseEntityData},
+        spawn::{DefaultSpawnEvent, SpawnEvent},
     },
-    health::components::Health,
     pawn::components::ShipAuthorizationEnum,
-    rigid_body::spawn::{rigidbody_builder, RigidBodySpawnData},
-    tab_actions::components::{TabAction, TabActions},
 };
 
 pub mod entity_bundle;
 pub mod rigidbody_bundle;
 
-use entity_bundle::entity_bundle;
-use rigidbody_bundle::rigidbody_bundle;
+use super::components::AirLock;
 
-use super::{
-    components::AirLock,
-    functions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action},
-};
+pub struct AirlockSummoner;
 
-pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
-pub struct AirlockBundle;
+pub fn summon_air_lock(
+    mut commands: Commands,
+    mut airlock_spawns: EventReader<SpawnEvent<AirlockSummoner>>,
+) {
+    for spawn_event in airlock_spawns.iter() {
+        commands
+            .entity(spawn_event.spawn_data.entity)
+            .insert(AirLock {
+                access_permissions: vec![ShipAuthorizationEnum::Security],
+                ..Default::default()
+            });
+    }
+}
 
-impl AirlockBundle {
-    pub fn spawn(mut spawn_data: SpawnData) -> Entity {
-        let description;
-        let sub_name;
-
-        if spawn_data.entity_name == "securityAirLock1" {
-            sub_name = "security";
-            description = "An air lock with ".to_string()
-                + "security"
-                + " department colors. It will only grant access to security personnel.";
-        } else if spawn_data.entity_name == "bridgeAirLock" {
-            sub_name = "bridge";
-            description = "An air lock with ".to_string()
-                + "bridge"
-                + " department colors. It will only grant access to high ranked personnel.";
-        } else if spawn_data.entity_name == "governmentAirLock" {
-            sub_name = "government";
-
-            description = "An air lock with ".to_string()
-                + "government"
-                + " department colors. It will only grant access to a select few.";
-        } else if spawn_data.entity_name == "vacuumAirLock" {
-            sub_name = "vacuum";
-            description = "An air lock with ".to_string()
-                + "danger markings"
-                + ". On the other side is nothing but space.";
-        } else {
-            warn!("Unrecognized airlock sub-type {}", spawn_data.entity_name);
-            return Entity::from_bits(0);
+pub fn default_summon_air_lock(
+    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut spawner: EventWriter<SpawnEvent<AirlockSummoner>>,
+) {
+    for spawn_event in default_spawner.iter() {
+        if spawn_event.spawn_data.entity_name != "securityAirLock1"
+            || spawn_event.spawn_data.entity_name != "bridgeAirLock"
+            || spawn_event.spawn_data.entity_name != "governmentAirLock"
+            || spawn_event.spawn_data.entity_name != "vacuumAirLock"
+        {
+            continue;
         }
 
-        let entity = spawn_data.commands.spawn().id();
-
-        let default_transform = Transform::identity();
-
-        let rigidbody_bundle = rigidbody_bundle();
-        let entity_bundle = entity_bundle(
-            default_transform,
-            spawn_data.default_map_spawn,
-            description,
-            sub_name.to_string(),
-            spawn_data.entity_name,
-            entity,
-        );
-
-        rigidbody_builder(
-            &mut spawn_data.commands,
-            entity,
-            RigidBodySpawnData {
-                rigidbody_dynamic: false,
-                rigid_transform: spawn_data.entity_transform,
-                entity_is_stored_item: spawn_data.held_data_option.is_some(),
-                collider: rigidbody_bundle.collider,
-                collider_transform: rigidbody_bundle.collider_transform,
-                collider_friction: rigidbody_bundle.collider_friction,
-                collision_events: true,
-                ..Default::default()
-            },
-        );
-
-        base_entity_builder(
-            &mut spawn_data.commands,
-            entity,
-            BaseEntityData {
-                dynamicbody: false,
-                entity_type: entity_bundle.entity_name.clone(),
-                examinable: entity_bundle.examinable,
-                is_item_in_storage: spawn_data.held_data_option.is_some(),
-                tab_actions_option: Some(TabActions {
-                    tab_actions: vec![
-                        TabAction {
-                            id: "actions::air_locks/toggleopen".to_string(),
-                            text: "Toggle Open".to_string(),
-                            tab_list_priority: 100,
-                            prerequisite_check: Arc::new(toggle_open_action),
-                            belonging_entity: Some(entity),
-                        },
-                        TabAction {
-                            id: "actions::air_locks/lockopen".to_string(),
-                            text: "Lock Open".to_string(),
-                            tab_list_priority: 99,
-                            prerequisite_check: Arc::new(lock_open_action),
-                            belonging_entity: Some(entity),
-                        },
-                        TabAction {
-                            id: "actions::air_locks/lockclosed".to_string(),
-                            text: "Lock Closed".to_string(),
-                            tab_list_priority: 98,
-                            prerequisite_check: Arc::new(lock_closed_action),
-                            belonging_entity: Some(entity),
-                        },
-                        TabAction {
-                            id: "actions::air_locks/unlock".to_string(),
-                            text: "Unlock".to_string(),
-                            tab_list_priority: 97,
-                            prerequisite_check: Arc::new(unlock_action),
-                            belonging_entity: Some(entity),
-                        },
-                    ],
-                }),
-                entity_group: EntityGroup::AirLock,
-                health: Health {
-                    is_combat_obstacle: true,
-                    is_reach_obstacle: true,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        );
-
-        spawn_data.commands.entity(entity).insert(AirLock {
-            access_permissions: vec![ShipAuthorizationEnum::Security],
-            ..Default::default()
+        spawner.send(SpawnEvent {
+            spawn_data: spawn_event.spawn_data.clone(),
+            summoner: AirlockSummoner,
         });
+    }
+}
 
-        entity
+pub fn summon_raw_air_lock(
+    mut spawn_events: EventReader<RawSpawnEvent>,
+    mut summon_air_lock: EventWriter<SpawnEvent<AirlockSummoner>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        if spawn_event.raw_entity.entity_type != "securityAirLock1"
+            || spawn_event.raw_entity.entity_type != "bridgeAirLock"
+            || spawn_event.raw_entity.entity_type != "governmentAirLock"
+            || spawn_event.raw_entity.entity_type != "vacuumAirLock"
+        {
+            continue;
+        }
+
+        let entity_transform = string_transform_to_transform(&spawn_event.raw_entity.transform);
+
+        let data;
+
+        if &spawn_event.raw_entity.data != "" {
+            let raw_export_data: ExportDataRaw = ExportDataRaw {
+                properties: serde_json::from_str(&spawn_event.raw_entity.data)
+                    .expect("load_raw_map_entities.rs Error parsing standard entity data."),
+            };
+
+            data = ExportData::new(raw_export_data).properties;
+        } else {
+            data = HashMap::new();
+        }
+
+        summon_air_lock.send(SpawnEvent {
+            spawn_data: SpawnData {
+                entity_transform: entity_transform,
+                correct_transform: true,
+                default_map_spawn: true,
+                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity: commands.spawn().id(),
+                properties: data,
+                ..Default::default()
+            },
+            summoner: AirlockSummoner,
+        });
     }
 }

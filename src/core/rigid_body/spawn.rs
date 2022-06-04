@@ -1,4 +1,4 @@
-use bevy_ecs::{entity::Entity, system::Commands};
+use bevy_ecs::{entity::Entity, event::EventReader, system::Commands};
 use bevy_hierarchy::BuildChildren;
 use bevy_rapier3d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
@@ -6,11 +6,14 @@ use bevy_rapier3d::prelude::{
 };
 use bevy_transform::prelude::Transform;
 
-use crate::core::physics::functions::{get_bit_masks, ColliderGroup};
+use crate::core::{
+    entity::{resources::SpawnData, spawn::SpawnEvent},
+    physics::functions::{get_bit_masks, ColliderGroup},
+};
 
 use super::components::{RigidBodyData, RigidBodyDisabled};
 
-pub struct RigidbodyBundle {
+pub struct RigidBodyBundle {
     pub collider: Collider,
     pub collider_transform: Transform,
     pub collider_friction: Friction,
@@ -18,7 +21,7 @@ pub struct RigidbodyBundle {
     pub collision_events: bool,
 }
 
-impl Default for RigidbodyBundle {
+impl Default for RigidBodyBundle {
     fn default() -> Self {
         Self {
             collider: Collider::cuboid(0.2, 0.2, 0.2),
@@ -69,8 +72,8 @@ impl Default for RigidBodySpawnData {
 
 pub fn rigidbody_builder(
     commands: &mut Commands,
-    entity: Entity,
     rigidbody_spawn_data: RigidBodySpawnData,
+    entity: Entity,
 ) {
     let rigidbody;
     let masks;
@@ -139,4 +142,32 @@ pub fn rigidbody_builder(
             child_builder.insert(ActiveEvents::COLLISION_EVENTS);
         }
     });
+}
+
+pub trait RigidBodySummonable {
+    fn get_bundle(&self, spawn_data: &SpawnData) -> RigidBodyBundle;
+}
+
+pub fn summon_rigid_body<T: RigidBodySummonable + Send + Sync + 'static>(
+    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        let rigidbody_bundle = spawn_event.summoner.get_bundle(&spawn_event.spawn_data);
+
+        rigidbody_builder(
+            &mut commands,
+            RigidBodySpawnData {
+                rigidbody_dynamic: rigidbody_bundle.rigidbody_dynamic,
+                rigid_transform: spawn_event.spawn_data.entity_transform,
+                entity_is_stored_item: spawn_event.spawn_data.held_data_option.is_some(),
+                collider: rigidbody_bundle.collider,
+                collider_transform: rigidbody_bundle.collider_transform,
+                collider_friction: rigidbody_bundle.collider_friction,
+                collision_events: rigidbody_bundle.collision_events,
+                ..Default::default()
+            },
+            spawn_event.spawn_data.entity,
+        );
+    }
 }

@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::Component;
 use bevy_transform::components::Transform;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct ConnectedPlayer {
     pub handle: u32,
     pub authid: u16,

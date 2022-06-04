@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy_ecs::{
     event::EventWriter,
     prelude::Added,
-    system::{Commands, Query, Res, ResMut},
+    system::{Commands, Query, Res},
 };
 use bevy_transform::components::Transform;
 
@@ -16,32 +16,26 @@ use crate::{
             functions::name_generator,
         },
         entity::{
-            events::NetShowcase,
-            resources::{
-                EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnPawnData,
-            },
+            resources::{PawnDesignation, ShowcaseData, SpawnData, SpawnPawnData},
+            spawn::SpawnEvent,
         },
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
-    entities::human_male::spawn::HumanMaleBundle,
+    entities::human_male::spawn::HumanMaleSummoner,
 };
 
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 pub const ENTITY_SPAWN_PARENT : &str = "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial";
 
-pub fn on_setupui<'a, 'b, 'c, 'd, 'w, 's>(
+pub fn on_setupui(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,
-
     query: Query<(&ConnectedPlayer, &PersistentPlayerData), Added<SetupPhase>>,
-    mut net_showcase: EventWriter<'b, 'c, NetShowcase>,
-
-    entity_data: ResMut<EntityDataResource>,
-
     mut net_on_setupui: EventWriter<NetOnSetupUI>,
-    mut commands: Commands<'w, 's>,
+    mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
+    mut commands: Commands,
     motd: Res<MOTD>,
 ) {
     for (connected_player_component, persistent_player_data_component) in query.iter() {
@@ -78,30 +72,32 @@ pub fn on_setupui<'a, 'b, 'c, 'd, 'w, 's>(
             ("holster".to_string(), "pistolL1".to_string()),
         ];
 
-        HumanMaleBundle::spawn(SpawnData {
-            entity_transform: Transform::identity(),
-            commands: &mut commands,
-
-            correct_transform: true,
-            pawn_data_option: Some(SpawnPawnData {
-                data: (
-                    persistent_player_data_component,
-                    Some(connected_player_component),
-                    passed_inventory_setup,
-                    PawnDesignation::Showcase,
-                    None,
-                    None,
-                    &entity_data,
-                ),
-            }),
-            held_data_option: None,
-            default_map_spawn: false,
-            properties: HashMap::new(),
-            showcase_data_option: &mut Some(ShowcaseData {
-                handle: connected_player_component.handle,
-                event_writer: &mut net_showcase,
-            }),
-            entity_name: "humanMale".to_string(),
+        summon_human_male.send(SpawnEvent {
+            spawn_data: SpawnData {
+                entity: commands.spawn().id(),
+                entity_transform: Transform::identity(),
+                correct_transform: true,
+                pawn_data_option: Some(SpawnPawnData {
+                    data: (
+                        persistent_player_data_component.clone(),
+                        Some(connected_player_component.clone()),
+                        passed_inventory_setup,
+                        PawnDesignation::Showcase,
+                        None,
+                    ),
+                }),
+                held_data_option: None,
+                default_map_spawn: false,
+                properties: HashMap::new(),
+                showcase_data_option: Some(ShowcaseData {
+                    handle: connected_player_component.handle,
+                }),
+                entity_name: "humanMale".to_string(),
+            },
+            summoner: HumanMaleSummoner {
+                character_name: persistent_player_data_component.character_name.clone(),
+                user_name: persistent_player_data_component.user_name.clone(),
+            },
         });
     }
 }

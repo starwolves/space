@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::Component;
 use bevy_math::Vec3;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct ReflectionProbe {
     pub projection_enabled: bool,
     pub cull_mask: i64,

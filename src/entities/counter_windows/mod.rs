@@ -7,11 +7,16 @@ use bevy_transform::components::Transform;
 
 use crate::core::entity::functions::initialize_entity_data::initialize_entity_data;
 use crate::core::entity::resources::{EntityDataProperties, EntityDataResource, GridItemData};
+use crate::core::entity::spawn::{summon_base_entity, SpawnEvent};
+use crate::core::rigid_body::spawn::summon_rigid_body;
 use crate::core::tab_actions::TabActionsQueueLabels;
-use crate::core::{PostUpdateLabels, StartupLabels};
+use crate::core::{PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use self::events::{CounterWindowUnlock, NetCounterWindow};
-use self::spawn::CounterWindowBundle;
+use self::spawn::{
+    default_summon_counter_window, summon_counter_window, summon_raw_counter_window,
+    CounterWindowSummoner,
+};
 use self::systems::actions::actions;
 use self::systems::counter_window_added::counter_window_added;
 use self::systems::counter_window_default_map_added::counter_window_default_map_added;
@@ -57,8 +62,20 @@ impl Plugin for CounterWindowsPlugin {
             .add_system(actions.after(TabActionsQueueLabels::TabAction))
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
-            );
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
+            )
+            .add_system(summon_counter_window.after(SummoningLabels::TriggerSummon))
+            .add_system(
+                (summon_base_entity::<CounterWindowSummoner>).after(SummoningLabels::TriggerSummon),
+            )
+            .add_system(
+                (summon_rigid_body::<CounterWindowSummoner>).after(SummoningLabels::TriggerSummon),
+            )
+            .add_system((summon_raw_counter_window).after(SummoningLabels::TriggerSummon))
+            .add_event::<SpawnEvent<CounterWindowSummoner>>()
+            .add_system((default_summon_counter_window).after(SummoningLabels::DefaultSummon));
     }
 }
 
@@ -70,7 +87,6 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
         name: "securityCounterWindow".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(CounterWindowBundle::spawn),
         grid_item: Some(GridItemData {
             transform_offset: transform,
             can_be_built_with_grid_item: vec!["securityCounter1".to_string()],
@@ -86,7 +102,6 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
         name: "bridgeCounterWindow".to_string(),
         id: entity_data.get_id_inc(),
-        spawn_function: Box::new(CounterWindowBundle::spawn),
         grid_item: Some(GridItemData {
             transform_offset: transform,
             can_be_built_with_grid_item: vec!["bridgeCounter".to_string()],

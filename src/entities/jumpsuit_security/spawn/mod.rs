@@ -4,95 +4,86 @@ pub mod rigidbody_bundle;
 
 use std::collections::HashMap;
 
-use bevy_ecs::entity::Entity;
-use bevy_math::{Mat4, Quat, Vec3};
-use bevy_transform::prelude::Transform;
-
-use crate::core::{
-    entity::{
-        resources::SpawnData,
-        spawn::{base_entity_builder, showcase_builder, BaseEntityData, ShowCaseBuilderData},
+use super::components::Jumpsuit;
+use crate::core::entity::{
+    events::RawSpawnEvent,
+    functions::{
+        process_entities_json_data::{ExportData, ExportDataRaw},
+        string_to_type_converters::string_transform_to_transform,
     },
-    inventory_item::spawn::{inventory_item_builder, InventoryBuilderData},
-    rigid_body::spawn::{rigidbody_builder, RigidBodySpawnData},
+    resources::SpawnData,
+    spawn::{DefaultSpawnEvent, SpawnEvent},
+};
+use bevy_ecs::{
+    event::{EventReader, EventWriter},
+    system::Commands,
 };
 
-use entity_bundle::entity_bundle;
-use inventory_item_bundle::inventory_item_bundle;
-use rigidbody_bundle::rigidbody_bundle;
+pub struct JumpsuitSummoner;
 
-use super::components::Jumpsuit;
+pub fn summon_jumpsuit(
+    mut commands: Commands,
+    mut spawn_events: EventReader<SpawnEvent<JumpsuitSummoner>>,
+) {
+    for spawn_event in spawn_events.iter() {
+        commands
+            .entity(spawn_event.spawn_data.entity)
+            .insert(Jumpsuit);
+    }
+}
 
-pub struct JumpsuitSecurityBundle;
-
-impl JumpsuitSecurityBundle {
-    pub fn spawn(mut spawn_data: SpawnData) -> Entity {
-        let entity = spawn_data.commands.spawn().id();
-
-        let default_transform = Transform::from_matrix(Mat4::from_scale_rotation_translation(
-            Vec3::new(1., 1., 1.),
-            Quat::from_axis_angle(Vec3::new(-0.00000035355248, 0.707105, 0.7071085), 3.1415951),
-            Vec3::new(0., 0.116, 0.),
-        ));
-
-        let rigidbody_bundle = rigidbody_bundle();
-        let inventory_item_bundle =
-            inventory_item_bundle(spawn_data.held_data_option, default_transform);
-        let entity_bundle = entity_bundle(default_transform);
-
-        if spawn_data.correct_transform {
-            spawn_data.entity_transform.rotation = default_transform.rotation;
+pub fn summon_raw_jumpsuit(
+    mut spawn_events: EventReader<RawSpawnEvent>,
+    mut summon_computer: EventWriter<SpawnEvent<JumpsuitSummoner>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        if spawn_event.raw_entity.entity_type != "jumpsuitSecurity" {
+            continue;
         }
 
-        rigidbody_builder(
-            &mut spawn_data.commands,
-            entity,
-            RigidBodySpawnData {
-                rigidbody_dynamic: true,
-                rigid_transform: spawn_data.entity_transform,
-                entity_is_stored_item: spawn_data.held_data_option.is_some(),
-                collider: rigidbody_bundle.collider,
-                collider_transform: rigidbody_bundle.collider_transform,
-                collider_friction: rigidbody_bundle.collider_friction,
+        let entity_transform = string_transform_to_transform(&spawn_event.raw_entity.transform);
+
+        let data;
+
+        if &spawn_event.raw_entity.data != "" {
+            let raw_export_data: ExportDataRaw = ExportDataRaw {
+                properties: serde_json::from_str(&spawn_event.raw_entity.data)
+                    .expect("load_raw_map_entities.rs Error parsing standard entity data."),
+            };
+
+            data = ExportData::new(raw_export_data).properties;
+        } else {
+            data = HashMap::new();
+        }
+
+        summon_computer.send(SpawnEvent {
+            spawn_data: SpawnData {
+                entity_transform: entity_transform,
+                correct_transform: true,
+                default_map_spawn: true,
+                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity: commands.spawn().id(),
+                properties: data,
                 ..Default::default()
             },
-        );
+            summoner: JumpsuitSummoner,
+        });
+    }
+}
 
-        base_entity_builder(
-            &mut spawn_data.commands,
-            entity,
-            BaseEntityData {
-                dynamicbody: true,
-                entity_type: entity_bundle.entity_name.clone(),
-                examinable: entity_bundle.examinable,
-                is_item_in_storage: spawn_data.held_data_option.is_some(),
+pub fn default_summon_jumpsuit(
+    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut spawner: EventWriter<SpawnEvent<JumpsuitSummoner>>,
+) {
+    for spawn_event in default_spawner.iter() {
+        if spawn_event.spawn_data.entity_name != "jumpsuitSecurity" {
+            continue;
+        }
 
-                is_showcase: spawn_data.showcase_data_option.is_some(),
-                ..Default::default()
-            },
-        );
-
-        inventory_item_builder(
-            &mut spawn_data.commands,
-            entity,
-            InventoryBuilderData {
-                inventory_item: inventory_item_bundle.inventory_item,
-                holder_entity_option: spawn_data.held_data_option,
-            },
-        );
-
-        showcase_builder(
-            &mut spawn_data.commands,
-            entity,
-            spawn_data.showcase_data_option,
-            ShowCaseBuilderData {
-                entity_type: entity_bundle.entity_name,
-                entity_updates: HashMap::new(),
-            },
-        );
-
-        spawn_data.commands.entity(entity).insert(Jumpsuit);
-
-        entity
+        spawner.send(SpawnEvent {
+            spawn_data: spawn_event.spawn_data.clone(),
+            summoner: JumpsuitSummoner,
+        });
     }
 }

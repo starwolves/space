@@ -12,16 +12,17 @@ use bevy_transform::components::Transform;
 use crate::core::{
     connected_player::resources::HandleToEntity,
     console_commands::events::InputConsoleCommand,
-    entity::{events::NetUnloadEntity, resources::SpawnData},
+    entity::{events::NetUnloadEntity, resources::SpawnData, spawn::SpawnEvent},
     networking::resources::ConsoleCommandVariantValues,
     sensable::components::Sensable,
 };
 
-use super::{components::PointArrow, spawn::LineArrowBundle};
+use super::{components::PointArrow, spawn::LineArrowSummoner};
 
 pub fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
+    mut spawn_event: EventWriter<SpawnEvent<LineArrowSummoner>>,
 ) {
     for command in queue.iter() {
         if command.command_name == "pointArrow" {
@@ -122,16 +123,22 @@ pub fn entity_console_commands(
             let mut passed_transform = Transform::identity();
             passed_transform.translation = translation;
 
-            LineArrowBundle::spawn(SpawnData {
-                entity_transform: passed_transform,
-                commands: &mut commands,
-                correct_transform: false,
-                pawn_data_option: None,
-                held_data_option: None,
-                default_map_spawn: false,
-                properties,
-                showcase_data_option: &mut None,
-                entity_name: "lineArrow".to_string(),
+            spawn_event.send(SpawnEvent {
+                spawn_data: SpawnData {
+                    entity_transform: passed_transform,
+                    correct_transform: false,
+                    pawn_data_option: None,
+                    held_data_option: None,
+                    default_map_spawn: false,
+                    properties,
+                    showcase_data_option: None,
+                    entity_name: "lineArrow".to_string(),
+                    entity: commands.spawn().id(),
+                    ..Default::default()
+                },
+                summoner: LineArrowSummoner {
+                    duration: duration as f32,
+                },
             });
         }
     }

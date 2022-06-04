@@ -1,19 +1,12 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{
-    entity::Entity,
-    event::EventWriter,
-    system::{Commands, ResMut},
-};
+use bevy_ecs::entity::Entity;
 use bevy_transform::components::Transform;
 
 use crate::core::{
     connected_player::components::ConnectedPlayer,
-    networking::resources::ConsoleCommandVariantValues,
-    pawn::{components::PersistentPlayerData, resources::UsedNames},
+    networking::resources::ConsoleCommandVariantValues, pawn::components::PersistentPlayerData,
 };
-
-use super::events::NetShowcase;
 
 #[derive(Default)]
 pub struct EntityDataResource {
@@ -31,6 +24,7 @@ impl EntityDataResource {
     }
 }
 
+#[derive(Clone)]
 pub enum PawnDesignation {
     Showcase,
     Player,
@@ -38,20 +32,18 @@ pub enum PawnDesignation {
     Ai,
 }
 
-pub struct SpawnPawnData<'a, 'b> {
+#[derive(Clone)]
+pub struct SpawnPawnData {
     pub data: (
-        &'a PersistentPlayerData,
-        Option<&'a ConnectedPlayer>,
+        PersistentPlayerData,
+        Option<ConnectedPlayer>,
         Vec<(String, String)>,
         PawnDesignation,
-        Option<&'a mut ResMut<'b, UsedNames>>,
         Option<String>,
-        &'a ResMut<'a, EntityDataResource>,
     ),
 }
 
 pub struct EntityDataProperties {
-    pub spawn_function: Box<dyn Fn(SpawnData) -> Entity + Sync + Send>,
     pub name: String,
     pub id: usize,
     pub grid_item: Option<GridItemData>,
@@ -65,7 +57,6 @@ pub struct GridItemData {
 impl Default for EntityDataProperties {
     fn default() -> Self {
         Self {
-            spawn_function: Box::new(|_| Entity::from_raw(0)),
             name: Default::default(),
             id: Default::default(),
             grid_item: None,
@@ -73,19 +64,36 @@ impl Default for EntityDataProperties {
     }
 }
 
-pub struct ShowcaseData<'b, 'c, 'd> {
+#[derive(Clone)]
+pub struct ShowcaseData {
     pub handle: u32,
-    pub event_writer: &'b mut EventWriter<'c, 'd, NetShowcase>,
 }
 
-pub struct SpawnData<'a, 'b, 'c, 'd, 'w, 's> {
+#[derive(Clone)]
+pub struct SpawnData {
     pub entity_transform: Transform,
-    pub commands: &'a mut Commands<'w, 's>,
     pub correct_transform: bool,
-    pub pawn_data_option: Option<SpawnPawnData<'a, 'b>>,
+    pub pawn_data_option: Option<SpawnPawnData>,
     pub held_data_option: Option<Entity>,
     pub default_map_spawn: bool,
     pub properties: HashMap<String, ConsoleCommandVariantValues>,
-    pub showcase_data_option: &'a mut Option<ShowcaseData<'b, 'c, 'd>>,
+    pub showcase_data_option: Option<ShowcaseData>,
     pub entity_name: String,
+    pub entity: Entity,
+}
+
+impl Default for SpawnData {
+    fn default() -> Self {
+        Self {
+            entity_transform: Transform::identity(),
+            correct_transform: true,
+            pawn_data_option: None,
+            held_data_option: None,
+            default_map_spawn: false,
+            properties: HashMap::default(),
+            showcase_data_option: None,
+            entity_name: "".to_string(),
+            entity: Entity::from_bits(0),
+        }
+    }
 }

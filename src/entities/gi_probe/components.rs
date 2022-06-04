@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::Component;
 use bevy_math::Vec3;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct GIProbe {
     pub bias: f32,
     pub compressed: bool,

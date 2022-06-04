@@ -4,7 +4,6 @@ use crate::core::entity::functions::string_to_type_converters::string_vec3_to_ve
 
 use super::components::GIProbe;
 
-#[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct ExportData {
     bias: f32,

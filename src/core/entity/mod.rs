@@ -5,6 +5,8 @@ use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 use bevy_ecs::system::{Res, ResMut};
 use bevy_log::info;
 
+use self::events::RawSpawnEvent;
+use self::spawn::DefaultSpawnEvent;
 use self::systems::entity_console_commands::entity_console_commands;
 use self::systems::net_system::net_system;
 use self::{
@@ -19,7 +21,7 @@ use self::{
 use super::console_commands::resources::AllConsoleCommands;
 use super::console_commands::ConsoleCommandsLabels;
 use super::networking::resources::ConsoleCommandVariant;
-use super::{PostUpdateLabels, StartupLabels};
+use super::{PostUpdateLabels, StartupLabels, SummoningLabels};
 
 pub mod components;
 pub mod events;
@@ -46,6 +48,8 @@ impl Plugin for EntityPlugin {
             .add_event::<NetSendEntityUpdates>()
             .add_event::<NetUnloadEntity>()
             .add_event::<NetLoadEntity>()
+            .add_event::<RawSpawnEvent>()
+            .add_event::<DefaultSpawnEvent>()
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(
@@ -58,16 +62,18 @@ impl Plugin for EntityPlugin {
                     .before(StartupLabels::BuildGridmap)
                     .label(StartupLabels::InitEntities),
             )
-            .add_system(entity_console_commands)
-            .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
+            .add_system(entity_console_commands.after(SummoningLabels::DefaultSummon))
+            .add_startup_system(
+                initialize_console_commands
+                    .before(ConsoleCommandsLabels::Finalize)
+                    .label(SummoningLabels::TriggerSummon),
+            )
             .add_system_to_stage(
                 PostUpdate,
-                net_system.after(PostUpdateLabels::VisibleChecker),
+                net_system
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net),
             );
-    }
-
-    fn name(&self) -> &str {
-        std::any::type_name::<Self>()
     }
 }
 
