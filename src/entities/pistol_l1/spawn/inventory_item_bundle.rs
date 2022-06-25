@@ -62,7 +62,7 @@ impl InventoryItemSummonable for PistolL1Summoner {
 
         InventoryItemBundle {
             inventory_item: InventoryItem {
-                in_inventory_of_entity: spawn_data.held_data_option,
+                in_inventory_of_entity: spawn_data.holder_entity_option,
                 attachment_transforms: attachment_transforms,
                 drop_transform: get_default_transform(),
                 slot_type: SlotType::Holster,

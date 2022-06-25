@@ -54,12 +54,14 @@ pub fn spawn_entity(
                             entity_transform: transform,
                             correct_transform,
                             pawn_data_option: pawn,
-                            held_data_option: held,
+                            holder_entity_option: held,
                             default_map_spawn: false,
                             properties: properties,
                             showcase_data_option: showcase_handle_option,
                             entity_name,
                             entity: return_entity.unwrap(),
+
+                            ..Default::default()
                         },
                     });
                 }
@@ -69,12 +71,14 @@ pub fn spawn_entity(
                             entity_transform: transform,
                             correct_transform,
                             pawn_data_option: None,
-                            held_data_option: held,
+                            holder_entity_option: held,
                             default_map_spawn: false,
                             properties: properties,
                             showcase_data_option: showcase_handle_option,
                             entity_name,
                             entity: return_entity.unwrap(),
+
+                            ..Default::default()
                         },
                     });
                 }
@@ -116,12 +120,13 @@ pub fn spawn_held_entity(
                     entity_transform: Transform::identity(),
                     correct_transform: false,
                     pawn_data_option: None,
-                    held_data_option: Some(holder_entity),
+                    holder_entity_option: Some(holder_entity),
                     default_map_spawn: false,
                     properties: map,
                     showcase_data_option: showcase_handle_option,
                     entity_name,
                     entity: return_entity.unwrap(),
+                    held_entity_option: return_entity,
                 },
             });
         }

@@ -339,7 +339,10 @@ pub fn construction_tool(
                 rigid_body_position_component = rigid_body_position_component_passed;
             }
             Err(_rr) => {
-                warn!("Couldn't find belonging entity construction tool.");
+                warn!(
+                    "Couldn't find belonging entity construction tool {:?}",
+                    belonging_entity
+                );
                 continue;
             }
         }
@@ -1051,12 +1054,14 @@ pub fn construction_tool(
                         entity_transform: spawn_transform,
                         correct_transform: true,
                         pawn_data_option: None,
-                        held_data_option: None,
+                        holder_entity_option: None,
                         default_map_spawn: false,
                         properties: HashMap::new(),
                         showcase_data_option: None,
                         entity_name: construction_entity_name.to_string(),
                         entity: new_entity,
+
+                        ..Default::default()
                     },
                 });
 

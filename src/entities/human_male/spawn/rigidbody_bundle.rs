@@ -24,7 +24,7 @@ impl RigidBodySummonable for HumanMaleSummoner {
             ),
             collider_transform: Transform::from_translation(Vec3::new(0., 0.011, -0.004)),
             collider_friction: friction,
-            rigidbody_dynamic: false,
+            rigidbody_dynamic: true,
             ..Default::default()
         }
     }

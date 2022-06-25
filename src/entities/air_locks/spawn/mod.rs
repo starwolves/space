@@ -66,9 +66,9 @@ pub fn summon_raw_air_lock(
 ) {
     for spawn_event in spawn_events.iter() {
         if spawn_event.raw_entity.entity_type != "securityAirLock1"
-            || spawn_event.raw_entity.entity_type != "bridgeAirLock"
-            || spawn_event.raw_entity.entity_type != "governmentAirLock"
-            || spawn_event.raw_entity.entity_type != "vacuumAirLock"
+            && spawn_event.raw_entity.entity_type != "bridgeAirLock"
+            && spawn_event.raw_entity.entity_type != "governmentAirLock"
+            && spawn_event.raw_entity.entity_type != "vacuumAirLock"
         {
             continue;
         }

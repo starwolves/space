@@ -62,11 +62,13 @@ pub fn on_spawning(
                         Some(persistent_player_data_component.user_name.clone()),
                     ),
                 }),
-                held_data_option: None,
+                holder_entity_option: None,
                 default_map_spawn: false,
                 properties: HashMap::new(),
                 showcase_data_option: None,
                 entity_name: "humanMale".to_string(),
+
+                ..Default::default()
             },
             summoner: HumanMaleSummoner {
                 character_name: persistent_player_data_component.character_name.clone(),

@@ -766,7 +766,7 @@ pub fn send_net(
             }
         },
         None => {
-            warn!("Couldnt find handle entity!");
+            //warn!("Couldnt find handle entity!");
             return;
         }
     }
