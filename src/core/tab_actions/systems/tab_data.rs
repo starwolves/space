@@ -144,7 +144,7 @@ pub fn tab_data(
             Ok((pawn_c, pawn_c2, pawn_c3, pawn_c4, pawn_c5)) => {
                 player_pawn_component = pawn_c;
                 player_senser_component = pawn_c2;
-                player_body_position = pawn_c3.translation.into();
+                player_body_position = pawn_c3.translation;
                 player_inventory_component = pawn_c4;
                 data_link_component = pawn_c5;
             }

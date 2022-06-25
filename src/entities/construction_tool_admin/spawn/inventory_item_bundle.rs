@@ -54,7 +54,7 @@ impl InventoryItemSummonable for ConstructionToolSummoner {
 
         InventoryItemBundle {
             inventory_item: InventoryItem {
-                in_inventory_of_entity: spawn_data.held_data_option,
+                in_inventory_of_entity: spawn_data.holder_entity_option,
                 drop_transform: get_default_transform(),
                 active_slot_tab_actions: vec![
                     TabAction {
@@ -62,21 +62,21 @@ impl InventoryItemSummonable for ConstructionToolSummoner {
                         text: "Construct".to_string(),
                         tab_list_priority: 50,
                         prerequisite_check: Arc::new(construct_action),
-                        belonging_entity: spawn_data.held_data_option,
+                        belonging_entity: spawn_data.held_entity_option,
                     },
                     TabAction {
                         id: "action::construction_tool_admin/deconstruct".to_string(),
                         text: "Deconstruct".to_string(),
                         tab_list_priority: 49,
                         prerequisite_check: Arc::new(deconstruct_action),
-                        belonging_entity: spawn_data.held_data_option,
+                        belonging_entity: spawn_data.held_entity_option,
                     },
                     TabAction {
                         id: "action::construction_tool_admin/constructionoptions".to_string(),
                         text: "Construction Options".to_string(),
                         tab_list_priority: 48,
                         prerequisite_check: Arc::new(construction_option_action),
-                        belonging_entity: spawn_data.held_data_option,
+                        belonging_entity: spawn_data.held_entity_option,
                     },
                 ],
                 attachment_transforms: attachment_transforms.clone(),

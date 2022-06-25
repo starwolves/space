@@ -21,7 +21,6 @@ use crate::core::{
 pub struct Health {
     pub health_container: HealthContainer,
     pub health_flags: HashMap<u32, HealthFlag>,
-    pub raegent_container: RaegentContainer,
     pub hit_sound_surface: HitSoundSurface,
     pub is_combat_obstacle: bool,
     pub is_laser_obstacle: bool,
@@ -33,9 +32,6 @@ impl Default for Health {
         Self {
             health_container: HealthContainer::Entity(EntityContainer::default()),
             health_flags: HashMap::new(),
-            raegent_container: RaegentContainer {
-                raegents: HashMap::new(),
-            },
             hit_sound_surface: HitSoundSurface::Soft,
             is_combat_obstacle: false,
             is_laser_obstacle: true,
@@ -55,11 +51,6 @@ pub enum HealthFlag {
 pub enum HealthContainer {
     Humanoid(HumanoidHealth),
     Entity(EntityContainer),
-}
-
-#[allow(dead_code)]
-pub struct RaegentContainer {
-    raegents: HashMap<String, f32>,
 }
 
 #[allow(dead_code)]

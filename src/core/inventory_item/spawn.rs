@@ -45,7 +45,7 @@ pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>
             spawn_event.spawn_data.entity,
             InventoryBuilderData {
                 inventory_item: inventory_item_bundle.inventory_item,
-                holder_entity_option: spawn_event.spawn_data.held_data_option,
+                holder_entity_option: spawn_event.spawn_data.holder_entity_option,
             },
         );
     }

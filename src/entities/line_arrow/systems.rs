@@ -128,7 +128,7 @@ pub fn entity_console_commands(
                     entity_transform: passed_transform,
                     correct_transform: false,
                     pawn_data_option: None,
-                    held_data_option: None,
+                    holder_entity_option: None,
                     default_map_spawn: false,
                     properties,
                     showcase_data_option: None,

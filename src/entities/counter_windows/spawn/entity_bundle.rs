@@ -55,6 +55,7 @@ impl BaseEntitySummonable<NoEntityData> for CounterWindowSummoner {
                 + "]It is fully operational.[/color][/font]",
         );
         BaseEntityBundle {
+            entity_name: entity_name,
             default_transform: get_default_transform(),
             examinable: Examinable {
                 assigned_texts: examine_map,

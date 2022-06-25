@@ -17,8 +17,7 @@ use crate::core::{
     examinable::components::Examinable,
     health::components::Health,
     networking::resources::{EntityUpdateData, ReliableServerMessage},
-    physics::components::{WorldMode, WorldModes},
-    rigid_body::components::{CachedBroadcastTransform, RigidBodyDisabled},
+    rigid_body::components::CachedBroadcastTransform,
     sensable::components::Sensable,
     tab_actions::components::TabActions,
 };
@@ -50,7 +49,6 @@ impl Default for BaseEntityBundle {
 }
 
 pub struct BaseEntityData {
-    pub dynamicbody: bool,
     pub entity_type: String,
     pub examinable: Examinable,
     pub sensable: Sensable,
@@ -66,7 +64,6 @@ impl Default for BaseEntityData {
     fn default() -> Self {
         Self {
             entity_group: EntityGroup::None,
-            dynamicbody: true,
             entity_type: "".to_string(),
             examinable: Examinable::default(),
             sensable: Sensable::default(),
@@ -100,25 +97,6 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
             builder.insert(a);
         }
         None => {}
-    }
-
-    match data.is_item_in_storage {
-        true => {
-            builder.insert_bundle((
-                RigidBodyDisabled,
-                WorldMode {
-                    mode: WorldModes::Worn,
-                },
-            ));
-        }
-        false => match data.dynamicbody {
-            true => {
-                builder.insert(WorldMode {
-                    mode: WorldModes::Physics,
-                });
-            }
-            false => {}
-        },
     }
 }
 
@@ -191,7 +169,7 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 
                 entity_group: base_entity_bundle.entity_group,
                 tab_actions_option: base_entity_bundle.tab_actions_option,
                 default_map_spawn: base_entity_bundle.default_map_spawn,
-                is_item_in_storage: spawn_event.spawn_data.held_data_option.is_some(),
+                is_item_in_storage: spawn_event.spawn_data.holder_entity_option.is_some(),
                 ..Default::default()
             },
             spawn_event.spawn_data.entity,

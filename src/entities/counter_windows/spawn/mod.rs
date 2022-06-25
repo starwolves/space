@@ -98,7 +98,7 @@ pub fn summon_raw_counter_window(
 ) {
     for spawn_event in spawn_events.iter() {
         if spawn_event.raw_entity.entity_type != "securityCounterWindow"
-            || spawn_event.raw_entity.entity_type != "bridgeCounterWindow"
+            && spawn_event.raw_entity.entity_type != "bridgeCounterWindow"
         {
             continue;
         }

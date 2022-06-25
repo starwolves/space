@@ -8,7 +8,10 @@ use bevy_transform::prelude::Transform;
 
 use crate::core::{
     entity::{resources::SpawnData, spawn::SpawnEvent},
-    physics::functions::{get_bit_masks, ColliderGroup},
+    physics::{
+        components::{WorldMode, WorldModes},
+        functions::{get_bit_masks, ColliderGroup},
+    },
 };
 
 use super::components::{RigidBodyData, RigidBodyDisabled};
@@ -142,6 +145,25 @@ pub fn rigidbody_builder(
             child_builder.insert(ActiveEvents::COLLISION_EVENTS);
         }
     });
+
+    match rigidbody_spawn_data.entity_is_stored_item {
+        true => {
+            builder.insert_bundle((
+                RigidBodyDisabled,
+                WorldMode {
+                    mode: WorldModes::Worn,
+                },
+            ));
+        }
+        false => match rigidbody_spawn_data.rigidbody_dynamic {
+            true => {
+                builder.insert(WorldMode {
+                    mode: WorldModes::Physics,
+                });
+            }
+            false => {}
+        },
+    }
 }
 
 pub trait RigidBodySummonable {
@@ -160,7 +182,7 @@ pub fn summon_rigid_body<T: RigidBodySummonable + Send + Sync + 'static>(
             RigidBodySpawnData {
                 rigidbody_dynamic: rigidbody_bundle.rigidbody_dynamic,
                 rigid_transform: spawn_event.spawn_data.entity_transform,
-                entity_is_stored_item: spawn_event.spawn_data.held_data_option.is_some(),
+                entity_is_stored_item: spawn_event.spawn_data.holder_entity_option.is_some(),
                 collider: rigidbody_bundle.collider,
                 collider_transform: rigidbody_bundle.collider_transform,
                 collider_friction: rigidbody_bundle.collider_friction,
