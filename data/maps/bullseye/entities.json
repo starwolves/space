@@ -155,11 +155,6 @@
 		"data": ""
 	},
 	{
-		"entity_type": "airLock",
-		"transform": "1, 0, 0, 0, 1, 0, 0, 0, 1 - 13.65, 0.472762, 0",
-		"data": ""
-	},
-	{
 		"entity_type": "jumpsuitSecurity",
 		"transform": "-1, 0, 0, 0, 0, 1, 0, 1, -0 - 22.7321, 1.10095, 26.554899",
 		"data": ""
