@@ -3,14 +3,14 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
-    entity::resources::SpawnData,
+    entity::{resources::SpawnData, spawn::NoEntityData},
     rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable},
 };
 
 use super::{CounterWindowSummoner, COUNTER_WINDOW_COLLISION_Y};
 
-impl RigidBodySummonable for CounterWindowSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData) -> RigidBodyBundle {
+impl RigidBodySummonable<NoEntityData> for CounterWindowSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Average;
 

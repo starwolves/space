@@ -7,7 +7,10 @@ use bevy_rapier3d::prelude::{
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
-    entity::{resources::SpawnData, spawn::SpawnEvent},
+    entity::{
+        resources::SpawnData,
+        spawn::{NoEntityData, SpawnEvent},
+    },
     physics::{
         components::{WorldMode, WorldModes},
         functions::{get_bit_masks, ColliderGroup},
@@ -166,16 +169,18 @@ pub fn rigidbody_builder(
     }
 }
 
-pub trait RigidBodySummonable {
-    fn get_bundle(&self, spawn_data: &SpawnData) -> RigidBodyBundle;
+pub trait RigidBodySummonable<Y> {
+    fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> RigidBodyBundle;
 }
 
-pub fn summon_rigid_body<T: RigidBodySummonable + Send + Sync + 'static>(
+pub fn summon_rigid_body<T: RigidBodySummonable<NoEntityData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        let rigidbody_bundle = spawn_event.summoner.get_bundle(&spawn_event.spawn_data);
+        let rigidbody_bundle = spawn_event
+            .summoner
+            .get_bundle(&spawn_event.spawn_data, NoEntityData);
 
         rigidbody_builder(
             &mut commands,
