@@ -44,9 +44,23 @@ pub struct HumanMaleSummoner {
     pub user_name: String,
 }
 
-pub fn summon_human_male(
+impl HumanMaleSummonable for HumanMaleSummoner {
+    fn get_character_name(&self) -> String {
+        self.character_name.clone()
+    }
+    fn get_user_name(&self) -> String {
+        self.user_name.clone()
+    }
+}
+
+pub trait HumanMaleSummonable {
+    fn get_character_name(&self) -> String;
+    fn get_user_name(&self) -> String;
+}
+
+pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<HumanMaleSummoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
     mut default_spawner: EventWriter<DefaultSpawnEvent>,
     entity_data: ResMut<EntityDataResource>,
 ) {
@@ -68,7 +82,7 @@ pub fn summon_human_male(
 
         if spawn_event.spawn_data.showcase_data_option.is_none() {
             let mut pawn_component = Pawn {
-                name: spawn_event.summoner.character_name.clone(),
+                name: spawn_event.summoner.get_character_name().clone(),
                 job: ShipJobsEnum::Security,
                 ..Default::default()
             };
@@ -139,12 +153,12 @@ pub fn summon_human_male(
 
         spawner.insert_bundle((
             Humanoid {
-                character_name: spawn_event.summoner.character_name.clone(),
+                character_name: spawn_event.summoner.get_character_name().clone(),
                 ..Default::default()
             },
             PersistentPlayerData {
-                character_name: spawn_event.summoner.character_name.clone(),
-                user_name: spawn_event.summoner.user_name.clone(),
+                character_name: spawn_event.summoner.get_character_name().clone(),
+                user_name: spawn_event.summoner.get_user_name().clone(),
                 ..Default::default()
             },
             WorldMode {

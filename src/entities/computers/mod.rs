@@ -30,7 +30,7 @@ impl Plugin for ComputersPlugin {
         app.add_system(computer_added)
             .add_event::<SpawnEvent<ComputerSummoner>>()
             .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(summon_computer.after(SummoningLabels::TriggerSummon))
+            .add_system(summon_computer::<ComputerSummoner>.after(SummoningLabels::TriggerSummon))
             .add_system(
                 (summon_base_entity::<ComputerSummoner>).after(SummoningLabels::TriggerSummon),
             )

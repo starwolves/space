@@ -63,7 +63,7 @@ impl Plugin for AirLocksPlugin {
                     .after(PostUpdateLabels::VisibleChecker)
                     .label(PostUpdateLabels::Net),
             )
-            .add_system(summon_air_lock.after(SummoningLabels::TriggerSummon))
+            .add_system(summon_air_lock::<AirlockSummoner>.after(SummoningLabels::TriggerSummon))
             .add_system(
                 (summon_rigid_body::<AirlockSummoner>).after(SummoningLabels::TriggerSummon),
             )

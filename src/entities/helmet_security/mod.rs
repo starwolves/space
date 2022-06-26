@@ -25,7 +25,7 @@ pub struct HelmetsPlugin;
 impl Plugin for HelmetsPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system(summon_helmet.after(SummoningLabels::TriggerSummon))
+            .add_system(summon_helmet::<HelmetSummoner>.after(SummoningLabels::TriggerSummon))
             .add_system(
                 (summon_base_entity::<HelmetSummoner>).after(SummoningLabels::TriggerSummon),
             )

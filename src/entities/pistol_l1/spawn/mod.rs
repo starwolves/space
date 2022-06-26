@@ -23,9 +23,9 @@ use super::components::PistolL1;
 
 pub struct PistolL1Summoner;
 
-pub fn summon_pistol_l1(
+pub fn summon_pistol_l1<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<PistolL1Summoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands

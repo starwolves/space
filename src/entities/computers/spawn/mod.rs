@@ -28,15 +28,25 @@ pub struct ComputerSummoner {
     pub computer_type: String,
 }
 
-pub fn summon_computer(
+impl ComputerSummonable for ComputerSummoner {
+    fn get_computer_type(&self) -> String {
+        self.computer_type.clone()
+    }
+}
+
+pub trait ComputerSummonable {
+    fn get_computer_type(&self) -> String;
+}
+
+pub fn summon_computer<T: ComputerSummonable + Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<ComputerSummoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
             .entity(spawn_event.spawn_data.entity)
             .insert(Computer {
-                computer_type: spawn_event.summoner.computer_type.clone(),
+                computer_type: spawn_event.summoner.get_computer_type().clone(),
             });
     }
 }

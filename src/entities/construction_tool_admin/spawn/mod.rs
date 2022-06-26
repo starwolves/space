@@ -24,9 +24,9 @@ use crate::{
 
 pub struct ConstructionToolSummoner;
 
-pub fn summon_construction_tool(
+pub fn summon_construction_tool<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<ConstructionToolSummoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
