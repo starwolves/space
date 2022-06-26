@@ -40,7 +40,7 @@ pub fn summon_raw_pistol_l1(
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != "pistolL1" {
+        if spawn_event.raw_entity.entity_type != PISTOL_L1_ENTITY_NAME {
             continue;
         }
 
@@ -74,12 +74,14 @@ pub fn summon_raw_pistol_l1(
     }
 }
 
+pub const PISTOL_L1_ENTITY_NAME: &str = "pistolL1";
+
 pub fn default_summon_pistol_l1(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<PistolL1Summoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != "pistolL1" {
+        if spawn_event.spawn_data.entity_name != PISTOL_L1_ENTITY_NAME {
             continue;
         }
         spawner.send(SpawnEvent {

@@ -32,13 +32,15 @@ pub fn summon_jumpsuit(
     }
 }
 
+pub const JUMPSUIT_SECURITY_ENTITY_NAME: &str = "jumpsuitSecurity";
+
 pub fn summon_raw_jumpsuit(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<JumpsuitSummoner>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != "jumpsuitSecurity" {
+        if spawn_event.raw_entity.entity_type != JUMPSUIT_SECURITY_ENTITY_NAME {
             continue;
         }
 
@@ -77,7 +79,7 @@ pub fn default_summon_jumpsuit(
     mut spawner: EventWriter<SpawnEvent<JumpsuitSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != "jumpsuitSecurity" {
+        if spawn_event.spawn_data.entity_name != JUMPSUIT_SECURITY_ENTITY_NAME {
             continue;
         }
 

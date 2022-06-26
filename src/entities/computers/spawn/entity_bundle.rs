@@ -12,7 +12,7 @@ use crate::core::{
     health::components::Health,
 };
 
-use super::ComputerSummoner;
+use super::{ComputerSummoner, BRIDGE_COMPUTER_ENTITY_NAME};
 
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
@@ -39,7 +39,7 @@ impl BaseEntitySummonable<NoEntityData> for ComputerSummoner {
                 },
                 ..Default::default()
             },
-            entity_name: "bridgeComputer".to_string(),
+            entity_name: BRIDGE_COMPUTER_ENTITY_NAME.to_string(),
             health: Health {
                 is_combat_obstacle: true,
                 is_reach_obstacle: true,

@@ -22,7 +22,11 @@ use crate::{
         networking::resources::{EntityUpdateData, EntityWorldType, ReliableServerMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
-    entities::human_male::spawn::HumanMaleSummoner,
+    entities::{
+        human_male::spawn::{HumanMaleSummoner, HUMAN_MALE_ENTITY_NAME},
+        jumpsuit_security::spawn::JUMPSUIT_SECURITY_ENTITY_NAME,
+        pistol_l1::spawn::PISTOL_L1_ENTITY_NAME,
+    },
 };
 
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
@@ -68,8 +72,11 @@ pub fn on_setupui(
         });
 
         let passed_inventory_setup = vec![
-            ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
-            ("holster".to_string(), "pistolL1".to_string()),
+            (
+                "jumpsuit".to_string(),
+                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
+            ),
+            ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
         ];
 
         summon_human_male.send(SpawnEvent {
@@ -92,7 +99,7 @@ pub fn on_setupui(
                 showcase_data_option: Some(ShowcaseData {
                     handle: connected_player_component.handle,
                 }),
-                entity_name: "humanMale".to_string(),
+                entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             summoner: HumanMaleSummoner {

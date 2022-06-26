@@ -15,7 +15,7 @@ use crate::core::{PostUpdateLabels, StartupLabels, SummoningLabels};
 use self::events::{CounterWindowUnlock, NetCounterWindow};
 use self::spawn::{
     default_summon_counter_window, summon_counter_window, summon_raw_counter_window,
-    CounterWindowSummoner,
+    CounterWindowSummoner, BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME,
 };
 use self::systems::actions::actions;
 use self::systems::counter_window_added::counter_window_added;
@@ -85,7 +85,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
 
     let entity_properties = EntityDataProperties {
-        name: "securityCounterWindow".to_string(),
+        name: SECURITY_COUNTER_WINDOW_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: transform,
@@ -100,7 +100,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
 
     let entity_properties = EntityDataProperties {
-        name: "bridgeCounterWindow".to_string(),
+        name: BRIDGE_COUNTER_WINDOW_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: transform,

@@ -17,7 +17,10 @@ use crate::core::{
     sensable::components::Sensable,
 };
 
-use super::{components::PointArrow, spawn::LineArrowSummoner};
+use super::{
+    components::PointArrow,
+    spawn::{LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
+};
 
 pub fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
@@ -132,7 +135,7 @@ pub fn entity_console_commands(
                     default_map_spawn: false,
                     properties,
                     showcase_data_option: None,
-                    entity_name: "lineArrow".to_string(),
+                    entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
                     entity: commands.spawn().id(),
                     ..Default::default()
                 },

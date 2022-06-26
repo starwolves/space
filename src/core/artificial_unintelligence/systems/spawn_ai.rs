@@ -19,10 +19,10 @@ pub fn spawn_ai(mut commands: Commands, entity_data: ResMut<EntityDataResource>)
     let persistent_player_placeholder = PersistentPlayerData::default();
 
     let passed_inventory_setup = vec![
-        ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
-        ("helmet".to_string(), "helmetSecurity".to_string()),
-        ("holster".to_string(), "pistolL1".to_string()),
-        ("left_hand".to_string(), "constructionTool".to_string()),
+        ("jumpsuit".to_string(), JUMPSUIT_SECURITY_ENTITY_NAME.to_string()),
+        ("helmet".to_string(), HELMET_SECURITY_ENTITY_NAME.to_string()),
+        ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
+        ("left_hand".to_string(), CONSTRUCTION_TOOL_ENTITY_NAME.to_string()),
     ];
     HumanMaleBundle::spawn(
         Transform::from_translation(cell_id_to_world(Vec3Int { x: 0, y: -1, z: 0 })),

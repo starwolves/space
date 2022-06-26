@@ -19,7 +19,9 @@ use crate::{
     },
 };
 
-use super::CounterWindowSummoner;
+use super::{
+    CounterWindowSummoner, BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME,
+};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -30,9 +32,9 @@ impl BaseEntitySummonable<NoEntityData> for CounterWindowSummoner {
         let entity_name = spawn_data.entity_name.clone();
         let department_name;
 
-        if entity_name == "securityCounterWindow" {
+        if entity_name == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
             department_name = "security";
-        } else if entity_name == "bridgeCounterWindow" {
+        } else if entity_name == BRIDGE_COUNTER_WINDOW_ENTITY_NAME {
             department_name = "bridge";
         } else {
             warn!("Unrecognized counterwindow sub-type {}", entity_name);

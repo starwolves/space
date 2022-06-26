@@ -37,12 +37,14 @@ pub fn summon_line_arrow(
     }
 }
 
+pub const LINE_ARROW_ENTITY_NAME: &str = "lineArrow";
+
 pub fn default_line_arrow(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<LineArrowSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name == "lineArrow" {
+        if spawn_event.spawn_data.entity_name == LINE_ARROW_ENTITY_NAME {
             spawner.send(SpawnEvent {
                 spawn_data: spawn_event.spawn_data.clone(),
                 summoner: LineArrowSummoner { duration: 6000.0 },

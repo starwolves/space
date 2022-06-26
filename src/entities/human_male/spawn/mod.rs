@@ -273,13 +273,16 @@ pub fn summon_human_male(
     }
 }
 
+pub const HUMAN_DUMMY_ENTITY_NAME: &str = "humanDummy";
+pub const HUMAN_MALE_ENTITY_NAME: &str = "humanMale";
+
 pub fn default_human_dummy(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,
     mut used_names: ResMut<UsedNames>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name == "humanDummy" {
+        if spawn_event.spawn_data.entity_name == HUMAN_DUMMY_ENTITY_NAME {
             spawner.send(SpawnEvent {
                 spawn_data: spawn_event.spawn_data.clone(),
                 summoner: HumanMaleSummoner {

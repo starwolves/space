@@ -21,7 +21,13 @@ use crate::{
         networking::resources::{ReliableServerMessage, ServerConfigMessage},
         pawn::{components::PersistentPlayerData, resources::UsedNames},
     },
-    entities::human_male::spawn::HumanMaleSummoner,
+    entities::{
+        construction_tool_admin::spawn::CONSTRUCTION_TOOL_ENTITY_NAME,
+        helmet_security::spawn::HELMET_SECURITY_ENTITY_NAME,
+        human_male::spawn::{HumanMaleSummoner, HUMAN_MALE_ENTITY_NAME},
+        jumpsuit_security::spawn::JUMPSUIT_SECURITY_ENTITY_NAME,
+        pistol_l1::spawn::PISTOL_L1_ENTITY_NAME,
+    },
 };
 
 pub fn on_spawning(
@@ -40,10 +46,19 @@ pub fn on_spawning(
     ) in query.iter()
     {
         let passed_inventory_setup = vec![
-            ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
-            ("helmet".to_string(), "helmetSecurity".to_string()),
-            ("holster".to_string(), "pistolL1".to_string()),
-            ("left_hand".to_string(), "constructionTool".to_string()),
+            (
+                "jumpsuit".to_string(),
+                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
+            ),
+            (
+                "helmet".to_string(),
+                HELMET_SECURITY_ENTITY_NAME.to_string(),
+            ),
+            ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
+            (
+                "left_hand".to_string(),
+                CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
+            ),
         ];
 
         let new_entity = commands.spawn().id();
@@ -66,7 +81,7 @@ pub fn on_spawning(
                 default_map_spawn: false,
                 properties: HashMap::new(),
                 showcase_data_option: None,
-                entity_name: "humanMale".to_string(),
+                entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
 
                 ..Default::default()
             },

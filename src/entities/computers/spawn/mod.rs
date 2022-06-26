@@ -41,13 +41,15 @@ pub fn summon_computer(
     }
 }
 
+pub const BRIDGE_COMPUTER_ENTITY_NAME: &str = "bridgeComputer";
+
 pub fn summon_raw_computer(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<ComputerSummoner>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != "bridgeComputer" {
+        if spawn_event.raw_entity.entity_type != BRIDGE_COMPUTER_ENTITY_NAME {
             continue;
         }
 
@@ -104,7 +106,7 @@ pub fn default_summon_computer(
     mut spawner: EventWriter<SpawnEvent<ComputerSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != "bridgeComputer" {
+        if spawn_event.spawn_data.entity_name != BRIDGE_COMPUTER_ENTITY_NAME {
             continue;
         }
         spawner.send(SpawnEvent {

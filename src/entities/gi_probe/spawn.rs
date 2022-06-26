@@ -46,13 +46,15 @@ pub fn summon_gi_probe<T: GIProbeSummonable + Send + Sync + 'static>(
     }
 }
 
+pub const GI_PROBE_ENTITY_NAME: &str = "GIProbe";
+
 pub fn summon_raw_gi_probe(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_gi_probe: EventWriter<SpawnEvent<GIProbeSummoner>>,
     mut commands: Commands,
 ) {
     for event in spawn_events.iter() {
-        if event.raw_entity.entity_type == "GIProbe" {
+        if event.raw_entity.entity_type == GI_PROBE_ENTITY_NAME {
             let gi_probe_data: ExportData = serde_json::from_str(&event.raw_entity.data)
                 .expect("load_raw_map_entities.rs Error parsing entity raw GIProbe data.");
             let gi_probe_component = gi_probe_data.to_component();

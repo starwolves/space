@@ -14,6 +14,8 @@ use crate::{
     entities::pistol_l1::PistolL1Summoner,
 };
 
+use super::PISTOL_L1_ENTITY_NAME;
+
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -41,7 +43,7 @@ impl BaseEntitySummonable<NoEntityData> for PistolL1Summoner {
                 },
                 ..Default::default()
             },
-            entity_name: "pistolL1".to_string(),
+            entity_name: PISTOL_L1_ENTITY_NAME.to_string(),
 
             ..Default::default()
         }

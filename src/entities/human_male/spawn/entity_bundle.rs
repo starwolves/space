@@ -19,7 +19,7 @@ use crate::core::{
     pawn::resources::UsedNames,
 };
 
-use super::HumanMaleSummoner;
+use super::{HumanMaleSummoner, HUMAN_MALE_ENTITY_NAME};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -73,7 +73,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
                 },
                 ..Default::default()
             },
-            entity_name: "humanMale".to_string(),
+            entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
             ..Default::default()
         }
     }

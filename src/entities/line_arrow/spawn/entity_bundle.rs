@@ -10,7 +10,7 @@ use crate::core::{
     examinable::components::{Examinable, RichName},
 };
 
-use super::LineArrowSummoner;
+use super::{LineArrowSummoner, LINE_ARROW_ENTITY_NAME};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -34,7 +34,7 @@ impl BaseEntitySummonable<NoEntityData> for LineArrowSummoner {
                 },
                 ..Default::default()
             },
-            entity_name: "lineArrow".to_string(),
+            entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
             ..Default::default()
         }
     }
