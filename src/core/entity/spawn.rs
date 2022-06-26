@@ -1,3 +1,4 @@
+use bevy_log::info;
 use bevy_transform::prelude::Transform;
 use std::collections::HashMap;
 
@@ -8,7 +9,6 @@ use bevy_ecs::{
 };
 
 use crate::core::{
-    connected_player::systems::on_setupui::ENTITY_SPAWN_PARENT,
     entity::{
         components::{EntityData, EntityUpdates, Showcase},
         events::NetShowcase,
@@ -16,7 +16,7 @@ use crate::core::{
     },
     examinable::components::Examinable,
     health::components::Health,
-    networking::resources::{EntityUpdateData, ReliableServerMessage},
+    networking::resources::ReliableServerMessage,
     rigid_body::components::CachedBroadcastTransform,
     sensable::components::Sensable,
     tab_actions::components::TabActions,
@@ -57,7 +57,7 @@ pub struct BaseEntityData {
     pub entity_group: EntityGroup,
     pub tab_actions_option: Option<TabActions>,
     pub default_map_spawn: bool,
-    pub is_showcase: bool,
+    pub showcase_handle_option: Option<ShowcaseData>,
 }
 
 impl Default for BaseEntityData {
@@ -71,7 +71,7 @@ impl Default for BaseEntityData {
             is_item_in_storage: false,
             tab_actions_option: None,
             default_map_spawn: false,
-            is_showcase: false,
+            showcase_handle_option: None,
         }
     }
 }
@@ -88,8 +88,15 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
         CachedBroadcastTransform::default(),
     ));
 
-    if !data.is_showcase {
-        builder.insert_bundle((data.sensable, data.examinable, data.health));
+    match data.showcase_handle_option {
+        Some(showcase_data) => {
+            builder.insert(Showcase {
+                handle: showcase_data.handle,
+            });
+        }
+        None => {
+            builder.insert_bundle((data.sensable, data.examinable, data.health));
+        }
     }
 
     match data.tab_actions_option {
@@ -113,47 +120,10 @@ pub struct DefaultSpawnEvent {
     pub spawn_data: SpawnData,
 }
 
-#[derive(Default)]
-pub struct ShowCaseBuilderData {
-    pub entity_type: String,
-    pub entity_updates: HashMap<String, HashMap<String, EntityUpdateData>>,
-}
-
-pub fn showcase_builder(
-    commands: &mut Commands,
-    entity: Entity,
-    showcase_data_option: &mut Option<ShowcaseData>,
-    builder_data: ShowCaseBuilderData,
-    showcase_event: &mut EventWriter<NetShowcase>,
-) {
-    let mut builder = commands.entity(entity);
-
-    match showcase_data_option {
-        Some(handle) => {
-            builder.insert(Showcase {
-                handle: handle.handle,
-            });
-            showcase_event.send(NetShowcase {
-                handle: handle.handle,
-                message: ReliableServerMessage::LoadEntity(
-                    "entity".to_string(),
-                    builder_data.entity_type.to_string(),
-                    builder_data.entity_updates,
-                    entity.to_bits(),
-                    true,
-                    "main".to_string(),
-                    ENTITY_SPAWN_PARENT.to_string(),
-                    false,
-                ),
-            });
-        }
-        None => {}
-    }
-}
-
 pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
+    mut net_showcase: EventWriter<NetShowcase>,
 ) {
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event
@@ -163,7 +133,7 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 
         base_entity_builder(
             &mut commands,
             BaseEntityData {
-                entity_type: base_entity_bundle.entity_name,
+                entity_type: base_entity_bundle.entity_name.clone(),
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
@@ -174,6 +144,26 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 
             },
             spawn_event.spawn_data.entity,
         );
+
+        match &spawn_event.spawn_data.showcase_data_option {
+            Some(showcase_data) => {
+                info!("showcase: {}", base_entity_bundle.entity_name);
+                net_showcase.send(NetShowcase {
+                    handle: showcase_data.handle,
+                    message: ReliableServerMessage::LoadEntity(
+                        "entity".to_string(),
+                        base_entity_bundle.entity_name,
+                        HashMap::new(),
+                        spawn_event.spawn_data.entity.to_bits(),
+                        true,
+                        "main".to_string(),
+                        "".to_string(),
+                        false,
+                    ),
+                });
+            }
+            None => {}
+        }
     }
 }
 

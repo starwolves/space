@@ -41,7 +41,7 @@ use crate::core::{
 
 use super::functions::enable_rigidbody;
 
-pub fn drop_current_item<'a>(
+pub fn drop_current_item(
     mut drop_current_item_events: EventReader<InputDropCurrentItem>,
     mut rigidbody_positions: Query<&mut Transform>,
     mut inventory_entities: Query<(&mut Inventory, &Sensable, &Pawn)>,

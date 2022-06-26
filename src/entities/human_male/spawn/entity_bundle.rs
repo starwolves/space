@@ -1,19 +1,22 @@
 use bevy_ecs::{
-    event::EventReader,
+    event::{EventReader, EventWriter},
     system::{Commands, ResMut},
 };
+use bevy_log::info;
 use bevy_transform::prelude::Transform;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::core::{
     connected_player::functions::name_generator::get_dummy_name,
     entity::{
+        events::NetShowcase,
         resources::{PawnDesignation, SpawnData},
         spawn::{
             base_entity_builder, BaseEntityBundle, BaseEntityData, BaseEntitySummonable, SpawnEvent,
         },
     },
     examinable::components::{Examinable, RichName},
+    networking::resources::ReliableServerMessage,
     pawn::resources::UsedNames,
 };
 
@@ -83,6 +86,7 @@ pub fn summon_base_human_male<
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
     used_names: ResMut<UsedNames>,
+    mut net_showcase: EventWriter<NetShowcase>,
 ) {
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event.summoner.get_bundle(
@@ -95,16 +99,36 @@ pub fn summon_base_human_male<
         base_entity_builder(
             &mut commands,
             BaseEntityData {
-                entity_type: base_entity_bundle.entity_name,
+                entity_type: base_entity_bundle.entity_name.clone(),
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
                 tab_actions_option: base_entity_bundle.tab_actions_option,
                 default_map_spawn: base_entity_bundle.default_map_spawn,
-                is_showcase: spawn_event.spawn_data.showcase_data_option.is_some(),
+                showcase_handle_option: spawn_event.spawn_data.showcase_data_option.clone(),
                 ..Default::default()
             },
             spawn_event.spawn_data.entity,
         );
+
+        match &spawn_event.spawn_data.showcase_data_option {
+            Some(showcase_data) => {
+                info!("showcase: {}", base_entity_bundle.entity_name);
+                net_showcase.send(NetShowcase {
+                    handle: showcase_data.handle,
+                    message: ReliableServerMessage::LoadEntity(
+                        "entity".to_string(),
+                        base_entity_bundle.entity_name,
+                        HashMap::new(),
+                        spawn_event.spawn_data.entity.to_bits(),
+                        true,
+                        "main".to_string(),
+                        "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial".to_string(),
+                        false,
+                    ),
+                });
+            }
+            None => {}
+        }
     }
 }
