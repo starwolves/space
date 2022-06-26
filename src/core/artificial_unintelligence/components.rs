@@ -87,7 +87,7 @@ impl Path {
                             ConsoleCommandVariantValues::Int(30),
                         )]),
                         showcase_data_option: &mut None,
-                        entity_name: "lineArrow".to_string(),
+                        entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
                     });
                     waypoints_vec.push(Waypoint {
                         position: cell_id_to_world(cell_path[i]),
@@ -109,7 +109,7 @@ impl Path {
                             ConsoleCommandVariantValues::Int(30),
                         )]),
                         showcase_data_option: &mut None,
-                        entity_name: "lineArrow".to_string(),
+                        entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
                     });
                     waypoints_vec.push(Waypoint {
                         position: cell_id_to_world(cell_path[i]),

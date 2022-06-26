@@ -13,7 +13,7 @@ use crate::core::{
 
 use self::spawn::{
     default_human_dummy, entity_bundle::summon_base_human_male, summon_human_male,
-    HumanMaleSummoner,
+    HumanMaleSummoner, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
 };
 
 pub mod functions;
@@ -42,7 +42,7 @@ impl Plugin for HumanMalePlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "humanDummy".to_string(),
+        name: HUMAN_DUMMY_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };
@@ -50,7 +50,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     initialize_entity_data(&mut entity_data, entity_properties);
 
     let entity_properties = EntityDataProperties {
-        name: "humanMale".to_string(),
+        name: HUMAN_MALE_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

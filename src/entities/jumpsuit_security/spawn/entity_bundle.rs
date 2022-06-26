@@ -11,7 +11,7 @@ use crate::core::{
     examinable::components::{Examinable, RichName},
 };
 
-use super::JumpsuitSummoner;
+use super::{JumpsuitSummoner, JUMPSUIT_SECURITY_ENTITY_NAME};
 
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
@@ -40,7 +40,7 @@ impl BaseEntitySummonable<NoEntityData> for JumpsuitSummoner {
                 },
                 ..Default::default()
             },
-            entity_name: "jumpsuitSecurity".to_string(),
+            entity_name: JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
 
             ..Default::default()
         }

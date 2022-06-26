@@ -13,7 +13,7 @@ use crate::core::{
 };
 
 use self::{
-    spawn::{default_line_arrow, summon_line_arrow, LineArrowSummoner},
+    spawn::{default_line_arrow, summon_line_arrow, LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
     systems::{entity_console_commands, point_arrow},
 };
 
@@ -67,7 +67,7 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "lineArrow".to_string(),
+        name: LINE_ARROW_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

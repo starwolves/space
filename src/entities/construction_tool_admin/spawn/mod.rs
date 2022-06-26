@@ -35,13 +35,15 @@ pub fn summon_construction_tool(
     }
 }
 
+pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
+
 pub fn summon_raw_construction_tool(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<ConstructionToolSummoner>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != "constructionTool" {
+        if spawn_event.raw_entity.entity_type != CONSTRUCTION_TOOL_ENTITY_NAME {
             continue;
         }
 
@@ -80,7 +82,7 @@ pub fn default_summon_construction_tool(
     mut spawner: EventWriter<SpawnEvent<ConstructionToolSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != "constructionTool" {
+        if spawn_event.spawn_data.entity_name != CONSTRUCTION_TOOL_ENTITY_NAME {
             continue;
         }
         spawner.send(SpawnEvent {

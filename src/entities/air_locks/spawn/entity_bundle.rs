@@ -20,7 +20,10 @@ use crate::{
     },
 };
 
-use super::AirlockSummoner;
+use super::{
+    AirlockSummoner, BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME,
+    SECURITY_AIRLOCK_ENTITY_NAME, VACUUM_AIRLOCK_ENTITY_NAME,
+};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -31,23 +34,23 @@ impl BaseEntitySummonable<NoEntityData> for AirlockSummoner {
         let description;
         let sub_name;
 
-        if spawn_data.entity_name == "securityAirLock1" {
+        if spawn_data.entity_name == SECURITY_AIRLOCK_ENTITY_NAME {
             sub_name = "security";
             description = "An air lock with ".to_string()
                 + "security"
                 + " department colors. It will only grant access to security personnel.";
-        } else if spawn_data.entity_name == "bridgeAirLock" {
+        } else if spawn_data.entity_name == BRIDGE_AIRLOCK_ENTITY_NAME {
             sub_name = "bridge";
             description = "An air lock with ".to_string()
                 + "bridge"
                 + " department colors. It will only grant access to high ranked personnel.";
-        } else if spawn_data.entity_name == "governmentAirLock" {
+        } else if spawn_data.entity_name == GOVERNMENT_AIRLOCK_ENTITY_NAME {
             sub_name = "government";
 
             description = "An air lock with ".to_string()
                 + "government"
                 + " department colors. It will only grant access to a select few.";
-        } else if spawn_data.entity_name == "vacuumAirLock" {
+        } else if spawn_data.entity_name == VACUUM_AIRLOCK_ENTITY_NAME {
             sub_name = "vacuum";
             description = "An air lock with ".to_string()
                 + "danger markings"

@@ -23,6 +23,8 @@ use super::{
 
 pub struct OmniLightBundle;
 
+pub const OMNI_LIGHT_ENTITY_NAME: &str = "omni_light";
+
 impl OmniLightBundle {
     pub fn spawn(
         entity_transform: Transform,
@@ -40,7 +42,7 @@ impl OmniLightBundle {
             },
             static_transform_component,
             EntityData {
-                entity_class: "omni_light".to_string(),
+                entity_class: OMNI_LIGHT_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),
@@ -80,7 +82,7 @@ impl OmniLightSummonable for OmniLightSummoner {
             },
             spawn_data.entity_transform,
             EntityData {
-                entity_class: "omni_light".to_string(),
+                entity_class: OMNI_LIGHT_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),

@@ -20,7 +20,7 @@ use self::{
     },
     spawn::{
         default_summon_construction_tool, summon_construction_tool, summon_raw_construction_tool,
-        ConstructionToolSummoner,
+        ConstructionToolSummoner, CONSTRUCTION_TOOL_ENTITY_NAME,
     },
     systems::construction_tool,
 };
@@ -76,7 +76,7 @@ use bevy_app::CoreStage::PostUpdate;
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "constructionTool".to_string(),
+        name: CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

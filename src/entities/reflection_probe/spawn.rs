@@ -24,13 +24,15 @@ pub trait ReflectionProbeSummonable {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
 }
 
+pub const REFLECTION_PROBE_ENTITY_NAME: &str = "reflection_probe";
+
 impl ReflectionProbeSummonable for ReflectionProbeSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
         commands.spawn_bundle((
             self.probe.clone(),
             spawn_data.entity_transform,
             EntityData {
-                entity_class: "reflection_probe".to_string(),
+                entity_class: REFLECTION_PROBE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),

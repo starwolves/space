@@ -12,7 +12,10 @@ use crate::core::{
 };
 
 use self::{
-    spawn::{default_summon_computer, summon_computer, summon_raw_computer, ComputerSummoner},
+    spawn::{
+        default_summon_computer, summon_computer, summon_raw_computer, ComputerSummoner,
+        BRIDGE_COMPUTER_ENTITY_NAME,
+    },
     systems::computer_added,
 };
 
@@ -41,7 +44,7 @@ impl Plugin for ComputersPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "bridgeComputer".to_string(),
+        name: BRIDGE_COMPUTER_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

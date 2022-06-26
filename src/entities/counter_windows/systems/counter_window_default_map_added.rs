@@ -18,7 +18,10 @@ use crate::{
         },
         map::resources::{MapData, GREEN_MAP_TILE_COUNTER},
     },
-    entities::counter_windows::components::CounterWindow,
+    entities::counter_windows::{
+        components::CounterWindow,
+        spawn::{BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME},
+    },
 };
 
 pub fn counter_window_default_map_added(
@@ -58,7 +61,7 @@ pub fn counter_window_default_map_added(
             },
         );
 
-        if entity_data_component.entity_name == "securityCounterWindow" {
+        if entity_data_component.entity_name == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "security counter window".to_string(),
                 n: false,
@@ -75,7 +78,7 @@ pub fn counter_window_default_map_added(
                     + "]It is fully operational.[/color][/font]",
             );
             examinable_component.assigned_texts = examine_map;
-        } else if entity_data_component.entity_name == "bridgeCounterWindow" {
+        } else if entity_data_component.entity_name == BRIDGE_COUNTER_WINDOW_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "bridge counter window".to_string(),
                 n: false,

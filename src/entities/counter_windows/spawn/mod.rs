@@ -91,14 +91,17 @@ pub fn summon_counter_window(
     }
 }
 
+pub const SECURITY_COUNTER_WINDOW_ENTITY_NAME: &str = "securityCounterWindow";
+pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str = "bridgeCounterWindow";
+
 pub fn summon_raw_counter_window(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<CounterWindowSummoner>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != "securityCounterWindow"
-            && spawn_event.raw_entity.entity_type != "bridgeCounterWindow"
+        if spawn_event.raw_entity.entity_type != SECURITY_COUNTER_WINDOW_ENTITY_NAME
+            && spawn_event.raw_entity.entity_type != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
         {
             continue;
         }
@@ -138,8 +141,8 @@ pub fn default_summon_counter_window(
     mut spawner: EventWriter<SpawnEvent<CounterWindowSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != "securityCounterWindow"
-            || spawn_event.spawn_data.entity_name != "bridgeCounterWindow"
+        if spawn_event.spawn_data.entity_name != SECURITY_COUNTER_WINDOW_ENTITY_NAME
+            || spawn_event.spawn_data.entity_name != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
         {
             continue;
         }

@@ -15,7 +15,12 @@ use crate::{
         examinable::components::{Examinable, RichName},
         gridmap::{functions::gridmap_functions::world_to_cell_id, resources::Vec2Int},
     },
-    entities::air_locks::components::AirLock,
+    entities::air_locks::{
+        components::AirLock,
+        spawn::{
+            BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, VACUUM_AIRLOCK_ENTITY_NAME,
+        },
+    },
 };
 
 pub fn air_lock_added(
@@ -45,7 +50,7 @@ pub fn air_lock_added(
 
         atmospherics.blocked = true;
 
-        if entity_data_component.entity_name == "bridgeAirLock" {
+        if entity_data_component.entity_name == BRIDGE_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "bridge airlock".to_string(),
                 n: false,
@@ -66,7 +71,7 @@ pub fn air_lock_added(
                     + "]It is fully operational.[/color][/font]",
             );
             examinable_component.assigned_texts = examine_map;
-        } else if entity_data_component.entity_name == "governmentAirLock" {
+        } else if entity_data_component.entity_name == GOVERNMENT_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "government airlock".to_string(),
                 n: false,
@@ -106,7 +111,7 @@ pub fn air_lock_added(
                     + HEALTHY_COLOR
                     + "]It is fully operational.[/color][/font]",
             );
-        } else if entity_data_component.entity_name == "vacuumAirlock" {
+        } else if entity_data_component.entity_name == VACUUM_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "vacuum airlock".to_string(),
                 n: false,

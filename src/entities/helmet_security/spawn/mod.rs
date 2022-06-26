@@ -40,7 +40,7 @@ pub fn summon_raw_helmet(
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != "helmetSecurity" {
+        if spawn_event.raw_entity.entity_type != HELMET_SECURITY_ENTITY_NAME {
             continue;
         }
 
@@ -74,12 +74,14 @@ pub fn summon_raw_helmet(
     }
 }
 
+pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
+
 pub fn default_summon_helmet_security(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<HelmetSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != "helmetSecurity" {
+        if spawn_event.spawn_data.entity_name != HELMET_SECURITY_ENTITY_NAME {
             continue;
         }
         spawner.send(SpawnEvent {

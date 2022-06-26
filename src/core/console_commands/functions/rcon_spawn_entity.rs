@@ -8,24 +8,31 @@ use bevy_ecs::{
 use bevy_log::warn;
 use bevy_transform::prelude::Transform;
 
-use crate::core::{
-    connected_player::{
-        functions::player_selector_to_entities::player_selector_to_entities,
-        resources::HandleToEntity,
-    },
-    console_commands::events::NetConsoleCommands,
-    entity::{
-        functions::spawn_entity::spawn_entity, resources::EntityDataResource,
-        spawn::DefaultSpawnEvent,
-    },
-    gridmap::resources::GridmapMain,
-    networking::resources::ReliableServerMessage,
-    pawn::{
-        components::{Pawn, PersistentPlayerData},
-        functions::{
-            entity_spawn_position_for_player::entity_spawn_position_for_player, CONSOLE_ERROR_COLOR,
+use crate::{
+    core::{
+        connected_player::{
+            functions::player_selector_to_entities::player_selector_to_entities,
+            resources::HandleToEntity,
         },
-        resources::UsedNames,
+        console_commands::events::NetConsoleCommands,
+        entity::{
+            functions::spawn_entity::spawn_entity, resources::EntityDataResource,
+            spawn::DefaultSpawnEvent,
+        },
+        gridmap::resources::GridmapMain,
+        networking::resources::ReliableServerMessage,
+        pawn::{
+            components::{Pawn, PersistentPlayerData},
+            functions::{
+                entity_spawn_position_for_player::entity_spawn_position_for_player,
+                CONSOLE_ERROR_COLOR,
+            },
+            resources::UsedNames,
+        },
+    },
+    entities::{
+        helmet_security::spawn::HELMET_SECURITY_ENTITY_NAME,
+        jumpsuit_security::spawn::JUMPSUIT_SECURITY_ENTITY_NAME,
     },
 };
 
@@ -117,8 +124,14 @@ pub fn rcon_spawn_entity(
         let mut final_result = None;
 
         let passed_inventory_setup = vec![
-            ("jumpsuit".to_string(), "jumpsuitSecurity".to_string()),
-            ("helmet".to_string(), "helmetSecurity".to_string()),
+            (
+                "jumpsuit".to_string(),
+                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
+            ),
+            (
+                "helmet".to_string(),
+                HELMET_SECURITY_ENTITY_NAME.to_string(),
+            ),
         ];
 
         let persistent_player_data_component = PersistentPlayerData {

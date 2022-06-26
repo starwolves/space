@@ -14,6 +14,7 @@ use crate::core::{
 
 use self::spawn::{
     default_summon_jumpsuit, summon_jumpsuit, summon_raw_jumpsuit, JumpsuitSummoner,
+    JUMPSUIT_SECURITY_ENTITY_NAME,
 };
 
 pub mod components;
@@ -42,7 +43,7 @@ impl Plugin for JumpsuitsPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "jumpsuitSecurity".to_string(),
+        name: JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

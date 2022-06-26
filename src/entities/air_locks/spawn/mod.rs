@@ -39,15 +39,20 @@ pub fn summon_air_lock(
     }
 }
 
+pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = "securityAirLock1";
+pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = "bridgeAirLock";
+pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = "governmentAirLock";
+pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = "vacuumAirLock";
+
 pub fn default_summon_air_lock(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<AirlockSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != "securityAirLock1"
-            || spawn_event.spawn_data.entity_name != "bridgeAirLock"
-            || spawn_event.spawn_data.entity_name != "governmentAirLock"
-            || spawn_event.spawn_data.entity_name != "vacuumAirLock"
+        if spawn_event.spawn_data.entity_name != SECURITY_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_name != BRIDGE_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_name != GOVERNMENT_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_name != VACUUM_AIRLOCK_ENTITY_NAME
         {
             continue;
         }
@@ -65,10 +70,10 @@ pub fn summon_raw_air_lock(
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != "securityAirLock1"
-            && spawn_event.raw_entity.entity_type != "bridgeAirLock"
-            && spawn_event.raw_entity.entity_type != "governmentAirLock"
-            && spawn_event.raw_entity.entity_type != "vacuumAirLock"
+        if spawn_event.raw_entity.entity_type != SECURITY_AIRLOCK_ENTITY_NAME
+            && spawn_event.raw_entity.entity_type != BRIDGE_AIRLOCK_ENTITY_NAME
+            && spawn_event.raw_entity.entity_type != GOVERNMENT_AIRLOCK_ENTITY_NAME
+            && spawn_event.raw_entity.entity_type != VACUUM_AIRLOCK_ENTITY_NAME
         {
             continue;
         }

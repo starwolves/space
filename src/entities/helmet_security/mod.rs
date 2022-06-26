@@ -14,6 +14,7 @@ use crate::core::{
 
 use self::spawn::{
     default_summon_helmet_security, summon_helmet, summon_raw_helmet, HelmetSummoner,
+    HELMET_SECURITY_ENTITY_NAME,
 };
 
 pub mod components;
@@ -40,7 +41,7 @@ impl Plugin for HelmetsPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "helmetSecurity".to_string(),
+        name: HELMET_SECURITY_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

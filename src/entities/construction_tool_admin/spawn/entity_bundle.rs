@@ -10,7 +10,7 @@ use crate::core::{
     examinable::components::{Examinable, RichName},
 };
 
-use super::ConstructionToolSummoner;
+use super::{ConstructionToolSummoner, CONSTRUCTION_TOOL_ENTITY_NAME};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -35,7 +35,7 @@ impl BaseEntitySummonable<NoEntityData> for ConstructionToolSummoner {
                 },
                 ..Default::default()
             },
-            entity_name: "constructionTool".to_string(),
+            entity_name: CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
             ..Default::default()
         }
     }

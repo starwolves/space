@@ -12,7 +12,11 @@ use crate::core::tab_actions::TabActionsQueueLabels;
 use crate::core::{PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use self::events::{air_locks_actions, AirLockUnlock, NetAirLock};
-use self::spawn::{default_summon_air_lock, summon_air_lock, summon_raw_air_lock, AirlockSummoner};
+use self::spawn::{
+    default_summon_air_lock, summon_air_lock, summon_raw_air_lock, AirlockSummoner,
+    BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, SECURITY_AIRLOCK_ENTITY_NAME,
+    VACUUM_AIRLOCK_ENTITY_NAME,
+};
 use self::systems::air_lock_added::air_lock_added;
 use self::systems::air_lock_default_map_added::air_lock_default_map_added;
 use self::systems::air_lock_events::air_lock_events;
@@ -73,7 +77,7 @@ impl Plugin for AirLocksPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "securityAirLock1".to_string(),
+        name: SECURITY_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
@@ -84,7 +88,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     initialize_entity_data(&mut entity_data, entity_properties);
 
     let entity_properties = EntityDataProperties {
-        name: "vacuumAirLock".to_string(),
+        name: VACUUM_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
@@ -95,7 +99,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     initialize_entity_data(&mut entity_data, entity_properties);
 
     let entity_properties = EntityDataProperties {
-        name: "governmentAirLock".to_string(),
+        name: GOVERNMENT_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),
@@ -106,7 +110,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     initialize_entity_data(&mut entity_data, entity_properties);
 
     let entity_properties = EntityDataProperties {
-        name: "bridgeAirLock".to_string(),
+        name: BRIDGE_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: Transform::identity(),

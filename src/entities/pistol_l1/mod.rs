@@ -14,6 +14,7 @@ use crate::core::{
 
 use self::spawn::{
     default_summon_pistol_l1, summon_pistol_l1, summon_raw_pistol_l1, PistolL1Summoner,
+    PISTOL_L1_ENTITY_NAME,
 };
 
 pub mod components;
@@ -42,7 +43,7 @@ impl Plugin for PistolL1Plugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: "pistolL1".to_string(),
+        name: PISTOL_L1_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         ..Default::default()
     };
