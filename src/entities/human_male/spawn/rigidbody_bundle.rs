@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
-    entity::resources::SpawnData,
+    entity::{resources::SpawnData, spawn::NoEntityData},
     rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable},
 };
 
@@ -11,8 +11,8 @@ use super::{HumanMaleSummoner, CHARACTER_FLOOR_FRICTION};
 
 pub const R: f32 = 0.5;
 
-impl RigidBodySummonable for HumanMaleSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData) -> RigidBodyBundle {
+impl RigidBodySummonable<NoEntityData> for HumanMaleSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(CHARACTER_FLOOR_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Min;
 
