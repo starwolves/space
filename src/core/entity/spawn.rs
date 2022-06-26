@@ -1,4 +1,3 @@
-use bevy_log::info;
 use bevy_transform::prelude::Transform;
 use std::collections::HashMap;
 
@@ -147,7 +146,6 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 
 
         match &spawn_event.spawn_data.showcase_data_option {
             Some(showcase_data) => {
-                info!("showcase: {}", base_entity_bundle.entity_name);
                 net_showcase.send(NetShowcase {
                     handle: showcase_data.handle,
                     message: ReliableServerMessage::LoadEntity(

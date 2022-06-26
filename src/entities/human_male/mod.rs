@@ -11,7 +11,10 @@ use crate::core::{
     StartupLabels, SummoningLabels,
 };
 
-use self::spawn::{entity_bundle::summon_base_human_male, summon_human_male, HumanMaleSummoner};
+use self::spawn::{
+    default_human_dummy, entity_bundle::summon_base_human_male, summon_human_male,
+    HumanMaleSummoner,
+};
 
 pub mod functions;
 pub mod spawn;
@@ -32,7 +35,8 @@ impl Plugin for HumanMalePlugin {
             .add_event::<SpawnEvent<HumanMaleSummoner>>()
             .add_system(
                 (summon_rigid_body::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
-            );
+            )
+            .add_system((default_human_dummy).after(SummoningLabels::DefaultSummon));
     }
 }
 
