@@ -34,7 +34,7 @@ use crate::core::{
 
 use super::functions::disable_rigidbody;
 
-pub fn pickup_world_item<'a>(
+pub fn pickup_world_item(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
     mut inventory_entities: Query<&mut Inventory>,
     mut inventory_items_query: Query<&mut InventoryItem>,
