@@ -25,9 +25,9 @@ use super::components::AirLock;
 
 pub struct AirlockSummoner;
 
-pub fn summon_air_lock(
+pub fn summon_air_lock<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut airlock_spawns: EventReader<SpawnEvent<AirlockSummoner>>,
+    mut airlock_spawns: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in airlock_spawns.iter() {
         commands

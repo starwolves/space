@@ -21,9 +21,9 @@ use bevy_ecs::{
 
 pub struct JumpsuitSummoner;
 
-pub fn summon_jumpsuit(
+pub fn summon_jumpsuit<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<JumpsuitSummoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands

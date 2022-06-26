@@ -34,7 +34,7 @@ impl Plugin for PistolL1Plugin {
             .add_system(
                 (summon_inventory_item::<PistolL1Summoner>).after(SummoningLabels::TriggerSummon),
             )
-            .add_system(summon_pistol_l1.after(SummoningLabels::TriggerSummon))
+            .add_system(summon_pistol_l1::<PistolL1Summoner>.after(SummoningLabels::TriggerSummon))
             .add_system((summon_raw_pistol_l1).after(SummoningLabels::TriggerSummon))
             .add_event::<SpawnEvent<PistolL1Summoner>>()
             .add_system((default_summon_pistol_l1).after(SummoningLabels::DefaultSummon));

@@ -17,8 +17,6 @@ use self::{
     systems::{entity_console_commands, point_arrow},
 };
 
-use super::jumpsuit_security::spawn::summon_jumpsuit;
-
 pub mod components;
 pub mod spawn;
 pub mod systems;
@@ -34,9 +32,8 @@ impl Plugin for LineArrowPlugin {
         )
         .add_system(entity_console_commands.label(SummoningLabels::TriggerSummon))
         .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-        .add_system(summon_jumpsuit.after(SummoningLabels::TriggerSummon))
         .add_system((summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon))
-        .add_system(summon_line_arrow.after(SummoningLabels::TriggerSummon))
+        .add_system(summon_line_arrow::<LineArrowSummoner>.after(SummoningLabels::TriggerSummon))
         .add_event::<SpawnEvent<LineArrowSummoner>>()
         .add_system((default_line_arrow).after(SummoningLabels::DefaultSummon));
     }

@@ -17,9 +17,19 @@ pub struct LineArrowSummoner {
     pub duration: f32,
 }
 
-pub fn summon_line_arrow(
+impl LinerArrowSummonable for LineArrowSummoner {
+    fn get_duration(&self) -> f32 {
+        self.duration
+    }
+}
+
+pub trait LinerArrowSummonable {
+    fn get_duration(&self) -> f32;
+}
+
+pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<LineArrowSummoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
@@ -28,7 +38,7 @@ pub fn summon_line_arrow(
                 spawn_event.spawn_data.entity_transform,
                 LineArrow,
                 PointArrow {
-                    timer: Timer::from_seconds(spawn_event.summoner.duration, false),
+                    timer: Timer::from_seconds(spawn_event.summoner.get_duration(), false),
                 },
                 WorldMode {
                     mode: WorldModes::Static,

@@ -66,7 +66,10 @@ impl Plugin for CounterWindowsPlugin {
                     .after(PostUpdateLabels::VisibleChecker)
                     .label(PostUpdateLabels::Net),
             )
-            .add_system(summon_counter_window.after(SummoningLabels::TriggerSummon))
+            .add_system(
+                summon_counter_window::<CounterWindowSummoner>
+                    .after(SummoningLabels::TriggerSummon),
+            )
             .add_system(
                 (summon_base_entity::<CounterWindowSummoner>).after(SummoningLabels::TriggerSummon),
             )

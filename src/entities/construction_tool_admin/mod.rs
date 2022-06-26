@@ -53,7 +53,10 @@ impl Plugin for ConstructionToolAdminPlugin {
                     .after(PostUpdateLabels::VisibleChecker)
                     .label(PostUpdateLabels::Net),
             )
-            .add_system(summon_construction_tool.after(SummoningLabels::TriggerSummon))
+            .add_system(
+                summon_construction_tool::<ConstructionToolSummoner>
+                    .after(SummoningLabels::TriggerSummon),
+            )
             .add_system(
                 (summon_base_entity::<ConstructionToolSummoner>)
                     .after(SummoningLabels::TriggerSummon),

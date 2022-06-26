@@ -25,7 +25,7 @@ pub struct JumpsuitsPlugin;
 impl Plugin for JumpsuitsPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system(summon_jumpsuit.after(SummoningLabels::TriggerSummon))
+            .add_system(summon_jumpsuit::<JumpsuitSummoner>.after(SummoningLabels::TriggerSummon))
             .add_system(
                 (summon_base_entity::<JumpsuitSummoner>).after(SummoningLabels::TriggerSummon),
             )

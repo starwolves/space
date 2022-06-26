@@ -23,9 +23,9 @@ pub mod rigidbody_bundle;
 
 pub struct HelmetSummoner;
 
-pub fn summon_helmet(
+pub fn summon_helmet<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<HelmetSummoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands

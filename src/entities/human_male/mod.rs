@@ -25,7 +25,7 @@ impl Plugin for HumanMalePlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(
-                summon_human_male
+                summon_human_male::<HumanMaleSummoner>
                     .before(SummoningLabels::TriggerSummon)
                     .label(SummoningLabels::DefaultSummon),
             )

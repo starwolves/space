@@ -35,9 +35,9 @@ pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
 pub struct CounterWindowSummoner;
 
-pub fn summon_counter_window(
+pub fn summon_counter_window<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<CounterWindowSummoner>>,
+    mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
