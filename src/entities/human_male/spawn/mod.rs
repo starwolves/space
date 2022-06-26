@@ -13,6 +13,7 @@ use bevy_transform::prelude::Transform;
 
 use crate::core::{
     chat::components::{Radio, RadioChannel},
+    connected_player::functions::name_generator::get_dummy_name,
     data_link::components::{DataLink, DataLinkType},
     entity::{
         functions::spawn_entity::spawn_held_entity,
@@ -22,9 +23,12 @@ use crate::core::{
     humanoid::components::Humanoid,
     inventory::components::{Inventory, Slot, SlotType},
     map::components::Map,
-    pawn::components::{
-        ControllerInput, Pawn, PersistentPlayerData, ShipAuthorization, ShipAuthorizationEnum,
-        ShipJobsEnum,
+    pawn::{
+        components::{
+            ControllerInput, Pawn, PersistentPlayerData, ShipAuthorization, ShipAuthorizationEnum,
+            ShipJobsEnum,
+        },
+        resources::UsedNames,
     },
     physics::components::{WorldMode, WorldModes},
     senser::components::Senser,
@@ -266,5 +270,23 @@ pub fn summon_human_male(
             active_slot: "left_hand".to_string(),
             ..Default::default()
         });
+    }
+}
+
+pub fn default_human_dummy(
+    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,
+    mut used_names: ResMut<UsedNames>,
+) {
+    for spawn_event in default_spawner.iter() {
+        if spawn_event.spawn_data.entity_name == "humanDummy" {
+            spawner.send(SpawnEvent {
+                spawn_data: spawn_event.spawn_data.clone(),
+                summoner: HumanMaleSummoner {
+                    character_name: get_dummy_name(&mut used_names),
+                    user_name: "DUMMY_USER_NAME".to_string(),
+                },
+            });
+        }
     }
 }
