@@ -69,7 +69,6 @@ pub fn spawn_raw_reflection_probe(
             summon_reflection_probe.send(SpawnEvent {
                 spawn_data: SpawnData {
                     entity_transform: entity_transform,
-                    correct_transform: true,
                     default_map_spawn: true,
                     entity_name: event.raw_entity.entity_type.clone(),
                     entity: commands.spawn().id(),

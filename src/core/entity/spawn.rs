@@ -8,6 +8,7 @@ use bevy_ecs::{
 };
 
 use crate::core::{
+    connected_player::systems::on_setupui::ENTITY_SPAWN_PARENT,
     entity::{
         components::{EntityData, EntityUpdates, Showcase},
         events::NetShowcase,
@@ -18,7 +19,7 @@ use crate::core::{
     networking::resources::ReliableServerMessage,
     rigid_body::components::CachedBroadcastTransform,
     sensable::components::Sensable,
-    tab_actions::components::TabActions, connected_player::systems::on_setupui::ENTITY_SPAWN_PARENT,
+    tab_actions::components::TabActions,
 };
 
 use super::{components::EntityGroup, resources::SpawnData};

@@ -1052,14 +1052,8 @@ pub fn construction_tool(
                 default_spawner.send(DefaultSpawnEvent {
                     spawn_data: SpawnData {
                         entity_transform: spawn_transform,
-                        correct_transform: true,
-                        holder_entity_option: None,
-                        default_map_spawn: false,
-                        properties: HashMap::new(),
-                        showcase_data_option: None,
                         entity_name: construction_entity_name.to_string(),
                         entity: new_entity,
-
                         ..Default::default()
                     },
                 });

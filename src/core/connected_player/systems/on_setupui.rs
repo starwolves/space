@@ -1,12 +1,5 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{
-    event::EventWriter,
-    prelude::Added,
-    system::{Commands, Query, Res},
-};
-use bevy_transform::components::Transform;
-
 use crate::{
     core::{
         configuration::resources::{ServerId, MOTD},
@@ -27,6 +20,11 @@ use crate::{
         jumpsuit_security::spawn::JUMPSUIT_SECURITY_ENTITY_NAME,
         pistol_l1::spawn::PISTOL_L1_ENTITY_NAME,
     },
+};
+use bevy_ecs::{
+    event::EventWriter,
+    prelude::Added,
+    system::{Commands, Query, Res},
 };
 
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
@@ -82,11 +80,6 @@ pub fn on_setupui(
         summon_human_male.send(SpawnEvent {
             spawn_data: SpawnData {
                 entity: commands.spawn().id(),
-                entity_transform: Transform::identity(),
-                correct_transform: true,
-                holder_entity_option: None,
-                default_map_spawn: false,
-                properties: HashMap::new(),
                 showcase_data_option: Some(ShowcaseData {
                     handle: connected_player_component.handle,
                 }),

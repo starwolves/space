@@ -6,7 +6,7 @@ use serde::Deserialize;
 use crate::core::networking::resources::ConsoleCommandVariantValues;
 
 #[derive(Deserialize)]
-pub struct Property {
+pub struct ExportProperty {
     pub value_type: i64,
     pub value: String,
     pub key: String,
@@ -14,7 +14,7 @@ pub struct Property {
 
 #[derive(Deserialize)]
 pub struct ExportDataRaw {
-    pub properties: Vec<Property>,
+    pub properties: Vec<ExportProperty>,
 }
 
 pub struct ExportData {

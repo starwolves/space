@@ -6,7 +6,9 @@ use bevy_transform::prelude::Transform;
 use std::collections::{BTreeMap, HashMap};
 
 use crate::core::{
-    connected_player::{functions::name_generator::get_dummy_name, systems::on_setupui::ENTITY_SPAWN_PARENT},
+    connected_player::{
+        functions::name_generator::get_dummy_name, systems::on_setupui::ENTITY_SPAWN_PARENT,
+    },
     entity::{
         events::NetShowcase,
         resources::{PawnDesignation, SpawnData},

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use bevy_ecs::{
     entity::Entity,
     event::EventWriter,
@@ -126,7 +124,7 @@ pub fn rcon_spawn_entity(
                 true,
                 entity_data,
                 None,
-                HashMap::new(),
+                None,
                 None,
                 default_spawner,
             );

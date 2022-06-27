@@ -64,7 +64,6 @@ pub fn summon_raw_gi_probe(
             summon_gi_probe.send(SpawnEvent {
                 spawn_data: SpawnData {
                     entity_transform: entity_transform,
-                    correct_transform: true,
                     default_map_spawn: true,
                     entity_name: event.raw_entity.entity_type.clone(),
                     entity: commands.spawn().id(),
