@@ -6,7 +6,7 @@ use bevy_transform::prelude::Transform;
 use crate::core::{
     entity::{
         resources::SpawnData,
-        spawn::{BaseEntityBundle, BaseEntitySummonable, NoEntityData},
+        spawn::{BaseEntityBundle, BaseEntitySummonable, NoData},
     },
     examinable::components::{Examinable, RichName},
 };
@@ -21,8 +21,8 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
-impl BaseEntitySummonable<NoEntityData> for JumpsuitSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> BaseEntityBundle {
+impl BaseEntitySummonable<NoData> for JumpsuitSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,

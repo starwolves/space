@@ -9,11 +9,10 @@ use bevy_transform::components::Transform;
 
 use crate::core::{
     entity::{
-        resources::{EntityDataResource, PawnDesignation, ShowcaseData, SpawnData, SpawnPawnData},
+        resources::{EntityDataResource, ShowcaseData, SpawnData},
         spawn::DefaultSpawnEvent,
     },
     networking::resources::ConsoleCommandVariantValues,
-    pawn::components::PersistentPlayerData,
 };
 
 pub fn spawn_entity(
@@ -23,7 +22,6 @@ pub fn spawn_entity(
     correct_transform: bool,
     entity_data: &ResMut<EntityDataResource>,
     held_data_option: Option<Entity>,
-    pawn_data_option: Option<(Vec<(String, String)>, PersistentPlayerData)>,
     properties: HashMap<String, ConsoleCommandVariantValues>,
     showcase_handle_option: Option<ShowcaseData>,
     default_spawner: &mut EventWriter<DefaultSpawnEvent>,
@@ -44,45 +42,20 @@ pub fn spawn_entity(
             }
             return_entity = Some(commands.spawn().id());
 
-            match pawn_data_option {
-                Some(data) => {
-                    let pawn = Some(SpawnPawnData {
-                        data: (data.1, None, data.0, PawnDesignation::Dummy, None),
-                    });
-                    default_spawner.send(DefaultSpawnEvent {
-                        spawn_data: SpawnData {
-                            entity_transform: transform,
-                            correct_transform,
-                            pawn_data_option: pawn,
-                            holder_entity_option: held,
-                            default_map_spawn: false,
-                            properties: properties,
-                            showcase_data_option: showcase_handle_option,
-                            entity_name,
-                            entity: return_entity.unwrap(),
+            default_spawner.send(DefaultSpawnEvent {
+                spawn_data: SpawnData {
+                    entity_transform: transform,
+                    correct_transform,
+                    holder_entity_option: held,
+                    default_map_spawn: false,
+                    properties: properties,
+                    showcase_data_option: showcase_handle_option,
+                    entity_name,
+                    entity: return_entity.unwrap(),
 
-                            ..Default::default()
-                        },
-                    });
-                }
-                None => {
-                    default_spawner.send(DefaultSpawnEvent {
-                        spawn_data: SpawnData {
-                            entity_transform: transform,
-                            correct_transform,
-                            pawn_data_option: None,
-                            holder_entity_option: held,
-                            default_map_spawn: false,
-                            properties: properties,
-                            showcase_data_option: showcase_handle_option,
-                            entity_name,
-                            entity: return_entity.unwrap(),
-
-                            ..Default::default()
-                        },
-                    });
-                }
-            }
+                    ..Default::default()
+                },
+            });
         }
         None => {
             return_entity = None;
@@ -119,7 +92,6 @@ pub fn spawn_held_entity(
                 spawn_data: SpawnData {
                     entity_transform: Transform::identity(),
                     correct_transform: false,
-                    pawn_data_option: None,
                     holder_entity_option: Some(holder_entity),
                     default_map_spawn: false,
                     properties: map,

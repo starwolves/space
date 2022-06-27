@@ -32,20 +32,12 @@ pub struct HumanMaleSummonData {
 impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
     fn get_bundle(
         &self,
-        spawn_data: &SpawnData,
+        _spawn_data: &SpawnData,
         mut entity_data: HumanMaleSummonData,
     ) -> BaseEntityBundle {
-        let (
-            persistent_player_data_component,
-            _connected_player_component,
-            _passed_inventory_setup,
-            pawn_designation,
-            _default_user_name_option,
-        ) = spawn_data.pawn_data_option.clone().unwrap().data;
-
         let character_name;
 
-        match pawn_designation {
+        match self.spawn_pawn_data.designation {
             PawnDesignation::Dummy => {
                 character_name = get_dummy_name(&mut entity_data.used_names);
             }
@@ -53,7 +45,11 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
                 character_name = "Ai".to_string();
             }
             _ => {
-                character_name = persistent_player_data_component.character_name.clone();
+                character_name = self
+                    .spawn_pawn_data
+                    .persistent_player_data
+                    .character_name
+                    .clone();
             }
         }
 

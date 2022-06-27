@@ -6,7 +6,7 @@ use bevy_transform::prelude::Transform;
 use crate::core::{
     entity::{
         resources::SpawnData,
-        spawn::{BaseEntityBundle, BaseEntitySummonable, NoEntityData},
+        spawn::{BaseEntityBundle, BaseEntitySummonable, NoData},
     },
     examinable::components::{Examinable, RichName},
     health::components::Health,
@@ -22,8 +22,8 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
-impl BaseEntitySummonable<NoEntityData> for ComputerSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> BaseEntityBundle {
+impl BaseEntitySummonable<NoData> for ComputerSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text = "A computer used by bridge personnel.".to_string();
         let mut examine_map = BTreeMap::new();
         examine_map.insert(0, template_examine_text);

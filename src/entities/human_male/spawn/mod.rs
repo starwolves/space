@@ -11,28 +11,34 @@ use bevy_ecs::{
 use bevy_rapier3d::prelude::{Dominance, LockedAxes};
 use bevy_transform::prelude::Transform;
 
-use crate::core::{
-    chat::components::{Radio, RadioChannel},
-    connected_player::functions::name_generator::get_dummy_name,
-    data_link::components::{DataLink, DataLinkType},
-    entity::{
-        functions::spawn_entity::spawn_held_entity,
-        resources::{EntityDataResource, PawnDesignation},
-        spawn::{DefaultSpawnEvent, SpawnEvent},
-    },
-    humanoid::components::Humanoid,
-    inventory::components::{Inventory, Slot, SlotType},
-    map::components::Map,
-    pawn::{
-        components::{
-            ControllerInput, Pawn, PersistentPlayerData, ShipAuthorization, ShipAuthorizationEnum,
-            ShipJobsEnum,
+use crate::{
+    core::{
+        chat::components::{Radio, RadioChannel},
+        connected_player::functions::name_generator::get_dummy_name,
+        data_link::components::{DataLink, DataLinkType},
+        entity::{
+            functions::spawn_entity::spawn_held_entity,
+            resources::{EntityDataResource, PawnDesignation, SpawnPawnData},
+            spawn::{DefaultSpawnEvent, SpawnEvent},
         },
-        resources::UsedNames,
+        humanoid::components::Humanoid,
+        inventory::components::{Inventory, Slot, SlotType},
+        map::components::Map,
+        pawn::{
+            components::{
+                ControllerInput, Pawn, PersistentPlayerData, ShipAuthorization,
+                ShipAuthorizationEnum, ShipJobsEnum,
+            },
+            resources::UsedNames,
+        },
+        physics::components::{WorldMode, WorldModes},
+        senser::components::Senser,
+        tab_actions::functions::get_tab_action,
     },
-    physics::components::{WorldMode, WorldModes},
-    senser::components::Senser,
-    tab_actions::functions::get_tab_action,
+    entities::{
+        helmet_security::spawn::HELMET_SECURITY_ENTITY_NAME,
+        jumpsuit_security::spawn::JUMPSUIT_SECURITY_ENTITY_NAME,
+    },
 };
 
 use self::rigidbody_bundle::R;
@@ -42,6 +48,7 @@ pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
 pub struct HumanMaleSummoner {
     pub character_name: String,
     pub user_name: String,
+    pub spawn_pawn_data: SpawnPawnData,
 }
 
 impl HumanMaleSummonable for HumanMaleSummoner {
@@ -51,11 +58,15 @@ impl HumanMaleSummonable for HumanMaleSummoner {
     fn get_user_name(&self) -> String {
         self.user_name.clone()
     }
+    fn get_spawn_pawn_data(&self) -> SpawnPawnData {
+        self.spawn_pawn_data.clone()
+    }
 }
 
 pub trait HumanMaleSummonable {
     fn get_character_name(&self) -> String;
     fn get_user_name(&self) -> String;
+    fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
 
 pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
@@ -67,18 +78,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     for spawn_event in spawn_events.iter() {
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
-        let (
-            _persistent_player_data_component,
-            connected_player_component,
-            passed_inventory_setup,
-            pawn_designation,
-            _default_user_name_option,
-        ) = spawn_event
-            .spawn_data
-            .pawn_data_option
-            .clone()
-            .unwrap()
-            .data;
+        let spawn_pawn_data = spawn_event.summoner.get_spawn_pawn_data();
 
         if spawn_event.spawn_data.showcase_data_option.is_none() {
             let mut pawn_component = Pawn {
@@ -116,10 +116,10 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
                 ControllerInput::default(),
             ));
 
-            match pawn_designation {
+            match spawn_pawn_data.designation {
                 PawnDesignation::Player => {
                     spawner.insert_bundle((
-                        connected_player_component.unwrap(),
+                        spawn_pawn_data.connected_player_option.unwrap(),
                         DataLink {
                             links: vec![
                                 DataLinkType::FullAtmospherics,
@@ -172,7 +172,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
 
         let mut slot_entities: HashMap<String, Entity> = HashMap::new();
 
-        for (slot_name, item_name) in passed_inventory_setup.iter() {
+        for (slot_name, item_name) in spawn_pawn_data.inventory_setup.iter() {
             let entity_option;
 
             entity_option = spawn_held_entity(
@@ -302,6 +302,21 @@ pub fn default_human_dummy(
                 summoner: HumanMaleSummoner {
                     character_name: get_dummy_name(&mut used_names),
                     user_name: "DUMMY_USER_NAME".to_string(),
+                    spawn_pawn_data: SpawnPawnData {
+                        persistent_player_data: PersistentPlayerData::default(),
+                        connected_player_option: None,
+                        inventory_setup: vec![
+                            (
+                                "jumpsuit".to_string(),
+                                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
+                            ),
+                            (
+                                "helmet".to_string(),
+                                HELMET_SECURITY_ENTITY_NAME.to_string(),
+                            ),
+                        ],
+                        designation: PawnDesignation::Dummy,
+                    },
                 },
             });
         }

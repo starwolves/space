@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
-    entity::{resources::SpawnData, spawn::NoEntityData},
+    entity::{resources::SpawnData, spawn::NoData},
     rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable},
 };
 
@@ -11,8 +11,8 @@ use super::AirlockSummoner;
 
 pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
 
-impl RigidBodySummonable<NoEntityData> for AirlockSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> RigidBodyBundle {
+impl RigidBodySummonable<NoData> for AirlockSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 

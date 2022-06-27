@@ -34,13 +34,10 @@ pub enum PawnDesignation {
 
 #[derive(Clone)]
 pub struct SpawnPawnData {
-    pub data: (
-        PersistentPlayerData,
-        Option<ConnectedPlayer>,
-        Vec<(String, String)>,
-        PawnDesignation,
-        Option<String>,
-    ),
+    pub persistent_player_data: PersistentPlayerData,
+    pub connected_player_option: Option<ConnectedPlayer>,
+    pub inventory_setup: Vec<(String, String)>,
+    pub designation: PawnDesignation,
 }
 
 pub struct EntityDataProperties {
@@ -73,7 +70,6 @@ pub struct ShowcaseData {
 pub struct SpawnData {
     pub entity_transform: Transform,
     pub correct_transform: bool,
-    pub pawn_data_option: Option<SpawnPawnData>,
     pub holder_entity_option: Option<Entity>,
     pub held_entity_option: Option<Entity>,
     pub default_map_spawn: bool,
@@ -88,7 +84,6 @@ impl Default for SpawnData {
         Self {
             entity_transform: Transform::identity(),
             correct_transform: true,
-            pawn_data_option: None,
             held_entity_option: None,
             holder_entity_option: None,
             default_map_spawn: false,
