@@ -80,11 +80,15 @@ pub fn rigidbody_builder(
     commands: &mut Commands,
     rigidbody_spawn_data: RigidBodySpawnData,
     entity: Entity,
+    is_showcase: bool,
 ) {
     let rigidbody;
     let masks;
 
-    if rigidbody_spawn_data.rigidbody_dynamic {
+    if is_showcase {
+        rigidbody = RigidBody::Fixed;
+        masks = get_bit_masks(ColliderGroup::NoCollision);
+    } else if rigidbody_spawn_data.rigidbody_dynamic {
         rigidbody = RigidBody::Dynamic;
         match rigidbody_spawn_data.entity_is_stored_item {
             true => {
@@ -195,6 +199,7 @@ pub fn summon_rigid_body<T: RigidBodySummonable<NoData> + Send + Sync + 'static>
                 ..Default::default()
             },
             spawn_event.spawn_data.entity,
+            spawn_event.spawn_data.showcase_data_option.is_some(),
         );
     }
 }

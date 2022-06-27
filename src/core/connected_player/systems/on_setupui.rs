@@ -77,9 +77,11 @@ pub fn on_setupui(
             ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
         ];
 
+        let human_male_entity = commands.spawn().id();
+
         summon_human_male.send(SpawnEvent {
             spawn_data: SpawnData {
-                entity: commands.spawn().id(),
+                entity: human_male_entity,
                 showcase_data_option: Some(ShowcaseData {
                     handle: connected_player_component.handle,
                 }),
