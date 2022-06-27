@@ -1053,7 +1053,6 @@ pub fn construction_tool(
                     spawn_data: SpawnData {
                         entity_transform: spawn_transform,
                         correct_transform: true,
-                        pawn_data_option: None,
                         holder_entity_option: None,
                         default_map_spawn: false,
                         properties: HashMap::new(),

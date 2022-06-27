@@ -9,7 +9,7 @@ use crate::{
         entity::{
             components::EntityGroup,
             resources::SpawnData,
-            spawn::{BaseEntityBundle, BaseEntitySummonable, NoEntityData},
+            spawn::{BaseEntityBundle, BaseEntitySummonable, NoData},
         },
         examinable::components::{Examinable, RichName},
         health::components::Health,
@@ -29,8 +29,8 @@ pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
-impl BaseEntitySummonable<NoEntityData> for AirlockSummoner {
-    fn get_bundle(&self, spawn_data: &SpawnData, _entity_data: NoEntityData) -> BaseEntityBundle {
+impl BaseEntitySummonable<NoData> for AirlockSummoner {
+    fn get_bundle(&self, spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let description;
         let sub_name;
 

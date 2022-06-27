@@ -8,7 +8,7 @@ use crate::{
         chat::functions::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
         entity::{
             resources::SpawnData,
-            spawn::{BaseEntityBundle, BaseEntitySummonable, NoEntityData},
+            spawn::{BaseEntityBundle, BaseEntitySummonable, NoData},
         },
         examinable::components::{Examinable, RichName},
         health::components::Health,
@@ -27,8 +27,8 @@ pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
-impl BaseEntitySummonable<NoEntityData> for CounterWindowSummoner {
-    fn get_bundle(&self, spawn_data: &SpawnData, _entity_data: NoEntityData) -> BaseEntityBundle {
+impl BaseEntitySummonable<NoData> for CounterWindowSummoner {
+    fn get_bundle(&self, spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let entity_name = spawn_data.entity_name.clone();
         let department_name;
 

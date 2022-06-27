@@ -84,15 +84,6 @@ pub fn on_setupui(
                 entity: commands.spawn().id(),
                 entity_transform: Transform::identity(),
                 correct_transform: true,
-                pawn_data_option: Some(SpawnPawnData {
-                    data: (
-                        persistent_player_data_component.clone(),
-                        Some(connected_player_component.clone()),
-                        passed_inventory_setup,
-                        PawnDesignation::Showcase,
-                        None,
-                    ),
-                }),
                 holder_entity_option: None,
                 default_map_spawn: false,
                 properties: HashMap::new(),
@@ -105,6 +96,12 @@ pub fn on_setupui(
             summoner: HumanMaleSummoner {
                 character_name: persistent_player_data_component.character_name.clone(),
                 user_name: persistent_player_data_component.user_name.clone(),
+                spawn_pawn_data: SpawnPawnData {
+                    persistent_player_data: persistent_player_data_component.clone(),
+                    connected_player_option: Some(connected_player_component.clone()),
+                    inventory_setup: passed_inventory_setup,
+                    designation: PawnDesignation::Showcase,
+                },
             },
         });
     }

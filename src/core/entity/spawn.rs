@@ -119,7 +119,7 @@ pub struct DefaultSpawnEvent {
     pub spawn_data: SpawnData,
 }
 
-pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 'static>(
+pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
     mut net_showcase: EventWriter<NetShowcase>,
@@ -127,7 +127,7 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event
             .summoner
-            .get_bundle(&spawn_event.spawn_data, NoEntityData);
+            .get_bundle(&spawn_event.spawn_data, NoData);
 
         base_entity_builder(
             &mut commands,
@@ -165,4 +165,4 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoEntityData> + Send + Sync + 
     }
 }
 
-pub struct NoEntityData;
+pub struct NoData;

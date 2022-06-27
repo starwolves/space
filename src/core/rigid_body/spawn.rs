@@ -9,7 +9,7 @@ use bevy_transform::prelude::Transform;
 use crate::core::{
     entity::{
         resources::SpawnData,
-        spawn::{NoEntityData, SpawnEvent},
+        spawn::{NoData, SpawnEvent},
     },
     physics::{
         components::{WorldMode, WorldModes},
@@ -173,14 +173,14 @@ pub trait RigidBodySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> RigidBodyBundle;
 }
 
-pub fn summon_rigid_body<T: RigidBodySummonable<NoEntityData> + Send + Sync + 'static>(
+pub fn summon_rigid_body<T: RigidBodySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
         let rigidbody_bundle = spawn_event
             .summoner
-            .get_bundle(&spawn_event.spawn_data, NoEntityData);
+            .get_bundle(&spawn_event.spawn_data, NoData);
 
         rigidbody_builder(
             &mut commands,

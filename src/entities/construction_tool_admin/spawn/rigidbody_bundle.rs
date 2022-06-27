@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
-    entity::{resources::SpawnData, spawn::NoEntityData},
+    entity::{resources::SpawnData, spawn::NoData},
     rigid_body::{
         components::STANDARD_BODY_FRICTION,
         spawn::{RigidBodyBundle, RigidBodySummonable},
@@ -12,8 +12,8 @@ use crate::core::{
 
 use super::ConstructionToolSummoner;
 
-impl RigidBodySummonable<NoEntityData> for ConstructionToolSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> RigidBodyBundle {
+impl RigidBodySummonable<NoData> for ConstructionToolSummoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 

@@ -8,31 +8,24 @@ use bevy_ecs::{
 use bevy_log::warn;
 use bevy_transform::prelude::Transform;
 
-use crate::{
-    core::{
-        connected_player::{
-            functions::player_selector_to_entities::player_selector_to_entities,
-            resources::HandleToEntity,
-        },
-        console_commands::events::NetConsoleCommands,
-        entity::{
-            functions::spawn_entity::spawn_entity, resources::EntityDataResource,
-            spawn::DefaultSpawnEvent,
-        },
-        gridmap::resources::GridmapMain,
-        networking::resources::ReliableServerMessage,
-        pawn::{
-            components::{Pawn, PersistentPlayerData},
-            functions::{
-                entity_spawn_position_for_player::entity_spawn_position_for_player,
-                CONSOLE_ERROR_COLOR,
-            },
-            resources::UsedNames,
-        },
+use crate::core::{
+    connected_player::{
+        functions::player_selector_to_entities::player_selector_to_entities,
+        resources::HandleToEntity,
     },
-    entities::{
-        helmet_security::spawn::HELMET_SECURITY_ENTITY_NAME,
-        jumpsuit_security::spawn::JUMPSUIT_SECURITY_ENTITY_NAME,
+    console_commands::events::NetConsoleCommands,
+    entity::{
+        functions::spawn_entity::spawn_entity, resources::EntityDataResource,
+        spawn::DefaultSpawnEvent,
+    },
+    gridmap::resources::GridmapMain,
+    networking::resources::ReliableServerMessage,
+    pawn::{
+        components::Pawn,
+        functions::{
+            entity_spawn_position_for_player::entity_spawn_position_for_player, CONSOLE_ERROR_COLOR,
+        },
+        resources::UsedNames,
     },
 };
 
@@ -123,23 +116,6 @@ pub fn rcon_spawn_entity(
 
         let mut final_result = None;
 
-        let passed_inventory_setup = vec![
-            (
-                "jumpsuit".to_string(),
-                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
-            ),
-            (
-                "helmet".to_string(),
-                HELMET_SECURITY_ENTITY_NAME.to_string(),
-            ),
-        ];
-
-        let persistent_player_data_component = PersistentPlayerData {
-            character_name: "".to_string(),
-            user_name: "unknownSpawnEntityAssigned".to_string(),
-            ..Default::default()
-        };
-
         let mut individual_transform = spawn_position.0.clone();
 
         for _i in 0..spawn_amount {
@@ -150,10 +126,6 @@ pub fn rcon_spawn_entity(
                 true,
                 entity_data,
                 None,
-                Some((
-                    passed_inventory_setup.clone(),
-                    persistent_player_data_component.clone(),
-                )),
                 HashMap::new(),
                 None,
                 default_spawner,

@@ -4,7 +4,7 @@ use bevy_transform::prelude::Transform;
 
 use crate::{
     core::{
-        entity::{resources::SpawnData, spawn::NoEntityData},
+        entity::{resources::SpawnData, spawn::NoData},
         rigid_body::{
             components::STANDARD_BODY_FRICTION,
             spawn::{RigidBodyBundle, RigidBodySummonable},
@@ -13,8 +13,8 @@ use crate::{
     entities::pistol_l1::PistolL1Summoner,
 };
 
-impl RigidBodySummonable<NoEntityData> for PistolL1Summoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoEntityData) -> RigidBodyBundle {
+impl RigidBodySummonable<NoData> for PistolL1Summoner {
+    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 
