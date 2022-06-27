@@ -6,7 +6,7 @@ use bevy_transform::prelude::Transform;
 use std::collections::{BTreeMap, HashMap};
 
 use crate::core::{
-    connected_player::functions::name_generator::get_dummy_name,
+    connected_player::{functions::name_generator::get_dummy_name, systems::on_setupui::ENTITY_SPAWN_PARENT},
     entity::{
         events::NetShowcase,
         resources::{PawnDesignation, SpawnData},
@@ -117,7 +117,7 @@ pub fn summon_base_human_male<
                         spawn_event.spawn_data.entity.to_bits(),
                         true,
                         "main".to_string(),
-                        "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial".to_string(),
+                        ENTITY_SPAWN_PARENT.to_string(),
                         false,
                     ),
                 });
