@@ -18,7 +18,7 @@ use crate::core::{
     networking::resources::ReliableServerMessage,
     rigid_body::components::CachedBroadcastTransform,
     sensable::components::Sensable,
-    tab_actions::components::TabActions,
+    tab_actions::components::TabActions, connected_player::systems::on_setupui::ENTITY_SPAWN_PARENT,
 };
 
 use super::{components::EntityGroup, resources::SpawnData};
@@ -155,7 +155,7 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
                         spawn_event.spawn_data.entity.to_bits(),
                         true,
                         "main".to_string(),
-                        "".to_string(),
+                        ENTITY_SPAWN_PARENT.to_string(),
                         false,
                     ),
                 });
