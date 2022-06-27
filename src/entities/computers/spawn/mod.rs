@@ -1,22 +1,17 @@
-use std::collections::HashMap;
-
 use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::Commands,
 };
 use bevy_log::warn;
 
-use crate::core::{
-    entity::{
-        events::RawSpawnEvent,
-        functions::{
-            process_entities_json_data::{ExportData, ExportDataRaw},
-            string_to_type_converters::string_transform_to_transform,
-        },
-        resources::SpawnData,
-        spawn::{DefaultSpawnEvent, SpawnEvent},
+use crate::core::entity::{
+    events::RawSpawnEvent,
+    functions::{
+        process_entities_json_data::ExportProperty,
+        string_to_type_converters::string_transform_to_transform,
     },
-    networking::resources::ConsoleCommandVariantValues,
+    resources::SpawnData,
+    spawn::{DefaultSpawnEvent, SpawnEvent},
 };
 
 pub mod entity_bundle;
@@ -65,48 +60,43 @@ pub fn summon_raw_computer(
 
         let entity_transform = string_transform_to_transform(&spawn_event.raw_entity.transform);
 
-        let data;
+        let data_result: Result<Vec<ExportProperty>, _> =
+            serde_json::from_str(&spawn_event.raw_entity.data);
 
-        if &spawn_event.raw_entity.data != "" {
-            let raw_export_data: ExportDataRaw = ExportDataRaw {
-                properties: serde_json::from_str(&spawn_event.raw_entity.data)
-                    .expect("load_raw_map_entities.rs Error parsing standard entity data."),
-            };
+        let mut computer_name = "".to_string();
 
-            data = ExportData::new(raw_export_data).properties;
-        } else {
-            data = HashMap::new();
-        }
-
-        let computer_type;
-
-        match data.get("computerType") {
-            Some(x) => match x {
-                ConsoleCommandVariantValues::String(s) => {
-                    computer_type = s.to_string();
+        match data_result {
+            Ok(ds) => {
+                for d in ds {
+                    if d.key == "computerType" {
+                        if d.value_type == 4 {
+                            computer_name = d.value;
+                        } else {
+                            warn!("Entity from entities.json had unknown type!");
+                            continue;
+                        }
+                    }
                 }
-                _ => {
-                    warn!("computerType had incorrect variable type!");
-                    computer_type = "".to_string();
-                }
-            },
-            None => {
-                warn!("computerType not found.");
-                computer_type = "".to_string();
+            }
+            Err(_rr) => {
+                warn!("Invalid json!");
+                warn!("{}", spawn_event.raw_entity.data);
+                continue;
             }
         }
 
         summon_computer.send(SpawnEvent {
             spawn_data: SpawnData {
                 entity_transform: entity_transform,
-                correct_transform: true,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
                 entity: commands.spawn().id(),
-                properties: data,
+                raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: ComputerSummoner { computer_type },
+            summoner: ComputerSummoner {
+                computer_type: computer_name,
+            },
         });
     }
 }

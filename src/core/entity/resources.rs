@@ -4,9 +4,10 @@ use bevy_ecs::entity::Entity;
 use bevy_transform::components::Transform;
 
 use crate::core::{
-    connected_player::components::ConnectedPlayer,
-    networking::resources::ConsoleCommandVariantValues, pawn::components::PersistentPlayerData,
+    connected_player::components::ConnectedPlayer, pawn::components::PersistentPlayerData,
 };
+
+use super::functions::raw_entity::RawEntity;
 
 #[derive(Default)]
 pub struct EntityDataResource {
@@ -73,7 +74,7 @@ pub struct SpawnData {
     pub holder_entity_option: Option<Entity>,
     pub held_entity_option: Option<Entity>,
     pub default_map_spawn: bool,
-    pub properties: HashMap<String, ConsoleCommandVariantValues>,
+    pub raw_entity_option: Option<RawEntity>,
     pub showcase_data_option: Option<ShowcaseData>,
     pub entity_name: String,
     pub entity: Entity,
@@ -87,7 +88,7 @@ impl Default for SpawnData {
             held_entity_option: None,
             holder_entity_option: None,
             default_map_spawn: false,
-            properties: HashMap::default(),
+            raw_entity_option: None,
             showcase_data_option: None,
             entity_name: "".to_string(),
             entity: Entity::from_bits(0),

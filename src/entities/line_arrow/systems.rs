@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use bevy_core::Time;
 use bevy_ecs::{
     entity::Entity,
@@ -115,12 +113,6 @@ pub fn entity_console_commands(
                 }
             }
 
-            let mut properties = HashMap::new();
-            properties.insert(
-                "duration".to_string(),
-                ConsoleCommandVariantValues::Int(duration),
-            );
-
             let translation = Vec3::new(x, y, z);
 
             let mut passed_transform = Transform::identity();
@@ -130,10 +122,6 @@ pub fn entity_console_commands(
                 spawn_data: SpawnData {
                     entity_transform: passed_transform,
                     correct_transform: false,
-                    holder_entity_option: None,
-                    default_map_spawn: false,
-                    properties,
-                    showcase_data_option: None,
                     entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
                     entity: commands.spawn().id(),
                     ..Default::default()

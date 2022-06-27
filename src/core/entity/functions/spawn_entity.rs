@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use bevy_ecs::{
     entity::Entity,
     event::EventWriter,
@@ -7,13 +5,12 @@ use bevy_ecs::{
 };
 use bevy_transform::components::Transform;
 
-use crate::core::{
-    entity::{
-        resources::{EntityDataResource, ShowcaseData, SpawnData},
-        spawn::DefaultSpawnEvent,
-    },
-    networking::resources::ConsoleCommandVariantValues,
+use crate::core::entity::{
+    resources::{EntityDataResource, ShowcaseData, SpawnData},
+    spawn::DefaultSpawnEvent,
 };
+
+use super::raw_entity::RawEntity;
 
 pub fn spawn_entity(
     entity_name: String,
@@ -22,7 +19,7 @@ pub fn spawn_entity(
     correct_transform: bool,
     entity_data: &ResMut<EntityDataResource>,
     held_data_option: Option<Entity>,
-    properties: HashMap<String, ConsoleCommandVariantValues>,
+    raw_entity_option: Option<RawEntity>,
     showcase_handle_option: Option<ShowcaseData>,
     default_spawner: &mut EventWriter<DefaultSpawnEvent>,
 ) -> Option<Entity> {
@@ -47,8 +44,7 @@ pub fn spawn_entity(
                     entity_transform: transform,
                     correct_transform,
                     holder_entity_option: held,
-                    default_map_spawn: false,
-                    properties: properties,
+                    raw_entity_option: raw_entity_option,
                     showcase_data_option: showcase_handle_option,
                     entity_name,
                     entity: return_entity.unwrap(),
@@ -84,8 +80,6 @@ pub fn spawn_held_entity(
 
     match entity_data.name_to_id.get(&entity_name) {
         Some(_id) => {
-            let map = HashMap::new();
-
             return_entity = Some(commands.spawn().id());
 
             default_spawner.send(DefaultSpawnEvent {
@@ -94,7 +88,7 @@ pub fn spawn_held_entity(
                     correct_transform: false,
                     holder_entity_option: Some(holder_entity),
                     default_map_spawn: false,
-                    properties: map,
+                    raw_entity_option: None,
                     showcase_data_option: showcase_handle_option,
                     entity_name,
                     entity: return_entity.unwrap(),

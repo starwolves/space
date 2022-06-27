@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use bevy_ecs::{
     entity::Entity,
     event::EventWriter,
@@ -67,13 +65,7 @@ pub fn on_spawning(
             spawn_data: SpawnData {
                 entity: new_entity,
                 entity_transform: spawning_component.transform,
-                correct_transform: true,
-                holder_entity_option: None,
-                default_map_spawn: false,
-                properties: HashMap::new(),
-                showcase_data_option: None,
                 entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
-
                 ..Default::default()
             },
             summoner: HumanMaleSummoner {
