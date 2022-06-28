@@ -7,7 +7,7 @@ use bevy_ecs::{
 use bevy_hierarchy::BuildChildren;
 use bevy_log::warn;
 use bevy_rapier3d::prelude::{CollisionGroups, Friction, RigidBody};
-use bevy_transform::prelude::Transform;
+use bevy_transform::prelude::{GlobalTransform, Transform};
 
 use crate::core::{
     entity::functions::string_to_type_converters::string_vec3_to_vec3,
@@ -147,6 +147,7 @@ pub fn spawn_main_cell(
     let mut entity_builder = commands.spawn();
     entity_builder
         .insert(RigidBody::Fixed)
+        .insert(GlobalTransform::default())
         .insert(Transform::from_translation(world_position))
         .insert(Cell { id: cell_id });
 
@@ -172,6 +173,7 @@ pub fn spawn_main_cell(
         children
             .spawn()
             .insert(cell_properties.collider.clone())
+            .insert(GlobalTransform::default())
             .insert(cell_properties.collider_position)
             .insert(friction_component)
             .insert(CollisionGroups::new(masks.0, masks.1));

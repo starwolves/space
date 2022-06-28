@@ -49,6 +49,7 @@ use bevy_core::CorePlugin as BCorePlugin;
 use bevy_log::LogPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use bevy_render::{settings::WgpuSettings, RenderPlugin};
+use bevy_scene::ScenePlugin;
 use bevy_transform::TransformPlugin;
 use bevy_window::WindowPlugin;
 
@@ -144,6 +145,7 @@ impl Plugin for SpacePlugin {
                 exit_on_close: false,
             })
             .add_plugin(AssetPlugin)
+            .add_plugin(ScenePlugin)
             .add_plugin(RenderPlugin)
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
             .add_plugin(ConfigurationPlugin)

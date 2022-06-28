@@ -4,7 +4,7 @@ use bevy_rapier3d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
     GravityScale, RigidBody, Sleeping, Velocity,
 };
-use bevy_transform::prelude::Transform;
+use bevy_transform::prelude::{GlobalTransform, Transform};
 
 use crate::core::{
     entity::{
@@ -112,6 +112,7 @@ pub fn rigidbody_builder(
     let mut builder = commands.entity(entity);
 
     builder
+        .insert(GlobalTransform::default())
         .insert(rigidbody)
         .insert(rigidbody_spawn_data.rigid_transform)
         .insert(rigidbody_spawn_data.external_impulse)
