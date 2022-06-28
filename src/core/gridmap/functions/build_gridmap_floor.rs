@@ -3,7 +3,7 @@ use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
 };
-use bevy_transform::prelude::Transform;
+use bevy_transform::prelude::{GlobalTransform, Transform};
 
 use crate::{
     core::physics::functions::{get_bit_masks, ColliderGroup},
@@ -22,6 +22,7 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
         .spawn()
         .insert(RigidBody::Fixed)
         .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
+        .insert(GlobalTransform::default())
         .insert(Collider::cuboid(500., 1., 500.))
         .insert(friction_component)
         .insert(CollisionGroups::new(masks.0, masks.1));
@@ -35,6 +36,7 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
         .spawn()
         .insert(RigidBody::Fixed)
         .insert(Transform::from_translation(Vec3::new(0., 3., 0.)))
+        .insert(GlobalTransform::default())
         .insert(Collider::cuboid(500., 1., 500.))
         .insert(friction_component)
         .insert(CollisionGroups::new(masks.0, masks.1));

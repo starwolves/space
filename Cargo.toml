@@ -22,7 +22,9 @@ bevy_asset = "0.7.0"
 bevy_render = "0.7.0"
 bevy_window = "0.7.0"
 
-bevy_rapier3d = "0.13.2"
+bevy_rapier3d = "0.14.1"
+bevy_scene = "0.7.0"
+
 
 serde = {version= "1.0.137"}
 serde_json = {version= "1.0.81"}
