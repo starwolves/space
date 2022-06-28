@@ -2,7 +2,7 @@ use bevy_ecs::{
     event::EventReader,
     system::{Query, Res, ResMut},
 };
-use bevy_networking_turbulence::NetworkResource;
+use bevy_renet::renet::RenetServer;
 
 use crate::{
     core::{
@@ -13,7 +13,7 @@ use crate::{
 };
 
 pub fn net_system(
-    mut net: ResMut<NetworkResource>,
+    mut net: ResMut<RenetServer>,
     connected_players: Query<&ConnectedPlayer>,
     handle_to_entity: Res<HandleToEntity>,
 

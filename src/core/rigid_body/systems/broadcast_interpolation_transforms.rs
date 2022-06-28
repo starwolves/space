@@ -4,15 +4,15 @@ use bevy_ecs::{
     prelude::{With, Without},
     system::{Local, Query, Res, ResMut},
 };
-use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_networking_turbulence::NetworkResource;
 use bevy_rapier3d::prelude::{RigidBody, Velocity};
+use bevy_renet::renet::RenetServer;
 use bevy_transform::components::Transform;
+use bincode::serialize;
 
 use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    networking::resources::UnreliableServerMessage,
+    networking::{resources::UnreliableServerMessage, RENET_UNRELIABLE_CHANNEL_ID},
     rigid_body::components::{CachedBroadcastTransform, RigidBodyDisabled},
     sensable::components::Sensable,
 };
@@ -35,7 +35,7 @@ pub const BROADCAST_INTERPOLATION_TRANSFORM_RATE: f64 = 24.;
 pub fn broadcast_interpolation_transforms(
     time: Res<Time>,
 
-    mut net: ResMut<NetworkResource>,
+    mut net: ResMut<RenetServer>,
     handle_to_entity: Res<HandleToEntity>,
     mut query_interpolated_entities: Query<
         (
@@ -140,27 +140,21 @@ pub fn broadcast_interpolation_transforms(
 
             match player_handle_option {
                 Some(handle) => {
-                    match net.send_message(
+                    net.send_message(
                         *handle,
-                        UnreliableServerMessage::TransformUpdate(
-                            interpolated_entity.to_bits(),
-                            rigid_body_translation,
-                            rigid_body_rotation,
-                            velocity_option,
-                            current_time_stamp as u64,
-                            rate_u,
-                        ),
-                    ) {
-                        Ok(msg) => match msg {
-                            Some(msg) => {
-                                warn!("was unable to send TransformUpdate message: {:?}", msg);
-                            }
-                            None => {}
-                        },
-                        Err(err) => {
-                            warn!("was unable to send TransformUpdate message (1): {:?}", err);
-                        }
-                    };
+                        RENET_UNRELIABLE_CHANNEL_ID,
+                        serialize::<UnreliableServerMessage>(
+                            &UnreliableServerMessage::TransformUpdate(
+                                interpolated_entity.to_bits(),
+                                rigid_body_translation,
+                                rigid_body_rotation,
+                                velocity_option,
+                                current_time_stamp as u64,
+                                rate_u,
+                            ),
+                        )
+                        .unwrap(),
+                    );
                 }
                 None => {
                     continue;

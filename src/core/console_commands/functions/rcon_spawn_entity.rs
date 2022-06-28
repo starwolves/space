@@ -33,7 +33,7 @@ pub fn rcon_spawn_entity(
     mut spawn_amount: i64,
     commands: &mut Commands,
     command_executor_entity: Entity,
-    command_executor_handle_option: Option<u32>,
+    command_executor_handle_option: Option<u64>,
     rigid_body_positions: &mut Query<(&Transform, &Pawn)>,
     net_console_commands: &mut EventWriter<NetConsoleCommands>,
     gridmap_main: &Res<GridmapMain>,

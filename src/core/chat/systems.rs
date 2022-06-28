@@ -5,7 +5,7 @@ use bevy_ecs::{
 };
 use bevy_log::warn;
 use bevy_math::Vec3;
-use bevy_networking_turbulence::NetworkResource;
+use bevy_renet::renet::RenetServer;
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
@@ -112,7 +112,7 @@ pub fn chat_message_input_event(
 }
 
 pub fn net_system(
-    mut net: ResMut<NetworkResource>,
+    mut net: ResMut<RenetServer>,
     connected_players: Query<&ConnectedPlayer>,
     handle_to_entity: Res<HandleToEntity>,
 

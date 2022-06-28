@@ -1,7 +1,8 @@
 pub mod resources;
 
-use std::net::SocketAddr;
+use std::{net::UdpSocket, time::SystemTime};
 
+use bevy_app::CoreStage::PreUpdate;
 use bevy_app::{App, Plugin};
 use bevy_ecs::{
     event::{EventReader, EventWriter},
@@ -9,7 +10,11 @@ use bevy_ecs::{
     system::{Commands, Query, Res, ResMut},
 };
 use bevy_log::{info, warn};
-use bevy_networking_turbulence::{ConnectionChannelsBuilder, NetworkEvent, NetworkResource};
+use bevy_renet::{
+    renet::{RenetConnectionConfig, RenetServer, ServerConfig, ServerEvent, NETCODE_KEY_BYTES},
+    RenetServerPlugin,
+};
+use bincode::serialize;
 
 use crate::core::{
     configuration::resources::{ServerId, TickRate},
@@ -21,9 +26,7 @@ use crate::core::{
     },
     map::events::{InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes, MapInput},
     networking::resources::{
-        ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage,
-        UnreliableServerMessage, CLIENT_MESSAGE_RELIABLE, CLIENT_MESSAGE_UNRELIABLE,
-        SERVER_MESSAGE_RELIABLE, SERVER_MESSAGE_UNRELIABLE, SERVER_PORT,
+        ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage, SERVER_PORT,
     },
     pawn::{
         components::{ControllerInput, PersistentPlayerData},
@@ -53,37 +56,33 @@ use super::{
     humanoid::components::Humanoid,
     map::resources::MapData,
     tab_actions::events::InputTabAction,
-    PreUpdateLabels, StartupLabels,
+    PreUpdateLabels,
 };
 
-pub fn startup_listen_connections(mut net: ResMut<NetworkResource>) {
-    net.set_channels_builder(|builder: &mut ConnectionChannelsBuilder| {
-        builder
-            .register::<ReliableServerMessage>(SERVER_MESSAGE_RELIABLE)
-            .unwrap();
-        builder
-            .register::<ReliableClientMessage>(CLIENT_MESSAGE_RELIABLE)
-            .unwrap();
-        builder
-            .register::<UnreliableServerMessage>(SERVER_MESSAGE_UNRELIABLE)
-            .unwrap();
-        builder
-            .register::<UnreliableClientMessage>(CLIENT_MESSAGE_UNRELIABLE)
-            .unwrap();
-    });
+const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"lFNpVdFi5LhL8xlDFtnobx5onFR30afX";
+const PROTOCOL_ID: u64 = 7;
 
-    let ip_address = bevy_networking_turbulence::find_my_ip_address()
-        .expect("main.rs launch_server() Error cannot find IP address");
-    let socket_address = SocketAddr::new(ip_address, SERVER_PORT);
+pub fn startup_listen_connections() -> RenetServer {
+    let server_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
+        .parse()
+        .unwrap();
+    let socket = UdpSocket::bind(server_addr).unwrap();
+    let connection_config = RenetConnectionConfig::default();
+    let server_config = ServerConfig::new(64, PROTOCOL_ID, server_addr, *PRIVATE_KEY);
+    let current_time = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
+    let renet_server =
+        RenetServer::new(current_time, server_config, connection_config, socket).unwrap();
 
-    net.listen(socket_address, None, None);
+    info!("Listening to connections on [{}].", server_addr);
 
-    info!("Listening to connections.");
+    renet_server
 }
 
 pub fn messages_outgoing(
     tuple0: (
-        ResMut<NetworkResource>,
+        ResMut<RenetServer>,
         EventWriter<InputUIInput>,
         EventWriter<InputSceneReady>,
         EventWriter<InputUIInputTransmitText>,
@@ -168,15 +167,15 @@ pub fn messages_outgoing(
         mut input_map_view_range,
     ) = tuple2;
 
-    for (handle, connection) in net.connections.iter_mut() {
-        let channels = connection.channels().unwrap();
+    for handle in net.clients_id().into_iter() {
+        while let Some(message) = net.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
+            let client_message: ReliableClientMessage = bincode::deserialize(&message).unwrap();
 
-        while let Some(client_message) = channels.recv::<ReliableClientMessage>() {
             match client_message {
                 ReliableClientMessage::Awoo => {}
                 ReliableClientMessage::UIInput(node_class, action, node_name, ui_type) => {
                     ui_input_event.send(InputUIInput {
-                        handle: *handle,
+                        handle: handle,
                         node_class: node_class,
                         action: action,
                         node_name: node_name,
@@ -185,20 +184,20 @@ pub fn messages_outgoing(
                 }
                 ReliableClientMessage::SceneReady(scene_type) => {
                     scene_ready_event.send(InputSceneReady {
-                        handle: *handle,
+                        handle: handle,
                         scene_type: scene_type,
                     });
                 }
                 ReliableClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
                     ui_input_transmit_text.send(InputUIInputTransmitText {
-                        handle: *handle,
+                        handle: handle,
                         ui_type: ui_type,
                         node_path: node_path,
                         input_text: input_text,
                     });
                 }
                 ReliableClientMessage::MovementInput(movement_input) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             movement_input_event.send(InputMovementInput {
                                 vector: movement_input,
@@ -211,10 +210,10 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::BuildGraphics => {
-                    build_graphics_event.send(InputBuildGraphics { handle: *handle });
+                    build_graphics_event.send(InputBuildGraphics { handle: handle });
                 }
                 ReliableClientMessage::InputChatMessage(message) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_chat_message_event.send(InputChatMessage {
                                 entity: *player_entity,
@@ -228,7 +227,7 @@ pub fn messages_outgoing(
                 }
 
                 ReliableClientMessage::SprintInput(is_sprinting) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_sprinting_event.send(InputSprinting {
                                 is_sprinting: is_sprinting,
@@ -241,10 +240,10 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::ExamineEntity(entity_id) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             examine_entity.send(InputExamineEntity {
-                                handle: *handle,
+                                handle: handle,
                                 examine_entity_bits: entity_id,
                                 entity: *player_entity,
                             });
@@ -259,10 +258,10 @@ pub fn messages_outgoing(
                     cell_id_x,
                     cell_id_y,
                     cell_id_z,
-                ) => match handle_to_entity.map.get(handle) {
+                ) => match handle_to_entity.map.get(&handle) {
                     Some(player_entity) => {
                         examine_map.send(InputExamineMap {
-                            handle: *handle,
+                            handle: handle,
                             entity: *player_entity,
                             gridmap_type: grid_map_type,
                             gridmap_cell_id: Vec3Int {
@@ -277,7 +276,7 @@ pub fn messages_outgoing(
                     }
                 },
                 ReliableClientMessage::UseWorldItem(entity_id) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             use_world_item.send(InputUseWorldItem {
                                 pickuper_entity: *player_entity,
@@ -290,7 +289,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::DropCurrentItem(position_option) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             drop_current_item.send(InputDropCurrentItem {
                                 pickuper_entity: *player_entity,
@@ -303,7 +302,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::SwitchHands => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             switch_hands.send(InputSwitchHands {
                                 entity: *player_entity,
@@ -315,7 +314,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::WearItem(item_id, wear_slot) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             wear_items.send(InputWearItem {
                                 wearer_entity: *player_entity,
@@ -331,7 +330,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::TakeOffItem(slot_name) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             take_off_item.send(InputTakeOffItem {
                                 entity: *player_entity,
@@ -348,10 +347,10 @@ pub fn messages_outgoing(
                 //   while they're connected.             V
                 ReliableClientMessage::HeartBeat => { /* <3 */ }
                 ReliableClientMessage::ConsoleCommand(command_name, variant_arguments) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             console_commands_queue.send(InputConsoleCommand {
-                                handle_option: Some(*handle),
+                                handle_option: Some(handle),
                                 entity: *player_entity,
                                 command_name: command_name,
                                 command_arguments: variant_arguments,
@@ -363,7 +362,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::ToggleCombatModeInput => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_toggle_combat_mode.send(InputToggleCombatMode {
                                 entity: *player_entity,
@@ -375,7 +374,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::InputMouseAction(pressed) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_mouse_action.send(InputMouseAction {
                                 entity: *player_entity,
@@ -388,7 +387,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::SelectBodyPart(body_part) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_select_body_part.send(InputSelectBodyPart {
                                 entity: *player_entity,
@@ -400,7 +399,7 @@ pub fn messages_outgoing(
                         }
                     }
                 }
-                ReliableClientMessage::ToggleAutoMove => match handle_to_entity.map.get(handle) {
+                ReliableClientMessage::ToggleAutoMove => match handle_to_entity.map.get(&handle) {
                     Some(player_entity) => {
                         input_toggle_auto_move.send(InputToggleAutoMove {
                             entity: *player_entity,
@@ -411,7 +410,7 @@ pub fn messages_outgoing(
                     }
                 },
                 ReliableClientMessage::UserName(input_name) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_global_name.send(InputUserName {
                                 entity: *player_entity,
@@ -424,7 +423,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::AttackEntity(entity_id) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_attack_entity.send(InputAttackEntity {
                                 entity: *player_entity,
@@ -437,7 +436,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::AltItemAttack => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_alt_item_attack.send(InputAltItemAttack {
                                 entity: *player_entity,
@@ -449,7 +448,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::ThrowItem(position, angle) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_throw_item.send(InputThrowItem {
                                 entity: *player_entity,
@@ -463,7 +462,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::AttackCell(cell_x, cell_y, cell_z) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_attack_cell.send(InputAttackCell {
                                 entity: *player_entity,
@@ -480,7 +479,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::TabDataEntity(entity_id_bits) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             tab_data_entity.send(InputTabDataEntity {
                                 player_entity: *player_entity,
@@ -493,7 +492,7 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::TabDataMap(gridmap_type, idx, idy, idz) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             tab_data_map.send(InputTabDataMap {
                                 player_entity: *player_entity,
@@ -515,7 +514,7 @@ pub fn messages_outgoing(
                     entity_option,
                     cell_option,
                     belonging_entity,
-                ) => match handle_to_entity.map.get(handle) {
+                ) => match handle_to_entity.map.get(&handle) {
                     Some(player_entity) => {
                         input_tab_action.send(InputTabAction {
                             tab_id,
@@ -536,7 +535,7 @@ pub fn messages_outgoing(
                     input_selection,
                 ) => {
                     text_tree_input_selection.send(TextTreeInputSelection {
-                        handle: *handle,
+                        handle: handle,
                         menu_id,
                         menu_selection: input_selection,
                         belonging_entity,
@@ -544,10 +543,10 @@ pub fn messages_outgoing(
                     });
                 }
                 ReliableClientMessage::MapChangeDisplayMode(display_mode) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_change_display_mode.send(InputMapChangeDisplayMode {
-                                handle: *handle,
+                                handle: handle,
                                 entity: *player_entity,
                                 display_mode,
                             });
@@ -558,10 +557,10 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::MapRequestDisplayModes => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_request_display_modes.send(InputMapRequestDisplayModes {
-                                handle: *handle,
+                                handle: handle,
                                 entity: *player_entity,
                             });
                         }
@@ -571,10 +570,10 @@ pub fn messages_outgoing(
                     }
                 }
                 ReliableClientMessage::MapCameraPosition(position) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_view_range.send(InputMap {
-                                handle: *handle,
+                                handle: handle,
                                 entity: *player_entity,
                                 input: MapInput::Position(position),
                             });
@@ -587,10 +586,12 @@ pub fn messages_outgoing(
             }
         }
 
-        while let Some(client_message) = channels.recv::<UnreliableClientMessage>() {
+        while let Some(message) = net.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
+            let client_message: UnreliableClientMessage = bincode::deserialize(&message).unwrap();
+
             match client_message {
                 UnreliableClientMessage::MouseDirectionUpdate(mouse_direction, time_stamp) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             mouse_direction_update.send(InputMouseDirectionUpdate {
                                 entity: *player_entity,
@@ -604,10 +605,10 @@ pub fn messages_outgoing(
                     }
                 }
                 UnreliableClientMessage::MapViewRange(range_x) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_view_range.send(InputMap {
-                                handle: *handle,
+                                handle: handle,
                                 entity: *player_entity,
                                 input: MapInput::Range(range_x),
                             });
@@ -618,10 +619,10 @@ pub fn messages_outgoing(
                     }
                 }
                 UnreliableClientMessage::MapOverlayMouseHoverCell(idx, idy) => {
-                    match handle_to_entity.map.get(handle) {
+                    match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_view_range.send(InputMap {
-                                handle: *handle,
+                                handle: handle,
                                 entity: *player_entity,
                                 input: MapInput::MouseCell(idx, idy),
                             });
@@ -633,24 +634,16 @@ pub fn messages_outgoing(
                 }
             }
         }
-
-        while let Some(_server_message) = channels.recv::<ReliableServerMessage>() {
-            // In case we ever get this from faulty or malicious clients, free it up.
-        }
-        while let Some(_server_message) = channels.recv::<UnreliableServerMessage>() {
-            // In case we ever get this from faulty or malicious clients, free it up.
-        }
     }
 }
 
 pub fn connections(
-    mut net: ResMut<NetworkResource>,
     tick_rate: Res<TickRate>,
     mut auth_id_i: ResMut<AuthidI>,
     server_id: Res<ServerId>,
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut commands: Commands,
-    mut reader: EventReader<NetworkEvent>,
+    mut reader: EventReader<ServerEvent>,
     mut net_on_new_player_connection: EventWriter<NetOnNewPlayerConnection>,
     mut connected_players: Query<(
         &mut PersistentPlayerData,
@@ -666,26 +659,8 @@ pub fn connections(
 ) {
     for event in reader.iter() {
         match event {
-            NetworkEvent::Packet(_handle, _packet) => {}
-            NetworkEvent::Connected(handle) => {
-                // https://github.com/smokku/bevy_networking_turbulence/blob/master/examples/channels.rs
-
-                match net.connections.get_mut(handle) {
-                    Some(connection) => match connection.remote_address() {
-                        Some(remote_address) => {
-                            info!(
-                                "Incoming connection on [{}] from [{}]",
-                                handle, remote_address
-                            );
-                        }
-                        None => {
-                            warn!("handle_network_events.rs NetworkEvent::Connected: new connection with a strange remote_address [{}]", handle);
-                        }
-                    },
-                    None => {
-                        warn!("handle_network_events.rs NetworkEvent::Connected: got packet for non-existing connection [{}]", handle);
-                    }
-                }
+            ServerEvent::ClientConnected(handle, _) => {
+                info!("Incoming connection on [{}]", handle,);
 
                 on_new_player_connection(
                     &mut net_on_new_player_connection,
@@ -701,8 +676,7 @@ pub fn connections(
                     &console_commands,
                 );
             }
-
-            NetworkEvent::Disconnected(handle) => {
+            ServerEvent::ClientDisconnected(handle) => {
                 on_player_disconnect(
                     *handle,
                     &mut handle_to_entity,
@@ -711,39 +685,35 @@ pub fn connections(
                     &mut client_health_ui_cache,
                 );
             }
-            NetworkEvent::Error(_handle, _err) => {
-                //warn!("NetworkEvent error [{}] : {:?}", _handle, _err);
-            }
         }
     }
 }
 
 pub struct NetworkingPlugin;
 
-use bevy_app::CoreStage::PreUpdate;
-
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(
-            startup_listen_connections
-                .label(StartupLabels::ListenConnections)
-                .after(StartupLabels::InitAtmospherics),
-        )
-        .add_system_to_stage(
-            PreUpdate,
-            messages_outgoing.after(PreUpdateLabels::NetEvents),
-        )
-        .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents));
+        app.add_plugin(RenetServerPlugin)
+            .insert_resource(startup_listen_connections())
+            .add_system_to_stage(
+                PreUpdate,
+                messages_outgoing.after(PreUpdateLabels::NetEvents),
+            )
+            .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents));
     }
 }
 
+pub const RENET_RELIABLE_CHANNEL_ID: u8 = 0;
+pub const RENET_UNRELIABLE_CHANNEL_ID: u8 = 1;
+pub const RENET_BLOCKING_CHANNEL_ID: u8 = 2;
+
 pub struct NetEvent {
-    pub handle: u32,
+    pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 pub fn send_net(
-    net: &mut ResMut<NetworkResource>,
+    net: &mut ResMut<RenetServer>,
     connected_players: &Query<&ConnectedPlayer>,
     handle_to_entity: &Res<HandleToEntity>,
     new_event: &NetEvent,
@@ -773,20 +743,10 @@ pub fn send_net(
     if !connected {
         return;
     }
-    match net.send_message(new_event.handle, new_event.message.clone()) {
-        Ok(msg) => {
-            match msg {
-                Some(msg) => {
-                    warn!("net_send_message_event.rs was unable to send net_on_boarding message: {:?}", msg);
-                }
-                None => {}
-            }
-        }
-        Err(err) => {
-            warn!(
-                "net_send_message_event.rs was unable to send net_on_boarding message (1): {:?}",
-                err
-            );
-        }
-    };
+
+    net.send_message(
+        new_event.handle,
+        RENET_RELIABLE_CHANNEL_ID,
+        serialize::<ReliableServerMessage>(&new_event.message).unwrap(),
+    );
 }
