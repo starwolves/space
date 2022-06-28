@@ -3,7 +3,7 @@ use bevy_ecs::{
     event::{EventReader, EventWriter},
     system::{Query, Res, ResMut},
 };
-use bevy_networking_turbulence::NetworkResource;
+use bevy_renet::renet::RenetServer;
 
 use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
@@ -15,32 +15,32 @@ use crate::core::{
 };
 
 pub struct InputConstruct {
-    pub handle_option: Option<u32>,
+    pub handle_option: Option<u64>,
     pub target_cell: (GridMapType, i16, i16, i16),
     pub belonging_entity: u64,
 }
 
 pub struct InputConstructionOptionsSelection {
-    pub handle_option: Option<u32>,
+    pub handle_option: Option<u64>,
     pub menu_selection: String,
     // Entity has been validated.
     pub entity: Entity,
 }
 
 pub struct InputConstructionOptions {
-    pub handle_option: Option<u32>,
+    pub handle_option: Option<u64>,
     pub belonging_entity: u64,
 }
 
 pub struct InputDeconstruct {
-    pub handle_option: Option<u32>,
+    pub handle_option: Option<u64>,
     pub target_cell_option: Option<(GridMapType, i16, i16, i16)>,
     pub target_entity_option: Option<u64>,
     pub belonging_entity: u64,
 }
 
 pub struct NetConstructionTool {
-    pub handle: u32,
+    pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
@@ -78,7 +78,7 @@ pub fn construction_tool_actions(
 }
 
 pub fn net_system(
-    mut net: ResMut<NetworkResource>,
+    mut net: ResMut<RenetServer>,
     connected_players: Query<&ConnectedPlayer>,
     handle_to_entity: Res<HandleToEntity>,
 

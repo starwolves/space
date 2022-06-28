@@ -1,4 +1,5 @@
 use bevy_app::{App, Plugin};
+use bevy_asset::AssetPlugin;
 use bevy_ecs::schedule::ParallelSystemDescriptorCoercion;
 use bevy_log::info;
 
@@ -38,16 +39,14 @@ impl Plugin for LivePlugin {
         app.add_startup_system(
             server_is_live
                 .label(StartupLabels::ServerIsLive)
-                .after(StartupLabels::ListenConnections),
+                .after(StartupLabels::InitAtmospherics),
         );
     }
 }
 
 use bevy_app::ScheduleRunnerPlugin;
-use bevy_asset::AssetPlugin;
 use bevy_core::CorePlugin as BCorePlugin;
 use bevy_log::LogPlugin;
-use bevy_networking_turbulence::NetworkingPlugin as TBNetworkingPlugin;
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use bevy_render::{settings::WgpuSettings, RenderPlugin};
 use bevy_transform::TransformPlugin;
@@ -147,10 +146,6 @@ impl Plugin for SpacePlugin {
             .add_plugin(AssetPlugin)
             .add_plugin(RenderPlugin)
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-            .add_plugin(TBNetworkingPlugin {
-                idle_timeout_ms: Some(40000),
-                ..Default::default()
-            })
             .add_plugin(ConfigurationPlugin)
             .add_plugin(ConnectedPlayerPlugin)
             .add_plugin(AsanaPlugin)

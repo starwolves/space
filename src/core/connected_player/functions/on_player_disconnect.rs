@@ -13,7 +13,7 @@ use crate::core::{
 };
 
 pub fn on_player_disconnect(
-    handle: u32,
+    handle: u64,
     handle_to_entity: &mut ResMut<HandleToEntity>,
     connected_players: &mut Query<(
         &mut PersistentPlayerData,

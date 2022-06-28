@@ -4,12 +4,13 @@ use bevy_ecs::{
     system::{Query, Res, ResMut},
 };
 use bevy_log::warn;
-use bevy_networking_turbulence::NetworkResource;
+use bevy_renet::renet::RenetServer;
 use bevy_transform::prelude::Transform;
+use bincode::serialize;
 
 use crate::core::{
     connected_player::resources::HandleToEntity,
-    networking::resources::UnreliableServerMessage,
+    networking::{resources::UnreliableServerMessage, RENET_UNRELIABLE_CHANNEL_ID},
     rigid_body::components::{CachedBroadcastTransform, UpdateTransform},
     sensable::components::Sensable,
 };
@@ -20,7 +21,7 @@ pub fn broadcast_position_updates(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
 
-    mut net: ResMut<NetworkResource>,
+    mut net: ResMut<RenetServer>,
     handle_to_entity: Res<HandleToEntity>,
     mut query_update_transform_entities: Query<(
         Entity,
@@ -63,24 +64,18 @@ pub fn broadcast_position_updates(
 
             match player_handle_option {
                 Some(handle) => {
-                    match net.send_message(
+                    net.send_message(
                         *handle,
-                        UnreliableServerMessage::PositionUpdate(
-                            entity.to_bits(),
-                            new_position,
-                            current_time_stamp as u64,
-                        ),
-                    ) {
-                        Ok(msg) => match msg {
-                            Some(msg) => {
-                                warn!("was unable to send PositionUpdate message: {:?}", msg);
-                            }
-                            None => {}
-                        },
-                        Err(err) => {
-                            warn!("was unable to send PositionUpdate message (1): {:?}", err);
-                        }
-                    };
+                        RENET_UNRELIABLE_CHANNEL_ID,
+                        serialize::<UnreliableServerMessage>(
+                            &UnreliableServerMessage::PositionUpdate(
+                                entity.to_bits(),
+                                new_position,
+                                current_time_stamp as u64,
+                            ),
+                        )
+                        .unwrap(),
+                    );
                 }
                 None => {
                     continue;

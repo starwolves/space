@@ -64,7 +64,7 @@ impl Default for EntityDataProperties {
 
 #[derive(Clone)]
 pub struct ShowcaseData {
-    pub handle: u32,
+    pub handle: u64,
 }
 
 #[derive(Clone)]
