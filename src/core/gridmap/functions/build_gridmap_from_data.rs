@@ -173,7 +173,6 @@ pub fn spawn_main_cell(
         children
             .spawn()
             .insert(cell_properties.collider.clone())
-            .insert(GlobalTransform::default())
             .insert(cell_properties.collider_position)
             .insert(friction_component)
             .insert(CollisionGroups::new(masks.0, masks.1));

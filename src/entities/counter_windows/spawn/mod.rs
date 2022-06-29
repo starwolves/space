@@ -51,39 +51,35 @@ pub fn summon_counter_window<T: Send + Sync + 'static>(
 
         let sensor = Sensor(true);
 
-        let mut sensor_builder = commands.spawn();
-        sensor_builder
-            .insert(rigid_body)
-            .insert(spawn_event.spawn_data.entity_transform);
-        sensor_builder.with_children(|children| {
-            children
-                .spawn()
-                .insert(Collider::cuboid(1., 1., 1.))
-                .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
-                .insert(GlobalTransform::default())
-                .insert(friction)
-                .insert(CollisionGroups::new(masks.0, masks.1))
-                .insert(ActiveEvents::COLLISION_EVENTS)
-                .insert(sensor);
-        });
-
-        let child = sensor_builder
-            .insert_bundle((
-                CounterWindowSensor {
-                    parent: spawn_event.spawn_data.entity,
-                },
-                spawn_event.spawn_data.entity_transform,
-                EntityData {
-                    entity_class: "child".to_string(),
-                    entity_name: "counterWindowSensor".to_string(),
-                    entity_group: EntityGroup::CounterWindowSensor,
-                },
-            ))
-            .id();
-
         commands
             .entity(spawn_event.spawn_data.entity)
-            .push_children(&[child]);
+            .with_children(|children| {
+                children
+                    .spawn()
+                    .insert(rigid_body)
+                    .insert(GlobalTransform::identity())
+                    .insert(Transform::identity())
+                    .insert_bundle((
+                        CounterWindowSensor {
+                            parent: spawn_event.spawn_data.entity,
+                        },
+                        EntityData {
+                            entity_class: "child".to_string(),
+                            entity_name: "counterWindowSensor".to_string(),
+                            entity_group: EntityGroup::CounterWindowSensor,
+                        },
+                    ))
+                    .with_children(|children| {
+                        children
+                            .spawn()
+                            .insert(Collider::cuboid(1., 1., 1.))
+                            .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
+                            .insert(friction)
+                            .insert(CollisionGroups::new(masks.0, masks.1))
+                            .insert(ActiveEvents::COLLISION_EVENTS)
+                            .insert(sensor);
+                    });
+            });
     }
 }
 
