@@ -142,16 +142,6 @@ pub fn spawn_main_cell(
     _cell_rotation: i64,
     gridmap_data: &GridmapData,
 ) -> Entity {
-    let world_position = cell_id_to_world(cell_id);
-
-    let mut entity_builder = commands.spawn();
-    entity_builder
-        .insert(RigidBody::Fixed)
-        .insert(GlobalTransform::default())
-        .insert(Transform::from_translation(world_position))
-        .insert(Cell { id: cell_id });
-
-    let entity_id = entity_builder.id();
 
     let cell_properties;
     match gridmap_data.main_cell_properties.get(&cell_item_id) {
@@ -164,6 +154,22 @@ pub fn spawn_main_cell(
         }
     }
 
+    let mut world_position = Transform::from_translation(cell_id_to_world(cell_id));
+    world_position.translation+= cell_properties.collider_position.translation;
+    world_position.rotation*= cell_properties.collider_position.rotation;
+
+
+    let mut entity_builder = commands.spawn();
+    entity_builder
+        .insert(RigidBody::Fixed)
+        .insert(GlobalTransform::default())
+        .insert(world_position)
+        .insert(Cell { id: cell_id });
+
+    let entity_id = entity_builder.id();
+
+
+
     let masks = get_bit_masks(ColliderGroup::Standard);
 
     let mut friction_component = Friction::coefficient(cell_properties.friction);
@@ -173,7 +179,7 @@ pub fn spawn_main_cell(
         children
             .spawn()
             .insert(cell_properties.collider.clone())
-            .insert(cell_properties.collider_position)
+            .insert(Transform::identity())
             .insert(friction_component)
             .insert(CollisionGroups::new(masks.0, masks.1));
     });
