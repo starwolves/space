@@ -142,7 +142,6 @@ pub fn spawn_main_cell(
     _cell_rotation: i64,
     gridmap_data: &GridmapData,
 ) -> Entity {
-
     let cell_properties;
     match gridmap_data.main_cell_properties.get(&cell_item_id) {
         Some(x) => {
@@ -155,9 +154,8 @@ pub fn spawn_main_cell(
     }
 
     let mut world_position = Transform::from_translation(cell_id_to_world(cell_id));
-    world_position.translation+= cell_properties.collider_position.translation;
-    world_position.rotation*= cell_properties.collider_position.rotation;
-
+    world_position.translation += cell_properties.collider_position.translation;
+    world_position.rotation *= cell_properties.collider_position.rotation;
 
     let mut entity_builder = commands.spawn();
     entity_builder
@@ -167,8 +165,6 @@ pub fn spawn_main_cell(
         .insert(Cell { id: cell_id });
 
     let entity_id = entity_builder.id();
-
-
 
     let masks = get_bit_masks(ColliderGroup::Standard);
 
