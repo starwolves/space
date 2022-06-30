@@ -22,7 +22,10 @@ use crate::core::{
     tab_actions::components::TabActions,
 };
 
-use super::{components::EntityGroup, resources::SpawnData};
+use super::{
+    components::{DefaultMapEntity, EntityGroup},
+    resources::SpawnData,
+};
 
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
@@ -104,6 +107,13 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
             builder.insert(a);
         }
         None => {}
+    }
+
+    match data.default_map_spawn {
+        true => {
+            builder.insert(DefaultMapEntity);
+        }
+        false => {}
     }
 }
 
