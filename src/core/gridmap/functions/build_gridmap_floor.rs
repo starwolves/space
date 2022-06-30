@@ -1,4 +1,5 @@
 use bevy_ecs::system::Commands;
+use bevy_hierarchy::BuildChildren;
 use bevy_math::Vec3;
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
@@ -23,9 +24,14 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
         .insert(RigidBody::Fixed)
         .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
         .insert(GlobalTransform::default())
-        .insert(Collider::cuboid(500., 1., 500.))
-        .insert(friction_component)
-        .insert(CollisionGroups::new(masks.0, masks.1));
+        .with_children(|children| {
+            children
+                .spawn()
+                .insert(Collider::cuboid(500., 1., 500.))
+                .insert(friction_component)
+                .insert(CollisionGroups::new(masks.0, masks.1))
+                .insert(Transform::default());
+        });
 
     //Roof
 
@@ -37,7 +43,12 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
         .insert(RigidBody::Fixed)
         .insert(Transform::from_translation(Vec3::new(0., 3., 0.)))
         .insert(GlobalTransform::default())
-        .insert(Collider::cuboid(500., 1., 500.))
-        .insert(friction_component)
-        .insert(CollisionGroups::new(masks.0, masks.1));
+        .with_children(|children| {
+            children
+                .spawn()
+                .insert(Collider::cuboid(500., 1., 500.))
+                .insert(friction_component)
+                .insert(CollisionGroups::new(masks.0, masks.1))
+                .insert(Transform::default());
+        });
 }
