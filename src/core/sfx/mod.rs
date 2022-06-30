@@ -5,7 +5,7 @@ use bevy_ecs::schedule::SystemSet;
 use self::{
     entity_update::{repeating_sfx_update, sfx_update},
     resources::SfxAutoDestroyTimers,
-    systems::tick_timers_slowed,
+    systems::{free_sfx, tick_timers_slowed},
 };
 
 use super::{entity::systems::broadcast_position_updates::INTERPOLATION_LABEL1, PostUpdateLabels};
@@ -34,6 +34,7 @@ impl Plugin for SfxPlugin {
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(sfx_update)
                     .with_system(repeating_sfx_update),
-            );
+            )
+            .add_system(free_sfx);
     }
 }
