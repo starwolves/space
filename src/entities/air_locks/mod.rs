@@ -1,6 +1,6 @@
 use bevy_app::CoreStage::PostUpdate;
 use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
+use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemLabel, SystemSet};
 use bevy_ecs::system::ResMut;
 use bevy_transform::components::Transform;
 
@@ -33,7 +33,10 @@ pub mod events;
 pub mod functions;
 pub mod spawn;
 pub mod systems;
-
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum AirLockTimers {
+    Timer,
+}
 pub struct AirLocksPlugin;
 
 impl Plugin for AirLocksPlugin {
@@ -43,12 +46,12 @@ impl Plugin for AirLocksPlugin {
             .add_event::<AirLockLockOpen>()
             .add_event::<NetAirLock>()
             .add_system(air_lock_added)
-            .add_system(air_lock_tick_timers)
+            .add_system(air_lock_tick_timers.label(AirLockTimers::Timer))
+            .add_system(air_lock_events.after(AirLockTimers::Timer))
             .add_system(air_lock_default_map_added)
             .add_event::<AirLockLockClosed>()
             .add_event::<AirLockUnlock>()
             .add_event::<SpawnEvent<AirlockSummoner>>()
-            .add_system(air_lock_events)
             .add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()
