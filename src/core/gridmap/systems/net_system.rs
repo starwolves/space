@@ -7,7 +7,7 @@ use bevy_renet::renet::RenetServer;
 use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
     gridmap::events::{NetGridmapUpdates, NetProjectileFOV},
-    networking::{send_net, NetEvent},
+    networking::{send_net, NetEvent, RENET_RELIABLE_CHANNEL_ID},
 };
 
 pub fn net_system(
@@ -27,6 +27,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net2.iter() {
@@ -38,6 +39,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
 }

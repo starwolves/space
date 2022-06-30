@@ -14,7 +14,7 @@ use crate::core::{
         },
         resources::HandleToEntity,
     },
-    networking::{send_net, NetEvent},
+    networking::{send_net, NetEvent, RENET_RELIABLE_CHANNEL_ID},
 };
 
 pub fn net_system(
@@ -44,6 +44,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net2.iter() {
@@ -55,6 +56,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net3.iter() {
@@ -66,6 +68,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net4.iter() {
@@ -77,6 +80,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net5.iter() {
@@ -88,6 +92,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net6.iter() {
@@ -99,6 +104,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net7.iter() {
@@ -110,6 +116,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net8.iter() {
@@ -121,6 +128,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net9.iter() {
@@ -132,6 +140,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net10.iter() {
@@ -143,6 +152,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net11.iter() {
@@ -154,6 +164,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net12.iter() {
@@ -165,6 +176,7 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
+            RENET_RELIABLE_CHANNEL_ID,
         );
     }
 }
