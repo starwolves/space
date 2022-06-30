@@ -3,7 +3,6 @@ use bevy_ecs::{
     event::EventWriter,
     system::{Commands, Query, Res, ResMut},
 };
-use bevy_log::warn;
 use bevy_transform::prelude::Transform;
 
 use crate::core::{
@@ -83,25 +82,10 @@ pub fn rcon_spawn_entity(
 
         match handle_to_entity.inv_map.get(target_entity) {
             Some(handle) => {
-                player_handle = *handle;
+                player_handle = Some(*handle);
             }
             None => {
-                warn!(
-                    "spawn_entity console command couldn't find handle belonging to target entity."
-                );
-                match command_executor_handle_option {
-                    Some(t) => {
-                        net_console_commands.send(NetConsoleCommands {
-                            handle: t,
-                            message: ReliableServerMessage::ConsoleWriteLine(
-                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
-                            ),
-                        });
-                    }
-                    None => {}
-                }
-
-                continue;
+                player_handle = None;
             }
         }
 
@@ -159,20 +143,22 @@ pub fn rcon_spawn_entity(
             }
         }
 
-        if spawn_amount == 1 {
-            net_console_commands.send(NetConsoleCommands {
-                handle: player_handle,
-                message: ReliableServerMessage::ChatMessage(
-                    "A new entity has appeared in your proximity.".to_string(),
-                ),
-            });
-        } else if spawn_amount > 1 {
-            net_console_commands.send(NetConsoleCommands {
-                handle: player_handle,
-                message: ReliableServerMessage::ChatMessage(
-                    "New entities have appeared in your proximity.".to_string(),
-                ),
-            });
+        if player_handle.is_some() {
+            if spawn_amount == 1 {
+                net_console_commands.send(NetConsoleCommands {
+                    handle: player_handle.unwrap(),
+                    message: ReliableServerMessage::ChatMessage(
+                        "A new entity has appeared in your proximity.".to_string(),
+                    ),
+                });
+            } else if spawn_amount > 1 {
+                net_console_commands.send(NetConsoleCommands {
+                    handle: player_handle.unwrap(),
+                    message: ReliableServerMessage::ChatMessage(
+                        "New entities have appeared in your proximity.".to_string(),
+                    ),
+                });
+            }
         }
     }
 }

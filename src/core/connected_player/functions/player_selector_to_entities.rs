@@ -37,11 +37,14 @@ pub fn player_selector_to_entities(
         .filter(|(player_name, _)| {
             let player_name_lower = player_name.to_lowercase();
             let player_selector = player_selector.to_lowercase();
+            let val;
             if precise_match {
-                player_name_lower == player_selector
+                val = player_name_lower == player_selector;
             } else {
-                player_name_lower.contains(&player_selector)
+                val = player_name_lower.contains(&player_selector);
             }
+
+            val
         })
         .collect();
 
