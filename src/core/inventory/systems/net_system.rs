@@ -10,7 +10,7 @@ use crate::core::{
         NetDropCurrentItem, NetPickupWorldItem, NetSwitchHands, NetTakeOffItem, NetThrowItem,
         NetWearItem,
     },
-    networking::{send_net, NetEvent, RENET_RELIABLE_CHANNEL_ID},
+    networking::{send_net, NetEvent},
 };
 
 pub fn net_system(
@@ -34,7 +34,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net2.iter() {
@@ -46,7 +45,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net3.iter() {
@@ -58,7 +56,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net4.iter() {
@@ -70,7 +67,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net5.iter() {
@@ -82,7 +78,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
     for new_event in net6.iter() {
@@ -94,7 +89,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
 }
