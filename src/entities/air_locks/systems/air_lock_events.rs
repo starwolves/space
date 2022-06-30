@@ -4,7 +4,7 @@ use bevy_ecs::{
     system::{Commands, Query, ResMut},
 };
 use bevy_hierarchy::Children;
-use bevy_log::{warn, info};
+use bevy_log::warn;
 use bevy_rapier3d::prelude::CollisionGroups;
 use bevy_transform::prelude::Transform;
 
@@ -263,7 +263,6 @@ pub fn air_lock_events(
 
                     air_lock_component.access_lights = AccessLightsStatus::Neutral;
 
-                    info!("AirLockClosedSfxBundle::new()");
                     let sfx_entity = sfx_builder(
                         &mut commands,
                         rigid_body_position_component,
@@ -460,7 +459,6 @@ pub fn air_lock_events(
 
             air_lock_component.open_timer_option = Some(open_timer());
 
-            info!("AirLockOpenSfxBundle::new()");
             let sfx_entity = sfx_builder(
                 &mut commands,
                 air_lock_static_transform_component,
@@ -472,7 +470,6 @@ pub fn air_lock_events(
 
             air_lock_component.denied_timer_option = Some(denied_timer());
 
-            info!("AirLockDeniedSfxBundle::new()");
             let sfx_entity = sfx_builder(
                 &mut commands,
                 air_lock_static_transform_component,
