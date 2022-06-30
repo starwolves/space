@@ -9,7 +9,7 @@ use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
     networking::{
         resources::{GridMapType, ReliableServerMessage},
-        send_net, NetEvent, RENET_RELIABLE_CHANNEL_ID,
+        send_net, NetEvent,
     },
     tab_actions::resources::QueuedTabActions,
 };
@@ -93,7 +93,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
 }

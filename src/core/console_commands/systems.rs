@@ -10,9 +10,7 @@ use crate::core::{
         rcon_authorization::{rcon_authorization, BruteforceProtection},
         rcon_status::rcon_status,
     },
-    networking::{
-        resources::ConsoleCommandVariantValues, send_net, NetEvent, RENET_RELIABLE_CHANNEL_ID,
-    },
+    networking::{resources::ConsoleCommandVariantValues, send_net, NetEvent},
 };
 
 use super::events::{InputConsoleCommand, NetConsoleCommands};
@@ -69,7 +67,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
 }

@@ -6,7 +6,7 @@ use bevy_renet::renet::RenetServer;
 
 use crate::core::{
     connected_player::{components::ConnectedPlayer, resources::HandleToEntity},
-    networking::{send_net, NetEvent, RENET_RELIABLE_CHANNEL_ID},
+    networking::{send_net, NetEvent},
 };
 
 use super::events::NetHealthUpdate;
@@ -27,7 +27,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
 }

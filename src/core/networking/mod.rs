@@ -728,7 +728,6 @@ pub fn send_net(
     connected_players: &Query<&ConnectedPlayer>,
     handle_to_entity: &Res<HandleToEntity>,
     new_event: &NetEvent,
-    channel_id: u8,
 ) {
     let mut connected = false;
 
@@ -758,7 +757,7 @@ pub fn send_net(
 
     net.send_message(
         new_event.handle,
-        channel_id,
+        RENET_RELIABLE_CHANNEL_ID,
         serialize::<ReliableServerMessage>(&new_event.message).unwrap(),
     );
 }

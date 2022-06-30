@@ -14,7 +14,7 @@ use crate::core::{
         resources::HandleToEntity,
     },
     entity::events::NetSendEntityUpdates,
-    networking::{send_net, NetEvent, RENET_RELIABLE_CHANNEL_ID},
+    networking::{send_net, NetEvent},
     pawn::components::{Pawn, PersistentPlayerData, ShipJobsEnum},
     sensable::components::Sensable,
 };
@@ -127,7 +127,6 @@ pub fn net_system(
                 handle: new_event.handle,
                 message: new_event.message.clone(),
             },
-            RENET_RELIABLE_CHANNEL_ID,
         );
     }
 }
