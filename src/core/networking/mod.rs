@@ -169,7 +169,18 @@ pub fn messages_outgoing(
 
     for handle in net.clients_id().into_iter() {
         while let Some(message) = net.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message: ReliableClientMessage = bincode::deserialize(&message).unwrap();
+            let client_message_result: Result<ReliableClientMessage, _> =
+                bincode::deserialize(&message);
+            let client_message;
+            match client_message_result {
+                Ok(x) => {
+                    client_message = x;
+                }
+                Err(_rr) => {
+                    warn!("Received invalid client message.");
+                    continue;
+                }
+            }
 
             match client_message {
                 ReliableClientMessage::Awoo => {}
@@ -717,6 +728,7 @@ pub fn send_net(
     connected_players: &Query<&ConnectedPlayer>,
     handle_to_entity: &Res<HandleToEntity>,
     new_event: &NetEvent,
+    channel_id: u8,
 ) {
     let mut connected = false;
 
@@ -746,7 +758,7 @@ pub fn send_net(
 
     net.send_message(
         new_event.handle,
-        RENET_RELIABLE_CHANNEL_ID,
+        channel_id,
         serialize::<ReliableServerMessage>(&new_event.message).unwrap(),
     );
 }

@@ -25,7 +25,7 @@ use crate::core::{
     networking::resources::ReliableServerMessage,
 };
 
-const MAX_VALIDS_PER_BATCH: u16 = 2500;
+const MAX_VALIDS_PER_BATCH: u16 = 750;
 
 enum SelectedDisplayMode {
     Temperature,
