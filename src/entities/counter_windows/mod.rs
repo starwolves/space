@@ -1,6 +1,6 @@
 use bevy_app::CoreStage::PostUpdate;
 use bevy_app::{App, Plugin};
-use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemLabel, SystemSet};
+use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemSet};
 use bevy_ecs::system::ResMut;
 use bevy_math::Quat;
 use bevy_transform::components::Transform;
@@ -37,17 +37,14 @@ pub mod events;
 pub mod functions;
 pub mod spawn;
 pub mod systems;
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum CounterWindowTimers {
-    Timer,
-}
+
 pub struct CounterWindowsPlugin;
 
 impl Plugin for CounterWindowsPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<CounterWindowSensorCollision>()
-            .add_system(counter_window_tick_timers.label(CounterWindowTimers::Timer))
-            .add_system(counter_window_events.after(CounterWindowTimers::Timer))
+            .add_system(counter_window_tick_timers)
+            .add_system(counter_window_events)
             .add_system(counter_window_added)
             .add_system(counter_window_default_map_added)
             .add_event::<InputCounterWindowToggleOpen>()
