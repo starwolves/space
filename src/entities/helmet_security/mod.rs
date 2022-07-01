@@ -35,7 +35,11 @@ impl Plugin for HelmetsPlugin {
             )
             .add_system((summon_raw_helmet).after(SummoningLabels::TriggerSummon))
             .add_event::<SpawnEvent<HelmetSummoner>>()
-            .add_system((default_summon_helmet_security).after(SummoningLabels::DefaultSummon));
+            .add_system(
+                (default_summon_helmet_security)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 

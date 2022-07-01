@@ -35,7 +35,11 @@ impl Plugin for LineArrowPlugin {
         .add_system((summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon))
         .add_system(summon_line_arrow::<LineArrowSummoner>.after(SummoningLabels::TriggerSummon))
         .add_event::<SpawnEvent<LineArrowSummoner>>()
-        .add_system((default_line_arrow).after(SummoningLabels::DefaultSummon));
+        .add_system(
+            (default_line_arrow)
+                .label(SummoningLabels::DefaultSummon)
+                .after(SummoningLabels::NormalSummon),
+        );
     }
 }
 

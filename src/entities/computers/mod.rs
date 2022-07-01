@@ -38,7 +38,11 @@ impl Plugin for ComputersPlugin {
                 (summon_rigid_body::<ComputerSummoner>).after(SummoningLabels::TriggerSummon),
             )
             .add_system((summon_raw_computer).after(SummoningLabels::TriggerSummon))
-            .add_system((default_summon_computer).after(SummoningLabels::DefaultSummon));
+            .add_system(
+                (default_summon_computer)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 

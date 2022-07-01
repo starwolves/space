@@ -27,7 +27,7 @@ impl Plugin for HumanMalePlugin {
             .add_system(
                 summon_human_male::<HumanMaleSummoner>
                     .before(SummoningLabels::TriggerSummon)
-                    .label(SummoningLabels::DefaultSummon),
+                    .label(SummoningLabels::NormalSummon),
             )
             .add_system(
                 (summon_base_human_male::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
@@ -36,7 +36,11 @@ impl Plugin for HumanMalePlugin {
             .add_system(
                 (summon_rigid_body::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
             )
-            .add_system((default_human_dummy).after(SummoningLabels::DefaultSummon));
+            .add_system(
+                (default_human_dummy)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 

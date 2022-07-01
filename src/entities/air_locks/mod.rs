@@ -74,7 +74,11 @@ impl Plugin for AirLocksPlugin {
                 (summon_base_entity::<AirlockSummoner>).after(SummoningLabels::TriggerSummon),
             )
             .add_system((summon_raw_air_lock).after(SummoningLabels::TriggerSummon))
-            .add_system(default_summon_air_lock.after(SummoningLabels::DefaultSummon));
+            .add_system(
+                default_summon_air_lock
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 
