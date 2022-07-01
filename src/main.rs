@@ -13,7 +13,7 @@ fn main() {
         .insert_resource(DefaultTaskPoolOptions::with_num_threads(2))
         .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {
-                wait: Some(Duration::from_secs_f64(1. / 60.)),
+                wait: Some(Duration::from_secs_f64(1. / 64.)),
             },
         })
         .add_plugin(SpacePlugin)
