@@ -37,7 +37,11 @@ impl Plugin for JumpsuitsPlugin {
                 (summon_inventory_item::<JumpsuitSummoner>).after(SummoningLabels::TriggerSummon),
             )
             .add_event::<SpawnEvent<JumpsuitSummoner>>()
-            .add_system((default_summon_jumpsuit).after(SummoningLabels::DefaultSummon));
+            .add_system(
+                (default_summon_jumpsuit)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 

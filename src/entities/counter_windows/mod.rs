@@ -78,7 +78,11 @@ impl Plugin for CounterWindowsPlugin {
             )
             .add_system((summon_raw_counter_window).after(SummoningLabels::TriggerSummon))
             .add_event::<SpawnEvent<CounterWindowSummoner>>()
-            .add_system((default_summon_counter_window).after(SummoningLabels::DefaultSummon));
+            .add_system(
+                (default_summon_counter_window)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 

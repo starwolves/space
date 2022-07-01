@@ -126,6 +126,7 @@ pub enum PostUpdateLabels {
 pub enum SummoningLabels {
     TriggerSummon,
     DefaultSummon,
+    NormalSummon,
 }
 
 pub struct SpacePlugin;

@@ -71,7 +71,11 @@ impl Plugin for ConstructionToolAdminPlugin {
             )
             .add_system((summon_raw_construction_tool).after(SummoningLabels::TriggerSummon))
             .add_event::<SpawnEvent<ConstructionToolSummoner>>()
-            .add_system((default_summon_construction_tool).after(SummoningLabels::DefaultSummon));
+            .add_system(
+                (default_summon_construction_tool)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 
