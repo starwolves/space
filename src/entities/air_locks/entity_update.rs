@@ -1,16 +1,13 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{prelude::Changed, system::Query};
+use bevy::prelude::{Changed, Query};
 
 use crate::core::{
-    entity::{
-        components::EntityUpdates,
-        functions::get_entity_update_difference::get_entity_update_difference,
-    },
-    networking::resources::EntityUpdateData,
+    entity::entity_updates::{get_entity_update_difference, EntityUpdates},
+    networking::networking::EntityUpdateData,
 };
 
-use super::components::{AccessLightsStatus, AirLock, AirLockStatus};
+use super::air_lock::{AccessLightsStatus, AirLock, AirLockStatus};
 
 pub fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,

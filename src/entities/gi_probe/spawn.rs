@@ -1,17 +1,10 @@
-use bevy_ecs::{
-    event::{EventReader, EventWriter},
-    system::Commands,
-};
-
 use crate::core::entity::{
-    components::{EntityData, EntityUpdates},
-    events::RawSpawnEvent,
-    functions::string_to_type_converters::string_transform_to_transform,
-    resources::SpawnData,
-    spawn::SpawnEvent,
+    entity_data::{string_transform_to_transform, EntityData, RawSpawnEvent},
+    entity_updates::EntityUpdates,
+    spawn::{SpawnData, SpawnEvent},
 };
 
-use super::{components::GIProbe, process_content::ExportData};
+use super::process_content::ExportData;
 
 pub struct GIProbeSummoner {
     pub probe: GIProbe,
@@ -75,4 +68,21 @@ pub fn summon_raw_gi_probe(
             });
         }
     }
+}
+use bevy::{
+    math::Vec3,
+    prelude::{Commands, Component, EventReader, EventWriter},
+};
+
+#[derive(Component, Clone)]
+pub struct GIProbe {
+    pub bias: f32,
+    pub compressed: bool,
+    pub dynamic_range: u8,
+    pub energy: f32,
+    pub interior: bool,
+    pub normal_bias: f32,
+    pub propagation: f32,
+    pub subdiv: u8,
+    pub extents: Vec3,
 }

@@ -1,1 +1,1 @@
-pub mod components;
+pub mod examinable;

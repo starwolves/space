@@ -1,11 +1,11 @@
-use super::components::InventoryItem;
-
-use bevy_ecs::{entity::Entity, event::EventReader, system::Commands};
+use bevy::prelude::{Commands, Entity, EventReader};
 
 use crate::core::{
-    entity::{resources::SpawnData, spawn::SpawnEvent},
-    rigid_body::components::RigidBodyLinkTransform,
+    entity::spawn::{SpawnData, SpawnEvent},
+    rigid_body::rigidbody_link_transform::RigidBodyLinkTransform,
 };
+
+use super::item::InventoryItem;
 
 pub struct InventoryItemBundle {
     pub inventory_item: InventoryItem,

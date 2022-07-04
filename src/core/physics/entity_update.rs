@@ -1,14 +1,11 @@
-use bevy_ecs::{prelude::Changed, system::Query};
+use bevy::prelude::{Changed, Query};
 
 use crate::core::{
-    entity::{
-        components::EntityUpdates,
-        functions::get_entity_update_difference::get_entity_update_difference,
-    },
-    networking::resources::EntityUpdateData,
+    entity::entity_updates::{get_entity_update_difference, EntityUpdates},
+    networking::networking::EntityUpdateData,
 };
 
-use super::components::{WorldMode, WorldModes};
+use super::world_mode::{WorldMode, WorldModes};
 
 pub fn world_mode_update(
     mut updated_entities: Query<(&WorldMode, &mut EntityUpdates), Changed<WorldMode>>,

@@ -1,11 +1,9 @@
-use bevy_math::Vec3;
+use bevy::math::Vec3;
 use serde::Deserialize;
 
-use crate::core::entity::functions::string_to_type_converters::{
-    string_color_to_color, string_vec3_to_vec3,
-};
+use crate::core::entity::entity_data::{string_color_to_color, string_vec3_to_vec3};
 
-use super::components::ReflectionProbe;
+use super::reflection_probe::ReflectionProbe;
 
 #[allow(dead_code)]
 #[derive(Deserialize)]

@@ -1,8 +1,8 @@
 use serde::Deserialize;
 
-use crate::core::entity::functions::string_to_type_converters::string_color_to_color;
+use crate::core::entity::entity_data::string_color_to_color;
 
-use super::components::OmniLight;
+use super::omni_light::OmniLight;
 
 #[allow(dead_code)]
 #[derive(Deserialize)]

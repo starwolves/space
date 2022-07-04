@@ -7,23 +7,16 @@ homepage="https://github.com/starwolves/space"
 license-file="LICENSE"
 edition = "2021"
 
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
-bevy_hierarchy = "0.7.0"
-bevy_core = "0.7.0"
-bevy_app = "0.7.0"
-bevy_ecs = "0.7.0"
-bevy_log = "0.7.0"
-bevy_transform = "0.7.0"
-bevy_math = "0.7.0"
-bevy_asset = "0.7.0"
-bevy_render = "0.7.0"
-bevy_window = "0.7.0"
-
+#bevy_rapier3d = {version= "0.14.1" ,default-features = false, features = [ "dim3" ]}
 bevy_rapier3d = "0.14.1"
-bevy_scene = "0.7.0"
 
 
 serde = {version= "1.0.137"}

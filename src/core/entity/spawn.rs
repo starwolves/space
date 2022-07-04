@@ -1,31 +1,4 @@
-use bevy_transform::prelude::Transform;
 use std::collections::HashMap;
-
-use bevy_ecs::{
-    entity::Entity,
-    event::{EventReader, EventWriter},
-    system::Commands,
-};
-
-use crate::core::{
-    connected_player::systems::on_setupui::ENTITY_SPAWN_PARENT,
-    entity::{
-        components::{EntityData, EntityUpdates, Showcase},
-        events::NetShowcase,
-        resources::ShowcaseData,
-    },
-    examinable::components::Examinable,
-    health::components::Health,
-    networking::resources::ReliableServerMessage,
-    rigid_body::components::CachedBroadcastTransform,
-    sensable::components::Sensable,
-    tab_actions::components::TabActions,
-};
-
-use super::{
-    components::{DefaultMapEntity, EntityGroup},
-    resources::SpawnData,
-};
 
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
@@ -177,3 +150,198 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
 }
 
 pub struct NoData;
+
+pub fn spawn_entity(
+    entity_name: String,
+    transform: Transform,
+    commands: &mut Commands,
+    correct_transform: bool,
+    entity_data: &ResMut<EntityDataResource>,
+    held_data_option: Option<Entity>,
+    raw_entity_option: Option<RawEntity>,
+    showcase_handle_option: Option<ShowcaseData>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
+) -> Option<Entity> {
+    let return_entity;
+
+    match entity_data.name_to_id.get(&entity_name) {
+        Some(_id) => {
+            let held;
+
+            match held_data_option {
+                Some(entity) => {
+                    held = Some(entity);
+                }
+                None => {
+                    held = None;
+                }
+            }
+            return_entity = Some(commands.spawn().id());
+
+            default_spawner.send(DefaultSpawnEvent {
+                spawn_data: SpawnData {
+                    entity_transform: transform,
+                    correct_transform,
+                    holder_entity_option: held,
+                    raw_entity_option: raw_entity_option,
+                    showcase_data_option: showcase_handle_option,
+                    entity_name,
+                    entity: return_entity.unwrap(),
+
+                    ..Default::default()
+                },
+            });
+        }
+        None => {
+            return_entity = None;
+        }
+    };
+
+    match return_entity {
+        Some(_entity) => {
+            //info!("{:?}",entity);
+        }
+        None => {}
+    }
+
+    return_entity
+}
+
+pub fn spawn_held_entity(
+    entity_name: String,
+    commands: &mut Commands,
+    holder_entity: Entity,
+    showcase_handle_option: Option<ShowcaseData>,
+    entity_data: &ResMut<EntityDataResource>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
+) -> Option<Entity> {
+    let return_entity;
+
+    match entity_data.name_to_id.get(&entity_name) {
+        Some(_id) => {
+            return_entity = Some(commands.spawn().id());
+
+            default_spawner.send(DefaultSpawnEvent {
+                spawn_data: SpawnData {
+                    entity_transform: Transform::identity(),
+                    correct_transform: false,
+                    holder_entity_option: Some(holder_entity),
+                    default_map_spawn: false,
+                    raw_entity_option: None,
+                    showcase_data_option: showcase_handle_option,
+                    entity_name,
+                    entity: return_entity.unwrap(),
+                    held_entity_option: return_entity,
+                },
+            });
+        }
+        None => {
+            return_entity = None;
+        }
+    }
+
+    return_entity
+}
+
+use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
+use serde::Deserialize;
+
+#[derive(Deserialize, Clone)]
+pub struct RawEntity {
+    pub entity_type: String,
+    pub transform: String,
+    pub data: String,
+}
+
+pub fn load_raw_map_entities(
+    raw_entities: &Vec<RawEntity>,
+    spawn_raw_entity: &mut EventWriter<RawSpawnEvent>,
+) {
+    for raw_entity in raw_entities.iter() {
+        spawn_raw_entity.send(RawSpawnEvent {
+            raw_entity: raw_entity.clone(),
+        });
+    }
+}
+
+use crate::core::{
+    connected_player::ui::ENTITY_SPAWN_PARENT,
+    examinable::examinable::Examinable,
+    health::health::Health,
+    networking::networking::{ConsoleCommandVariantValues, ReliableServerMessage},
+    rigid_body::rigid_body::CachedBroadcastTransform,
+    sensable::sensable::Sensable,
+    tab_actions::tab_action::TabActions,
+};
+
+use super::{
+    entity_data::{
+        DefaultMapEntity, EntityData, EntityDataResource, EntityGroup, NetShowcase, RawSpawnEvent,
+        Showcase, ShowcaseData,
+    },
+    entity_updates::EntityUpdates,
+};
+
+#[derive(Deserialize)]
+pub struct ExportProperty {
+    pub value_type: i64,
+    pub value: String,
+    pub key: String,
+}
+
+#[derive(Deserialize)]
+pub struct ExportDataRaw {
+    pub properties: Vec<ExportProperty>,
+}
+
+pub struct ExportData {
+    pub properties: HashMap<String, ConsoleCommandVariantValues>,
+}
+
+impl ExportData {
+    pub fn new(raw: ExportDataRaw) -> ExportData {
+        let mut hashmap = HashMap::new();
+        for property in raw.properties {
+            let v;
+            if property.value_type == 4 {
+                v = ConsoleCommandVariantValues::String(property.value)
+            } else {
+                warn!("Entity from entities.json had unknown type!");
+                continue;
+            }
+            hashmap.insert(property.key, v);
+        }
+        ExportData {
+            properties: hashmap,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct SpawnData {
+    pub entity_transform: Transform,
+    pub correct_transform: bool,
+    pub holder_entity_option: Option<Entity>,
+    pub held_entity_option: Option<Entity>,
+    pub default_map_spawn: bool,
+    pub raw_entity_option: Option<RawEntity>,
+    pub showcase_data_option: Option<ShowcaseData>,
+    pub entity_name: String,
+    pub entity: Entity,
+}
+
+impl Default for SpawnData {
+    fn default() -> Self {
+        Self {
+            entity_transform: Transform::identity(),
+            correct_transform: true,
+            held_entity_option: None,
+            holder_entity_option: None,
+            default_map_spawn: false,
+            raw_entity_option: None,
+            showcase_data_option: None,
+            entity_name: "".to_string(),
+            entity: Entity::from_bits(0),
+        }
+    }
+}

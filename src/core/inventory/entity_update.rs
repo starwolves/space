@@ -1,17 +1,17 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{prelude::Changed, system::Query};
-use bevy_log::warn;
+use bevy::prelude::{warn, Changed, Query};
 
 use crate::core::{
     entity::{
-        components::{EntityData, EntityUpdates},
-        functions::get_entity_update_difference::get_entity_update_difference,
+        entity_data::EntityData,
+        entity_updates::{get_entity_update_difference, EntityUpdates},
     },
-    inventory::components::Inventory,
-    inventory_item::components::InventoryItem,
-    networking::resources::EntityUpdateData,
+    inventory_item::item::InventoryItem,
+    networking::networking::EntityUpdateData,
 };
+
+use super::inventory::Inventory;
 
 pub fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,
