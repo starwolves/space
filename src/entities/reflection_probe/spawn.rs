@@ -1,19 +1,14 @@
-use bevy_ecs::{
-    event::{EventReader, EventWriter},
-    system::Commands,
-};
+use bevy::prelude::{Commands, EventReader, EventWriter};
 
 use crate::core::entity::{
-    components::{EntityData, EntityUpdates},
-    events::RawSpawnEvent,
-    functions::string_to_type_converters::string_transform_to_transform,
-    resources::SpawnData,
-    spawn::SpawnEvent,
+    entity_data::{string_transform_to_transform, EntityData, RawSpawnEvent},
+    entity_updates::EntityUpdates,
+    spawn::{SpawnData, SpawnEvent},
 };
 
 use super::{
-    components::ReflectionProbe,
     process_content::{ExportData, ExportDataRaw},
+    reflection_probe::ReflectionProbe,
 };
 
 pub struct ReflectionProbeSummoner {

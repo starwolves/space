@@ -1,13 +1,11 @@
-use bevy_ecs::{prelude::Changed, system::Query};
+use bevy::prelude::{Changed, Query};
 
 use crate::core::{
-    entity::{
-        components::EntityUpdates,
-        functions::get_entity_update_difference::get_entity_update_difference,
-    },
-    inventory_item::components::InventoryItem,
-    networking::resources::EntityUpdateData,
+    entity::entity_updates::{get_entity_update_difference, EntityUpdates},
+    networking::networking::EntityUpdateData,
 };
+
+use super::item::InventoryItem;
 
 pub fn inventory_item_update(
     mut updated_entities: Query<(&InventoryItem, &mut EntityUpdates), Changed<InventoryItem>>,

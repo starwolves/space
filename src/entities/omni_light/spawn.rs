@@ -1,23 +1,17 @@
-use bevy_ecs::{
-    event::{EventReader, EventWriter},
-    system::Commands,
-};
-use bevy_transform::components::Transform;
+use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 
 use crate::core::{
     entity::{
-        components::{EntityData, EntityUpdates},
-        events::RawSpawnEvent,
-        functions::string_to_type_converters::string_transform_to_transform,
-        resources::SpawnData,
-        spawn::SpawnEvent,
+        entity_data::{string_transform_to_transform, EntityData, RawSpawnEvent},
+        entity_updates::EntityUpdates,
+        spawn::{SpawnData, SpawnEvent},
     },
-    physics::components::{WorldMode, WorldModes},
-    sensable::components::Sensable,
+    physics::world_mode::{WorldMode, WorldModes},
+    sensable::sensable::Sensable,
 };
 
 use super::{
-    components::OmniLight,
+    omni_light::OmniLight,
     process_content::{ExportData, ExportDataRaw},
 };
 

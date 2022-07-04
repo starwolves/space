@@ -1,21 +1,25 @@
 use std::{collections::HashMap, f32::consts::PI};
 
+use bevy::{
+    math::Vec2,
+    prelude::{Changed, Entity, Query},
+};
+use vector2math::{FloatingVector2, Vector2};
+
 use crate::core::{
-    connected_player::components::ConnectedPlayer,
+    combat::attack::{CombatAttackAnimation, CombatStandardAnimation},
+    connected_player::connection::ConnectedPlayer,
     entity::{
-        components::{EntityUpdates, Showcase},
-        functions::get_entity_update_difference::get_entity_update_difference,
+        entity_data::Showcase,
+        entity_updates::{get_entity_update_difference, EntityUpdates},
     },
-    humanoid::components::{CharacterAnimationState, Humanoid},
-    inventory::components::Inventory,
-    inventory_item::components::InventoryItem,
-    networking::resources::EntityUpdateData,
-    pawn::components::{ControllerInput, FacingDirection, Pawn, PersistentPlayerData},
+    inventory::inventory::Inventory,
+    inventory_item::item::InventoryItem,
+    networking::networking::EntityUpdateData,
+    pawn::pawn::{ControllerInput, FacingDirection, Pawn, PersistentPlayerData},
 };
 
-use bevy_ecs::{entity::Entity, prelude::Changed, system::Query};
-use bevy_math::Vec2;
-use vector2math::*;
+use super::humanoid::{CharacterAnimationState, Humanoid};
 
 pub fn humanoid_update(
     mut updated_humans: Query<
@@ -128,20 +132,20 @@ pub fn humanoid_update(
                         }
 
                         match inventory_item_component.combat_standard_animation {
-                                crate::core::inventory_item::components::CombatStandardAnimation::StandardStance => {
+                            CombatStandardAnimation::StandardStance => {
+                                upper_body_animation_state = "Idle Heightened".to_string();
+                                lower_body_animation_state = "Idle".to_string();
+                            }
+                            CombatStandardAnimation::PistolStance => {
+                                if !alt_attack_mode {
+                                    upper_body_animation_state = "Pistol Idle".to_string();
+                                    lower_body_animation_state = "Pistol Idle".to_string();
+                                } else {
                                     upper_body_animation_state = "Idle Heightened".to_string();
                                     lower_body_animation_state = "Idle".to_string();
-                                },
-                                crate::core::inventory_item::components::CombatStandardAnimation::PistolStance => {
-                                    if !alt_attack_mode {
-                                        upper_body_animation_state = "Pistol Idle".to_string();
-                                        lower_body_animation_state = "Pistol Idle".to_string();
-                                    } else {
-                                        upper_body_animation_state = "Idle Heightened".to_string();
-                                        lower_body_animation_state = "Idle".to_string();
-                                    }
-                                },
+                                }
                             }
+                        }
                     }
                     None => {
                         upper_body_animation_state = "Idle Heightened".to_string();
@@ -167,25 +171,22 @@ pub fn humanoid_update(
                             }
 
                             match inventory_item_component.combat_standard_animation {
-                                crate::core::inventory_item::components::CombatStandardAnimation::StandardStance => {
+                                CombatStandardAnimation::StandardStance => {
                                     upper_body_animation_state = "JoggingStrafe".to_string();
                                     lower_body_animation_state = "JoggingStrafe".to_string();
-                                },
-                                crate::core::inventory_item::components::CombatStandardAnimation::PistolStance => {
-
-
+                                }
+                                CombatStandardAnimation::PistolStance => {
                                     if !alt_attack_mode {
                                         upper_body_animation_state = "PistolStrafe".to_string();
                                         lower_body_animation_state = "PistolStrafe".to_string();
                                         //upper_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/upperBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
                                         lower_body_strafe_blendspace2d_path = "Smoothing/pawn/humanMale/rig/animationTree1>>parameters/mainBodyState/PistolStrafe/BlendSpace2D/blend_position".to_string();
-                                        update_upper_body=false;
+                                        update_upper_body = false;
                                     } else {
                                         upper_body_animation_state = "JoggingStrafe".to_string();
                                         lower_body_animation_state = "JoggingStrafe".to_string();
                                     }
-
-                                },
+                                }
                             }
                         }
                         None => {
@@ -267,30 +268,23 @@ pub fn humanoid_update(
 
             if standard_character_component.is_attacking {
                 match active_item_entity {
-                    Some(_entity) => {
-                        match inventory_item_option.unwrap().combat_attack_animation {
-                            crate::core::inventory_item::components::CombatAttackAnimation::OneHandedMeleePunch => {
-
+                    Some(_entity) => match inventory_item_option.unwrap().combat_attack_animation {
+                        CombatAttackAnimation::OneHandedMeleePunch => {
+                            if is_left_handed {
+                                upper_body_animation_state = "Punching Left".to_string();
+                            } else {
+                                upper_body_animation_state = "Punching Right".to_string();
+                            }
+                        }
+                        CombatAttackAnimation::PistolShot => {
+                            if alt_attack_mode {
                                 if is_left_handed {
                                     upper_body_animation_state = "Punching Left".to_string();
                                 } else {
                                     upper_body_animation_state = "Punching Right".to_string();
                                 }
-
-                            },
-                            crate::core::inventory_item::components::CombatAttackAnimation::PistolShot => {
-
-                                if alt_attack_mode {
-                                    if is_left_handed {
-                                        upper_body_animation_state = "Punching Left".to_string();
-                                    } else {
-                                        upper_body_animation_state = "Punching Right".to_string();
-                                    }
-                                }
-
-                            },
+                            }
                         }
-
                     },
                     None => {
                         if is_left_handed {
@@ -298,7 +292,7 @@ pub fn humanoid_update(
                         } else {
                             upper_body_animation_state = "Punching Right".to_string();
                         }
-                    },
+                    }
                 }
             }
             animation_tree1_upper_blend.insert(

@@ -2,8 +2,8 @@
 crates/*/target
 **/*.rs.bk
 Cargo.lock
-.cargo/config
-.cargo/config.toml
+/.cargo
 /.idea
 /.vscode
 /benches/target
+rust-toolchain.toml

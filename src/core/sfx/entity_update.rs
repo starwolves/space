@@ -1,18 +1,13 @@
-use bevy_ecs::{prelude::Changed, system::Query};
+use bevy::prelude::{Changed, Query};
 
 use crate::core::{
-    entity::{
-        components::EntityUpdates,
-        functions::{
-            entity_update_change_detection::entity_update_changed_detection,
-            get_entity_update_difference::get_entity_update_difference,
-        },
+    entity::entity_updates::{
+        entity_update_changed_detection, get_entity_update_difference, EntityUpdates,
     },
-    networking::resources::EntityUpdateData,
-    sfx::components::RepeatingSfx,
+    networking::networking::EntityUpdateData,
 };
 
-use super::components::Sfx;
+use super::builder::{RepeatingSfx, Sfx};
 
 pub fn repeating_sfx_update(
     mut updated_sfx: Query<(&RepeatingSfx, &mut EntityUpdates), Changed<RepeatingSfx>>,

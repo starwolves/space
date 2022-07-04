@@ -1,23 +1,21 @@
-use bevy_ecs::{entity::Entity, event::EventReader, system::Commands};
-use bevy_hierarchy::BuildChildren;
+use bevy::{
+    hierarchy::BuildChildren,
+    prelude::{Commands, Entity, EventReader, GlobalTransform, Transform},
+};
 use bevy_rapier3d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
     GravityScale, RigidBody, Sleeping, Velocity,
 };
-use bevy_transform::prelude::{GlobalTransform, Transform};
 
 use crate::core::{
-    entity::{
-        resources::SpawnData,
-        spawn::{NoData, SpawnEvent},
-    },
+    entity::spawn::{NoData, SpawnData, SpawnEvent},
     physics::{
-        components::{WorldMode, WorldModes},
-        functions::{get_bit_masks, ColliderGroup},
+        physics_events::{get_bit_masks, ColliderGroup},
+        world_mode::{WorldMode, WorldModes},
     },
 };
 
-use super::components::{RigidBodyData, RigidBodyDisabled};
+use super::{broadcast_interpolation_transforms::RigidBodyData, disabled::RigidBodyDisabled};
 
 pub struct RigidBodyBundle {
     pub collider: Collider,

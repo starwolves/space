@@ -1,8 +1,8 @@
 use serde::Deserialize;
 
-use crate::core::entity::functions::string_to_type_converters::string_vec3_to_vec3;
+use crate::core::entity::entity_data::string_vec3_to_vec3;
 
-use super::components::GIProbe;
+use super::spawn::GIProbe;
 
 #[derive(Deserialize)]
 pub struct ExportData {
