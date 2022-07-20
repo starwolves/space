@@ -1,3 +1,35 @@
+use atmospherics::diffusion::AtmosphericsResource;
+use bevy::{
+    core::Timer,
+    hierarchy::Children,
+    prelude::{
+        info, warn, Commands, Component, Entity, EventReader, EventWriter, Query, ResMut,
+        Transform, With,
+    },
+};
+use bevy_rapier3d::prelude::{Collider, CollisionGroups};
+use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
+use physics::physics::{get_bit_masks, ColliderGroup};
+use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
+use shared::{
+    chat::{FURTHER_ITALIC_FONT, WARNING_COLOR},
+    data::{AirLockCloseRequest, LockedStatus, Vec2Int},
+    entity_updates::EntityGroup,
+    examinable::Examinable,
+    gridmap::{get_atmos_index, world_to_cell_id},
+    network::ReliableServerMessage,
+};
+use sounds::{
+    counter_window::{
+        counter_window_closed_sfx::CounterWindowClosedSfxBundle,
+        counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
+        counter_window_open_sfx::CounterWindowOpenSfxBundle,
+    },
+    shared::sfx_auto_destroy,
+};
+
+use super::net::NetCounterWindow;
+
 pub struct CounterWindowOpenRequest {
     pub opener_option: Option<Entity>,
     pub opened: Entity,
@@ -8,11 +40,12 @@ pub fn counter_window_events(
     mut counter_window_toggle_open_action: EventReader<InputCounterWindowToggleOpen>,
     mut counter_window_query: Query<(
         &mut CounterWindow,
-        &mut Transform,
+        &Transform,
         Entity,
         &Children,
         &mut Examinable,
     )>,
+    mut counter_window_colliders: Query<&mut CollisionGroups, With<Collider>>,
     counter_window_sensor_query: Query<&CounterWindowSensor>,
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
@@ -167,9 +200,9 @@ pub fn counter_window_events(
 
     for (
         mut counter_window_component,
-        mut rigid_body_position_component,
+        rigid_body_position_component,
         counter_window_entity,
-        _children_component,
+        children_component,
         _examinable_component,
     ) in counter_window_query.iter_mut()
     {
@@ -210,22 +243,51 @@ pub fn counter_window_events(
             None => {}
         }
 
+        let mut collider_option = None;
+
+        for child in children_component.iter() {
+            match counter_window_colliders.get(*child) {
+                Ok(_) => {
+                    collider_option = Some(child);
+                }
+                Err(_) => {}
+            }
+        }
+
+        let collider;
+
+        match collider_option {
+            Some(e) => {
+                collider = e;
+            }
+            None => {
+                warn!("Couldnt find collider of counterWindow.");
+                continue;
+            }
+        }
+
+        let mut collision_groups;
+
+        match counter_window_colliders.get_mut(*collider) {
+            Ok(c) => {
+                collision_groups = c;
+            }
+            Err(_rr) => {
+                warn!("Couldnt find collider child of counterWindow.");
+                continue;
+            }
+        }
+
         match counter_window_component.closed_timer.as_mut() {
             Some(timer_component) => {
                 if timer_component.finished() == true {
                     timer_component.pause();
                     timer_component.reset();
 
-                    let mut counter_window_rigid_body_position =
-                        rigid_body_position_component.clone();
+                    let masks = get_bit_masks(ColliderGroup::Standard);
 
-                    counter_window_rigid_body_position.translation.y = COUNTER_WINDOW_COLLISION_Y;
-
-                    rigid_body_position_component.translation =
-                        counter_window_rigid_body_position.translation;
-                    rigid_body_position_component.rotation =
-                        counter_window_rigid_body_position.rotation;
-                    rigid_body_position_component.scale = counter_window_rigid_body_position.scale;
+                    collision_groups.memberships = masks.0;
+                    collision_groups.filters = masks.1;
 
                     counter_window_component.access_lights =
                         CounterWindowAccessLightsStatus::Neutral;
@@ -332,7 +394,7 @@ pub fn counter_window_events(
         let counter_window_components_result = counter_window_query.get_mut(request.opened);
 
         let mut counter_window_component;
-        let mut counter_window_rigid_body_position_component;
+        let counter_window_rigid_body_position_component;
         let children;
 
         match counter_window_components_result {
@@ -365,7 +427,6 @@ pub fn counter_window_events(
                 }
                 Err(_) => {}
             }
-            // Should only have one child.
         }
 
         let _opened_sensor;
@@ -421,6 +482,41 @@ pub fn counter_window_events(
             None => {}
         }
 
+        let mut collider_option = None;
+
+        for child in children.iter() {
+            match counter_window_colliders.get(*child) {
+                Ok(_) => {
+                    collider_option = Some(child);
+                }
+                Err(_rr) => {}
+            }
+        }
+
+        let collider;
+
+        match collider_option {
+            Some(c) => {
+                collider = c;
+            }
+            None => {
+                warn!("Couldnt find counterwindow child!");
+                continue;
+            }
+        }
+
+        let mut collision_groups;
+
+        match counter_window_colliders.get_mut(*collider) {
+            Ok(c) => {
+                collision_groups = c;
+            }
+            Err(_rr) => {
+                warn!("Couldnt find counterwindow collision component.");
+                continue;
+            }
+        }
+
         if pawn_has_permission == true {
             if !matches!(counter_window_component.status, CounterWindowStatus::Open) {
                 let sfx_entity = sfx_builder(
@@ -455,13 +551,10 @@ pub fn counter_window_events(
             counter_window_component.status = CounterWindowStatus::Open;
             counter_window_component.access_lights = CounterWindowAccessLightsStatus::Granted;
 
-            let mut counter_window_rigid_body_position =
-                counter_window_rigid_body_position_component.clone();
+            let masks = get_bit_masks(ColliderGroup::NoCollision);
 
-            counter_window_rigid_body_position.translation.y = COUNTER_WINDOW_COLLISION_Y + 2.;
-
-            counter_window_rigid_body_position_component.translation =
-                counter_window_rigid_body_position.translation;
+            collision_groups.memberships = masks.0;
+            collision_groups.filters = masks.1;
 
             counter_window_component.open_timer = Some(open_timer())
         } else {
@@ -557,35 +650,6 @@ pub fn counter_window_events(
         }
     }
 }
-
-use atmospherics::diffusion::AtmosphericsResource;
-use bevy::{
-    core::Timer,
-    hierarchy::Children,
-    prelude::{
-        info, warn, Commands, Component, Entity, EventReader, EventWriter, Query, ResMut, Transform,
-    },
-};
-use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
-use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
-use shared::{
-    chat::{FURTHER_ITALIC_FONT, WARNING_COLOR},
-    data::{AirLockCloseRequest, LockedStatus, Vec2Int},
-    entity_updates::EntityGroup,
-    examinable::Examinable,
-    gridmap::{get_atmos_index, world_to_cell_id},
-    network::ReliableServerMessage,
-};
-use sounds::{
-    counter_window::{
-        counter_window_closed_sfx::CounterWindowClosedSfxBundle,
-        counter_window_denied_sfx::CounterWindowDeniedSfxBundle,
-        counter_window_open_sfx::CounterWindowOpenSfxBundle,
-    },
-    shared::sfx_auto_destroy,
-};
-
-use super::{net::NetCounterWindow, spawn::COUNTER_WINDOW_COLLISION_Y};
 
 #[derive(Component)]
 pub struct CounterWindowSensor {

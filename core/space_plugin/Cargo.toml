@@ -9,6 +9,8 @@ default-features = false
 
 [dependencies]
 bevy_rapier3d = "0.15.0"
+bevy_renet = "0.0.3"
+
 
 atmospherics = { path = "../atmospherics" }
 combat = { path = "../combat" }

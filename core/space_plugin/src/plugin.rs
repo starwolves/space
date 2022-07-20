@@ -15,6 +15,7 @@ use bevy::{
     window::WindowPlugin,
 };
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
+use bevy_renet::renet::NETCODE_KEY_BYTES;
 use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
 use connected_player::plugin::ConnectedPlayerPlugin;
@@ -52,6 +53,7 @@ pub struct SpacePlugin {
     pub bevy_rate: Option<u8>,
     pub threads_amount: Option<u8>,
     pub give_all_rcon: bool,
+    pub custom_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
 }
 impl Default for SpacePlugin {
     fn default() -> Self {
@@ -62,6 +64,7 @@ impl Default for SpacePlugin {
             // Dev values.
             threads_amount: Some(2),
             give_all_rcon: true,
+            custom_encryption_key: None,
         }
     }
 }
@@ -105,7 +108,9 @@ impl Plugin for SpacePlugin {
             .add_plugin(AirLocksPlugin)
             .add_plugin(CounterWindowsPlugin)
             .add_plugin(InventoryPlugin)
-            .add_plugin(NetworkingPlugin)
+            .add_plugin(NetworkingPlugin {
+                custom_encryption_key: self.custom_encryption_key,
+            })
             .add_plugin(PhysicsPlugin)
             .add_plugin(HumanoidPlugin)
             .add_plugin(RigidBodyPlugin)
