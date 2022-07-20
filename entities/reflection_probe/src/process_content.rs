@@ -1,7 +1,7 @@
 use bevy::math::Vec3;
 use data_converters::converters::string_vec3_to_vec3;
 use serde::Deserialize;
-use shared::{converters::string_color_to_color, data::ReflectionProbe};
+use api::{converters::string_color_to_color, data::ReflectionProbe};
 
 #[allow(dead_code)]
 #[derive(Deserialize)]

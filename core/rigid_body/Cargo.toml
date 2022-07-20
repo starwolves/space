@@ -13,4 +13,4 @@ bevy_rapier3d = "0.15.0"
 
 entity = { path = "../entity" }
 physics = { path = "../physics" }
-shared = { path = "../shared" }
+api = { path = "../api" }

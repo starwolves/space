@@ -8,7 +8,7 @@ use bevy_rapier3d::prelude::{
 };
 use data_converters::converters::string_vec3_to_vec3;
 use physics::physics::{get_bit_masks, ColliderGroup, CHARACTER_FLOOR_FRICTION};
-use shared::{
+use api::{
     data::Vec3Int,
     gridmap::{
         cell_id_to_world, to_doryen_coordinates, CellData, GridmapData, GridmapDetails1,

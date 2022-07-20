@@ -86,7 +86,7 @@ impl PendingMessage for NetPawn {
 
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
 use networking::messages::InputUserName;
-use shared::{
+use api::{
     chat::escape_bb,
     console_commands::CONSOLE_ERROR_COLOR,
     data::HandleToEntity,

@@ -1,4 +1,4 @@
-use shared::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
+use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
 pub struct NetGridmapUpdates {
     pub handle: u64,

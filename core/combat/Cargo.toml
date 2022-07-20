@@ -15,6 +15,6 @@ networking = { path = "../networking" }
 health = { path = "../health" }
 sounds = { path = "../../entities/sounds" }
 physics = { path = "../physics" }
-shared = { path = "../shared" }
+api = { path = "../api" }
 gridmap = { path = "../gridmap" }
 sfx = { path = "../sfx" }

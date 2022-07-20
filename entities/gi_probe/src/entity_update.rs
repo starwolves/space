@@ -1,5 +1,5 @@
 use bevy::prelude::{Changed, Query};
-use shared::{
+use api::{
     data::GIProbe,
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
 };

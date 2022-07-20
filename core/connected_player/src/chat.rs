@@ -120,7 +120,7 @@ use bevy::{
 
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use sfx::{proximity_message::PlaySoundProximityMessage, radio_sound::PlaySoundRadioMessage};
-use shared::{
+use api::{
     chat::{
         escape_bb, BILLBOARD_DATA_SECURITY_END, BILLBOARD_DATA_SECURITY_START,
         BILLBOARD_SHOUT_FONT, BILLBOARD_SHOUT_ITALIC_FONT, FAR_BOLD_FONT, FAR_SHOUT_FONT,

@@ -2,7 +2,7 @@ use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use entity::spawn::SpawnEvent;
 use inventory_item::entity_update::inventory_item_update;
-use shared::data::{PostUpdateLabels, SummoningLabels};
+use api::data::{PostUpdateLabels, SummoningLabels};
 
 use super::entity_update::reflection_probe_update;
 use super::spawn::{spawn_raw_reflection_probe, summon_reflection_probe, ReflectionProbeSummoner};

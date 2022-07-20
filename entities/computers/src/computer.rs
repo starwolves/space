@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use bevy::prelude::{Added, Component, Query};
-use shared::{
+use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
     entity_updates::EntityData,
     examinable::{Examinable, RichName},

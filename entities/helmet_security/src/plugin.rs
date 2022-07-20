@@ -5,7 +5,7 @@ use entity::{
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
-use shared::data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels};
+use api::data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels};
 
 use super::spawn::{
     default_summon_helmet_security, summon_helmet, summon_raw_helmet, HelmetSummoner,

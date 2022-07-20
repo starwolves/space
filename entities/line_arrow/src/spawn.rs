@@ -9,7 +9,7 @@ use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,
 };
 use physics::world_mode::{WorldMode, WorldModes};
-use shared::{
+use api::{
     data::NoData,
     examinable::{Examinable, RichName},
 };

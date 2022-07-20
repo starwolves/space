@@ -1,7 +1,7 @@
 use bevy::prelude::{warn, Changed, Query};
 use inventory_item::item::InventoryItem;
 use pawn::pawn::Pawn;
-use shared::inventory::Inventory;
+use api::inventory::Inventory;
 
 pub fn inventory_tab_data(
     mut changed_inventories: Query<(&mut Inventory, &mut Pawn), Changed<Inventory>>,

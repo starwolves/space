@@ -5,7 +5,7 @@ use entity::{
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
-use shared::data::{
+use api::data::{
     EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
     JUMPSUIT_SECURITY_ENTITY_NAME,
 };

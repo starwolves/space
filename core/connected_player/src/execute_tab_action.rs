@@ -4,7 +4,7 @@ use bevy::{
 };
 use networking::messages::InputTabAction;
 use pawn::pawn::Pawn;
-use shared::{
+use api::{
     connected_player::SoftPlayer,
     data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec3Int},
     data_link::DataLink,

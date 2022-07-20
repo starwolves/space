@@ -54,11 +54,11 @@ use entity::spawn::{summon_base_entity, SpawnEvent};
 use inventory_item::spawn::summon_inventory_item;
 use networking::messages::{net_system, InputConstructionOptionsSelection};
 use rigid_body::spawn::summon_rigid_body;
-use shared::data::{
+use api::data::{
     EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels, SummoningLabels,
     UpdateLabels,
 };
-use shared::tab_actions::TabActionsQueueLabels;
+use api::tab_actions::TabActionsQueueLabels;
 
 use super::{
     action::construction_tool_actions,

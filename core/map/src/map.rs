@@ -32,7 +32,7 @@ use std::collections::HashMap;
 
 pub const GREEN_MAP_TILE_ENTRANCE: i16 = 3;
 pub const GREEN_MAP_TILE_COUNTER: i16 = 4;
-use shared::{data::Vec2Int, gridmap::FOV_MAP_WIDTH};
+use api::{data::Vec2Int, gridmap::FOV_MAP_WIDTH};
 
 use bevy::{
     math::Vec2,

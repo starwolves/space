@@ -1,6 +1,6 @@
 use bevy::prelude::{warn, Entity, EventWriter, Query, Res, ResMut};
 use const_format::concatcp;
-use shared::{
+use api::{
     chat::{
         get_empty_cell_message, get_space_message, ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT,
     },

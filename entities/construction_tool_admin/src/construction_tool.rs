@@ -16,7 +16,7 @@ use gridmap::{
 };
 use networking::messages::InputConstructionOptionsSelection;
 use physics::physics::RigidBodyDisabled;
-use shared::{
+use api::{
     atmospherics::EffectType,
     chat::FURTHER_ITALIC_FONT,
     data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec2Int, Vec3Int},

@@ -4,7 +4,7 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use rigid_body::spawn::summon_rigid_body;
-use shared::data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels};
+use api::data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels};
 
 use super::{
     computer::computer_added,

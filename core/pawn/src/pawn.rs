@@ -4,7 +4,7 @@ use bevy::{
     math::Vec2,
     prelude::{Component, Entity},
 };
-use shared::{
+use api::{
     data::Vec3Int,
     get_spawn_position::FacingDirection,
     tab_actions::{TabAction, TabActionsData},

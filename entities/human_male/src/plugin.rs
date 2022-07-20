@@ -5,7 +5,7 @@ use connected_player::humanoid::{
 use entity::{entity_data::initialize_entity_data, spawn::SpawnEvent};
 
 use rigid_body::spawn::summon_rigid_body;
-use shared::data::{
+use api::data::{
     EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
     HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
 };

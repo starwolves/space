@@ -1,5 +1,5 @@
 use bevy::prelude::{warn, Query, Res, ResMut};
-use shared::{
+use api::{
     atmospherics::CELCIUS_KELVIN_OFFSET,
     chat::{ATMOSPHERICS_TEXT_COLOR, FURTHER_ITALIC_FONT},
     data::Vec2Int,

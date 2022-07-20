@@ -1,5 +1,5 @@
 use bevy::prelude::{warn, Query, ResMut};
-use shared::{
+use api::{
     chat::{ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT},
     gridmap::GridmapExamineMessages,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},

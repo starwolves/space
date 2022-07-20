@@ -7,7 +7,7 @@ use entity::{
     spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
 };
 use pawn::pawn::{Pawn, UsedNames};
-use shared::{
+use api::{
     console_commands::CONSOLE_ERROR_COLOR,
     data::{EntityDataResource, HandleToEntity, ShowcaseData},
     gridmap::GridmapMain,

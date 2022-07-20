@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Component, Entity, Transform};
-use shared::{
+use api::{
     combat::{CombatAttackAnimation, CombatStandardAnimation, CombatType, DamageModel},
     inventory::SlotType,
     tab_actions::TabAction,

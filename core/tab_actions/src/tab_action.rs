@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use bevy::prelude::{Entity, Query};
-use shared::{
+use api::{
     data::EntityDataResource,
     data_link::DataLink,
     entity_updates::EntityData,

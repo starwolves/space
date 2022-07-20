@@ -7,7 +7,7 @@ use bevy::{
 use bevy_rapier3d::prelude::ExternalForce;
 use pawn::pawn::Pawn;
 use physics::physics::RigidBodyDisabled;
-use shared::{
+use api::{
     data::{TickRate, Vec2Int},
     gridmap::{
         get_atmos_index, world_to_cell_id, AdjacentTileDirection, GridmapMain, FOV_MAP_WIDTH,

@@ -14,4 +14,4 @@ bevy_rapier3d = "0.15.0"
 entity = { path = "../../core/entity" }
 inventory_item = { path = "../../core/inventory_item" }
 rigid_body = { path = "../../core/rigid_body" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }

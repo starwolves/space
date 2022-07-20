@@ -1,5 +1,5 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
-use shared::{combat::ProjectileFOV, data::UpdateLabels};
+use api::{combat::ProjectileFOV, data::UpdateLabels};
 
 use crate::attack::Attack;
 

@@ -10,7 +10,7 @@ use bevy_rapier3d::{
     rapier::prelude::Ray,
 };
 use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
-use shared::{
+use api::{
     gridmap::{GridmapData, GridmapMain},
     health::Health,
     pawn::REACH_DISTANCE,

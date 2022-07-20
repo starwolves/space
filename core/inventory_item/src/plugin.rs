@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use console_commands::commands::AllConsoleCommands;
-use shared::{
+use api::{
     console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
     data::PostUpdateLabels,
 };

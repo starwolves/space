@@ -12,4 +12,4 @@ bevy_renet = "0.0.3"
 bincode = "1.3.3"
 local_ipaddress = "0.1.3"
 
-shared = { path = "../shared" }
+api = { path = "../api" }

@@ -1,6 +1,6 @@
 use bevy::{core::Timer, prelude::Component};
 use pawn::pawn::ShipAuthorizationEnum;
-use shared::data::LockedStatus;
+use api::data::LockedStatus;
 
 #[derive(Component)]
 pub struct AirLock {

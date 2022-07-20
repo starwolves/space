@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{warn, Changed, Query};
 use inventory_item::item::InventoryItem;
-use shared::{
+use api::{
     entity_updates::{get_entity_update_difference, EntityData, EntityUpdateData, EntityUpdates},
     inventory::Inventory,
 };

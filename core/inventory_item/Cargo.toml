@@ -12,4 +12,4 @@ entity = { path = "../entity" }
 sounds = { path = "../../entities/sounds" }
 pawn = { path = "../pawn" }
 console_commands = { path = "../console_commands" }
-shared = { path = "../shared" }
+api = { path = "../api" }

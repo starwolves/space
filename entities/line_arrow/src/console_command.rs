@@ -5,7 +5,7 @@ use bevy::{
 };
 use entity::spawn::{SpawnData, SpawnEvent};
 use networking::messages::InputConsoleCommand;
-use shared::{
+use api::{
     console_commands::ConsoleCommandVariantValues, data::HandleToEntity,
     load_entity::NetUnloadEntity, sensable::Sensable,
 };

@@ -7,7 +7,7 @@ use networking::{
     plugin::NetTabData,
 };
 use pawn::pawn::Pawn;
-use shared::{
+use api::{
     data::{EntityDataResource, HandleToEntity},
     data_link::DataLink,
     entity_updates::EntityData,

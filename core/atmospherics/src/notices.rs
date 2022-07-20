@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Entity, EventWriter, Local, Query, Res, Transform};
 use pawn::pawn::Pawn;
-use shared::{
+use api::{
     data::{ConnectedPlayer, Vec2Int, ZeroGravity},
     gridmap::{get_atmos_index, world_to_cell_id},
     network::ReliableServerMessage,

@@ -8,7 +8,7 @@ use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
-use shared::{
+use api::{
     data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
     gridmap::GridmapData,
     pawn::PawnDesignation,

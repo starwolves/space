@@ -1,6 +1,6 @@
 use bevy::prelude::{warn, Entity, Query, Transform, Without};
 use physics::physics::RigidBodyDisabled;
-use shared::{entity_updates::EntityData, gridmap::FOV_MAP_WIDTH};
+use api::{entity_updates::EntityData, gridmap::FOV_MAP_WIDTH};
 
 pub fn out_of_bounds_check(
     mut rigid_bodies: Query<(Entity, &EntityData, &mut Transform), (Without<RigidBodyDisabled>,)>,

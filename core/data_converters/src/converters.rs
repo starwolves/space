@@ -61,7 +61,7 @@ use bevy_rapier3d::{
     na::Quaternion,
     rapier::math::{Isometry, Real, Rotation, Translation},
 };
-use shared::data::Vec2Int;
+use api::data::Vec2Int;
 
 pub fn transform_to_isometry(transform: Transform) -> Isometry<Real> {
     let translation: Translation<f32> = Vec3::new(

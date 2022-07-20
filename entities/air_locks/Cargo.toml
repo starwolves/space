@@ -21,4 +21,4 @@ physics = { path = "../../core/physics" }
 sfx = { path = "../../core/sfx" }
 sounds = { path = "../sounds" }
 rigid_body = { path = "../../core/rigid_body" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }

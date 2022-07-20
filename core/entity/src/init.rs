@@ -1,6 +1,6 @@
 use bevy::prelude::{info, Res, ResMut};
 use console_commands::commands::AllConsoleCommands;
-use shared::{console_commands::ConsoleCommandVariant, data::EntityDataResource};
+use api::{console_commands::ConsoleCommandVariant, data::EntityDataResource};
 
 pub fn startup_entities(entity_data: Res<EntityDataResource>) {
     info!("Loaded {} different entity types.", entity_data.data.len());

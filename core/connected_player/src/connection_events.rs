@@ -191,7 +191,7 @@ use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
-use shared::{
+use api::{
     connected_player::SoftPlayer,
     data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
     gridmap::GridmapData,

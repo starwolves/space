@@ -17,7 +17,7 @@ use physics::{
     world_mode::{WorldMode, WorldModes},
 };
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use shared::{
+use api::{
     combat::{CombatAttackAnimation, CombatStandardAnimation},
     data::{
         ConnectedPlayer, EntityDataResource, HandleToEntity, NoData, Showcase,

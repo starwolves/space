@@ -1,5 +1,5 @@
 use bevy::prelude::{App, Plugin, SystemSet};
-use shared::data::PostUpdateLabels;
+use api::data::PostUpdateLabels;
 
 use super::entity_update::world_mode_update;
 use bevy::app::CoreStage::PostUpdate;

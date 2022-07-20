@@ -1,5 +1,5 @@
 use bevy::prelude::{Changed, Query};
-use shared::entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates};
+use api::entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates};
 
 use super::omni_light::OmniLight;
 

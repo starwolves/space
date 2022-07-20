@@ -83,7 +83,7 @@ use bevy::{
     },
 };
 
-use shared::{
+use api::{
     chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT},
     data::{ConnectedPlayer, Vec3Int},
     gridmap::{

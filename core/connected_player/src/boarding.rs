@@ -89,7 +89,7 @@ use entity::{
     spawn::{SpawnData, SpawnEvent},
 };
 use pawn::pawn::{PersistentPlayerData, UsedNames};
-use shared::{
+use api::{
     chat::{escape_bb, get_talk_spaces},
     connected_player::SoftPlayer,
     console_commands::CONSOLE_ERROR_COLOR,

@@ -1,7 +1,7 @@
 use crate::server_is_live;
 use bevy::prelude::App;
 use bevy::prelude::ParallelSystemDescriptorCoercion;
-use shared::data::StartupLabels;
+use api::data::StartupLabels;
 use space_plugin::plugin::SpacePlugin;
 
 pub fn start_server() {

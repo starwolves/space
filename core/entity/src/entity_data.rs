@@ -4,7 +4,7 @@ use bevy::{
 };
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use serde::Deserialize;
-use shared::{
+use api::{
     data::{EntityDataProperties, EntityDataResource, HandleToEntity},
     network::{
         PendingMessage, PendingNetworkMessage, ReliableServerMessage, UnreliableServerMessage,

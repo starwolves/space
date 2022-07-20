@@ -13,4 +13,4 @@ default-features = false
 
 [dependencies]
 space_plugin = { path = "../core/space_plugin" }
-shared = { path = "../core/shared" }
+api = { path = "../core/api" }

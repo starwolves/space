@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
-use shared::{
+use api::{
     data::{ConnectedPlayer, HandleToEntity, Showcase},
     entity_updates::{personalise, EntityUpdates, NetSendEntityUpdates},
     network::{EntityWorldType, ReliableServerMessage},

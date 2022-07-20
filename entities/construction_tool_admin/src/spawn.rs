@@ -111,12 +111,12 @@ use inventory_item::item::InventoryItem;
 use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
 use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use shared::combat::{DamageFlag, DamageModel};
-use shared::converters::string_transform_to_transform;
-use shared::data::NoData;
-use shared::examinable::{Examinable, RichName};
-use shared::inventory::SlotType;
-use shared::tab_actions::TabAction;
+use api::combat::{DamageFlag, DamageModel};
+use api::converters::string_transform_to_transform;
+use api::data::NoData;
+use api::examinable::{Examinable, RichName};
+use api::inventory::SlotType;
+use api::tab_actions::TabAction;
 
 use crate::action::{construct_action, construction_option_action, deconstruct_action};
 

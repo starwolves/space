@@ -11,4 +11,4 @@ default-features = false
 bevy_rapier3d = "0.15.0"
 
 physics = { path = "../physics" }
-shared = { path = "../shared" }
+api = { path = "../api" }

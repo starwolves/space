@@ -10,4 +10,4 @@ default-features = false
 [dependencies]
 serde_json = "1.0.81"
 
-shared = { path = "../shared" }
+api = { path = "../api" }

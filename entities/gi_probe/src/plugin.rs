@@ -2,7 +2,7 @@ use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 
 use bevy::app::CoreStage::PostUpdate;
 use entity::spawn::SpawnEvent;
-use shared::data::{PostUpdateLabels, SummoningLabels};
+use api::data::{PostUpdateLabels, SummoningLabels};
 
 use super::{
     entity_update::gi_probe_update,

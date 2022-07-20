@@ -29,6 +29,6 @@ physics = { path = "../physics" }
 tab_actions = { path = "../tab_actions" }
 sfx = { path = "../sfx" }
 console_commands = { path = "../console_commands" }
-shared = { path = "../shared" }
+api = { path = "../api" }
 map = { path = "../map" }
 gridmap = { path = "../gridmap" }

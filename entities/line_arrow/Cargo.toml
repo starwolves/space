@@ -14,4 +14,4 @@ console_commands = { path = "../../core/console_commands" }
 entity = { path = "../../core/entity" }
 networking = { path = "../../core/networking" }
 physics = { path = "../../core/physics" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }
