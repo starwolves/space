@@ -35,16 +35,15 @@ use bevy_renet::renet::{RenetConnectionConfig, RenetServer, ServerConfig, NETCOD
 
 use super::plugin::{RENET_RELIABLE_CHANNEL_ID, RENET_UNRELIABLE_CHANNEL_ID};
 
-const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"lFNpVdFi5LhL8xlDFtnobx5onFR30afX";
 const PROTOCOL_ID: u64 = 7;
 
-pub fn startup_listen_connections() -> RenetServer {
+pub fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]) -> RenetServer {
     let server_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
         .parse()
         .unwrap();
     let socket = UdpSocket::bind(server_addr).unwrap();
     let connection_config = RenetConnectionConfig::default();
-    let server_config = ServerConfig::new(64, PROTOCOL_ID, server_addr, *PRIVATE_KEY);
+    let server_config = ServerConfig::new(64, PROTOCOL_ID, server_addr, encryption_key);
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();
