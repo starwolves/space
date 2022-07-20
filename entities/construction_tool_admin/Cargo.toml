@@ -11,7 +11,7 @@ default-features = false
 [dependencies]
 doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
 rand = "0.8.5"
-bevy_rapier3d = "0.14.1"
+bevy_rapier3d = "0.15.0"
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }

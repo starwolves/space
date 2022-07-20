@@ -9,7 +9,7 @@ default-features = false
 
 
 [dependencies]
-bevy_rapier3d = "0.14.1"
+bevy_rapier3d = "0.15.0"
 
 entity = { path = "../entity" }
 physics = { path = "../physics" }
