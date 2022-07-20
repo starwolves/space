@@ -1,0 +1,13 @@
+[package]
+name = "world_environment"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+serde_json = "1.0.81"
+
+shared = { path = "../shared" }

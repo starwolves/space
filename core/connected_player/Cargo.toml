@@ -1,0 +1,34 @@
+[package]
+name = "connected_player"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+rand = "0.8.5"
+bevy_renet = "0.0.3"
+const_format = "0.2.23"
+vector2math = "0.13.0"
+bevy_rapier3d = "0.14.1"
+bincode = "1.3.3"
+voca_rs = "1.14.0"
+
+
+
+networking = { path = "../networking" }
+entity = { path = "../entity" }
+health = { path = "../health" }
+humanoid = { path = "../humanoid" }
+inventory_item = { path = "../inventory_item" }
+pawn = { path = "../pawn" }
+rigid_body = { path = "../rigid_body" }
+physics = { path = "../physics" }
+tab_actions = { path = "../tab_actions" }
+sfx = { path = "../sfx" }
+console_commands = { path = "../console_commands" }
+shared = { path = "../shared" }
+map = { path = "../map" }
+gridmap = { path = "../gridmap" }

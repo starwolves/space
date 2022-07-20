@@ -1,0 +1,16 @@
+[package]
+name = "rigid_body"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+
+entity = { path = "../entity" }
+physics = { path = "../physics" }
+shared = { path = "../shared" }

@@ -1,0 +1,15 @@
+[package]
+name = "human_male"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+entity = { path = "../../core/entity" }
+rigid_body = { path = "../../core/rigid_body" }
+connected_player = { path = "../../core/connected_player" }
+shared = { path = "../../core/shared" }

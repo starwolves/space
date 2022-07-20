@@ -1,40 +1,7 @@
-[package]
-name = "space"
-version = "0.0.3"
-authors = ["Nikita Ramses Abdoelrahman <nikitaab98@gmail.com>"]
-description="A modular Bevy ECS community game server for Space Frontiers."
-homepage="https://github.com/starwolves/space"
-license-file="LICENSE"
-edition = "2021"
-
-
-[dependencies.bevy]
-version = "0.7.0"
-default-features = false
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-#bevy_rapier3d = {version= "0.14.1" ,default-features = false, features = [ "dim3" ]}
-bevy_rapier3d = "0.14.1"
-
-
-serde = {version= "1.0.137"}
-serde_json = {version= "1.0.81"}
-
-bevy_renet = "0.0.3"
-bincode = "1.3.3"
-local_ipaddress = "0.1.3"
-
-rand = "0.8.5"
-
-const_format = "0.2.23"
-
-vector2math = "0.13.0"
-
-doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
-
-voca_rs = "1.14.0"
+[workspace]
+members = ["core/*","entities/*", "server"]
+default-members = ["core/*","entities/*", "server"]
+resolver = "2"
 
 # Compile dependencies
 [profile.dev.package."*"]

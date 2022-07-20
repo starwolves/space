@@ -1,0 +1,17 @@
+[package]
+name = "line_arrow"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+connected_player = { path = "../../core/connected_player" }
+console_commands = { path = "../../core/console_commands" }
+entity = { path = "../../core/entity" }
+networking = { path = "../../core/networking" }
+physics = { path = "../../core/physics" }
+shared = { path = "../../core/shared" }

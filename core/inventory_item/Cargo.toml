@@ -1,0 +1,15 @@
+[package]
+name = "inventory_item"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+entity = { path = "../entity" }
+sounds = { path = "../../entities/sounds" }
+pawn = { path = "../pawn" }
+console_commands = { path = "../console_commands" }
+shared = { path = "../shared" }

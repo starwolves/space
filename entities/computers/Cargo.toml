@@ -1,0 +1,18 @@
+[package]
+name = "computers"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+serde_json = "1.0.81"
+
+entity = { path = "../../core/entity" }
+rigid_body = { path = "../../core/rigid_body" }
+shared = { path = "../../core/shared" }

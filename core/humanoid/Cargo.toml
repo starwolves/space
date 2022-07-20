@@ -1,0 +1,21 @@
+[package]
+name = "humanoid"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+
+networking = { path = "../networking" }
+sounds = { path = "../../entities/sounds" }
+pawn = { path = "../pawn" }
+inventory_item = { path = "../inventory_item" }
+combat = { path = "../combat" }
+health = { path = "../health" }
+sfx = { path = "../sfx" }
+rigid_body = { path = "../rigid_body" }
+shared = { path = "../shared" }

@@ -1,0 +1,22 @@
+[package]
+name = "inventory"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+rand = "0.8.5"
+
+networking = { path = "../networking" }
+sounds = { path = "../../entities/sounds" }
+inventory_item = { path = "../inventory_item" }
+pawn = { path = "../pawn" }
+physics = { path = "../physics" }
+humanoid = { path = "../humanoid" }
+sfx = { path = "../sfx" }
+shared = { path = "../shared" }
+gridmap = { path = "../gridmap" }

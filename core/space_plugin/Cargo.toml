@@ -1,0 +1,47 @@
+[package]
+name = "space_plugin"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+
+atmospherics = { path = "../atmospherics" }
+combat = { path = "../combat" }
+connected_player = { path = "../connected_player" }
+console_commands = { path = "../console_commands" }
+gridmap = { path = "../gridmap" }
+humanoid = { path = "../humanoid" }
+inventory_item = { path = "../inventory_item" }
+networking = { path = "../networking" }
+physics = { path = "../physics" }
+senser = { path = "../senser" }
+tab_actions = { path = "../tab_actions" }
+world_environment = { path = "../world_environment" }
+pawn = { path = "../pawn" }
+sfx = { path = "../sfx" }
+health = { path = "../health" }
+entity = { path = "../entity" }
+map = { path = "../map" }
+inventory = { path = "../inventory" }
+rigid_body = { path = "../rigid_body" }
+shared = { path = "../shared" }
+
+sounds = { path = "../../entities/sounds" }
+air_locks = { path = "../../entities/air_locks" }
+asana = { path = "../../entities/asana" }
+computers = { path = "../../entities/computers" }
+construction_tool_admin = { path = "../../entities/construction_tool_admin" }
+counter_windows = { path = "../../entities/counter_windows" }
+helmet_security = { path = "../../entities/helmet_security" }
+human_male = { path = "../../entities/human_male" }
+jumpsuit_security = { path = "../../entities/jumpsuit_security" }
+line_arrow = { path = "../../entities/line_arrow" }
+omni_light = { path = "../../entities/omni_light" }
+pistol_l1 = { path = "../../entities/pistol_l1" }
+reflection_probe = { path = "../../entities/reflection_probe" }
+ 

@@ -1,0 +1,26 @@
+[package]
+name = "construction_tool_admin"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
+rand = "0.8.5"
+bevy_rapier3d = "0.14.1"
+
+entity = { path = "../../core/entity" }
+gridmap = { path = "../../core/gridmap" }
+networking = { path = "../../core/networking" }
+pawn = { path = "../../core/pawn" }
+atmospherics = { path = "../../core/atmospherics" }
+inventory_item = { path = "../../core/inventory_item" }
+rigid_body = { path = "../../core/rigid_body" }
+sfx = { path = "../../core/sfx" }
+sounds = { path = "../sounds" }
+shared = { path = "../../core/shared" }
+physics = { path = "../../core/physics" }
