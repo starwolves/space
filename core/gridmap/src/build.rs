@@ -36,7 +36,8 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
                 .insert(Collider::cuboid(500., 1., 500.))
                 .insert(friction_component)
                 .insert(CollisionGroups::new(masks.0, masks.1))
-                .insert(Transform::default());
+                .insert(Transform::default())
+                .insert(GlobalTransform::default());
         });
 
     //Roof
@@ -55,7 +56,8 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
                 .insert(Collider::cuboid(500., 1., 500.))
                 .insert(friction_component)
                 .insert(CollisionGroups::new(masks.0, masks.1))
-                .insert(Transform::default());
+                .insert(Transform::default())
+                .insert(GlobalTransform::default());
         });
 }
 
