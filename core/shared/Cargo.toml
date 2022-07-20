@@ -1,0 +1,16 @@
+[package]
+name = "shared"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+serde = "1.0.137"
+rand = "0.8.5"
+bevy_rapier3d = "0.14.1"
+doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
+const_format = "0.2.23"
+

@@ -1,0 +1,20 @@
+[package]
+name = "combat"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+
+
+networking = { path = "../networking" }
+health = { path = "../health" }
+sounds = { path = "../../entities/sounds" }
+physics = { path = "../physics" }
+shared = { path = "../shared" }
+gridmap = { path = "../gridmap" }
+sfx = { path = "../sfx" }

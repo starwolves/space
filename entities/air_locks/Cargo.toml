@@ -1,0 +1,24 @@
+[package]
+name = "air_locks"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+
+entity = { path = "../../core/entity" }
+networking = { path = "../../core/networking" }
+atmospherics = { path = "../../core/atmospherics" }
+map = { path = "../../core/map" }
+pawn = { path = "../../core/pawn" }
+physics = { path = "../../core/physics" }
+sfx = { path = "../../core/sfx" }
+sounds = { path = "../sounds" }
+rigid_body = { path = "../../core/rigid_body" }
+shared = { path = "../../core/shared" }

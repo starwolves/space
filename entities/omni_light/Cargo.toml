@@ -1,0 +1,17 @@
+[package]
+name = "omni_light"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+serde = {version= "1.0.137"}
+serde_json = {version= "1.0.81"}
+
+entity = { path = "../../core/entity" }
+physics = { path = "../../core/physics" }
+shared = { path = "../../core/shared" }

@@ -1,0 +1,20 @@
+[package]
+name = "atmospherics"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+bevy_rapier3d = "0.14.1"
+
+
+networking = { path = "../networking" }
+pawn = { path = "../pawn" }
+shared = { path = "../shared" }
+map = { path = "../map" }
+physics = { path = "../physics" }
+rigid_body = { path = "../rigid_body" }

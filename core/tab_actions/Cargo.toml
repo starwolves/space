@@ -1,0 +1,14 @@
+[package]
+name = "tab_actions"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.7.0"
+default-features = false
+
+[dependencies]
+networking = { path = "../networking" }
+pawn = { path = "../pawn" }
+health = { path = "../health" }
+shared = { path = "../shared" }
