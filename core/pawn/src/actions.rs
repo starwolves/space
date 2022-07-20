@@ -1,6 +1,6 @@
 use bevy::prelude::{Res, ResMut};
 use networking::messages::ExamineEntityMessages;
-use shared::{
+use api::{
     data::Vec3Int,
     examinable::InputExamineEntity,
     gridmap::{ExamineMapMessage, GridmapExamineMessages},

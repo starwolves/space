@@ -100,7 +100,7 @@ use entity::{
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use shared::{
+use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
     converters::string_transform_to_transform,
     data::NoData,

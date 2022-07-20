@@ -9,4 +9,4 @@ default-features = false
 
 [dependencies]
 networking = { path = "../networking" }
-shared = { path = "../shared" }
+api = { path = "../api" }

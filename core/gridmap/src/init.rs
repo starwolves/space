@@ -6,7 +6,7 @@ use bevy_rapier3d::{
     prelude::{CoefficientCombineRule, Collider},
 };
 use entity::entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server};
-use shared::{
+use api::{
     chat::EXAMINATION_EMPTY,
     data::{ServerId, TickRate},
     examinable::RichName,

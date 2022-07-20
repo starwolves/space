@@ -52,7 +52,7 @@ use rigid_body::{
     rigid_body::STANDARD_BODY_FRICTION,
     spawn::{RigidBodyBundle, RigidBodySummonable},
 };
-use shared::{
+use api::{
     converters::string_transform_to_transform,
     data::NoData,
     examinable::{Examinable, RichName},

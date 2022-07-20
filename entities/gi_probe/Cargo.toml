@@ -14,4 +14,4 @@ serde_json = {version= "1.0.81"}
 
 entity = { path = "../../core/entity" }
 data_converters = { path = "../../core/data_converters" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }

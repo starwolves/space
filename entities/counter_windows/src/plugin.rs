@@ -8,7 +8,7 @@ use entity::{
 };
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
-use shared::{
+use api::{
     data::{
         EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels, SummoningLabels,
     },

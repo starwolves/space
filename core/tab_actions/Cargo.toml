@@ -11,4 +11,4 @@ default-features = false
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }
 health = { path = "../health" }
-shared = { path = "../shared" }
+api = { path = "../api" }

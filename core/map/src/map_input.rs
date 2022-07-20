@@ -3,7 +3,7 @@ use bevy::{
     prelude::{EventReader, EventWriter, Query},
 };
 use networking::messages::{InputMap, InputMapRequestDisplayModes, MapInput};
-use shared::{
+use api::{
     gridmap::FOV_MAP_WIDTH,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
 };
@@ -74,7 +74,7 @@ impl PendingMessage for NetRequestDisplayModes {
     }
 }
 
-use shared::data::Vec2Int;
+use api::data::Vec2Int;
 use std::collections::HashMap;
 
 use crate::map::Map;

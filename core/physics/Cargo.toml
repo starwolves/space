@@ -10,4 +10,4 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.15.0"
 
-shared = { path = "../shared" }
+api = { path = "../api" }

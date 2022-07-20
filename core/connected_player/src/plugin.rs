@@ -6,7 +6,7 @@ use networking::{
     messages::{net_system, InputTabDataEntity},
     plugin::NetTabData,
 };
-use shared::{
+use api::{
     data::{
         HandleToEntity, PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
     },

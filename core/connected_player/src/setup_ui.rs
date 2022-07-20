@@ -33,7 +33,7 @@ use std::collections::HashMap;
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::{SpawnData, SpawnEvent};
 use pawn::pawn::{PersistentPlayerData, UsedNames};
-use shared::{
+use api::{
     chat::MOTD,
     connected_player::SoftPlayer,
     data::{

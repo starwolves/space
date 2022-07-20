@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, Query, ResMut};
 use networking::messages::ExamineEntityMessages;
-use shared::{
+use api::{
     chat::FURTHER_NORMAL_FONT,
     examinable::Examinable,
     health::Health,

@@ -12,7 +12,7 @@ use bevy_rapier3d::{
 use gridmap::events::Cell;
 use physics::physics::{get_bit_masks, ColliderGroup};
 use sfx::entity_update::SfxAutoDestroyTimers;
-use shared::{
+use api::{
     combat::{
         CombatType, DamageModel, DamageType, HitResult, NetProjectileType, ProjectileFOV,
         ProjectileType,

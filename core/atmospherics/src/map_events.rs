@@ -61,7 +61,7 @@ use bevy::{
 use map::map::{
     get_overlay_tile_item, get_overlay_tile_priority, Map, MapHolderData, MapHolders, OverlayTile,
 };
-use shared::{
+use api::{
     atmospherics::CELCIUS_KELVIN_OFFSET,
     data::{ConnectedPlayer, Vec2Int},
     gridmap::{get_atmos_id, get_atmos_index, world_to_cell_id, FOV_MAP_WIDTH},

@@ -18,5 +18,5 @@ pawn = { path = "../pawn" }
 physics = { path = "../physics" }
 humanoid = { path = "../humanoid" }
 sfx = { path = "../sfx" }
-shared = { path = "../shared" }
+api = { path = "../api" }
 gridmap = { path = "../gridmap" }

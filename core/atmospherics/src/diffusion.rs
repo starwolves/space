@@ -5,7 +5,7 @@ use bevy::{
     math::Vec3,
     prelude::{warn, Entity, Res, ResMut},
 };
-use shared::{
+use api::{
     atmospherics::Atmospherics,
     data::Vec2Int,
     gridmap::{get_atmos_index, FOV_MAP_WIDTH},

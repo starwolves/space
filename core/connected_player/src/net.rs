@@ -3,7 +3,7 @@ use bevy::prelude::{
 };
 use humanoid::humanoid::Humanoid;
 use networking::messages::{InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady};
-use shared::{
+use api::{
     connected_player::SoftPlayer,
     data::{ConnectedPlayer, GIProbe, HandleToEntity, ReflectionProbe},
     entity_updates::{EntityData, EntityUpdates},

@@ -2,7 +2,7 @@ use bevy::{
     math::{Vec2, Vec3},
     prelude::{info, warn, Entity, EventReader, EventWriter, Res, ResMut},
 };
-use shared::{
+use api::{
     console_commands::ConsoleCommandVariantValues,
     data::{HandleToEntity, Vec3Int},
     examinable::InputExamineEntity,

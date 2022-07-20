@@ -9,7 +9,7 @@ use bincode::serialize;
 use entity::entity_data::CachedBroadcastTransform;
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use physics::physics::RigidBodyDisabled;
-use shared::{
+use api::{
     data::{ConnectedPlayer, HandleToEntity},
     network::UnreliableServerMessage,
     sensable::Sensable,

@@ -1,5 +1,5 @@
 use bevy::prelude::{Changed, Entity, Query};
-use shared::entity_updates::{
+use api::entity_updates::{
     entity_update_changed_detection, get_entity_update_difference, EntityUpdateData, EntityUpdates,
 };
 

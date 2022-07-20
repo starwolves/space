@@ -1,6 +1,6 @@
 use data_converters::converters::string_vec3_to_vec3;
 use serde::Deserialize;
-use shared::data::GIProbe;
+use api::data::GIProbe;
 
 #[derive(Deserialize)]
 pub struct ExportData {

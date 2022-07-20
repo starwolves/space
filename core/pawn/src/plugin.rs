@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
-use shared::{
+use api::{
     data::PostUpdateLabels, examinable::ExamineLabels, tab_actions::TabActionsQueueLabels,
 };
 

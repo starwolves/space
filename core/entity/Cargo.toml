@@ -15,5 +15,5 @@ serde = {version= "1.0.137"}
 networking = { path = "../networking" }
 health = { path = "../health" }
 pawn = { path = "../pawn" }
-shared = { path = "../shared" }
+api = { path = "../api" }
 console_commands = { path = "../console_commands" }

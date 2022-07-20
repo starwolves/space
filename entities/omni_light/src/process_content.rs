@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use shared::converters::string_color_to_color;
+use api::converters::string_color_to_color;
 
 use super::omni_light::OmniLight;
 

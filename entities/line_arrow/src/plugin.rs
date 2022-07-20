@@ -4,7 +4,7 @@ use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
-use shared::{
+use api::{
     console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
     data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels},
 };

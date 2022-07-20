@@ -141,7 +141,7 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
 
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
 use serde::Deserialize;
-use shared::{
+use api::{
     console_commands::ConsoleCommandVariantValues,
     data::{EntityDataResource, NoData, Showcase, ShowcaseData},
     entity_updates::{EntityData, EntityGroup, EntityUpdates},

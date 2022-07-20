@@ -23,7 +23,7 @@ use physics::{
     world_mode::{WorldMode, WorldModes},
 };
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
-use shared::{
+use api::{
     data::{HandleToEntity, ZeroGravity},
     entity_updates::{EntityData, EntityUpdateData},
     examinable::Examinable,

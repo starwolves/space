@@ -4,7 +4,7 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use rigid_body::rigid_body::RigidBodyData;
-use shared::{
+use api::{
     data::ZeroGravity,
     gridmap::{world_to_cell_id, GridmapMain},
 };

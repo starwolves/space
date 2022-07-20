@@ -1,5 +1,5 @@
 use bevy::prelude::{App, Plugin, ResMut, SystemSet};
-use shared::tab_actions::QueuedTabActions;
+use api::tab_actions::QueuedTabActions;
 
 use super::tab_data::tab_data;
 use bevy::app::CoreStage::PostUpdate;

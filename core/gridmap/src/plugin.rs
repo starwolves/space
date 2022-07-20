@@ -4,7 +4,7 @@ use bevy::{
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
 use networking::messages::net_system;
-use shared::{
+use api::{
     data::{PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels},
     examinable::RichName,
     gridmap::{ExamineMapMessage, GridmapData, GridmapDetails1, GridmapMain, RemoveCell},

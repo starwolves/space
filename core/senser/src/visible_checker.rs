@@ -349,7 +349,7 @@ fn visible_check(
 }
 
 use physics::world_mode::{WorldMode, WorldModes};
-use shared::{
+use api::{
     data::ConnectedPlayer,
     entity_updates::{EntityData, EntityUpdates},
     gridmap::{to_doryen_coordinates, world_to_cell_id},

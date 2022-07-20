@@ -11,7 +11,7 @@ use bevy_rapier3d::prelude::{Collider, CollisionGroups};
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
 use physics::physics::{get_bit_masks, ColliderGroup};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
-use shared::{
+use api::{
     chat::{FURTHER_ITALIC_FONT, WARNING_COLOR},
     data::{AirLockCloseRequest, LockedStatus, Vec2Int},
     entity_updates::EntityGroup,

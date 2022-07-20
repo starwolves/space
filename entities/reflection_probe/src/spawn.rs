@@ -3,7 +3,7 @@ use entity::{
     entity_data::RawSpawnEvent,
     spawn::{SpawnData, SpawnEvent},
 };
-use shared::{
+use api::{
     converters::string_transform_to_transform,
     data::ReflectionProbe,
     entity_updates::{EntityData, EntityUpdates},

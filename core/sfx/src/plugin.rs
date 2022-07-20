@@ -3,7 +3,7 @@ use bevy::{
     prelude::{App, Plugin, SystemSet},
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
-use shared::data::PostUpdateLabels;
+use api::data::PostUpdateLabels;
 
 use crate::timers::free_sfx;
 

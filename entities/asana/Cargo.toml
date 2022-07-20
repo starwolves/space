@@ -11,4 +11,4 @@ default-features = false
 [dependencies]
 connected_player = { path = "../../core/connected_player" }
 pawn = { path = "../../core/pawn" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }

@@ -14,4 +14,4 @@ serde_json = {version= "1.0.81"}
 
 entity = { path = "../../core/entity" }
 physics = { path = "../../core/physics" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }

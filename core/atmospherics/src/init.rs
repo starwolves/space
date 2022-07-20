@@ -1,5 +1,5 @@
 use bevy::prelude::{info, Res, ResMut};
-use shared::{
+use api::{
     atmospherics::{Atmospherics, DEFAULT_INTERNAL_AMOUNT},
     data::{Vec2Int, Vec3Int},
     gridmap::{get_atmos_index, GridmapData, GridmapMain, FOV_MAP_WIDTH},

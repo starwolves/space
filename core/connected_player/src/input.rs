@@ -130,7 +130,7 @@ use networking::messages::{
     TextTreeInputSelection,
 };
 use pawn::pawn::{ControllerInput, Pawn};
-use shared::{
+use api::{
     data::EntityDataResource, data_link::DataLink, entity_updates::EntityData, inventory::Inventory,
 };
 

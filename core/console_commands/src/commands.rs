@@ -1,6 +1,6 @@
 use bevy::prelude::{info, Entity, EventWriter, ResMut};
 use pawn::pawn::UsedNames;
-use shared::{
+use api::{
     console_commands::ConsoleCommandVariant,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
 };

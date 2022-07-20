@@ -104,14 +104,14 @@ use inventory_item::spawn::InventoryItemSummonable;
 use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
 use rigid_body::spawn::RigidBodyBundle;
 use rigid_body::spawn::RigidBodySummonable;
-use shared::combat::DamageFlag;
-use shared::combat::DamageModel;
-use shared::converters::string_transform_to_transform;
-use shared::data::NoData;
-use shared::data::JUMPSUIT_SECURITY_ENTITY_NAME;
-use shared::examinable::Examinable;
-use shared::examinable::RichName;
-use shared::inventory::SlotType;
+use api::combat::DamageFlag;
+use api::combat::DamageModel;
+use api::converters::string_transform_to_transform;
+use api::data::NoData;
+use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
+use api::examinable::Examinable;
+use api::examinable::RichName;
+use api::inventory::SlotType;
 
 use super::jumpsuit::Jumpsuit;
 

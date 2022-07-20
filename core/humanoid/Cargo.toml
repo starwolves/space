@@ -18,4 +18,4 @@ combat = { path = "../combat" }
 health = { path = "../health" }
 sfx = { path = "../sfx" }
 rigid_body = { path = "../rigid_body" }
-shared = { path = "../shared" }
+api = { path = "../api" }

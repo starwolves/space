@@ -1,6 +1,6 @@
 use bevy::prelude::{warn, Entity, Query, Res, ResMut};
 use networking::messages::ExamineEntityMessages;
-use shared::{
+use api::{
     chat::{
         EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
     },
@@ -447,7 +447,7 @@ pub fn examine_entity(
     }
 }
 
-use shared::gridmap::{to_doryen_coordinates, GridmapExamineMessages, GridmapMain};
+use api::gridmap::{to_doryen_coordinates, GridmapExamineMessages, GridmapMain};
 
 pub struct NetConnExamine {
     pub handle: u64,

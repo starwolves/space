@@ -28,7 +28,7 @@ use bevy::{
 };
 use entity::entity_data::{CachedBroadcastTransform, UpdateTransform};
 use rand::Rng;
-use shared::{
+use api::{
     entity_updates::{EntityData, EntityUpdates},
     sensable::Sensable,
 };

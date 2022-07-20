@@ -42,7 +42,7 @@ use reflection_probe::plugin::ReflectionProbePlugin;
 use rigid_body::plugin::RigidBodyPlugin;
 use senser::plugin::SenserPlugin;
 use sfx::plugin::SfxPlugin;
-use shared::{chat::MOTD, data::TickRate};
+use api::{chat::MOTD, data::TickRate};
 use sounds::SoundsPlugin;
 use tab_actions::plugin::TabActionsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;

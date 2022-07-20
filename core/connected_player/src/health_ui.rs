@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
-use shared::{
+use api::{
     data::ConnectedPlayer,
     entity_updates::EntityUpdateData,
     health::{Health, HealthContainer, NetHealthUpdate},

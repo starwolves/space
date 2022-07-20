@@ -22,5 +22,5 @@ inventory_item = { path = "../../core/inventory_item" }
 rigid_body = { path = "../../core/rigid_body" }
 sfx = { path = "../../core/sfx" }
 sounds = { path = "../sounds" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }
 physics = { path = "../../core/physics" }

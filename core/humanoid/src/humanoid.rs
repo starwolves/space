@@ -15,7 +15,7 @@ use networking::messages::InputToggleCombatMode;
 use pawn::pawn::{ControllerInput, Pawn};
 use rigid_body::rigid_body::RigidBodyData;
 use sfx::builder::repeating_sfx_builder;
-use shared::{
+use api::{
     combat::{CombatStandardAnimation, CombatType, DamageFlag, DamageModel},
     data::{HandleToEntity, Showcase, TickRate, ZeroGravity},
     examinable::Examinable,

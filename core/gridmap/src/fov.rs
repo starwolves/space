@@ -185,7 +185,7 @@ use bevy::{
     prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
-use shared::{
+use api::{
     combat::{NetProjectileType, ProjectileFOV},
     data::{ConnectedPlayer, Vec2Int, Vec3Int},
     gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapData, GridmapMain, FOV_MAP_WIDTH},

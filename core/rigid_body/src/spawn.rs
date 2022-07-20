@@ -11,7 +11,7 @@ use physics::{
     physics::{get_bit_masks, ColliderGroup, RigidBodyDisabled},
     world_mode::{WorldMode, WorldModes},
 };
-use shared::data::NoData;
+use api::data::NoData;
 
 use crate::rigid_body::RigidBodyData;
 

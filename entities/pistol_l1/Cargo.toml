@@ -15,4 +15,4 @@ entity = { path = "../../core/entity" }
 inventory_item = { path = "../../core/inventory_item" }
 rigid_body = { path = "../../core/rigid_body" }
 sounds = { path = "../sounds" }
-shared = { path = "../../core/shared" }
+api = { path = "../../core/api" }

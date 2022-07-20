@@ -4,7 +4,7 @@ use entity::{
     spawn::{SpawnData, SpawnEvent},
 };
 use physics::world_mode::{WorldMode, WorldModes};
-use shared::{
+use api::{
     converters::string_transform_to_transform,
     entity_updates::{EntityData, EntityUpdates},
     sensable::Sensable,

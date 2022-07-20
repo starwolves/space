@@ -1,5 +1,5 @@
 use bevy::prelude::{Entity, EventWriter, Query, Res};
-use shared::{
+use api::{
     data::EntityDataResource,
     data_link::DataLink,
     entity_updates::EntityData,

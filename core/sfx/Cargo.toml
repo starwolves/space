@@ -11,4 +11,4 @@ default-features = false
 rand = "0.8.5"
 
 entity = { path = "../entity" }
-shared = { path = "../shared" }
+api = { path = "../api" }

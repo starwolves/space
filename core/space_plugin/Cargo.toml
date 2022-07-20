@@ -31,7 +31,7 @@ entity = { path = "../entity" }
 map = { path = "../map" }
 inventory = { path = "../inventory" }
 rigid_body = { path = "../rigid_body" }
-shared = { path = "../shared" }
+api = { path = "../api" }
 
 sounds = { path = "../../entities/sounds" }
 air_locks = { path = "../../entities/air_locks" }
