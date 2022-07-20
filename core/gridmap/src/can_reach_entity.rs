@@ -4,6 +4,7 @@ use bevy::{
     prelude::{warn, Entity, Query, Res, With},
 };
 use bevy_rapier3d::{
+    pipeline::QueryFilter,
     plugin::RapierContext,
     prelude::{Collider, InteractionGroups},
     rapier::prelude::Ray,
@@ -40,8 +41,11 @@ pub fn can_reach_entity(
     let solid = true;
 
     let collider_groups = get_bit_masks(ColliderGroup::Standard);
-    let interaction_groups = InteractionGroups::new(collider_groups.0, collider_groups.1);
-
+    let mut query_filter = QueryFilter::new();
+    query_filter.groups = Some(InteractionGroups {
+        memberships: collider_groups.0,
+        filter: collider_groups.1,
+    });
     let mut collided_entities = vec![];
 
     query_pipeline.intersections_with_ray(
@@ -49,8 +53,7 @@ pub fn can_reach_entity(
         ray.dir.into(),
         max_toi,
         solid,
-        interaction_groups,
-        None,
+        query_filter,
         |collided_entity, ray_intersection| {
             let parent_entity;
             match collider_parents.get(collided_entity) {

@@ -5,6 +5,7 @@ use bevy::{
 };
 use bevy_rapier3d::{
     parry::query::Ray,
+    pipeline::QueryFilter,
     plugin::RapierContext,
     prelude::{Collider, InteractionGroups},
 };
@@ -75,6 +76,8 @@ pub fn attack(
                 let interaction_groups =
                     InteractionGroups::new(collider_groups.0, collider_groups.1);
 
+                let query_filter = QueryFilter::new().groups(interaction_groups);
+
                 let additive = direction_additive * attack_event.range;
 
                 let mut hit_entities: Vec<AttackResult> = vec![];
@@ -103,8 +106,7 @@ pub fn attack(
                     ) - additive,
                     Quat::from_rotation_y(attack_event.angle).into(),
                     &Collider::cuboid(shape_vec.x, shape_vec.y, shape_vec.z),
-                    interaction_groups,
-                    None,
+                    query_filter,
                     |child_entity| {
                         let collider_entity;
 
@@ -363,6 +365,8 @@ pub fn attack(
                         let interaction_groups =
                             InteractionGroups::new(collider_groups.0, collider_groups.1);
 
+                        let query_filter = QueryFilter::new().groups(interaction_groups);
+
                         let additive = direction_additive * *laser_range;
 
                         let mut hit_entities: Vec<AttackResult> = vec![];
@@ -395,8 +399,7 @@ pub fn attack(
                             projectile_rough_end_position,
                             Quat::from_rotation_y(attack_event.angle).into(),
                             &Collider::cuboid(points_vec.x, points_vec.y, points_vec.z),
-                            interaction_groups,
-                            None,
+                            query_filter,
                             |child_entity| {
                                 let collider_entity;
 
@@ -587,20 +590,21 @@ pub fn attack(
                                         ray.dir.into(),
                                         max_toi,
                                         true,
-                                        interaction_groups,
-                                        Some(&|child_entity| {
-                                            let collider_entity;
+                                        QueryFilter::new().groups(interaction_groups).predicate(
+                                            &|child_entity| {
+                                                let collider_entity;
 
-                                            match colliders.get(child_entity) {
-                                                Ok(parent_entity) => {
-                                                    collider_entity = parent_entity.0;
+                                                match colliders.get(child_entity) {
+                                                    Ok(parent_entity) => {
+                                                        collider_entity = parent_entity.0;
+                                                    }
+                                                    Err(_rr) => {
+                                                        collider_entity = child_entity;
+                                                    }
                                                 }
-                                                Err(_rr) => {
-                                                    collider_entity = child_entity;
-                                                }
-                                            }
-                                            collider_entity == attack_result.collider_handle
-                                        }),
+                                                collider_entity == attack_result.collider_handle
+                                            },
+                                        ),
                                     )
                                 {
                                     hit_point = ray.point_at(hit_toi).into();
