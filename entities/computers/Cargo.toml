@@ -10,7 +10,7 @@ default-features = false
 
 
 [dependencies]
-bevy_rapier3d = "0.14.1"
+bevy_rapier3d = "0.15.0"
 serde_json = "1.0.81"
 
 entity = { path = "../../core/entity" }

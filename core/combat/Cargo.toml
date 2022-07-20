@@ -8,7 +8,7 @@ version = "0.7.0"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.14.1"
+bevy_rapier3d = "0.15.0"
 
 
 networking = { path = "../networking" }

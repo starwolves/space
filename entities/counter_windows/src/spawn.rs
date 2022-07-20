@@ -159,7 +159,7 @@ pub fn summon_counter_window<T: Send + Sync + 'static>(
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Average;
 
-        let sensor = Sensor(true);
+        let sensor = Sensor;
 
         commands
             .entity(spawn_event.spawn_data.entity)
