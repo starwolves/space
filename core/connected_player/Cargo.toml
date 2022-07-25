@@ -9,7 +9,7 @@ default-features = false
 
 [dependencies]
 rand = "0.8.5"
-bevy_renet = "0.0.3"
+bevy_renet = "0.0.4"
 const_format = "0.2.23"
 vector2math = "0.13.0"
 bevy_rapier3d = "0.15.0"
