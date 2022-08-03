@@ -4,12 +4,12 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.7.0"
+version = "0.8.0"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.15.0"
-bevy_renet = "0.0.3"
+bevy_rapier3d = "0.16.0"
+bevy_renet = "0.0.5"
 
 
 atmospherics = { path = "../atmospherics" }

@@ -1,8 +1,8 @@
 use api::data::{ConnectedPlayer, HandleToEntity};
 use bevy::{
-    core::Time,
     math::Vec3,
     prelude::{Entity, EventWriter, Query, Res, ResMut, Transform},
+    time::Time,
 };
 use connected_player::{
     boarding::BoardingAnnouncements,

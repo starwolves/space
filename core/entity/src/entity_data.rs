@@ -6,8 +6,8 @@ use api::{
     sensable::Sensable,
 };
 use bevy::{
-    core::{FixedTimesteps, Time},
     prelude::{warn, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
+    time::{FixedTimesteps, Time},
 };
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use serde::Deserialize;

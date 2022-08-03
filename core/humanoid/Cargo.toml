@@ -4,11 +4,11 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.7.0"
+version = "0.8.0"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.15.0"
+bevy_rapier3d = "0.16.0"
 
 networking = { path = "../networking" }
 sounds = { path = "../../entities/sounds" }

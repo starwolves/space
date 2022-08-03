@@ -6,8 +6,8 @@ use api::{
     examinable::{Examinable, RichName},
 };
 use bevy::{
-    core::Timer,
     prelude::{Commands, EventReader, EventWriter, Transform},
+    time::Timer,
 };
 use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,

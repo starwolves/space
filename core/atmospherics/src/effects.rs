@@ -1,7 +1,7 @@
 use api::atmospherics::CELCIUS_KELVIN_OFFSET;
 use bevy::{
-    core::{FixedTimesteps, Time},
     prelude::{warn, Res, ResMut},
+    time::{FixedTimesteps, Time},
 };
 
 use crate::diffusion::AtmosphericsResource;

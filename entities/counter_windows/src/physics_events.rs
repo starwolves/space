@@ -19,7 +19,7 @@ pub fn physics_events(
                 let collider1_parent;
                 match parents.get(*collider1_handle) {
                     Ok(parent_component) => {
-                        collider1_parent = parent_component.0;
+                        collider1_parent = parent_component.get();
                     }
                     Err(_rr) => {
                         collider1_parent = *collider1_handle;
@@ -30,7 +30,7 @@ pub fn physics_events(
 
                 match parents.get(*collider2_handle) {
                     Ok(parent_component) => {
-                        collider2_parent = parent_component.0;
+                        collider2_parent = parent_component.get();
                     }
                     Err(_rr) => {
                         collider2_parent = *collider2_handle;

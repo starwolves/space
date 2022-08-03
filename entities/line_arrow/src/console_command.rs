@@ -3,9 +3,9 @@ use api::{
     load_entity::NetUnloadEntity, sensable::Sensable,
 };
 use bevy::{
-    core::Time,
     math::Vec3,
     prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform},
+    time::Time,
 };
 use entity::spawn::{SpawnData, SpawnEvent};
 use networking::messages::InputConsoleCommand;

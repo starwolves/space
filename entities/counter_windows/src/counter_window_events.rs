@@ -8,12 +8,12 @@ use api::{
 };
 use atmospherics::diffusion::AtmosphericsResource;
 use bevy::{
-    core::Timer,
     hierarchy::Children,
     prelude::{
         info, warn, Commands, Component, Entity, EventReader, EventWriter, Query, ResMut,
         Transform, With,
     },
+    time::Timer,
 };
 use bevy_rapier3d::prelude::{Collider, CollisionGroups};
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};

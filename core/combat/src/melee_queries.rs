@@ -125,7 +125,7 @@ pub fn melee_direct(
 
                 match colliders.get(child_entity) {
                     Ok(parent_entity) => {
-                        collider_entity = parent_entity.0;
+                        collider_entity = parent_entity.get();
                     }
                     Err(_rr) => {
                         collider_entity = child_entity;

@@ -1,4 +1,3 @@
-use bevy::core::Timer;
 use bevy::prelude::{Commands, Entity};
 
 pub struct AmbienceSfxBundle;
@@ -26,6 +25,7 @@ impl AmbienceSfxBundle {
 }
 
 use bevy::prelude::Transform;
+use bevy::time::Timer;
 use sfx::builder::{ambience_sfx_builder, AmbienceSfxTimer, Sfx};
 
 pub fn startup_ambience(mut commands: Commands) {
