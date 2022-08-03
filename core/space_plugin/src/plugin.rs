@@ -55,6 +55,7 @@ pub struct SpacePlugin {
     pub threads_amount: Option<u8>,
     pub give_all_rcon: bool,
     pub custom_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
+    pub server_version: String,
 }
 impl Default for SpacePlugin {
     fn default() -> Self {
@@ -62,10 +63,11 @@ impl Default for SpacePlugin {
             custom_motd: None,
             physics_rate: None,
             bevy_rate: None,
+            server_version: "0.0.0".to_string(),
+            custom_encryption_key: None,
             // Dev values.
             threads_amount: Some(2),
             give_all_rcon: true,
-            custom_encryption_key: None,
         }
     }
 }
@@ -156,12 +158,10 @@ impl Plugin for SpacePlugin {
 
         match &self.custom_motd {
             Some(motd) => {
-                app.insert_resource(MOTD {
-                    message: motd.clone(),
-                });
+                app.insert_resource(MOTD::new_motd(motd.clone()));
             }
             None => {
-                app.init_resource::<MOTD>();
+                app.insert_resource(MOTD::new_default(self.server_version.clone()));
             }
         }
     }
