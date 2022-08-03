@@ -45,6 +45,7 @@ pub struct DamageMultiplier {
     pub brute: f32,
     pub burn: f32,
     pub toxin: f32,
+    pub signature: String,
 }
 
 pub fn start_apply_damage(
@@ -172,6 +173,16 @@ pub fn finalize_apply_damage(
         let mut entity_hits = vec![];
         let mut cell_hits = vec![];
 
+        let mut brute_multiplier = 1.;
+        let mut burn_multiplier = 1.;
+        let mut toxin_multiplier = 1.;
+
+        for multiplier in damage_appler.multipliers.iter() {
+            brute_multiplier *= multiplier.brute;
+            burn_multiplier *= multiplier.burn;
+            toxin_multiplier *= multiplier.toxin;
+        }
+
         for apply_damage_model in damage_appler.damage_models.iter() {
             for hit_entity in hit_result.entities_hits.iter() {
                 match health_entities.get_mut(hit_entity.entity) {
@@ -180,9 +191,9 @@ pub fn finalize_apply_damage(
                             calculate_damage(
                                 &health_comp.health.health_flags,
                                 &apply_damage_model.damage_model.damage_flags,
-                                &apply_damage_model.damage_model.brute,
-                                &apply_damage_model.damage_model.burn,
-                                &apply_damage_model.damage_model.toxin,
+                                &(&apply_damage_model.damage_model.brute * brute_multiplier),
+                                &(&apply_damage_model.damage_model.burn * burn_multiplier),
+                                &(&apply_damage_model.damage_model.toxin * toxin_multiplier),
                             );
 
                         match &mut health_comp.health.health_container {

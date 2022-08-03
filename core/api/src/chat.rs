@@ -332,19 +332,20 @@ pub fn escape_bb(string: String, partially: bool, escape_special_chars: bool) ->
     new_string.trim().to_string()
 }
 
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-
-impl Default for MOTD {
-    fn default() -> Self {
-        MOTD {
+impl MOTD {
+    pub fn new_default(version: String) -> Self {
+        Self {
             message :  "[center]".to_string() +
             "[font=" + NEARBY_SHOUT_FONT + "][color=" + COMMUNITY_HREF_COLOR + "][url={\"type\": \"href\",\"data\":\"https://github.com/starwolves/space\"}]Space Frontiers[/url][/color][/font]\n" +
-            "Welcome to the official test server of Space Frontiers. (v" + VERSION + ")\n\n" +
+            "Welcome to the official test server of Space Frontiers (v" + &version + ").\n\n" +
             "You are about to board The Bullseye, a research & development ship.\n\n" +
             "The Space Frontiers community is thrilled to have you here, you are invited to connect with our new gaming community through our social platforms!\n" + 
             "[font=" + NEARBY_SHOUT_FONT + "][color=" + COMMUNITY_HREF_COLOR + "][url={\"type\": \"href\",\"data\":\"https://github.com/starwolves/space\"}]Github[/url][/color][/font]\n" +
             "[/center]",
         }
+    }
+    pub fn new_motd(motd: String) -> Self {
+        Self { message: motd }
     }
 }
 
