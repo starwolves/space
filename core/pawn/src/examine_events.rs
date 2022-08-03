@@ -1,10 +1,10 @@
-use bevy::prelude::{warn, Query, ResMut};
 use api::{
     chat::{ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT},
     gridmap::GridmapExamineMessages,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     senser::{Senser, SensingAbility},
 };
+use bevy::prelude::{warn, Query, ResMut};
 
 pub struct NetPawnExamine {
     pub handle: u64,

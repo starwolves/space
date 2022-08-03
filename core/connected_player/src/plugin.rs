@@ -1,11 +1,3 @@
-use bevy::{
-    core::FixedTimestep,
-    prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
-};
-use networking::{
-    messages::{net_system, InputTabDataEntity},
-    plugin::NetTabData,
-};
 use api::{
     data::{
         HandleToEntity, PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
@@ -14,6 +6,14 @@ use api::{
     gridmap::GridmapExamineMessages,
     network::{InputUIInput, InputUIInputTransmitText},
     tab_actions::TabActionsQueueLabels,
+};
+use bevy::{
+    core::FixedTimestep,
+    prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
+};
+use networking::{
+    messages::{net_system, InputTabDataEntity},
+    plugin::NetTabData,
 };
 
 use super::{

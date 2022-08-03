@@ -1,12 +1,3 @@
-use bevy::{
-    math::Vec3,
-    prelude::{warn, Entity, EventReader, EventWriter, Query, Res, Transform},
-};
-use networking::{
-    messages::{InputTabDataEntity, InputTabDataMap},
-    plugin::NetTabData,
-};
-use pawn::pawn::Pawn;
 use api::{
     data::{EntityDataResource, HandleToEntity},
     data_link::DataLink,
@@ -22,6 +13,15 @@ use api::{
     senser::Senser,
     tab_actions::TabActions,
 };
+use bevy::{
+    math::Vec3,
+    prelude::{warn, Entity, EventReader, EventWriter, Query, Res, Transform},
+};
+use networking::{
+    messages::{InputTabDataEntity, InputTabDataMap},
+    plugin::NetTabData,
+};
+use pawn::pawn::Pawn;
 
 pub fn tab_data(
     mut entity_events: EventReader<InputTabDataEntity>,

@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Changed, Query};
-use inventory_item::item::InventoryItem;
 use api::{
     entity_updates::{get_entity_update_difference, EntityData, EntityUpdateData, EntityUpdates},
     inventory::Inventory,
 };
+use bevy::prelude::{warn, Changed, Query};
+use inventory_item::item::InventoryItem;
 
 pub fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,

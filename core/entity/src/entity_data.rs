@@ -1,9 +1,3 @@
-use bevy::{
-    core::{FixedTimesteps, Time},
-    prelude::{warn, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
-};
-use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
-use serde::Deserialize;
 use api::{
     data::{EntityDataProperties, EntityDataResource, HandleToEntity},
     network::{
@@ -11,6 +5,12 @@ use api::{
     },
     sensable::Sensable,
 };
+use bevy::{
+    core::{FixedTimesteps, Time},
+    prelude::{warn, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
+};
+use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
+use serde::Deserialize;
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
 pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
 pub fn initialize_entity_data(

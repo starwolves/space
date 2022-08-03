@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Query};
 use api::entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates};
+use bevy::prelude::{Changed, Query};
 
 use super::air_lock::{AccessLightsStatus, AirLock, AirLockStatus};
 

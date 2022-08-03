@@ -1,12 +1,12 @@
+use api::{
+    console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
+    data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels},
+};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use console_commands::commands::AllConsoleCommands;
 use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
-};
-use api::{
-    console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
-    data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels},
 };
 
 use crate::console_command::entity_console_commands;

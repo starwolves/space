@@ -1,6 +1,6 @@
+use api::data::{MapLabels, PostUpdateLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
-use api::data::{MapLabels, PostUpdateLabels};
 
 use crate::{map::MapHolders, map_input::MapData};
 

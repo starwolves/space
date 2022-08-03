@@ -1,9 +1,9 @@
+use api::data::PostUpdateLabels;
 use bevy::{
     core::FixedTimestep,
     prelude::{App, Plugin, SystemSet},
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
-use api::data::PostUpdateLabels;
 
 use crate::timers::free_sfx;
 

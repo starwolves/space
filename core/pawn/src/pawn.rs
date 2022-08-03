@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use bevy::{
-    math::Vec2,
-    prelude::{Component, Entity},
-};
 use api::{
     data::Vec3Int,
     get_spawn_position::FacingDirection,
     tab_actions::{TabAction, TabActionsData},
+};
+use bevy::{
+    math::Vec2,
+    prelude::{Component, Entity},
 };
 
 #[derive(PartialEq)]

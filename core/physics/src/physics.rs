@@ -1,6 +1,6 @@
+use api::data::Vec3Int;
 use bevy::prelude::{Commands, Component, Entity};
 use bevy_rapier3d::prelude::{CollisionGroups, Damping, GravityScale, Sleeping};
-use api::data::Vec3Int;
 
 pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
     match group {

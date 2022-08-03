@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::ResMut;
 use api::world_environment::{WorldEnvironment, WorldEnvironmentRaw};
+use bevy::prelude::ResMut;
 
 pub fn startup_environment(mut map_environment: ResMut<WorldEnvironment>) {
     let environment_json_location = Path::new("data")

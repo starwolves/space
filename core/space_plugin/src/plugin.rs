@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use air_locks::plugin::AirLocksPlugin;
+use api::{chat::MOTD, data::TickRate};
 use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use bevy::{
@@ -42,7 +43,6 @@ use reflection_probe::plugin::ReflectionProbePlugin;
 use rigid_body::plugin::RigidBodyPlugin;
 use senser::plugin::SenserPlugin;
 use sfx::plugin::SfxPlugin;
-use api::{chat::MOTD, data::TickRate};
 use sounds::SoundsPlugin;
 use tab_actions::plugin::TabActionsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;

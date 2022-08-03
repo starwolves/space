@@ -1,6 +1,10 @@
 use std::collections::BTreeMap;
 
 use super::line_arrow::{LineArrow, PointArrow};
+use api::{
+    data::NoData,
+    examinable::{Examinable, RichName},
+};
 use bevy::{
     core::Timer,
     prelude::{Commands, EventReader, EventWriter, Transform},
@@ -9,10 +13,6 @@ use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,
 };
 use physics::world_mode::{WorldMode, WorldModes};
-use api::{
-    data::NoData,
-    examinable::{Examinable, RichName},
-};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()

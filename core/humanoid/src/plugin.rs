@@ -1,13 +1,14 @@
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
-use networking::messages::net_system;
 use api::{
-    data::{PostUpdateLabels, UpdateLabels},
+    data::{CombatLabels, PostUpdateLabels, UpdateLabels},
     examinable::ExamineLabels,
 };
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
+use networking::messages::net_system;
 
 use crate::{
     examine_events::{examine_entity, ExamineEntityPawn},
-    humanoid::toggle_combat_mode,
+    humanoid::{toggle_combat_mode, Humanoid},
 };
 use bevy::app::CoreStage::PostUpdate;
 
@@ -19,6 +20,7 @@ impl Plugin for HumanoidPlugin {
         app.add_system(
             humanoids
                 .label(UpdateLabels::StandardCharacters)
+                .label(CombatLabels::RegisterAttacks)
                 .after(UpdateLabels::ProcessMovementInput),
         )
         .add_system(toggle_combat_mode)
@@ -30,6 +32,10 @@ impl Plugin for HumanoidPlugin {
                 .after(PostUpdateLabels::VisibleChecker)
                 .label(PostUpdateLabels::Net)
                 .with_system(net_system::<ExamineEntityPawn>),
-        );
+        )
+        .add_system(
+            health_combat_hit_result_sfx::<Humanoid>.after(CombatLabels::FinalizeApplyDamage),
+        )
+        .add_system(attacked_by_chat::<Humanoid>.after(CombatLabels::Query));
     }
 }

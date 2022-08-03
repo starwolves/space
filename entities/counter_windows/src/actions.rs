@@ -41,7 +41,6 @@ pub fn actions(
         }
     }
 }
-use bevy::prelude::{Entity, EventWriter, Query, Res};
 use api::{
     data::EntityDataResource,
     data_link::{DataLink, DataLinkType},
@@ -50,6 +49,7 @@ use api::{
     inventory::Inventory,
     tab_actions::QueuedTabActions,
 };
+use bevy::prelude::{Entity, EventWriter, Query, Res};
 
 use super::counter_window_events::{
     CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowUnlock,

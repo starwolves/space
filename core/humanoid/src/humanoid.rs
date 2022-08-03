@@ -1,22 +1,7 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use bevy::{
-    core::{Time, Timer},
-    hierarchy::Children,
-    math::{Quat, Vec2, Vec3},
-    prelude::{
-        warn, Commands, Component, Entity, EventReader, EventWriter, Query, Res, Transform, With,
-        Without,
-    },
-};
-use combat::attack::Attack;
-use inventory_item::item::InventoryItem;
-use networking::messages::InputToggleCombatMode;
-use pawn::pawn::{ControllerInput, Pawn};
-use rigid_body::rigid_body::RigidBodyData;
-use sfx::builder::repeating_sfx_builder;
 use api::{
-    combat::{CombatStandardAnimation, CombatType, DamageFlag, DamageModel},
+    combat::{CombatStandardAnimation, DamageFlag, MeleeCombat, ProjectileCombat},
     data::{HandleToEntity, Showcase, TickRate, ZeroGravity},
     examinable::Examinable,
     get_spawn_position::{facing_direction_to_direction, FacingDirection},
@@ -27,12 +12,29 @@ use api::{
     pawn::PawnYAxisRotations,
     sensable::Sensable,
 };
-use sounds::{
-    actions::{
-        footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
-        footsteps_walking_sfx::FootstepsWalkingSfxBundle,
+use bevy::{
+    core::{Time, Timer},
+    hierarchy::Children,
+    math::{Quat, Vec2, Vec3},
+    prelude::{
+        warn, Commands, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
+        With, Without,
     },
-    shared::CombatSoundSet,
+};
+use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
+use inventory_item::item::InventoryItem;
+use networking::messages::InputToggleCombatMode;
+use pawn::pawn::{ControllerInput, Pawn};
+use rigid_body::rigid_body::RigidBodyData;
+use sfx::builder::repeating_sfx_builder;
+use sounds::actions::{
+    footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
+    footsteps_walking_sfx::FootstepsWalkingSfxBundle,
+};
+
+use bevy_rapier3d::{
+    na::UnitQuaternion,
+    prelude::{CoefficientCombineRule, Collider, Dominance, ExternalForce, Friction, Velocity},
 };
 
 use std::time::Duration;
@@ -55,6 +57,16 @@ pub enum CharacterAnimationState {
 
 const FIRST_MELEE_TIME: u64 = 433;
 
+#[derive(Component)]
+pub struct Humanoid {
+    pub current_lower_animation_state: CharacterAnimationState,
+    pub character_name: String,
+    pub combat_mode: bool,
+    pub facing_direction: f32,
+    pub is_attacking: bool,
+    pub next_attack_timer: Timer,
+}
+
 impl Default for Humanoid {
     fn default() -> Self {
         let mut t = Timer::new(Duration::from_millis(FIRST_MELEE_TIME), false);
@@ -68,12 +80,6 @@ impl Default for Humanoid {
             facing_direction: 0.,
             is_attacking: false,
             next_attack_timer: t,
-            default_melee_damage_model: DamageModel {
-                brute: 5.,
-                damage_flags: first_damage_flags,
-                ..Default::default()
-            },
-            default_melee_sound_set: CombatSoundSet::default(),
         }
     }
 }
@@ -97,18 +103,12 @@ pub fn toggle_combat_mode(
     }
 }
 
-use bevy_rapier3d::{
-    na::UnitQuaternion,
-    prelude::{CoefficientCombineRule, Collider, Dominance, ExternalForce, Friction, Velocity},
-};
-
 const JOG_SPEED: f32 = 3031.44;
 const RUN_SPEED: f32 = 3031.44;
 
 const MAX_JOG_SPEED: f32 = 10.;
 const MAX_RUN_SPEED: f32 = 14.;
 
-const MELEE_FISTS_REACH: f32 = 1.2;
 const COMBAT_ROTATION_SPEED: f32 = 18.;
 const DOWN_FORCE: f32 = -1.0;
 
@@ -139,7 +139,12 @@ pub fn humanoids(
     >,
     mut transforms: Query<&mut Transform>,
     mut colliders: Query<&mut Friction, With<Collider>>,
-    inventory_items_query: Query<(&InventoryItem, &Examinable)>,
+    inventory_items_query: Query<(
+        &InventoryItem,
+        &Examinable,
+        &MeleeCombat,
+        Option<&ProjectileCombat>,
+    )>,
     mut sensable_entities: Query<&mut Sensable>,
     time: Res<Time>,
     handle_to_entity: Res<HandleToEntity>,
@@ -148,6 +153,7 @@ pub fn humanoids(
     mut attack_event_writer: EventWriter<Attack>,
     tuple0: (EventWriter<NetUnloadEntity>,),
     gridmap_main: Res<GridmapMain>,
+    mut attack_events: ResMut<ActiveAttackIncrement>,
 ) {
     let (mut net_unload_entity,) = tuple0;
 
@@ -157,7 +163,7 @@ pub fn humanoids(
         rigid_body_velocity_component,
         mut rigid_body_dominance,
         mut rigid_body_forces,
-        mut standard_character_component,
+        mut humanoid_component,
         linked_footsteps_walking_option,
         linked_footsteps_sprinting_option,
         mut pawn_component,
@@ -203,7 +209,7 @@ pub fn humanoids(
             player_input_component.auto_move_direction = Vec2::ZERO;
         }
 
-        if standard_character_component.combat_mode == false {
+        if humanoid_component.combat_mode == false {
             if player_input_component.is_mouse_action_pressed {
                 player_input_component.is_mouse_action_pressed = false;
             }
@@ -278,13 +284,11 @@ pub fn humanoids(
 
         let mut facing_direction = pawn_component.facing_direction.clone();
 
-        standard_character_component
-            .next_attack_timer
-            .tick(delta_time);
-        let ready_to_attack_this_frame = standard_character_component.next_attack_timer.finished();
+        humanoid_component.next_attack_timer.tick(delta_time);
+        let ready_to_attack_this_frame = humanoid_component.next_attack_timer.finished();
 
         // If combat mode, specific new rotation based on mouse direction.
-        if standard_character_component.combat_mode && !player_input_component.sprinting {
+        if humanoid_component.combat_mode && !player_input_component.sprinting {
             let active_slot = inventory_component.get_slot(&inventory_component.active_slot);
 
             let mut rotation_offset = -0.1 * PI;
@@ -293,25 +297,25 @@ pub fn humanoids(
                 rotation_offset = 0.11 * PI;
             }
 
-            let mut inventory_item_component_option = None;
             let mut alt_attack_mode = false;
 
-            let mut inventory_item_slot_name = "his fists".to_string();
-            let mut inventory_item_slot_a_name = "his fists".to_string();
+            let projectile_combat_component_option;
 
             match active_slot.slot_item {
                 Some(item_entity) => match inventory_items_query.get(item_entity) {
-                    Ok((item_component, examinable_component)) => {
-                        inventory_item_component_option = Some(item_component);
-
-                        inventory_item_slot_a_name = examinable_component.name.get_a_name().clone();
-                        inventory_item_slot_name = examinable_component.name.get_name().to_owned();
+                    Ok((
+                        item_component,
+                        _examinable_component,
+                        _melee_combat,
+                        projectile_combat_component,
+                    )) => {
+                        projectile_combat_component_option = projectile_combat_component;
 
                         match item_component.combat_standard_animation {
                             CombatStandardAnimation::StandardStance => {}
                             CombatStandardAnimation::PistolStance => {
                                 alt_attack_mode = player_input_component.alt_attack_mode
-                                    && item_component.combat_projectile_damage_model.is_some();
+                                    && projectile_combat_component_option.is_some();
 
                                 if !alt_attack_mode {
                                     if player_input_movement_vector.x != 0.
@@ -334,7 +338,7 @@ pub fn humanoids(
 
             let end_rotation = Quat::from_axis_angle(
                 Vec3::new(0., 1., 0.),
-                -standard_character_component.facing_direction - 0.5 * PI + rotation_offset,
+                -humanoid_component.facing_direction - 0.5 * PI + rotation_offset,
             );
 
             let mut rigid_body_transform = character_pos;
@@ -372,85 +376,25 @@ pub fn humanoids(
                     attacking_this_frame = true;
                 }
                 if ready_to_attack_this_frame {
-                    standard_character_component.next_attack_timer.reset()
+                    humanoid_component.next_attack_timer.reset()
                 }
-                if standard_character_component.next_attack_timer.paused() {
-                    standard_character_component.next_attack_timer.unpause();
-                    standard_character_component.next_attack_timer.reset();
+                if humanoid_component.next_attack_timer.paused() {
+                    humanoid_component.next_attack_timer.unpause();
+                    humanoid_component.next_attack_timer.reset();
                 }
-                if !standard_character_component.is_attacking {
-                    standard_character_component.is_attacking = true;
+                if !humanoid_component.is_attacking {
+                    humanoid_component.is_attacking = true;
                 }
             } else {
-                if standard_character_component.is_attacking {
-                    standard_character_component.is_attacking = false;
+                if humanoid_component.is_attacking {
+                    humanoid_component.is_attacking = false;
                 }
             }
 
             if attacking_this_frame {
                 // Get used inventory item and attack mode enum. Then on match execute directPreciseRayCastMeleeAttack
-                let mut combat_type = &CombatType::MeleeDirect;
-                let mut combat_damage_model =
-                    &standard_character_component.default_melee_damage_model;
-                let mut combat_sound_set = &standard_character_component.default_melee_sound_set;
 
-                let offense_words;
-                let trigger_words;
-
-                match inventory_item_component_option {
-                    Some(inventory_item_component) => {
-                        combat_type = &inventory_item_component.combat_type;
-                        match combat_type {
-                            CombatType::MeleeDirect => {
-                                combat_damage_model =
-                                    &inventory_item_component.combat_melee_damage_model;
-                                combat_sound_set = &inventory_item_component.combat_melee_sound_set;
-                                offense_words =
-                                    inventory_item_component.combat_melee_text_set.clone();
-                                trigger_words =
-                                    inventory_item_component.trigger_melee_text_set.clone();
-                            }
-                            CombatType::Projectile(_projecttile_type) => {
-                                if !alt_attack_mode {
-                                    combat_damage_model = &inventory_item_component
-                                        .combat_projectile_damage_model
-                                        .as_ref()
-                                        .unwrap();
-                                    combat_sound_set = &inventory_item_component
-                                        .combat_projectile_sound_set
-                                        .as_ref()
-                                        .unwrap();
-                                    offense_words = inventory_item_component
-                                        .combat_projectile_text_set
-                                        .as_ref()
-                                        .unwrap()
-                                        .clone();
-                                    trigger_words = inventory_item_component
-                                        .trigger_projectile_text_set
-                                        .as_ref()
-                                        .unwrap()
-                                        .clone();
-                                } else {
-                                    combat_damage_model =
-                                        &inventory_item_component.combat_melee_damage_model;
-                                    combat_sound_set =
-                                        &inventory_item_component.combat_melee_sound_set;
-                                    offense_words =
-                                        inventory_item_component.combat_melee_text_set.clone();
-                                    trigger_words =
-                                        inventory_item_component.trigger_melee_text_set.clone();
-                                    combat_type = &CombatType::MeleeDirect;
-                                }
-                            }
-                        }
-                    }
-                    None => {
-                        offense_words = InventoryItem::get_default_fists_words();
-                        trigger_words = InventoryItem::get_default_trigger_fists_words();
-                    }
-                }
-
-                let mut angle = standard_character_component.facing_direction;
+                let mut angle = humanoid_component.facing_direction;
 
                 if angle < 0. {
                     angle = -PI - angle;
@@ -458,45 +402,23 @@ pub fn humanoids(
                     angle = PI - angle;
                 }
 
-                let sensable_component = sensable_entities
-                    .get_mut(standard_character_entity)
-                    .unwrap();
-
-                let rigid_body_position_component;
-
-                match transforms.get(standard_character_entity) {
-                    Ok(t) => {
-                        rigid_body_position_component = t;
+                let mut exclude_entity = vec![];
+                match active_slot.slot_item {
+                    Some(e) => {
+                        exclude_entity.push(e);
                     }
-                    Err(_) => {
-                        warn!("Couldnt find pawn transform!2");
-                        continue;
-                    }
+                    None => {}
                 }
 
                 attack_event_writer.send(Attack {
-                    attacker_entity: standard_character_entity,
-                    weapon_entity: active_slot.slot_item,
-                    weapon_name: inventory_item_slot_name,
-                    attacker_position: Vec3::new(
-                        rigid_body_position_component.translation.x,
-                        1.0,
-                        rigid_body_position_component.translation.z,
-                    ),
-                    angle: angle,
-                    damage_model: combat_damage_model.clone(),
-                    range: MELEE_FISTS_REACH,
-                    combat_type: combat_type.clone(),
-                    targetted_limb: player_input_component.targetted_limb.clone(),
-                    attacker_name: standard_character_component.character_name.clone(),
-                    combat_sound_set: combat_sound_set.clone(),
-                    attacker_sensed_by: sensable_component.sensed_by.clone(),
-                    attacker_sensed_by_cached: sensable_component.sensed_by_cached.clone(),
-                    weapon_a_name: inventory_item_slot_a_name,
-                    offense_words: offense_words,
-                    trigger_words: trigger_words,
+                    attacker: standard_character_entity,
+                    weapon_option: active_slot.slot_item,
+                    incremented_id: attack_events.get_id_inc(),
                     targetted_entity: player_input_component.combat_targetted_entity.clone(),
                     targetted_cell: player_input_component.combat_targetted_cell.clone(),
+                    angle,
+                    targetted_limb: player_input_component.targetted_limb.clone(),
+                    alt_attack_mode,
                 });
             }
         }
@@ -597,17 +519,15 @@ pub fn humanoids(
 
         pawn_component.facing_direction = facing_direction;
 
-        //let current_linear_velocity: Vec3 = rigid_body_velocity_component.linvel.into();
-
-        match (standard_character_component.combat_mode && idle/*&& current_linear_velocity.length() < 0.05*/)
-            || (standard_character_component.combat_mode == false && idle)
+        match (humanoid_component.combat_mode && idle)
+            || (humanoid_component.combat_mode == false && idle)
         {
             true => {
                 if matches!(
-                    standard_character_component.current_lower_animation_state,
+                    humanoid_component.current_lower_animation_state,
                     CharacterAnimationState::Jogging
                 ) {
-                    standard_character_component.current_lower_animation_state =
+                    humanoid_component.current_lower_animation_state =
                         CharacterAnimationState::Idle;
                     // Despawn FootstepsWalkingSfx here.
 
@@ -636,10 +556,10 @@ pub fn humanoids(
                 }
 
                 if matches!(
-                    standard_character_component.current_lower_animation_state,
+                    humanoid_component.current_lower_animation_state,
                     CharacterAnimationState::Sprinting
                 ) {
-                    standard_character_component.current_lower_animation_state =
+                    humanoid_component.current_lower_animation_state =
                         CharacterAnimationState::Idle;
                     // Despawn FootstepsSprintingSfx here.
 
@@ -668,9 +588,7 @@ pub fn humanoids(
                 }
             }
             false => {
-                if standard_character_component.combat_mode == false
-                    || player_input_component.sprinting
-                {
+                if humanoid_component.combat_mode == false || player_input_component.sprinting {
                     rigid_body_position.rotation =
                         UnitQuaternion::from_quaternion(movement_options[movement_index]).into();
 
@@ -690,12 +608,12 @@ pub fn humanoids(
 
                 if !player_input_component.sprinting
                     && matches!(
-                        standard_character_component.current_lower_animation_state,
+                        humanoid_component.current_lower_animation_state,
                         CharacterAnimationState::Jogging
                     ) == false
                 {
                     if matches!(
-                        standard_character_component.current_lower_animation_state,
+                        humanoid_component.current_lower_animation_state,
                         CharacterAnimationState::Sprinting
                     ) {
                         match linked_footsteps_sprinting_option {
@@ -722,7 +640,7 @@ pub fn humanoids(
                         }
                     }
 
-                    standard_character_component.current_lower_animation_state =
+                    humanoid_component.current_lower_animation_state =
                         CharacterAnimationState::Jogging;
 
                     // Spawn FootstepsWalkingSfx entity here.
@@ -742,7 +660,7 @@ pub fn humanoids(
                     }
                 } else if !player_input_component.sprinting
                     && matches!(
-                        standard_character_component.current_lower_animation_state,
+                        humanoid_component.current_lower_animation_state,
                         CharacterAnimationState::Jogging
                     )
                 {
@@ -769,12 +687,12 @@ pub fn humanoids(
                     }
                 } else if player_input_component.sprinting
                     && matches!(
-                        standard_character_component.current_lower_animation_state,
+                        humanoid_component.current_lower_animation_state,
                         CharacterAnimationState::Sprinting
                     ) == false
                 {
                     if matches!(
-                        standard_character_component.current_lower_animation_state,
+                        humanoid_component.current_lower_animation_state,
                         CharacterAnimationState::Jogging
                     ) {
                         match linked_footsteps_walking_option {
@@ -801,7 +719,7 @@ pub fn humanoids(
                         }
                     }
 
-                    standard_character_component.current_lower_animation_state =
+                    humanoid_component.current_lower_animation_state =
                         CharacterAnimationState::Sprinting;
 
                     // Spawn FootstepsWalkingSfx entity here.
@@ -821,7 +739,7 @@ pub fn humanoids(
                     }
                 } else if player_input_component.sprinting
                     && matches!(
-                        standard_character_component.current_lower_animation_state,
+                        humanoid_component.current_lower_animation_state,
                         CharacterAnimationState::Sprinting
                     )
                 {
@@ -1011,16 +929,4 @@ pub fn humanoids(
             }
         }
     }
-}
-
-#[derive(Component)]
-pub struct Humanoid {
-    pub current_lower_animation_state: CharacterAnimationState,
-    pub character_name: String,
-    pub combat_mode: bool,
-    pub facing_direction: f32,
-    pub is_attacking: bool,
-    pub next_attack_timer: Timer,
-    pub default_melee_damage_model: DamageModel,
-    pub default_melee_sound_set: CombatSoundSet,
 }

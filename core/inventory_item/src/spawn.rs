@@ -1,3 +1,12 @@
+use api::{
+    combat::{MeleeCombat, ProjectileCombat},
+    console_commands::CONSOLE_ERROR_COLOR,
+    data::{EntityDataResource, HandleToEntity, ShowcaseData},
+    gridmap::GridmapMain,
+    inventory::Inventory,
+    network::ReliableServerMessage,
+    rigid_body::RigidBodyLinkTransform,
+};
 use bevy::prelude::{
     warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
 };
@@ -7,35 +16,37 @@ use entity::{
     spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
 };
 use pawn::pawn::{Pawn, UsedNames};
-use api::{
-    console_commands::CONSOLE_ERROR_COLOR,
-    data::{EntityDataResource, HandleToEntity, ShowcaseData},
-    gridmap::GridmapMain,
-    inventory::Inventory,
-    network::ReliableServerMessage,
-    rigid_body::RigidBodyLinkTransform,
-};
 
 use super::item::InventoryItem;
 
 pub struct InventoryItemBundle {
     pub inventory_item: InventoryItem,
+    pub melee_combat: MeleeCombat,
+    pub projectile_combat_option: Option<ProjectileCombat>,
 }
 
 pub struct InventoryBuilderData {
     pub inventory_item: InventoryItem,
     pub holder_entity_option: Option<Entity>,
+    pub melee_combat: MeleeCombat,
+    pub projectile_option: Option<ProjectileCombat>,
 }
 
 pub fn inventory_item_builder(commands: &mut Commands, entity: Entity, data: InventoryBuilderData) {
     let mut builder = commands.entity(entity);
-    builder.insert_bundle((data.inventory_item,));
+    builder.insert_bundle((data.inventory_item, data.melee_combat));
     match data.holder_entity_option {
         Some(holder_entity) => {
             builder.insert(RigidBodyLinkTransform {
                 follow_entity: holder_entity,
                 ..Default::default()
             });
+            match data.projectile_option {
+                Some(c) => {
+                    builder.insert(c);
+                }
+                None => {}
+            }
         }
         None => {}
     }
@@ -57,6 +68,8 @@ pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>
             InventoryBuilderData {
                 inventory_item: inventory_item_bundle.inventory_item,
                 holder_entity_option: spawn_event.spawn_data.holder_entity_option,
+                melee_combat: inventory_item_bundle.melee_combat,
+                projectile_option: inventory_item_bundle.projectile_combat_option,
             },
         );
     }

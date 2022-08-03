@@ -1,4 +1,25 @@
+use api::combat::{DamageFlag, DamageModel, MeleeCombat, DEFAULT_INVENTORY_ITEM_DAMAGE};
+use api::converters::string_transform_to_transform;
+use api::data::NoData;
+use api::examinable::{Examinable, RichName};
+use api::inventory::SlotType;
+use api::tab_actions::TabAction;
+use bevy::math::{Mat4, Quat, Vec3};
+use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use entity::entity_data::{RawSpawnEvent, CONSTRUCTION_TOOL_ENTITY_NAME};
+use entity::spawn::{
+    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,
+};
+use inventory_item::item::InventoryItem;
+use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
+use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
+use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 use std::collections::BTreeMap;
+
+use crate::action::{construct_action, construction_option_action, deconstruct_action};
+
+use super::construction_tool::ConstructionTool;
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -18,7 +39,7 @@ impl BaseEntitySummonable<NoData> for ConstructionToolSummoner {
                 assigned_texts: examine_map,
                 name: RichName {
                     name: "admin construction tool".to_string(),
-                    n: false,
+                    n: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -90,37 +111,20 @@ impl InventoryItemSummonable for ConstructionToolSummoner {
                 ],
                 attachment_transforms: attachment_transforms.clone(),
                 slot_type: SlotType::Holster,
+                ..Default::default()
+            },
+            melee_combat: MeleeCombat {
                 combat_melee_damage_model: DamageModel {
-                    brute: 9.,
+                    brute: DEFAULT_INVENTORY_ITEM_DAMAGE,
                     damage_flags: melee_damage_flags.clone(),
                     ..Default::default()
                 },
                 ..Default::default()
             },
+            projectile_combat_option: None,
         }
     }
 }
-use bevy::math::{Mat4, Quat, Vec3};
-use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use entity::entity_data::{RawSpawnEvent, CONSTRUCTION_TOOL_ENTITY_NAME};
-use entity::spawn::{
-    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,
-};
-use inventory_item::item::InventoryItem;
-use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
-use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
-use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use api::combat::{DamageFlag, DamageModel};
-use api::converters::string_transform_to_transform;
-use api::data::NoData;
-use api::examinable::{Examinable, RichName};
-use api::inventory::SlotType;
-use api::tab_actions::TabAction;
-
-use crate::action::{construct_action, construction_option_action, deconstruct_action};
-
-use super::construction_tool::ConstructionTool;
 
 impl RigidBodySummonable<NoData> for ConstructionToolSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {

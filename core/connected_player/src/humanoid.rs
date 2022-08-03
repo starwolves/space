@@ -1,5 +1,25 @@
 use std::{collections::HashMap, f32::consts::PI};
 
+use api::{
+    combat::{
+        CombatAttackAnimation, CombatStandardAnimation, DamageFlag, DamageModel, MeleeCombat,
+        ProjectileCombat,
+    },
+    data::{
+        ConnectedPlayer, EntityDataResource, HandleToEntity, NoData, Showcase,
+        HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
+        PISTOL_L1_ENTITY_NAME,
+    },
+    data_link::{DataLink, DataLinkType},
+    entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
+    examinable::{Examinable, RichName},
+    get_spawn_position::FacingDirection,
+    health::{Health, HealthContainer, HumanoidHealth},
+    inventory::{Inventory, Slot, SlotType},
+    network::{ReliableServerMessage, ServerConfigMessage},
+    pawn::{PawnDesignation, Spawning},
+    senser::Senser,
+};
 use bevy::{
     math::Vec2,
     prelude::{Changed, Entity, Query},
@@ -17,23 +37,6 @@ use physics::{
     world_mode::{WorldMode, WorldModes},
 };
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use api::{
-    combat::{CombatAttackAnimation, CombatStandardAnimation},
-    data::{
-        ConnectedPlayer, EntityDataResource, HandleToEntity, NoData, Showcase,
-        HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
-        PISTOL_L1_ENTITY_NAME,
-    },
-    data_link::{DataLink, DataLinkType},
-    entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
-    examinable::{Examinable, RichName},
-    get_spawn_position::FacingDirection,
-    health::{Health, HealthContainer, HumanoidHealth},
-    inventory::{Inventory, Slot, SlotType},
-    network::{ReliableServerMessage, ServerConfigMessage},
-    pawn::{PawnDesignation, Spawning},
-    senser::Senser,
-};
 use tab_actions::tab_action::get_tab_action;
 
 use vector2math::{FloatingVector2, Vector2};
@@ -53,12 +56,12 @@ pub fn humanoid_update(
         ),
         Changed<Humanoid>,
     >,
-    inventory_items: Query<&InventoryItem>,
+    inventory_items: Query<(&InventoryItem, &MeleeCombat, Option<&ProjectileCombat>)>,
 ) {
     for (
         _entity,
         pawn_component_option,
-        standard_character_component,
+        humanoid_component,
         mut entity_updates_component,
         persistent_player_data_component,
         inventory_component,
@@ -104,14 +107,14 @@ pub fn humanoid_update(
             is_left_handed = false;
         }
 
-        let mut inventory_item_option = None;
+        let mut inventory_item_components_option = None;
 
         for slot in inventory_component.slots.iter() {
             if slot.slot_name == inventory_component.active_slot {
                 active_item_entity = slot.slot_item;
                 match active_item_entity {
                     Some(ent) => {
-                        inventory_item_option = Some(inventory_items.get(ent).unwrap());
+                        inventory_item_components_option = Some(inventory_items.get(ent).unwrap());
                     }
                     None => {}
                 }
@@ -127,20 +130,26 @@ pub fn humanoid_update(
 
         let mut alt_attack_mode = false;
 
-        if standard_character_component.combat_mode {
+        if humanoid_component.combat_mode {
             // Here we can set upper body animations to certain combat state, eg boxing stance, melee weapon stances, projectile weapon stances etc.
 
             let mut upper_body_blend_amount = 1.;
 
-            match standard_character_component.current_lower_animation_state {
-                CharacterAnimationState::Idle => match inventory_item_option {
-                    Some(inventory_item_component) => {
+            let projectile_combat_component_option;
+
+            match humanoid_component.current_lower_animation_state {
+                CharacterAnimationState::Idle => match inventory_item_components_option {
+                    Some((
+                        inventory_item_component,
+                        _melee_combat_component,
+                        projectile_combat_option,
+                    )) => {
+                        projectile_combat_component_option = projectile_combat_option;
+
                         match player_input_option {
                             Some(player_input_component) => {
                                 if player_input_component.alt_attack_mode
-                                    && inventory_item_component
-                                        .combat_projectile_damage_model
-                                        .is_some()
+                                    && projectile_combat_component_option.is_some()
                                 {
                                     alt_attack_mode = true;
                                 }
@@ -172,14 +181,16 @@ pub fn humanoid_update(
                 CharacterAnimationState::Jogging => {
                     // Get active item in hand and check its AnimationEnum type. If StandardMelee its JoggingStrafe, if Pistol it's PistolStrafe.
 
-                    match inventory_item_option {
-                        Some(inventory_item_component) => {
+                    match inventory_item_components_option {
+                        Some((
+                            inventory_item_component,
+                            _melee_combat_component,
+                            projectile_combat_component_option,
+                        )) => {
                             match player_input_option {
                                 Some(player_input_component) => {
                                     if player_input_component.alt_attack_mode
-                                        && inventory_item_component
-                                            .combat_projectile_damage_model
-                                            .is_some()
+                                        && projectile_combat_component_option.is_some()
                                     {
                                         alt_attack_mode = true;
                                     }
@@ -242,21 +253,21 @@ pub fn humanoid_update(
                     }
 
                     // Further rotate this Vec2 with mouse_direction.
-                    if standard_character_component.facing_direction > 0.75 * PI {
+                    if humanoid_component.facing_direction > 0.75 * PI {
                         strafe_blend_position = strafe_blend_position.rotate(-0.5 * PI);
-                    } else if standard_character_component.facing_direction > 0.5 * PI {
+                    } else if humanoid_component.facing_direction > 0.5 * PI {
                         strafe_blend_position = strafe_blend_position.rotate(-0.75 * PI);
-                    } else if standard_character_component.facing_direction > 0.25 * PI {
+                    } else if humanoid_component.facing_direction > 0.25 * PI {
                         strafe_blend_position = strafe_blend_position.rotate(1. * PI);
-                    } else if standard_character_component.facing_direction > 0. {
+                    } else if humanoid_component.facing_direction > 0. {
                         strafe_blend_position = strafe_blend_position.rotate(0.75 * PI);
-                    } else if standard_character_component.facing_direction > -0.25 * PI {
+                    } else if humanoid_component.facing_direction > -0.25 * PI {
                         strafe_blend_position = strafe_blend_position.rotate(0.5 * PI);
-                    } else if standard_character_component.facing_direction > -0.5 * PI {
+                    } else if humanoid_component.facing_direction > -0.5 * PI {
                         strafe_blend_position = strafe_blend_position.rotate(0.25 * PI);
-                    } else if standard_character_component.facing_direction > -0.75 * PI {
+                    } else if humanoid_component.facing_direction > -0.75 * PI {
                         strafe_blend_position = strafe_blend_position.rotate(0.);
-                    } else if standard_character_component.facing_direction > -1. * PI {
+                    } else if humanoid_component.facing_direction > -1. * PI {
                         strafe_blend_position = strafe_blend_position.rotate(-0.25 * PI);
                     }
 
@@ -283,9 +294,13 @@ pub fn humanoid_update(
                 }
             }
 
-            if standard_character_component.is_attacking {
+            if humanoid_component.is_attacking {
                 match active_item_entity {
-                    Some(_entity) => match inventory_item_option.unwrap().combat_attack_animation {
+                    Some(_entity) => match inventory_item_components_option
+                        .unwrap()
+                        .1
+                        .combat_attack_animation
+                    {
                         CombatAttackAnimation::OneHandedMeleePunch => {
                             if is_left_handed {
                                 upper_body_animation_state = "Punching Left".to_string();
@@ -317,7 +332,7 @@ pub fn humanoid_update(
                 EntityUpdateData::Float(upper_body_blend_amount),
             );
         } else {
-            match standard_character_component.current_lower_animation_state {
+            match humanoid_component.current_lower_animation_state {
                 CharacterAnimationState::Idle => {
                     lower_body_animation_state = "Idle".to_string();
                     upper_body_animation_state = "Idle Heightened".to_string();
@@ -750,6 +765,8 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
             }
         }
 
+        let mut first_damage_flags = HashMap::new();
+        first_damage_flags.insert(0, DamageFlag::SoftDamage);
         spawner.insert_bundle((
             Humanoid {
                 character_name: spawn_event.summoner.get_character_name().clone(),
@@ -762,6 +779,14 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
             },
             WorldMode {
                 mode: WorldModes::Kinematic,
+            },
+            MeleeCombat {
+                combat_melee_damage_model: DamageModel {
+                    brute: 5.,
+                    damage_flags: first_damage_flags,
+                    ..Default::default()
+                },
+                ..Default::default()
             },
         ));
 

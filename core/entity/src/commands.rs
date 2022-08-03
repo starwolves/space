@@ -1,6 +1,3 @@
-use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, Transform};
-use console_commands::commands::{player_selector_to_entities, NetEntityConsole};
-use pawn::pawn::{Pawn, UsedNames};
 use api::{
     console_commands::CONSOLE_ERROR_COLOR,
     data::{EntityDataResource, HandleToEntity},
@@ -8,6 +5,9 @@ use api::{
     gridmap::GridmapMain,
     network::ReliableServerMessage,
 };
+use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, Transform};
+use console_commands::commands::{player_selector_to_entities, NetEntityConsole};
+use pawn::pawn::{Pawn, UsedNames};
 
 use crate::spawn::{spawn_entity, DefaultSpawnEvent};
 

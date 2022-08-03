@@ -1,5 +1,22 @@
 use std::collections::HashMap;
 
+use api::{
+    combat::{NetProjectileType, ProjectileFOV},
+    data::{ConnectedPlayer, Vec2Int, Vec3Int},
+    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapData, GridmapMain, FOV_MAP_WIDTH},
+    network::ReliableServerMessage,
+    senser::Senser,
+};
+use bevy::{
+    math::Vec3,
+    prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
+};
+use doryen_fov::{FovAlgorithm, MapData};
+
+use super::net::NetProjectileFOV;
+
+pub const FOV_DISTANCE: usize = 23;
+
 pub fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
@@ -179,23 +196,6 @@ impl Default for DoryenMap {
         }
     }
 }
-
-use bevy::{
-    math::Vec3,
-    prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
-};
-use doryen_fov::{FovAlgorithm, MapData};
-use api::{
-    combat::{NetProjectileType, ProjectileFOV},
-    data::{ConnectedPlayer, Vec2Int, Vec3Int},
-    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapData, GridmapMain, FOV_MAP_WIDTH},
-    network::ReliableServerMessage,
-    senser::Senser,
-};
-
-use super::net::NetProjectileFOV;
-
-pub const FOV_DISTANCE: usize = 23;
 
 pub fn senser_update_fov(
     mut senser_entities: Query<(&mut Senser, &Transform)>,

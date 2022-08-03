@@ -129,7 +129,7 @@ const LAST_NAMES: &[&str] = &[
     "Kenobi",
     "Maul",
     "McCloud",
-    "O'Donnell",
+    "Odonnell",
     "Lombardi",
 ];
 

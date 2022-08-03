@@ -1,9 +1,9 @@
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
-use networking::messages::net_system;
 use api::{
     console_commands::ConsoleCommandsLabels,
     data::{PostUpdateLabels, StartupLabels},
 };
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use networking::messages::net_system;
 
 use crate::{
     commands::{initialize_console_commands, AllConsoleCommands, NetEntityConsole},

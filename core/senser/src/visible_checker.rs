@@ -348,7 +348,6 @@ fn visible_check(
     }
 }
 
-use physics::world_mode::{WorldMode, WorldModes};
 use api::{
     data::ConnectedPlayer,
     entity_updates::{EntityData, EntityUpdates},
@@ -357,3 +356,4 @@ use api::{
     sensable::Sensable,
     senser::Senser,
 };
+use physics::world_mode::{WorldMode, WorldModes};

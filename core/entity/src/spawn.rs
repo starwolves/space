@@ -70,7 +70,13 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
             });
         }
         None => {
-            builder.insert_bundle((data.sensable, data.examinable, data.health));
+            builder.insert_bundle((
+                data.sensable,
+                data.examinable,
+                HealthComponent {
+                    health: data.health,
+                },
+            ));
         }
     }
 
@@ -139,18 +145,18 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
     }
 }
 
-use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
-use serde::Deserialize;
 use api::{
     console_commands::ConsoleCommandVariantValues,
     data::{EntityDataResource, NoData, Showcase, ShowcaseData},
     entity_updates::{EntityData, EntityGroup, EntityUpdates},
     examinable::Examinable,
-    health::Health,
+    health::{Health, HealthComponent},
     network::ReliableServerMessage,
     sensable::Sensable,
     tab_actions::TabActions,
 };
+use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
+use serde::Deserialize;
 
 use crate::entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PARENT};
 

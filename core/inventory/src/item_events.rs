@@ -1,5 +1,18 @@
 use std::collections::HashMap;
 
+use api::{
+    data::{HandleToEntity, ZeroGravity},
+    entity_updates::{EntityData, EntityUpdateData},
+    examinable::Examinable,
+    get_spawn_position::entity_spawn_position_for_player,
+    gridmap::{GridmapData, GridmapMain},
+    health::HealthComponent,
+    inventory::Inventory,
+    network::{EntityWorldType, ReliableServerMessage},
+    pawn::REACH_DISTANCE,
+    rigid_body::RigidBodyLinkTransform,
+    sensable::Sensable,
+};
 use bevy::{
     hierarchy::{Children, Parent},
     math::Vec3,
@@ -23,19 +36,6 @@ use physics::{
     world_mode::{WorldMode, WorldModes},
 };
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
-use api::{
-    data::{HandleToEntity, ZeroGravity},
-    entity_updates::{EntityData, EntityUpdateData},
-    examinable::Examinable,
-    get_spawn_position::entity_spawn_position_for_player,
-    gridmap::{GridmapData, GridmapMain},
-    health::Health,
-    inventory::Inventory,
-    network::{EntityWorldType, ReliableServerMessage},
-    pawn::REACH_DISTANCE,
-    rigid_body::RigidBodyLinkTransform,
-    sensable::Sensable,
-};
 use sounds::{
     actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},
     shared::sfx_auto_destroy,
@@ -46,7 +46,7 @@ pub fn drop_current_item(
     mut rigidbody_positions: Query<&mut Transform>,
     mut inventory_entities: Query<(&mut Inventory, &Sensable, &Pawn)>,
     mut inventory_items_query: Query<&mut InventoryItem>,
-    health_query: Query<&Health>,
+    health_query: Query<&HealthComponent>,
     cell_query: Query<&Cell>,
     mut q: Query<(
         &mut WorldMode,
@@ -327,7 +327,7 @@ pub fn pickup_world_item(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
     mut inventory_entities: Query<&mut Inventory>,
     mut inventory_items_query: Query<&mut InventoryItem>,
-    health_query: Query<&Health>,
+    health_query: Query<&HealthComponent>,
     mut q: Query<(
         &mut WorldMode,
         &mut Sleeping,

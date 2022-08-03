@@ -1,5 +1,5 @@
-use bevy::prelude::{App, Plugin};
 use api::world_environment::WorldEnvironment;
+use bevy::prelude::{App, Plugin};
 
 use crate::environment::startup_environment;
 

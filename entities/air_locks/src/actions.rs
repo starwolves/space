@@ -42,7 +42,6 @@ pub fn air_locks_actions(
     }
 }
 
-use bevy::prelude::{Entity, EventWriter, Query, Res};
 use api::{
     data::EntityDataResource,
     data_link::{DataLink, DataLinkType},
@@ -51,6 +50,7 @@ use api::{
     inventory::Inventory,
     tab_actions::QueuedTabActions,
 };
+use bevy::prelude::{Entity, EventWriter, Query, Res};
 
 use super::air_lock_added::{
     AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,

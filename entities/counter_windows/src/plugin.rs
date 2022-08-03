@@ -1,22 +1,24 @@
+use api::{
+    data::{
+        CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels,
+        SummoningLabels,
+    },
+    gridmap::GridItemData,
+    tab_actions::TabActionsQueueLabels,
+};
 use bevy::{
     math::Quat,
     prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet, Transform},
 };
+use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
-use api::{
-    data::{
-        EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels, SummoningLabels,
-    },
-    gridmap::GridItemData,
-    tab_actions::TabActionsQueueLabels,
-};
 
-use crate::physics_events::physics_events;
+use crate::{counter_window_events::CounterWindow, physics_events::physics_events};
 
 use super::{
     actions::actions,
@@ -82,6 +84,10 @@ impl Plugin for CounterWindowsPlugin {
                 (default_summon_counter_window)
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
+            )
+            .add_system(
+                health_combat_hit_result_sfx::<CounterWindow>
+                    .after(CombatLabels::FinalizeApplyDamage),
             );
     }
 }

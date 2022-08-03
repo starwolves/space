@@ -149,10 +149,6 @@ pub fn air_lock_added(
     }
 }
 
-use atmospherics::diffusion::AtmosphericsResource;
-use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
-use entity::entity_data::DefaultMapEntity;
-use map::{map::GREEN_MAP_TILE_ENTRANCE, map_input::MapData};
 use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
     data::Vec2Int,
@@ -160,6 +156,10 @@ use api::{
     examinable::{Examinable, RichName},
     gridmap::{get_atmos_index, world_to_cell_id, EntityGridData, GridmapMain},
 };
+use atmospherics::diffusion::AtmosphericsResource;
+use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
+use entity::entity_data::DefaultMapEntity;
+use map::{map::GREEN_MAP_TILE_ENTRANCE, map_input::MapData};
 
 use crate::spawn::{
     BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, VACUUM_AIRLOCK_ENTITY_NAME,

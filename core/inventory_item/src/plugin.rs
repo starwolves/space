@@ -1,9 +1,9 @@
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
-use console_commands::commands::AllConsoleCommands;
 use api::{
     console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
     data::PostUpdateLabels,
 };
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
+use console_commands::commands::AllConsoleCommands;
 
 use super::entity_update::inventory_item_update;
 use bevy::app::CoreStage::PostUpdate;

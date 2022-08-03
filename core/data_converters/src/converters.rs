@@ -53,6 +53,7 @@ pub fn _string_vec2_to_vec2_int(string_vector: &str) -> Vec2Int {
     }
 }
 
+use api::data::Vec2Int;
 use bevy::{
     math::{Quat, Vec3},
     prelude::Transform,
@@ -61,7 +62,6 @@ use bevy_rapier3d::{
     na::Quaternion,
     rapier::math::{Isometry, Real, Rotation, Translation},
 };
-use api::data::Vec2Int;
 
 pub fn transform_to_isometry(transform: Transform) -> Isometry<Real> {
     let translation: Translation<f32> = Vec3::new(

@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
-use bevy::{
-    core::{FixedTimesteps, Time},
-    math::Vec3,
-    prelude::{warn, Entity, Res, ResMut},
-};
 use api::{
     atmospherics::Atmospherics,
     data::Vec2Int,
     gridmap::{get_atmos_index, FOV_MAP_WIDTH},
+};
+use bevy::{
+    core::{FixedTimesteps, Time},
+    math::Vec3,
+    prelude::{warn, Entity, Res, ResMut},
 };
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;

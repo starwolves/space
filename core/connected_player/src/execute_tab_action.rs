@@ -1,9 +1,3 @@
-use bevy::{
-    math::Vec3,
-    prelude::{warn, Entity, EventReader, Query, Res, ResMut, Transform, Without},
-};
-use networking::messages::InputTabAction;
-use pawn::pawn::Pawn;
 use api::{
     connected_player::SoftPlayer,
     data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec3Int},
@@ -13,6 +7,12 @@ use api::{
     inventory::Inventory,
     tab_actions::{QueuedTabAction, QueuedTabActions, TabActions},
 };
+use bevy::{
+    math::Vec3,
+    prelude::{warn, Entity, EventReader, Query, Res, ResMut, Transform, Without},
+};
+use networking::messages::InputTabAction;
+use pawn::pawn::Pawn;
 
 pub fn execute_tab_actions(
     events: EventReader<InputTabAction>,

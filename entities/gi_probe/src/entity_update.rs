@@ -1,8 +1,8 @@
-use bevy::prelude::{Changed, Query};
 use api::{
     data::GIProbe,
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
 };
+use bevy::prelude::{Changed, Query};
 
 pub fn gi_probe_update(
     mut updated_gi_probes: Query<(&GIProbe, &mut EntityUpdates), Changed<GIProbe>>,

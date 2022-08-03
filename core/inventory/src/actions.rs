@@ -1,6 +1,6 @@
+use api::tab_actions::QueuedTabActions;
 use bevy::prelude::{EventWriter, Res};
 use networking::messages::InputUseWorldItem;
-use api::tab_actions::QueuedTabActions;
 
 pub fn actions(
     queue: Res<QueuedTabActions>,

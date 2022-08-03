@@ -1,12 +1,12 @@
+use api::{
+    gridmap::FOV_MAP_WIDTH,
+    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
+};
 use bevy::{
     math::Vec2,
     prelude::{EventReader, EventWriter, Query},
 };
 use networking::messages::{InputMap, InputMapRequestDisplayModes, MapInput};
-use api::{
-    gridmap::FOV_MAP_WIDTH,
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
 
 pub fn map_input(
     mut input_view_range_change_events: EventReader<InputMap>,

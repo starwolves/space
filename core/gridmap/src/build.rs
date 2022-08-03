@@ -1,3 +1,11 @@
+use api::{
+    data::Vec3Int,
+    gridmap::{
+        cell_id_to_world, to_doryen_coordinates, CellData, GridmapData, GridmapDetails1,
+        GridmapMain,
+    },
+    health::{Health, HealthContainer, HealthFlag, StructureHealth},
+};
 use bevy::{
     hierarchy::BuildChildren,
     math::Vec3,
@@ -8,14 +16,6 @@ use bevy_rapier3d::prelude::{
 };
 use data_converters::converters::string_vec3_to_vec3;
 use physics::physics::{get_bit_masks, ColliderGroup, CHARACTER_FLOOR_FRICTION};
-use api::{
-    data::Vec3Int,
-    gridmap::{
-        cell_id_to_world, to_doryen_coordinates, CellData, GridmapData, GridmapDetails1,
-        GridmapMain,
-    },
-    health::{HealthFlag, StructureHealth},
-};
 
 pub fn build_gridmap_floor(commands: &mut Commands) {
     let masks = get_bit_masks(ColliderGroup::Standard);
@@ -115,8 +115,9 @@ pub fn build_main_gridmap(
                 CellData {
                     item: cell_item_id,
                     orientation: cell_data.orientation,
-                    health: StructureHealth {
+                    health: Health {
                         health_flags: health_flags.clone(),
+                        health_container: HealthContainer::Structure(StructureHealth::default()),
                         ..Default::default()
                     },
                     entity: None,
@@ -138,8 +139,9 @@ pub fn build_main_gridmap(
             CellData {
                 item: cell_item_id,
                 orientation: cell_data.orientation,
-                health: StructureHealth {
+                health: Health {
                     health_flags: health_flags.clone(),
+                    health_container: HealthContainer::Structure(StructureHealth::default()),
                     ..Default::default()
                 },
                 entity: Some(entity_op),
@@ -170,7 +172,10 @@ pub fn build_details1_gridmap(
                     .get(&cell_data.item)
                     .unwrap(),
                 orientation: cell_data.orientation,
-                health: StructureHealth::default(),
+                health: Health {
+                    health_container: HealthContainer::Structure(StructureHealth::default()),
+                    ..Default::default()
+                },
                 entity: None,
             },
         );

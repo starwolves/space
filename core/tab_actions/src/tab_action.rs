@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use bevy::prelude::{Entity, Query};
 use api::{
     data::EntityDataResource,
     data_link::DataLink,
@@ -10,6 +9,7 @@ use api::{
     pawn::REACH_DISTANCE,
     tab_actions::TabAction,
 };
+use bevy::prelude::{Entity, Query};
 
 pub fn get_tab_action(id: &str) -> Option<TabAction> {
     let result;

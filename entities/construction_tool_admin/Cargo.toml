@@ -17,6 +17,7 @@ entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }
 networking = { path = "../../core/networking" }
 pawn = { path = "../../core/pawn" }
+combat = { path = "../../core/combat" }
 atmospherics = { path = "../../core/atmospherics" }
 inventory_item = { path = "../../core/inventory_item" }
 rigid_body = { path = "../../core/rigid_body" }

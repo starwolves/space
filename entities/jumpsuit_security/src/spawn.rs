@@ -73,17 +73,30 @@ impl InventoryItemSummonable for JumpsuitSummoner {
                 attachment_transforms: attachment_transforms,
                 drop_transform: get_default_transform(),
                 slot_type: SlotType::Jumpsuit,
+                throw_force_factor: 2.,
+                ..Default::default()
+            },
+            melee_combat: MeleeCombat {
                 combat_melee_damage_model: DamageModel {
                     brute: 5.,
                     damage_flags: melee_damage_flags,
                     ..Default::default()
                 },
-                throw_force_factor: 2.,
                 ..Default::default()
             },
+            projectile_combat_option: None,
         }
     }
 }
+use api::combat::DamageFlag;
+use api::combat::DamageModel;
+use api::combat::MeleeCombat;
+use api::converters::string_transform_to_transform;
+use api::data::NoData;
+use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
+use api::examinable::Examinable;
+use api::examinable::RichName;
+use api::inventory::SlotType;
 use bevy::math::Mat4;
 use bevy::math::Quat;
 use bevy::math::Vec3;
@@ -104,14 +117,6 @@ use inventory_item::spawn::InventoryItemSummonable;
 use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
 use rigid_body::spawn::RigidBodyBundle;
 use rigid_body::spawn::RigidBodySummonable;
-use api::combat::DamageFlag;
-use api::combat::DamageModel;
-use api::converters::string_transform_to_transform;
-use api::data::NoData;
-use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
-use api::examinable::Examinable;
-use api::examinable::RichName;
-use api::inventory::SlotType;
 
 use super::jumpsuit::Jumpsuit;
 

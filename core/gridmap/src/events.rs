@@ -90,7 +90,7 @@ use api::{
         to_doryen_coordinates, CellData, GridMapType, GridmapData, GridmapDetails1, GridmapMain,
         RemoveCell,
     },
-    health::{CellUpdate, StructureHealth},
+    health::{CellUpdate, Health, HealthContainer, StructureHealth},
     network::ReliableServerMessage,
     senser::Senser,
 };
@@ -234,7 +234,12 @@ pub fn remove_cell(
                         cell_data: CellData {
                             item: -1,
                             orientation: 0,
-                            health: StructureHealth::default(),
+                            health: Health {
+                                health_container: HealthContainer::Structure(
+                                    StructureHealth::default(),
+                                ),
+                                ..Default::default()
+                            },
                             entity: None,
                         },
                     },

@@ -1,7 +1,7 @@
-use bevy::prelude::{Changed, Entity, Query};
 use api::entity_updates::{
     entity_update_changed_detection, get_entity_update_difference, EntityUpdateData, EntityUpdates,
 };
+use bevy::prelude::{Changed, Entity, Query};
 
 use super::builder::{RepeatingSfx, Sfx};
 

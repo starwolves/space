@@ -1,11 +1,5 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy::prelude::{info, Commands, EventWriter, Res, ResMut, Transform};
-use bevy_rapier3d::{
-    plugin::{RapierConfiguration, TimestepMode},
-    prelude::{CoefficientCombineRule, Collider},
-};
-use entity::entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server};
 use api::{
     chat::EXAMINATION_EMPTY,
     data::{ServerId, TickRate},
@@ -16,6 +10,12 @@ use api::{
     },
     pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints},
 };
+use bevy::prelude::{info, Commands, EventWriter, Res, ResMut, Transform};
+use bevy_rapier3d::{
+    plugin::{RapierConfiguration, TimestepMode},
+    prelude::{CoefficientCombineRule, Collider},
+};
+use entity::entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server};
 
 use crate::{
     build::{build_details1_gridmap, build_gridmap_floor, build_main_gridmap},

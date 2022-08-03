@@ -1,8 +1,8 @@
-use bevy::prelude::{Changed, Query};
 use api::{
     data_link::{DataLink, DataLinkType},
     senser::{Senser, SensingAbility},
 };
+use bevy::prelude::{Changed, Query};
 
 pub fn gridmap_sensing_ability(
     mut data_linked: Query<(&DataLink, &mut Senser), Changed<DataLink>>,

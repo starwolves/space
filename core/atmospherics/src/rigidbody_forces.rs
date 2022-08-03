@@ -1,5 +1,11 @@
 // Add to shared resources with _physics,
 
+use api::{
+    data::{TickRate, Vec2Int},
+    gridmap::{
+        get_atmos_index, world_to_cell_id, AdjacentTileDirection, GridmapMain, FOV_MAP_WIDTH,
+    },
+};
 use bevy::{
     math::Vec3,
     prelude::{Entity, Query, Res, ResMut, Transform, Without},
@@ -7,12 +13,6 @@ use bevy::{
 use bevy_rapier3d::prelude::ExternalForce;
 use pawn::pawn::Pawn;
 use physics::physics::RigidBodyDisabled;
-use api::{
-    data::{TickRate, Vec2Int},
-    gridmap::{
-        get_atmos_index, world_to_cell_id, AdjacentTileDirection, GridmapMain, FOV_MAP_WIDTH,
-    },
-};
 
 pub fn rigidbody_forces_physics(
     mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,

@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
 use api::{
     data::ConnectedPlayer,
     entity_updates::EntityUpdateData,
-    health::{Health, HealthContainer, NetHealthUpdate},
+    health::{HealthComponent, HealthContainer, NetHealthUpdate},
     network::{EntityWorldType, ReliableServerMessage},
 };
+use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
 
 const UI_ALPHA: f32 = 146.;
 const NONE_UI_RED: f32 = 102.;
@@ -46,14 +46,17 @@ pub enum UIDamageType {
 }
 
 pub fn health_ui_update(
-    mut updated_player_health_entities: Query<(Entity, &ConnectedPlayer, &Health), Changed<Health>>,
+    mut updated_player_health_entities: Query<
+        (Entity, &ConnectedPlayer, &HealthComponent),
+        Changed<HealthComponent>,
+    >,
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
     mut net_health_update: EventWriter<NetHealthUpdate>,
 ) {
     for (entity, connected_player_component, health_component) in
         updated_player_health_entities.iter_mut()
     {
-        match &health_component.health_container {
+        match &health_component.health.health_container {
             HealthContainer::Humanoid(humanoid_health) => {
                 let total_head_damage = humanoid_health.head_brute
                     + humanoid_health.head_burn

@@ -1,5 +1,3 @@
-use bevy::prelude::{warn, Entity, Query, Res, ResMut};
-use networking::messages::ExamineEntityMessages;
 use api::{
     chat::{
         EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
@@ -7,11 +5,13 @@ use api::{
     data::HandleToEntity,
     examinable::Examinable,
     gridmap::{GridMapType, GridmapDetails1},
-    health::{Health, HealthContainer},
+    health::{HealthComponent, HealthContainer},
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     sensable::Sensable,
     senser::Senser,
 };
+use bevy::prelude::{warn, Entity, Query, Res, ResMut};
+use networking::messages::ExamineEntityMessages;
 
 pub struct ExamineEntityPawn {
     pub handle: u64,
@@ -30,7 +30,7 @@ pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
     criteria_query: Query<&Senser>,
-    q0: Query<(&Examinable, &Sensable, &Health)>,
+    q0: Query<(&Examinable, &Sensable, &HealthComponent)>,
 ) {
     for examine_event in examine_entity_events.messages.iter_mut() {
         let entity_reference = Entity::from_bits(examine_event.examine_entity_bits);
@@ -48,7 +48,7 @@ pub fn examine_entity(
                 //found=true;
                 let mut text;
 
-                match &health_component.health_container {
+                match &health_component.health.health_container {
                     HealthContainer::Entity(entity_container) => {
                         let mut examinable_text =
                             "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + "\n";
@@ -428,6 +428,9 @@ pub fn examine_entity(
                         }
                         text = "\n".to_string() + &examine_text;
                     }
+                    HealthContainer::Structure(_) => {
+                        continue;
+                    }
                 }
 
                 let entity = handle_to_entity.map.get(&examine_event.handle).expect(
@@ -510,9 +513,20 @@ pub fn examine_map(
                 Some(ship_cell) => {
                     let mut message = "".to_string();
 
-                    if ship_cell.health.brute < 25.
-                        && ship_cell.health.burn < 25.
-                        && ship_cell.health.toxin < 25.
+                    let structure_health;
+
+                    match &ship_cell.health.health_container {
+                        HealthContainer::Structure(t) => {
+                            structure_health = t;
+                        }
+                        _ => {
+                            continue;
+                        }
+                    }
+
+                    if structure_health.brute < 25.
+                        && structure_health.burn < 25.
+                        && structure_health.toxin < 25.
                     {
                         message = message
                             + "[font="
@@ -521,21 +535,21 @@ pub fn examine_map(
                             + HEALTHY_COLOR
                             + "]\nIt is in perfect shape.[/color][/font]";
                     } else {
-                        if ship_cell.health.brute > 75. {
+                        if structure_health.brute > 75. {
                             message = message
                                 + "[font="
                                 + FURTHER_ITALIC_FONT
                                 + "][color="
                                 + UNHEALTHY_COLOR
                                 + "]\nIt is heavily damaged.[/color][/font]";
-                        } else if ship_cell.health.brute > 50. {
+                        } else if structure_health.brute > 50. {
                             message = message
                                 + "[font="
                                 + FURTHER_ITALIC_FONT
                                 + "][color="
                                 + UNHEALTHY_COLOR
                                 + "]\nIt is damaged.[/color][/font]";
-                        } else if ship_cell.health.brute > 25. {
+                        } else if structure_health.brute > 25. {
                             message = message
                                 + "[font="
                                 + FURTHER_ITALIC_FONT
@@ -544,21 +558,21 @@ pub fn examine_map(
                                 + "]\nIt is slightly damaged.[/color][/font]";
                         }
 
-                        if ship_cell.health.burn > 75. {
+                        if structure_health.burn > 75. {
                             message = message
                                 + "[font="
                                 + FURTHER_ITALIC_FONT
                                 + "][color="
                                 + UNHEALTHY_COLOR
                                 + "]\nIt suffers from heavy burn damage.[/color][/font]";
-                        } else if ship_cell.health.burn > 50. {
+                        } else if structure_health.burn > 50. {
                             message = message
                                 + "[font="
                                 + FURTHER_ITALIC_FONT
                                 + "][color="
                                 + UNHEALTHY_COLOR
                                 + "]\nIt suffers burn damage.[/color][/font]";
-                        } else if ship_cell.health.burn > 25. {
+                        } else if structure_health.burn > 25. {
                             message = message
                                 + "[font="
                                 + FURTHER_ITALIC_FONT

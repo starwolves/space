@@ -1,4 +1,3 @@
-use bevy::prelude::{warn, Query, Res, ResMut};
 use api::{
     atmospherics::CELCIUS_KELVIN_OFFSET,
     chat::{ATMOSPHERICS_TEXT_COLOR, FURTHER_ITALIC_FONT},
@@ -7,6 +6,7 @@ use api::{
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     senser::{Senser, SensingAbility},
 };
+use bevy::prelude::{warn, Query, Res, ResMut};
 
 use crate::diffusion::AtmosphericsResource;
 

@@ -102,6 +102,15 @@ impl BaseEntitySummonable<NoData> for AirlockSummoner {
     }
 }
 
+use api::{
+    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    converters::string_transform_to_transform,
+    data::NoData,
+    entity_updates::EntityGroup,
+    examinable::{Examinable, RichName},
+    health::Health,
+    tab_actions::{TabAction, TabActions},
+};
 use bevy::{
     math::Vec3,
     prelude::{warn, Commands, EventReader, EventWriter, Transform},
@@ -113,15 +122,6 @@ use entity::{
 };
 use pawn::pawn::ShipAuthorizationEnum;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use api::{
-    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    converters::string_transform_to_transform,
-    data::NoData,
-    entity_updates::EntityGroup,
-    examinable::{Examinable, RichName},
-    health::Health,
-    tab_actions::{TabAction, TabActions},
-};
 
 use super::actions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action};
 

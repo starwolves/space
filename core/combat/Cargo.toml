@@ -9,6 +9,7 @@ default-features = false
 
 [dependencies]
 bevy_rapier3d = "0.15.0"
+rand = "0.8.5"
 
 
 networking = { path = "../networking" }
@@ -18,3 +19,4 @@ physics = { path = "../physics" }
 api = { path = "../api" }
 gridmap = { path = "../gridmap" }
 sfx = { path = "../sfx" }
+inventory_item = { path = "../inventory_item" }
