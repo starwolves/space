@@ -1,6 +1,6 @@
 [package]
 name = "server"
-version = "0.0.3-snap6"
+version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <nikitaab98@gmail.com>"]
 description="A modular Bevy ECS community game server for Space Frontiers."
 homepage="https://github.com/starwolves/space"
