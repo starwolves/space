@@ -8,8 +8,8 @@ use api::{
     tab_actions::TabActionsQueueLabels,
 };
 use bevy::{
-    core::FixedTimestep,
     prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
+    time::FixedTimestep,
 };
 use networking::{
     messages::{net_system, InputTabDataEntity},

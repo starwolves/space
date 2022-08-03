@@ -6,9 +6,9 @@ use api::{
     gridmap::{get_atmos_index, FOV_MAP_WIDTH},
 };
 use bevy::{
-    core::{FixedTimesteps, Time},
     math::Vec3,
     prelude::{warn, Entity, Res, ResMut},
+    time::{FixedTimesteps, Time},
 };
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;

@@ -1,5 +1,5 @@
 use api::data::LockedStatus;
-use bevy::{core::Timer, prelude::Component};
+use bevy::{prelude::Component, time::Timer};
 use pawn::pawn::ShipAuthorizationEnum;
 
 #[derive(Component)]

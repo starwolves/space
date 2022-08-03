@@ -31,7 +31,10 @@ pub const SERVER_PORT: u16 = 57713;
 
 use std::{net::UdpSocket, time::SystemTime};
 
-use bevy_renet::renet::{RenetConnectionConfig, RenetServer, ServerConfig, NETCODE_KEY_BYTES};
+use bevy_renet::renet::{
+    ChannelConfig, ReliableChannelConfig, RenetConnectionConfig, RenetServer, ServerAuthentication,
+    ServerConfig, NETCODE_KEY_BYTES,
+};
 
 use super::plugin::{RENET_RELIABLE_CHANNEL_ID, RENET_UNRELIABLE_CHANNEL_ID};
 
@@ -42,8 +45,31 @@ pub fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]) -> Re
         .parse()
         .unwrap();
     let socket = UdpSocket::bind(server_addr).unwrap();
-    let connection_config = RenetConnectionConfig::default();
-    let server_config = ServerConfig::new(64, PROTOCOL_ID, server_addr, encryption_key);
+
+    let channels_config = vec![
+        ChannelConfig::Reliable(ReliableChannelConfig {
+            packet_budget: 6000,
+            max_message_size: 5900,
+            ..Default::default()
+        }),
+        ChannelConfig::Unreliable(Default::default()),
+        ChannelConfig::Block(Default::default()),
+    ];
+
+    let connection_config = RenetConnectionConfig {
+        send_channels_config: channels_config.clone(),
+        receive_channels_config: channels_config,
+        ..Default::default()
+    };
+
+    let server_config = ServerConfig::new(
+        64,
+        PROTOCOL_ID,
+        server_addr,
+        ServerAuthentication::Secure {
+            private_key: encryption_key,
+        },
+    );
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();

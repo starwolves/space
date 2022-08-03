@@ -1,7 +1,7 @@
 use api::data::PostUpdateLabels;
 use bevy::{
-    core::FixedTimestep,
     prelude::{App, Plugin, SystemSet},
+    time::FixedTimestep,
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
 

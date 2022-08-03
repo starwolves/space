@@ -1,5 +1,6 @@
 use api::data::{MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
 use api::examinable::ExamineLabels;
+use bevy::time::FixedTimestep;
 use networking::messages::net_system;
 
 use crate::diffusion::AtmosphericsResource;
@@ -75,9 +76,8 @@ impl Plugin for AtmosphericsPlugin {
 }
 
 use bevy::app::CoreStage::PostUpdate;
-use bevy::{
-    core::FixedTimestep,
-    prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet},
+use bevy::prelude::{
+    App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet,
 };
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]

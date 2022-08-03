@@ -1,6 +1,6 @@
 use bevy::{
-    core::Time,
     prelude::{Query, Res},
+    time::Time,
 };
 
 use super::counter_window_events::CounterWindow;

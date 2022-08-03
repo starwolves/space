@@ -111,7 +111,7 @@ pub fn projectile_attack(
 
                 match colliders.get(child_entity) {
                     Ok(parent_entity) => {
-                        collider_entity = parent_entity.0;
+                        collider_entity = parent_entity.get();
                     }
                     Err(_rr) => {
                         collider_entity = child_entity;
@@ -158,7 +158,7 @@ pub fn projectile_attack(
 
                                     match colliders.get(child_entity) {
                                         Ok(parent_entity) => {
-                                            colliderz = parent_entity.0;
+                                            colliderz = parent_entity.get();
                                         }
                                         Err(_rr) => {
                                             colliderz = child_entity;
@@ -212,7 +212,7 @@ pub fn projectile_attack(
 
                                     match colliders.get(child_entity) {
                                         Ok(parent_entity) => {
-                                            colliderz = parent_entity.0;
+                                            colliderz = parent_entity.get();
                                         }
                                         Err(_rr) => {
                                             colliderz = child_entity;

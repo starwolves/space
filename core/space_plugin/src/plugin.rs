@@ -12,8 +12,9 @@ use bevy::{
     prelude::{App, Plugin},
     render::{settings::WgpuSettings, RenderPlugin},
     scene::ScenePlugin,
+    time::TimePlugin,
     transform::TransformPlugin,
-    window::WindowPlugin,
+    window::{WindowPlugin, WindowSettings},
 };
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
@@ -75,14 +76,17 @@ impl Plugin for SpacePlugin {
         wgpu_settings.backends = None;
 
         app.add_plugin(CorePlugin::default())
+            .add_plugin(TimePlugin::default())
             .add_plugin(ScheduleRunnerPlugin::default())
             .add_plugin(LogPlugin::default())
             .add_plugin(TransformPlugin::default())
             .insert_resource(wgpu_settings)
-            .add_plugin(WindowPlugin {
+            .insert_resource(WindowSettings {
                 add_primary_window: false,
-                exit_on_close: false,
+                exit_on_all_closed: false,
+                ..Default::default()
             })
+            .add_plugin(WindowPlugin)
             .add_plugin(AssetPlugin)
             .add_plugin(ScenePlugin)
             .add_plugin(RenderPlugin)

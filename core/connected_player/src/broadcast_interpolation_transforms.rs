@@ -4,9 +4,9 @@ use api::{
     sensable::Sensable,
 };
 use bevy::{
-    core::Time,
     math::Vec3,
     prelude::{Entity, Local, Query, Res, ResMut, Transform, With, Without},
+    time::Time,
 };
 use bevy_rapier3d::prelude::{RigidBody, Velocity};
 use bevy_renet::renet::RenetServer;

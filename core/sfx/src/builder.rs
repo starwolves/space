@@ -27,8 +27,8 @@ use api::{
     sensable::Sensable,
 };
 use bevy::{
-    core::Timer,
     prelude::{Commands, Component, Entity, Transform},
+    time::Timer,
 };
 use entity::entity_data::{CachedBroadcastTransform, UpdateTransform};
 use rand::Rng;

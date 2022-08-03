@@ -5,8 +5,8 @@ use api::{
     pawn::SpawnPoints,
 };
 use bevy::{
-    core::FixedTimestep,
     prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
+    time::FixedTimestep,
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
 use networking::messages::net_system;

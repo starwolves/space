@@ -58,7 +58,7 @@ pub fn can_reach_entity(
             let parent_entity;
             match collider_parents.get(collided_entity) {
                 Ok(s) => {
-                    parent_entity = s.0;
+                    parent_entity = s.get();
                 }
                 Err(_rr) => {
                     parent_entity = collided_entity;

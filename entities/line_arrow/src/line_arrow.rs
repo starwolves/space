@@ -1,4 +1,4 @@
-use bevy::{core::Timer, prelude::Component};
+use bevy::{prelude::Component, time::Timer};
 
 #[derive(Component)]
 pub struct LineArrow;
