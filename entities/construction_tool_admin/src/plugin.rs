@@ -1,4 +1,33 @@
 use bevy::app::CoreStage::PostUpdate;
+
+use api::data::{
+    CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels,
+    SummoningLabels, UpdateLabels,
+};
+use api::tab_actions::TabActionsQueueLabels;
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
+use combat::melee_queries::melee_attack_handler;
+use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
+use entity::entity_data::{initialize_entity_data, CONSTRUCTION_TOOL_ENTITY_NAME};
+use entity::spawn::{summon_base_entity, SpawnEvent};
+use inventory_item::spawn::summon_inventory_item;
+use networking::messages::{net_system, InputConstructionOptionsSelection};
+use rigid_body::spawn::summon_rigid_body;
+
+use crate::construction_tool::ConstructionTool;
+
+use super::{
+    action::construction_tool_actions,
+    construction_tool::{
+        construction_tool, InputConstruct, InputConstructionOptions, InputDeconstruct,
+    },
+    net::NetConstructionTool,
+    spawn::{
+        default_summon_construction_tool, summon_construction_tool, summon_raw_construction_tool,
+        ConstructionToolSummoner,
+    },
+};
+
 pub struct ConstructionToolAdminPlugin;
 
 impl Plugin for ConstructionToolAdminPlugin {
@@ -44,33 +73,23 @@ impl Plugin for ConstructionToolAdminPlugin {
                 (default_summon_construction_tool)
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
+            )
+            .add_system(
+                melee_attack_handler::<ConstructionTool>
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
+            )
+            .add_system(
+                attack_sfx::<ConstructionTool>
+                    .after(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::Query),
+            )
+            .add_system(
+                health_combat_hit_result_sfx::<ConstructionTool>
+                    .after(CombatLabels::FinalizeApplyDamage),
             );
     }
 }
-
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
-use entity::entity_data::{initialize_entity_data, CONSTRUCTION_TOOL_ENTITY_NAME};
-use entity::spawn::{summon_base_entity, SpawnEvent};
-use inventory_item::spawn::summon_inventory_item;
-use networking::messages::{net_system, InputConstructionOptionsSelection};
-use rigid_body::spawn::summon_rigid_body;
-use api::data::{
-    EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels, SummoningLabels,
-    UpdateLabels,
-};
-use api::tab_actions::TabActionsQueueLabels;
-
-use super::{
-    action::construction_tool_actions,
-    construction_tool::{
-        construction_tool, InputConstruct, InputConstructionOptions, InputDeconstruct,
-    },
-    net::NetConstructionTool,
-    spawn::{
-        default_summon_construction_tool, summon_construction_tool, summon_raw_construction_tool,
-        ConstructionToolSummoner,
-    },
-};
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {

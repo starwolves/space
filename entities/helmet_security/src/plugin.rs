@@ -1,11 +1,19 @@
+use api::data::{
+    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
+};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
+use combat::{
+    melee_queries::melee_attack_handler,
+    sfx::{attack_sfx, health_combat_hit_result_sfx},
+};
 use entity::{
     entity_data::{initialize_entity_data, HELMET_SECURITY_ENTITY_NAME},
     spawn::{summon_base_entity, SpawnEvent},
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
-use api::data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels};
+
+use crate::helmet::Helmet;
 
 use super::spawn::{
     default_summon_helmet_security, summon_helmet, summon_raw_helmet, HelmetSummoner,
@@ -30,6 +38,19 @@ impl Plugin for HelmetsPlugin {
                 (default_summon_helmet_security)
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
+            )
+            .add_system(
+                melee_attack_handler::<Helmet>
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
+            )
+            .add_system(
+                attack_sfx::<Helmet>
+                    .after(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::Query),
+            )
+            .add_system(
+                health_combat_hit_result_sfx::<Helmet>.after(CombatLabels::FinalizeApplyDamage),
             );
     }
 }

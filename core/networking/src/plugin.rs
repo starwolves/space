@@ -1,11 +1,11 @@
-use bevy::prelude::SystemSet;
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
-use bevy_renet::renet::NETCODE_KEY_BYTES;
-use bevy_renet::RenetServerPlugin;
 use api::data::{PostUpdateLabels, PreUpdateLabels};
 use api::network::{
     InputChatMessage, PendingMessage, PendingNetworkMessage, ReliableServerMessage,
 };
+use bevy::prelude::SystemSet;
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
+use bevy_renet::renet::NETCODE_KEY_BYTES;
+use bevy_renet::RenetServerPlugin;
 
 use crate::messages::{
     net_system, ExamineEntityMessages, InputAltItemAttack, InputAttackCell, InputAttackEntity,

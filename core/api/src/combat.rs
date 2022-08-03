@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::math::Vec3;
+use bevy::{math::Vec3, prelude::Component};
 use serde::{Deserialize, Serialize};
+
+use crate::{chat::Color, humanoid::MELEE_FISTS_REACH};
 
 pub struct ProjectileFOV {
     pub laser_projectile: NetProjectileType,
@@ -23,7 +25,7 @@ pub enum DamageFlag {
     Floor(f32),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct DamageModel {
     pub brute: f32,
     pub burn: f32,
@@ -31,16 +33,6 @@ pub struct DamageModel {
     pub damage_flags: HashMap<u32, DamageFlag>,
 }
 
-impl Default for DamageModel {
-    fn default() -> Self {
-        Self {
-            brute: 0.,
-            burn: 0.,
-            toxin: 0.,
-            damage_flags: HashMap::new(),
-        }
-    }
-}
 pub enum DamageType {
     Melee,
     Projectile,
@@ -65,12 +57,84 @@ pub enum CombatAttackAnimation {
 #[derive(Clone, Debug)]
 pub enum CombatType {
     MeleeDirect,
-    Projectile(ProjectileType),
+    Projectile,
 }
 
-#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub enum ProjectileType {
     Laser((f32, f32, f32, f32), f32, f32, f32),
-    Ballistic,
+}
+
+#[derive(Component)]
+pub struct MeleeCombat {
+    pub combat_melee_damage_model: DamageModel,
+    pub melee_attack_range: f32,
+    pub combat_melee_text_set: Vec<String>,
+    pub combat_attack_animation: CombatAttackAnimation,
+    pub trigger_melee_text_set: Vec<String>,
+}
+
+impl Default for MeleeCombat {
+    fn default() -> Self {
+        Self {
+            combat_melee_damage_model: DamageModel::default(),
+            melee_attack_range: MELEE_FISTS_REACH,
+            combat_melee_text_set: get_default_strike_words(),
+            combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
+            trigger_melee_text_set: get_default_trigger_melee_words(),
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct ProjectileCombat {
+    pub combat_projectile_damage_model: DamageModel,
+    pub laser_color: Color,
+    pub laser_height: f32,
+    pub laser_radius: f32,
+    pub laser_range: f32,
+    pub combat_projectile_text_set: Vec<String>,
+    pub trigger_projectile_text_set: Vec<String>,
+}
+
+impl Default for ProjectileCombat {
+    fn default() -> Self {
+        Self {
+            combat_projectile_damage_model: DamageModel::default(),
+            laser_color: Color::default(),
+            laser_height: 3.,
+            laser_radius: 0.025,
+            laser_range: 50.,
+            combat_projectile_text_set: get_default_laser_words(),
+            trigger_projectile_text_set: get_default_trigger_weapon_words(),
+        }
+    }
+}
+
+pub const DEFAULT_INVENTORY_ITEM_DAMAGE: f32 = 9.;
+pub fn get_default_strike_words() -> Vec<String> {
+    vec![
+        "hit".to_string(),
+        "struck".to_string(),
+        "striked".to_string(),
+    ]
+}
+pub fn get_default_laser_words() -> Vec<String> {
+    vec!["shot".to_string(), "hit".to_string(), "beamed".to_string()]
+}
+pub fn get_default_trigger_weapon_words() -> Vec<String> {
+    vec!["fired".to_string(), "shot".to_string()]
+}
+pub fn get_default_trigger_fists_words() -> Vec<String> {
+    vec!["swung".to_string(), "thrown".to_string()]
+}
+pub fn get_default_trigger_melee_words() -> Vec<String> {
+    vec!["swung".to_string()]
+}
+pub fn get_default_fists_words() -> Vec<String> {
+    vec![
+        "punched".to_string(),
+        "hit".to_string(),
+        "swung at".to_string(),
+    ]
 }

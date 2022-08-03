@@ -1,9 +1,9 @@
-use bevy::prelude::{info, Entity, EventWriter, ResMut};
-use pawn::pawn::UsedNames;
 use api::{
     console_commands::ConsoleCommandVariant,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
 };
+use bevy::prelude::{info, Entity, EventWriter, ResMut};
+use pawn::pawn::UsedNames;
 
 pub struct NetConsoleCommands {
     pub handle: u64,

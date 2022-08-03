@@ -30,9 +30,6 @@ pub fn ui_input_event(
 
 use std::collections::HashMap;
 
-use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
-use entity::spawn::{SpawnData, SpawnEvent};
-use pawn::pawn::{PersistentPlayerData, UsedNames};
 use api::{
     chat::MOTD,
     connected_player::SoftPlayer,
@@ -46,6 +43,9 @@ use api::{
     },
     pawn::PawnDesignation,
 };
+use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
+use entity::spawn::{SpawnData, SpawnEvent};
+use pawn::pawn::{PersistentPlayerData, UsedNames};
 
 use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
 

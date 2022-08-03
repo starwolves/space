@@ -1,6 +1,6 @@
-use networking::messages::net_system;
 use api::data::{MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
 use api::examinable::ExamineLabels;
+use networking::messages::net_system;
 
 use crate::diffusion::AtmosphericsResource;
 use crate::examine_events::{examine_map_atmos, NetAtmosphericsMapExamine};

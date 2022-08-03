@@ -22,16 +22,16 @@ pub fn ambience_sfx_builder(
     entity
 }
 
+use api::{
+    entity_updates::{EntityData, EntityUpdates},
+    sensable::Sensable,
+};
 use bevy::{
     core::Timer,
     prelude::{Commands, Component, Entity, Transform},
 };
 use entity::entity_data::{CachedBroadcastTransform, UpdateTransform};
 use rand::Rng;
-use api::{
-    entity_updates::{EntityData, EntityUpdates},
-    sensable::Sensable,
-};
 
 #[derive(Component)]
 pub struct FootstepsSprinting;

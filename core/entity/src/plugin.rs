@@ -1,10 +1,10 @@
-use bevy::core::FixedTimestep;
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
-use networking::messages::net_system;
 use api::console_commands::ConsoleCommandsLabels;
 use api::data::{EntityDataResource, PostUpdateLabels, StartupLabels, SummoningLabels};
 use api::entity_updates::NetSendEntityUpdates;
 use api::load_entity::{NetLoadEntity, NetUnloadEntity};
+use bevy::core::FixedTimestep;
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use networking::messages::net_system;
 
 use crate::entity_data::{RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::init::{initialize_console_commands, startup_entities};

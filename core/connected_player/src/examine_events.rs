@@ -1,5 +1,3 @@
-use bevy::prelude::{warn, Entity, EventWriter, Query, Res, ResMut};
-use const_format::concatcp;
 use api::{
     chat::{
         get_empty_cell_message, get_space_message, ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT,
@@ -10,11 +8,13 @@ use api::{
         to_doryen_coordinates, GridMapType, GridmapData, GridmapDetails1, GridmapExamineMessages,
         GridmapMain,
     },
-    health::{Health, HealthContainer},
+    health::{HealthComponent, HealthContainer},
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     sensable::Sensable,
     senser::Senser,
 };
+use bevy::prelude::{warn, Entity, EventWriter, Query, Res, ResMut};
+use const_format::concatcp;
 
 use gridmap::events::examine_ship_cell;
 use networking::messages::ExamineEntityMessages;
@@ -103,7 +103,7 @@ pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
     criteria_query: Query<&Senser>,
-    q0: Query<(&Examinable, &Sensable, &Health)>,
+    q0: Query<(&Examinable, &Sensable, &HealthComponent)>,
 ) {
     for examine_event in examine_entity_events.messages.iter_mut() {
         let entity_reference = Entity::from_bits(examine_event.examine_entity_bits);
@@ -120,7 +120,7 @@ pub fn examine_entity(
             Ok((examinable_component, sensable_component, health_component)) => {
                 let mut text = "".to_string();
 
-                match &health_component.health_container {
+                match &health_component.health.health_container {
                     HealthContainer::Entity(_entity_container) => {
                         let mut examinable_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]";
                         for (_text_id, assigned_text) in examinable_component.assigned_texts.iter()

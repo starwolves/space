@@ -1,9 +1,9 @@
-use bevy::prelude::{EventReader, Res, ResMut};
 use api::{
     atmospherics::{EffectType, VACUUM_ATMOSEFFECT},
     data::Vec2Int,
     gridmap::{get_atmos_index, GridMapType, GridmapMain, RemoveCell},
 };
+use bevy::prelude::{EventReader, Res, ResMut};
 
 use crate::diffusion::AtmosphericsResource;
 

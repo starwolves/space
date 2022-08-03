@@ -1,8 +1,8 @@
-use bevy::prelude::{Changed, Query};
 use api::{
     data::ReflectionProbe,
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
 };
+use bevy::prelude::{Changed, Query};
 
 pub fn reflection_probe_update(
     mut updated_reflection_probes: Query<

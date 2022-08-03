@@ -13,3 +13,4 @@ entity = { path = "../../core/entity" }
 rigid_body = { path = "../../core/rigid_body" }
 connected_player = { path = "../../core/connected_player" }
 api = { path = "../../core/api" }
+combat = { path = "../../core/combat" }

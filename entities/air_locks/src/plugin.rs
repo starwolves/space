@@ -1,21 +1,23 @@
+use api::{
+    data::{
+        CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels,
+        SummoningLabels,
+    },
+    gridmap::GridItemData,
+    tab_actions::TabActionsQueueLabels,
+};
 use bevy::prelude::{
     App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemLabel, SystemSet, Transform,
 };
+use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
-use api::{
-    data::{
-        EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels, SummoningLabels,
-    },
-    gridmap::GridItemData,
-    tab_actions::TabActionsQueueLabels,
-};
 
-use crate::physics_events::physics_events;
+use crate::{air_lock::AirLock, physics_events::physics_events};
 
 use super::{
     actions::air_locks_actions,
@@ -82,6 +84,9 @@ impl Plugin for AirLocksPlugin {
                 default_summon_air_lock
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
+            )
+            .add_system(
+                health_combat_hit_result_sfx::<AirLock>.after(CombatLabels::FinalizeApplyDamage),
             );
     }
 }

@@ -11,6 +11,7 @@ pub mod examinable;
 pub mod get_spawn_position;
 pub mod gridmap;
 pub mod health;
+pub mod humanoid;
 pub mod inventory;
 pub mod load_entity;
 pub mod network;

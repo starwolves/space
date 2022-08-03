@@ -1,15 +1,15 @@
-use bevy::{
-    core::FixedTimestep,
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
-};
-use entity::entity_data::INTERPOLATION_LABEL1;
-use networking::messages::net_system;
 use api::{
     data::{PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels},
     examinable::RichName,
     gridmap::{ExamineMapMessage, GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
     pawn::SpawnPoints,
 };
+use bevy::{
+    core::FixedTimestep,
+    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
+};
+use entity::entity_data::INTERPOLATION_LABEL1;
+use networking::messages::net_system;
 
 use crate::init::{startup_build_map, startup_map_cells, startup_misc_resources};
 

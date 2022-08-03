@@ -1,11 +1,11 @@
-use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
-use bevy_renet::renet::RenetServer;
-use bincode::serialize;
-use networking::plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID};
 use api::{
     data::{ConnectedPlayer, HandleToEntity},
     network::{PendingNetworkMessage, ReliableServerMessage},
 };
+use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
+use bevy_renet::renet::RenetServer;
+use bincode::serialize;
+use networking::plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID};
 
 pub fn send_net(
     net: &mut ResMut<RenetServer>,

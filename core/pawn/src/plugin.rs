@@ -1,8 +1,6 @@
+use api::{data::PostUpdateLabels, examinable::ExamineLabels, tab_actions::TabActionsQueueLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
-use api::{
-    data::PostUpdateLabels, examinable::ExamineLabels, tab_actions::TabActionsQueueLabels,
-};
 
 use crate::{examine_events::examine_map, pawn::UsedNames, user_name::NetPawn};
 

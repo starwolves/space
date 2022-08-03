@@ -1,3 +1,37 @@
+use api::chat::Color;
+use api::combat::CombatAttackAnimation;
+use api::combat::CombatStandardAnimation;
+use api::combat::DamageFlag;
+use api::combat::DamageModel;
+use api::combat::MeleeCombat;
+use api::combat::ProjectileCombat;
+use api::combat::DEFAULT_INVENTORY_ITEM_DAMAGE;
+use api::converters::string_transform_to_transform;
+use api::data::NoData;
+use api::data::PISTOL_L1_ENTITY_NAME;
+use api::examinable::Examinable;
+use api::examinable::RichName;
+use api::inventory::SlotType;
+use bevy::math::Mat4;
+use bevy::math::Quat;
+use bevy::math::Vec3;
+use bevy::prelude::Commands;
+use bevy::prelude::EventReader;
+use bevy::prelude::EventWriter;
+use bevy::prelude::Transform;
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use entity::entity_data::RawSpawnEvent;
+use entity::spawn::BaseEntityBundle;
+use entity::spawn::BaseEntitySummonable;
+use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::SpawnData;
+use entity::spawn::SpawnEvent;
+use inventory_item::item::InventoryItem;
+use inventory_item::spawn::InventoryItemBundle;
+use inventory_item::spawn::InventoryItemSummonable;
+use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
+use rigid_body::spawn::RigidBodyBundle;
+use rigid_body::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
 
 pub fn get_default_transform() -> Transform {
@@ -80,65 +114,38 @@ impl InventoryItemSummonable for PistolL1Summoner {
                 attachment_transforms: attachment_transforms,
                 drop_transform: get_default_transform(),
                 slot_type: SlotType::Holster,
-                combat_attack_animation: CombatAttackAnimation::PistolShot,
-                combat_type: CombatType::Projectile(ProjectileType::Laser(
-                    (1., 0., 0., 1.),
-                    3.,
-                    0.025,
-                    PISTOL_L1_PROJECTILE_RANGE,
-                )),
+                combat_standard_animation: CombatStandardAnimation::PistolStance,
+                ..Default::default()
+            },
+            melee_combat: MeleeCombat {
                 combat_melee_damage_model: DamageModel {
-                    brute: 9.,
+                    brute: DEFAULT_INVENTORY_ITEM_DAMAGE,
                     damage_flags: melee_damage_flags,
                     ..Default::default()
                 },
-                combat_projectile_damage_model: Some(DamageModel {
+                combat_attack_animation: CombatAttackAnimation::PistolShot,
+                ..Default::default()
+            },
+            projectile_combat_option: Some(ProjectileCombat {
+                combat_projectile_damage_model: DamageModel {
                     burn: 15.,
                     damage_flags: projectile_damage_flags,
                     ..Default::default()
-                }),
-                combat_standard_animation: CombatStandardAnimation::PistolStance,
-                combat_projectile_sound_set: Some(CombatSoundSet::default_laser_projectiles()),
-                combat_projectile_text_set: Some(InventoryItem::get_default_laser_words()),
-                trigger_projectile_text_set: Some(InventoryItem::get_default_trigger_weapon_words()),
+                },
+                laser_color: Color {
+                    r: 1.,
+                    g: 0.,
+                    b: 0.,
+                    a: 1.,
+                },
+                laser_height: 3.,
+                laser_radius: 0.025,
+                laser_range: PISTOL_L1_PROJECTILE_RANGE,
                 ..Default::default()
-            },
+            }),
         }
     }
 }
-use bevy::math::Mat4;
-use bevy::math::Quat;
-use bevy::math::Vec3;
-use bevy::prelude::Commands;
-use bevy::prelude::EventReader;
-use bevy::prelude::EventWriter;
-use bevy::prelude::Transform;
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use entity::entity_data::RawSpawnEvent;
-use entity::spawn::BaseEntityBundle;
-use entity::spawn::BaseEntitySummonable;
-use entity::spawn::DefaultSpawnEvent;
-use entity::spawn::SpawnData;
-use entity::spawn::SpawnEvent;
-use inventory_item::item::InventoryItem;
-use inventory_item::spawn::InventoryItemBundle;
-use inventory_item::spawn::InventoryItemSummonable;
-use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
-use rigid_body::spawn::RigidBodyBundle;
-use rigid_body::spawn::RigidBodySummonable;
-use api::combat::CombatAttackAnimation;
-use api::combat::CombatStandardAnimation;
-use api::combat::CombatType;
-use api::combat::DamageFlag;
-use api::combat::DamageModel;
-use api::combat::ProjectileType;
-use api::converters::string_transform_to_transform;
-use api::data::NoData;
-use api::data::PISTOL_L1_ENTITY_NAME;
-use api::examinable::Examinable;
-use api::examinable::RichName;
-use api::inventory::SlotType;
-use sounds::shared::CombatSoundSet;
 
 impl RigidBodySummonable<NoData> for PistolL1Summoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {

@@ -1,13 +1,22 @@
+use api::data::{
+    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
+    PISTOL_L1_ENTITY_NAME,
+};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
+use combat::{
+    laser_visuals::projectile_laser_visuals,
+    melee_queries::melee_attack_handler,
+    projectile_queries::projectile_attack_handler,
+    sfx::{attack_sfx, health_combat_hit_result_sfx},
+};
 use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
-use api::data::{
-    EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels, PISTOL_L1_ENTITY_NAME,
-};
+
+use crate::pistol_l1::PistolL1;
 
 use super::spawn::{
     default_summon_pistol_l1, summon_pistol_l1, summon_raw_pistol_l1, PistolL1Summoner,
@@ -34,7 +43,26 @@ impl Plugin for PistolL1Plugin {
                 (default_summon_pistol_l1)
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
-            );
+            )
+            .add_system(
+                melee_attack_handler::<PistolL1>
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
+            )
+            .add_system(
+                projectile_attack_handler::<PistolL1>
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
+            )
+            .add_system(
+                attack_sfx::<PistolL1>
+                    .after(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::Query),
+            )
+            .add_system(
+                health_combat_hit_result_sfx::<PistolL1>.after(CombatLabels::FinalizeApplyDamage),
+            )
+            .add_system(projectile_laser_visuals::<PistolL1>.after(CombatLabels::Query));
     }
 }
 

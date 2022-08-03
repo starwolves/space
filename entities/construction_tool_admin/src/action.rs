@@ -1,4 +1,3 @@
-use bevy::prelude::{Entity, EventWriter, Query, Res};
 use api::{
     data::EntityDataResource,
     data_link::DataLink,
@@ -8,6 +7,7 @@ use api::{
     pawn::REACH_DISTANCE,
     tab_actions::QueuedTabActions,
 };
+use bevy::prelude::{Entity, EventWriter, Query, Res};
 
 use super::construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct};
 

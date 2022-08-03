@@ -56,6 +56,17 @@ pub enum PreUpdateLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum CombatLabels {
+    RegisterAttacks,
+    CacheAttack,
+    WeaponHandler,
+    Query,
+    StartApplyDamage,
+    FinalizeApplyDamage,
+    DamageResults,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum UpdateLabels {
     ProcessMovementInput,
     DropCurrentItem,

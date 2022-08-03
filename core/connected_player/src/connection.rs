@@ -1,3 +1,8 @@
+use api::{
+    data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
+    gridmap::GridmapData,
+    pawn::PawnDesignation,
+};
 use bevy::{
     math::Vec2,
     prelude::{info, Commands, Component, EventReader, EventWriter, Query, Res, ResMut},
@@ -8,11 +13,6 @@ use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
-use api::{
-    data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
-    gridmap::GridmapData,
-    pawn::PawnDesignation,
-};
 
 use crate::{connection_events::on_new_player_connection, health_ui::ClientHealthUICache};
 

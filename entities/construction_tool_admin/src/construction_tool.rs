@@ -1,5 +1,20 @@
 use std::collections::HashMap;
 
+use api::{
+    atmospherics::EffectType,
+    chat::FURTHER_ITALIC_FONT,
+    data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec2Int, Vec3Int},
+    entity_updates::EntityData,
+    gridmap::{
+        cell_id_to_world, get_atmos_index, to_doryen_coordinates, world_to_cell_id,
+        AdjacentTileDirection, CellData, EntityGridData, GridMapType, GridmapData, GridmapDetails1,
+        GridmapMain, RemoveCell,
+    },
+    health::{CellUpdate, Health, HealthContainer, StructureHealth},
+    network::{ReliableServerMessage, TextTreeBit},
+    sensable::Sensable,
+    senser::Senser,
+};
 use atmospherics::diffusion::AtmosphericsResource;
 use bevy::{
     math::Quat,
@@ -16,21 +31,6 @@ use gridmap::{
 };
 use networking::messages::InputConstructionOptionsSelection;
 use physics::physics::RigidBodyDisabled;
-use api::{
-    atmospherics::EffectType,
-    chat::FURTHER_ITALIC_FONT,
-    data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec2Int, Vec3Int},
-    entity_updates::EntityData,
-    gridmap::{
-        cell_id_to_world, get_atmos_index, to_doryen_coordinates, world_to_cell_id,
-        AdjacentTileDirection, CellData, EntityGridData, GridMapType, GridmapData, GridmapDetails1,
-        GridmapMain, RemoveCell,
-    },
-    health::{CellUpdate, StructureHealth},
-    network::{ReliableServerMessage, TextTreeBit},
-    sensable::Sensable,
-    senser::Senser,
-};
 
 use inventory_item::item::InventoryItem;
 use pawn::pawn::Pawn;
@@ -887,7 +887,10 @@ pub fn construction_tool(
                 let cell_data = CellData {
                     item: *target_item_id,
                     orientation: new_cell_orientation,
-                    health: StructureHealth::default(),
+                    health: Health {
+                        health_container: HealthContainer::Structure(StructureHealth::default()),
+                        ..Default::default()
+                    },
                     entity: new_entity,
                 };
 

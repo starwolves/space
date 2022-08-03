@@ -1,14 +1,20 @@
+use api::data::{
+    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
+    JUMPSUIT_SECURITY_ENTITY_NAME,
+};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
+use combat::{
+    melee_queries::melee_attack_handler,
+    sfx::{attack_sfx, health_combat_hit_result_sfx},
+};
 use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
-use api::data::{
-    EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
-    JUMPSUIT_SECURITY_ENTITY_NAME,
-};
+
+use crate::jumpsuit::Jumpsuit;
 
 use super::spawn::{
     default_summon_jumpsuit, summon_jumpsuit, summon_raw_jumpsuit, JumpsuitSummoner,
@@ -35,6 +41,19 @@ impl Plugin for JumpsuitsPlugin {
                 (default_summon_jumpsuit)
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
+            )
+            .add_system(
+                melee_attack_handler::<Jumpsuit>
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
+            )
+            .add_system(
+                attack_sfx::<Jumpsuit>
+                    .after(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::Query),
+            )
+            .add_system(
+                health_combat_hit_result_sfx::<Jumpsuit>.after(CombatLabels::FinalizeApplyDamage),
             );
     }
 }

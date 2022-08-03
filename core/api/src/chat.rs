@@ -1,6 +1,14 @@
 use const_format::concatcp;
 use rand::Rng;
 
+#[derive(Default)]
+pub struct Color {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
+}
+
 pub const BILLBOARD_SHOUT_FONT: &str =
     "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
 pub const BILLBOARD_SHOUT_ITALIC_FONT: &str =

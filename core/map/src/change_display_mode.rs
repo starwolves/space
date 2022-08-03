@@ -1,6 +1,6 @@
+use api::data_link::{DataLink, DataLinkType};
 use bevy::prelude::{EventReader, Query, ResMut};
 use networking::messages::InputMapChangeDisplayMode;
-use api::data_link::{DataLink, DataLinkType};
 
 use crate::map::{Map, MapHolders};
 

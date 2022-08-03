@@ -16,3 +16,4 @@ serde_json = "1.0.81"
 entity = { path = "../../core/entity" }
 rigid_body = { path = "../../core/rigid_body" }
 api = { path = "../../core/api" }
+combat = { path = "../../core/combat" }

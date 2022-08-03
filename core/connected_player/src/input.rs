@@ -118,6 +118,9 @@ pub fn player_input_event(
     }
 }
 
+use api::{
+    data::EntityDataResource, data_link::DataLink, entity_updates::EntityData, inventory::Inventory,
+};
 use bevy::{
     math::Vec3,
     prelude::{warn, Entity, EventReader, EventWriter, Query, Res, Transform},
@@ -130,9 +133,6 @@ use networking::messages::{
     TextTreeInputSelection,
 };
 use pawn::pawn::{ControllerInput, Pawn};
-use api::{
-    data::EntityDataResource, data_link::DataLink, entity_updates::EntityData, inventory::Inventory,
-};
 
 pub fn text_tree_input_selection(
     mut input_events: EventReader<TextTreeInputSelection>,

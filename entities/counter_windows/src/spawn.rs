@@ -87,6 +87,15 @@ impl BaseEntitySummonable<NoData> for CounterWindowSummoner {
         }
     }
 }
+use api::{
+    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    converters::string_transform_to_transform,
+    data::NoData,
+    entity_updates::{EntityData, EntityGroup},
+    examinable::{Examinable, RichName},
+    health::Health,
+    tab_actions::{TabAction, TabActions},
+};
 use bevy::{
     hierarchy::BuildChildren,
     math::Vec3,
@@ -100,15 +109,6 @@ use entity::{
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use api::{
-    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    converters::string_transform_to_transform,
-    data::NoData,
-    entity_updates::{EntityData, EntityGroup},
-    examinable::{Examinable, RichName},
-    health::Health,
-    tab_actions::{TabAction, TabActions},
-};
 
 use super::{
     actions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action},

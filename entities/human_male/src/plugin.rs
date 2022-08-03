@@ -4,11 +4,13 @@ use connected_player::humanoid::{
 };
 use entity::{entity_data::initialize_entity_data, spawn::SpawnEvent};
 
-use rigid_body::spawn::summon_rigid_body;
 use api::data::{
-    EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
+    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
     HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
 };
+use rigid_body::spawn::summon_rigid_body;
+
+use crate::hands_attack_handler::hands_attack_handler;
 
 pub struct HumanMalePlugin;
 
@@ -31,6 +33,11 @@ impl Plugin for HumanMalePlugin {
                 (default_human_dummy)
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
+            )
+            .add_system(
+                hands_attack_handler
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
             );
     }
 }

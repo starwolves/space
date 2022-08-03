@@ -1,7 +1,3 @@
-use bevy::{
-    math::{Vec2, Vec3},
-    prelude::{info, warn, Entity, EventReader, EventWriter, Res, ResMut},
-};
 use api::{
     console_commands::ConsoleCommandVariantValues,
     data::{HandleToEntity, Vec3Int},
@@ -12,6 +8,10 @@ use api::{
         PendingNetworkMessage, ReliableClientMessage, ReliableServerMessage,
         UnreliableClientMessage,
     },
+};
+use bevy::{
+    math::{Vec2, Vec3},
+    prelude::{info, warn, Entity, EventReader, EventWriter, Res, ResMut},
 };
 
 pub struct NetPlayerConn {

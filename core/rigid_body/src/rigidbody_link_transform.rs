@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Entity, Query, Transform, Without};
 use api::{data::Showcase, rigid_body::RigidBodyLinkTransform};
+use bevy::prelude::{warn, Entity, Query, Transform, Without};
 
 pub fn rigidbody_link_transform(
     mut linked_rigidbodies: Query<(Entity, &RigidBodyLinkTransform), Without<Showcase>>,

@@ -80,15 +80,6 @@ pub fn done_boarding(
     }
 }
 
-use bevy::{
-    core::Timer,
-    prelude::{info, warn, Added, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
-};
-use entity::{
-    entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
-    spawn::{SpawnData, SpawnEvent},
-};
-use pawn::pawn::{PersistentPlayerData, UsedNames};
 use api::{
     chat::{escape_bb, get_talk_spaces},
     connected_player::SoftPlayer,
@@ -100,6 +91,15 @@ use api::{
     network::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage},
     pawn::{PawnDesignation, SpawnPoints, Spawning},
 };
+use bevy::{
+    core::Timer,
+    prelude::{info, warn, Added, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
+};
+use entity::{
+    entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
+    spawn::{SpawnData, SpawnEvent},
+};
+use pawn::pawn::{PersistentPlayerData, UsedNames};
 
 use super::net::NetUIInputTransmitData;
 

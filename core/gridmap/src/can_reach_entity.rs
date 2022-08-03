@@ -1,3 +1,8 @@
+use api::{
+    gridmap::{GridmapData, GridmapMain},
+    health::HealthComponent,
+    pawn::REACH_DISTANCE,
+};
 use bevy::{
     hierarchy::Parent,
     math::Vec3,
@@ -10,11 +15,6 @@ use bevy_rapier3d::{
     rapier::prelude::Ray,
 };
 use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
-use api::{
-    gridmap::{GridmapData, GridmapMain},
-    health::Health,
-    pawn::REACH_DISTANCE,
-};
 
 use crate::events::Cell;
 
@@ -25,7 +25,7 @@ pub fn can_reach_entity(
     end_point: Vec3,
     target_entity: &Entity,
     reacher_entity: &Entity,
-    health_entities_query: &Query<&Health>,
+    health_entities_query: &Query<&HealthComponent>,
     cells_query: &Query<&Cell>,
     _world_cells: &Res<GridmapMain>,
     _gridmap_data: &Res<GridmapData>,
@@ -84,7 +84,7 @@ pub fn can_reach_entity(
 
             match health_entities_query.get(parent_entity) {
                 Ok(h) => {
-                    hit_entity = Some((parent_entity, h.is_reach_obstacle));
+                    hit_entity = Some((parent_entity, h.health.is_reach_obstacle));
                 }
                 Err(_rr) => {
                     hit_entity = None;

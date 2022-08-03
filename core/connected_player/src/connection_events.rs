@@ -186,16 +186,16 @@ pub fn on_new_player_connection(
     }
 }
 
-use bevy::prelude::{Commands, EventWriter, Res, ResMut};
-use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
-use map::map_input::MapData;
-use networking::messages::NetPlayerConn;
-use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
 use api::{
     connected_player::SoftPlayer,
     data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
     gridmap::GridmapData,
     network::{ReliableServerMessage, ServerConfigMessage},
 };
+use bevy::prelude::{Commands, EventWriter, Res, ResMut};
+use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
+use map::map_input::MapData;
+use networking::messages::NetPlayerConn;
+use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
 
 use crate::{chat::get_talk_spaces_setupui, connection::AuthidI};

@@ -1,14 +1,14 @@
-use bevy::prelude::{Entity, Query, ResMut};
-use networking::messages::ExamineEntityMessages;
 use api::{
     chat::FURTHER_NORMAL_FONT,
     examinable::Examinable,
-    health::Health,
+    health::HealthComponent,
     inventory::Inventory,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     sensable::Sensable,
     senser::Senser,
 };
+use bevy::prelude::{Entity, Query, ResMut};
+use networking::messages::ExamineEntityMessages;
 
 use crate::humanoid::Humanoid;
 
@@ -28,7 +28,13 @@ impl PendingMessage for ExamineEntityPawn {
 pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     criteria_query: Query<&Senser>,
-    q1: Query<(&Examinable, &Sensable, &Health, &Inventory, &Humanoid)>,
+    q1: Query<(
+        &Examinable,
+        &Sensable,
+        &HealthComponent,
+        &Inventory,
+        &Humanoid,
+    )>,
     q2: Query<&Examinable>,
 ) {
     for examine_event in examine_entity_events.messages.iter_mut() {

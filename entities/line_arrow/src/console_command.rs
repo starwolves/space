@@ -1,3 +1,7 @@
+use api::{
+    console_commands::ConsoleCommandVariantValues, data::HandleToEntity,
+    load_entity::NetUnloadEntity, sensable::Sensable,
+};
 use bevy::{
     core::Time,
     math::Vec3,
@@ -5,10 +9,6 @@ use bevy::{
 };
 use entity::spawn::{SpawnData, SpawnEvent};
 use networking::messages::InputConsoleCommand;
-use api::{
-    console_commands::ConsoleCommandVariantValues, data::HandleToEntity,
-    load_entity::NetUnloadEntity, sensable::Sensable,
-};
 
 use super::{
     line_arrow::PointArrow,

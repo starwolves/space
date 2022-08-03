@@ -118,8 +118,6 @@ use bevy::{
     prelude::{error, warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform},
 };
 
-use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
-use sfx::{proximity_message::PlaySoundProximityMessage, radio_sound::PlaySoundRadioMessage};
 use api::{
     chat::{
         escape_bb, BILLBOARD_DATA_SECURITY_END, BILLBOARD_DATA_SECURITY_START,
@@ -177,6 +175,8 @@ use api::{
     },
     sensable::Sensable,
 };
+use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
+use sfx::{proximity_message::PlaySoundProximityMessage, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 
 enum Distance {

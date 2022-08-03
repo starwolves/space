@@ -1,13 +1,13 @@
-use bevy::{
-    app::CoreStage::PostUpdate,
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
-};
-use networking::messages::net_system;
 use api::{
     data::PostUpdateLabels,
     examinable::ExamineLabels,
     health::{NetHealth, NetHealthUpdate},
 };
+use bevy::{
+    app::CoreStage::PostUpdate,
+    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
+};
+use networking::messages::net_system;
 
 use crate::examine_events::{examine_entity, examine_map};
 

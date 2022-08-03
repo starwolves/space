@@ -10,7 +10,7 @@ use crate::data::{Vec2Int, Vec3Int};
 pub struct CellData {
     pub item: i64,
     pub orientation: i64,
-    pub health: StructureHealth,
+    pub health: Health,
     pub entity: Option<Entity>,
 }
 
@@ -53,7 +53,7 @@ pub fn world_to_cell_id(position: Vec3) -> Vec3Int {
         z: map_pos.z.floor() as i16,
     }
 }
-use crate::health::{CellUpdate, StructureHealth};
+use crate::health::{CellUpdate, Health};
 use std::collections::HashMap;
 #[derive(Default)]
 pub struct GridmapMain {

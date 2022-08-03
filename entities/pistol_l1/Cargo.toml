@@ -16,3 +16,4 @@ inventory_item = { path = "../../core/inventory_item" }
 rigid_body = { path = "../../core/rigid_body" }
 sounds = { path = "../sounds" }
 api = { path = "../../core/api" }
+combat = { path = "../../core/combat" }

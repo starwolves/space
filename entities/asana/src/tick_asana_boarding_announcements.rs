@@ -1,3 +1,4 @@
+use api::data::{ConnectedPlayer, HandleToEntity};
 use bevy::{
     core::Time,
     math::Vec3,
@@ -8,7 +9,6 @@ use connected_player::{
     chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMessage, Radio},
 };
 use pawn::pawn::{PersistentPlayerData, ShipJobsEnum};
-use api::data::{ConnectedPlayer, HandleToEntity};
 
 pub fn tick_asana_boarding_announcements(
     mut net_new_chat_message_event: EventWriter<NetChatMessage>,

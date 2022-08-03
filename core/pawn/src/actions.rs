@@ -1,11 +1,11 @@
-use bevy::prelude::{Res, ResMut};
-use networking::messages::ExamineEntityMessages;
 use api::{
     data::Vec3Int,
     examinable::InputExamineEntity,
     gridmap::{ExamineMapMessage, GridmapExamineMessages},
     tab_actions::QueuedTabActions,
 };
+use bevy::prelude::{Res, ResMut};
+use networking::messages::ExamineEntityMessages;
 
 pub fn actions(
     queue: Res<QueuedTabActions>,

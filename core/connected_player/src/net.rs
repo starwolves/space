@@ -1,8 +1,3 @@
-use bevy::prelude::{
-    Commands, Entity, EventReader, EventWriter, Local, Query, Res, Transform, Without,
-};
-use humanoid::humanoid::Humanoid;
-use networking::messages::{InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady};
 use api::{
     connected_player::SoftPlayer,
     data::{ConnectedPlayer, GIProbe, HandleToEntity, ReflectionProbe},
@@ -11,6 +6,11 @@ use api::{
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage, ServerConfigMessage},
     world_environment::WorldEnvironment,
 };
+use bevy::prelude::{
+    Commands, Entity, EventReader, EventWriter, Local, Query, Res, Transform, Without,
+};
+use humanoid::humanoid::Humanoid;
+use networking::messages::{InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady};
 
 pub struct NetSendServerTime {
     pub handle: u64,
