@@ -1,7 +1,7 @@
 image: "rust:latest"
 
 before_script:
-    - sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
+    - apk add g++ pkg-config libx11-dev libasound2-dev libudev-dev
 
 test:cargo:
   tags:
