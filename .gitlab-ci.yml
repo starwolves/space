@@ -13,4 +13,4 @@ test:cargo:
     - space
   script:
     - rustc --version && cargo --version
-    - cargo test --verbose
+    - cargo test
