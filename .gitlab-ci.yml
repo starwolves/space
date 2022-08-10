@@ -1,17 +1,15 @@
 image: "rust:latest"
 
-cache:
-  key: "$CI_JOB_NAME"
-  untracked: true
-  paths:
-  - cargo/
-  - target/
-  - apt-cache/
-
 test:cargo:
   tags:
     - space
   script:
     - rustc --version && cargo --version
     - cargo test
-
+  cache:
+    key: "$CI_JOB_NAME"
+    untracked: true
+    paths:
+    - cargo/
+    - target/
+    - apt-cache/
