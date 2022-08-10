@@ -10,6 +10,4 @@ test:cargo:
     key: "$CI_JOB_NAME"
     untracked: true
     paths:
-    - cargo/
     - target/
-    - apt-cache/
