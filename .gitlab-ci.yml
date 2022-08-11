@@ -11,4 +11,3 @@ test:cargo:
     untracked: true
     paths:
     - target/
-
