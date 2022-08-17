@@ -1,5 +1,5 @@
 [package]
-name = "pawn"
+name = "examinable"
 version = "0.0.0"
 edition = "2021"
 
@@ -8,6 +8,6 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
-networking = { path = "../networking" }
 api = { path = "../api" }
 actions = { path = "../actions" }
+networking = { path = "../networking" }

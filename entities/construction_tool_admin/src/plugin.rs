@@ -1,10 +1,9 @@
 use bevy::app::CoreStage::PostUpdate;
 
 use api::data::{
-    CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels,
-    SummoningLabels, UpdateLabels,
+    ActionsLabels, CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels,
+    StartupLabels, SummoningLabels, UpdateLabels,
 };
-use api::tab_actions::TabActionsQueueLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
@@ -14,10 +13,15 @@ use inventory_item::spawn::summon_inventory_item;
 use networking::messages::{net_system, InputConstructionOptionsSelection};
 use rigid_body::spawn::summon_rigid_body;
 
+use crate::action::{
+    build_actions, construct_action_prequisite_check, construction_tool_actions,
+    construction_tool_is_holding_item_prequisite_check,
+    construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
+    text_tree_input_selection,
+};
 use crate::construction_tool::ConstructionTool;
 
 use super::{
-    action::construction_tool_actions,
     construction_tool::{
         construction_tool, InputConstruct, InputConstructionOptions, InputDeconstruct,
     },
@@ -43,7 +47,6 @@ impl Plugin for ConstructionToolAdminPlugin {
                     .before(UpdateLabels::DeconstructCell),
             )
             .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system(construction_tool_actions.after(TabActionsQueueLabels::TabAction))
             .add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()
@@ -87,7 +90,38 @@ impl Plugin for ConstructionToolAdminPlugin {
             .add_system(
                 health_combat_hit_result_sfx::<ConstructionTool>
                     .after(CombatLabels::FinalizeApplyDamage),
-            );
+            )
+            .add_system(
+                construction_tool_is_holding_item_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                construction_tool_search_distance_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                deconstruct_action_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                construct_action_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                construction_tool_actions
+                    .label(ActionsLabels::Action)
+                    .after(ActionsLabels::Approve),
+            )
+            .add_system(
+                build_actions
+                    .label(ActionsLabels::Build)
+                    .after(ActionsLabels::Init),
+            )
+            .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection));
     }
 }
 

@@ -1,24 +1,24 @@
+use crate::console_commands::console_commands;
 use api::{
     data::{
         HandleToEntity, PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
     },
-    examinable::ExamineLabels,
-    gridmap::GridmapExamineMessages,
     network::{InputUIInput, InputUIInputTransmitText},
-    tab_actions::TabActionsQueueLabels,
 };
+use bevy::app::CoreStage::PostUpdate;
 use bevy::{
     prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
     time::FixedTimestep,
 };
+
 use networking::{
-    messages::{net_system, InputTabDataEntity},
-    plugin::NetTabData,
+    messages::{net_system, InputActionDataEntity},
+    plugin::NetActionData,
 };
 
 use super::{
     boarding::{done_boarding, on_boarding, ui_input_transmit_data_event, BoardingPlayer},
-    input::{controller_input, player_input_event, text_tree_input_selection},
+    input::{controller_input, player_input_event},
     net::{
         build_graphics_event, mouse_direction_update, scene_ready_event, send_server_time,
         update_player_count, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
@@ -33,10 +33,6 @@ use crate::{
     chat::{chat_message_input_event, NetChatMessage},
     connection::{connections, AuthidI},
     console_commands::{entity_console_commands, inventory_item_console_commands},
-    examine_events::{
-        examine_entity, examine_map, finalize_examine_entity, finalize_examine_map, NetConnExamine,
-    },
-    execute_tab_action::execute_tab_actions,
     health_ui::{health_ui_update, ClientHealthUICache},
     humanoid::humanoid_update,
     send_entity_update::send_entity_updates,
@@ -53,19 +49,13 @@ impl Plugin for ConnectedPlayerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<HandleToEntity>()
             .add_event::<NetUserName>()
-            .add_event::<InputTabDataEntity>()
+            .add_event::<InputActionDataEntity>()
             .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
             .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
             .add_system(controller_input.before(UpdateLabels::StandardCharacters))
             .add_event::<BoardingPlayer>()
             .add_system(done_boarding)
             .add_system(ui_input_event)
-            .add_system(
-                examine_map
-                    .after(ExamineLabels::Start)
-                    .label(ExamineLabels::Default),
-            )
-            .init_resource::<GridmapExamineMessages>()
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(10.))
@@ -78,7 +68,6 @@ impl Plugin for ConnectedPlayerPlugin {
             )
             .add_system(ui_input_transmit_data_event)
             .add_system(on_boarding)
-            .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
             .add_event::<NetUpdatePlayerCount>()
             .add_system(build_graphics_event)
             .add_system(scene_ready_event)
@@ -102,22 +91,12 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_event::<NetOnSetupUI>()
             .add_event::<InputUIInput>()
             .init_resource::<AuthidI>()
-            .add_event::<NetConnExamine>()
             .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms)
-            .add_system(execute_tab_actions.label(TabActionsQueueLabels::TabAction))
             .add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(humanoid_update),
-            )
-            .add_system_to_stage(
-                PostUpdate,
-                finalize_examine_map.before(PostUpdateLabels::EntityUpdate),
-            )
-            .add_system_to_stage(
-                PostUpdate,
-                finalize_examine_entity.before(PostUpdateLabels::EntityUpdate),
             )
             .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
             .add_system_set_to_stage(
@@ -134,10 +113,9 @@ impl Plugin for ConnectedPlayerPlugin {
                     .with_system(net_system::<NetUserName>)
                     .with_system(net_system::<NetUIInputTransmitData>)
                     .with_system(net_system::<NetExamineEntity>)
-                    .with_system(net_system::<NetTabData>)
+                    .with_system(net_system::<NetActionData>)
                     .with_system(net_system::<NetSendServerTime>)
                     .with_system(net_system::<NetUpdatePlayerCount>)
-                    .with_system(net_system::<NetConnExamine>)
                     .with_system(net_system::<NetChatMessage>),
             )
             .add_system_to_stage(
@@ -156,15 +134,8 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_system(chat_message_input_event)
             .add_event::<NetChatMessage>()
             .add_system_to_stage(PostUpdate, process_net.after(PostUpdateLabels::Net))
-            .add_system(
-                examine_entity
-                    .after(ExamineLabels::Start)
-                    .label(ExamineLabels::Default),
-            )
             .init_resource::<ClientHealthUICache>()
             .init_resource::<BoardingAnnouncements>()
             .init_resource::<ServerId>();
     }
 }
-use crate::console_commands::console_commands;
-use bevy::app::CoreStage::PostUpdate;

@@ -25,3 +25,4 @@ sfx = { path = "../../core/sfx" }
 sounds = { path = "../sounds" }
 api = { path = "../../core/api" }
 physics = { path = "../../core/physics" }
+actions = { path = "../../core/actions" }

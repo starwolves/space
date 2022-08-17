@@ -1,10 +1,9 @@
 use api::{
     data::{
-        CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels,
-        SummoningLabels,
+        ActionsLabels, CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels,
+        StartupLabels, SummoningLabels,
     },
     gridmap::GridItemData,
-    tab_actions::TabActionsQueueLabels,
 };
 use bevy::{
     math::Quat,
@@ -18,10 +17,16 @@ use entity::{
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
 
-use crate::{counter_window_events::CounterWindow, physics_events::physics_events};
+use crate::{
+    actions::{
+        counter_window_actions, lock_open_action_prequisite_check,
+        toggle_open_action_prequisite_check,
+    },
+    counter_window_events::CounterWindow,
+    physics_events::physics_events,
+};
 
 use super::{
-    actions::actions,
     counter_window_added::{counter_window_added, counter_window_default_map_added},
     counter_window_events::{
         counter_window_events, CounterWindowLockClosed, CounterWindowLockOpen,
@@ -36,8 +41,8 @@ use super::{
         SECURITY_COUNTER_WINDOW_ENTITY_NAME,
     },
 };
+use crate::actions::build_actions;
 use bevy::app::CoreStage::PostUpdate;
-
 pub struct CounterWindowsPlugin;
 
 impl Plugin for CounterWindowsPlugin {
@@ -60,7 +65,6 @@ impl Plugin for CounterWindowsPlugin {
                     .with_system(counter_window_update),
             )
             .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(actions.after(TabActionsQueueLabels::TabAction))
             .add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()
@@ -88,6 +92,26 @@ impl Plugin for CounterWindowsPlugin {
             .add_system(
                 health_combat_hit_result_sfx::<CounterWindow>
                     .after(CombatLabels::FinalizeApplyDamage),
+            )
+            .add_system(
+                toggle_open_action_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                lock_open_action_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                counter_window_actions
+                    .label(ActionsLabels::Action)
+                    .after(ActionsLabels::Approve),
+            )
+            .add_system(
+                build_actions
+                    .label(ActionsLabels::Build)
+                    .after(ActionsLabels::Init),
             );
     }
 }

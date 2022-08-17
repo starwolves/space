@@ -86,11 +86,12 @@ pub struct InputAttackCell {
     pub id: Vec3Int,
 }
 
-#[derive(Debug)]
-pub struct InputTabDataMap {
+#[derive(Debug, Clone)]
+pub struct InputActionDataMap {
     pub player_entity: Entity,
     pub gridmap_type: GridMapType,
     pub gridmap_cell_id: Vec3Int,
+    pub with_ui: bool,
 }
 
 pub struct InputMapChangeDisplayMode {
@@ -150,9 +151,9 @@ pub fn incoming_messages(
         EventWriter<InputAltItemAttack>,
         EventWriter<InputThrowItem>,
         EventWriter<InputAttackCell>,
-        EventWriter<InputTabDataEntity>,
-        EventWriter<InputTabDataMap>,
-        EventWriter<InputTabAction>,
+        EventWriter<InputActionDataEntity>,
+        EventWriter<InputActionDataMap>,
+        EventWriter<InputAction>,
         EventWriter<InputMapChangeDisplayMode>,
     ),
 
@@ -195,9 +196,9 @@ pub fn incoming_messages(
         mut input_alt_item_attack,
         mut input_throw_item,
         mut input_attack_cell,
-        mut tab_data_entity,
-        mut tab_data_map,
-        mut input_tab_action,
+        mut action_data_entity,
+        mut action_data_map,
+        mut input_action,
         mut input_map_change_display_mode,
     ) = tuple1;
 
@@ -295,7 +296,7 @@ pub fn incoming_messages(
                         Some(player_entity) => {
                             examine_entity.messages.push(InputExamineEntity {
                                 handle: handle,
-                                examine_entity_bits: entity_id,
+                                examine_entity: Entity::from_bits(entity_id),
                                 entity: *player_entity,
                                 ..Default::default()
                             });
@@ -333,7 +334,7 @@ pub fn incoming_messages(
                         Some(player_entity) => {
                             use_world_item.send(InputUseWorldItem {
                                 pickuper_entity: *player_entity,
-                                pickupable_entity_bits: entity_id,
+                                pickupable_entity_bits: Entity::from_bits(entity_id),
                             });
                         }
                         None => {
@@ -534,9 +535,10 @@ pub fn incoming_messages(
                 ReliableClientMessage::TabDataEntity(entity_id_bits) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
-                            tab_data_entity.send(InputTabDataEntity {
+                            action_data_entity.send(InputActionDataEntity {
                                 player_entity: *player_entity,
-                                examine_entity_bits: entity_id_bits,
+                                examine_entity_bits: Entity::from_bits(entity_id_bits),
+                                with_ui: true,
                             });
                         }
                         None => {
@@ -547,7 +549,7 @@ pub fn incoming_messages(
                 ReliableClientMessage::TabDataMap(gridmap_type, idx, idy, idz) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
-                            tab_data_map.send(InputTabDataMap {
+                            action_data_map.send(InputActionDataMap {
                                 player_entity: *player_entity,
                                 gridmap_type: gridmap_type,
                                 gridmap_cell_id: Vec3Int {
@@ -555,6 +557,7 @@ pub fn incoming_messages(
                                     y: idy,
                                     z: idz,
                                 },
+                                with_ui: true,
                             });
                         }
                         None => {
@@ -563,24 +566,52 @@ pub fn incoming_messages(
                     }
                 }
                 ReliableClientMessage::TabPressed(
-                    tab_id,
+                    id,
                     entity_option,
                     cell_option,
                     belonging_entity,
-                ) => match handle_to_entity.map.get(&handle) {
-                    Some(player_entity) => {
-                        input_tab_action.send(InputTabAction {
-                            tab_id,
-                            action_performing_entity: *player_entity,
-                            target_entity_option: entity_option,
-                            target_cell_option: cell_option,
-                            belonging_entity_option: belonging_entity,
-                        });
+                ) => {
+                    let mut entity_p_op = None;
+                    match entity_option {
+                        Some(s) => {
+                            entity_p_op = Some(Entity::from_bits(s));
+                        }
+                        None => {}
                     }
-                    None => {
-                        warn!("Couldn't find player_entity belonging to InputTabAction sender handle.");
+                    let entity_b_op;
+                    match belonging_entity {
+                        Some(s) => {
+                            entity_b_op = Entity::from_bits(s);
+                        }
+                        None => {
+                            warn!("no examiner entity passed.");
+                            continue;
+                        }
                     }
-                },
+
+                    let mut cell_option_op = None;
+
+                    match cell_option {
+                        Some(c) => {
+                            cell_option_op = Some((
+                                c.0,
+                                Vec3Int {
+                                    x: c.1,
+                                    y: c.2,
+                                    z: c.3,
+                                },
+                            ));
+                        }
+                        None => {}
+                    }
+
+                    input_action.send(InputAction {
+                        fired_action_id: id,
+                        target_entity_option: entity_p_op,
+                        target_cell_option: cell_option_op,
+                        action_taker: entity_b_op,
+                    });
+                }
                 ReliableClientMessage::TextTreeInput(
                     belonging_entity,
                     tab_action_id,
@@ -592,7 +623,7 @@ pub fn incoming_messages(
                         menu_id,
                         menu_selection: input_selection,
                         belonging_entity,
-                        tab_action_id,
+                        action_id: tab_action_id,
                     });
                 }
                 ReliableClientMessage::MapChangeDisplayMode(display_mode) => {
@@ -736,7 +767,7 @@ pub struct InputTakeOffItem {
 
 pub struct InputUseWorldItem {
     pub pickuper_entity: Entity,
-    pub pickupable_entity_bits: u64,
+    pub pickupable_entity_bits: Entity,
 }
 
 pub struct InputWearItem {
@@ -748,17 +779,18 @@ pub struct InputUserName {
     pub entity: Entity,
     pub input_name: String,
 }
-pub struct InputTabDataEntity {
+#[derive(Clone)]
+pub struct InputActionDataEntity {
     pub player_entity: Entity,
-    pub examine_entity_bits: u64,
+    pub examine_entity_bits: Entity,
+    pub with_ui: bool,
 }
 
-pub struct InputTabAction {
-    pub tab_id: String,
-    pub action_performing_entity: Entity,
-    pub target_entity_option: Option<u64>,
-    pub belonging_entity_option: Option<u64>,
-    pub target_cell_option: Option<(GridMapType, i16, i16, i16)>,
+pub struct InputAction {
+    pub fired_action_id: String,
+    pub action_taker: Entity,
+    pub target_entity_option: Option<Entity>,
+    pub target_cell_option: Option<(GridMapType, Vec3Int)>,
 }
 
 pub struct InputToggleAutoMove {
@@ -791,7 +823,7 @@ pub struct TextTreeInputSelection {
     pub handle: u64,
     pub menu_id: String,
     pub menu_selection: String,
-    pub tab_action_id: String,
+    pub action_id: String,
     pub belonging_entity: Option<u64>,
 }
 

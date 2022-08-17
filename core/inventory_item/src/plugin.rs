@@ -1,9 +1,11 @@
 use api::{
     console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
-    data::PostUpdateLabels,
+    data::{ActionsLabels, PostUpdateLabels},
 };
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use console_commands::commands::AllConsoleCommands;
+
+use crate::actions::build_actions;
 
 use super::entity_update::inventory_item_update;
 use bevy::app::CoreStage::PostUpdate;
@@ -18,7 +20,12 @@ impl Plugin for InventoryItemPlugin {
                 .label(PostUpdateLabels::EntityUpdate)
                 .with_system(inventory_item_update),
         )
-        .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize));
+        .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
+        .add_system(
+            build_actions
+                .label(ActionsLabels::Build)
+                .after(ActionsLabels::Init),
+        );
     }
 }
 

@@ -1,3 +1,30 @@
+use std::collections::HashMap;
+
+use api::{
+    chat::MOTD,
+    connected_player::SoftPlayer,
+    data::{
+        ConnectedPlayer, HandleToEntity, ServerId, ShowcaseData, HUMAN_MALE_ENTITY_NAME,
+        JUMPSUIT_SECURITY_ENTITY_NAME, PISTOL_L1_ENTITY_NAME,
+    },
+    entity_updates::EntityUpdateData,
+    network::{
+        EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction, UIInputNodeClass,
+    },
+    pawn::PawnDesignation,
+};
+use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
+use entity::spawn::{SpawnData, SpawnEvent};
+use pawn::pawn::{PersistentPlayerData, UsedNames};
+
+use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
+
+use super::{
+    connection::{Boarding, SetupPhase},
+    name_generator::get_full_name,
+    net::NetOnSetupUI,
+};
+
 pub fn ui_input_event(
     mut event: EventReader<InputUIInput>,
     handle_to_entity: Res<HandleToEntity>,
@@ -27,33 +54,6 @@ pub fn ui_input_event(
         }
     }
 }
-
-use std::collections::HashMap;
-
-use api::{
-    chat::MOTD,
-    connected_player::SoftPlayer,
-    data::{
-        ConnectedPlayer, HandleToEntity, ServerId, ShowcaseData, HUMAN_MALE_ENTITY_NAME,
-        JUMPSUIT_SECURITY_ENTITY_NAME, PISTOL_L1_ENTITY_NAME,
-    },
-    entity_updates::EntityUpdateData,
-    network::{
-        EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction, UIInputNodeClass,
-    },
-    pawn::PawnDesignation,
-};
-use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
-use entity::spawn::{SpawnData, SpawnEvent};
-use pawn::pawn::{PersistentPlayerData, UsedNames};
-
-use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
-
-use super::{
-    connection::{Boarding, SetupPhase},
-    name_generator::get_full_name,
-    net::NetOnSetupUI,
-};
 
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";

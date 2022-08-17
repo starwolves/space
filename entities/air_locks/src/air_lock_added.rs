@@ -14,7 +14,7 @@ pub struct InputAirLockToggleOpen {
     pub handle_option: Option<u64>,
 
     pub opener: Entity,
-    pub opened: u64,
+    pub opened: Entity,
 }
 
 pub struct AirLockLockOpen {

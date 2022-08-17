@@ -84,7 +84,7 @@ use bevy::{
 };
 
 use api::{
-    chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT},
+    chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
     data::{ConnectedPlayer, Vec3Int},
     gridmap::{
         to_doryen_coordinates, CellData, GridMapType, GridmapData, GridmapDetails1, GridmapMain,
@@ -101,7 +101,7 @@ pub fn examine_ship_cell(
     gridmap_data: &Res<GridmapData>,
 ) -> String {
     let examine_text: &str;
-    let mut message = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + /*ASTRIX +*/ "\n";
+    let mut message = "\n".to_owned();
     message = message
         + "[font="
         + FURTHER_ITALIC_FONT
@@ -112,7 +112,7 @@ pub fn examine_ship_cell(
             .get(&ship_cell.item)
             .unwrap()
             .get_name()
-        + ".\n";
+        + ".[/font]\n";
 
     if ship_cell.item != -1 {
         match gridmap_type {
@@ -136,10 +136,6 @@ pub fn examine_ship_cell(
     message = message + "[font=" + FURTHER_ITALIC_FONT + "]" + examine_text + ".[/font]";
 
     message
-}
-
-pub fn get_empty_cell_message() -> String {
-    "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n" + EXAMINATION_EMPTY
 }
 
 use bevy_rapier3d::prelude::RigidBody;
@@ -183,7 +179,7 @@ pub fn remove_cell(
                     fov_map.map.set_transparent(coords.0, coords.1, true);
                 }
 
-                match gridmap_details1.data.get(&event.id) {
+                match gridmap_details1.grid_data.get(&event.id) {
                     Some(_cell_data) => {
                         let mut local_copy = event.cell_data.clone();
                         local_copy.item = -1;

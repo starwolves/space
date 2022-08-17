@@ -1,3 +1,4 @@
+pub mod actions;
 pub mod atmospherics;
 pub mod chat;
 pub mod combat;
@@ -20,5 +21,4 @@ pub mod rigid_body;
 pub mod sensable;
 pub mod senser;
 pub mod sfx;
-pub mod tab_actions;
 pub mod world_environment;

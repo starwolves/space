@@ -5,7 +5,6 @@ pub struct BaseEntityBundle {
     pub entity_name: String,
     pub health: Health,
     pub entity_group: EntityGroup,
-    pub tab_actions_option: Option<TabActions>,
     pub default_map_spawn: bool,
 }
 
@@ -17,7 +16,6 @@ impl Default for BaseEntityBundle {
             examinable: Examinable::default(),
             entity_name: "".to_string(),
             health: Health::default(),
-            tab_actions_option: None,
             default_map_spawn: false,
         }
     }
@@ -30,7 +28,6 @@ pub struct BaseEntityData {
     pub health: Health,
     pub is_item_in_storage: bool,
     pub entity_group: EntityGroup,
-    pub tab_actions_option: Option<TabActions>,
     pub default_map_spawn: bool,
     pub showcase_handle_option: Option<ShowcaseData>,
 }
@@ -44,7 +41,6 @@ impl Default for BaseEntityData {
             sensable: Sensable::default(),
             health: Health::default(),
             is_item_in_storage: false,
-            tab_actions_option: None,
             default_map_spawn: false,
             showcase_handle_option: None,
         }
@@ -80,13 +76,6 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
         }
     }
 
-    match data.tab_actions_option {
-        Some(a) => {
-            builder.insert(a);
-        }
-        None => {}
-    }
-
     match data.default_map_spawn {
         true => {
             builder.insert(DefaultMapEntity);
@@ -116,7 +105,6 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
-                tab_actions_option: base_entity_bundle.tab_actions_option,
                 default_map_spawn: base_entity_bundle.default_map_spawn,
                 is_item_in_storage: spawn_event.spawn_data.holder_entity_option.is_some(),
                 ..Default::default()
@@ -153,7 +141,6 @@ use api::{
     health::{Health, HealthComponent},
     network::ReliableServerMessage,
     sensable::Sensable,
-    tab_actions::TabActions,
 };
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
 use serde::Deserialize;

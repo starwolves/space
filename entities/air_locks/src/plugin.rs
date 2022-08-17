@@ -1,10 +1,9 @@
 use api::{
     data::{
-        CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels, StartupLabels,
-        SummoningLabels,
+        ActionsLabels, CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels,
+        StartupLabels, SummoningLabels,
     },
     gridmap::GridItemData,
-    tab_actions::TabActionsQueueLabels,
 };
 use bevy::prelude::{
     App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemLabel, SystemSet, Transform,
@@ -17,10 +16,16 @@ use entity::{
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
 
-use crate::{air_lock::AirLock, physics_events::physics_events};
+use crate::{
+    actions::{
+        air_lock_actions, build_actions, lock_action_prequisite_check,
+        toggle_open_action_prequisite_check,
+    },
+    air_lock::AirLock,
+    physics_events::physics_events,
+};
 
 use super::{
-    actions::air_locks_actions,
     air_lock_added::{
         air_lock_added, air_lock_default_map_added, AirLockCollision, AirLockLockClosed,
         AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
@@ -64,7 +69,6 @@ impl Plugin for AirLocksPlugin {
                     .with_system(air_lock_update),
             )
             .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(air_locks_actions.after(TabActionsQueueLabels::TabAction))
             .add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()
@@ -87,6 +91,26 @@ impl Plugin for AirLocksPlugin {
             )
             .add_system(
                 health_combat_hit_result_sfx::<AirLock>.after(CombatLabels::FinalizeApplyDamage),
+            )
+            .add_system(
+                toggle_open_action_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                lock_action_prequisite_check
+                    .label(ActionsLabels::Approve)
+                    .after(ActionsLabels::Build),
+            )
+            .add_system(
+                air_lock_actions
+                    .label(ActionsLabels::Action)
+                    .after(ActionsLabels::Approve),
+            )
+            .add_system(
+                build_actions
+                    .label(ActionsLabels::Build)
+                    .after(ActionsLabels::Init),
             );
     }
 }

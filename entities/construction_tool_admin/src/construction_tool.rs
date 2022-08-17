@@ -91,7 +91,7 @@ pub fn construction_tool(
     for event in input_construction_options_event.iter() {
         let mut text_options = vec![];
 
-        let entity = Entity::from_bits(event.belonging_entity);
+        let entity = event.belonging_entity;
 
         for entity_data_properties in entity_data.data.iter() {
             match &entity_data_properties.grid_item {
@@ -171,7 +171,7 @@ pub fn construction_tool(
                 net_construction_tool.send(NetConstructionTool {
                     handle: t,
                     message: ReliableServerMessage::TextTreeSelection(
-                        Some(event.belonging_entity),
+                        Some(event.belonging_entity.to_bits()),
                         "action::construction_tool_admin/constructionoptions".to_string(),
                         "textselection::construction_tool_admin/constructionoptionslist"
                             .to_string(),
@@ -291,7 +291,7 @@ pub fn construction_tool(
 
     // Write to a DespawnShipCell event.
     for event in input_deconstruct_event.iter() {
-        let belonging_entity = Entity::from_bits(event.belonging_entity);
+        let belonging_entity = event.belonging_entity;
 
         let (
             _construction_tool_entity,
@@ -328,16 +328,12 @@ pub fn construction_tool(
         let deconstructed_item_name;
 
         match &event.target_cell_option {
-            Some((gridmap_type, cell_x, cell_y, cell_z)) => {
+            Some((cell_id, gridmap_type)) => {
                 let cell_data;
 
                 let text_names_map;
 
-                let cell_id_int = Vec3Int {
-                    x: *cell_x,
-                    y: *cell_y,
-                    z: *cell_z,
-                };
+                let cell_id_int = cell_id;
 
                 match gridmap_type {
                     GridMapType::Main => {
@@ -359,7 +355,7 @@ pub fn construction_tool(
                         );
                     }
                     GridMapType::Details1 => {
-                        match gridmap_details1.data.get(&cell_id_int) {
+                        match gridmap_details1.grid_data.get(&cell_id_int) {
                             Some(cell_data_passed) => {
                                 cell_data = cell_data_passed;
                                 text_names_map = &gridmap_data.details1_text_names;
@@ -395,7 +391,7 @@ pub fn construction_tool(
                 deconstructed_item_name = text_names_map.get(&cell_data.item).unwrap().get_name();
 
                 gridmap_main.updates.insert(
-                    cell_id_int,
+                    *cell_id_int,
                     CellUpdate {
                         entities_received: vec![],
                         cell_data: cell_data_clone.clone(),
@@ -404,17 +400,13 @@ pub fn construction_tool(
 
                 remove_cell_events.send(RemoveCell {
                     gridmap_type: gridmap_type.clone(),
-                    id: Vec3Int {
-                        x: *cell_x,
-                        y: *cell_y,
-                        z: *cell_z,
-                    },
+                    id: *cell_id,
                     handle_option: event.handle_option,
                     cell_data: cell_data_clone,
                 });
             }
             None => {
-                let deconstruct_entity = Entity::from_bits(event.target_entity_option.unwrap());
+                let deconstruct_entity = event.target_entity_option.unwrap();
 
                 let g = rigid_bodies.get(deconstruct_entity).unwrap();
 
@@ -504,7 +496,7 @@ pub fn construction_tool(
 
     // Write to a SpawnShipCell event.
     for event in input_construct_event.iter() {
-        let entity = Entity::from_bits(event.belonging_entity);
+        let entity = event.belonging_entity;
         let construction_tool_components;
 
         match construction_tools.get(entity) {
@@ -586,11 +578,7 @@ pub fn construction_tool(
             }
         }
 
-        let input_cell = Vec3Int {
-            x: event.target_cell.1,
-            y: event.target_cell.2,
-            z: event.target_cell.3,
-        };
+        let input_cell = event.target_cell.0;
 
         let mut target_cell_id = input_cell.clone();
 
@@ -607,7 +595,7 @@ pub fn construction_tool(
             target_cell_id.y = 0;
         }
 
-        match gridmap_details1.data.get(&target_cell_id) {
+        match gridmap_details1.grid_data.get(&target_cell_id) {
             Some(_input_cell_data) => {
                 let personal_update_text = "[font=".to_owned()
                     + FURTHER_ITALIC_FONT
@@ -1140,18 +1128,18 @@ pub struct ConstructionTool {
 
 pub struct InputConstruct {
     pub handle_option: Option<u64>,
-    pub target_cell: (GridMapType, i16, i16, i16),
-    pub belonging_entity: u64,
+    pub target_cell: (Vec3Int, GridMapType),
+    pub belonging_entity: Entity,
 }
 
 pub struct InputConstructionOptions {
     pub handle_option: Option<u64>,
-    pub belonging_entity: u64,
+    pub belonging_entity: Entity,
 }
 
 pub struct InputDeconstruct {
     pub handle_option: Option<u64>,
-    pub target_cell_option: Option<(GridMapType, i16, i16, i16)>,
-    pub target_entity_option: Option<u64>,
-    pub belonging_entity: u64,
+    pub target_cell_option: Option<(Vec3Int, GridMapType)>,
+    pub target_entity_option: Option<Entity>,
+    pub belonging_entity: Entity,
 }

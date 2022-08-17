@@ -372,7 +372,7 @@ pub fn pickup_world_item(
             continue;
         }
 
-        let pickupable_entity = Entity::from_bits(event.pickupable_entity_bits);
+        let pickupable_entity = event.pickupable_entity_bits;
 
         match inventory_items_query.get_component_mut::<InventoryItem>(pickupable_entity) {
             Ok(pickupable_inventory_item_component) => {
@@ -502,7 +502,7 @@ pub fn pickup_world_item(
                     handle: *handle,
                     message: ReliableServerMessage::PickedUpItem(
                         pickupable_entity_data.entity_name.clone(),
-                        event.pickupable_entity_bits,
+                        event.pickupable_entity_bits.to_bits(),
                         pickup_slot.slot_name.clone(),
                     ),
                 });

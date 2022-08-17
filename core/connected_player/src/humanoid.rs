@@ -37,7 +37,6 @@ use physics::{
     world_mode::{WorldMode, WorldModes},
 };
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-use tab_actions::tab_action::get_tab_action;
 
 use vector2math::{FloatingVector2, Vector2};
 
@@ -593,7 +592,6 @@ pub fn summon_base_human_male<
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
-                tab_actions_option: base_entity_bundle.tab_actions_option,
                 default_map_spawn: base_entity_bundle.default_map_spawn,
                 showcase_handle_option: spawn_event.spawn_data.showcase_data_option.clone(),
                 ..Default::default()
@@ -695,7 +693,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
         let spawn_pawn_data = spawn_event.summoner.get_spawn_pawn_data();
 
         if spawn_event.spawn_data.showcase_data_option.is_none() {
-            let mut pawn_component = Pawn {
+            let pawn_component = Pawn {
                 name: spawn_event.summoner.get_character_name().clone(),
                 job: ShipJobsEnum::Security,
                 ..Default::default()
@@ -705,17 +703,6 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
             let mut new_transform = spawn_event.spawn_data.entity_transform;
             new_transform.translation.y = 0.9 - R;
             spawner.insert(new_transform);
-
-            pawn_component.tab_actions_add(
-                "actions::pawn/examine",
-                None,
-                get_tab_action("actions::pawn/examine").unwrap(),
-            );
-            pawn_component.tab_actions_add(
-                "actions::inventory/pickup",
-                None,
-                get_tab_action("actions::inventory/pickup").unwrap(),
-            );
 
             spawner.insert_bundle((
                 Senser::default(),

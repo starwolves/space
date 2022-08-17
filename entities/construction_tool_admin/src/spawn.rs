@@ -3,7 +3,6 @@ use api::converters::string_transform_to_transform;
 use api::data::NoData;
 use api::examinable::{Examinable, RichName};
 use api::inventory::SlotType;
-use api::tab_actions::TabAction;
 use bevy::math::{Mat4, Quat, Vec3};
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
@@ -16,8 +15,6 @@ use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
 use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 use std::collections::BTreeMap;
-
-use crate::action::{construct_action, construction_option_action, deconstruct_action};
 
 use super::construction_tool::ConstructionTool;
 
@@ -49,7 +46,7 @@ impl BaseEntitySummonable<NoData> for ConstructionToolSummoner {
         }
     }
 }
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 impl InventoryItemSummonable for ConstructionToolSummoner {
     fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
@@ -86,29 +83,6 @@ impl InventoryItemSummonable for ConstructionToolSummoner {
             inventory_item: InventoryItem {
                 in_inventory_of_entity: spawn_data.holder_entity_option,
                 drop_transform: get_default_transform(),
-                active_slot_tab_actions: vec![
-                    TabAction {
-                        id: "action::construction_tool_admin/construct".to_string(),
-                        text: "Construct".to_string(),
-                        tab_list_priority: 50,
-                        prerequisite_check: Arc::new(construct_action),
-                        belonging_entity: spawn_data.held_entity_option,
-                    },
-                    TabAction {
-                        id: "action::construction_tool_admin/deconstruct".to_string(),
-                        text: "Deconstruct".to_string(),
-                        tab_list_priority: 49,
-                        prerequisite_check: Arc::new(deconstruct_action),
-                        belonging_entity: spawn_data.held_entity_option,
-                    },
-                    TabAction {
-                        id: "action::construction_tool_admin/constructionoptions".to_string(),
-                        text: "Construction Options".to_string(),
-                        tab_list_priority: 48,
-                        prerequisite_check: Arc::new(construction_option_action),
-                        belonging_entity: spawn_data.held_entity_option,
-                    },
-                ],
                 attachment_transforms: attachment_transforms.clone(),
                 slot_type: SlotType::Holster,
                 ..Default::default()

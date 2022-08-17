@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, sync::Arc};
+use std::collections::BTreeMap;
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -45,38 +45,6 @@ impl BaseEntitySummonable<NoData> for CounterWindowSummoner {
                 },
                 ..Default::default()
             },
-            tab_actions_option: Some(TabActions {
-                tab_actions: vec![
-                    TabAction {
-                        id: "actions::counter_windows/toggleopen".to_string(),
-                        text: "Toggle Open".to_string(),
-                        tab_list_priority: 100,
-                        prerequisite_check: Arc::new(toggle_open_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                    TabAction {
-                        id: "actions::counter_windows/lockopen".to_string(),
-                        text: "Lock Open".to_string(),
-                        tab_list_priority: 99,
-                        prerequisite_check: Arc::new(lock_open_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                    TabAction {
-                        id: "actions::counter_windows/lockclosed".to_string(),
-                        text: "Lock Closed".to_string(),
-                        tab_list_priority: 98,
-                        prerequisite_check: Arc::new(lock_closed_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                    TabAction {
-                        id: "actions::counter_windows/unlock".to_string(),
-                        text: "Unlock".to_string(),
-                        tab_list_priority: 97,
-                        prerequisite_check: Arc::new(unlock_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                ],
-            }),
             health: Health {
                 is_combat_obstacle: true,
                 is_laser_obstacle: false,
@@ -94,7 +62,6 @@ use api::{
     entity_updates::{EntityData, EntityGroup},
     examinable::{Examinable, RichName},
     health::Health,
-    tab_actions::{TabAction, TabActions},
 };
 use bevy::{
     hierarchy::BuildChildren,
@@ -110,10 +77,7 @@ use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
-use super::{
-    actions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action},
-    counter_window_events::{CounterWindow, CounterWindowSensor},
-};
+use super::counter_window_events::{CounterWindow, CounterWindowSensor};
 
 impl RigidBodySummonable<NoData> for CounterWindowSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {

@@ -233,6 +233,8 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
         TALK_SPACE_GLOBAL_CHATPREFIX.to_string(),
     )]
 }
+pub const END_ASTRIX: &str = concatcp!("\n", ASTRIX);
+
 pub const EXAMINATION_EMPTY: &str = "You cannot see what is there.";
 
 pub fn get_empty_cell_message() -> String {

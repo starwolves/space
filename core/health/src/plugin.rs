@@ -1,6 +1,5 @@
 use api::{
-    data::PostUpdateLabels,
-    examinable::ExamineLabels,
+    data::{ActionsLabels, PostUpdateLabels},
     health::{NetHealth, NetHealthUpdate},
 };
 use bevy::{
@@ -25,7 +24,7 @@ impl Plugin for HealthPlugin {
         )
         .add_event::<NetHealthUpdate>()
         .add_event::<NetHealth>()
-        .add_system(examine_map.after(ExamineLabels::Default))
-        .add_system(examine_entity.after(ExamineLabels::Default));
+        .add_system(examine_map.after(ActionsLabels::Action))
+        .add_system(examine_entity.after(ActionsLabels::Action));
     }
 }

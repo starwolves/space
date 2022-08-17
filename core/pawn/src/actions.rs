@@ -1,45 +1,70 @@
+use actions::data::{ActionRequests, BuildingActions};
 use api::{
-    data::Vec3Int,
+    data::HandleToEntity,
     examinable::InputExamineEntity,
     gridmap::{ExamineMapMessage, GridmapExamineMessages},
-    tab_actions::QueuedTabActions,
 };
-use bevy::prelude::{Res, ResMut};
+use bevy::prelude::{warn, Res, ResMut};
 use networking::messages::ExamineEntityMessages;
 
-pub fn actions(
-    queue: Res<QueuedTabActions>,
+pub fn examine_prerequisite_check(mut building_action_data: ResMut<BuildingActions>) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id == "actions::pawn/examine" {
+                action.approve();
+            }
+        }
+    }
+}
 
-    mut event_examine_entity: ResMut<ExamineEntityMessages>,
-    mut event_examine_map: ResMut<GridmapExamineMessages>,
+pub fn examine(
+    building_action_data: Res<BuildingActions>,
+    mut examine_entity_messages: ResMut<ExamineEntityMessages>,
+    mut examine_map_messages: ResMut<GridmapExamineMessages>,
+    handle_to_entity: Res<HandleToEntity>,
+    action_requests: Res<ActionRequests>,
 ) {
-    for queued in queue.queue.iter() {
-        if queued.tab_id == "actions::pawn/examine" && queued.handle_option.is_some() {
-            match queued.target_entity_option {
-                Some(entity_bits) => {
-                    event_examine_entity.messages.push(InputExamineEntity {
-                        handle: queued.handle_option.unwrap(),
-                        examine_entity_bits: entity_bits,
-                        entity: queued.player_entity,
-                        ..Default::default()
-                    });
-                }
-                None => match &queued.target_cell_option {
-                    Some((gridmap_type, idx, idy, idz)) => {
-                        event_examine_map.messages.push(ExamineMapMessage {
-                            handle: queued.handle_option.unwrap(),
-                            entity: queued.player_entity,
-                            gridmap_type: gridmap_type.clone(),
-                            gridmap_cell_id: Vec3Int {
-                                x: *idx,
-                                y: *idy,
-                                z: *idz,
-                            },
-                            ..Default::default()
-                        });
+    for building in building_action_data.list.iter() {
+        let building_action_id;
+        match action_requests.list.get(&building.incremented_i) {
+            Some(action_request) => {
+                building_action_id = action_request.id.clone();
+            }
+            None => {
+                continue;
+            }
+        }
+        for action in building.actions.iter() {
+            if action.is_approved()
+                && action.data.id == "actions::pawn/examine"
+                && action.data.id == building_action_id
+            {
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(handle) => match building.target_entity_option {
+                        Some(ex) => {
+                            examine_entity_messages.messages.push(InputExamineEntity {
+                                handle: *handle,
+                                examine_entity: ex,
+                                entity: building.action_taker,
+                                ..Default::default()
+                            });
+                        }
+                        None => {
+                            let c = building.target_cell_option.clone().unwrap();
+
+                            examine_map_messages.messages.push(ExamineMapMessage {
+                                handle: *handle,
+                                entity: building.action_taker,
+                                gridmap_type: c.1,
+                                gridmap_cell_id: c.0,
+                                ..Default::default()
+                            });
+                        }
+                    },
+                    None => {
+                        warn!("Couldnt find examiner in handletoentity.");
                     }
-                    None => {}
-                },
+                }
             }
         }
     }

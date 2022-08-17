@@ -31,7 +31,7 @@ pub enum TextTreeBit {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct NetTabAction {
+pub struct NetAction {
     pub id: String,
     pub text: String,
     pub tab_list_priority: u8,
@@ -160,7 +160,7 @@ pub enum ReliableServerMessage {
     ConsoleWriteLine(String),
     PlaySound(String, f32, f32, Option<Vec3>),
     FireProjectile(NetProjectileType),
-    TabData(Vec<NetTabAction>),
+    TabData(Vec<NetAction>),
     TextTreeSelection(
         Option<u64>,
         String,

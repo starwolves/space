@@ -1,5 +1,5 @@
 [package]
-name = "tab_actions"
+name = "actions"
 version = "0.0.0"
 edition = "2021"
 
@@ -9,6 +9,4 @@ default-features = false
 
 [dependencies]
 networking = { path = "../networking" }
-pawn = { path = "../pawn" }
-health = { path = "../health" }
 api = { path = "../api" }

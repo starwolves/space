@@ -1,10 +1,6 @@
 use std::collections::HashMap;
 
-use api::{
-    data::Vec3Int,
-    get_spawn_position::FacingDirection,
-    tab_actions::{TabAction, TabActionsData},
-};
+use api::{data::Vec3Int, get_spawn_position::FacingDirection};
 use bevy::{
     math::Vec2,
     prelude::{Component, Entity},
@@ -25,8 +21,6 @@ pub struct Pawn {
     pub name: String,
     pub job: ShipJobsEnum,
     pub facing_direction: FacingDirection,
-    pub tab_actions: HashMap<u32, TabAction>,
-    pub tab_actions_data: TabActionsData,
 }
 
 impl Default for Pawn {
@@ -35,66 +29,7 @@ impl Default for Pawn {
             name: "".to_string(),
             job: ShipJobsEnum::Security,
             facing_direction: FacingDirection::Up,
-            tab_actions: HashMap::new(),
-            tab_actions_data: TabActionsData::default(),
         }
-    }
-}
-
-impl Pawn {
-    pub fn tab_actions_add(
-        &mut self,
-        tab_action_id: &str,
-        entity_option: Option<Entity>,
-        tab_action: TabAction,
-    ) {
-        let entity_tab_ids;
-
-        match self.tab_actions_data.layout.contains_key(&entity_option) {
-            true => {
-                entity_tab_ids = self
-                    .tab_actions_data
-                    .layout
-                    .get_mut(&entity_option)
-                    .unwrap();
-            }
-            false => {
-                self.tab_actions_data
-                    .layout
-                    .insert(entity_option, HashMap::new());
-                entity_tab_ids = self
-                    .tab_actions_data
-                    .layout
-                    .get_mut(&entity_option)
-                    .unwrap();
-            }
-        }
-
-        entity_tab_ids.insert(
-            tab_action_id.to_string(),
-            self.tab_actions_data.tab_action_i,
-        );
-        self.tab_actions
-            .insert(self.tab_actions_data.tab_action_i, tab_action);
-        self.tab_actions_data.tab_action_i += 1;
-    }
-    pub fn tab_actions_remove_entity(&mut self, entity_option: Option<Entity>) {
-        let entity_tab_ids;
-
-        match self.tab_actions_data.layout.get_mut(&entity_option) {
-            Some(s) => {
-                entity_tab_ids = s;
-            }
-            None => {
-                return;
-            }
-        };
-
-        for (_s, hashmap_index) in entity_tab_ids.iter() {
-            self.tab_actions.remove(hashmap_index);
-        }
-
-        self.tab_actions_data.layout.remove(&entity_option);
     }
 }
 

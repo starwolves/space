@@ -20,3 +20,4 @@ humanoid = { path = "../humanoid" }
 sfx = { path = "../sfx" }
 api = { path = "../api" }
 gridmap = { path = "../gridmap" }
+actions = { path = "../actions" }
