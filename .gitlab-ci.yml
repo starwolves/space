@@ -6,8 +6,3 @@ test:cargo:
   script:
     - rustc --version && cargo --version
     - cargo test
-  cache:
-    key: "$CI_JOB_NAME"
-    untracked: true
-    paths:
-    - target/
