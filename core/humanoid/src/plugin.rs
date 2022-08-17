@@ -1,7 +1,4 @@
-use api::{
-    data::{CombatLabels, PostUpdateLabels, UpdateLabels},
-    examinable::ExamineLabels,
-};
+use api::data::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use networking::messages::net_system;
@@ -24,7 +21,7 @@ impl Plugin for HumanoidPlugin {
                 .after(UpdateLabels::ProcessMovementInput),
         )
         .add_system(toggle_combat_mode)
-        .add_system(examine_entity.after(ExamineLabels::Default))
+        .add_system(examine_entity.after(ActionsLabels::Action))
         .add_event::<ExamineEntityPawn>()
         .add_system_set_to_stage(
             PostUpdate,

@@ -1,4 +1,25 @@
-use std::{collections::BTreeMap, sync::Arc};
+use std::collections::BTreeMap;
+
+use super::air_lock::AirLock;
+use api::{
+    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    converters::string_transform_to_transform,
+    data::NoData,
+    entity_updates::EntityGroup,
+    examinable::{Examinable, RichName},
+    health::Health,
+};
+use bevy::{
+    math::Vec3,
+    prelude::{warn, Commands, EventReader, EventWriter, Transform},
+};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use entity::{
+    entity_data::RawSpawnEvent,
+    spawn::{BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent},
+};
+use pawn::pawn::ShipAuthorizationEnum;
+use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()
@@ -60,38 +81,6 @@ impl BaseEntitySummonable<NoData> for AirlockSummoner {
             },
             entity_name: spawn_data.entity_name.to_string(),
             entity_group: EntityGroup::AirLock,
-            tab_actions_option: Some(TabActions {
-                tab_actions: vec![
-                    TabAction {
-                        id: "actions::air_locks/toggleopen".to_string(),
-                        text: "Toggle Open".to_string(),
-                        tab_list_priority: 100,
-                        prerequisite_check: Arc::new(toggle_open_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                    TabAction {
-                        id: "actions::air_locks/lockopen".to_string(),
-                        text: "Lock Open".to_string(),
-                        tab_list_priority: 99,
-                        prerequisite_check: Arc::new(lock_open_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                    TabAction {
-                        id: "actions::air_locks/lockclosed".to_string(),
-                        text: "Lock Closed".to_string(),
-                        tab_list_priority: 98,
-                        prerequisite_check: Arc::new(lock_closed_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                    TabAction {
-                        id: "actions::air_locks/unlock".to_string(),
-                        text: "Unlock".to_string(),
-                        tab_list_priority: 97,
-                        prerequisite_check: Arc::new(unlock_action),
-                        belonging_entity: Some(spawn_data.entity),
-                    },
-                ],
-            }),
             health: Health {
                 is_combat_obstacle: true,
                 is_reach_obstacle: true,
@@ -101,29 +90,6 @@ impl BaseEntitySummonable<NoData> for AirlockSummoner {
         }
     }
 }
-
-use api::{
-    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    converters::string_transform_to_transform,
-    data::NoData,
-    entity_updates::EntityGroup,
-    examinable::{Examinable, RichName},
-    health::Health,
-    tab_actions::{TabAction, TabActions},
-};
-use bevy::{
-    math::Vec3,
-    prelude::{warn, Commands, EventReader, EventWriter, Transform},
-};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use entity::{
-    entity_data::RawSpawnEvent,
-    spawn::{BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent},
-};
-use pawn::pawn::ShipAuthorizationEnum;
-use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-
-use super::actions::{lock_closed_action, lock_open_action, toggle_open_action, unlock_action};
 
 pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
 
@@ -141,8 +107,6 @@ impl RigidBodySummonable<NoData> for AirlockSummoner {
         }
     }
 }
-
-use super::air_lock::AirLock;
 
 pub struct AirlockSummoner;
 

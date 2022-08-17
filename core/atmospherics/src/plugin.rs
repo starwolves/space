@@ -1,5 +1,4 @@
-use api::data::{MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
-use api::examinable::ExamineLabels;
+use api::data::{ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
 use bevy::time::FixedTimestep;
 use networking::messages::net_system;
 
@@ -17,6 +16,11 @@ use super::{
     rigidbody_forces::{rigidbody_forces_accumulation, rigidbody_forces_physics},
     sensing_ability::atmospherics_sensing_ability,
     zero_gravity::zero_gravity,
+};
+
+use bevy::app::CoreStage::PostUpdate;
+use bevy::prelude::{
+    App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet,
 };
 
 pub const ATMOS_LABEL: &str = "fixed_timestep_map_atmos";
@@ -71,14 +75,9 @@ impl Plugin for AtmosphericsPlugin {
                     .with_system(net_system::<NetAtmosphericsNotices>)
                     .with_system(net_system::<NetAtmosphericsMapExamine>),
             )
-            .add_system(examine_map_atmos.after(ExamineLabels::Default));
+            .add_system(examine_map_atmos.after(ActionsLabels::Action));
     }
 }
-
-use bevy::app::CoreStage::PostUpdate;
-use bevy::prelude::{
-    App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet,
-};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum AtmosphericsLabels {

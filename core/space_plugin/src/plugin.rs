@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use actions::plugin::ActionsPlugin;
 use air_locks::plugin::AirLocksPlugin;
 use api::{chat::MOTD, data::TickRate};
 use asana::plugin::AsanaPlugin;
@@ -25,6 +26,7 @@ use console_commands::plugins::ConsoleCommandsPlugin;
 use construction_tool_admin::plugin::ConstructionToolAdminPlugin;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
+use examinable::plugin::ExaminablePlugin;
 use gridmap::plugin::GridmapPlugin;
 use health::plugin::HealthPlugin;
 use helmet_security::plugin::HelmetsPlugin;
@@ -45,7 +47,6 @@ use rigid_body::plugin::RigidBodyPlugin;
 use senser::plugin::SenserPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::SoundsPlugin;
-use tab_actions::plugin::TabActionsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;
 
 pub struct SpacePlugin {
@@ -109,7 +110,7 @@ impl Plugin for SpacePlugin {
                 give_all_rcon: self.give_all_rcon,
             })
             .add_plugin(ConstructionToolAdminPlugin)
-            .add_plugin(TabActionsPlugin)
+            .add_plugin(ActionsPlugin)
             .add_plugin(MapPlugin)
             .add_plugin(AirLocksPlugin)
             .add_plugin(CounterWindowsPlugin)
@@ -131,7 +132,8 @@ impl Plugin for SpacePlugin {
             .add_plugin(PistolL1Plugin)
             .add_plugin(LineArrowPlugin)
             .add_plugin(PointArrowPlugin)
-            .add_plugin(SoundsPlugin);
+            .add_plugin(SoundsPlugin)
+            .add_plugin(ExaminablePlugin);
 
         match self.threads_amount {
             Some(amn) => {

@@ -355,7 +355,7 @@ pub fn counter_window_events(
     }
 
     for event in counter_window_toggle_open_action.iter() {
-        let opened_entity = Entity::from_bits(event.opened);
+        let opened_entity = event.opened;
 
         info!("Toggle open action from {:?}", opened_entity);
 
@@ -727,7 +727,7 @@ pub struct InputCounterWindowToggleOpen {
     pub handle_option: Option<u64>,
 
     pub opener: Entity,
-    pub opened: u64,
+    pub opened: Entity,
 }
 pub struct CounterWindowLockOpen {
     pub handle_option: Option<u64>,

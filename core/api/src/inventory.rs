@@ -18,7 +18,7 @@ pub struct Slot {
 pub struct Inventory {
     pub slots: Vec<Slot>,
     pub active_slot: String,
-    pub entity_tab_action_option: Option<Entity>,
+    pub entity_action_option: Option<Entity>,
 }
 
 impl Default for Inventory {
@@ -26,7 +26,7 @@ impl Default for Inventory {
         Self {
             slots: vec![],
             active_slot: "".to_string(),
-            entity_tab_action_option: None,
+            entity_action_option: None,
         }
     }
 }

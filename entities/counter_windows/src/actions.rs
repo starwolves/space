@@ -1,118 +1,299 @@
-pub fn actions(
-    queue: Res<QueuedTabActions>,
-    mut counter_window_toggle_open_event: EventWriter<InputCounterWindowToggleOpen>,
-    mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
-    mut counter_window_lock_closed_event: EventWriter<CounterWindowLockClosed>,
-    mut counter_window_unlock_event: EventWriter<CounterWindowUnlock>,
-) {
-    for queued in queue.queue.iter() {
-        if queued.tab_id == "actions::counter_windows/toggleopen" {
-            if queued.target_entity_option.is_some() {
-                counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
-                    opener: queued.player_entity,
-                    opened: queued.target_entity_option.unwrap(),
-                    handle_option: queued.handle_option,
-                });
-            }
-        } else if queued.tab_id == "actions::counter_windows/lockopen" {
-            if queued.target_entity_option.is_some() {
-                counter_window_lock_open_event.send(CounterWindowLockOpen {
-                    locked: Entity::from_bits(queued.target_entity_option.unwrap()),
-                    locker: queued.player_entity,
-                    handle_option: queued.handle_option,
-                });
-            }
-        } else if queued.tab_id == "actions::counter_windows/lockclosed" {
-            if queued.target_entity_option.is_some() {
-                counter_window_lock_closed_event.send(CounterWindowLockClosed {
-                    locked: Entity::from_bits(queued.target_entity_option.unwrap()),
-                    locker: queued.player_entity,
-                    handle_option: queued.handle_option,
-                });
-            }
-        } else if queued.tab_id == "actions::counter_windows/unlock" {
-            if queued.target_entity_option.is_some() {
-                counter_window_unlock_event.send(CounterWindowUnlock {
-                    locked: Entity::from_bits(queued.target_entity_option.unwrap()),
-                    locker: queued.player_entity,
-                    handle_option: queued.handle_option,
-                });
-            }
-        }
-    }
-}
+use actions::data::{ActionData, ActionRequests, BuildingActions};
 use api::{
-    data::EntityDataResource,
+    actions::Action,
+    data::{HandleToEntity, Vec3Int},
     data_link::{DataLink, DataLinkType},
-    entity_updates::EntityData,
-    gridmap::{CellData, GridMapType},
-    inventory::Inventory,
-    tab_actions::QueuedTabActions,
+    gridmap::cell_id_to_world,
 };
-use bevy::prelude::{Entity, EventWriter, Query, Res};
+use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
+
+use crate::counter_window_events::CounterWindow;
 
 use super::counter_window_events::{
     CounterWindowLockClosed, CounterWindowLockOpen, CounterWindowUnlock,
     InputCounterWindowToggleOpen,
 };
 
-pub fn toggle_open_action(
-    _self_tab_entity: Option<Entity>,
-    _entity_id_bits_option: Option<u64>,
-    _cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-    distance: f32,
-    _inventory_component: &Inventory,
-    _entity_data_resource: &EntityDataResource,
-    _entity_datas: &Query<&EntityData>,
-    _data_link_component: &DataLink,
-) -> bool {
-    distance < 3.
+pub fn toggle_open_action_prequisite_check(
+    mut building_action_data: ResMut<BuildingActions>,
+    transforms: Query<&Transform>,
+) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id == "actions::counter_windows/toggleopen" {
+                let examiner_transform;
+
+                match transforms.get(building.action_taker) {
+                    Ok(t) => {
+                        examiner_transform = t;
+                    }
+                    Err(_rr) => {
+                        warn!("Couldnt find transform of examining entity!");
+                        continue;
+                    }
+                }
+
+                let start_pos;
+                let end_pos = examiner_transform.translation;
+
+                match building.target_entity_option.clone() {
+                    Some(_target_entity_bits) => match transforms.get(building.action_taker) {
+                        Ok(rigid_body_position) => {
+                            start_pos = rigid_body_position.translation;
+                        }
+                        Err(_) => {
+                            continue;
+                        }
+                    },
+                    None => {
+                        let cell_data;
+                        match building.target_cell_option.as_ref() {
+                            Some(v) => {
+                                cell_data = v;
+                            }
+                            None => {
+                                continue;
+                            }
+                        }
+                        start_pos = cell_id_to_world(Vec3Int {
+                            x: cell_data.0.x,
+                            y: cell_data.0.y,
+                            z: cell_data.0.z,
+                        });
+                    }
+                }
+
+                let distance = start_pos.distance(end_pos);
+
+                match distance < 3. {
+                    true => {
+                        action.approve();
+                    }
+                    false => {
+                        action.do_not_approve();
+                    }
+                }
+            }
+        }
+    }
 }
 
-pub fn lock_open_action(
-    _self_tab_entity: Option<Entity>,
-    _entity_id_bits_option: Option<u64>,
-    _cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-    distance: f32,
-    _inventory_component: &Inventory,
-    _entity_data_resource: &EntityDataResource,
-    _entity_datas: &Query<&EntityData>,
-    data_link_component: &DataLink,
-) -> bool {
-    distance < 30.
-        && data_link_component
-            .links
-            .contains(&DataLinkType::RemoteLock)
+pub fn counter_window_actions(
+    building_action_data: Res<BuildingActions>,
+    mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
+    mut counter_window_lock_closed_event: EventWriter<CounterWindowLockClosed>,
+    mut counter_window_unlock_event: EventWriter<CounterWindowUnlock>,
+    mut counter_window_toggle_open_event: EventWriter<InputCounterWindowToggleOpen>,
+    handle_to_entity: Res<HandleToEntity>,
+    action_requests: Res<ActionRequests>,
+) {
+    for building in building_action_data.list.iter() {
+        let building_action_id;
+        match action_requests.list.get(&building.incremented_i) {
+            Some(action_request) => {
+                building_action_id = action_request.id.clone();
+            }
+            None => {
+                continue;
+            }
+        }
+        for action_data in building.actions.iter() {
+            if action_data.is_approved()
+                && action_data.data.id == "actions::counter_windows/lockopen"
+                && action_data.data.id == building_action_id
+            {
+                let handle_option;
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(h) => {
+                        handle_option = Some(*h);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
+                }
+                counter_window_lock_open_event.send(CounterWindowLockOpen {
+                    handle_option,
+                    locker: building.action_taker,
+                    locked: building.target_entity_option.unwrap(),
+                });
+            } else if action_data.is_approved()
+                && action_data.data.id == "actions::counter_windows/lockclosed"
+                && action_data.data.id == building_action_id
+            {
+                let handle_option;
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(h) => {
+                        handle_option = Some(*h);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
+                }
+                counter_window_lock_closed_event.send(CounterWindowLockClosed {
+                    handle_option,
+                    locker: building.action_taker,
+                    locked: building.target_entity_option.unwrap(),
+                });
+            } else if action_data.is_approved()
+                && action_data.data.id == "actions::counter_windows/unlock"
+                && action_data.data.id == building_action_id
+            {
+                let handle_option;
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(h) => {
+                        handle_option = Some(*h);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
+                }
+                counter_window_unlock_event.send(CounterWindowUnlock {
+                    handle_option,
+                    locker: building.action_taker,
+                    locked: building.target_entity_option.unwrap(),
+                });
+            } else if action_data.is_approved()
+                && action_data.data.id == "actions::counter_windows/toggleopen"
+                && action_data.data.id == building_action_id
+            {
+                let handle_option;
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(h) => {
+                        handle_option = Some(*h);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
+                }
+                counter_window_toggle_open_event.send(InputCounterWindowToggleOpen {
+                    handle_option,
+                    opener: building.action_taker,
+                    opened: building.target_entity_option.unwrap(),
+                });
+            }
+        }
+    }
 }
 
-pub fn unlock_action(
-    _self_tab_entity: Option<Entity>,
-    _entity_id_bits_option: Option<u64>,
-    _cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-    distance: f32,
-    _inventory_component: &Inventory,
-    _entity_data_resource: &EntityDataResource,
-    _entity_datas: &Query<&EntityData>,
-    data_link_component: &DataLink,
-) -> bool {
-    distance < 30.
-        && data_link_component
-            .links
-            .contains(&DataLinkType::RemoteLock)
+pub fn lock_open_action_prequisite_check(
+    mut building_action_data: ResMut<BuildingActions>,
+    examiner: Query<(&Transform, &DataLink)>,
+    transforms: Query<&Transform>,
+) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id == "actions::counter_windows/lockopen"
+                || action.data.id == "actions::counter_windows/lockclosed"
+                || action.data.id == "actions::counter_windows/unlock"
+            {
+                let examiner_transform;
+                let examiner_data_link;
+
+                match examiner.get(building.action_taker) {
+                    Ok((t, d)) => {
+                        examiner_transform = t;
+                        examiner_data_link = d;
+                    }
+                    Err(_rr) => {
+                        warn!("Couldnt find transform of examining entity!");
+                        continue;
+                    }
+                }
+
+                let start_pos;
+                let end_pos = examiner_transform.translation;
+
+                match building.target_entity_option.clone() {
+                    Some(_target_entity_bits) => match transforms.get(building.action_taker) {
+                        Ok(rigid_body_position) => {
+                            start_pos = rigid_body_position.translation;
+                        }
+                        Err(_) => {
+                            continue;
+                        }
+                    },
+                    None => {
+                        let cell_data;
+                        match building.target_cell_option.as_ref() {
+                            Some(v) => {
+                                cell_data = v;
+                            }
+                            None => {
+                                continue;
+                            }
+                        }
+                        start_pos = cell_id_to_world(Vec3Int {
+                            x: cell_data.0.x,
+                            y: cell_data.0.y,
+                            z: cell_data.0.z,
+                        });
+                    }
+                }
+
+                let distance = start_pos.distance(end_pos);
+
+                match distance < 30. && examiner_data_link.links.contains(&DataLinkType::RemoteLock)
+                {
+                    true => {
+                        action.approve();
+                    }
+                    false => {
+                        action.do_not_approve();
+                    }
+                }
+            }
+        }
+    }
 }
 
-pub fn lock_closed_action(
-    _self_tab_entity: Option<Entity>,
-    _entity_id_bits_option: Option<u64>,
-    _cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-    distance: f32,
-    _inventory_component: &Inventory,
-    _entity_data_resource: &EntityDataResource,
-    _entity_datas: &Query<&EntityData>,
-    data_link_component: &DataLink,
-) -> bool {
-    distance < 30.
-        && data_link_component
-            .links
-            .contains(&DataLinkType::RemoteLock)
+pub fn build_actions(
+    mut building_action_data: ResMut<BuildingActions>,
+    counter_windows: Query<&CounterWindow>,
+) {
+    for building_action in building_action_data.list.iter_mut() {
+        match building_action.target_entity_option {
+            Some(examined_entity) => match counter_windows.get(examined_entity) {
+                Ok(_) => {
+                    let mut new_vec = vec![
+                        ActionData {
+                            data: Action {
+                                id: "actions::counter_windows/toggleopen".to_string(),
+                                text: "Toggle Open".to_string(),
+                                tab_list_priority: 100,
+                            },
+                            approved: None,
+                        },
+                        ActionData {
+                            data: Action {
+                                id: "actions::counter_windows/lockopen".to_string(),
+                                text: "Lock Open".to_string(),
+                                tab_list_priority: 99,
+                            },
+                            approved: None,
+                        },
+                        ActionData {
+                            data: Action {
+                                id: "actions::counter_windows/lockclosed".to_string(),
+                                text: "Lock Closed".to_string(),
+                                tab_list_priority: 98,
+                            },
+                            approved: None,
+                        },
+                        ActionData {
+                            data: Action {
+                                id: "actions::counter_windows/unlock".to_string(),
+                                text: "Unlock".to_string(),
+                                tab_list_priority: 97,
+                            },
+                            approved: None,
+                        },
+                    ];
+
+                    building_action.actions.append(&mut new_vec);
+                }
+                Err(_rr) => {}
+            },
+            None => {}
+        }
+    }
 }

@@ -164,7 +164,7 @@ pub fn build_details1_gridmap(
             z: cell_id.z as i16,
         };
 
-        gridmap_details1.data.insert(
+        gridmap_details1.grid_data.insert(
             cell_id_int,
             CellData {
                 item: *gridmap_data

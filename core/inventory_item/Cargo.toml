@@ -13,3 +13,4 @@ sounds = { path = "../../entities/sounds" }
 pawn = { path = "../pawn" }
 console_commands = { path = "../console_commands" }
 api = { path = "../api" }
+actions = { path = "../actions" }

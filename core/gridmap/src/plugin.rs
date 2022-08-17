@@ -1,7 +1,10 @@
 use api::{
-    data::{PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels},
+    data::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels},
     examinable::RichName,
-    gridmap::{ExamineMapMessage, GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
+    gridmap::{
+        ExamineMapMessage, GridmapData, GridmapDetails1, GridmapExamineMessages, GridmapMain,
+        RemoveCell,
+    },
     pawn::SpawnPoints,
 };
 use bevy::{
@@ -11,7 +14,11 @@ use bevy::{
 use entity::entity_data::INTERPOLATION_LABEL1;
 use networking::messages::net_system;
 
-use crate::init::{startup_build_map, startup_map_cells, startup_misc_resources};
+use crate::{
+    examine::examine_map,
+    init::{startup_build_map, startup_map_cells, startup_misc_resources},
+};
+use bevy::app::CoreStage::PostUpdate;
 
 use super::{
     events::{gridmap_updates, remove_cell},
@@ -81,7 +88,8 @@ impl Plugin for GridmapPlugin {
                     .with_system(net_system::<NetGridmapUpdates>),
             )
             .add_system(gridmap_sensing_ability)
-            .add_event::<ExamineMapMessage>();
+            .add_event::<ExamineMapMessage>()
+            .add_system(examine_map.after(ActionsLabels::Action))
+            .init_resource::<GridmapExamineMessages>();
     }
 }
-use bevy::app::CoreStage::PostUpdate;

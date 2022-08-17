@@ -16,7 +16,7 @@ pub struct CellData {
 
 #[derive(Default)]
 pub struct GridmapDetails1 {
-    pub data: HashMap<Vec3Int, CellData>,
+    pub grid_data: HashMap<Vec3Int, CellData>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
 }
 

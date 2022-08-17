@@ -10,7 +10,7 @@ use api::{
     sensable::Sensable,
     senser::Senser,
 };
-use bevy::prelude::{warn, Entity, Query, Res, ResMut};
+use bevy::prelude::{warn, Query, Res, ResMut};
 use networking::messages::ExamineEntityMessages;
 
 pub struct ExamineEntityPawn {
@@ -33,7 +33,7 @@ pub fn examine_entity(
     q0: Query<(&Examinable, &Sensable, &HealthComponent)>,
 ) {
     for examine_event in examine_entity_events.messages.iter_mut() {
-        let entity_reference = Entity::from_bits(examine_event.examine_entity_bits);
+        let entity_reference = examine_event.examine_entity;
 
         // Safety check.
         match criteria_query.get(examine_event.entity) {
@@ -491,7 +491,9 @@ pub fn examine_map(
                 gridmap_result = gridmap_main.grid_data.get(&examine_event.gridmap_cell_id);
             }
             GridMapType::Details1 => {
-                gridmap_result = gridmap_details1.data.get(&examine_event.gridmap_cell_id);
+                gridmap_result = gridmap_details1
+                    .grid_data
+                    .get(&examine_event.gridmap_cell_id);
             }
         }
 

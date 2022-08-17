@@ -52,7 +52,7 @@ pub enum ExamineLabels {
 }
 pub struct InputExamineEntity {
     pub handle: u64,
-    pub examine_entity_bits: u64,
+    pub examine_entity: Entity,
     pub entity: Entity,
     pub message: String,
 }
@@ -60,7 +60,7 @@ impl Default for InputExamineEntity {
     fn default() -> Self {
         Self {
             handle: 0,
-            examine_entity_bits: 0,
+            examine_entity: Entity::from_bits(0),
             entity: Entity::from_bits(0),
             message: ASTRIX.to_string(),
         }

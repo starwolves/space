@@ -51,6 +51,15 @@ pub enum MapLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum ActionsLabels {
+    Clear,
+    Init,
+    Build,
+    Approve,
+    Action,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum PreUpdateLabels {
     NetEvents,
 }

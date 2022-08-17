@@ -8,13 +8,13 @@ use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
 
 use crate::messages::{
-    net_system, ExamineEntityMessages, InputAltItemAttack, InputAttackCell, InputAttackEntity,
-    InputBuildGraphics, InputConsoleCommand, InputDropCurrentItem, InputMap,
-    InputMapChangeDisplayMode, InputMapRequestDisplayModes, InputMouseAction,
-    InputMouseDirectionUpdate, InputMovementInput, InputSceneReady, InputSelectBodyPart,
-    InputSprinting, InputSwitchHands, InputTabAction, InputTabDataMap, InputTakeOffItem,
-    InputThrowItem, InputToggleAutoMove, InputToggleCombatMode, InputUseWorldItem, InputUserName,
-    InputWearItem, NetPlayerConn, TextTreeInputSelection,
+    net_system, ExamineEntityMessages, InputAction, InputActionDataMap, InputAltItemAttack,
+    InputAttackCell, InputAttackEntity, InputBuildGraphics, InputConsoleCommand,
+    InputDropCurrentItem, InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes,
+    InputMouseAction, InputMouseDirectionUpdate, InputMovementInput, InputSceneReady,
+    InputSelectBodyPart, InputSprinting, InputSwitchHands, InputTakeOffItem, InputThrowItem,
+    InputToggleAutoMove, InputToggleCombatMode, InputUseWorldItem, InputUserName, InputWearItem,
+    NetPlayerConn, TextTreeInputSelection,
 };
 
 use super::messages::{incoming_messages, startup_listen_connections};
@@ -41,7 +41,7 @@ impl Plugin for NetworkingPlugin {
         )
         .add_event::<NetPlayerConn>()
         .add_event::<PendingNetworkMessage>()
-        .add_event::<InputTabDataMap>()
+        .add_event::<InputActionDataMap>()
         .add_system_set_to_stage(
             PostUpdate,
             SystemSet::new()
@@ -63,7 +63,7 @@ impl Plugin for NetworkingPlugin {
         .add_event::<InputWearItem>()
         .add_event::<InputTakeOffItem>()
         .add_event::<InputThrowItem>()
-        .add_event::<InputTabAction>()
+        .add_event::<InputAction>()
         .add_event::<InputBuildGraphics>()
         .add_event::<InputMovementInput>()
         .add_event::<InputSprinting>()
@@ -76,7 +76,7 @@ impl Plugin for NetworkingPlugin {
         .add_event::<InputSelectBodyPart>()
         .add_event::<InputMouseDirectionUpdate>()
         .add_event::<InputSceneReady>()
-        .add_event::<NetTabData>();
+        .add_event::<NetActionData>();
     }
 }
 
@@ -84,11 +84,11 @@ pub const RENET_RELIABLE_CHANNEL_ID: u8 = 0;
 pub const RENET_UNRELIABLE_CHANNEL_ID: u8 = 1;
 pub const RENET_BLOCKING_CHANNEL_ID: u8 = 2;
 
-pub struct NetTabData {
+pub struct NetActionData {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetTabData {
+impl PendingMessage for NetActionData {
     fn get_message(&self) -> PendingNetworkMessage {
         PendingNetworkMessage {
             handle: self.handle,

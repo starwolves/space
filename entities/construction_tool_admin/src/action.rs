@@ -1,141 +1,301 @@
+use actions::data::{ActionData, ActionRequests, BuildingActions};
 use api::{
-    data::EntityDataResource,
-    data_link::DataLink,
-    entity_updates::EntityData,
-    gridmap::{CellData, GridMapType},
+    actions::Action,
+    data::HandleToEntity,
+    gridmap::{cell_id_to_world, GridmapMain},
     inventory::Inventory,
     pawn::REACH_DISTANCE,
-    tab_actions::QueuedTabActions,
 };
-use bevy::prelude::{Entity, EventWriter, Query, Res};
+use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, Transform};
+use networking::messages::{InputConstructionOptionsSelection, TextTreeInputSelection};
 
-use super::construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct};
+use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
 
-pub fn construct_action(
-    _self_tab_entity: Option<Entity>,
-    _entity_id_bits_option: Option<u64>,
-    cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-    distance: f32,
-    _inventory_component: &Inventory,
-    _entity_data_resource: &EntityDataResource,
-    _entity_datas: &Query<&EntityData>,
-    _data_link_component: &DataLink,
-) -> bool {
-    distance < REACH_DISTANCE && cell_id_option.is_some()
-}
+use super::construction_tool::InputConstruct;
+
 pub fn construction_tool_actions(
-    queue: Res<QueuedTabActions>,
+    building_action_data: Res<BuildingActions>,
+    handle_to_entity: Res<HandleToEntity>,
     mut event_construct: EventWriter<InputConstruct>,
-    mut event_construction_options: EventWriter<InputConstructionOptions>,
     mut event_deconstruct: EventWriter<InputDeconstruct>,
+    mut event_construction_options: EventWriter<InputConstructionOptions>,
+    action_requests: Res<ActionRequests>,
 ) {
-    for queued in queue.queue.iter() {
-        if queued.tab_id == "action::construction_tool_admin/construct" {
-            if queued.target_cell_option.is_some() {
-                event_construct.send(InputConstruct {
-                    handle_option: queued.handle_option,
-                    target_cell: queued.target_cell_option.as_ref().unwrap().clone(),
-                    belonging_entity: queued.belonging_entity_option.unwrap(),
-                });
+    for building in building_action_data.list.iter() {
+        let building_action_id;
+        match action_requests.list.get(&building.incremented_i) {
+            Some(action_request) => {
+                building_action_id = action_request.id.clone();
             }
-        } else if queued.tab_id == "action::construction_tool_admin/constructionoptions" {
-            event_construction_options.send(InputConstructionOptions {
-                handle_option: queued.handle_option,
-                belonging_entity: queued.belonging_entity_option.unwrap(),
-            });
-        } else if queued.tab_id == "action::construction_tool_admin/deconstruct" {
-            if queued.target_entity_option.is_some() || queued.target_cell_option.is_some() {
-                event_deconstruct.send(InputDeconstruct {
-                    handle_option: queued.handle_option,
-                    target_cell_option: queued.target_cell_option.clone(),
-                    target_entity_option: queued.target_entity_option,
-                    belonging_entity: queued.belonging_entity_option.unwrap(),
-                });
+            None => {
+                continue;
             }
         }
-    }
-}
-
-pub fn deconstruct_action(
-    _self_tab_entity: Option<Entity>,
-    entity_id_bits_option: Option<u64>,
-    cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-    distance: f32,
-    _inventory_component: &Inventory,
-    entity_data_resource: &EntityDataResource,
-    entity_datas: &Query<&EntityData>,
-    _data_link_component: &DataLink,
-) -> bool {
-    match entity_id_bits_option {
-        Some(bits) => {
-            let entity = Entity::from_bits(bits);
-
-            let mut deconstructable = false;
-
-            match entity_datas.get(entity) {
-                Ok(entity_data) => {
-                    let entity_properties = entity_data_resource
-                        .data
-                        .get(
-                            *entity_data_resource
-                                .name_to_id
-                                .get(&entity_data.entity_name)
-                                .unwrap(),
-                        )
-                        .unwrap();
-
-                    deconstructable = entity_properties.grid_item.is_some();
-                }
-                Err(_) => {}
-            }
-
-            distance < REACH_DISTANCE && deconstructable
-        }
-        None => {
-            distance < REACH_DISTANCE
-                && cell_id_option.is_some()
-                && cell_id_option.unwrap().4.is_some()
-        }
-    }
-}
-
-pub fn construction_option_action(
-    self_tab_entity_option: Option<Entity>,
-    belonging_entity_id_bits_option: Option<u64>,
-    _cell_id_option: Option<(GridMapType, i16, i16, i16, Option<&CellData>)>,
-    _distance: f32,
-    inventory_component: &Inventory,
-    _entity_data_resource: &EntityDataResource,
-    _entity_datas: &Query<&EntityData>,
-    _data_link_component: &DataLink,
-) -> bool {
-    let is_self;
-
-    match belonging_entity_id_bits_option {
-        Some(e) => {
-            let entity = Entity::from_bits(e);
-
-            match self_tab_entity_option {
-                Some(self_tab_entity) => {
-                    if self_tab_entity != entity {
-                        is_self = false;
-                    } else {
-                        if inventory_component.has_item(entity) {
-                            is_self = true;
-                        } else {
-                            is_self = false;
-                        }
+        for action_data in building.actions.iter() {
+            if action_data.is_approved()
+                && action_data.data.id == "action::construction_tool_admin/construct"
+                && action_data.data.id == building_action_id
+            {
+                let handle_option;
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(h) => {
+                        handle_option = Some(*h);
+                    }
+                    None => {
+                        handle_option = None;
                     }
                 }
-                None => {
-                    is_self = false;
+                event_construct.send(InputConstruct {
+                    handle_option,
+                    target_cell: building.target_cell_option.clone().unwrap(),
+                    belonging_entity: building.action_taker,
+                });
+            } else if action_data.is_approved()
+                && action_data.data.id == "action::construction_tool_admin/deconstruct"
+                && action_data.data.id == building_action_id
+            {
+                let handle_option;
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(h) => {
+                        handle_option = Some(*h);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
+                }
+                event_deconstruct.send(InputDeconstruct {
+                    handle_option,
+                    target_cell_option: building.target_cell_option.clone(),
+                    belonging_entity: building.action_taker,
+                    target_entity_option: building.target_entity_option,
+                });
+            } else if action_data.is_approved()
+                && action_data.data.id == "action::construction_tool_admin/constructionoptions"
+                && action_data.data.id == building_action_id
+            {
+                let handle_option;
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(h) => {
+                        handle_option = Some(*h);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
+                }
+                event_construction_options.send(InputConstructionOptions {
+                    handle_option,
+                    belonging_entity: building.action_taker,
+                });
+            }
+        }
+    }
+}
+
+pub fn construct_action_prequisite_check(
+    mut building_action_data: ResMut<BuildingActions>,
+    gridmap_main: Res<GridmapMain>,
+) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id == "action::construction_tool_admin/construct" {
+                let cell_id;
+
+                match building.target_cell_option.clone() {
+                    Some(c) => {
+                        cell_id = c.0;
+                    }
+                    None => {
+                        warn!("couldnt find examined cell.");
+                        continue;
+                    }
+                }
+
+                let cell_option = gridmap_main.entity_data.get(&cell_id);
+
+                match building.target_cell_option.is_some() && cell_option.is_none() {
+                    true => {
+                        action.approve();
+                    }
+                    false => {
+                        action.do_not_approve();
+                    }
                 }
             }
         }
-        None => {
-            is_self = false;
+    }
+}
+
+pub fn deconstruct_action_prequisite_check(
+    mut building_action_data: ResMut<BuildingActions>,
+    gridmap_main: Res<GridmapMain>,
+) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id == "action::construction_tool_admin/deconstruct" {
+                let cell_id;
+
+                match building.target_cell_option.clone() {
+                    Some(c) => {
+                        cell_id = c.0;
+                    }
+                    None => {
+                        warn!("got entity with cell action.");
+                        continue;
+                    }
+                }
+
+                let cell_option = gridmap_main.grid_data.get(&cell_id);
+
+                match building.target_cell_option.is_some() && cell_option.is_some() {
+                    true => {
+                        action.approve();
+                    }
+                    false => {
+                        action.do_not_approve();
+                    }
+                }
+            }
         }
     }
+}
 
-    is_self
+pub fn construction_tool_search_distance_prequisite_check(
+    mut building_action_data: ResMut<BuildingActions>,
+    transforms: Query<&Transform>,
+) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id == "action::construction_tool_admin/deconstruct"
+                || action.data.id == "action::construction_tool_admin/construct"
+            {
+                let examiner_transform;
+
+                match transforms.get(building.action_taker) {
+                    Ok(t) => {
+                        examiner_transform = t;
+                    }
+                    Err(_rr) => {
+                        warn!("Couldnt find transform of examining entity!");
+                        continue;
+                    }
+                }
+
+                let start_pos;
+                let end_pos = examiner_transform.translation;
+
+                let cell_id;
+
+                match building.target_cell_option.clone() {
+                    Some(c) => {
+                        cell_id = c.0;
+                        start_pos = cell_id_to_world(cell_id);
+                    }
+                    None => {
+                        warn!("got entity with cell action.");
+                        continue;
+                    }
+                }
+
+                let distance = start_pos.distance(end_pos);
+
+                if distance < REACH_DISTANCE {
+                    action.approve();
+                } else {
+                    action.do_not_approve();
+                }
+            }
+        }
+    }
+}
+
+pub fn construction_tool_is_holding_item_prequisite_check(
+    mut building_action_data: ResMut<BuildingActions>,
+    inventory_holders: Query<&Inventory>,
+    construction_tools: Query<&ConstructionTool>,
+) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id.contains("action::construction_tool_admin") {
+                let mut passed = false;
+
+                match inventory_holders.get(building.action_taker) {
+                    Ok(i) => {
+                        let active_slot = i.get_slot(&i.active_slot);
+                        match active_slot.slot_item {
+                            Some(e) => {
+                                passed = construction_tools.get(e).is_ok();
+                            }
+                            None => {}
+                        }
+                    }
+                    Err(_) => {
+                        warn!("checker wasnt inventory holder.");
+                        continue;
+                    }
+                }
+
+                if passed {
+                    action.approve();
+                } else {
+                    action.do_not_approve();
+                }
+            }
+        }
+    }
+}
+
+pub fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
+    for building_action in building_action_data.list.iter_mut() {
+        match &building_action.target_cell_option {
+            Some(_examined_entity) => {
+                let mut new_vec = vec![
+                    ActionData {
+                        data: Action {
+                            id: "action::construction_tool_admin/construct".to_string(),
+                            text: "Construct".to_string(),
+                            tab_list_priority: 50,
+                        },
+                        approved: None,
+                    },
+                    ActionData {
+                        data: Action {
+                            id: "action::construction_tool_admin/deconstruct".to_string(),
+                            text: "Deconstruct".to_string(),
+                            tab_list_priority: 49,
+                        },
+                        approved: None,
+                    },
+                    ActionData {
+                        data: Action {
+                            id: "action::construction_tool_admin/constructionoptions".to_string(),
+                            text: "Construction Options".to_string(),
+                            tab_list_priority: 48,
+                        },
+                        approved: None,
+                    },
+                ];
+
+                building_action.actions.append(&mut new_vec);
+            }
+            None => {}
+        }
+    }
+}
+pub fn text_tree_input_selection(
+    mut input_events: EventReader<TextTreeInputSelection>,
+    mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,
+) {
+    for event in input_events.iter() {
+        let belonging_entity = None;
+
+        if event.menu_id == "textselection::construction_tool_admin/constructionoptionslist"
+            && belonging_entity.is_some()
+        {
+            input_construction_options_selection.send(InputConstructionOptionsSelection {
+                handle_option: Some(event.handle),
+                menu_selection: event.menu_selection.clone(),
+                entity: belonging_entity.unwrap(),
+            });
+        }
+    }
 }

@@ -277,19 +277,19 @@ pub fn air_lock_events(
     }
 
     for event in toggle_open_action.iter() {
-        match air_lock_query.get(Entity::from_bits(event.opened)) {
+        match air_lock_query.get(event.opened) {
             Ok((air_lock_component, _air_lock_entity, _examinable_component, _children)) => {
                 match air_lock_component.status {
                     AirLockStatus::Open => {
                         close_requests.push(AirLockCloseRequest {
                             interacter_option: Some(event.opener),
-                            interacted: Entity::from_bits(event.opened),
+                            interacted: event.opened,
                         });
                     }
                     AirLockStatus::Closed => {
                         open_requests.push(AirLockOpenRequest {
                             opener_option: Some(event.opener),
-                            opened: Entity::from_bits(event.opened),
+                            opened: event.opened,
                         });
                     }
                 }

@@ -22,7 +22,7 @@ inventory_item = { path = "../inventory_item" }
 networking = { path = "../networking" }
 physics = { path = "../physics" }
 senser = { path = "../senser" }
-tab_actions = { path = "../tab_actions" }
+actions = { path = "../actions" }
 world_environment = { path = "../world_environment" }
 pawn = { path = "../pawn" }
 sfx = { path = "../sfx" }
@@ -32,6 +32,8 @@ map = { path = "../map" }
 inventory = { path = "../inventory" }
 rigid_body = { path = "../rigid_body" }
 api = { path = "../api" }
+examinable = { path = "../examinable" }
+
 
 sounds = { path = "../../entities/sounds" }
 air_locks = { path = "../../entities/air_locks" }
