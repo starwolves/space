@@ -1,4 +1,4 @@
-use api::actions::{Action, QueuedActions};
+use api::actions::QueuedActions;
 use bevy::prelude::ResMut;
 
 use crate::data::{
@@ -7,28 +7,6 @@ use crate::data::{
 };
 use bevy::prelude::EventReader;
 use networking::messages::InputAction;
-
-pub fn get_action(id: &str) -> Option<Action> {
-    let result;
-
-    if id == "actions::pawn/examine" {
-        result = Some(Action {
-            id: id.to_string(),
-            text: "Examine".to_string(),
-            tab_list_priority: u8::MAX,
-        });
-    } else if id == "actions::inventory/pickup" {
-        result = Some(Action {
-            id: id.to_string(),
-            text: "Pickup".to_string(),
-            tab_list_priority: u8::MAX - 1,
-        });
-    } else {
-        result = None;
-    }
-
-    result
-}
 
 pub fn clear_actions_queue(mut queue: ResMut<QueuedActions>) {
     queue.queue.clear();
