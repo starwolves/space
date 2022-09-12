@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use actions::data::{ActionRequests, BuildingActions};
 use api::{
     data::{HandleToEntity, ZeroGravity},
     entity_updates::{EntityData, EntityUpdateData},
@@ -323,6 +324,36 @@ use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
 };
 
+pub fn pickup_world_item_action(
+    building_action_data: Res<BuildingActions>,
+    mut use_world_item_events: EventWriter<InputUseWorldItem>,
+    action_requests: Res<ActionRequests>,
+) {
+    for building in building_action_data.list.iter() {
+        let building_action_id;
+        match action_requests.list.get(&building.incremented_i) {
+            Some(action_request) => {
+                building_action_id = action_request.id.clone();
+            }
+            None => {
+                continue;
+            }
+        }
+
+        for action in building.actions.iter() {
+            if action.is_approved()
+                && action.data.id == "actions::inventory/pickup"
+                && action.data.id == building_action_id
+            {
+                use_world_item_events.send(InputUseWorldItem {
+                    pickuper_entity: building.action_taker,
+                    pickupable_entity: building.target_entity_option.unwrap(),
+                });
+            }
+        }
+    }
+}
+
 pub fn pickup_world_item(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -372,7 +403,7 @@ pub fn pickup_world_item(
             continue;
         }
 
-        let pickupable_entity = event.pickupable_entity_bits;
+        let pickupable_entity = event.pickupable_entity;
 
         match inventory_items_query.get_component_mut::<InventoryItem>(pickupable_entity) {
             Ok(pickupable_inventory_item_component) => {
@@ -502,7 +533,7 @@ pub fn pickup_world_item(
                     handle: *handle,
                     message: ReliableServerMessage::PickedUpItem(
                         pickupable_entity_data.entity_name.clone(),
-                        event.pickupable_entity_bits.to_bits(),
+                        event.pickupable_entity.to_bits(),
                         pickup_slot.slot_name.clone(),
                     ),
                 });

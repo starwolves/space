@@ -6,7 +6,7 @@ use api::{
     inventory::Inventory,
     pawn::REACH_DISTANCE,
 };
-use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, Transform};
+use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
 use networking::messages::{InputConstructionOptionsSelection, TextTreeInputSelection};
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
@@ -286,7 +286,15 @@ pub fn text_tree_input_selection(
     mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,
 ) {
     for event in input_events.iter() {
-        let belonging_entity = None;
+        let belonging_entity;
+        match event.belonging_entity {
+            Some(bits) => {
+                belonging_entity = Some(Entity::from_bits(bits));
+            }
+            None => {
+                belonging_entity = None;
+            }
+        }
 
         if event.menu_id == "textselection::construction_tool_admin/constructionoptionslist"
             && belonging_entity.is_some()

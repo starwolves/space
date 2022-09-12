@@ -334,7 +334,7 @@ pub fn incoming_messages(
                         Some(player_entity) => {
                             use_world_item.send(InputUseWorldItem {
                                 pickuper_entity: *player_entity,
-                                pickupable_entity_bits: Entity::from_bits(entity_id),
+                                pickupable_entity: Entity::from_bits(entity_id),
                             });
                         }
                         None => {
@@ -767,7 +767,7 @@ pub struct InputTakeOffItem {
 
 pub struct InputUseWorldItem {
     pub pickuper_entity: Entity,
-    pub pickupable_entity_bits: Entity,
+    pub pickupable_entity: Entity,
 }
 
 pub struct InputWearItem {

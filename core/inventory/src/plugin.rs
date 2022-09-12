@@ -2,7 +2,7 @@ use api::data::{ActionsLabels, PostUpdateLabels, UpdateLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
 
-use crate::actions::pickup_prerequisite_check;
+use crate::{actions::pickup_prerequisite_check, item_events::pickup_world_item_action};
 
 use super::{
     entity_update::inventory_update,
@@ -53,6 +53,11 @@ impl Plugin for InventoryPlugin {
                 pickup_prerequisite_check
                     .label(ActionsLabels::Approve)
                     .after(ActionsLabels::Init),
+            )
+            .add_system(
+                pickup_world_item_action
+                    .label(ActionsLabels::Action)
+                    .after(ActionsLabels::Approve),
             );
     }
 }
