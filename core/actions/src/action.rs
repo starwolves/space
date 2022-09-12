@@ -5,7 +5,7 @@ use crate::data::{
     ActionDataRequests, ActionIncremented, ActionRequest, ActionRequests, BuildingActions,
     BuildingActionsInstance,
 };
-use bevy::prelude::{info, EventReader};
+use bevy::prelude::EventReader;
 use networking::messages::InputAction;
 
 pub fn get_action(id: &str) -> Option<Action> {
@@ -41,9 +41,6 @@ pub fn clear_action_building(
 ) {
     action_data_requests.list.clear();
     action_requests.list.clear();
-    if building_action.list.len() > 0 {
-        info!("Cleared action data!");
-    }
     building_action.list.clear();
 }
 

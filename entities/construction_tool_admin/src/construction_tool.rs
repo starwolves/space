@@ -11,6 +11,7 @@ use api::{
         GridmapMain, RemoveCell,
     },
     health::{CellUpdate, Health, HealthContainer, StructureHealth},
+    inventory::Inventory,
     network::{ReliableServerMessage, TextTreeBit},
     sensable::Sensable,
     senser::Senser,
@@ -57,12 +58,15 @@ pub fn construction_tool(
         EventReader<InputConstructionOptionsSelection>,
         EventWriter<RemoveCell>,
     ),
+    event_writers: (
+        EventWriter<DefaultSpawnEvent>,
+        EventWriter<NetConstructionTool>,
+    ),
     entity_data: Res<EntityDataResource>,
     gridmap_data: Res<GridmapData>,
     mut gridmap_main: ResMut<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,
     handle_to_entity: Res<HandleToEntity>,
-    mut net_construction_tool: EventWriter<NetConstructionTool>,
     mut construction_tools: Query<(
         Entity,
         &mut ConstructionTool,
@@ -77,7 +81,7 @@ pub fn construction_tool(
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
     rigid_bodies: Query<(&Transform, &EntityData), Without<RigidBodyDisabled>>,
-    mut default_spawner: EventWriter<DefaultSpawnEvent>,
+    inventory_holders: Query<&Inventory>,
 ) {
     let (
         mut input_construct_event,
@@ -86,6 +90,8 @@ pub fn construction_tool(
         mut input_construction_options_selection_event,
         mut remove_cell_events,
     ) = event_readers;
+
+    let (mut default_spawner, mut net_construction_tool) = event_writers;
 
     // Retreive all construction and complex constructions as a text list and make generic client GUI text list call.
     for event in input_construction_options_event.iter() {
@@ -115,9 +121,26 @@ pub fn construction_tool(
         text_tree_selection_map.insert("main".to_string(), TextTreeBit::Final(text_options));
 
         let mut pawn_name = "";
+        let construction_tool_entity;
+
+        match inventory_holders.get(entity) {
+            Ok(inventory_component) => match inventory_component.get_active_slot_entity() {
+                Some(ent) => {
+                    construction_tool_entity = ent;
+                }
+                None => {
+                    warn!("input_construction_options_event entity's Inventory had empty hands.");
+                    continue;
+                }
+            },
+            Err(_rr) => {
+                warn!("input_construction_options_event entity has no inventory!");
+                continue;
+            }
+        }
 
         let inventory_item_component = construction_tools
-            .get_component::<InventoryItem>(entity)
+            .get_component::<InventoryItem>(construction_tool_entity)
             .unwrap();
 
         match inventory_item_component.in_inventory_of_entity {
@@ -141,7 +164,7 @@ pub fn construction_tool(
             + " navigates the interface of the construction tool.[/font]";
 
         let sensable_component = construction_tools
-            .get_component::<Sensable>(entity)
+            .get_component::<Sensable>(construction_tool_entity)
             .unwrap();
 
         match event.handle_option {
@@ -185,7 +208,25 @@ pub fn construction_tool(
     }
 
     for event in input_construction_options_selection_event.iter() {
+        info!("I fired.");
         let mut text_options = vec![];
+        let construction_tool_entity;
+
+        match inventory_holders.get(event.entity) {
+            Ok(inventory_component) => match inventory_component.get_active_slot_entity() {
+                Some(ent) => {
+                    construction_tool_entity = ent;
+                }
+                None => {
+                    warn!("input_construction_options_event entity's Inventory had empty hands.");
+                    continue;
+                }
+            },
+            Err(_rr) => {
+                warn!("input_construction_options_event entity has no inventory!");
+                continue;
+            }
+        }
 
         for entity_data_properties in entity_data.data.iter() {
             match &entity_data_properties.grid_item {
@@ -203,7 +244,7 @@ pub fn construction_tool(
         }
 
         let mut construction_tool_component = construction_tools
-            .get_component_mut::<ConstructionTool>(event.entity)
+            .get_component_mut::<ConstructionTool>(construction_tool_entity)
             .unwrap();
 
         if text_options.contains(&event.menu_selection) {
@@ -230,7 +271,7 @@ pub fn construction_tool(
         let mut pawn_name = "";
 
         let (_s, _y, sensable_component, inventory_item_component, rgpc) =
-            construction_tools.get(event.entity).unwrap();
+            construction_tools.get(construction_tool_entity).unwrap();
 
         match inventory_item_component.in_inventory_of_entity {
             Some(owner_entity) => match pawns.get(owner_entity) {
@@ -291,7 +332,24 @@ pub fn construction_tool(
 
     // Write to a DespawnShipCell event.
     for event in input_deconstruct_event.iter() {
-        let belonging_entity = event.belonging_entity;
+        let entity = event.belonging_entity;
+        let construction_tool_entity;
+
+        match inventory_holders.get(entity) {
+            Ok(inventory_component) => match inventory_component.get_active_slot_entity() {
+                Some(ent) => {
+                    construction_tool_entity = ent;
+                }
+                None => {
+                    warn!("input_construction_options_event entity's Inventory had empty hands.");
+                    continue;
+                }
+            },
+            Err(_rr) => {
+                warn!("input_construction_options_event entity has no inventory!");
+                continue;
+            }
+        }
 
         let (
             _construction_tool_entity,
@@ -301,7 +359,7 @@ pub fn construction_tool(
             rigid_body_position_component,
         );
 
-        match construction_tools.get(belonging_entity) {
+        match construction_tools.get(construction_tool_entity) {
             Ok((
                 construction_tool_entity_passed,
                 construction_tool_component_passed,
@@ -318,7 +376,7 @@ pub fn construction_tool(
             Err(_rr) => {
                 warn!(
                     "Couldn't find belonging entity construction tool {:?}",
-                    belonging_entity
+                    construction_tool_entity
                 );
                 continue;
             }
@@ -499,7 +557,25 @@ pub fn construction_tool(
         let entity = event.belonging_entity;
         let construction_tool_components;
 
-        match construction_tools.get(entity) {
+        let construction_tool_entity;
+
+        match inventory_holders.get(entity) {
+            Ok(inventory_component) => match inventory_component.get_active_slot_entity() {
+                Some(ent) => {
+                    construction_tool_entity = ent;
+                }
+                None => {
+                    warn!("input_construction_options_event entity's Inventory had empty hands.");
+                    continue;
+                }
+            },
+            Err(_rr) => {
+                warn!("input_construction_options_event entity has no inventory!");
+                continue;
+            }
+        }
+
+        match construction_tools.get(construction_tool_entity) {
             Ok(s) => {
                 construction_tool_components = s;
             }

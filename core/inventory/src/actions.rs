@@ -66,7 +66,7 @@ pub fn pickup_prerequisite_check(
 
                 distance = start_pos.distance(end_pos);
 
-                if !(distance < REACH_DISTANCE && inventory_ok) {
+                if distance < REACH_DISTANCE && inventory_ok {
                     action.approve();
                 }
             }

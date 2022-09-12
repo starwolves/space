@@ -7,7 +7,7 @@ use api::{
     gridmap::GridMapType,
     network::ReliableServerMessage,
 };
-use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, ResMut, With};
+use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, With};
 use networking::{
     messages::{InputActionDataEntity, InputActionDataMap},
     plugin::NetActionData,
@@ -190,7 +190,6 @@ pub fn init_action_data_building(
         );
     }
     for event in map_events.iter() {
-        info!("Tab data build requested.");
         building_action.list.push(BuildingActionsInstance {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
