@@ -1,8 +1,6 @@
-use actions::{
-    action::get_action,
-    data::{ActionData, ActionDataRequests, BuildingActions},
-};
+use actions::data::{ActionData, ActionDataRequests, BuildingActions};
 use api::{
+    actions::Action,
     examinable::Examinable,
     gridmap::{GridmapData, GridmapDetails1, GridmapMain},
 };
@@ -14,7 +12,11 @@ pub fn build_actions(
 ) {
     for building_action in building_action_data.list.iter_mut() {
         let mut new_vec = vec![ActionData {
-            data: get_action("actions::pawn/examine").unwrap(),
+            data: Action {
+                id: "actions::pawn/examine".to_string(),
+                text: "Examine".to_string(),
+                tab_list_priority: u8::MAX,
+            },
             approved: None,
         }];
         match building_action.target_entity_option {

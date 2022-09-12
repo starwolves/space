@@ -1,7 +1,5 @@
-use actions::{
-    action::get_action,
-    data::{ActionData, BuildingActions},
-};
+use actions::data::{ActionData, BuildingActions};
+use api::actions::Action;
 use bevy::prelude::{Query, ResMut};
 
 use crate::item::InventoryItem;
@@ -15,7 +13,11 @@ pub fn build_actions(
             Some(examined_entity) => match inventory_items.get(examined_entity) {
                 Ok(_) => {
                     let mut new_vec = vec![ActionData {
-                        data: get_action("actions::inventory/pickup").unwrap(),
+                        data: Action {
+                            id: "actions::inventory/pickup".to_string(),
+                            text: "Pickup".to_string(),
+                            tab_list_priority: u8::MAX - 1,
+                        },
                         approved: None,
                     }];
 
