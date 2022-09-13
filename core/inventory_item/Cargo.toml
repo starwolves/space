@@ -1,6 +1,12 @@
 [package]
 name = "inventory_item"
-version = "0.0.0"
+version = "0.0.3-snap7-dev"
+authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
+description="InventoryItems interact with Inventory entities."
+homepage="https://starwolves.io"
+repository="https://gitlab.starwolves.io/starwolves/space"
+documentation="https://docs.sf.starwolves.io"
+license-file="LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
