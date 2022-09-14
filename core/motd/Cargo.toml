@@ -1,8 +1,8 @@
 [package]
-name = "combat"
+name = "motd"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="For combat and damage applications."
+description="Message of the day visible to players upon connecting."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
@@ -15,15 +15,6 @@ default-features = false
 
 [dependencies]
 bevy_rapier3d = "0.16.0"
-rand = "0.8.5"
+bevy_renet = "0.0.5"
 
-
-networking = { path = "../networking" }
-health = { path = "../health" }
-sounds = { path = "../../entities/sounds" }
-physics = { path = "../physics" }
 api = { path = "../api" }
-gridmap = { path = "../gridmap" }
-sfx = { path = "../sfx" }
-inventory_item = { path = "../inventory_item" }
-chat = { path = "../chat" }

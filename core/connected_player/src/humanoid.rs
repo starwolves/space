@@ -25,6 +25,7 @@ use bevy::{
     prelude::{Changed, Entity, Query},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
+use chat::chat::{Radio, RadioChannel};
 use entity::entity_data::{
     CONSTRUCTION_TOOL_ENTITY_NAME, ENTITY_SPAWN_PARENT, HELMET_SECURITY_ENTITY_NAME,
 };
@@ -632,10 +633,7 @@ use entity::{
 };
 use pawn::pawn::{ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
 
-use crate::{
-    chat::{Radio, RadioChannel},
-    connection::SpawnPawnData,
-};
+use crate::connection::SpawnPawnData;
 
 pub struct HumanMaleSummoner {
     pub character_name: String,

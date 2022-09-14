@@ -1,8 +1,8 @@
 [package]
-name = "combat"
+name = "chat"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="For combat and damage applications."
+description="Chat managing proximity and radio communication."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
@@ -17,13 +17,10 @@ default-features = false
 bevy_rapier3d = "0.16.0"
 rand = "0.8.5"
 
-
-networking = { path = "../networking" }
-health = { path = "../health" }
-sounds = { path = "../../entities/sounds" }
-physics = { path = "../physics" }
 api = { path = "../api" }
-gridmap = { path = "../gridmap" }
+networking = { path = "../networking" }
 sfx = { path = "../sfx" }
-inventory_item = { path = "../inventory_item" }
-chat = { path = "../chat" }
+pawn = { path = "../pawn" }
+
+
+voca_rs = "1.14.0"

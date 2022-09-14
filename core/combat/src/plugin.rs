@@ -2,6 +2,7 @@ use api::data::PostUpdateLabels;
 use api::{combat::ProjectileFOV, data::CombatLabels};
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use chat::proximity_message::EntityProximityMessages;
 use networking::messages::net_system;
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
@@ -45,7 +46,11 @@ impl Plugin for CombatPlugin {
                 .after(CombatLabels::Query),
         )
         .add_system(hit_query_chat_cells.after(CombatLabels::FinalizeApplyDamage))
-        .add_system(blanks_chat.after(CombatLabels::FinalizeApplyDamage))
+        .add_system(
+            blanks_chat
+                .after(CombatLabels::FinalizeApplyDamage)
+                .after(EntityProximityMessages::Send),
+        )
         .add_event::<Attack>()
         .add_event::<ProjectileFOV>()
         .add_event::<MeleeDirectQuery>()
