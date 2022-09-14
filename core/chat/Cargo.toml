@@ -14,8 +14,6 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.16.0"
-rand = "0.8.5"
 
 api = { path = "../api" }
 networking = { path = "../networking" }

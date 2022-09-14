@@ -15,7 +15,6 @@ default-features = false
 
 [dependencies]
 entity = { path = "../entity" }
-sounds = { path = "../../entities/sounds" }
 pawn = { path = "../pawn" }
 console_commands = { path = "../console_commands" }
 api = { path = "../api" }

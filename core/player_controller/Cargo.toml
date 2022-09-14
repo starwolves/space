@@ -15,7 +15,6 @@ default-features = false
 [dependencies]
 rand = "0.8.5"
 bevy_renet = "0.0.5"
-const_format = "0.2.23"
 vector2math = "0.13.0"
 bevy_rapier3d = "0.16.0"
 bincode = "1.3.3"
@@ -29,7 +28,6 @@ inventory_item = { path = "../inventory_item" }
 pawn = { path = "../pawn" }
 rigid_body = { path = "../rigid_body" }
 physics = { path = "../physics" }
-sfx = { path = "../sfx" }
 console_commands = { path = "../console_commands" }
 api = { path = "../api" }
 map = { path = "../map" }

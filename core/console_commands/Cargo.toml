@@ -16,4 +16,3 @@ default-features = false
 [dependencies]
 networking = { path = "../networking" }
 api = { path = "../api" }
-pawn = { path = "../pawn" }
