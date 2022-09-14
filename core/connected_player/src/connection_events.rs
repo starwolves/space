@@ -193,9 +193,10 @@ use api::{
     network::{ReliableServerMessage, ServerConfigMessage},
 };
 use bevy::prelude::{Commands, EventWriter, Res, ResMut};
+use chat::chat::get_talk_spaces_setupui;
 use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
 
-use crate::{chat::get_talk_spaces_setupui, connection::AuthidI};
+use crate::connection::AuthidI;

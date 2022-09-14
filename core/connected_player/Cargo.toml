@@ -19,7 +19,6 @@ const_format = "0.2.23"
 vector2math = "0.13.0"
 bevy_rapier3d = "0.16.0"
 bincode = "1.3.3"
-voca_rs = "1.14.0"
 
 
 
@@ -34,3 +33,5 @@ sfx = { path = "../sfx" }
 console_commands = { path = "../console_commands" }
 api = { path = "../api" }
 map = { path = "../map" }
+motd = { path = "../motd" }
+chat = { path = "../chat" }

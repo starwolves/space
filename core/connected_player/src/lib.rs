@@ -1,6 +1,5 @@
 pub mod boarding;
 pub mod broadcast_interpolation_transforms;
-pub mod chat;
 pub mod connection;
 pub mod connection_events;
 pub mod console_commands;

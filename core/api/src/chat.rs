@@ -224,15 +224,8 @@ pub const TALK_SPACE_SPECIALOPS_WORD: &str = "Spec-op";
 pub const JOB_SECURITY_WORD: &str = "Security";
 pub const JOB_CONTROL_WORD: &str = "Control";
 
-const COMMUNITY_HREF_COLOR: &str = "#5c4aff";
+pub const COMMUNITY_HREF_COLOR: &str = "#5c4aff";
 
-// Updates chat ButtonOption list for clients.
-pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
-    vec![(
-        "Global".to_string(),
-        TALK_SPACE_GLOBAL_CHATPREFIX.to_string(),
-    )]
-}
 pub const END_ASTRIX: &str = concatcp!("\n", ASTRIX);
 
 pub const EXAMINATION_EMPTY: &str = "You cannot see what is there.";
@@ -332,27 +325,6 @@ pub fn escape_bb(string: String, partially: bool, escape_special_chars: bool) ->
     }
 
     new_string.trim().to_string()
-}
-
-impl MOTD {
-    pub fn new_default(version: String) -> Self {
-        Self {
-            message :  "[center]".to_string() +
-            "[font=" + NEARBY_SHOUT_FONT + "][color=" + COMMUNITY_HREF_COLOR + "][url={\"type\": \"href\",\"data\":\"https://github.com/starwolves/space\"}]Space Frontiers[/url][/color][/font]\n" +
-            "Welcome to the official test server of Space Frontiers (v" + &version + ").\n\n" +
-            "You are about to board The Bullseye, a research & development ship.\n\n" +
-            "The Space Frontiers community is thrilled to have you here, you are invited to connect with our new gaming community through our social platforms!\n" + 
-            "[font=" + NEARBY_SHOUT_FONT + "][color=" + COMMUNITY_HREF_COLOR + "][url={\"type\": \"href\",\"data\":\"https://github.com/starwolves/space\"}]Github[/url][/color][/font]\n" +
-            "[/center]",
-        }
-    }
-    pub fn new_motd(motd: String) -> Self {
-        Self { message: motd }
-    }
-}
-
-pub struct MOTD {
-    pub message: String,
 }
 
 pub const ATMOSPHERICS_TEXT_COLOR: &str = "#1797ff";

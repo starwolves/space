@@ -4,10 +4,8 @@ use bevy::{
     prelude::{Entity, EventWriter, Query, Res, ResMut, Transform},
     time::Time,
 };
-use connected_player::{
-    boarding::BoardingAnnouncements,
-    chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMessage, Radio},
-};
+use chat::chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMessage, Radio};
+use connected_player::boarding::BoardingAnnouncements;
 use pawn::pawn::{PersistentPlayerData, ShipJobsEnum};
 
 pub fn tick_asana_boarding_announcements(

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use api::{
-    chat::MOTD,
     connected_player::SoftPlayer,
     data::{
         ConnectedPlayer, HandleToEntity, ServerId, ShowcaseData, HUMAN_MALE_ENTITY_NAME,
@@ -15,6 +14,7 @@ use api::{
 };
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::{SpawnData, SpawnEvent};
+use motd::motd::MOTD;
 use pawn::pawn::{PersistentPlayerData, UsedNames};
 
 use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};

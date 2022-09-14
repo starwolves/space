@@ -11,6 +11,7 @@ use api::{
     senser::Senser,
 };
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
+use chat::proximity_message::EntityProximityMessage;
 use inventory_item::item::InventoryItem;
 use rand::prelude::SliceRandom;
 
@@ -629,12 +630,10 @@ pub fn hit_query_chat_cells(
 pub fn blanks_chat(
     mut projectile_blanks: EventReader<ProjectileBlank>,
     active_attacks: Res<ActiveAttacks>,
-    attackers: Query<(&Transform, &Examinable)>,
+    attackers: Query<&Examinable>,
     inventory_items_query: Query<(&InventoryItem, &MeleeCombat, &Examinable)>,
-    sensers: Query<(Entity, &Senser)>,
-    handle_to_entity: Res<HandleToEntity>,
-    mut net: EventWriter<NetHitQueryChat>,
     mut melee_blanks: EventReader<MeleeBlank>,
+    mut entity_proximity_messages: EventWriter<EntityProximityMessage>,
 ) {
     for melee_blank in melee_blanks.iter() {
         let active_attack;
@@ -649,12 +648,10 @@ pub fn blanks_chat(
             }
         }
 
-        let attacker_transform;
         let attacker_examinable;
 
         match attackers.get(active_attack.attack.attacker) {
-            Ok((t, e)) => {
-                attacker_transform = t;
+            Ok(e) => {
                 attacker_examinable = e;
             }
             Err(_rr) => {
@@ -678,40 +675,19 @@ pub fn blanks_chat(
             None => {}
         }
 
-        let attacker_cell_id = world_to_cell_id(attacker_transform.translation);
-        let attacker_dooryen = to_doryen_coordinates(attacker_cell_id.x, attacker_cell_id.z);
+        let ra = get_default_trigger_melee_words();
+        let trigger_word = ra.choose(&mut rand::thread_rng()).unwrap();
 
-        for (senser_entity, senser_component) in sensers.iter() {
-            let message;
-
-            let ra = get_default_trigger_melee_words();
-
-            let trigger_word = ra.choose(&mut rand::thread_rng()).unwrap();
-
-            let attacker_is_visible = senser_component
-                .fov
-                .is_in_fov(attacker_dooryen.0 as usize, attacker_dooryen.1 as usize);
-
-            if attacker_is_visible {
-                message = "[color=#ff003c]".to_string()
-                    + attacker_examinable.name.get_name()
-                    + " has "
-                    + trigger_word
-                    + " "
-                    + &weapon_a_name
-                    + "![/color]";
-
-                match handle_to_entity.inv_map.get(&senser_entity) {
-                    Some(handle) => {
-                        net.send(NetHitQueryChat {
-                            handle: *handle,
-                            message: ReliableServerMessage::ChatMessage(message.clone()),
-                        });
-                    }
-                    None => {}
-                }
-            }
-        }
+        entity_proximity_messages.send(EntityProximityMessage {
+            entities: vec![active_attack.attack.attacker],
+            message: "[color=#ff003c]".to_string()
+                + attacker_examinable.name.get_name()
+                + " has "
+                + trigger_word
+                + " "
+                + &weapon_a_name
+                + "![/color]",
+        });
     }
 
     for projectile_blank in projectile_blanks.iter() {
@@ -728,11 +704,9 @@ pub fn blanks_chat(
         }
 
         let attacker_examinable;
-        let attacker_transform;
 
         match attackers.get(active_attack.attack.attacker) {
-            Ok((transform, examinable)) => {
-                attacker_transform = transform;
+            Ok(examinable) => {
                 attacker_examinable = examinable;
             }
             Err(_rr) => {
@@ -767,39 +741,18 @@ pub fn blanks_chat(
             }
         }
 
-        let attacker_cell_id = world_to_cell_id(attacker_transform.translation);
-        let attacker_dooryen = to_doryen_coordinates(attacker_cell_id.x, attacker_cell_id.z);
+        let ra = get_default_trigger_weapon_words();
+        let trigger_word = ra.choose(&mut rand::thread_rng()).unwrap();
 
-        for (senser_entity, senser_component) in sensers.iter() {
-            let message;
-
-            let ra = get_default_trigger_weapon_words();
-
-            let trigger_word = ra.choose(&mut rand::thread_rng()).unwrap();
-
-            let attacker_is_visible = senser_component
-                .fov
-                .is_in_fov(attacker_dooryen.0 as usize, attacker_dooryen.1 as usize);
-
-            if attacker_is_visible {
-                message = "[color=#ff003c]".to_string()
-                    + attacker_examinable.name.get_name()
-                    + " has "
-                    + trigger_word
-                    + " his "
-                    + &weapon_examinable.name.get_name()
-                    + "![/color]";
-
-                match handle_to_entity.inv_map.get(&senser_entity) {
-                    Some(handle) => {
-                        net.send(NetHitQueryChat {
-                            handle: *handle,
-                            message: ReliableServerMessage::ChatMessage(message.clone()),
-                        });
-                    }
-                    None => {}
-                }
-            }
-        }
+        entity_proximity_messages.send(EntityProximityMessage {
+            entities: vec![active_attack.attack.attacker],
+            message: "[color=#ff003c]".to_string()
+                + attacker_examinable.name.get_name()
+                + " has "
+                + trigger_word
+                + " his "
+                + &weapon_examinable.name.get_name()
+                + "![/color]",
+        });
     }
 }

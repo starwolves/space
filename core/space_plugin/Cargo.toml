@@ -39,6 +39,8 @@ inventory = { path = "../inventory" }
 rigid_body = { path = "../rigid_body" }
 api = { path = "../api" }
 examinable = { path = "../examinable" }
+chat = { path = "../chat" }
+motd = { path = "../motd" }
 
 
 sounds = { path = "../../entities/sounds" }

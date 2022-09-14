@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use actions::plugin::ActionsPlugin;
 use air_locks::plugin::AirLocksPlugin;
-use api::{chat::MOTD, data::TickRate};
+use api::data::TickRate;
 use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use bevy::{
@@ -19,6 +19,7 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
+use chat::plugin::ChatPlugin;
 use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
 use connected_player::plugin::ConnectedPlayerPlugin;
@@ -37,6 +38,7 @@ use inventory_item::plugin::InventoryItemPlugin;
 use jumpsuit_security::plugin::JumpsuitsPlugin;
 use line_arrow::plugin::{LineArrowPlugin, PointArrowPlugin};
 use map::plugin::MapPlugin;
+use motd::motd::MOTD;
 use networking::plugin::NetworkingPlugin;
 use omni_light::plugin::OmniLightPlugin;
 use pawn::plugin::PawnPlugin;
@@ -133,8 +135,8 @@ impl Plugin for SpacePlugin {
             .add_plugin(LineArrowPlugin)
             .add_plugin(PointArrowPlugin)
             .add_plugin(SoundsPlugin)
-            .add_plugin(ExaminablePlugin);
-
+            .add_plugin(ExaminablePlugin)
+            .add_plugin(ChatPlugin);
         match self.threads_amount {
             Some(amn) => {
                 app.insert_resource(DefaultTaskPoolOptions::with_num_threads(amn.into()));

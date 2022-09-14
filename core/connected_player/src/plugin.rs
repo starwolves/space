@@ -11,6 +11,7 @@ use bevy::{
     time::FixedTimestep,
 };
 
+use chat::chat::{chat_message_input_event, NetChatMessage};
 use networking::{
     messages::{net_system, InputActionDataEntity},
     plugin::NetActionData,
@@ -30,7 +31,6 @@ use super::{
 use crate::{
     boarding::{on_spawning, BoardingAnnouncements},
     broadcast_interpolation_transforms::broadcast_interpolation_transforms,
-    chat::{chat_message_input_event, NetChatMessage},
     connection::{connections, AuthidI},
     console_commands::{entity_console_commands, inventory_item_console_commands},
     health_ui::{health_ui_update, ClientHealthUICache},
