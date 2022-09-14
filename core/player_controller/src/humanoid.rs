@@ -15,6 +15,7 @@ use api::{
     examinable::{Examinable, RichName},
     get_spawn_position::FacingDirection,
     health::{Health, HealthContainer, HumanoidHealth},
+    humanoid::UsedNames,
     inventory::{Inventory, Slot, SlotType},
     network::{ReliableServerMessage, ServerConfigMessage},
     pawn::{PawnDesignation, Spawning},
@@ -29,10 +30,13 @@ use chat::chat::{Radio, RadioChannel};
 use entity::entity_data::{
     CONSTRUCTION_TOOL_ENTITY_NAME, ENTITY_SPAWN_PARENT, HELMET_SECURITY_ENTITY_NAME,
 };
-use humanoid::humanoid::{CharacterAnimationState, Humanoid};
+use humanoid::{
+    humanoid::{CharacterAnimationState, Humanoid},
+    user_name::get_dummy_name,
+};
 use inventory_item::item::InventoryItem;
 use map::map::Map;
-use pawn::pawn::{get_dummy_name, ControllerInput, Pawn, PersistentPlayerData, UsedNames};
+use pawn::pawn::{ControllerInput, Pawn, PersistentPlayerData};
 use physics::{
     physics::CHARACTER_FLOOR_FRICTION,
     world_mode::{WorldMode, WorldModes},

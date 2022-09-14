@@ -3,11 +3,12 @@ use api::{
     data::{EntityDataResource, HandleToEntity},
     get_spawn_position::entity_spawn_position_for_player,
     gridmap::GridmapMain,
+    humanoid::UsedNames,
     network::ReliableServerMessage,
 };
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, Transform};
 use console_commands::commands::{player_selector_to_entities, NetEntityConsole};
-use pawn::pawn::{Pawn, UsedNames};
+use pawn::pawn::Pawn;
 
 use crate::spawn::{spawn_entity, DefaultSpawnEvent};
 

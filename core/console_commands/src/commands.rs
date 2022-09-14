@@ -1,9 +1,9 @@
 use api::{
     console_commands::ConsoleCommandVariant,
+    humanoid::UsedNames,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
 };
 use bevy::prelude::{info, Entity, EventWriter, ResMut};
-use pawn::pawn::UsedNames;
 
 pub struct NetConsoleCommands {
     pub handle: u64,

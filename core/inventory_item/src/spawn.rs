@@ -3,6 +3,7 @@ use api::{
     console_commands::CONSOLE_ERROR_COLOR,
     data::{EntityDataResource, HandleToEntity, ShowcaseData},
     gridmap::GridmapMain,
+    humanoid::UsedNames,
     inventory::Inventory,
     network::ReliableServerMessage,
     rigid_body::RigidBodyLinkTransform,
@@ -15,7 +16,7 @@ use entity::{
     commands::rcon_spawn_entity,
     spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
 };
-use pawn::pawn::{Pawn, UsedNames};
+use pawn::pawn::Pawn;
 
 use super::item::InventoryItem;
 
