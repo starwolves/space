@@ -1,6 +1,7 @@
 use api::{
     data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
     gridmap::GridmapData,
+    humanoid::UsedNames,
     pawn::PawnDesignation,
 };
 use bevy::{
@@ -12,7 +13,7 @@ use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
-use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
+use pawn::pawn::{ControllerInput, PersistentPlayerData};
 
 use crate::{connection_events::on_new_player_connection, health_ui::ClientHealthUICache};
 

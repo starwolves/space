@@ -17,6 +17,7 @@ use api::{
         ConnectedPlayer, HandleToEntity, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
         PISTOL_L1_ENTITY_NAME,
     },
+    humanoid::UsedNames,
     network::{ReliableServerMessage, ServerConfigMessage},
     pawn::{PawnDesignation, SpawnPoints, Spawning},
 };
@@ -28,7 +29,7 @@ use entity::{
     entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
     spawn::{SpawnData, SpawnEvent},
 };
-use pawn::pawn::{PersistentPlayerData, UsedNames};
+use pawn::pawn::PersistentPlayerData;
 use ui::ui::{InputUIInputTransmitText, NetUIInputTransmitData};
 
 pub struct BoardingPlayer {

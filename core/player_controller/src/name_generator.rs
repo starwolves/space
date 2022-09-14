@@ -1,5 +1,5 @@
+use api::humanoid::UsedNames;
 use bevy::prelude::Res;
-use pawn::pawn::UsedNames;
 use rand::seq::SliceRandom;
 
 const MALE_FIRST_NAMES: &[&str] = &[

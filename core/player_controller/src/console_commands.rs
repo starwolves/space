@@ -201,6 +201,7 @@ use api::{
     console_commands::{ConsoleCommandVariantValues, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR},
     data::{ConnectedPlayer, EntityDataResource, HandleToEntity},
     gridmap::GridmapMain,
+    humanoid::UsedNames,
     inventory::Inventory,
     network::ReliableServerMessage,
 };
@@ -244,7 +245,7 @@ pub fn rcon_status(
 use bevy::prelude::EventReader;
 use console_commands::commands::{NetConsoleCommands, NetEntityConsole};
 use entity::{commands::rcon_spawn_entity, spawn::DefaultSpawnEvent};
-use pawn::pawn::{Pawn, UsedNames};
+use pawn::pawn::Pawn;
 
 pub fn inventory_item_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
