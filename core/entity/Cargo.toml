@@ -23,4 +23,3 @@ health = { path = "../health" }
 pawn = { path = "../pawn" }
 api = { path = "../api" }
 console_commands = { path = "../console_commands" }
-actions = { path = "../actions" }

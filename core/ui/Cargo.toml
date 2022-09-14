@@ -9,11 +9,6 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
-[dependencies.bevy]
-version = "0.8.0"
-default-features = false
-
 [dependencies]
-rand = "0.8.5"
 
 api = { path = "../api" }

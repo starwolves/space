@@ -16,8 +16,6 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.16.0"
 doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
-const_format = "0.2.23"
-rand = "0.8.5"
 serde = {version= "1.0.137"}
 serde_json = {version= "1.0.81"}
 
@@ -27,4 +25,3 @@ data_converters = { path = "../data_converters" }
 entity = { path = "../entity" }
 physics = { path = "../physics" }
 api = { path = "../api" }
-actions = { path = "../actions" }
