@@ -1,5 +1,5 @@
 [package]
-name = "connected_player"
+name = "player_controller"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Logic regarding connected clients."
@@ -35,3 +35,4 @@ api = { path = "../api" }
 map = { path = "../map" }
 motd = { path = "../motd" }
 chat = { path = "../chat" }
+ui = { path = "../ui" }

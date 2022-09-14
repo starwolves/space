@@ -208,7 +208,6 @@ pub fn construction_tool(
     }
 
     for event in input_construction_options_selection_event.iter() {
-        info!("I fired.");
         let mut text_options = vec![];
         let construction_tool_entity;
 

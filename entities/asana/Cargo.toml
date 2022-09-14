@@ -14,7 +14,7 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
-connected_player = { path = "../../core/connected_player" }
+player_controller = { path = "../../core/player_controller" }
 pawn = { path = "../../core/pawn" }
 api = { path = "../../core/api" }
 chat = { path = "../../core/chat" }

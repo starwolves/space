@@ -1,9 +1,6 @@
 use crate::console_commands::console_commands;
-use api::{
-    data::{
-        HandleToEntity, PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
-    },
-    network::{InputUIInput, InputUIInputTransmitText},
+use api::data::{
+    HandleToEntity, PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
 };
 use bevy::app::CoreStage::PostUpdate;
 use bevy::{
@@ -16,6 +13,7 @@ use networking::{
     messages::{net_system, InputActionDataEntity},
     plugin::NetActionData,
 };
+use ui::ui::{InputUIInput, InputUIInputTransmitText, NetUIInputTransmitData};
 
 use super::{
     boarding::{done_boarding, on_boarding, ui_input_transmit_data_event, BoardingPlayer},
@@ -24,7 +22,7 @@ use super::{
         build_graphics_event, mouse_direction_update, scene_ready_event, send_server_time,
         update_player_count, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
         NetOnNewPlayerConnection, NetOnSetupUI, NetOnSpawning, NetSendServerTime,
-        NetSendWorldEnvironment, NetUIInputTransmitData, NetUpdatePlayerCount, NetUserName,
+        NetSendWorldEnvironment, NetUpdatePlayerCount, NetUserName,
     },
     setup_ui::ui_input_event,
 };

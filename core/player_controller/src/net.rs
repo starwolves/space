@@ -97,18 +97,6 @@ impl PendingMessage for NetOnSetupUI {
         }
     }
 }
-pub struct NetUIInputTransmitData {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetUIInputTransmitData {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
 pub struct NetOnSpawning {
     pub handle: u64,
     pub message: ReliableServerMessage,

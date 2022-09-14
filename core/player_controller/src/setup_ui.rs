@@ -7,15 +7,15 @@ use api::{
         JUMPSUIT_SECURITY_ENTITY_NAME, PISTOL_L1_ENTITY_NAME,
     },
     entity_updates::EntityUpdateData,
-    network::{
-        EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction, UIInputNodeClass,
-    },
+    network::{EntityWorldType, ReliableServerMessage},
     pawn::PawnDesignation,
+    ui::{UIInputAction, UIInputNodeClass},
 };
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::{SpawnData, SpawnEvent};
 use motd::motd::MOTD;
 use pawn::pawn::{PersistentPlayerData, UsedNames};
+use ui::ui::InputUIInput;
 
 use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
 

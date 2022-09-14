@@ -14,7 +14,7 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
-connected_player = { path = "../../core/connected_player" }
+player_controller = { path = "../../core/player_controller" }
 console_commands = { path = "../../core/console_commands" }
 entity = { path = "../../core/entity" }
 networking = { path = "../../core/networking" }
