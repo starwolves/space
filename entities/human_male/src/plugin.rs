@@ -1,8 +1,8 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
-use connected_player::humanoid::{
+use entity::{entity_data::initialize_entity_data, spawn::SpawnEvent};
+use player_controller::humanoid::{
     default_human_dummy, summon_base_human_male, summon_human_male, HumanMaleSummoner,
 };
-use entity::{entity_data::initialize_entity_data, spawn::SpawnEvent};
 
 use api::data::{
     CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,

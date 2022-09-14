@@ -4,15 +4,15 @@ use api::{
     examinable::InputExamineEntity,
     gridmap::{ExamineMapMessage, GridMapType, GridmapExamineMessages},
     network::{
-        InputChatMessage, InputUIInput, InputUIInputTransmitText, PendingMessage,
-        PendingNetworkMessage, ReliableClientMessage, ReliableServerMessage,
-        UnreliableClientMessage,
+        InputChatMessage, PendingMessage, PendingNetworkMessage, ReliableClientMessage,
+        ReliableServerMessage, UnreliableClientMessage,
     },
 };
 use bevy::{
     math::{Vec2, Vec3},
     prelude::{info, warn, Entity, EventReader, EventWriter, Res, ResMut},
 };
+use ui::ui::{InputUIInput, InputUIInputTransmitText};
 
 pub struct NetPlayerConn {
     pub handle: u64,

@@ -20,7 +20,7 @@ bevy_renet = "0.0.5"
 
 atmospherics = { path = "../atmospherics" }
 combat = { path = "../combat" }
-connected_player = { path = "../connected_player" }
+player_controller = { path = "../player_controller" }
 console_commands = { path = "../console_commands" }
 gridmap = { path = "../gridmap" }
 humanoid = { path = "../humanoid" }

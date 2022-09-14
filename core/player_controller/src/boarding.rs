@@ -9,6 +9,28 @@ use super::{
     setup_ui::INPUT_NAME_PATH,
 };
 
+use api::{
+    chat::{escape_bb, get_talk_spaces},
+    connected_player::SoftPlayer,
+    console_commands::CONSOLE_ERROR_COLOR,
+    data::{
+        ConnectedPlayer, HandleToEntity, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
+        PISTOL_L1_ENTITY_NAME,
+    },
+    network::{ReliableServerMessage, ServerConfigMessage},
+    pawn::{PawnDesignation, SpawnPoints, Spawning},
+};
+use bevy::{
+    prelude::{info, warn, Added, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
+    time::Timer,
+};
+use entity::{
+    entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
+    spawn::{SpawnData, SpawnEvent},
+};
+use pawn::pawn::{PersistentPlayerData, UsedNames};
+use ui::ui::{InputUIInputTransmitText, NetUIInputTransmitData};
+
 pub struct BoardingPlayer {
     pub player_handle: u64,
     pub player_character_name: String,
@@ -79,29 +101,6 @@ pub fn done_boarding(
         ));
     }
 }
-
-use api::{
-    chat::{escape_bb, get_talk_spaces},
-    connected_player::SoftPlayer,
-    console_commands::CONSOLE_ERROR_COLOR,
-    data::{
-        ConnectedPlayer, HandleToEntity, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
-        PISTOL_L1_ENTITY_NAME,
-    },
-    network::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage},
-    pawn::{PawnDesignation, SpawnPoints, Spawning},
-};
-use bevy::{
-    prelude::{info, warn, Added, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
-    time::Timer,
-};
-use entity::{
-    entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
-    spawn::{SpawnData, SpawnEvent},
-};
-use pawn::pawn::{PersistentPlayerData, UsedNames};
-
-use super::net::NetUIInputTransmitData;
 
 pub fn ui_input_transmit_data_event(
     mut event: EventReader<InputUIInputTransmitText>,

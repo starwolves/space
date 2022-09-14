@@ -21,4 +21,5 @@ pub mod rigid_body;
 pub mod sensable;
 pub mod senser;
 pub mod sfx;
+pub mod ui;
 pub mod world_environment;

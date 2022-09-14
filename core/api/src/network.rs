@@ -11,18 +11,9 @@ use crate::{
     console_commands::{ConsoleCommandVariant, ConsoleCommandVariantValues},
     entity_updates::EntityUpdateData,
     gridmap::GridMapType,
+    ui::{UIInputAction, UIInputNodeClass},
     world_environment::WorldEnvironment,
 };
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum UIInputNodeClass {
-    Button,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum UIInputAction {
-    Pressed,
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum TextTreeBit {
@@ -46,24 +37,9 @@ pub enum NetMessageType {
     Unreliable(UnreliableServerMessage),
 }
 
-pub struct InputUIInput {
-    pub handle: u64,
-    pub node_class: UIInputNodeClass,
-    pub action: UIInputAction,
-    pub node_name: String,
-    pub ui_type: String,
-}
-
 pub struct InputChatMessage {
     pub entity: Entity,
     pub message: String,
-}
-
-pub struct InputUIInputTransmitText {
-    pub handle: u64,
-    pub ui_type: String,
-    pub node_path: String,
-    pub input_text: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
