@@ -1,4 +1,24 @@
-pub fn counter_window_added(
+use std::collections::BTreeMap;
+
+use api::{
+    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    data::Vec2Int,
+    entity_updates::EntityData,
+    examinable::{Examinable, RichName},
+    gridmap::{get_atmos_index, world_to_cell_id, EntityGridData, GridmapMain},
+};
+use atmospherics::diffusion::AtmosphericsResource;
+use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
+use entity::entity_data::DefaultMapEntity;
+use map::{map::GREEN_MAP_TILE_COUNTER, map_input::MapData};
+
+use super::{
+    counter_window_events::CounterWindow,
+    spawn::{BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME},
+};
+
+
+pub (crate) fn counter_window_added(
     counter_windows: Query<(Entity, &Transform), Added<CounterWindow>>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
@@ -21,26 +41,8 @@ pub fn counter_window_added(
     }
 }
 
-use std::collections::BTreeMap;
 
-use api::{
-    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    data::Vec2Int,
-    entity_updates::EntityData,
-    examinable::{Examinable, RichName},
-    gridmap::{get_atmos_index, world_to_cell_id, EntityGridData, GridmapMain},
-};
-use atmospherics::diffusion::AtmosphericsResource;
-use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
-use entity::entity_data::DefaultMapEntity;
-use map::{map::GREEN_MAP_TILE_COUNTER, map_input::MapData};
-
-use super::{
-    counter_window_events::CounterWindow,
-    spawn::{BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME},
-};
-
-pub fn counter_window_default_map_added(
+pub (crate) fn counter_window_default_map_added(
     mut default_counter_windows: Query<
         (
             Entity,

@@ -5,7 +5,8 @@ use bevy::prelude::{Changed, Query};
 
 use super::air_lock::{AccessLightsStatus, AirLock, AirLockStatus};
 
-pub fn air_lock_update(
+/// Air lock entity update.
+pub (crate) fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,
 ) {
     for (air_lock_component, mut entity_updates_component) in updated_air_locks.iter_mut() {

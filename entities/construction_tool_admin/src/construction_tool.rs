@@ -15,6 +15,8 @@ use api::{
     sensable::Sensable,
     senser::Senser,
 };
+use super::net::NetConstructionTool;
+
 use atmospherics::diffusion::{AtmosphericsResource, EffectType};
 use bevy::{
     math::Quat,
@@ -49,7 +51,7 @@ use sounds::{
     },
 };
 
-pub fn construction_tool(
+pub (crate) fn construction_tool(
     event_readers: (
         EventReader<InputConstruct>,
         EventReader<InputDeconstruct>,
@@ -1193,7 +1195,6 @@ pub fn construction_tool(
     }
 }
 
-use super::net::NetConstructionTool;
 
 #[derive(Component, Default)]
 pub struct ConstructionTool {

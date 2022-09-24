@@ -1,3 +1,5 @@
+//! Admin construction tool.
+
 mod action;
 pub mod construction_tool;
 mod net;

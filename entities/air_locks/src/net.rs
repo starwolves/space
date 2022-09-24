@@ -1,6 +1,6 @@
 use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
-pub struct NetAirLock {
+pub (crate) struct NetAirLock {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

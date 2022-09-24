@@ -4,7 +4,8 @@ use api::{
 };
 use bevy::prelude::{Changed, Query};
 
-pub fn reflection_probe_update(
+/// Reflection probe entity update.
+pub (crate) fn reflection_probe_update(
     mut updated_reflection_probes: Query<
         (&ReflectionProbe, &mut EntityUpdates),
         Changed<ReflectionProbe>,

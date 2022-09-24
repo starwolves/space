@@ -1,5 +1,23 @@
 use std::collections::BTreeMap;
 
+use api::{
+    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    data::Vec2Int,
+    entity_updates::{EntityData, EntityGroup},
+    examinable::{Examinable, RichName},
+    gridmap::{get_atmos_index, world_to_cell_id, EntityGridData, GridmapMain},
+};
+use atmospherics::diffusion::AtmosphericsResource;
+use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
+use entity::entity_data::DefaultMapEntity;
+use map::{map::GREEN_MAP_TILE_ENTRANCE, map_input::MapData};
+
+use crate::spawn::{
+    BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, VACUUM_AIRLOCK_ENTITY_NAME,
+};
+
+use super::air_lock::AirLock;
+
 pub struct AirLockCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
@@ -37,7 +55,8 @@ pub struct AirLockUnlock {
     pub locker: Entity,
 }
 
-pub fn air_lock_added(
+/// On new air lock spawn.
+pub (crate) fn air_lock_added(
     mut air_locks: Query<(Entity, &EntityData, &Transform, &mut Examinable), Added<AirLock>>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
@@ -149,25 +168,8 @@ pub fn air_lock_added(
     }
 }
 
-use api::{
-    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    data::Vec2Int,
-    entity_updates::{EntityData, EntityGroup},
-    examinable::{Examinable, RichName},
-    gridmap::{get_atmos_index, world_to_cell_id, EntityGridData, GridmapMain},
-};
-use atmospherics::diffusion::AtmosphericsResource;
-use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
-use entity::entity_data::DefaultMapEntity;
-use map::{map::GREEN_MAP_TILE_ENTRANCE, map_input::MapData};
-
-use crate::spawn::{
-    BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, VACUUM_AIRLOCK_ENTITY_NAME,
-};
-
-use super::air_lock::AirLock;
-
-pub fn air_lock_default_map_added(
+/// When a default map air lock gets spawned.
+pub (crate) fn air_lock_default_map_added(
     airlock_windows: Query<(Entity, &Transform, &DefaultMapEntity, &EntityData), Added<AirLock>>,
     mut map_data: ResMut<MapData>,
     mut gridmap_main: ResMut<GridmapMain>,
