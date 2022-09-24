@@ -4,7 +4,18 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::RigidBody;
 
-pub fn visible_checker(
+use api::{
+    data::ConnectedPlayer,
+    entity_updates::{EntityData, EntityUpdates},
+    gridmap::{to_doryen_coordinates, world_to_cell_id},
+    load_entity::{load_entity, unload_entity, NetLoadEntity, NetUnloadEntity},
+    sensable::Sensable,
+    senser::Senser,
+};
+use physics::world_mode::{WorldMode, WorldModes};
+
+/// Perform FOV checks to see what is and what isn't visible.
+pub(crate) fn visible_checker(
     mut query_visible_entities: Query<(
         Entity,
         &mut Sensable,
@@ -148,6 +159,7 @@ const VIEW_DISTANCE: f32 = 90.;
 const HEAR_DISTANCE: f32 = 60.;
 const LIGHT_DISTANCE: f32 = 60.;
 
+/// Check if entity is visible to other entity.
 fn visible_check(
     sensable_component: &mut Mut<Sensable>,
     senser_component: &mut Mut<Senser>,
@@ -347,13 +359,3 @@ fn visible_check(
         }
     }
 }
-
-use api::{
-    data::ConnectedPlayer,
-    entity_updates::{EntityData, EntityUpdates},
-    gridmap::{to_doryen_coordinates, world_to_cell_id},
-    load_entity::{load_entity, unload_entity, NetLoadEntity, NetUnloadEntity},
-    sensable::Sensable,
-    senser::Senser,
-};
-use physics::world_mode::{WorldMode, WorldModes};

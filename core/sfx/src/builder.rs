@@ -1,3 +1,15 @@
+use api::{
+    entity_updates::{EntityData, EntityUpdates},
+    sensable::Sensable,
+};
+use bevy::{
+    prelude::{Commands, Component, Entity, Transform},
+    time::Timer,
+};
+use entity::entity_data::{CachedBroadcastTransform, UpdateTransform};
+use rand::Rng;
+
+/// Build background sound effect.
 pub fn ambience_sfx_builder(
     commands: &mut Commands,
     rigid_body_position: Transform,
@@ -21,17 +33,6 @@ pub fn ambience_sfx_builder(
 
     entity
 }
-
-use api::{
-    entity_updates::{EntityData, EntityUpdates},
-    sensable::Sensable,
-};
-use bevy::{
-    prelude::{Commands, Component, Entity, Transform},
-    time::Timer,
-};
-use entity::entity_data::{CachedBroadcastTransform, UpdateTransform};
-use rand::Rng;
 
 #[derive(Component)]
 pub struct FootstepsSprinting;

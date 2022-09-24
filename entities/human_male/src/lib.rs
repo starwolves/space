@@ -1,2 +1,2 @@
-pub mod hands_attack_handler;
+mod hands_attack_handler;
 pub mod plugin;

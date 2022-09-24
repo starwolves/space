@@ -7,7 +7,8 @@ use api::{
     sensable::Sensable,
 };
 
-pub fn send_entity_updates(
+/// Manage sending entity updates.
+pub(crate) fn send_entity_updates(
     mut updated_entity_updates: Query<
         (
             Entity,

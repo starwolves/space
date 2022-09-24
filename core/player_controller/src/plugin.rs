@@ -1,4 +1,5 @@
 use crate::console_commands::console_commands;
+use crate::humanoid::default_human_dummy;
 use api::data::{
     HandleToEntity, PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
 };
@@ -57,6 +58,11 @@ impl Plugin for ConnectedPlayerPlugin {
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(10.))
                     .with_system(update_player_count),
+            )
+            .add_system(
+                (default_human_dummy)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
             )
             .add_system_set(
                 SystemSet::new()

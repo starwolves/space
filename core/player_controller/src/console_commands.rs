@@ -1,4 +1,22 @@
-pub fn console_commands(
+use api::{
+    console_commands::{ConsoleCommandVariantValues, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR},
+    data::{ConnectedPlayer, EntityDataResource, HandleToEntity},
+    gridmap::GridmapMain,
+    humanoid::UsedNames,
+    inventory::Inventory,
+    network::ReliableServerMessage,
+};
+use bevy::prelude::EventReader;
+use bevy::prelude::{Commands, Entity, EventWriter, Local, Query, Res, ResMut, Transform};
+use console_commands::commands::{NetConsoleCommands, NetEntityConsole};
+use entity::{commands::rcon_spawn_entity, spawn::DefaultSpawnEvent};
+use inventory_item::spawn::rcon_spawn_held_entity;
+use networking::messages::InputConsoleCommand;
+use pawn::pawn::Pawn;
+use std::collections::HashMap;
+
+/// Manage input console commands.
+pub(crate) fn console_commands(
     mut console_commands_events: EventReader<InputConsoleCommand>,
     mut rcon_bruteforce_protection: Local<BruteforceProtection>,
     mut connected_players: Query<&mut ConnectedPlayer>,
@@ -34,7 +52,8 @@ pub fn console_commands(
     }
 }
 
-pub fn entity_console_commands(
+/// Manage entity console commands.
+pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
 
     mut commands: Commands,
@@ -126,17 +145,19 @@ pub fn entity_console_commands(
         }
     }
 }
-use std::collections::HashMap;
 
+/// Password to gain access to console RCON commands.
 const RCON_PASSWORD: &str = "KA-BAR";
 
+/// Protect against RCON password bruteforce.
 #[derive(Default)]
-pub struct BruteforceProtection {
+pub(crate) struct BruteforceProtection {
     pub tracking_data: HashMap<u64, u8>,
     pub blacklist: Vec<u64>,
 }
 
-pub fn rcon_authorization(
+/// Manage RCON authorization.
+pub(crate) fn rcon_authorization(
     bruteforce_protection: &mut Local<BruteforceProtection>,
     connected_players: &mut Query<&mut ConnectedPlayer>,
     client_handle: u64,
@@ -197,19 +218,9 @@ pub fn rcon_authorization(
         });
     }
 }
-use api::{
-    console_commands::{ConsoleCommandVariantValues, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR},
-    data::{ConnectedPlayer, EntityDataResource, HandleToEntity},
-    gridmap::GridmapMain,
-    humanoid::UsedNames,
-    inventory::Inventory,
-    network::ReliableServerMessage,
-};
-use bevy::prelude::{Commands, Entity, EventWriter, Local, Query, Res, ResMut, Transform};
-use inventory_item::spawn::rcon_spawn_held_entity;
-use networking::messages::InputConsoleCommand;
 
-pub fn rcon_status(
+/// Manage requests for RCON permission status.
+pub(crate) fn rcon_status(
     connected_players: &mut Query<&mut ConnectedPlayer>,
     client_handle: u64,
     client_entity: Entity,
@@ -242,12 +253,9 @@ pub fn rcon_status(
         });
     }
 }
-use bevy::prelude::EventReader;
-use console_commands::commands::{NetConsoleCommands, NetEntityConsole};
-use entity::{commands::rcon_spawn_entity, spawn::DefaultSpawnEvent};
-use pawn::pawn::Pawn;
 
-pub fn inventory_item_console_commands(
+/// Manage inventory item console commands.
+pub(crate) fn inventory_item_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
     mut net_console_commands: EventWriter<NetEntityConsole>,

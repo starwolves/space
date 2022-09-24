@@ -132,7 +132,7 @@ const LAST_NAMES: &[&str] = &[
     "Odonnell",
     "Lombardi",
 ];
-
+/// Generate a full name.
 pub fn get_full_name(gender: bool, unique: bool, used_names: &Res<UsedNames>) -> String {
     let rng_first = &mut rand::thread_rng();
     let rng_last = &mut rand::thread_rng();

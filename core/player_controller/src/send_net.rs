@@ -7,7 +7,8 @@ use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 use networking::plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID};
 
-pub fn send_net(
+/// Manage sending netcode messages.
+pub(crate) fn send_net(
     net: &mut ResMut<RenetServer>,
     connected_players: &Query<&ConnectedPlayer>,
     handle_to_entity: &Res<HandleToEntity>,
@@ -23,12 +24,6 @@ pub fn send_net(
                 }
             }
             Err(_rr) => {
-                /*warn!(
-                    "Player entity {:?} does not match net query criteria , net message: {:?}",
-                    r, new_event.message
-                );*/
-                // This can happen when player is in boarding stage and swapping entity,
-                // in some frames a player may not have their entity initiated yet.
                 connected = true;
             }
         },
@@ -47,7 +42,8 @@ pub fn send_net(
     );
 }
 
-pub fn process_net(
+/// Process netcode messages.
+pub(crate) fn process_net(
     mut pending_network_message: EventReader<PendingNetworkMessage>,
     connected_players: Query<&ConnectedPlayer>,
     mut net: ResMut<RenetServer>,

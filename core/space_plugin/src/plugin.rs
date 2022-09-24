@@ -51,6 +51,7 @@ use sfx::plugin::SfxPlugin;
 use sounds::SoundsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;
 
+/// The main plugin to add to execute the project.
 pub struct SpacePlugin {
     pub custom_motd: Option<String>,
     pub physics_rate: Option<u8>,

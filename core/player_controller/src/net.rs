@@ -12,7 +12,11 @@ use bevy::prelude::{
 use humanoid::humanoid::Humanoid;
 use networking::messages::{InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady};
 
-pub struct NetSendServerTime {
+use std::{collections::HashMap, f32::consts::PI};
+
+use super::connection::{Boarding, SetupPhase};
+
+pub(crate) struct NetSendServerTime {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -25,7 +29,7 @@ impl PendingMessage for NetSendServerTime {
     }
 }
 
-pub struct NetSendWorldEnvironment {
+pub(crate) struct NetSendWorldEnvironment {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -37,7 +41,7 @@ impl PendingMessage for NetSendWorldEnvironment {
         }
     }
 }
-pub struct NetUpdatePlayerCount {
+pub(crate) struct NetUpdatePlayerCount {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -49,7 +53,7 @@ impl PendingMessage for NetUpdatePlayerCount {
         }
     }
 }
-pub struct NetDoneBoarding {
+pub(crate) struct NetDoneBoarding {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -61,7 +65,7 @@ impl PendingMessage for NetDoneBoarding {
         }
     }
 }
-pub struct NetExamineEntity {
+pub(crate) struct NetExamineEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -73,7 +77,7 @@ impl PendingMessage for NetExamineEntity {
         }
     }
 }
-pub struct NetOnBoarding {
+pub(crate) struct NetOnBoarding {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -85,7 +89,7 @@ impl PendingMessage for NetOnBoarding {
         }
     }
 }
-pub struct NetOnSetupUI {
+pub(crate) struct NetOnSetupUI {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -97,7 +101,7 @@ impl PendingMessage for NetOnSetupUI {
         }
     }
 }
-pub struct NetOnSpawning {
+pub(crate) struct NetOnSpawning {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -109,7 +113,7 @@ impl PendingMessage for NetOnSpawning {
         }
     }
 }
-pub struct NetOnNewPlayerConnection {
+pub(crate) struct NetOnNewPlayerConnection {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -121,7 +125,7 @@ impl PendingMessage for NetOnNewPlayerConnection {
         }
     }
 }
-pub struct NetUserName {
+pub(crate) struct NetUserName {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -134,7 +138,8 @@ impl PendingMessage for NetUserName {
     }
 }
 
-pub fn build_graphics_event(
+/// Manage building graphics.
+pub(crate) fn build_graphics_event(
     mut build_graphics_events: EventReader<InputBuildGraphics>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_send_world_environment: EventWriter<NetSendWorldEnvironment>,
@@ -200,6 +205,7 @@ pub fn build_graphics_event(
     }
 }
 
+/// Manage scene ready event.
 pub fn scene_ready_event(
     mut event: EventReader<InputSceneReady>,
     handle_to_entity: Res<HandleToEntity>,
@@ -224,7 +230,8 @@ pub fn scene_ready_event(
     }
 }
 
-pub fn send_server_time(
+/// Send server time to players.
+pub(crate) fn send_server_time(
     mut event_writer: EventWriter<NetSendServerTime>,
     connected_players: Query<&ConnectedPlayer>,
 ) {
@@ -240,7 +247,8 @@ pub fn send_server_time(
     }
 }
 
-pub fn update_player_count(
+/// Update player count for players.
+pub(crate) fn update_player_count(
     connected_players: Query<&ConnectedPlayer>,
     mut events: EventWriter<NetUpdatePlayerCount>,
 ) {
@@ -266,16 +274,14 @@ pub fn update_player_count(
     }
 }
 
-use std::{collections::HashMap, f32::consts::PI};
-
-use super::connection::{Boarding, SetupPhase};
-
+/// Used to calculate ping on client.
 #[derive(Default)]
-pub struct TimeStampPerEntity {
+pub(crate) struct TimeStampPerEntity {
     pub data: HashMap<Entity, u64>,
 }
 
-pub fn mouse_direction_update(
+/// Manage mouse direction updates.
+pub(crate) fn mouse_direction_update(
     mut update_events: EventReader<InputMouseDirectionUpdate>,
     mut standard_characters: Query<&mut Humanoid>,
     mut time_stamp_per_entity: Local<TimeStampPerEntity>,

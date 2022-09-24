@@ -1,2 +1,4 @@
+//! Entities that can be sensed, heard or seen.
+
 pub mod plugin;
-pub mod visible_checker;
+mod visible_checker;

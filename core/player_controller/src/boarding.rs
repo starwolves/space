@@ -3,6 +3,7 @@ use crate::{
     humanoid::HumanMaleSummoner,
 };
 
+use super::net::NetOnSpawning;
 use super::{
     connection::Boarding,
     net::{NetDoneBoarding, NetOnBoarding},
@@ -32,17 +33,19 @@ use entity::{
 use pawn::pawn::PersistentPlayerData;
 use ui::ui::{InputUIInputTransmitText, NetUIInputTransmitData};
 
-pub struct BoardingPlayer {
+/// Boarding player.
+pub(crate) struct BoardingPlayer {
     pub player_handle: u64,
     pub player_character_name: String,
     pub entity: Entity,
 }
-// Logic works witha timer, better as resource.
+/// Slightly delayed boarding announcements.
 #[derive(Default)]
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
-pub fn done_boarding(
+/// Manage clients done boarding.
+pub(crate) fn done_boarding(
     mut spawn_points: ResMut<SpawnPoints>,
     mut net_done_boarding: EventWriter<NetDoneBoarding>,
     mut boarding_player_event: EventReader<BoardingPlayer>,
@@ -103,7 +106,8 @@ pub fn done_boarding(
     }
 }
 
-pub fn ui_input_transmit_data_event(
+/// Manage client UI input.
+pub(crate) fn ui_input_transmit_data_event(
     mut event: EventReader<InputUIInputTransmitText>,
     mut boarding_player_event: EventWriter<BoardingPlayer>,
     handle_to_entity: Res<HandleToEntity>,
@@ -191,7 +195,8 @@ pub fn ui_input_transmit_data_event(
     }
 }
 
-pub fn on_boarding(
+/// Manage client boarding.
+pub(crate) fn on_boarding(
     query: Query<&ConnectedPlayer, Added<Boarding>>,
     mut net_on_boarding: EventWriter<NetOnBoarding>,
 ) {
@@ -206,9 +211,8 @@ pub fn on_boarding(
     }
 }
 
-use super::net::NetOnSpawning;
-
-pub fn on_spawning(
+/// On client spawning.
+pub(crate) fn on_spawning(
     mut net_on_new_player_connection: EventWriter<NetOnSpawning>,
     query: Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData), Added<Spawning>>,
     mut commands: Commands,

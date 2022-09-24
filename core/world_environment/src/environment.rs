@@ -3,7 +3,8 @@ use std::{fs, path::Path};
 use api::world_environment::{WorldEnvironment, WorldEnvironmentRaw};
 use bevy::prelude::ResMut;
 
-pub fn startup_environment(mut map_environment: ResMut<WorldEnvironment>) {
+/// Initialize graphics environment from json.
+pub(crate) fn startup_environment(mut map_environment: ResMut<WorldEnvironment>) {
     let environment_json_location = Path::new("data")
         .join("maps")
         .join("bullseye")
