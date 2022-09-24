@@ -1,6 +1,8 @@
-pub mod actions;
-pub mod entity_update;
-pub mod inventory;
-pub mod item_events;
-pub mod net;
+//! Inventory management of entities.
+
+mod actions;
+mod entity_update;
+mod inventory;
+mod item_events;
+mod net;
 pub mod plugin;

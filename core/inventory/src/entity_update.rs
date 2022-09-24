@@ -7,7 +7,8 @@ use api::{
 use bevy::prelude::{warn, Changed, Query};
 use inventory_item::item::InventoryItem;
 
-pub fn inventory_update(
+/// Inventory item update.
+pub(crate) fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,
     pickupables: Query<(&InventoryItem, &EntityData)>,
 ) {

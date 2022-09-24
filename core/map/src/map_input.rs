@@ -1,3 +1,4 @@
+use crate::map::Map;
 use api::{
     gridmap::FOV_MAP_WIDTH,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
@@ -8,7 +9,10 @@ use bevy::{
 };
 use networking::messages::{InputMap, InputMapRequestDisplayModes, MapInput};
 
-pub fn map_input(
+use api::data::Vec2Int;
+use std::collections::HashMap;
+/// Manage map input.
+pub(crate) fn map_input(
     mut input_view_range_change_events: EventReader<InputMap>,
     mut map_holders: Query<&mut Map>,
 ) {
@@ -35,7 +39,8 @@ pub fn map_input(
     }
 }
 
-pub fn request_display_modes(
+/// Request available map display modes.
+pub(crate) fn request_display_modes(
     mut events: EventReader<InputMapRequestDisplayModes>,
     map_holders: Query<&Map>,
     mut net: EventWriter<NetRequestDisplayModes>,
@@ -61,7 +66,7 @@ pub fn request_display_modes(
     }
 }
 
-pub struct NetRequestDisplayModes {
+pub(crate) struct NetRequestDisplayModes {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -74,10 +79,7 @@ impl PendingMessage for NetRequestDisplayModes {
     }
 }
 
-use api::data::Vec2Int;
-use std::collections::HashMap;
-
-use crate::map::Map;
+/// Mini-map data resource.
 #[derive(Default)]
 pub struct MapData {
     pub data: HashMap<Vec2Int, i16>,

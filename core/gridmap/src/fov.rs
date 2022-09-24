@@ -17,7 +17,8 @@ use super::net::NetProjectileFOV;
 
 pub const FOV_DISTANCE: usize = 23;
 
-pub fn projectile_fov(
+/// Manage projectile FOV.
+pub(crate) fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
     mut net_projectile_fov: EventWriter<NetProjectileFOV>,
@@ -185,6 +186,7 @@ pub fn projectile_fov(
     }
 }
 
+/// DoryenMap resource with FOV map data.
 pub struct DoryenMap {
     pub map: MapData,
 }
@@ -197,7 +199,8 @@ impl Default for DoryenMap {
     }
 }
 
-pub fn senser_update_fov(
+/// Update FOV of a senser.
+pub(crate) fn senser_update_fov(
     mut senser_entities: Query<(&mut Senser, &Transform)>,
     mut map: ResMut<DoryenMap>,
 ) {

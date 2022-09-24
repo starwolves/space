@@ -4,7 +4,8 @@ use api::{
 };
 use bevy::prelude::{Changed, Query};
 
-pub fn gridmap_sensing_ability(
+/// Allow players to examine the gridmap and get cell information.
+pub(crate) fn gridmap_sensing_ability(
     mut data_linked: Query<(&DataLink, &mut Senser), Changed<DataLink>>,
 ) {
     for (data_link_component, mut senser_component) in data_linked.iter_mut() {

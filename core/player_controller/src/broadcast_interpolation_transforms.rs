@@ -16,6 +16,7 @@ use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use physics::physics::RigidBodyDisabled;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum InterpolationPriorityRates {
     T4,
     T8,
@@ -27,8 +28,6 @@ pub enum InterpolationPriorityRates {
 pub struct InterpolationFrame {
     pub i: u8,
 }
-
-pub const BROADCAST_INTERPOLATION_TRANSFORM_RATE: f64 = 24.;
 
 pub fn broadcast_interpolation_transforms(
     time: Res<Time>,

@@ -18,16 +18,19 @@ use bevy_rapier3d::{
 use entity::entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server};
 
 use crate::{
-    build::{build_details1_gridmap, build_gridmap_floor, build_main_gridmap},
+    build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},
     events::CellDataWID,
     fov::DoryenMap,
     plugin::Details1CellProperties,
 };
 
+/// Physics friction on placeable item surfaces.
 pub const PLACEABLE_SURFACE_FRICTION: f32 = 0.2;
+/// Physics coefficient combiner of placeable item surfaces.
 pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
-pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
+/// Initiate map resource data.
+pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     gridmap_data.blackcell_blocking_id = *gridmap_data
         .main_name_id_map
         .get("blackCellBlocking")
@@ -758,7 +761,8 @@ pub fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     );
 }
 
-pub fn startup_misc_resources(
+/// Initiate other gridmap resource datas from json.
+pub(crate) fn startup_misc_resources(
     mut server_id: ResMut<ServerId>,
     mut gridmap_data: ResMut<GridmapData>,
     mut spawn_points_res: ResMut<SpawnPoints>,
@@ -841,7 +845,8 @@ pub fn startup_misc_resources(
     info!("Loaded misc map data.");
 }
 
-pub fn startup_build_map(
+/// Build the gridmaps in their own resources from json.
+pub(crate) fn startup_build_map(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
     mut gridmap_data: ResMut<GridmapData>,
@@ -859,7 +864,7 @@ pub fn startup_build_map(
     let current_map_main_data: Vec<CellDataWID> = serde_json::from_str(&current_map_main_raw_json)
         .expect("main.rs launch_server() Error parsing map main.json String.");
 
-    build_gridmap_floor(&mut commands);
+    build_gridmap_floor_and_roof(&mut commands);
 
     build_main_gridmap(
         &current_map_main_data,

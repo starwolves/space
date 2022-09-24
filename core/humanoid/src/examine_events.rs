@@ -12,7 +12,7 @@ use networking::messages::ExamineEntityMessages;
 
 use crate::humanoid::Humanoid;
 
-pub struct ExamineEntityPawn {
+pub(crate) struct ExamineEntityPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -25,7 +25,8 @@ impl PendingMessage for ExamineEntityPawn {
     }
 }
 
-pub fn examine_entity(
+/// Examine a humanoid entity.
+pub(crate) fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     criteria_query: Query<&Senser>,
     q1: Query<(

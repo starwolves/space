@@ -14,6 +14,15 @@ use bevy::{
 };
 use ui::ui::{InputUIInput, InputUIInputTransmitText};
 
+use std::{net::UdpSocket, time::SystemTime};
+
+use bevy_renet::renet::{
+    ChannelConfig, ReliableChannelConfig, RenetConnectionConfig, RenetServer, ServerAuthentication,
+    ServerConfig, NETCODE_KEY_BYTES,
+};
+
+use super::plugin::{RENET_RELIABLE_CHANNEL_ID, RENET_UNRELIABLE_CHANNEL_ID};
+
 pub struct NetPlayerConn {
     pub handle: u64,
     pub message: ReliableServerMessage,
@@ -29,18 +38,10 @@ impl PendingMessage for NetPlayerConn {
 
 pub const SERVER_PORT: u16 = 57713;
 
-use std::{net::UdpSocket, time::SystemTime};
-
-use bevy_renet::renet::{
-    ChannelConfig, ReliableChannelConfig, RenetConnectionConfig, RenetServer, ServerAuthentication,
-    ServerConfig, NETCODE_KEY_BYTES,
-};
-
-use super::plugin::{RENET_RELIABLE_CHANNEL_ID, RENET_UNRELIABLE_CHANNEL_ID};
-
 const PROTOCOL_ID: u64 = 7;
 
-pub fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]) -> RenetServer {
+/// Start server and open and listen to port.
+pub(crate) fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]) -> RenetServer {
     let server_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
         .parse()
         .unwrap();
@@ -81,11 +82,13 @@ pub fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]) -> Re
     renet_server
 }
 
+/// Client attack cell input.
 pub struct InputAttackCell {
     pub entity: Entity,
     pub id: Vec3Int,
 }
 
+/// Client input list actions map.
 #[derive(Debug, Clone)]
 pub struct InputListActionsMap {
     pub player_entity: Entity,
@@ -94,34 +97,40 @@ pub struct InputListActionsMap {
     pub with_ui: bool,
 }
 
+/// Client input change display mode mini-map.
 pub struct InputMapChangeDisplayMode {
     pub handle: u64,
     pub entity: Entity,
     pub display_mode: String,
 }
 
+/// Client map input.
 pub enum MapInput {
     Range(f32),
     Position(Vec2),
     MouseCell(i16, i16),
 }
 
+/// Client map input.
 pub struct InputMap {
     pub handle: u64,
     pub entity: Entity,
     pub input: MapInput,
 }
+/// Client map request display modes.
 pub struct InputMapRequestDisplayModes {
     pub handle: u64,
     pub entity: Entity,
 }
 
+/// Client inputs of examining entity messages.
 #[derive(Default)]
 pub struct ExamineEntityMessages {
     pub messages: Vec<InputExamineEntity>,
 }
 
-pub fn incoming_messages(
+/// Manage incoming network messages from clients.
+pub(crate) fn incoming_messages(
     tuple0: (
         ResMut<RenetServer>,
         EventWriter<InputUIInput>,
@@ -721,6 +730,7 @@ pub fn incoming_messages(
     }
 }
 
+/// Net message handler.
 pub fn net_system<T: std::marker::Send + std::marker::Sync + PendingMessage + 'static>(
     mut net1: EventReader<T>,
     mut pending_net: EventWriter<PendingNetworkMessage>,
@@ -734,6 +744,7 @@ pub fn net_system<T: std::marker::Send + std::marker::Sync + PendingMessage + 's
         });
     }
 }
+/// Client input console command message.
 pub struct InputConsoleCommand {
     pub handle_option: Option<u64>,
     pub entity: Entity,
@@ -741,44 +752,53 @@ pub struct InputConsoleCommand {
     pub command_arguments: Vec<ConsoleCommandVariantValues>,
 }
 
+/// Client input toggle combat mode.
 pub struct InputToggleCombatMode {
     pub entity: Entity,
 }
 
+/// Client input drop current item.
 pub struct InputDropCurrentItem {
     pub pickuper_entity: Entity,
     pub input_position_option: Option<Vec3>,
 }
 
+/// Client input throw item.
 pub struct InputThrowItem {
     pub entity: Entity,
     pub position: Vec3,
     pub angle: f32,
 }
 
+/// Client input switch hands.
 pub struct InputSwitchHands {
     pub entity: Entity,
 }
 
+/// Client input take off item.
 pub struct InputTakeOffItem {
     pub entity: Entity,
     pub slot_name: String,
 }
 
+/// Client input use world item.
 pub struct InputUseWorldItem {
     pub pickuper_entity: Entity,
     pub pickupable_entity: Entity,
 }
 
+/// Client input wear item.
 pub struct InputWearItem {
     pub wearer_entity: Entity,
     pub wearable_id_bits: u64,
     pub wear_slot: String,
 }
+/// Client input user name.
 pub struct InputUserName {
     pub entity: Entity,
     pub input_name: String,
 }
+/// Client input list actions entity.
 #[derive(Clone)]
 pub struct InputListActionsEntity {
     pub player_entity: Entity,
@@ -786,6 +806,7 @@ pub struct InputListActionsEntity {
     pub with_ui: bool,
 }
 
+/// Client input action.
 pub struct InputAction {
     pub fired_action_id: String,
     pub action_taker: Entity,
@@ -793,32 +814,39 @@ pub struct InputAction {
     pub target_cell_option: Option<(GridMapType, Vec3Int)>,
 }
 
+/// Client input toggle auto move.
 pub struct InputToggleAutoMove {
     pub entity: Entity,
 }
 
+/// Client input attack entity.
 pub struct InputAttackEntity {
     pub entity: Entity,
     pub target_entity_bits: u64,
 }
 
+/// Client input alt item attack.
 pub struct InputAltItemAttack {
     pub entity: Entity,
 }
 
+/// Client input mouse action.
 pub struct InputMouseAction {
     pub entity: Entity,
     pub pressed: bool,
 }
+/// Client input select body part.
 pub struct InputSelectBodyPart {
     pub entity: Entity,
     pub body_part: String,
 }
+/// Client input movement.
 pub struct InputMovementInput {
     pub player_entity: Entity,
     pub vector: Vec2,
 }
 
+/// Client text tree input selection.
 pub struct TextTreeInputSelection {
     pub handle: u64,
     pub menu_id: String,
@@ -827,23 +855,28 @@ pub struct TextTreeInputSelection {
     pub belonging_entity: Option<u64>,
 }
 
+/// Client input sprinting.
 pub struct InputSprinting {
     pub entity: Entity,
     pub is_sprinting: bool,
 }
+/// Client input scene ready.
 pub struct InputSceneReady {
     pub handle: u64,
     pub scene_type: String,
 }
+/// Client input build graphics.
 pub struct InputBuildGraphics {
     pub handle: u64,
 }
 
+/// Client input mouse direction update.
 pub struct InputMouseDirectionUpdate {
     pub entity: Entity,
     pub direction: f32,
     pub time_stamp: u64,
 }
+/// Client input construction options selection.
 pub struct InputConstructionOptionsSelection {
     pub handle_option: Option<u64>,
     pub menu_selection: String,

@@ -17,7 +17,13 @@ use bevy_rapier3d::prelude::{
 use data_converters::converters::string_vec3_to_vec3;
 use physics::physics::{get_bit_masks, ColliderGroup, CHARACTER_FLOOR_FRICTION};
 
-pub fn build_gridmap_floor(commands: &mut Commands) {
+use std::collections::HashMap;
+
+use crate::events::{Cell, CellDataWID};
+
+use super::fov::DoryenMap;
+/// Build gridmap floor and roof physics bodies.
+pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
     let masks = get_bit_masks(ColliderGroup::Standard);
 
     //Floor
@@ -61,12 +67,8 @@ pub fn build_gridmap_floor(commands: &mut Commands) {
         });
 }
 
-use std::collections::HashMap;
-
-use crate::events::{Cell, CellDataWID};
-
-use super::fov::DoryenMap;
-pub fn build_main_gridmap(
+/// Build main gridmap from data.
+pub(crate) fn build_main_gridmap(
     current_map_main_data: &Vec<CellDataWID>,
     mut commands: &mut Commands,
     gridmap_main: &mut ResMut<GridmapMain>,
@@ -150,7 +152,8 @@ pub fn build_main_gridmap(
     }
 }
 
-pub fn build_details1_gridmap(
+/// Build details 1 gridmap from data.
+pub(crate) fn build_details1_gridmap(
     current_map_details1_data: &Vec<CellDataWID>,
     gridmap_details1: &mut ResMut<GridmapDetails1>,
     gridmap_data: &mut ResMut<GridmapData>,
@@ -182,6 +185,7 @@ pub fn build_details1_gridmap(
     }
 }
 
+/// Spawn a main gridmap cell as a function.
 pub fn spawn_main_cell(
     commands: &mut Commands,
     cell_id: Vec3Int,

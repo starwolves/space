@@ -20,12 +20,14 @@ use pawn::pawn::Pawn;
 
 use super::item::InventoryItem;
 
+/// Inventory item bundle.
 pub struct InventoryItemBundle {
     pub inventory_item: InventoryItem,
     pub melee_combat: MeleeCombat,
     pub projectile_combat_option: Option<ProjectileCombat>,
 }
 
+/// Inventory item builder data.
 pub struct InventoryBuilderData {
     pub inventory_item: InventoryItem,
     pub holder_entity_option: Option<Entity>,
@@ -33,7 +35,12 @@ pub struct InventoryBuilderData {
     pub projectile_option: Option<ProjectileCombat>,
 }
 
-pub fn inventory_item_builder(commands: &mut Commands, entity: Entity, data: InventoryBuilderData) {
+/// Build inventory item at summon stage.
+pub(crate) fn inventory_item_builder(
+    commands: &mut Commands,
+    entity: Entity,
+    data: InventoryBuilderData,
+) {
     let mut builder = commands.entity(entity);
     builder.insert_bundle((data.inventory_item, data.melee_combat));
     match data.holder_entity_option {
@@ -52,10 +59,12 @@ pub fn inventory_item_builder(commands: &mut Commands, entity: Entity, data: Inv
         None => {}
     }
 }
+/// Inventory item summonable.
 pub trait InventoryItemSummonable {
     fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle;
 }
 
+/// Inventory item spawn handler.
 pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
@@ -76,6 +85,7 @@ pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>
     }
 }
 
+/// Spawn an entity in another entity's inventory through an RCON command.
 pub fn rcon_spawn_held_entity(
     entity_name: String,
     target_selector: String,
@@ -226,6 +236,7 @@ pub fn rcon_spawn_held_entity(
     }
 }
 
+/// Spawn an entity that is held in someone's hands.
 pub fn spawn_held_entity(
     entity_name: String,
     commands: &mut Commands,

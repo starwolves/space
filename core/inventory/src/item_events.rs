@@ -14,6 +14,7 @@ use api::{
     rigid_body::RigidBodyLinkTransform,
     sensable::Sensable,
 };
+
 use bevy::{
     hierarchy::{Children, Parent},
     math::Vec3,
@@ -21,6 +22,7 @@ use bevy::{
         warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform, With,
     },
 };
+use bevy_rapier3d::prelude::ExternalImpulse;
 use bevy_rapier3d::{
     plugin::RapierContext,
     prelude::{Collider, CollisionGroups, Damping, ExternalForce, GravityScale, Sleeping},
@@ -30,6 +32,11 @@ use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use inventory_item::item::InventoryItem;
 use networking::messages::{
     InputDropCurrentItem, InputTakeOffItem, InputThrowItem, InputUseWorldItem, InputWearItem,
+};
+use rand::Rng;
+
+use super::net::{
+    NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
 };
 use pawn::pawn::{ControllerInput, Pawn};
 use physics::{
@@ -42,7 +49,8 @@ use sounds::{
     shared::sfx_auto_destroy,
 };
 
-pub fn drop_current_item(
+/// Pawn drop current item.
+pub(crate) fn drop_current_item(
     mut drop_current_item_events: EventReader<InputDropCurrentItem>,
     mut rigidbody_positions: Query<&mut Transform>,
     mut inventory_entities: Query<(&mut Inventory, &Sensable, &Pawn)>,
@@ -320,11 +328,8 @@ pub fn drop_current_item(
     }
 }
 
-use super::net::{
-    NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
-};
-
-pub fn pickup_world_item_action(
+/// Pawn action registration to pick up item.
+pub(crate) fn pickup_world_item_action(
     building_action_data: Res<BuildingActions>,
     mut use_world_item_events: EventWriter<InputUseWorldItem>,
     action_requests: Res<ActionRequests>,
@@ -354,7 +359,8 @@ pub fn pickup_world_item_action(
     }
 }
 
-pub fn pickup_world_item(
+/// Manage pawns picking up items.
+pub(crate) fn pickup_world_item(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
     mut inventory_entities: Query<&mut Inventory>,
     mut inventory_items_query: Query<&mut InventoryItem>,
@@ -543,7 +549,8 @@ pub fn pickup_world_item(
     }
 }
 
-pub fn take_off_item(
+/// Manage pawns taking off/unequiping items.
+pub(crate) fn take_off_item(
     mut take_off_item_events: EventReader<InputTakeOffItem>,
     mut inventory_entities: Query<&mut Inventory>,
     mut pickupable_entities: Query<(&InventoryItem, &mut WorldMode, &EntityData)>,
@@ -632,10 +639,8 @@ pub fn take_off_item(
     }
 }
 
-use bevy_rapier3d::prelude::ExternalImpulse;
-use rand::Rng;
-
-pub fn throw_item(
+/// Manage pawns throwing items.
+pub(crate) fn throw_item(
     mut throw_item_events: EventReader<InputThrowItem>,
     mut rigidbody_positions: Query<&mut Transform>,
     examinables: Query<&Examinable>,
@@ -937,7 +942,8 @@ pub fn throw_item(
     }
 }
 
-pub fn wear_item(
+/// Manage pawns wearing items.
+pub(crate) fn wear_item(
     mut wear_item_events: EventReader<InputWearItem>,
     mut inventory_entities: Query<&mut Inventory>,
     mut wearable_entities: Query<(&InventoryItem, &mut WorldMode, &EntityData)>,

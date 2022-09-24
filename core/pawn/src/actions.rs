@@ -7,7 +7,8 @@ use api::{
 use bevy::prelude::{warn, Res, ResMut};
 use networking::messages::ExamineEntityMessages;
 
-pub fn examine_prerequisite_check(mut building_action_data: ResMut<BuildingActions>) {
+/// Pawn examine action prerequisite check.
+pub(crate) fn examine_prerequisite_check(mut building_action_data: ResMut<BuildingActions>) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
             if action.data.id == "actions::pawn/examine" {
@@ -17,7 +18,8 @@ pub fn examine_prerequisite_check(mut building_action_data: ResMut<BuildingActio
     }
 }
 
-pub fn examine(
+/// Examine pawn.
+pub(crate) fn examine(
     building_action_data: Res<BuildingActions>,
     mut examine_entity_messages: ResMut<ExamineEntityMessages>,
     mut examine_map_messages: ResMut<GridmapExamineMessages>,

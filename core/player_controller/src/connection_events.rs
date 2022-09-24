@@ -1,3 +1,19 @@
+use api::{
+    connected_player::SoftPlayer,
+    data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
+    gridmap::GridmapData,
+    humanoid::UsedNames,
+    network::{ReliableServerMessage, ServerConfigMessage},
+};
+use bevy::prelude::{Commands, EventWriter, Res, ResMut};
+use chat::chat::get_talk_spaces_setupui;
+use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
+use map::map_input::MapData;
+use networking::messages::NetPlayerConn;
+use pawn::pawn::{ControllerInput, PersistentPlayerData};
+
+use crate::connection::AuthidI;
+
 pub fn on_new_player_connection(
     net_on_new_player_connection: &mut EventWriter<NetPlayerConn>,
     handle: &u64,
@@ -185,19 +201,3 @@ pub fn on_new_player_connection(
         });
     }
 }
-
-use api::{
-    connected_player::SoftPlayer,
-    data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
-    gridmap::GridmapData,
-    humanoid::UsedNames,
-    network::{ReliableServerMessage, ServerConfigMessage},
-};
-use bevy::prelude::{Commands, EventWriter, Res, ResMut};
-use chat::chat::get_talk_spaces_setupui;
-use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
-use map::map_input::MapData;
-use networking::messages::NetPlayerConn;
-use pawn::pawn::{ControllerInput, PersistentPlayerData};
-
-use crate::connection::AuthidI;

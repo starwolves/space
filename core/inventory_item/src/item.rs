@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use api::{combat::CombatStandardAnimation, inventory::SlotType};
 use bevy::prelude::{Component, Entity, Transform};
 
+/// Inventory item component.
 #[derive(Component)]
 pub struct InventoryItem {
     pub in_inventory_of_entity: Option<Entity>,

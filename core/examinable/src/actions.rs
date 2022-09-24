@@ -5,7 +5,8 @@ use api::{
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
 
-pub fn build_actions(
+/// Build examine action.
+pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     examinable_items: Query<&Examinable>,
 ) {
@@ -32,7 +33,8 @@ pub fn build_actions(
     }
 }
 
-pub fn set_action_header_name(
+/// Set examine action header name.
+pub(crate) fn set_action_header_name(
     mut building_action_data: ResMut<BuildingActions>,
     examinables: Query<&Examinable>,
     gridmap_data: Res<GridmapData>,

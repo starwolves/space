@@ -1,3 +1,4 @@
+use api::gridmap::{to_doryen_coordinates, GridmapExamineMessages, GridmapMain};
 use api::{
     chat::{
         EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
@@ -13,7 +14,7 @@ use api::{
 use bevy::prelude::{warn, Query, Res, ResMut};
 use networking::messages::ExamineEntityMessages;
 
-pub struct ExamineEntityPawn {
+pub(crate) struct ExamineEntityPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -26,7 +27,8 @@ impl PendingMessage for ExamineEntityPawn {
     }
 }
 
-pub fn examine_entity(
+/// Examine an entity's health.
+pub(crate) fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
     criteria_query: Query<&Senser>,
@@ -450,9 +452,7 @@ pub fn examine_entity(
     }
 }
 
-use api::gridmap::{to_doryen_coordinates, GridmapExamineMessages, GridmapMain};
-
-pub struct NetConnExamine {
+pub(crate) struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -465,7 +465,8 @@ impl PendingMessage for NetConnExamine {
     }
 }
 
-pub fn examine_map(
+/// Examine a ship cell's health.
+pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     gridmap_main: Res<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,

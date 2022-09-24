@@ -4,7 +4,8 @@ use networking::messages::InputSwitchHands;
 
 use super::net::NetSwitchHands;
 
-pub fn switch_hands(
+/// Inventory items switch hands.
+pub(crate) fn switch_hands(
     mut switch_hands_events: EventReader<InputSwitchHands>,
     mut inventory_entities: Query<&mut Inventory>,
     mut net_switch_hands: EventWriter<NetSwitchHands>,
