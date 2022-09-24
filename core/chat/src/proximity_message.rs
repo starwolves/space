@@ -12,7 +12,7 @@ pub struct EntityProximityMessage {
     pub message: String,
 }
 
-pub struct NetProximityMessage {
+pub(crate) struct NetProximityMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

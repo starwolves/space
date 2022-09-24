@@ -1,4 +1,16 @@
-pub fn user_name(
+use api::{
+    chat::escape_bb,
+    console_commands::CONSOLE_ERROR_COLOR,
+    data::HandleToEntity,
+    humanoid::UsedNames,
+    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
+};
+use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
+use networking::messages::InputUserName;
+use pawn::pawn::PersistentPlayerData;
+
+/// Set character user name.
+pub(crate) fn user_name(
     mut input_user_name_events: EventReader<InputUserName>,
     mut persistent_player_data_query: Query<&mut PersistentPlayerData>,
     mut used_names: ResMut<UsedNames>,
@@ -71,7 +83,7 @@ pub fn user_name(
     }
 }
 
-pub struct NetPawn {
+pub(crate) struct NetPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -84,6 +96,7 @@ impl PendingMessage for NetPawn {
     }
 }
 
+/// Get a dummy character name.
 pub fn get_dummy_name(used_names: &mut UsedNames) -> String {
     let return_name = format!("Dummy {}", used_names.dummy_i);
 
@@ -91,14 +104,3 @@ pub fn get_dummy_name(used_names: &mut UsedNames) -> String {
 
     return_name
 }
-
-use api::{
-    chat::escape_bb,
-    console_commands::CONSOLE_ERROR_COLOR,
-    data::HandleToEntity,
-    humanoid::UsedNames,
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
-use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
-use networking::messages::InputUserName;
-use pawn::pawn::PersistentPlayerData;

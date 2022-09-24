@@ -171,7 +171,7 @@ impl AtmosphericsResource {
     }
 }
 
-/// This struct gets repeated FOV_MAP_WIDTH*FOV_MAP_WIDTH (250k) times in [AtmosphericsResource].
+/// This struct gets repeated [FOV_MAP_WIDTH]*[FOV_MAP_WIDTH] times in [AtmosphericsResource].
 #[derive(Clone)]
 pub struct Atmospherics {
     /// If blocked by world ie wall.

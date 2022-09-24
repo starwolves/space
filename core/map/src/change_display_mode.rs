@@ -4,7 +4,8 @@ use networking::messages::InputMapChangeDisplayMode;
 
 use crate::map::{Map, MapHolders};
 
-pub fn change_display_mode(
+/// Change map display mode.
+pub(crate) fn change_display_mode(
     mut input_display_mode_changes: EventReader<InputMapChangeDisplayMode>,
     mut map_holders: Query<(&mut Map, &DataLink)>,
     mut display_atmos_state: ResMut<MapHolders>,

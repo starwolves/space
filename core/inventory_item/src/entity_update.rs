@@ -3,7 +3,8 @@ use bevy::prelude::{Changed, Query};
 
 use crate::item::InventoryItem;
 
-pub fn inventory_item_update(
+/// Inventory item update.
+pub(crate) fn inventory_item_update(
     mut updated_entities: Query<(&InventoryItem, &mut EntityUpdates), Changed<InventoryItem>>,
 ) {
     for (inventory_item_component, mut entity_updates_component) in updated_entities.iter_mut() {

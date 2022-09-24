@@ -20,6 +20,12 @@ impl Plugin for InventoryItemPlugin {
                 .label(PostUpdateLabels::EntityUpdate)
                 .with_system(inventory_item_update),
         )
+        .add_system_set_to_stage(
+            PostUpdate,
+            SystemSet::new()
+                .label(PostUpdateLabels::EntityUpdate)
+                .with_system(inventory_item_update),
+        )
         .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
         .add_system(
             build_actions

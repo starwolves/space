@@ -31,6 +31,7 @@ pub struct NetAttack {
     pub message: ReliableServerMessage,
 }
 
+/// When a melee attack hit nothing.
 pub struct MeleeBlank {
     pub incremented_id: u64,
 }

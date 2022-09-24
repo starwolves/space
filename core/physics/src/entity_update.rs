@@ -3,7 +3,8 @@ use bevy::prelude::{Changed, Query};
 
 use super::world_mode::{WorldMode, WorldModes};
 
-pub fn world_mode_update(
+/// Physics entity change world mode.
+pub(crate) fn world_mode_update(
     mut updated_entities: Query<(&WorldMode, &mut EntityUpdates), Changed<WorldMode>>,
 ) {
     for (world_mode_component, mut entity_updates_component) in updated_entities.iter_mut() {

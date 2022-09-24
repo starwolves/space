@@ -10,7 +10,8 @@ use bevy::prelude::{warn, Query, Res, ResMut};
 
 use crate::events::examine_ship_cell;
 
-pub fn examine_map(
+/// Examine the gridmap.
+pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     gridmap_main: Res<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,

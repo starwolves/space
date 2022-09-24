@@ -18,6 +18,7 @@ use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
 
 use crate::events::Cell;
 
+/// Check if entity can be reached as a function.
 pub fn can_reach_entity(
     query_pipeline: &bevy::prelude::Res<RapierContext>,
 

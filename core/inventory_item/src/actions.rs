@@ -3,7 +3,8 @@ use bevy::prelude::{Query, ResMut};
 
 use crate::item::InventoryItem;
 
-pub fn build_actions(
+/// Build inventory item actions.
+pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     inventory_items: Query<&InventoryItem>,
 ) {

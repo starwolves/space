@@ -5,7 +5,8 @@ use bevy::{
 use bevy_rapier3d::{pipeline::CollisionEvent, prelude::Collider};
 use temp_shared::{EntityData, EntityGroup};
 
-pub fn physics_events(
+/// Physics collision events manager.
+pub (crate) fn physics_events(
     mut collision_events: EventReader<CollisionEvent>,
     interesting_entities_query: Query<(Entity, &EntityData, &Transform)>,
     parents: Query<&Parent, With<Collider>>,
@@ -59,6 +60,7 @@ pub fn physics_events(
     }
 }
 
+/// Process generalized physics event.
 fn process_physics_event(
     collider1_entity: Entity,
     collider2_entity: Entity,

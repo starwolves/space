@@ -4,16 +4,19 @@ use bevy::{
     prelude::{Component, Entity},
 };
 
+/// Ship authorizations for pawns.
 #[derive(PartialEq)]
 pub enum ShipAuthorizationEnum {
     Security,
     Common,
 }
+/// Crew jobs for pawns.
 #[derive(Copy, Clone)]
 pub enum ShipJobsEnum {
     Security,
     Control,
 }
+/// Pawn component.
 #[derive(Component)]
 pub struct Pawn {
     pub name: String,
@@ -31,11 +34,13 @@ impl Default for Pawn {
     }
 }
 
+/// Ship authorization component.
 #[derive(Component)]
 pub struct ShipAuthorization {
     pub access: Vec<ShipAuthorizationEnum>,
 }
 
+/// Controller input component.
 #[derive(Component)]
 pub struct ControllerInput {
     pub movement_vector: Vec2,
@@ -65,6 +70,8 @@ impl Default for ControllerInput {
         }
     }
 }
+
+/// Persistent player data component.
 #[derive(Clone, Component)]
 pub struct PersistentPlayerData {
     pub user_name_is_set: bool,

@@ -1,4 +1,34 @@
-pub fn gridmap_updates(
+use bevy::{
+    hierarchy::Children,
+    prelude::{
+        warn, Commands, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, With,
+    },
+};
+
+use api::{
+    chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
+    data::{ConnectedPlayer, Vec3Int},
+    gridmap::{
+        to_doryen_coordinates, CellData, GridMapType, GridmapData, GridmapDetails1, GridmapMain,
+        RemoveCell,
+    },
+    health::{CellUpdate, Health, HealthContainer, StructureHealth},
+    network::ReliableServerMessage,
+    senser::Senser,
+};
+
+use bevy_rapier3d::prelude::RigidBody;
+use doryen_fov::FovAlgorithm;
+
+use serde::Deserialize;
+
+use super::{
+    fov::{DoryenMap, FOV_DISTANCE},
+    net::NetGridmapUpdates,
+};
+
+/// Manage gridmap updates.
+pub(crate) fn gridmap_updates(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
     sensers: Query<(Entity, &Senser, &ConnectedPlayer)>,
@@ -76,26 +106,8 @@ pub fn gridmap_updates(
     }
 }
 
-use bevy::{
-    hierarchy::Children,
-    prelude::{
-        warn, Commands, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, With,
-    },
-};
-
-use api::{
-    chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
-    data::{ConnectedPlayer, Vec3Int},
-    gridmap::{
-        to_doryen_coordinates, CellData, GridMapType, GridmapData, GridmapDetails1, GridmapMain,
-        RemoveCell,
-    },
-    health::{CellUpdate, Health, HealthContainer, StructureHealth},
-    network::ReliableServerMessage,
-    senser::Senser,
-};
-
-pub fn examine_ship_cell(
+/// Examine a ship/gridmap cell.
+pub(crate) fn examine_ship_cell(
     ship_cell: &CellData,
     gridmap_type: &GridMapType,
     gridmap_data: &Res<GridmapData>,
@@ -138,10 +150,8 @@ pub fn examine_ship_cell(
     message
 }
 
-use bevy_rapier3d::prelude::RigidBody;
-use doryen_fov::FovAlgorithm;
-
-pub fn remove_cell(
+/// Remove a ship/gridmap cell.
+pub(crate) fn remove_cell(
     mut deconstruct_cell_events: EventReader<RemoveCell>,
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
@@ -245,13 +255,7 @@ pub fn remove_cell(
     }
 }
 
-use serde::Deserialize;
-
-use super::{
-    fov::{DoryenMap, FOV_DISTANCE},
-    net::NetGridmapUpdates,
-};
-
+/// Represents a cell.
 #[derive(Component)]
 pub struct Cell {
     pub id: Vec3Int,
@@ -265,8 +269,9 @@ impl Default for Cell {
     }
 }
 
+/// Represents a cell with some additional data.
 #[derive(Deserialize)]
-pub struct CellDataWID {
+pub(crate) struct CellDataWID {
     pub id: String,
     pub item: String,
     pub orientation: i64,

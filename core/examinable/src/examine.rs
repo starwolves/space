@@ -5,7 +5,19 @@ use api::{
 };
 use bevy::prelude::{EventWriter, ResMut};
 
-pub struct NetExamine {
+use api::{
+    chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT},
+    data::HandleToEntity,
+    examinable::Examinable,
+    health::{HealthComponent, HealthContainer},
+    sensable::Sensable,
+    senser::Senser,
+};
+use bevy::prelude::{warn, Query, Res};
+
+use networking::messages::ExamineEntityMessages;
+
+pub(crate) struct NetExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -18,7 +30,8 @@ impl PendingMessage for NetExamine {
     }
 }
 
-pub fn finalize_examine_map(
+/// Finalize examining the map.
+pub(crate) fn finalize_examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     mut net: EventWriter<NetExamine>,
 ) {
@@ -34,18 +47,6 @@ pub fn finalize_examine_map(
     examine_map_events.messages.clear();
 }
 
-use api::{
-    chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT},
-    data::HandleToEntity,
-    examinable::Examinable,
-    health::{HealthComponent, HealthContainer},
-    sensable::Sensable,
-    senser::Senser,
-};
-use bevy::prelude::{warn, Query, Res};
-
-use networking::messages::ExamineEntityMessages;
-
 pub struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
@@ -59,6 +60,7 @@ impl PendingMessage for NetConnExamine {
     }
 }
 
+/// Examine entity.
 pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
@@ -115,6 +117,7 @@ pub fn examine_entity(
     }
 }
 
+/// Finalize examining entity.
 pub fn finalize_examine_entity(
     mut examine_map_events: ResMut<ExamineEntityMessages>,
     mut net: EventWriter<NetConnExamine>,

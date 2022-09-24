@@ -1,6 +1,6 @@
 use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
-pub struct NetDropCurrentItem {
+pub(crate) struct NetDropCurrentItem {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -12,7 +12,7 @@ impl PendingMessage for NetDropCurrentItem {
         }
     }
 }
-pub struct NetPickupWorldItem {
+pub(crate) struct NetPickupWorldItem {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -24,7 +24,7 @@ impl PendingMessage for NetPickupWorldItem {
         }
     }
 }
-pub struct NetSwitchHands {
+pub(crate) struct NetSwitchHands {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -36,7 +36,7 @@ impl PendingMessage for NetSwitchHands {
         }
     }
 }
-pub struct NetTakeOffItem {
+pub(crate) struct NetTakeOffItem {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -48,7 +48,7 @@ impl PendingMessage for NetTakeOffItem {
         }
     }
 }
-pub struct NetWearItem {
+pub(crate) struct NetWearItem {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -60,7 +60,7 @@ impl PendingMessage for NetWearItem {
         }
     }
 }
-pub struct NetThrowItem {
+pub(crate) struct NetThrowItem {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

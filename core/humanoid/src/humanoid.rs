@@ -8,7 +8,6 @@ use api::{
     gridmap::{world_to_cell_id, GridmapMain},
     inventory::Inventory,
     load_entity::NetUnloadEntity,
-    network::ReliableServerMessage,
     pawn::PawnYAxisRotations,
     sensable::Sensable,
 };
@@ -39,16 +38,19 @@ use bevy_rapier3d::{
 
 use std::time::Duration;
 
+/// Link repeated footstep sfx with an entity.
 #[derive(Component)]
-pub struct LinkedFootstepsSprinting {
+pub(crate) struct LinkedFootstepsSprinting {
     pub entity: Entity,
 }
 
+/// Link repeated footstep sfx with an entity.
 #[derive(Component)]
-pub struct LinkedFootstepsWalking {
+pub(crate) struct LinkedFootstepsWalking {
     pub entity: Entity,
 }
 
+/// Humanoid character animation state.
 pub enum CharacterAnimationState {
     Idle,
     Jogging,
@@ -57,6 +59,7 @@ pub enum CharacterAnimationState {
 
 const FIRST_MELEE_TIME: u64 = 433;
 
+/// Humanoid component.
 #[derive(Component)]
 pub struct Humanoid {
     pub current_lower_animation_state: CharacterAnimationState,
@@ -84,12 +87,8 @@ impl Default for Humanoid {
     }
 }
 
-pub struct NetHumanoid {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
-pub fn toggle_combat_mode(
+/// Toggle combat mode.
+pub(crate) fn toggle_combat_mode(
     mut toggle_combat_mode_events: EventReader<InputToggleCombatMode>,
     mut standard_character_query: Query<&mut Humanoid>,
 ) {
@@ -112,13 +111,15 @@ const MAX_RUN_SPEED: f32 = 14.;
 const COMBAT_ROTATION_SPEED: f32 = 18.;
 const DOWN_FORCE: f32 = -1.0;
 
+/// Animation movement state.
 enum CharacterMovementState {
     None,
     Jogging,
     Sprinting,
 }
 
-pub fn humanoids(
+/// Manage humanoids.
+pub(crate) fn humanoids(
     mut humanoids_query: Query<
         (
             Entity,

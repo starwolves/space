@@ -1,6 +1,6 @@
 use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
-pub struct NetGridmapUpdates {
+pub(crate) struct NetGridmapUpdates {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -12,7 +12,7 @@ impl PendingMessage for NetGridmapUpdates {
         }
     }
 }
-pub struct NetProjectileFOV {
+pub(crate) struct NetProjectileFOV {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

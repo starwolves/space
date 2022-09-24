@@ -1,9 +1,11 @@
+//! The map consisting of cells representing the ship.
+
 pub mod build;
 pub mod can_reach_entity;
 pub mod events;
-pub mod examine;
+mod examine;
 pub mod fov;
-pub mod init;
-pub mod net;
+mod init;
+mod net;
 pub mod plugin;
-pub mod sensing_ability;
+mod sensing_ability;

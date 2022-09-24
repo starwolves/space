@@ -1,14 +1,16 @@
+//! Logic regarding connected clients.
+
 pub mod boarding;
-pub mod broadcast_interpolation_transforms;
-pub mod connection;
-pub mod connection_events;
-pub mod console_commands;
-pub mod health_ui;
+mod broadcast_interpolation_transforms;
+mod connection;
+mod connection_events;
+mod console_commands;
+mod health_ui;
 pub mod humanoid;
-pub mod input;
-pub mod name_generator;
-pub mod net;
+mod input;
+mod name_generator;
+mod net;
 pub mod plugin;
-pub mod send_entity_update;
-pub mod send_net;
-pub mod setup_ui;
+mod send_entity_update;
+mod send_net;
+mod setup_ui;

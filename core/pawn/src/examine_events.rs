@@ -6,7 +6,7 @@ use api::{
 };
 use bevy::prelude::{warn, Query, ResMut};
 
-pub struct NetPawnExamine {
+pub(crate) struct NetPawnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -19,7 +19,8 @@ impl PendingMessage for NetPawnExamine {
     }
 }
 
-pub fn examine_map(
+/// Examine gridmap.
+pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     senser_entities: Query<&Senser>,
 ) {

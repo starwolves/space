@@ -1,4 +1,6 @@
-pub mod actions;
+//! InventoryItems interact with Inventory entities.
+
+mod actions;
 pub mod entity_update;
 pub mod item;
 pub mod plugin;

@@ -1,3 +1,4 @@
-pub mod examine_events;
-pub mod net;
+//! Health for entities.
+
+mod examine_events;
 pub mod plugin;
