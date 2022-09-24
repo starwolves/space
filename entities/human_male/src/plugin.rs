@@ -1,8 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use entity::{entity_data::initialize_entity_data, spawn::SpawnEvent};
-use player_controller::humanoid::{
-    default_human_dummy, summon_base_human_male, summon_human_male, HumanMaleSummoner,
-};
+use player_controller::humanoid::{summon_base_human_male, summon_human_male, HumanMaleSummoner};
 
 use api::data::{
     CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
@@ -28,11 +26,6 @@ impl Plugin for HumanMalePlugin {
             .add_event::<SpawnEvent<HumanMaleSummoner>>()
             .add_system(
                 (summon_rigid_body::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
-            )
-            .add_system(
-                (default_human_dummy)
-                    .label(SummoningLabels::DefaultSummon)
-                    .after(SummoningLabels::NormalSummon),
             )
             .add_system(
                 hands_attack_handler

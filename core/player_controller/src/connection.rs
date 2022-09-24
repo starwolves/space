@@ -26,6 +26,7 @@ pub struct SetupPhase;
 #[derive(Component)]
 pub struct OnBoard;
 
+/// Data for spawning a pawn.
 #[derive(Clone)]
 pub struct SpawnPawnData {
     pub persistent_player_data: PersistentPlayerData,
@@ -34,7 +35,8 @@ pub struct SpawnPawnData {
     pub designation: PawnDesignation,
 }
 
-pub fn connections(
+/// Manage connection events.
+pub(crate) fn connections(
     tick_rate: Res<TickRate>,
     mut auth_id_i: ResMut<AuthidI>,
     server_id: Res<ServerId>,
@@ -88,6 +90,7 @@ pub fn connections(
     }
 }
 
+/// On player disconnect.
 pub fn on_player_disconnect(
     handle: u64,
     handle_to_entity: &mut ResMut<HandleToEntity>,
@@ -145,7 +148,8 @@ pub fn on_player_disconnect(
     handle_to_entity.map.remove(&handle);
 }
 
+/// Current incremented authentication ID.
 #[derive(Default)]
-pub struct AuthidI {
+pub(crate) struct AuthidI {
     pub i: u16,
 }

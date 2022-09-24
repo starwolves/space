@@ -1,6 +1,14 @@
 use std::time::Duration;
 
-pub fn tick_timers_slowed(mut query_ambience_sfx_timer: Query<(&mut AmbienceSfxTimer, &mut Sfx)>) {
+use bevy::prelude::{Commands, Entity, Query, ResMut};
+
+use crate::entity_update::SfxAutoDestroyTimers;
+
+use super::builder::{AmbienceSfxTimer, Sfx};
+
+pub(crate) fn tick_timers_slowed(
+    mut query_ambience_sfx_timer: Query<(&mut AmbienceSfxTimer, &mut Sfx)>,
+) {
     for (mut timer_component, mut sfx_component) in query_ambience_sfx_timer.iter_mut() {
         if timer_component
             .timer
@@ -19,13 +27,11 @@ pub fn tick_timers_slowed(mut query_ambience_sfx_timer: Query<(&mut AmbienceSfxT
     }
 }
 
-use bevy::prelude::{Commands, Entity, Query, ResMut};
-
-use crate::entity_update::SfxAutoDestroyTimers;
-
-use super::builder::{AmbienceSfxTimer, Sfx};
-
-pub fn free_sfx(mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>, mut commands: Commands) {
+/// Despawn sfx.
+pub(crate) fn free_sfx(
+    mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
+    mut commands: Commands,
+) {
     let mut expired_sfx_entities: Vec<Entity> = vec![];
 
     for (sfx_entity, incremental) in &mut sfx_auto_destroy_timers.timers {

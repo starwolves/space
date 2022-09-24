@@ -5,7 +5,8 @@ use bevy::prelude::{Changed, Entity, Query};
 
 use super::builder::{RepeatingSfx, Sfx};
 
-pub fn repeating_sfx_update(
+/// Manage repeating sfx entity updates.
+pub(crate) fn repeating_sfx_update(
     mut updated_sfx: Query<(&RepeatingSfx, &mut EntityUpdates), Changed<RepeatingSfx>>,
 ) {
     for (sfx_component, mut entity_updates_component) in updated_sfx.iter_mut() {
@@ -106,7 +107,8 @@ pub fn repeating_sfx_update(
     }
 }
 
-pub fn sfx_update(mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), Changed<Sfx>>) {
+/// Manage sfx entity updates.
+pub(crate) fn sfx_update(mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), Changed<Sfx>>) {
     for (mut sfx_component, mut entity_updates_component) in updated_sfx.iter_mut() {
         let old_entity_updates = entity_updates_component.updates.clone();
 

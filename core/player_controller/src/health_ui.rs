@@ -25,11 +25,12 @@ const HEAVY_UI_RED: f32 = 255.;
 const HEAVY_UI_GREEN: f32 = 0.;
 const HEAVY_UI_BLUE: f32 = 60.;
 
+/// All client health UI caches.
 #[derive(Default)]
 pub struct ClientHealthUICache {
     pub cache: HashMap<Entity, ClientHealthUI>,
 }
-
+/// Client health UI cache.
 pub struct ClientHealthUI {
     pub head_damage: UIDamageType,
     pub torso_damage: UIDamageType,
@@ -38,6 +39,7 @@ pub struct ClientHealthUI {
     pub left_leg_damage: UIDamageType,
     pub right_leg_damage: UIDamageType,
 }
+/// All UI damage types.
 pub enum UIDamageType {
     None,
     Light,
@@ -45,7 +47,8 @@ pub enum UIDamageType {
     Heavy,
 }
 
-pub fn health_ui_update(
+/// Manage sending UI health updates.
+pub(crate) fn health_ui_update(
     mut updated_player_health_entities: Query<
         (Entity, &ConnectedPlayer, &HealthComponent),
         Changed<HealthComponent>,

@@ -6,7 +6,8 @@ use networking::messages::{
 };
 use pawn::pawn::ControllerInput;
 
-pub fn controller_input(
+/// Manage controller (as in controller of a pawn) input.
+pub(crate) fn controller_input(
     mut alternative_item_attack_events: EventReader<InputAltItemAttack>,
     mut input_attack_entity: EventReader<InputAttackEntity>,
     mut input_attack_cell: EventReader<InputAttackCell>,
@@ -90,7 +91,8 @@ pub fn controller_input(
     }
 }
 
-pub fn player_input_event(
+/// Manage player input.
+pub(crate) fn player_input_event(
     mut movement_input_event: EventReader<InputMovementInput>,
     mut sprinting_input_event: EventReader<InputSprinting>,
     mut query: Query<&mut ControllerInput>,

@@ -4,10 +4,11 @@ use sfx::entity_update::SfxAutoDestroyTimers;
 
 pub mod actions;
 pub mod air_lock;
-pub mod ambience;
-pub mod combat;
+mod ambience;
+mod combat;
 pub mod construction;
 pub mod counter_window;
+pub mod shared;
 pub mod ui;
 
 pub struct SoundsPlugin;
@@ -18,5 +19,3 @@ impl Plugin for SoundsPlugin {
             .init_resource::<SfxAutoDestroyTimers>();
     }
 }
-
-pub mod shared;

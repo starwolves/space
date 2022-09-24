@@ -6,9 +6,8 @@ use api::{
         ProjectileCombat,
     },
     data::{
-        ConnectedPlayer, EntityDataResource, HandleToEntity, NoData, Showcase,
-        HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
-        PISTOL_L1_ENTITY_NAME,
+        ConnectedPlayer, EntityDataResource, NoData, Showcase, HUMAN_DUMMY_ENTITY_NAME,
+        HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
     },
     data_link::{DataLink, DataLinkType},
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
@@ -17,19 +16,37 @@ use api::{
     health::{Health, HealthContainer, HumanoidHealth},
     humanoid::UsedNames,
     inventory::{Inventory, Slot, SlotType},
-    network::{ReliableServerMessage, ServerConfigMessage},
-    pawn::{PawnDesignation, Spawning},
+    network::ReliableServerMessage,
+    pawn::PawnDesignation,
     senser::Senser,
 };
 use bevy::{
     math::Vec2,
     prelude::{Changed, Entity, Query},
 };
+use bevy::{
+    math::Vec3,
+    prelude::{EventReader, Transform},
+};
+use entity::{
+    entity_data::NetShowcase,
+    spawn::{
+        base_entity_builder, BaseEntityBundle, BaseEntityData, BaseEntitySummonable,
+        DefaultSpawnEvent, SpawnData, SpawnEvent,
+    },
+};
+use pawn::pawn::{ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
+
+use crate::connection::SpawnPawnData;
+
+use std::collections::BTreeMap;
+
+use bevy::prelude::{Commands, EventWriter, ResMut};
+use inventory_item::spawn::spawn_held_entity;
+
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
-use entity::entity_data::{
-    CONSTRUCTION_TOOL_ENTITY_NAME, ENTITY_SPAWN_PARENT, HELMET_SECURITY_ENTITY_NAME,
-};
+use entity::entity_data::{ENTITY_SPAWN_PARENT, HELMET_SECURITY_ENTITY_NAME};
 use humanoid::{
     humanoid::{CharacterAnimationState, Humanoid},
     user_name::get_dummy_name,
@@ -45,7 +62,8 @@ use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
 use vector2math::{FloatingVector2, Vector2};
 
-pub fn humanoid_update(
+/// Humanoid entity updates.
+pub(crate) fn humanoid_update(
     mut updated_humans: Query<
         (
             Entity,
@@ -434,96 +452,12 @@ pub fn humanoid_update(
     }
 }
 
-use bevy::prelude::{Added, Commands, EventWriter, ResMut};
-use inventory_item::spawn::spawn_held_entity;
-
-pub struct NetHuman {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
-pub fn on_spawning(
-    mut net_on_new_player_connection: EventWriter<NetHuman>,
-    query: Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData), Added<Spawning>>,
-    mut commands: Commands,
-    mut handle_to_entity: ResMut<HandleToEntity>,
-    mut used_names: ResMut<UsedNames>,
-    mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
-) {
-    for (
-        entity_id,
-        spawning_component,
-        connected_player_component,
-        persistent_player_data_component,
-    ) in query.iter()
-    {
-        let passed_inventory_setup = vec![
-            (
-                "jumpsuit".to_string(),
-                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
-            ),
-            (
-                "helmet".to_string(),
-                HELMET_SECURITY_ENTITY_NAME.to_string(),
-            ),
-            ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
-            (
-                "left_hand".to_string(),
-                CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
-            ),
-        ];
-
-        let new_entity = commands.spawn().id();
-
-        summon_human_male.send(SpawnEvent {
-            spawn_data: SpawnData {
-                entity: new_entity,
-                entity_transform: spawning_component.transform,
-                entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
-                ..Default::default()
-            },
-            summoner: HumanMaleSummoner {
-                character_name: persistent_player_data_component.character_name.clone(),
-                user_name: persistent_player_data_component.user_name.clone(),
-                spawn_pawn_data: SpawnPawnData {
-                    persistent_player_data: persistent_player_data_component.clone(),
-                    connected_player_option: Some(connected_player_component.clone()),
-                    inventory_setup: passed_inventory_setup,
-                    designation: PawnDesignation::Player,
-                },
-            },
-        });
-
-        let handle = *handle_to_entity.inv_map.get(&entity_id).unwrap();
-
-        handle_to_entity.inv_map.remove(&entity_id);
-        handle_to_entity.inv_map.insert(new_entity, handle);
-
-        handle_to_entity.map.remove(&handle);
-        handle_to_entity.map.insert(handle, new_entity);
-
-        used_names.names.insert(
-            persistent_player_data_component.character_name.clone(),
-            new_entity,
-        );
-
-        commands.entity(entity_id).despawn();
-
-        net_on_new_player_connection.send(NetHuman {
-            handle: handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(
-                new_entity.to_bits(),
-            )),
-        });
-    }
-}
-
-use std::collections::BTreeMap;
-
+/// Get default transform.
 pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
+/// Human male spawn data.
 pub struct HumanMaleSummonData {
     pub used_names: UsedNames,
 }
@@ -574,6 +508,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
     }
 }
 
+/// Spawn human male base handler.
 pub fn summon_base_human_male<
     T: BaseEntitySummonable<HumanMaleSummonData> + Send + Sync + 'static,
 >(
@@ -624,21 +559,8 @@ pub fn summon_base_human_male<
         }
     }
 }
-use bevy::{
-    math::Vec3,
-    prelude::{EventReader, Transform},
-};
-use entity::{
-    entity_data::NetShowcase,
-    spawn::{
-        base_entity_builder, BaseEntityBundle, BaseEntityData, BaseEntitySummonable,
-        DefaultSpawnEvent, SpawnData, SpawnEvent,
-    },
-};
-use pawn::pawn::{ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
 
-use crate::connection::SpawnPawnData;
-
+/// Human male spawner.
 pub struct HumanMaleSummoner {
     pub character_name: String,
     pub user_name: String,
@@ -682,7 +604,7 @@ pub trait HumanMaleSummonable {
     fn get_user_name(&self) -> String;
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
-
+/// Spawn human male handler.
 pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -900,7 +822,8 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     }
 }
 
-pub fn default_human_dummy(
+/// Manage spawning human dummy.
+pub(crate) fn default_human_dummy(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,
     mut used_names: ResMut<UsedNames>,

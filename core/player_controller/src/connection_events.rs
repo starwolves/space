@@ -14,7 +14,8 @@ use pawn::pawn::{ControllerInput, PersistentPlayerData};
 
 use crate::connection::AuthidI;
 
-pub fn on_new_player_connection(
+/// Manage new player connections.
+pub(crate) fn on_new_player_connection(
     net_on_new_player_connection: &mut EventWriter<NetPlayerConn>,
     handle: &u64,
     tick_rate: &Res<TickRate>,

@@ -26,7 +26,8 @@ use super::{
     net::NetOnSetupUI,
 };
 
-pub fn ui_input_event(
+/// Manage client UI input events.
+pub(crate) fn ui_input_event(
     mut event: EventReader<InputUIInput>,
     handle_to_entity: Res<HandleToEntity>,
     criteria_query: Query<&SoftPlayer>,
@@ -59,7 +60,8 @@ pub fn ui_input_event(
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 
-pub fn on_setupui(
+/// Manage on setupUI events.
+pub(crate) fn on_setupui(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,
     query: Query<(&ConnectedPlayer, &PersistentPlayerData), Added<SetupPhase>>,

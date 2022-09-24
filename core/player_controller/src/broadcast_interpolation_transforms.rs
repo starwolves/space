@@ -15,21 +15,24 @@ use entity::entity_data::CachedBroadcastTransform;
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use physics::physics::RigidBodyDisabled;
 
+/// All transform interpolation rates.
 #[derive(Debug)]
 #[allow(dead_code)]
-pub enum InterpolationPriorityRates {
+enum InterpolationPriorityRates {
     T4,
     T8,
     T12,
     T24,
 }
 
+/// Interpolation frame.
 #[derive(Default)]
-pub struct InterpolationFrame {
+pub(crate) struct InterpolationFrame {
     pub i: u8,
 }
 
-pub fn broadcast_interpolation_transforms(
+/// Broadcast transforms.
+pub(crate) fn broadcast_interpolation_transforms(
     time: Res<Time>,
 
     mut net: ResMut<RenetServer>,
@@ -161,6 +164,7 @@ pub fn broadcast_interpolation_transforms(
     }
 }
 
+/// Check if this is the frame for interpolation.
 fn is_interpolation_frame(
     entity_tick_rate: &InterpolationPriorityRates,
     current_frame: u8,

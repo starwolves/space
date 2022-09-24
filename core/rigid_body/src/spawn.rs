@@ -174,6 +174,7 @@ pub trait RigidBodySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> RigidBodyBundle;
 }
 
+/// Rigid body spawning.
 pub fn summon_rigid_body<T: RigidBodySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
