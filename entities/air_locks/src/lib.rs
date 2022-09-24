@@ -1,4 +1,4 @@
-//! The spaceship air locks.
+//! Airlocks with authentication systems.
 
 mod actions;
 pub mod air_lock;

@@ -4,7 +4,8 @@ use api::{
 };
 use bevy::prelude::{Changed, Query};
 
-pub fn gi_probe_update(
+/// GI Probe entity update.
+pub (crate) fn gi_probe_update(
     mut updated_gi_probes: Query<(&GIProbe, &mut EntityUpdates), Changed<GIProbe>>,
 ) {
     for (gi_probe_component, mut entity_updates_component) in updated_gi_probes.iter_mut() {

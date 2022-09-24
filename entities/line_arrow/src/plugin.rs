@@ -12,7 +12,7 @@ use entity::{
 use crate::console_command::entity_console_commands;
 
 use super::{
-    console_command::point_arrow,
+    console_command::expire_point_arrow,
     spawn::{default_line_arrow, summon_line_arrow, LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
 };
 
@@ -42,7 +42,7 @@ pub struct PointArrowPlugin;
 
 impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(point_arrow).add_system(
+        app.add_system(expire_point_arrow).add_system(
             (summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon),
         );
     }

@@ -15,7 +15,8 @@ use super::{
     spawn::{LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
 };
 
-pub fn entity_console_commands(
+/// manage "pointArrow" command.
+pub (crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
     mut spawn_event: EventWriter<SpawnEvent<LineArrowSummoner>>,
@@ -129,7 +130,8 @@ pub fn entity_console_commands(
     }
 }
 
-pub fn point_arrow(
+/// Despawn point arrows after duration.
+pub (crate) fn expire_point_arrow(
     mut point_arrows: Query<(Entity, &mut PointArrow, &mut Sensable)>,
     time: Res<Time>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,

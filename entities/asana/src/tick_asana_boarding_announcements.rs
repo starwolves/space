@@ -8,7 +8,8 @@ use chat::chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMe
 use pawn::pawn::{PersistentPlayerData, ShipJobsEnum};
 use player_controller::boarding::BoardingAnnouncements;
 
-pub fn tick_asana_boarding_announcements(
+/// Manage asana boarding announcements.
+pub (crate) fn tick_asana_boarding_announcements(
     mut net_new_chat_message_event: EventWriter<NetChatMessage>,
     handle_to_entity: Res<HandleToEntity>,
     radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,

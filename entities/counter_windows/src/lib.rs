@@ -1,3 +1,5 @@
+//! Interactle windows with authorization systems.
+
 mod actions;
 pub mod counter_window_added;
 pub mod counter_window_events;

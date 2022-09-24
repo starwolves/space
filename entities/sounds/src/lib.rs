@@ -1,3 +1,5 @@
+//! Sound effect storage.
+
 use ambience::ambience_sfx::startup_ambience;
 use bevy::prelude::{App, Plugin};
 use sfx::entity_update::SfxAutoDestroyTimers;

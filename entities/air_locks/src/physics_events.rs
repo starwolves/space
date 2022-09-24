@@ -7,7 +7,8 @@ use bevy_rapier3d::{pipeline::CollisionEvent, prelude::Collider};
 
 use crate::air_lock_added::AirLockCollision;
 
-pub fn physics_events(
+/// Manage air lock physics events.
+pub (crate) fn physics_events(
     mut collision_events: EventReader<CollisionEvent>,
     interesting_entities_query: Query<(Entity, &EntityData, &Transform)>,
     parents: Query<&Parent, With<Collider>>,

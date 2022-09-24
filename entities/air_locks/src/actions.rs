@@ -12,7 +12,7 @@ use super::air_lock_added::{
     AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
 };
 
-pub fn toggle_open_action_prequisite_check(
+pub (crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
 ) {
@@ -76,7 +76,8 @@ pub fn toggle_open_action_prequisite_check(
     }
 }
 
-pub fn air_lock_actions(
+/// Manage air lock actions.
+pub (crate) fn air_lock_actions(
     building_action: Res<BuildingActions>,
     mut air_lock_lock_open_event: EventWriter<AirLockLockOpen>,
     mut air_lock_lock_closed_event: EventWriter<AirLockLockClosed>,
@@ -176,7 +177,7 @@ pub fn air_lock_actions(
     }
 }
 
-pub fn lock_action_prequisite_check(
+pub (crate) fn lock_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     examiner: Query<(&Transform, &DataLink)>,
     transforms: Query<&Transform>,
@@ -247,7 +248,8 @@ pub fn lock_action_prequisite_check(
     }
 }
 
-pub fn build_actions(
+/// Build air lock actions.
+pub (crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     air_locks: Query<&AirLock>,
 ) {
