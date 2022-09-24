@@ -8,39 +8,45 @@ use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, Re
 
 use crate::{active_attacks::ActiveAttacks, attack::QueryCombatHitResult};
 
+/// Entity hits.
 pub struct EntityHit {
     pub entity: Entity,
     pub hit_result: HitResult,
     pub limb_hit: String,
 }
-
+/// Cell hits.
 pub struct CellHit {
     pub cell_id: Vec3Int,
     pub hit_result: HitResult,
 }
 
+/// Combat results for health.
 pub struct HealthCombatHitResult {
     pub incremented_id: u64,
     pub entities_hits: Vec<EntityHit>,
     pub cell_hits: Vec<CellHit>,
 }
 
+/// Active damage applyers.
 #[derive(Default)]
 pub struct ActiveApplyDamage {
     pub list: Vec<DamageApplyer>,
 }
 
+/// A health damage event.
 pub struct DamageApplyer {
     pub incremented_id: u64,
     pub damage_models: Vec<ApplyDamageModel>,
     pub multipliers: Vec<DamageMultiplier>,
 }
 
+/// For damage applyers.
 pub struct ApplyDamageModel {
     pub damage_model: DamageModel,
     pub signature: String,
 }
 
+/// Multiply damage.
 pub struct DamageMultiplier {
     pub brute: f32,
     pub burn: f32,
@@ -48,7 +54,8 @@ pub struct DamageMultiplier {
     pub signature: String,
 }
 
-pub fn start_apply_damage(
+/// Initiate damage applying.
+pub(crate) fn start_apply_damage(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     combat_storage: Res<ActiveAttacks>,
     weapon_entities: Query<(&MeleeCombat, Option<&ProjectileCombat>)>,
@@ -135,7 +142,8 @@ pub fn start_apply_damage(
     }
 }
 
-pub fn finalize_apply_damage(
+/// Finalize damage applying.
+pub(crate) fn finalize_apply_damage(
     combat_storage: Res<ActiveAttacks>,
     mut health_entities: Query<&mut HealthComponent>,
     mut health_combat_hit_result: EventWriter<HealthCombatHitResult>,

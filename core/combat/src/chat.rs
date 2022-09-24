@@ -33,6 +33,7 @@ impl PendingMessage for NetHitQueryChat {
     }
 }
 
+/// Integrate chat with attacks.
 pub fn attacked_by_chat<T: Component>(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -627,7 +628,7 @@ pub fn hit_query_chat_cells(
     }
 }
 
-pub fn blanks_chat(
+pub(crate) fn blanks_chat(
     mut projectile_blanks: EventReader<ProjectileBlank>,
     active_attacks: Res<ActiveAttacks>,
     attackers: Query<&Examinable>,

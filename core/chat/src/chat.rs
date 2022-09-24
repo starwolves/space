@@ -66,12 +66,14 @@ use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use sfx::{proximity_message::PlaySoundProximityMessage, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 
+/// Radio component for entities that can hear or speak to radios.
 #[derive(Component)]
 pub struct Radio {
     pub listen_access: Vec<RadioChannel>,
     pub speak_access: Vec<RadioChannel>,
 }
 
+/// All radio channels.
 #[derive(PartialEq, Debug, Clone)]
 pub enum RadioChannel {
     Proximity,
@@ -93,6 +95,8 @@ impl PendingMessage for NetChatMessage {
         }
     }
 }
+
+/// Handle chat message input.
 pub(crate) fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
     handle_to_entity: Res<HandleToEntity>,
@@ -179,12 +183,14 @@ pub(crate) fn chat_message_input_event(
     }
 }
 
+/// Chat distance.
 enum Distance {
     Nearby,
     Further,
     Far,
 }
 
+/// Chat talk style variant.
 enum TalkStyleVariant {
     Standard,
     Shouts,
@@ -192,11 +198,13 @@ enum TalkStyleVariant {
     Asks,
 }
 
+/// Chat communicator.
 pub enum Communicator {
     Standard,
     Machine,
 }
 
+/// Check if a message has a shouting intend.
 fn is_shouting(message: &str) -> bool {
     message.ends_with("!!!")
         || message.ends_with("!!?")
@@ -209,11 +217,12 @@ fn is_shouting(message: &str) -> bool {
         || message.ends_with("???")
 }
 
+/// Check if a message has a questioning intend.
 fn is_asking(message: &str) -> bool {
     message.ends_with("?") || message.ends_with("??") || message.ends_with("?!")
 }
 
-// Updates chat ButtonOption list for clients.
+/// Sets radio channel list for clients in setup UI to only show global chat availability.
 pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     vec![(
         "Global".to_string(),
@@ -221,6 +230,7 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     )]
 }
 
+/// Process chat prefixes which act as flags.
 fn get_talk_space(message: String) -> (RadioChannel, String, bool, bool) {
     let radio_channel;
     let content;
@@ -255,6 +265,7 @@ fn get_talk_space(message: String) -> (RadioChannel, String, bool, bool) {
     (radio_channel, content, exclusive_proximity, is_emote)
 }
 
+/// Manage global messages.
 pub(crate) fn new_global_message(
     persistent_player_data_component: &PersistentPlayerData,
     global_listeners: &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
@@ -277,11 +288,13 @@ pub(crate) fn new_global_message(
     }
 }
 
+/// Parts of the chat and radio channels can and can't they access depend on it.
 pub enum MessagingPlayerState {
     SoftConnected,
     Alive,
 }
 
+/// The main chat function. It is huge, not-modular and just overall not nice. This will get modularized and rewritten.
 pub fn new_chat_message(
     net_new_chat_message_event: &mut EventWriter<NetChatMessage>,
     handle_to_entity: &Res<HandleToEntity>,

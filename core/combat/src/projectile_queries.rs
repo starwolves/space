@@ -27,6 +27,7 @@ use crate::{
     melee_queries::{AttackResult, ATTACK_HEIGHT},
 };
 
+/// Projectile attack physics query.
 pub struct ProjectileQuery {
     pub attacker_entity: Entity,
     pub targetted_entity: Option<Entity>,
@@ -37,7 +38,8 @@ pub struct ProjectileQuery {
     pub incremented: u64,
 }
 
-pub fn projectile_attack(
+/// Perform a projectile attack physics query.
+pub(crate) fn projectile_attack(
     mut projectile_events: EventReader<ProjectileQuery>,
     attacker_entities: Query<&Transform>,
     rapier_context: Res<RapierContext>,
@@ -388,11 +390,13 @@ pub fn projectile_attack(
     }
 }
 
+/// In case projectile hit nothing.
 pub struct ProjectileBlank {
     pub hit_point: Vec3,
     pub incremented_id: u64,
 }
 
+/// Perform projectile attack handler logic.
 pub fn projectile_attack_handler<T: Component>(
     weapon_entities: Query<&ProjectileCombat, With<T>>,
     mut attacks: EventReader<Attack>,

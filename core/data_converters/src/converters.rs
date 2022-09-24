@@ -1,6 +1,18 @@
+use api::data::Vec2Int;
+use bevy::{
+    math::{Quat, Vec3},
+    prelude::Transform,
+};
+use bevy_rapier3d::{
+    na::Quaternion,
+    rapier::math::{Isometry, Real, Rotation, Translation},
+};
+
+/// Error message for vector3.
 const STRING_VEC3_TO_VEC3_CANNOT_PARSE_MESSAGE: &str =
     "main.rs string_vec3_to_vec3() Error cannot parse cell id string as Vector 3.";
 
+/// Convert vector3.
 pub fn string_vec3_to_vec3(string_vector: &str) -> Vec3 {
     let clean_string = string_vector.replace(" ", "");
 
@@ -27,9 +39,11 @@ pub fn string_vec3_to_vec3(string_vector: &str) -> Vec3 {
     )
 }
 
+/// Error message for vector2.
 const _STRING_VEC2_TO_VEC2_CANNOT_PARSE_MESSAGE: &str =
     "main.rs string_vec2_to_vec2() Error cannot parse cell id string as Vector 3.";
 
+/// Convert vector2.
 pub fn _string_vec2_to_vec2_int(string_vector: &str) -> Vec2Int {
     let clean_string = string_vector.replace(" ", "");
 
@@ -53,16 +67,7 @@ pub fn _string_vec2_to_vec2_int(string_vector: &str) -> Vec2Int {
     }
 }
 
-use api::data::Vec2Int;
-use bevy::{
-    math::{Quat, Vec3},
-    prelude::Transform,
-};
-use bevy_rapier3d::{
-    na::Quaternion,
-    rapier::math::{Isometry, Real, Rotation, Translation},
-};
-
+/// Convert transforms.
 pub fn transform_to_isometry(transform: Transform) -> Isometry<Real> {
     let translation: Translation<f32> = Vec3::new(
         transform.translation.x,
@@ -85,7 +90,7 @@ pub fn transform_to_isometry(transform: Transform) -> Isometry<Real> {
         rotation: rotation,
     }
 }
-
+/// Convert transforms.
 pub fn isometry_to_transform(isometry: Isometry<Real>) -> Transform {
     let translation = Vec3::new(
         isometry.translation.x,

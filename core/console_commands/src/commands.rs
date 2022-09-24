@@ -30,6 +30,7 @@ impl PendingMessage for NetEntityConsole {
     }
 }
 
+/// Player selector to entities.
 pub fn player_selector_to_entities(
     command_executor_entity: Entity,
     command_executor_handle_option: Option<u64>,
@@ -99,10 +100,12 @@ pub fn player_selector_to_entities(
     vec![]
 }
 
+/// Resource containing custom console commands.
 #[derive(Default)]
 pub struct AllConsoleCommands {
     pub list: Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)>,
 }
+/// Initialize console commands.
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "rcon".to_string(),

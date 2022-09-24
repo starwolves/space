@@ -13,6 +13,7 @@ use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use serde::Deserialize;
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
 pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
+/// Initialize entity data.
 pub fn initialize_entity_data(
     entity_data: &mut ResMut<EntityDataResource>,
     entity_properties: EntityDataProperties,
@@ -29,7 +30,8 @@ pub fn initialize_entity_data(
 use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 
-pub fn broadcast_position_updates(
+/// Broadcast transforms of entities to players for interpolation.
+pub(crate) fn broadcast_position_updates(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
 
@@ -110,12 +112,15 @@ impl PendingMessage for NetShowcase {
         }
     }
 }
+/// Entities that were included in the map itself.
 #[derive(Component)]
 pub struct DefaultMapEntity;
 
+/// Event about spawning entities from json.
 pub struct RawSpawnEvent {
     pub raw_entity: RawEntity,
 }
+/// Load json entities.
 pub fn load_raw_map_entities(
     raw_entities: &Vec<RawEntity>,
     spawn_raw_entity: &mut EventWriter<RawSpawnEvent>,
@@ -127,20 +132,25 @@ pub fn load_raw_map_entities(
     }
 }
 
+/// json entity.
 #[derive(Deserialize, Clone)]
 pub struct RawEntity {
     pub entity_type: String,
     pub transform: String,
     pub data: String,
 }
+/// The reserved server entity.
 #[derive(Component)]
 pub struct Server;
 
+/// The cache of the latest broadcasted transforms.
 #[derive(Component, Default)]
 pub struct CachedBroadcastTransform {
     pub transform: Transform,
     pub is_active: bool,
 }
+/// UpdateTransform for sound effects.
 #[derive(Component)]
 pub struct UpdateTransform;
+/// The NodePath to the node to spawn entities in on the Godot clients.
 pub const ENTITY_SPAWN_PARENT : &str = "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial";
