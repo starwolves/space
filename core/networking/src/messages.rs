@@ -87,7 +87,7 @@ pub struct InputAttackCell {
 }
 
 #[derive(Debug, Clone)]
-pub struct InputActionDataMap {
+pub struct InputListActionsMap {
     pub player_entity: Entity,
     pub gridmap_type: GridMapType,
     pub gridmap_cell_id: Vec3Int,
@@ -151,8 +151,8 @@ pub fn incoming_messages(
         EventWriter<InputAltItemAttack>,
         EventWriter<InputThrowItem>,
         EventWriter<InputAttackCell>,
-        EventWriter<InputActionDataEntity>,
-        EventWriter<InputActionDataMap>,
+        EventWriter<InputListActionsEntity>,
+        EventWriter<InputListActionsMap>,
         EventWriter<InputAction>,
         EventWriter<InputMapChangeDisplayMode>,
     ),
@@ -535,7 +535,7 @@ pub fn incoming_messages(
                 ReliableClientMessage::TabDataEntity(entity_id_bits) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
-                            action_data_entity.send(InputActionDataEntity {
+                            action_data_entity.send(InputListActionsEntity {
                                 player_entity: *player_entity,
                                 examine_entity_bits: Entity::from_bits(entity_id_bits),
                                 with_ui: true,
@@ -549,7 +549,7 @@ pub fn incoming_messages(
                 ReliableClientMessage::TabDataMap(gridmap_type, idx, idy, idz) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
-                            action_data_map.send(InputActionDataMap {
+                            action_data_map.send(InputListActionsMap {
                                 player_entity: *player_entity,
                                 gridmap_type: gridmap_type,
                                 gridmap_cell_id: Vec3Int {
@@ -780,7 +780,7 @@ pub struct InputUserName {
     pub input_name: String,
 }
 #[derive(Clone)]
-pub struct InputActionDataEntity {
+pub struct InputListActionsEntity {
     pub player_entity: Entity,
     pub examine_entity_bits: Entity,
     pub with_ui: bool,

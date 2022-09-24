@@ -13,7 +13,7 @@ use super::{
     map_events::{atmospherics_map, atmospherics_map_hover},
     net::{NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
     notices::atmospherics_notices,
-    rigidbody_forces::{rigidbody_forces_accumulation, rigidbody_forces_physics},
+    rigidbody_forces::{rigidbody_pawn_forces_accumulation, rigidbody_forces_physics},
     sensing_ability::atmospherics_sensing_ability,
     zero_gravity::zero_gravity,
 };
@@ -54,7 +54,7 @@ impl Plugin for AtmosphericsPlugin {
                             .after(AtmosphericsLabels::Diffusion)
                             .label(AtmosphericsLabels::Effects),
                     )
-                    .with_system(rigidbody_forces_accumulation.after(AtmosphericsLabels::Effects)),
+                    .with_system(rigidbody_pawn_forces_accumulation.after(AtmosphericsLabels::Effects)),
             )
             .init_resource::<RigidBodyForcesAccumulation>()
             .add_event::<NetMapHoverAtmospherics>()
@@ -79,6 +79,7 @@ impl Plugin for AtmosphericsPlugin {
     }
 }
 
+/// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum AtmosphericsLabels {
     Diffusion,

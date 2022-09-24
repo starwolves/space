@@ -1,16 +1,17 @@
-use api::atmospherics::CELCIUS_KELVIN_OFFSET;
 use bevy::{
     prelude::{warn, Res, ResMut},
     time::{FixedTimesteps, Time},
 };
 
-use crate::diffusion::AtmosphericsResource;
+use crate::diffusion::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;
 
+/// The intensity of atmospherics effects.
 const ATMOS_EFFECT_SPEED: f32 = 0.01;
 
-pub fn atmos_effects(
+/// Apply atmospherics effects.
+pub(crate) fn atmos_effects(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use api::{
-    atmospherics::Atmospherics,
     data::Vec2Int,
     gridmap::{get_atmos_index, FOV_MAP_WIDTH},
 };
@@ -13,19 +12,22 @@ use bevy::{
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;
 
+/// Accumulated rigid body forces of the atmospherics tick.
 #[derive(Default)]
-pub struct RigidBodyForcesAccumulation {
+pub(crate) struct RigidBodyForcesAccumulation {
     pub data: HashMap<Entity, Vec<Vec3>>,
 }
 
-// Between 0 and 1
+/// Between 0 and 1.
 const TEMPERATURE_DIFFUSIVITY: f32 = 1.;
+/// Between 0 and 1.
 const AMOUNT_DIFFUSIVITY: f32 = 1.;
 
-// The higher this is the more CPU intensive and the faster diffusion will take place.
+/// The higher this is the more CPU intensive and the faster diffusion will take place.
 pub const DIFFUSION_STEP: f64 = 28.;
 
-pub fn atmos_diffusion(
+/// Diffuse atmospherics.
+pub(crate) fn atmos_diffusion(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
     mut atmospherics: ResMut<AtmosphericsResource>,
@@ -146,6 +148,7 @@ pub fn atmos_diffusion(
     }
 }
 
+/// Stores map data related to atmospherics.
 pub struct AtmosphericsResource {
     pub atmospherics: Vec<Atmospherics>,
 }
@@ -159,10 +162,93 @@ impl Default for AtmosphericsResource {
 }
 
 impl AtmosphericsResource {
+    /// Check if cell id is out of atmospherics range.
     pub fn is_id_out_of_range(id: Vec2Int) -> bool {
         let half_width = FOV_MAP_WIDTH as i16 / 2;
         let range = -half_width..half_width;
         let in_range = range.contains(&id.x) && range.contains(&id.y);
         !in_range
     }
+}
+
+/// This struct gets repeated FOV_MAP_WIDTH*FOV_MAP_WIDTH (250k) times in [AtmosphericsResource].
+#[derive(Clone)]
+pub struct Atmospherics {
+    /// If blocked by world ie wall.
+    pub blocked: bool,
+    ///Kelvin
+    pub temperature: f32,
+    ///Mol
+    pub amount: f32,
+    pub flags: Vec<String>,
+    pub effects: HashMap<EffectType, AtmosEffect>,
+    /// If physics should push up on this tile.
+    pub forces_push_up: bool,
+}
+
+impl Default for Atmospherics {
+    fn default() -> Self {
+        let mut effects = HashMap::new();
+        effects.insert(EffectType::Floorless, VACUUM_ATMOSEFFECT);
+        Self {
+            blocked: false,
+            temperature: -270.45 + CELCIUS_KELVIN_OFFSET,
+            amount: 0.,
+            effects: effects,
+            flags: vec![],
+            forces_push_up: false,
+        }
+    }
+}
+
+/// 273.15
+pub const CELCIUS_KELVIN_OFFSET: f32 = 273.15;
+/// 84.58
+pub const DEFAULT_INTERNAL_AMOUNT: f32 = 84.58;
+
+impl Atmospherics {
+    pub fn new_internal(blocked: bool, forces_push_up: bool) -> Self {
+        Self {
+            blocked,
+            temperature: 20. + CELCIUS_KELVIN_OFFSET,
+            amount: DEFAULT_INTERNAL_AMOUNT,
+            effects: HashMap::new(),
+            flags: vec![],
+            forces_push_up,
+        }
+    }
+    pub fn get_pressure(&self) -> f32 {
+        // Return kpa
+        (((self.amount * 0.08206 * self.temperature) / 2000.) * 101325.) / 1000.
+    }
+}
+
+/// The atmospherics effect for vacuum.
+pub const VACUUM_ATMOSEFFECT: AtmosEffect = AtmosEffect {
+    target_temperature: -270.45 + CELCIUS_KELVIN_OFFSET,
+    temperature_speed: 500.,
+    heater: false,
+
+    target_amount: 0.,
+    amount_speed: 500.,
+    remover: true,
+};
+
+/// An atmospheric effect type.
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub enum EffectType {
+    Floorless,
+    Entity(Entity),
+}
+
+/// An atmospheric effect.
+#[derive(Clone, Debug)]
+pub struct AtmosEffect {
+    pub target_temperature: f32,
+    pub temperature_speed: f32,
+    pub heater: bool,
+
+    pub target_amount: f32,
+    pub amount_speed: f32,
+    pub remover: bool,
 }

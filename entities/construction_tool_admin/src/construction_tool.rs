@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use api::{
-    atmospherics::EffectType,
     chat::FURTHER_ITALIC_FONT,
     data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec2Int, Vec3Int},
     entity_updates::EntityData,
@@ -16,7 +15,7 @@ use api::{
     sensable::Sensable,
     senser::Senser,
 };
-use atmospherics::diffusion::AtmosphericsResource;
+use atmospherics::diffusion::{AtmosphericsResource, EffectType};
 use bevy::{
     math::Quat,
     prelude::{

@@ -1,5 +1,3 @@
-// Add to shared resources with _physics,
-
 use api::{
     data::{TickRate, Vec2Int},
     gridmap::{
@@ -14,7 +12,16 @@ use bevy_rapier3d::prelude::ExternalForce;
 use pawn::pawn::Pawn;
 use physics::physics::RigidBodyDisabled;
 
-pub fn rigidbody_forces_physics(
+use std::collections::HashMap;
+
+use bevy_rapier3d::prelude::Velocity;
+
+use crate::diffusion::{AtmosphericsResource, DIFFUSION_STEP};
+
+use super::diffusion::RigidBodyForcesAccumulation;
+
+/// Apply accumulated atmospherics forces to the rigid bodies of the entities.
+pub(crate) fn rigidbody_forces_physics(
     mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,
     mut rigidbodies: Query<&mut ExternalForce, Without<RigidBodyDisabled>>,
 ) {
@@ -36,26 +43,24 @@ pub fn rigidbody_forces_physics(
     }
 }
 
-use std::collections::HashMap;
-
-use bevy_rapier3d::prelude::Velocity;
-
-use crate::diffusion::{AtmosphericsResource, DIFFUSION_STEP};
-
-use super::diffusion::RigidBodyForcesAccumulation;
-
+/// Impacts how intensely pawns get impacted by atmospherics forces.
 const ATMOSPHERICS_FORCES_SENSITIVITY_PAWN: f32 = 100.;
+/// Decides how fast pawns accelerate by atmospherics forces.
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 1250.;
 
+/// Impacts how intensely entities get impacted by atmospherics forces.
 const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 2.;
+/// Decides how fast entities accelerate by atmospherics forces.
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX: f32 = 16.;
 
+/// Max velocity when players are subjugated by atmospherics forces.
 const ATMOSHPERICS_MAX_VELOCITY: f32 = 10.;
 
+/// Force multiplier for tiles that have an upward pushing force.
 const ATMOSPHERICS_PUSHING_UP_FORCE: f32 = 2.;
 
-// Now this system must instead read from a shared resource or event reader of rigidbody_forces_accumulation.
-pub fn rigidbody_forces_accumulation(
+/// Apply accumulated forces to rigid bodies of pawns.
+pub(crate) fn rigidbody_pawn_forces_accumulation(
     mut rigid_bodies: Query<
         (Entity, &Transform, &ExternalForce, Option<&Pawn>, &Velocity),
         Without<RigidBodyDisabled>,

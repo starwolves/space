@@ -1,6 +1,5 @@
-use actions::data::{ActionData, ActionRequests, BuildingActions};
+use actions::data::{Action, ActionData, ActionRequests, BuildingActions};
 use api::{
-    actions::Action,
     data::HandleToEntity,
     gridmap::{cell_id_to_world, GridmapMain},
     inventory::Inventory,
@@ -25,7 +24,7 @@ pub fn construction_tool_actions(
         let building_action_id;
         match action_requests.list.get(&building.incremented_i) {
             Some(action_request) => {
-                building_action_id = action_request.id.clone();
+                building_action_id = action_request.get_id().clone();
             }
             None => {
                 continue;

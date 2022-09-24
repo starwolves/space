@@ -8,9 +8,9 @@ use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
 
 use crate::messages::{
-    net_system, ExamineEntityMessages, InputAction, InputActionDataMap, InputAltItemAttack,
-    InputAttackCell, InputAttackEntity, InputBuildGraphics, InputConsoleCommand,
-    InputDropCurrentItem, InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes,
+    net_system, ExamineEntityMessages, InputAction, InputAltItemAttack, InputAttackCell,
+    InputAttackEntity, InputBuildGraphics, InputConsoleCommand, InputDropCurrentItem,
+    InputListActionsMap, InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes,
     InputMouseAction, InputMouseDirectionUpdate, InputMovementInput, InputSceneReady,
     InputSelectBodyPart, InputSprinting, InputSwitchHands, InputTakeOffItem, InputThrowItem,
     InputToggleAutoMove, InputToggleCombatMode, InputUseWorldItem, InputUserName, InputWearItem,
@@ -41,7 +41,7 @@ impl Plugin for NetworkingPlugin {
         )
         .add_event::<NetPlayerConn>()
         .add_event::<PendingNetworkMessage>()
-        .add_event::<InputActionDataMap>()
+        .add_event::<InputListActionsMap>()
         .add_system_set_to_stage(
             PostUpdate,
             SystemSet::new()
