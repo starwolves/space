@@ -333,7 +333,7 @@ pub fn pickup_world_item_action(
         let building_action_id;
         match action_requests.list.get(&building.incremented_i) {
             Some(action_request) => {
-                building_action_id = action_request.id.clone();
+                building_action_id = action_request.get_id().clone();
             }
             None => {
                 continue;

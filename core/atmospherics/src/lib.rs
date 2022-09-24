@@ -1,12 +1,14 @@
+//! Atmospherics manages gravity, temperature, pressure etc.
+
 pub mod diffusion;
-pub mod effects;
-pub mod examine_events;
-pub mod init;
-pub mod map_events;
-pub mod net;
-pub mod notices;
+mod effects;
+mod examine_events;
+mod init;
+mod map_events;
+mod net;
+mod notices;
 pub mod plugin;
-pub mod remove_cell_atmos_event;
-pub mod rigidbody_forces;
-pub mod sensing_ability;
-pub mod zero_gravity;
+mod remove_cell_atmos_event;
+mod rigidbody_forces;
+mod sensing_ability;
+mod zero_gravity;

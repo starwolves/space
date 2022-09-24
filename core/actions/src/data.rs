@@ -1,45 +1,72 @@
 use std::collections::HashMap;
 
 use api::{
-    actions::{Action, Actions},
     data::{HandleToEntity, Vec3Int},
     examinable::Examinable,
     gridmap::GridMapType,
-    network::ReliableServerMessage,
+    network::{NetAction, ReliableServerMessage},
 };
-use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, With};
+use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, With};
 use networking::{
-    messages::{InputActionDataEntity, InputActionDataMap},
+    messages::{InputListActionsEntity, InputListActionsMap},
     plugin::NetActionData,
 };
 
+/// A list of actions being built.
 #[derive(Default)]
 pub struct BuildingActions {
-    pub list: Vec<BuildingActionsInstance>,
+    pub list: Vec<BuildingAction>,
 }
+/// Requests to execute actions which go through prerequisite checking.
 #[derive(Default)]
 pub struct ActionRequests {
     pub list: HashMap<u64, ActionRequest>,
 }
 
+/// A request to execute a request.
 pub struct ActionRequest {
-    pub id: String,
+    /// Action identifier.
+    id: String,
 }
 
-pub struct BuildingActionsInstance {
+impl ActionRequest {
+    /// Get identifier.
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    /// Create from identifier.
+    pub fn from_id(new_id: String) -> Self {
+        Self { id: new_id }
+    }
+    pub fn set_id(&mut self, new_id: String) {
+        self.id = new_id;
+    }
+}
+
+/// A request to build a list of available actions.
+pub struct BuildingAction {
+    /// Available to-be-approved actions
     pub actions: Vec<ActionData>,
+    /// Build action request identifier.
     pub incremented_i: u64,
+    /// The entity which we request action data for.
     pub action_taker: Entity,
+    /// The entity targetted in the action.
     pub target_entity_option: Option<Entity>,
+    /// The ship cell targetted in the action.
     pub target_cell_option: Option<(Vec3Int, GridMapType)>,
 }
 
+/// Data related to an individual action.
 pub struct ActionData {
+    /// The action.
     pub data: Action,
+    /// Whether the action is approved or not by a prerequisite checker.
     pub approved: Option<bool>,
 }
 
 impl ActionData {
+    /// Approve action, typically performed by prerequisite checks.
     pub fn approve(&mut self) {
         match self.approved {
             Some(_) => {}
@@ -48,9 +75,11 @@ impl ActionData {
             }
         }
     }
+    /// Do not approve action, typically performed by prerequisite checks.
     pub fn do_not_approve(&mut self) {
         self.approved = Some(false);
     }
+    /// Check if action is approved.
     pub fn is_approved(&self) -> bool {
         match self.approved {
             Some(_) => {
@@ -62,11 +91,12 @@ impl ActionData {
     }
 }
 
-pub fn action_data_finalizer(
+/// Send lists of approved actions back to player.
+pub(crate) fn list_action_data_finalizer(
     building_actions: Res<BuildingActions>,
     handle_to_entity: Res<HandleToEntity>,
     mut net: EventWriter<NetActionData>,
-    action_data_requests: Res<ActionDataRequests>,
+    action_data_requests: Res<ListActionDataRequests>,
 ) {
     for action_data in building_actions.list.iter() {
         let action_data_request;
@@ -82,7 +112,7 @@ pub fn action_data_finalizer(
         let mut handle = None;
 
         for action in action_data.actions.iter() {
-            if action.approved.is_some() && action.approved.unwrap() {
+            if action.is_approved() {
                 match handle_to_entity.inv_map.get(&action_data.action_taker) {
                     Some(h) => {
                         handle = Some(*h);
@@ -96,7 +126,7 @@ pub fn action_data_finalizer(
                         }
 
                         net_action_datas.push(action.data.into_net(
-                            &action_data_request.header_name,
+                            &action_data_request.get_id(),
                             action_data.target_entity_option,
                             cell_option,
                             action_data.action_taker,
@@ -122,7 +152,8 @@ pub fn action_data_finalizer(
     }
 }
 
-pub fn action_data_build_interacted_entity(
+/// Append actions found in [Actions] component of entities to their list.
+pub(crate) fn list_action_data_from_actions_component(
     examinable_query: Query<&Actions, With<Examinable>>,
     mut building_actions: ResMut<BuildingActions>,
 ) {
@@ -140,17 +171,21 @@ pub fn action_data_build_interacted_entity(
         }
     }
 }
+
+/// A resource storing the current iterated identifiers of action (build) requests.
 #[derive(Default)]
-pub struct ActionIncremented {
-    pub i: u64,
+pub(crate) struct ActionIncremented {
+    i: u64,
 }
 
 impl ActionIncremented {
+    /// Get i with iteration.
     pub fn get_i_it(&mut self) -> u64 {
         let i = self.i.clone();
         self.i += 1;
         i
     }
+    /// Get i without iterating.
     pub fn get_i(&self) -> u64 {
         if self.i > 0 {
             return self.i - 1;
@@ -158,24 +193,23 @@ impl ActionIncremented {
         self.i
     }
 }
+
+/// Request list of available actions for entity with prerequisite checking.
 #[derive(Default)]
-pub struct ActionDataRequests {
-    pub list: HashMap<u64, ActionDataRequest>,
+pub struct ListActionDataRequests {
+    pub list: HashMap<u64, ActionRequest>,
 }
 
-pub struct ActionDataRequest {
-    pub header_name: String,
-}
-
-pub fn init_action_data_building(
-    mut entity_events: EventReader<InputActionDataEntity>,
-    mut map_events: EventReader<InputActionDataMap>,
+/// Initialize listing action requests from input events.
+pub(crate) fn init_action_data_listing(
+    mut entity_events: EventReader<InputListActionsEntity>,
+    mut map_events: EventReader<InputListActionsMap>,
     mut building_action: ResMut<BuildingActions>,
     mut action_data_i: ResMut<ActionIncremented>,
-    mut action_data_requests: ResMut<ActionDataRequests>,
+    mut action_data_requests: ResMut<ListActionDataRequests>,
 ) {
     for event in entity_events.iter() {
-        building_action.list.push(BuildingActionsInstance {
+        building_action.list.push(BuildingAction {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
             action_taker: event.player_entity,
@@ -184,13 +218,11 @@ pub fn init_action_data_building(
         });
         action_data_requests.list.insert(
             action_data_i.get_i(),
-            ActionDataRequest {
-                header_name: "".to_string(),
-            },
+            ActionRequest::from_id("".to_string()),
         );
     }
     for event in map_events.iter() {
-        building_action.list.push(BuildingActionsInstance {
+        building_action.list.push(BuildingAction {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
             action_taker: event.player_entity,
@@ -199,9 +231,48 @@ pub fn init_action_data_building(
         });
         action_data_requests.list.insert(
             action_data_i.get_i(),
-            ActionDataRequest {
-                header_name: "".to_string(),
-            },
+            ActionRequest::from_id("".to_string()),
         );
+    }
+}
+
+/// An individual action.
+#[derive(Clone)]
+pub struct Action {
+    pub id: String,
+    pub text: String,
+    pub tab_list_priority: u8,
+}
+
+/// A list of actions.
+#[derive(Component, Default)]
+pub struct Actions {
+    pub actions: Vec<Action>,
+}
+
+impl Action {
+    /// Convert action into a new struct suitable to be sent over the net.
+    pub fn into_net(
+        &self,
+        item_name: &str,
+        examined_entity_option: Option<Entity>,
+        examined_cell_option: Option<(GridMapType, i16, i16, i16)>,
+        examiner_entity: Entity,
+    ) -> NetAction {
+        let mut new_entity_option = None;
+        match examined_entity_option {
+            Some(b) => new_entity_option = Some(b.to_bits()),
+            None => {}
+        }
+
+        NetAction {
+            id: self.id.clone(),
+            text: self.text.clone(),
+            tab_list_priority: self.tab_list_priority,
+            entity_option: new_entity_option,
+            cell_option: examined_cell_option,
+            item_name: item_name.to_string(),
+            belonging_entity: Some(examiner_entity.to_bits()),
+        }
     }
 }

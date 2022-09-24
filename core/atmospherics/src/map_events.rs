@@ -1,4 +1,24 @@
-pub fn atmospherics_map_hover(
+use std::collections::HashSet;
+
+use api::{
+    data::{ConnectedPlayer, Vec2Int},
+    gridmap::{get_atmos_id, get_atmos_index, world_to_cell_id, FOV_MAP_WIDTH},
+    network::ReliableServerMessage,
+};
+use bevy::{
+    math::Vec3,
+    prelude::{Entity, EventWriter, Query, Res, ResMut},
+};
+use map::map::{
+    get_overlay_tile_item, get_overlay_tile_priority, Map, MapHolderData, MapHolders, OverlayTile,
+};
+
+use crate::diffusion::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
+
+use super::net::{NetMapDisplayAtmospherics, NetMapHoverAtmospherics};
+
+/// Get data of atmospherics on tile when hovered in map by player.
+pub(crate) fn atmospherics_map_hover(
     map_holders: Query<(Entity, &Map, &ConnectedPlayer)>,
     atmospherics: Res<AtmosphericsResource>,
     mut display_atmos_state: ResMut<MapHolders>,
@@ -52,35 +72,18 @@ pub fn atmospherics_map_hover(
     }
 }
 
-use std::collections::HashSet;
-
-use api::{
-    atmospherics::CELCIUS_KELVIN_OFFSET,
-    data::{ConnectedPlayer, Vec2Int},
-    gridmap::{get_atmos_id, get_atmos_index, world_to_cell_id, FOV_MAP_WIDTH},
-    network::ReliableServerMessage,
-};
-use bevy::{
-    math::Vec3,
-    prelude::{Entity, EventWriter, Query, Res, ResMut},
-};
-use map::map::{
-    get_overlay_tile_item, get_overlay_tile_priority, Map, MapHolderData, MapHolders, OverlayTile,
-};
-
-use crate::diffusion::AtmosphericsResource;
-
-use super::net::{NetMapDisplayAtmospherics, NetMapHoverAtmospherics};
-
+/// How many populated cells we transmit data of per batch. Throttled by batch amount due to network concerns.
 const MAX_VALIDS_PER_BATCH: u16 = 750;
 
+/// All atmospherics map display modes.
 enum SelectedDisplayMode {
     Temperature,
     Pressure,
     Liveable,
 }
 
-pub fn atmospherics_map(
+/// Transmit atmospherics mini-map data to player.
+pub(crate) fn atmospherics_map(
     map_holders: Query<(Entity, &Map, &ConnectedPlayer)>,
     atmospherics: Res<AtmosphericsResource>,
     mut net: EventWriter<NetMapDisplayAtmospherics>,
@@ -416,9 +419,12 @@ pub fn atmospherics_map(
     }
 }
 
+/// -22 degrees celcius
 pub const MINIMUM_LIVABLE_TEMPERATURE: f32 = -22. + CELCIUS_KELVIN_OFFSET;
+/// -39.3 degrees celcius
 pub const MAXIMUM_LIVABLE_TEMPERATURE: f32 = 39.3 + CELCIUS_KELVIN_OFFSET;
 
+/// Temperature to tile color for map overlay.
 fn temperature_to_tile_color(temperature: f32) -> OverlayTile {
     if temperature < -40. + CELCIUS_KELVIN_OFFSET {
         OverlayTile::Red
@@ -437,9 +443,12 @@ fn temperature_to_tile_color(temperature: f32) -> OverlayTile {
     }
 }
 
+/// 90 kpa
 pub const MINIMUM_LIVABLE_PRESSURE: f32 = 90.;
+/// 180 kpa
 pub const MAXIMUM_LIVABLE_PRESSURE: f32 = 180.;
 
+/// Pressure to tile color for map overlay.
 fn pressure_to_tile_color(pressure_kpa: f32) -> OverlayTile {
     if pressure_kpa < 47.62275 {
         OverlayTile::Red

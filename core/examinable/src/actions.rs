@@ -1,6 +1,5 @@
-use actions::data::{ActionData, ActionDataRequests, BuildingActions};
+use actions::data::{Action, ActionData, BuildingActions, ListActionDataRequests};
 use api::{
-    actions::Action,
     examinable::Examinable,
     gridmap::{GridmapData, GridmapDetails1, GridmapMain},
 };
@@ -39,10 +38,10 @@ pub fn set_action_header_name(
     gridmap_data: Res<GridmapData>,
     gridmap_main: Res<GridmapMain>,
     gridmap_details1: Res<GridmapDetails1>,
-    mut action_data_requests: ResMut<ActionDataRequests>,
+    mut action_data_requests: ResMut<ListActionDataRequests>,
 ) {
     for building in building_action_data.list.iter_mut() {
-        let mut action_data_request;
+        let action_data_request;
 
         match action_data_requests.list.get_mut(&building.incremented_i) {
             Some(a) => {
@@ -56,8 +55,7 @@ pub fn set_action_header_name(
         match building.target_entity_option {
             Some(e) => match examinables.get(e) {
                 Ok(examinable_component) => {
-                    action_data_request.header_name =
-                        examinable_component.name.get_name().to_string();
+                    action_data_request.set_id(examinable_component.name.get_name().to_string());
                 }
                 Err(_) => {
                     warn!("Entity had no examinable component.");
@@ -92,8 +90,7 @@ pub fn set_action_header_name(
                     }
                 }
 
-                action_data_request.header_name =
-                    names.get(&item_id).unwrap().get_name().to_string();
+                action_data_request.set_id(names.get(&item_id).unwrap().get_name().to_string());
             }
         }
     }

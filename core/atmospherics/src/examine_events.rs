@@ -1,5 +1,4 @@
 use api::{
-    atmospherics::CELCIUS_KELVIN_OFFSET,
     chat::{ATMOSPHERICS_TEXT_COLOR, FURTHER_ITALIC_FONT},
     data::Vec2Int,
     gridmap::{get_atmos_index, GridmapExamineMessages},
@@ -8,9 +7,9 @@ use api::{
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
 
-use crate::diffusion::AtmosphericsResource;
+use crate::diffusion::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
 
-pub struct NetAtmosphericsMapExamine {
+pub(crate) struct NetAtmosphericsMapExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -23,7 +22,8 @@ impl PendingMessage for NetAtmosphericsMapExamine {
     }
 }
 
-pub fn examine_map_atmos(
+/// Examine text for cells with atmospherics.
+pub(crate) fn examine_map_atmos(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     senser_entities: Query<&Senser>,
     atmospherics_resource: Res<AtmosphericsResource>,

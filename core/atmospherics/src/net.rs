@@ -1,6 +1,6 @@
 use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
-pub struct NetAtmosphericsNotices {
+pub(crate) struct NetAtmosphericsNotices {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -12,7 +12,7 @@ impl PendingMessage for NetAtmosphericsNotices {
         }
     }
 }
-pub struct NetMapHoverAtmospherics {
+pub(crate) struct NetMapHoverAtmospherics {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -24,7 +24,7 @@ impl PendingMessage for NetMapHoverAtmospherics {
         }
     }
 }
-pub struct NetMapDisplayAtmospherics {
+pub(crate) struct NetMapDisplayAtmospherics {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

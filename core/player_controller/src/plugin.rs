@@ -8,9 +8,8 @@ use bevy::{
     time::FixedTimestep,
 };
 
-use chat::chat::{chat_message_input_event, NetChatMessage};
 use networking::{
-    messages::{net_system, InputActionDataEntity},
+    messages::{net_system, InputListActionsEntity},
     plugin::NetActionData,
 };
 use ui::ui::{InputUIInput, InputUIInputTransmitText, NetUIInputTransmitData};
@@ -47,7 +46,7 @@ impl Plugin for ConnectedPlayerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<HandleToEntity>()
             .add_event::<NetUserName>()
-            .add_event::<InputActionDataEntity>()
+            .add_event::<InputListActionsEntity>()
             .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
             .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
             .add_system(controller_input.before(UpdateLabels::StandardCharacters))
@@ -113,8 +112,7 @@ impl Plugin for ConnectedPlayerPlugin {
                     .with_system(net_system::<NetExamineEntity>)
                     .with_system(net_system::<NetActionData>)
                     .with_system(net_system::<NetSendServerTime>)
-                    .with_system(net_system::<NetUpdatePlayerCount>)
-                    .with_system(net_system::<NetChatMessage>),
+                    .with_system(net_system::<NetUpdatePlayerCount>),
             )
             .add_system_to_stage(
                 PostUpdate,
@@ -129,8 +127,6 @@ impl Plugin for ConnectedPlayerPlugin {
                     .label(SummoningLabels::NormalSummon),
             )
             .add_system(entity_console_commands.after(SummoningLabels::DefaultSummon))
-            .add_system(chat_message_input_event)
-            .add_event::<NetChatMessage>()
             .add_system_to_stage(PostUpdate, process_net.after(PostUpdateLabels::Net))
             .init_resource::<ClientHealthUICache>()
             .init_resource::<BoardingAnnouncements>()

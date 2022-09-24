@@ -1,19 +1,15 @@
-use api::actions::QueuedActions;
 use bevy::prelude::ResMut;
 
 use crate::data::{
-    ActionDataRequests, ActionIncremented, ActionRequest, ActionRequests, BuildingActions,
-    BuildingActionsInstance,
+    ActionIncremented, ActionRequest, ActionRequests, BuildingAction, BuildingActions,
+    ListActionDataRequests,
 };
 use bevy::prelude::EventReader;
 use networking::messages::InputAction;
 
-pub fn clear_actions_queue(mut queue: ResMut<QueuedActions>) {
-    queue.queue.clear();
-}
-
-pub fn clear_action_building(
-    mut action_data_requests: ResMut<ActionDataRequests>,
+/// Clears all actions for the next tick.
+pub(crate) fn clear_action_building(
+    mut action_data_requests: ResMut<ListActionDataRequests>,
     mut action_requests: ResMut<ActionRequests>,
     mut building_action: ResMut<BuildingActions>,
 ) {
@@ -22,7 +18,8 @@ pub fn clear_action_building(
     building_action.list.clear();
 }
 
-pub fn init_action_building(
+/// Initialize action (list) requests.
+pub(crate) fn init_action_request_building(
     mut building_actions: ResMut<BuildingActions>,
     mut action_events: EventReader<InputAction>,
     mut action_data_i: ResMut<ActionIncremented>,
@@ -38,7 +35,7 @@ pub fn init_action_building(
             None => {}
         }
 
-        building_actions.list.push(BuildingActionsInstance {
+        building_actions.list.push(BuildingAction {
             actions: vec![],
             incremented_i: action_data_i.get_i_it(),
             action_taker: event.action_taker,
@@ -47,9 +44,7 @@ pub fn init_action_building(
         });
         actions_requests.list.insert(
             action_data_i.get_i(),
-            ActionRequest {
-                id: event.fired_action_id.clone(),
-            },
+            ActionRequest::from_id(event.fired_action_id.clone()),
         );
     }
 }

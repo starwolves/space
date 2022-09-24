@@ -4,7 +4,8 @@ use api::{
 };
 use bevy::prelude::{Changed, Query};
 
-pub fn atmospherics_sensing_ability(
+/// Sensing ability allows players to obtain atmospherics data of a tile by examining it.
+pub(crate) fn atmospherics_sensing_ability(
     mut data_linked: Query<(&DataLink, &mut Senser), Changed<DataLink>>,
 ) {
     for (data_link_component, mut senser_component) in data_linked.iter_mut() {
