@@ -1,4 +1,22 @@
 use std::collections::HashMap;
+
+use api::{
+    console_commands::ConsoleCommandVariantValues,
+    data::{EntityDataResource, NoData, Showcase, ShowcaseData},
+    entity_updates::{EntityData, EntityGroup, EntityUpdates},
+    examinable::Examinable,
+    health::{Health, HealthComponent},
+    network::ReliableServerMessage,
+    sensable::Sensable,
+};
+use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
+use serde::Deserialize;
+
+use crate::entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PARENT};
+
+use super::entity_data::{DefaultMapEntity, NetShowcase};
+
+/// A bundle for the basis of entities. Should be used by almost all entities.
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
     pub examinable: Examinable,
@@ -20,7 +38,7 @@ impl Default for BaseEntityBundle {
         }
     }
 }
-
+/// Base entity data.
 pub struct BaseEntityData {
     pub entity_type: String,
     pub examinable: Examinable,
@@ -47,6 +65,7 @@ impl Default for BaseEntityData {
     }
 }
 
+/// Spawn a base entity.
 pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity: Entity) {
     let mut builder = commands.entity(entity);
     builder.insert_bundle((
@@ -84,10 +103,12 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
     }
 }
 
+/// BaseEntity trait.
 pub trait BaseEntitySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> BaseEntityBundle;
 }
 
+/// Spawn base entity components handler.
 pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
@@ -133,22 +154,7 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
     }
 }
 
-use api::{
-    console_commands::ConsoleCommandVariantValues,
-    data::{EntityDataResource, NoData, Showcase, ShowcaseData},
-    entity_updates::{EntityData, EntityGroup, EntityUpdates},
-    examinable::Examinable,
-    health::{Health, HealthComponent},
-    network::ReliableServerMessage,
-    sensable::Sensable,
-};
-use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
-use serde::Deserialize;
-
-use crate::entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PARENT};
-
-use super::entity_data::{DefaultMapEntity, NetShowcase};
-
+/// A json property.
 #[derive(Deserialize)]
 pub struct ExportProperty {
     pub value_type: i64,
@@ -156,11 +162,13 @@ pub struct ExportProperty {
     pub key: String,
 }
 
+/// Additional json properties contained by a json entity.
 #[derive(Deserialize)]
 pub struct ExportDataRaw {
     pub properties: Vec<ExportProperty>,
 }
 
+/// All properties turned into variants.
 pub struct ExportData {
     pub properties: HashMap<String, ConsoleCommandVariantValues>,
 }
@@ -184,6 +192,7 @@ impl ExportData {
     }
 }
 
+/// Spawn data.
 #[derive(Clone)]
 pub struct SpawnData {
     pub entity_transform: Transform,
@@ -211,13 +220,17 @@ impl Default for SpawnData {
         }
     }
 }
+/// Default spawn events.
 pub struct DefaultSpawnEvent {
     pub spawn_data: SpawnData,
 }
+
+/// Spawn event.
 pub struct SpawnEvent<T> {
     pub spawn_data: SpawnData,
     pub summoner: T,
 }
+/// A function to spawn an entity.
 pub fn spawn_entity(
     entity_name: String,
     transform: Transform,

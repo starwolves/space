@@ -6,6 +6,7 @@ use api::{
 };
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, SystemLabel, Transform};
 
+/// Requested proximity message.
 pub struct EntityProximityMessage {
     pub entities: Vec<Entity>,
     pub message: String,
@@ -24,12 +25,14 @@ impl PendingMessage for NetProximityMessage {
     }
 }
 
+/// Requested entity proximity messages systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum EntityProximityMessages {
     Send,
 }
 
-pub fn send_entity_proximity_messages(
+/// Manage entity proximity messages.
+pub(crate) fn send_entity_proximity_messages(
     mut entity_proximity_messages: EventReader<EntityProximityMessage>,
     sensers: Query<(Entity, &Senser)>,
     positions: Query<&Transform>,

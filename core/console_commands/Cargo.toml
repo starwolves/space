@@ -14,5 +14,7 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
+serde = "1.0.137"
+
 networking = { path = "../networking" }
 api = { path = "../api" }

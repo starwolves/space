@@ -6,6 +6,7 @@ use crate::{
     projectile_queries::ProjectileBlank,
 };
 
+/// Manage laser projectile visuals.
 pub fn projectile_laser_visuals<T: Component>(
     mut blanks: EventReader<ProjectileBlank>,
     mut hits: EventReader<QueryCombatHitResult>,

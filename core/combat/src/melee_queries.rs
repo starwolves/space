@@ -35,8 +35,10 @@ pub struct MeleeBlank {
     pub incremented_id: u64,
 }
 
+/// Attack physics query height.
 pub const ATTACK_HEIGHT: f32 = 1.6;
 
+/// Physics query attack result.
 #[derive(Debug)]
 pub struct AttackResult {
     pub entity_option: Option<Entity>,
@@ -48,6 +50,7 @@ pub struct AttackResult {
     pub is_laser_obstacle: bool,
 }
 
+/// Melee physics query.
 pub struct MeleeDirectQuery {
     pub attacker_entity: Entity,
     pub targetted_entity: Option<Entity>,
@@ -59,7 +62,8 @@ pub struct MeleeDirectQuery {
     pub incremented_id: u64,
 }
 
-pub fn melee_direct(
+/// Perform a melee physics query.
+pub(crate) fn melee_direct(
     mut melee_direct_events: EventReader<MeleeDirectQuery>,
     attacker_entities: Query<&Transform>,
     rapier_context: Res<RapierContext>,
@@ -345,6 +349,7 @@ pub fn melee_direct(
     }
 }
 
+/// Perform the attack handler logic.
 pub fn melee_attack_handler<T: Component>(
     weapon_entities: Query<(&MeleeCombat, Option<&ProjectileCombat>), With<T>>,
     mut attacks: EventReader<Attack>,
