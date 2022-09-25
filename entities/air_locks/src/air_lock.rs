@@ -2,6 +2,7 @@ use api::data::LockedStatus;
 use bevy::{prelude::Component, time::Timer};
 use pawn::pawn::ShipAuthorizationEnum;
 
+/// Air lock component.
 #[derive(Component)]
 pub struct AirLock {
     pub status: AirLockStatus,
@@ -14,11 +15,13 @@ pub struct AirLock {
     pub closed_timer_option: Option<Timer>,
 }
 
+/// Air lock open or closed status.
 pub enum AirLockStatus {
     Open,
     Closed,
 }
 
+/// Access lights state.
 pub enum AccessLightsStatus {
     Neutral,
     Granted,
@@ -39,14 +42,15 @@ impl Default for AirLock {
     }
 }
 
+/// Create a timer.
 pub fn open_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
-
+/// Create a timer.
 pub fn denied_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
-
+/// Create a timer.
 pub fn closed_timer() -> Timer {
     Timer::from_seconds(1.1, false)
 }

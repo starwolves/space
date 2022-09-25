@@ -11,7 +11,7 @@ use crate::air_lock::AirLock;
 use super::air_lock_added::{
     AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
 };
-
+/// Action prerequite check.
 pub(crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,

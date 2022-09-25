@@ -1,5 +1,6 @@
 use bevy::prelude::Component;
 
+/// The component.
 #[derive(Component, Clone)]
 pub struct OmniLight {
     pub omni_attenuation: f32,

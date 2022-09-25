@@ -22,6 +22,7 @@ use crate::{
 };
 use bevy::prelude::Entity;
 
+/// Manage auto destroying timers.
 pub fn sfx_auto_destroy(
     entity: Entity,
     sfx_auto_destroy_timers: &mut ResMut<SfxAutoDestroyTimers>,
@@ -29,6 +30,7 @@ pub fn sfx_auto_destroy(
     sfx_auto_destroy_timers.timers.push((entity, 0));
 }
 
+/// Combat sfx set.
 #[derive(Clone)]
 pub struct CombatSoundSet {
     pub default: Vec<CombatSound>,
@@ -200,6 +202,7 @@ impl CombatSoundSet {
     }
 }
 
+/// Contains all combat sounds.
 #[derive(Clone)]
 pub enum CombatSound {
     FistsSwing1,

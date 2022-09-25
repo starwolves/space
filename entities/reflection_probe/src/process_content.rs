@@ -3,6 +3,7 @@ use bevy::math::Vec3;
 use data_converters::converters::string_vec3_to_vec3;
 use serde::Deserialize;
 
+/// Raw json data.
 #[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct ExportDataRaw {
@@ -20,6 +21,7 @@ pub struct ExportDataRaw {
     update_mode: u8,
 }
 
+/// Json data.
 pub struct ExportData {
     projection_enabled: bool,
     cull_mask: i64,
