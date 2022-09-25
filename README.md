@@ -1,11 +1,13 @@
 # Space Frontiers pre-alpha
 <img src="/data/project/sflogo.png?raw=true" data-canonical-src="/data/project/sflogo.png?raw=true" width="175" height="175"/>
 
+*"You gotta die for something." - STARWOLF*
+
 <a href="https://discord.gg/yYpMun9CTT">
     <img src="https://img.shields.io/discord/942798229953716274.svg?logo=discord&colorB=7289DA">
 </a>
 
-![Continuous integration](https://github.com/starwolves/space/actions/workflows/rust.yml/badge.svg?branch=0.0.3-snap)
+![Continuous integration](https://gitlab.starwolves.io/starwolves/space/badges/master/pipeline.svg)
 
 ![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg) ![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
 
@@ -15,15 +17,14 @@
 
 *Space Frontiers is an online multiplayer game in which players find themselves in a large spaceship operations crew who have to work together to run and maintain a spaceship. Crew members are assigned different roles with different levels of responsibilities and authorization. The manned spaceship will be tasked to jump from sector to sector which triggers random events; events will include player antagonists, traitor roles, alien infestations and more. Therefore player communication is key, putting emphasis on the chat with optional roleplay features. A wide variety of simulated spaceship and gameplay elements will be included to ensure these scenarios will be as fun as possible.*
 
-The repository of a modular and moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Made to communicate exclusively with the official closed-source Space Frontiers client. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
+The repository of a modular and moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client it communicates with is made with Godot as the official closed-source prototype Space Frontiers client. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
 
-There is an [official Discord server](https://discord.gg/yYpMun9CTT).
 
-You can see gameplay videos of Space Frontiers on [YouTube](https://www.youtube.com/channel/UC6D7lcx9eL_ChA7HzzvhLtA).
+### Socials:
+* [Discord](https://discord.gg/yYpMun9CTT)
+* [Matrix](https://matrix.to/#/#space-frontiers:comms.starwolves.io)
 
-There is also a work-in-progress [documentation](https://sf-docs.starwolves.io) available for code contributors or modders.
-
-Check out our [Github project workspace](https://github.com/starwolves/space/projects/1) for upcoming improvements to the game!
+You can see gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).
 
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own server. 👑
@@ -44,16 +45,20 @@ Check out our [Github project workspace](https://github.com/starwolves/space/pro
 
 ![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
+
+
+## Documentation:
+The technical documentation of this project is found at [docs.sf.starwolves.io](https://docs.sf.starwolves.io).
+
+There is also a [(currently outdated) guide](https://guide.docs.sf.starwolves.io) available for code contributors.
+
+
 ## Getting Started
 
 ### Dependencies
 
-
-
 * [Rust](https://www.rust-lang.org/)
 * [Bevy ECS dependencies](https://bevyengine.org/learn/book/getting-started/setup/#install-os-dependencies)
-  
-
   
 
 ### Executing game server
@@ -73,25 +78,26 @@ To run the game server, but optimized:
 cargo run --release
 ```
 
-### Client
-You can obtain the latest stable release of the client on [Discord](https://discord.gg/yYpMun9CTT).
+### Prototype Godot Client
+You can obtain the prototype client on [Discord](https://discord.gg/yYpMun9CTT).
 Ensure your server has the right git branch with the same version as the obtained client and not the master branch!
 
-The client is built on top of the latest stable Godot 3.4.x release. The client will be upgraded and moved to Godot 4 for better 3D rendering in favour of the Vulkan API.
+The prototype client is built on top of a Godot 3.4 release.
+
+### The new Bevy client
+Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are literally just getting started so it is being made from scratch and it will be a while before it is of any use. The client is going to be integrated in this same repository. 
 
 ## Contributing
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for some years to come.
-Feedback, bug reports, suggestions and critique are very much appreciated. Github issues and pull requests will be reviewed and considered.
+Feedback, bug reports, suggestions and critique are very much appreciated. [Gitlab](https://gitlab.starwolves.io/starwolves/space) issues and pull requests will be reviewed and considered.
 
 The hopes are to financially reward and/or hire the most suitable people for their contributions in the much further future.
 
-Contributors of this project have to agree to our [Collaberative License Agreement](https://github.com/starwolves/contributor-license-agreement/blob/main/CLA). Our automated CLA assisstant will give you instructions on how to agree the first time you contribute on Github.
+Contributors of this project have to agree to our [Collaberative License Agreement](https://gitlab.starwolves.io/starwolves/contributor-license-agreement). You may send your signed version to cla@starwolves.io so your associated [Gitlab](https://gitlab.starwolves.io/starwolves/space) account will get activated.
 
-It is recommended to develop on the latest snapshot branch and to submit pull requests. Snapshot branches get regularly merged with the master branch. Each time a merge with the master branch occurs a new snapshot releases. To stay up to date with this process check out our [Discord](https://discord.gg/yYpMun9CTT) and our [Github project workspace](https://github.com/starwolves/space/projects/1).
 
 ![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
 
 ## License
 
-This repository is licensed under a [special license](https://github.com/starwolves/space/blob/master/LICENSE).
-
+This repository is licensed under a [restrictive proprietary license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE) that we intend to support with good faith and integrity.
