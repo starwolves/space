@@ -11,7 +11,7 @@ use api::{
 use bevy::prelude::{
     warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
 };
-use console_commands::commands::{player_selector_to_entities, NetEntityConsole};
+use console_commands::{commands::NetEntityConsole, player_selectors::player_selector_to_entities};
 use entity::{
     commands::rcon_spawn_entity,
     spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},

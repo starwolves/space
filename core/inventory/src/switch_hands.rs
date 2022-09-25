@@ -4,7 +4,7 @@ use networking::messages::InputSwitchHands;
 
 use super::net::NetSwitchHands;
 
-/// Inventory items switch hands.
+/// From client input change active hand.
 pub(crate) fn switch_hands(
     mut switch_hands_events: EventReader<InputSwitchHands>,
     mut inventory_entities: Query<&mut Inventory>,

@@ -9,7 +9,7 @@ use pawn::pawn::{PersistentPlayerData, ShipJobsEnum};
 use player_controller::boarding::BoardingAnnouncements;
 
 /// Manage asana boarding announcements.
-pub (crate) fn tick_asana_boarding_announcements(
+pub(crate) fn tick_asana_boarding_announcements(
     mut net_new_chat_message_event: EventWriter<NetChatMessage>,
     handle_to_entity: Res<HandleToEntity>,
     radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,

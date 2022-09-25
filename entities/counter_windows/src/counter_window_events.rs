@@ -35,7 +35,7 @@ pub struct CounterWindowOpenRequest {
     pub opened: Entity,
 }
 
-pub (crate) fn counter_window_events(
+pub(crate) fn counter_window_events(
     mut counter_window_sensor_collisions: EventReader<CounterWindowSensorCollision>,
     mut counter_window_toggle_open_action: EventReader<InputCounterWindowToggleOpen>,
     mut counter_window_query: Query<(

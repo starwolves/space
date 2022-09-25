@@ -1,13 +1,10 @@
 use api::data::ActionsLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 
-use crate::{
-    action::{clear_action_building, init_action_request_building},
-    data::{
-        init_action_data_listing, list_action_data_finalizer,
-        list_action_data_from_actions_component, ActionIncremented, ActionRequests,
-        BuildingActions, ListActionDataRequests,
-    },
+use crate::data::{
+    clear_action_building, init_action_data_listing, init_action_request_building,
+    list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
+    ActionRequests, BuildingActions, ListActionDataRequests,
 };
 
 pub struct ActionsPlugin;

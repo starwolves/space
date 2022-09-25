@@ -10,7 +10,9 @@ use bevy::prelude::{Added, Component, Query};
 use super::spawn::BRIDGE_COMPUTER_ENTITY_NAME;
 
 /// On a computer spawn.
-pub (crate) fn computer_added(mut computers: Query<(&EntityData, &mut Examinable), Added<Computer>>) {
+pub(crate) fn computer_added(
+    mut computers: Query<(&EntityData, &mut Examinable), Added<Computer>>,
+) {
     for (entity_data_component, mut examinable_component) in computers.iter_mut() {
         if entity_data_component.entity_name == BRIDGE_COMPUTER_ENTITY_NAME {
             examinable_component.name = RichName {

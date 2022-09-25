@@ -1,6 +1,6 @@
 use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
-pub (crate) struct NetCounterWindow {
+pub(crate) struct NetCounterWindow {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

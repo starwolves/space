@@ -9,7 +9,7 @@ use bevy::{
     prelude::{info, Commands, Component, EventReader, EventWriter, Query, Res, ResMut},
 };
 use bevy_renet::renet::ServerEvent;
-use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
+use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;

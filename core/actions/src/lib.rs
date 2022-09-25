@@ -1,5 +1,6 @@
 //! Actions enable pawns to interact with the world and other entities.
 
-mod action;
+/// The core action module.
 pub mod data;
+/// The Bevy plugin.
 pub mod plugin;

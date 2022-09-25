@@ -7,7 +7,7 @@ use api::{
     network::ReliableServerMessage,
 };
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, Transform};
-use console_commands::commands::{player_selector_to_entities, NetEntityConsole};
+use console_commands::{commands::NetEntityConsole, player_selectors::player_selector_to_entities};
 use pawn::pawn::Pawn;
 
 use crate::spawn::{spawn_entity, DefaultSpawnEvent};

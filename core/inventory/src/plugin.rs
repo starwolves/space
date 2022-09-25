@@ -6,12 +6,12 @@ use crate::{actions::pickup_prerequisite_check, item_events::pickup_world_item_a
 
 use super::{
     entity_update::inventory_update,
-    inventory::switch_hands,
     item_events::{drop_current_item, pickup_world_item, take_off_item, throw_item, wear_item},
     net::{
         NetDropCurrentItem, NetPickupWorldItem, NetSwitchHands, NetTakeOffItem, NetThrowItem,
         NetWearItem,
     },
+    switch_hands::switch_hands,
 };
 
 use bevy::app::CoreStage::PostUpdate;
