@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::converters::{string_color_to_color, string_quat_to_quat};
 
-// The resource we send to each client on connection to initialize worldEnvironment.
+// The resource we send to each client on connection to initialize the Godot 3D WorldEnvironment for graphics and post-processing.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct WorldEnvironment {
     pub adjustment_brightness: f32,

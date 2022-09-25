@@ -8,23 +8,27 @@ use crate::data::{Vec2Int, Vec3Int};
 
 #[derive(Clone, Default)]
 pub struct CellData {
+    /// Cell item id.
     pub item: i64,
+    /// Cell rotation.
     pub orientation: i64,
     pub health: Health,
+    /// Entity id if cell is an entity.
     pub entity: Option<Entity>,
 }
 
+/// Stores the details 1 gridmap layer.
 #[derive(Default)]
 pub struct GridmapDetails1 {
     pub grid_data: HashMap<Vec3Int, CellData>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
 }
 
-// Turning up these values drastically increases fov calculation time.
-// The largest maps we can support with f32 accuracy is a 2000x2000 tiled map.
-// FOV calculation time will take 10x-15x slower, up to 2-3ms for just a single player calculation.
-// For bigger maps than 500x500 gridmaps we need a new and better FOV algorithm.
-// Dividible by 2.
+/// Turning up these values drastically increases fov calculation time.
+/// The largest maps we can support with f32 accuracy is a 2000x2000 tiled map.
+/// FOV calculation time will take 10x-15x slower, up to 2-3ms for just a single player calculation.
+/// For bigger maps than 500x500 gridmaps we need a new and better FOV algorithm.
+/// Dividible by 2.
 pub const FOV_MAP_WIDTH: usize = 500;
 
 pub fn to_doryen_coordinates(x: i16, y: i16) -> (usize, usize) {
@@ -55,6 +59,7 @@ pub fn world_to_cell_id(position: Vec3) -> Vec3Int {
 }
 use crate::health::{CellUpdate, Health};
 use std::collections::HashMap;
+/// Stores the main gridmap layer data.
 #[derive(Default)]
 pub struct GridmapMain {
     pub grid_data: HashMap<Vec3Int, CellData>,
@@ -62,11 +67,13 @@ pub struct GridmapMain {
     pub updates: HashMap<Vec3Int, CellUpdate>,
 }
 
+/// For entities that are also registered in the gridmap.
 pub struct EntityGridData {
     pub entity: Entity,
     pub entity_name: String,
 }
 use crate::examinable::RichName;
+/// Gridmap meta-data.
 #[derive(Default)]
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
@@ -178,6 +185,7 @@ pub struct ExamineMapMessage {
     pub entity: Entity,
     pub gridmap_type: GridMapType,
     pub gridmap_cell_id: Vec3Int,
+    /// Map examine message being built and sent back to the player.
     pub message: String,
 }
 impl Default for ExamineMapMessage {
@@ -214,11 +222,14 @@ pub enum GridMapType {
     Details1,
 }
 
+/// For entities that are also registered with the gridmap.
 pub struct GridItemData {
     pub transform_offset: Transform,
+    /// So this entity can be built on a cell when another item is already present on that cell.
     pub can_be_built_with_grid_item: Vec<String>,
 }
 
+/// Remove gridmap cell event.
 pub struct RemoveCell {
     pub handle_option: Option<u64>,
     pub gridmap_type: GridMapType,

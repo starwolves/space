@@ -5,6 +5,7 @@ use crate::{
     load_entity::{unload_entity, NetUnloadEntity},
 };
 
+/// The component for entities that can be sensed.
 #[derive(Component, Default)]
 pub struct Sensable {
     pub is_light: bool,

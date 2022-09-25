@@ -69,8 +69,10 @@ pub enum ProjectileType {
 pub struct MeleeCombat {
     pub combat_melee_damage_model: DamageModel,
     pub melee_attack_range: f32,
+    /// The words used for chat hooks.
     pub combat_melee_text_set: Vec<String>,
     pub combat_attack_animation: CombatAttackAnimation,
+    /// The words used for chat hooks.
     pub trigger_melee_text_set: Vec<String>,
 }
 
@@ -89,11 +91,17 @@ impl Default for MeleeCombat {
 #[derive(Component)]
 pub struct ProjectileCombat {
     pub combat_projectile_damage_model: DamageModel,
+    /// For laser project visuals.
     pub laser_color: Color,
+    /// For laser project visuals.
     pub laser_height: f32,
+    /// For laser project visuals.
     pub laser_radius: f32,
+    /// Range of projectile attack.
     pub laser_range: f32,
+    /// The words used for chat hooks.
     pub combat_projectile_text_set: Vec<String>,
+    /// The words used for chat hooks.
     pub trigger_projectile_text_set: Vec<String>,
 }
 

@@ -49,11 +49,13 @@ pub enum PawnDesignation {
     Dummy,
     Ai,
 }
+/// Contains the spawn data of a to-be-spawned entity.
 #[derive(Component)]
 pub struct Spawning {
     pub transform: Transform,
 }
 
+/// A spawn point in which players will spawn.
 pub struct SpawnPoint {
     pub point_type: String,
     pub transform: Transform,
@@ -74,11 +76,13 @@ impl SpawnPoint {
     }
 }
 
+/// Raw json.
 #[derive(Deserialize)]
 pub struct SpawnPointRaw {
     pub point_type: String,
     pub transform: String,
 }
+/// All available spawn points for players.
 #[derive(Default)]
 pub struct SpawnPoints {
     pub list: Vec<SpawnPoint>,

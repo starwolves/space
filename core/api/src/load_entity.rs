@@ -1,5 +1,14 @@
 use std::collections::HashMap;
 
+use bevy::prelude::{Entity, EventWriter, Transform};
+
+use crate::{
+    entity_updates::{EntityData, EntityUpdateData, EntityUpdates},
+    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
+};
+
+use super::entity_updates::personalise;
+
 pub fn load_entity(
     entity_updates: &HashMap<String, HashMap<String, EntityUpdateData>>,
     entity_transform: Transform,
@@ -65,15 +74,6 @@ pub fn load_entity(
         ),
     });
 }
-
-use bevy::prelude::{Entity, EventWriter, Transform};
-
-use crate::{
-    entity_updates::{EntityData, EntityUpdateData, EntityUpdates},
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
-
-use super::entity_updates::personalise;
 
 pub fn unload_entity(
     player_handle: u64,

@@ -64,9 +64,12 @@ const FIRST_MELEE_TIME: u64 = 433;
 pub struct Humanoid {
     pub current_lower_animation_state: CharacterAnimationState,
     pub character_name: String,
+    /// Whether the humanoid is in combat mode or normal mode.
     pub combat_mode: bool,
+    /// The the humanoid is facing.
     pub facing_direction: f32,
     pub is_attacking: bool,
+    /// Timeout between attacks.
     pub next_attack_timer: Timer,
 }
 

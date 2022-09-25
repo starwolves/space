@@ -230,9 +230,12 @@ pub const END_ASTRIX: &str = concatcp!("\n", ASTRIX);
 
 pub const EXAMINATION_EMPTY: &str = "You cannot see what is there.";
 
+/// Get message when examining nothing.
 pub fn get_empty_cell_message() -> String {
     "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n" + EXAMINATION_EMPTY
 }
+
+/// Get message when examining space.
 pub fn get_space_message() -> String {
     let mut rng = rand::thread_rng();
     let random_pick: i32 = rng.gen_range(0..3);
@@ -250,6 +253,7 @@ pub fn get_space_message() -> String {
 
     msg.to_string()
 }
+/// Get all talk spaces.
 pub fn get_talk_spaces() -> Vec<(String, String)> {
     vec![
         ("Local".to_string(), "".to_string()),
@@ -272,6 +276,7 @@ pub fn get_talk_spaces() -> Vec<(String, String)> {
     ]
 }
 
+/// Escape string from bb code for security reasons.
 pub fn escape_bb(string: String, partially: bool, escape_special_chars: bool) -> String {
     let mut new_string = string.escape_default().to_string();
 

@@ -12,13 +12,13 @@ pub struct Slot {
     pub slot_type: SlotType,
     pub slot_name: String,
     pub slot_item: Option<Entity>,
+    /// The id of the attachment of this slot.
     pub slot_attachment: Option<String>,
 }
 #[derive(Component)]
 pub struct Inventory {
     pub slots: Vec<Slot>,
     pub active_slot: String,
-    pub entity_action_option: Option<Entity>,
 }
 
 impl Default for Inventory {
@@ -26,7 +26,6 @@ impl Default for Inventory {
         Self {
             slots: vec![],
             active_slot: "".to_string(),
-            entity_action_option: None,
         }
     }
 }
