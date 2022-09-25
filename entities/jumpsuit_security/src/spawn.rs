@@ -1,4 +1,35 @@
+use api::combat::DamageFlag;
+use api::combat::DamageModel;
+use api::combat::MeleeCombat;
+use api::converters::string_transform_to_transform;
+use api::data::NoData;
+use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
+use api::examinable::Examinable;
+use api::examinable::RichName;
+use api::inventory::SlotType;
+use bevy::math::Mat4;
+use bevy::math::Quat;
+use bevy::math::Vec3;
+use bevy::prelude::Commands;
+use bevy::prelude::EventReader;
+use bevy::prelude::EventWriter;
+use bevy::prelude::Transform;
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use entity::entity_data::RawSpawnEvent;
+use entity::spawn::BaseEntityBundle;
+use entity::spawn::BaseEntitySummonable;
+use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::SpawnData;
+use entity::spawn::SpawnEvent;
+use inventory_item::item::InventoryItem;
+use inventory_item::spawn::InventoryItemBundle;
+use inventory_item::spawn::InventoryItemSummonable;
+use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
+use rigid_body::spawn::RigidBodyBundle;
+use rigid_body::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
+
+use super::jumpsuit::Jumpsuit;
 
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
@@ -88,37 +119,6 @@ impl InventoryItemSummonable for JumpsuitSummoner {
         }
     }
 }
-use api::combat::DamageFlag;
-use api::combat::DamageModel;
-use api::combat::MeleeCombat;
-use api::converters::string_transform_to_transform;
-use api::data::NoData;
-use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
-use api::examinable::Examinable;
-use api::examinable::RichName;
-use api::inventory::SlotType;
-use bevy::math::Mat4;
-use bevy::math::Quat;
-use bevy::math::Vec3;
-use bevy::prelude::Commands;
-use bevy::prelude::EventReader;
-use bevy::prelude::EventWriter;
-use bevy::prelude::Transform;
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use entity::entity_data::RawSpawnEvent;
-use entity::spawn::BaseEntityBundle;
-use entity::spawn::BaseEntitySummonable;
-use entity::spawn::DefaultSpawnEvent;
-use entity::spawn::SpawnData;
-use entity::spawn::SpawnEvent;
-use inventory_item::item::InventoryItem;
-use inventory_item::spawn::InventoryItemBundle;
-use inventory_item::spawn::InventoryItemSummonable;
-use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
-use rigid_body::spawn::RigidBodyBundle;
-use rigid_body::spawn::RigidBodySummonable;
-
-use super::jumpsuit::Jumpsuit;
 
 impl RigidBodySummonable<NoData> for JumpsuitSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {

@@ -3,6 +3,7 @@ use serde::Deserialize;
 
 use super::omni_light::OmniLight;
 
+/// Json raw data.
 #[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct ExportDataRaw {
@@ -68,6 +69,7 @@ impl ExportData {
     }
 }
 
+/// Json data.
 pub struct ExportData {
     omni_attenuation: f32,
     omni_range: f32,
