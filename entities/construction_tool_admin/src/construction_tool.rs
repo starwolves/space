@@ -1197,23 +1197,31 @@ pub(crate) fn construction_tool(
 
 #[derive(Component, Default)]
 pub struct ConstructionTool {
+    /// Currently selected construction cell option.
     pub construction_option: Option<String>,
 }
 
 pub struct InputConstruct {
+    /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
+    /// Build on gridmap cell:
     pub target_cell: (Vec3Int, GridMapType),
+    /// Entity that requested to construct.
     pub belonging_entity: Entity,
 }
 
 pub struct InputConstructionOptions {
+    /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
+    /// Entity that requested to select construction option.
     pub belonging_entity: Entity,
 }
 
 pub struct InputDeconstruct {
+    /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
     pub target_cell_option: Option<(Vec3Int, GridMapType)>,
     pub target_entity_option: Option<Entity>,
+    /// Entity that requested to deconstruct.
     pub belonging_entity: Entity,
 }

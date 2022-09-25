@@ -21,8 +21,8 @@ use crate::{
         air_lock_actions, build_actions, lock_action_prequisite_check,
         toggle_open_action_prequisite_check,
     },
-    air_lock::AirLock,
     physics_events::physics_events,
+    resources::AirLock,
 };
 
 use super::{

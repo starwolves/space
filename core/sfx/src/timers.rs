@@ -6,6 +6,7 @@ use crate::entity_update::SfxAutoDestroyTimers;
 
 use super::builder::{AmbienceSfxTimer, Sfx};
 
+/// Tick ambience timers.
 pub(crate) fn tick_timers_slowed(
     mut query_ambience_sfx_timer: Query<(&mut AmbienceSfxTimer, &mut Sfx)>,
 ) {

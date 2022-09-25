@@ -46,11 +46,17 @@ pub const GREEN_MAP_TILE_COUNTER: i16 = 4;
 
 /// Data regarding an entity that has a mini-map.
 pub struct MapHolderData {
+    /// Start increment of the next batch.
     pub batch_i: usize,
+    /// Previous batch.
     pub cache: Vec<AtmosphericsCache>,
+    /// Previous camera position.
     pub prev_camera_cell_id: Vec2Int,
+    /// Previous camera angle.
     pub prev_camera_view_range: usize,
+    /// Should the cache be reset?
     pub reset_cache: bool,
+    /// Currently displayed data text to client.
     pub hovering_data: String,
 }
 
@@ -76,10 +82,15 @@ impl Default for MapHolderData {
 /// Mini-map of a player.
 #[derive(Component)]
 pub struct Map {
+    /// Currently active display overlay.
     pub display_mode: Option<String>,
+    /// Available display overlays.
     pub available_display_modes: Vec<(String, String)>,
+    /// Map camera view distance.
     pub view_range: usize,
+    /// Map camera position.
     pub camera_position: Vec2,
+    /// Selected mouse cell.
     pub passed_mouse_cell: Option<(i16, i16)>,
 }
 impl Default for Map {

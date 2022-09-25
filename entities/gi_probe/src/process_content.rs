@@ -2,7 +2,7 @@ use api::data::GIProbe;
 use data_converters::converters::string_vec3_to_vec3;
 use serde::Deserialize;
 
-/// Load from json data.
+/// Json data.
 #[derive(Deserialize)]
 pub struct ExportData {
     bias: f32,

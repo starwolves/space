@@ -7,6 +7,7 @@ use crate::attack::{Attack, QueryCombatHitResult};
 /// Resource storing current incremented attack id.
 #[derive(Default)]
 pub struct ActiveAttackIncrement {
+    /// Attack id.
     incremented_id: u64,
 }
 
@@ -28,7 +29,9 @@ pub struct ActiveAttacks {
 /// An active attack for the cache.
 pub struct ActiveAttack {
     pub attack: Attack,
+    /// Physics hit result.
     pub hit_result: Option<QueryCombatHitResult>,
+    /// Match content of option to find out if it is a melee attack or not.
     pub melee: Option<bool>,
 }
 

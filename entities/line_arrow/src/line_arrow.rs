@@ -7,5 +7,6 @@ pub struct LineArrow;
 /// For pointing arrows.
 #[derive(Component)]
 pub struct PointArrow {
+    /// Timer after which the point arrow despawns.
     pub timer: Timer,
 }

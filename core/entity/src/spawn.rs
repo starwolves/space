@@ -23,6 +23,7 @@ pub struct BaseEntityBundle {
     pub entity_name: String,
     pub health: Health,
     pub entity_group: EntityGroup,
+    /// If this entity was spawned by default from map data.
     pub default_map_spawn: bool,
 }
 
@@ -40,13 +41,17 @@ impl Default for BaseEntityBundle {
 }
 /// Base entity data.
 pub struct BaseEntityData {
+    /// Entity type ID.
     pub entity_type: String,
     pub examinable: Examinable,
     pub sensable: Sensable,
     pub health: Health,
+    /// If item is spawned within another storage container.
     pub is_item_in_storage: bool,
     pub entity_group: EntityGroup,
+    /// If this entity was spawned by default from map data.
     pub default_map_spawn: bool,
+    /// If this entity is part of a showcase pass entity id.
     pub showcase_handle_option: Option<ShowcaseData>,
 }
 
@@ -192,16 +197,24 @@ impl ExportData {
     }
 }
 
-/// Spawn data.
+/// Spawn data used to spawn in entities.
 #[derive(Clone)]
 pub struct SpawnData {
+    /// Transform of the to be spawned entity.
     pub entity_transform: Transform,
+    /// Whether the transform (rotation) should be corrected.
     pub correct_transform: bool,
+    /// If the entity is held by another entity in its inventory.
     pub holder_entity_option: Option<Entity>,
+    /// If the entity is holding another entity.
     pub held_entity_option: Option<Entity>,
+    /// If the spawn is part of the default map data.
     pub default_map_spawn: bool,
+    /// Entity as json.
     pub raw_entity_option: Option<RawEntity>,
+    /// If the entity is spawned in a showcase find its data here.
     pub showcase_data_option: Option<ShowcaseData>,
+    /// Entity type ID.
     pub entity_name: String,
     pub entity: Entity,
 }

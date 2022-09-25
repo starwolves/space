@@ -42,24 +42,39 @@ pub const ATTACK_HEIGHT: f32 = 1.6;
 /// Physics query attack result.
 #[derive(Debug)]
 pub struct AttackResult {
+    /// The entity id of the hit entity.
     pub entity_option: Option<Entity>,
+    /// The cell id of the hit entity.
     pub cell_id_option: Option<Vec3Int>,
+    /// The distance between the attacker and hit entity.
     pub distance: f32,
+    /// The hit point of the attack.
     pub hit_point: Vec3,
+    /// The entity id of the hit entity.
     pub collider_handle: Entity,
+    /// Whether the hit entity is a combat obstacle.
     pub is_combat_obstacle: bool,
+    /// Whether the hit entity is a laser obstacle.
     pub is_laser_obstacle: bool,
 }
 
 /// Melee physics query.
 pub struct MeleeDirectQuery {
+    /// The entity id of the attacker.
     pub attacker_entity: Entity,
+    /// The entity id of the targetted entity.
     pub targetted_entity: Option<Entity>,
+    /// The id of the targetted cell.
     pub targetted_cell: Option<Vec3Int>,
+    /// Attack angle.
     pub angle: f32,
+    /// Attack range.
     pub range: f32,
+    /// Exclude hitting certain entities in this physics query.
     pub exclude_physics: Vec<Entity>,
+    /// Attack with bare hands.
     pub barehanded: bool,
+    /// Attack id.
     pub incremented_id: u64,
 }
 

@@ -666,14 +666,18 @@ impl Default for CounterWindowSensor {
 
 #[derive(Component)]
 pub struct CounterWindow {
+    /// State.
     pub status: CounterWindowStatus,
+    /// State of access lights.
     pub access_lights: CounterWindowAccessLightsStatus,
+    /// Authorization required to interact.
     pub access_permissions: Vec<ShipAuthorizationEnum>,
+    /// Lock state of counter window.
     pub locked_status: LockedStatus,
 
-    pub denied_timer: Option<Timer>,
-    pub open_timer: Option<Timer>,
-    pub closed_timer: Option<Timer>,
+    pub(crate) denied_timer: Option<Timer>,
+    pub(crate) open_timer: Option<Timer>,
+    pub(crate) closed_timer: Option<Timer>,
 }
 
 pub enum CounterWindowStatus {
@@ -701,14 +705,15 @@ impl Default for CounterWindow {
     }
 }
 
+/// Create a timer.
 pub fn open_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
-
+/// Create a timer.
 pub fn close_timer() -> Timer {
     Timer::from_seconds(1.1, false)
 }
-
+/// Create a timer.
 pub fn denied_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }

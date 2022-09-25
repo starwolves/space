@@ -24,13 +24,13 @@ use sounds::{
 };
 
 use super::{
-    air_lock::{
-        closed_timer, denied_timer, open_timer, AccessLightsStatus, AirLock, AirLockStatus,
-    },
     air_lock_added::{
         AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
     },
     net::NetAirLock,
+    resources::{
+        closed_timer, denied_timer, open_timer, AccessLightsStatus, AirLock, AirLockStatus,
+    },
 };
 
 pub struct AirLockOpenRequest {

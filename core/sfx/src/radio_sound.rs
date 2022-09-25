@@ -2,6 +2,7 @@ use api::network::ReliableServerMessage;
 
 use crate::builder::get_random_pitch_scale;
 
+/// Play radio sound message data.
 pub struct PlaySoundRadioMessage;
 
 impl PlaySoundRadioMessage {

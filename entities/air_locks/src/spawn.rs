@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use super::air_lock::AirLock;
+use super::resources::AirLock;
 use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
     converters::string_transform_to_transform,

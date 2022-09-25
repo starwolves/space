@@ -5,14 +5,18 @@ use pawn::pawn::ShipAuthorizationEnum;
 /// Air lock component.
 #[derive(Component)]
 pub struct AirLock {
+    /// Air lock state.
     pub status: AirLockStatus,
+    /// Current color of the access lights.
     pub access_lights: AccessLightsStatus,
+    /// Required authorization to interact with the air lock.
     pub access_permissions: Vec<ShipAuthorizationEnum>,
+    /// Whether the air lock is locked.
     pub locked_status: LockedStatus,
 
-    pub denied_timer_option: Option<Timer>,
-    pub open_timer_option: Option<Timer>,
-    pub closed_timer_option: Option<Timer>,
+    pub(crate) denied_timer_option: Option<Timer>,
+    pub(crate) open_timer_option: Option<Timer>,
+    pub(crate) closed_timer_option: Option<Timer>,
 }
 
 /// Air lock open or closed status.

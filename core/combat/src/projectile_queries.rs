@@ -29,12 +29,19 @@ use crate::{
 
 /// Projectile attack physics query.
 pub struct ProjectileQuery {
+    /// Entity id of the attacker.
     pub attacker_entity: Entity,
+    /// Entity id of the targetted entity.
     pub targetted_entity: Option<Entity>,
+    /// Id of the targetted cell.
     pub targetted_cell: Option<Vec3Int>,
+    /// Angle of attack.
     pub angle: f32,
+    /// Excluded entities from physics query.
     pub exclude_physics: Vec<Entity>,
+    /// Attack range.
     pub range: f32,
+    /// Attack id.
     pub incremented: u64,
 }
 
@@ -392,7 +399,9 @@ pub(crate) fn projectile_attack(
 
 /// In case projectile hit nothing.
 pub struct ProjectileBlank {
+    /// Hit point location.
     pub hit_point: Vec3,
+    /// Attack id.
     pub incremented_id: u64,
 }
 
