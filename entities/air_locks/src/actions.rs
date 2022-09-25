@@ -6,7 +6,7 @@ use api::{
 };
 use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
 
-use crate::air_lock::AirLock;
+use crate::resources::AirLock;
 
 use super::air_lock_added::{
     AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,

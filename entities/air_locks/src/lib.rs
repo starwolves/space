@@ -2,8 +2,6 @@
 
 /// Air lock actions.
 mod actions;
-/// Air lock resources.
-pub mod air_lock;
 /// On new air lock creation.
 pub mod air_lock_added;
 /// Manage air lock events.
@@ -18,5 +16,7 @@ mod net;
 mod physics_events;
 /// The Bevy plugin of this crate.
 pub mod plugin;
+/// Air lock resources.
+pub mod resources;
 /// The air lock spawner.
 pub mod spawn;

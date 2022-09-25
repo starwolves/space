@@ -34,12 +34,15 @@ pub fn ambience_sfx_builder(
     entity
 }
 
+/// Component for repeating sfx for sprinting footsteps.
 #[derive(Component)]
 pub struct FootstepsSprinting;
 
+/// Component for repeating sfx for walking footsteps.
 #[derive(Component)]
 pub struct FootstepsWalking;
 
+/// Component for repeating sfx.
 #[derive(Component)]
 pub struct RepeatingSfx {
     pub area_mask: u8,
@@ -93,6 +96,7 @@ impl Default for RepeatingSfx {
     }
 }
 
+/// Component for SFX.
 #[derive(Component)]
 pub struct Sfx {
     pub area_mask: u8,
@@ -120,6 +124,7 @@ pub struct Sfx {
     pub play_back_duration: f32,
 }
 
+/// Get an acceptable randomly variating pitch.
 pub fn get_random_pitch_scale(input_scale: f32) -> f32 {
     let mut rng = rand::thread_rng();
     input_scale + rng.gen_range(-0.2..0.2)
@@ -155,11 +160,13 @@ impl Default for Sfx {
     }
 }
 
+/// Replay timer for ambience SFX.
 #[derive(Component)]
 pub struct AmbienceSfxTimer {
     pub timer: Timer,
 }
 
+/// Function taht builds a repeating sound effect.
 pub fn repeating_sfx_builder(
     commands: &mut Commands,
     rigid_body_position: Transform,
@@ -182,6 +189,7 @@ pub fn repeating_sfx_builder(
     ));
     entity
 }
+/// Function that builds a sound effect.
 pub fn sfx_builder(
     commands: &mut Commands,
     rigid_body_position: Transform,

@@ -3,7 +3,7 @@ use bevy::{
     time::Time,
 };
 
-use super::air_lock::AirLock;
+use super::resources::AirLock;
 
 /// Air lock tick timers.
 pub(crate) fn air_lock_tick_timers(time: Res<Time>, mut air_locks: Query<&mut AirLock>) {

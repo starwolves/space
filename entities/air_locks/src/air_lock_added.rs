@@ -16,7 +16,7 @@ use crate::spawn::{
     BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, VACUUM_AIRLOCK_ENTITY_NAME,
 };
 
-use super::air_lock::AirLock;
+use super::resources::AirLock;
 
 /// Air lock collision.
 pub struct AirLockCollision {
@@ -26,6 +26,7 @@ pub struct AirLockCollision {
     pub collider1_group: EntityGroup,
     pub collider2_group: EntityGroup,
 
+    /// Collision started or ended.
     pub started: bool,
 }
 

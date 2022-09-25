@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use api::entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates};
 use bevy::prelude::{Changed, Query};
 
-use super::air_lock::{AccessLightsStatus, AirLock, AirLockStatus};
+use super::resources::{AccessLightsStatus, AirLock, AirLockStatus};
 
 /// Air lock entity update.
 pub(crate) fn air_lock_update(

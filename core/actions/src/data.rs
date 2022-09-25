@@ -213,8 +213,8 @@ pub(crate) fn init_action_data_listing(
         building_action.list.push(BuildingAction {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
-            action_taker: event.player_entity,
-            target_entity_option: Some(event.examine_entity_bits),
+            action_taker: event.requested_by_entity,
+            target_entity_option: Some(event.targetted_entity),
             target_cell_option: None,
         });
         action_data_requests.list.insert(
@@ -226,7 +226,7 @@ pub(crate) fn init_action_data_listing(
         building_action.list.push(BuildingAction {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
-            action_taker: event.player_entity,
+            action_taker: event.requested_by_entity,
             target_entity_option: None,
             target_cell_option: Some((event.gridmap_cell_id, event.gridmap_type.clone())),
         });
@@ -240,8 +240,11 @@ pub(crate) fn init_action_data_listing(
 /// An individual action.
 #[derive(Clone)]
 pub struct Action {
+    /// Action identifier.
     pub id: String,
+    /// Action text.
     pub text: String,
+    /// Decides the order in which the actions show up.
     pub tab_list_priority: u8,
 }
 

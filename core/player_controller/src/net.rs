@@ -224,7 +224,7 @@ pub fn scene_ready_event(
             }
         }
 
-        if new_event.scene_type == "setupUI" {
+        if new_event.scene_id == "setupUI" {
             commands.entity(*player_entity).insert(SetupPhase);
         }
     }

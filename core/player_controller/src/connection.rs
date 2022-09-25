@@ -17,12 +17,15 @@ use pawn::pawn::{ControllerInput, PersistentPlayerData};
 
 use crate::{connection_events::on_new_player_connection, health_ui::ClientHealthUICache};
 
+/// Component for players that are requesting boarding.
 #[derive(Component)]
 pub struct Boarding;
 
+/// Component for entities int he boarding phase.
 #[derive(Component)]
 pub struct SetupPhase;
 
+/// Component for entities that are done boarding and about to spawn in on the ship. A stage after [Boarding].
 #[derive(Component)]
 pub struct OnBoard;
 

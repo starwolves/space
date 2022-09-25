@@ -11,7 +11,7 @@ use api::{
     senser::Senser,
 };
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
-use chat::proximity_message::EntityProximityMessage;
+use chat::chat::EntityProximityMessage;
 use inventory_item::item::InventoryItem;
 use rand::prelude::SliceRandom;
 
@@ -424,6 +424,7 @@ pub fn attacked_by_chat<T: Component>(
     }
 }
 
+/// Manage chat messages when cells are hit.
 pub fn hit_query_chat_cells(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -628,6 +629,7 @@ pub fn hit_query_chat_cells(
     }
 }
 
+/// Manage chat messages when blanks are fired and nothing was hit.
 pub(crate) fn blanks_chat(
     mut projectile_blanks: EventReader<ProjectileBlank>,
     active_attacks: Res<ActiveAttacks>,

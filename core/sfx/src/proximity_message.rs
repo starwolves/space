@@ -4,9 +4,10 @@ use rand::Rng;
 
 use crate::builder::get_random_pitch_scale;
 
-pub struct PlaySoundProximityMessage;
+/// Proximity message sound data.
+pub struct PlaySoundProximityMessageData;
 
-impl PlaySoundProximityMessage {
+impl PlaySoundProximityMessageData {
     pub fn get_message(position: Vec3) -> ReliableServerMessage {
         let mut rng = rand::thread_rng();
 
@@ -21,6 +22,7 @@ impl PlaySoundProximityMessage {
     }
 }
 
+/// All proximity message sound effect ids.
 const SFX_NAMES: [&str; 6] = [
     "/content/audio/chat/proximity_message1.sample",
     "/content/audio/chat/proximity_message2.sample",

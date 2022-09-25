@@ -91,9 +91,10 @@ pub struct InputAttackCell {
 /// Client input list actions map.
 #[derive(Debug, Clone)]
 pub struct InputListActionsMap {
-    pub player_entity: Entity,
+    pub requested_by_entity: Entity,
     pub gridmap_type: GridMapType,
     pub gridmap_cell_id: Vec3Int,
+    /// Show UI to entity that we check for.
     pub with_ui: bool,
 }
 
@@ -246,7 +247,7 @@ pub(crate) fn incoming_messages(
                 ReliableClientMessage::SceneReady(scene_type) => {
                     scene_ready_event.send(InputSceneReady {
                         handle: handle,
-                        scene_type: scene_type,
+                        scene_id: scene_type,
                     });
                 }
                 ReliableClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
@@ -342,8 +343,8 @@ pub(crate) fn incoming_messages(
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             use_world_item.send(InputUseWorldItem {
-                                pickuper_entity: *player_entity,
-                                pickupable_entity: Entity::from_bits(entity_id),
+                                using_entity: *player_entity,
+                                used_entity: Entity::from_bits(entity_id),
                             });
                         }
                         None => {
@@ -381,7 +382,7 @@ pub(crate) fn incoming_messages(
                         Some(player_entity) => {
                             wear_items.send(InputWearItem {
                                 wearer_entity: *player_entity,
-                                wearable_id_bits: item_id,
+                                worn_entity_bits: item_id,
                                 wear_slot: wear_slot,
                             });
                         }
@@ -545,8 +546,8 @@ pub(crate) fn incoming_messages(
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             action_data_entity.send(InputListActionsEntity {
-                                player_entity: *player_entity,
-                                examine_entity_bits: Entity::from_bits(entity_id_bits),
+                                requested_by_entity: *player_entity,
+                                targetted_entity: Entity::from_bits(entity_id_bits),
                                 with_ui: true,
                             });
                         }
@@ -559,7 +560,7 @@ pub(crate) fn incoming_messages(
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             action_data_map.send(InputListActionsMap {
-                                player_entity: *player_entity,
+                                requested_by_entity: *player_entity,
                                 gridmap_type: gridmap_type,
                                 gridmap_cell_id: Vec3Int {
                                     x: idx,
@@ -746,9 +747,13 @@ pub fn net_system<T: std::marker::Send + std::marker::Sync + PendingMessage + 's
 }
 /// Client input console command message.
 pub struct InputConsoleCommand {
+    /// The connection handle tied to the entity performing the command.
     pub handle_option: Option<u64>,
+    /// The entity performing the command.
     pub entity: Entity,
+    /// The command name.
     pub command_name: String,
+    /// The passed arguments to the command as variants.
     pub command_arguments: Vec<ConsoleCommandVariantValues>,
 }
 
@@ -760,6 +765,7 @@ pub struct InputToggleCombatMode {
 /// Client input drop current item.
 pub struct InputDropCurrentItem {
     pub pickuper_entity: Entity,
+    /// Drop item on position, for placeable item surfaces.
     pub input_position_option: Option<Vec3>,
 }
 
@@ -783,14 +789,14 @@ pub struct InputTakeOffItem {
 
 /// Client input use world item.
 pub struct InputUseWorldItem {
-    pub pickuper_entity: Entity,
-    pub pickupable_entity: Entity,
+    pub using_entity: Entity,
+    pub used_entity: Entity,
 }
 
 /// Client input wear item.
 pub struct InputWearItem {
     pub wearer_entity: Entity,
-    pub wearable_id_bits: u64,
+    pub worn_entity_bits: u64,
     pub wear_slot: String,
 }
 /// Client input user name.
@@ -801,13 +807,16 @@ pub struct InputUserName {
 /// Client input list actions entity.
 #[derive(Clone)]
 pub struct InputListActionsEntity {
-    pub player_entity: Entity,
-    pub examine_entity_bits: Entity,
+    pub requested_by_entity: Entity,
+    /// Targetted entity.
+    pub targetted_entity: Entity,
+    /// Whether UI should be displayed to the requested by entity.
     pub with_ui: bool,
 }
 
-/// Client input action.
+/// Client initiates execution of an action.
 pub struct InputAction {
+    /// Action ID.
     pub fired_action_id: String,
     pub action_taker: Entity,
     pub target_entity_option: Option<Entity>,
@@ -848,10 +857,15 @@ pub struct InputMovementInput {
 
 /// Client text tree input selection.
 pub struct TextTreeInputSelection {
+    /// Handle of the submitter of the selection.
     pub handle: u64,
+    /// Menu ID.
     pub menu_id: String,
+    /// The selection on the menu.
     pub menu_selection: String,
+    /// The action ID.
     pub action_id: String,
+    /// The entity submitting the selection.
     pub belonging_entity: Option<u64>,
 }
 
@@ -863,7 +877,7 @@ pub struct InputSprinting {
 /// Client input scene ready.
 pub struct InputSceneReady {
     pub handle: u64,
-    pub scene_type: String,
+    pub scene_id: String,
 }
 /// Client input build graphics.
 pub struct InputBuildGraphics {

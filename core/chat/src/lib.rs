@@ -4,5 +4,3 @@
 pub mod chat;
 /// The Bevy plugin of this crate.
 pub mod plugin;
-/// Manage proximity messages.
-pub mod proximity_message;

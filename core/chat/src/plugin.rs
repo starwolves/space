@@ -2,12 +2,9 @@ use api::data::PostUpdateLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
 
-use crate::{
-    chat::{chat_message_input_event, NetChatMessage},
-    proximity_message::{
-        send_entity_proximity_messages, EntityProximityMessage, EntityProximityMessages,
-        NetProximityMessage,
-    },
+use crate::chat::{
+    chat_message_input_event, send_entity_proximity_messages, EntityProximityMessage,
+    EntityProximityMessages, NetChatMessage, NetProximityMessage,
 };
 use bevy::app::CoreStage::PostUpdate;
 

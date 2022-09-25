@@ -2,7 +2,7 @@ use api::data::PostUpdateLabels;
 use api::{combat::ProjectileFOV, data::CombatLabels};
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
-use chat::proximity_message::EntityProximityMessages;
+use chat::chat::EntityProximityMessages;
 use networking::messages::net_system;
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};

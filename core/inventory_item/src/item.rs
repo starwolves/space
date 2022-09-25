@@ -6,12 +6,18 @@ use bevy::prelude::{Component, Entity, Transform};
 /// Inventory item component.
 #[derive(Component)]
 pub struct InventoryItem {
+    /// Entity that is holding this entity.
     pub in_inventory_of_entity: Option<Entity>,
+    /// What transform this entity has per attachment slot.
     pub attachment_transforms: HashMap<String, Transform>,
+    /// Mainly the set rotation for when an entity gets dropped.
     pub drop_transform: Transform,
+    /// The slot type this item attaches to.
     pub slot_type: SlotType,
+    /// Items that are worn by attachment to a slot have this set to true.
     pub is_attached_when_worn: bool,
     pub throw_force_factor: f32,
+    /// The to be played animation when in combat mode whilst holding this item.
     pub combat_standard_animation: CombatStandardAnimation,
 }
 impl Default for InventoryItem {

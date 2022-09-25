@@ -351,8 +351,8 @@ pub(crate) fn pickup_world_item_action(
                 && action.data.id == building_action_id
             {
                 use_world_item_events.send(InputUseWorldItem {
-                    pickuper_entity: building.action_taker,
-                    pickupable_entity: building.target_entity_option.unwrap(),
+                    using_entity: building.action_taker,
+                    used_entity: building.target_entity_option.unwrap(),
                 });
             }
         }
@@ -386,7 +386,7 @@ pub(crate) fn pickup_world_item(
     cell_query: Query<&Cell>,
 ) {
     for event in use_world_item_events.iter() {
-        let pickuper_components_option = inventory_entities.get_mut(event.pickuper_entity);
+        let pickuper_components_option = inventory_entities.get_mut(event.using_entity);
         let pickuper_components;
 
         match pickuper_components_option {
@@ -409,7 +409,7 @@ pub(crate) fn pickup_world_item(
             continue;
         }
 
-        let pickupable_entity = event.pickupable_entity;
+        let pickupable_entity = event.used_entity;
 
         match inventory_items_query.get_component_mut::<InventoryItem>(pickupable_entity) {
             Ok(pickupable_inventory_item_component) => {
@@ -431,7 +431,7 @@ pub(crate) fn pickup_world_item(
         .translation.into();
 
         let pickuper_position: Vec3 = rigidbody_positions
-            .get(event.pickuper_entity)
+            .get(event.using_entity)
             .expect(
                 "pickup_world_item.rs pickuper_entity was not found in rigidbody_positions query.",
             )
@@ -447,7 +447,7 @@ pub(crate) fn pickup_world_item(
             pickuper_position,
             pickupable_position,
             &pickupable_entity,
-            &event.pickuper_entity,
+            &event.using_entity,
             &health_query,
             &cell_query,
             &gridmap_main,
@@ -522,24 +522,24 @@ pub(crate) fn pickup_world_item(
             }
         }
 
-        pickupable_inventory_item_component.in_inventory_of_entity = Some(event.pickuper_entity);
+        pickupable_inventory_item_component.in_inventory_of_entity = Some(event.using_entity);
         pickup_slot.slot_item = Some(pickupable_entity);
         pickupable_world_mode.mode = WorldModes::Held;
 
         commands
             .entity(pickupable_entity)
             .insert(RigidBodyLinkTransform {
-                follow_entity: event.pickuper_entity,
+                follow_entity: event.using_entity,
                 ..Default::default()
             });
 
-        match handle_to_entity.inv_map.get(&event.pickuper_entity) {
+        match handle_to_entity.inv_map.get(&event.using_entity) {
             Some(handle) => {
                 net_pickup_world_item.send(NetPickupWorldItem {
                     handle: *handle,
                     message: ReliableServerMessage::PickedUpItem(
                         pickupable_entity_data.entity_name.clone(),
-                        event.pickupable_entity.to_bits(),
+                        event.used_entity.to_bits(),
                         pickup_slot.slot_name.clone(),
                     ),
                 });

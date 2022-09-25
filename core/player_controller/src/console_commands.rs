@@ -152,7 +152,9 @@ const RCON_PASSWORD: &str = "KA-BAR";
 /// Protect against RCON password bruteforce.
 #[derive(Default)]
 pub(crate) struct BruteforceProtection {
+    /// Wrong password attempts by handle.
     pub tracking_data: HashMap<u64, u8>,
+    /// Blacklisted handles.
     pub blacklist: Vec<u64>,
 }
 
