@@ -56,7 +56,7 @@ pub struct AirLockUnlock {
 }
 
 /// On new air lock spawn.
-pub (crate) fn air_lock_added(
+pub(crate) fn air_lock_added(
     mut air_locks: Query<(Entity, &EntityData, &Transform, &mut Examinable), Added<AirLock>>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
@@ -169,7 +169,7 @@ pub (crate) fn air_lock_added(
 }
 
 /// When a default map air lock gets spawned.
-pub (crate) fn air_lock_default_map_added(
+pub(crate) fn air_lock_default_map_added(
     airlock_windows: Query<(Entity, &Transform, &DefaultMapEntity, &EntityData), Added<AirLock>>,
     mut map_data: ResMut<MapData>,
     mut gridmap_main: ResMut<GridmapMain>,

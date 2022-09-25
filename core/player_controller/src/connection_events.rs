@@ -7,7 +7,7 @@ use api::{
 };
 use bevy::prelude::{Commands, EventWriter, Res, ResMut};
 use chat::chat::get_talk_spaces_setupui;
-use console_commands::{commands::AllConsoleCommands, rcon::GiveAllRCON};
+use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PersistentPlayerData};

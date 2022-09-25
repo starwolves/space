@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use super::net::NetConstructionTool;
 use api::{
     chat::FURTHER_ITALIC_FONT,
     data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec2Int, Vec3Int},
@@ -15,7 +16,6 @@ use api::{
     sensable::Sensable,
     senser::Senser,
 };
-use super::net::NetConstructionTool;
 
 use atmospherics::diffusion::{AtmosphericsResource, EffectType};
 use bevy::{
@@ -51,7 +51,7 @@ use sounds::{
     },
 };
 
-pub (crate) fn construction_tool(
+pub(crate) fn construction_tool(
     event_readers: (
         EventReader<InputConstruct>,
         EventReader<InputDeconstruct>,
@@ -1194,7 +1194,6 @@ pub (crate) fn construction_tool(
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
     }
 }
-
 
 #[derive(Component, Default)]
 pub struct ConstructionTool {

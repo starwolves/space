@@ -13,7 +13,7 @@ use super::counter_window_events::{
     InputCounterWindowToggleOpen,
 };
 
-pub (crate) fn toggle_open_action_prequisite_check(
+pub(crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
 ) {
@@ -77,7 +77,7 @@ pub (crate) fn toggle_open_action_prequisite_check(
     }
 }
 
-pub (crate) fn counter_window_actions(
+pub(crate) fn counter_window_actions(
     building_action_data: Res<BuildingActions>,
     mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
     mut counter_window_lock_closed_event: EventWriter<CounterWindowLockClosed>,
@@ -174,7 +174,7 @@ pub (crate) fn counter_window_actions(
     }
 }
 
-pub (crate) fn lock_open_action_prequisite_check(
+pub(crate) fn lock_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     examiner: Query<(&Transform, &DataLink)>,
     transforms: Query<&Transform>,
@@ -245,7 +245,7 @@ pub (crate) fn lock_open_action_prequisite_check(
     }
 }
 
-pub (crate) fn build_actions(
+pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     counter_windows: Query<&CounterWindow>,
 ) {

@@ -7,7 +7,7 @@ use api::{
 use bevy::prelude::{warn, Changed, Query};
 use inventory_item::item::InventoryItem;
 
-/// Inventory item update.
+/// Attach items to slots for clients.
 pub(crate) fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,
     pickupables: Query<(&InventoryItem, &EntityData)>,

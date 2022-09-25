@@ -5,7 +5,7 @@ use bevy::{
 
 use super::air_lock::AirLock;
 
-pub (crate) fn air_lock_tick_timers(time: Res<Time>, mut air_locks: Query<&mut AirLock>) {
+pub(crate) fn air_lock_tick_timers(time: Res<Time>, mut air_locks: Query<&mut AirLock>) {
     for mut air_lock_component in air_locks.iter_mut() {
         match air_lock_component.denied_timer_option.as_mut() {
             Some(x) => {

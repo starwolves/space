@@ -1,6 +1,6 @@
 use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
-pub (crate) struct NetConstructionTool {
+pub(crate) struct NetConstructionTool {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

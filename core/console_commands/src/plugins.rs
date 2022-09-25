@@ -5,9 +5,8 @@ use api::{
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
 
-use crate::{
-    commands::{initialize_console_commands, AllConsoleCommands, NetEntityConsole},
-    rcon::GiveAllRCON,
+use crate::commands::{
+    initialize_console_commands, AllConsoleCommands, GiveAllRCON, NetEntityConsole,
 };
 use bevy::app::CoreStage::PostUpdate;
 

@@ -2,7 +2,7 @@ use api::humanoid::MELEE_FISTS_REACH;
 use bevy::prelude::{EventReader, EventWriter};
 use combat::{attack::Attack, melee_queries::MeleeDirectQuery};
 
-pub (crate) fn hands_attack_handler(
+pub(crate) fn hands_attack_handler(
     mut attacks: EventReader<Attack>,
     mut melee_attack: EventWriter<MeleeDirectQuery>,
 ) {

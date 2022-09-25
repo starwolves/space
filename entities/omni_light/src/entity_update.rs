@@ -4,7 +4,7 @@ use bevy::prelude::{Changed, Query};
 use super::omni_light::OmniLight;
 
 /// Omnni light entity update.
-pub (crate) fn omni_light_update(
+pub(crate) fn omni_light_update(
     mut updated_omni_lights: Query<(&OmniLight, &mut EntityUpdates), Changed<OmniLight>>,
 ) {
     for (omni_light_component, mut entity_updates_component) in updated_omni_lights.iter_mut() {

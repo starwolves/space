@@ -13,7 +13,7 @@ use crate::construction_tool::{ConstructionTool, InputConstructionOptions, Input
 use super::construction_tool::InputConstruct;
 
 /// Manage construction tool actions.
-pub (crate) fn construction_tool_actions(
+pub(crate) fn construction_tool_actions(
     building_action_data: Res<BuildingActions>,
     handle_to_entity: Res<HandleToEntity>,
     mut event_construct: EventWriter<InputConstruct>,
@@ -125,7 +125,7 @@ pub fn construct_action_prequisite_check(
     }
 }
 
-pub (crate) fn deconstruct_action_prequisite_check(
+pub(crate) fn deconstruct_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     gridmap_main: Res<GridmapMain>,
 ) {
@@ -159,7 +159,7 @@ pub (crate) fn deconstruct_action_prequisite_check(
     }
 }
 
-pub (crate) fn construction_tool_search_distance_prequisite_check(
+pub(crate) fn construction_tool_search_distance_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
 ) {
@@ -208,7 +208,7 @@ pub (crate) fn construction_tool_search_distance_prequisite_check(
     }
 }
 
-pub (crate) fn construction_tool_is_holding_item_prequisite_check(
+pub(crate) fn construction_tool_is_holding_item_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     inventory_holders: Query<&Inventory>,
     construction_tools: Query<&ConstructionTool>,
@@ -244,7 +244,7 @@ pub (crate) fn construction_tool_is_holding_item_prequisite_check(
     }
 }
 
-pub (crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
+pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
     for building_action in building_action_data.list.iter_mut() {
         match &building_action.target_cell_option {
             Some(_examined_entity) => {
@@ -281,7 +281,7 @@ pub (crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) 
         }
     }
 }
-pub (crate) fn text_tree_input_selection(
+pub(crate) fn text_tree_input_selection(
     mut input_events: EventReader<TextTreeInputSelection>,
     mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,
 ) {

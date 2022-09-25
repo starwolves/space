@@ -39,7 +39,7 @@ pub struct AirLockOpenRequest {
 }
 
 /// Manage air lock events.
-pub (crate) fn air_lock_events(
+pub(crate) fn air_lock_events(
     mut air_lock_collisions: EventReader<AirLockCollision>,
     mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
     transforms: Query<&Transform>,

@@ -16,7 +16,7 @@ use networking::messages::net_system;
 
 use crate::{
     examine::examine_map,
-    init::{startup_build_map, startup_map_cells, startup_misc_resources},
+    init_meta::{startup_build_map, startup_map_cells, startup_misc_resources},
 };
 use bevy::app::CoreStage::PostUpdate;
 
