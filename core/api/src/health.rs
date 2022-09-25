@@ -2,14 +2,23 @@ use std::collections::HashMap;
 
 #[derive(Component, Clone)]
 pub struct Health {
+    /// The health container.
     pub health_container: HealthContainer,
+    /// Health flags like armor.
     pub health_flags: HashMap<u32, HealthFlag>,
+    /// Damage flags like stun.
     pub damage_flags: HashMap<u32, DamageFlag>,
+    /// For sound hooks.
     pub hit_sound_surface: HitSoundSurface,
+    /// Impacts how combat physics queries are performed.
     pub is_combat_obstacle: bool,
+    /// Impacts how combat physics queries are performed.
     pub is_laser_obstacle: bool,
+    /// Impacts how combat physics queries are performed.
     pub is_reach_obstacle: bool,
 }
+
+/// The health component with entities containing health.
 #[derive(Component)]
 pub struct HealthComponent {
     pub health: Health,
@@ -77,6 +86,7 @@ pub enum HealthContainer {
     Structure(StructureHealth),
 }
 
+/// A pending cell update like a cell construction.
 pub struct CellUpdate {
     pub entities_received: Vec<Entity>,
     pub cell_data: CellData,

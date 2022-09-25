@@ -65,6 +65,7 @@ impl PendingMessage for PendingNetworkMessage {
     }
 }
 
+/// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableClientMessage {
     Awoo,
@@ -106,7 +107,7 @@ pub enum ReliableClientMessage {
     MapRequestDisplayModes,
     MapCameraPosition(Vec2),
 }
-
+/// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ReliableServerMessage {
     EntityUpdate(
@@ -175,12 +176,13 @@ pub enum ServerConfigMessage {
     NonBlockingCells(Vec<i64>),
 }
 
+/// This message gets sent at high intervals.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableServerMessage {
     TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
     PositionUpdate(u64, Vec3, u64),
 }
-
+/// This message gets sent at high intervals.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),

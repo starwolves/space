@@ -1,5 +1,13 @@
 use std::collections::HashMap;
 
+use bevy::{
+    math::{Quat, Vec2, Vec3},
+    prelude::Component,
+};
+use serde::{Deserialize, Serialize};
+
+use crate::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
+
 pub fn entity_update_changed_detection(
     changed_parameters: &mut Vec<String>,
     entity_updates: &mut HashMap<String, EntityUpdateData>,
@@ -22,14 +30,6 @@ pub fn entity_update_changed_detection(
         changed_parameters.push(parameter);
     }
 }
-
-use bevy::{
-    math::{Quat, Vec2, Vec3},
-    prelude::Component,
-};
-use serde::{Deserialize, Serialize};
-
-use crate::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
 pub struct NetSendEntityUpdates {
     pub handle: u64,
@@ -248,6 +248,7 @@ pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateDat
 
     !is_not_matching
 }
+/// Entity update component containing Godot node related updates for clients for visual changes.
 #[derive(Component)]
 pub struct EntityUpdates {
     pub updates: HashMap<String, HashMap<String, EntityUpdateData>>,

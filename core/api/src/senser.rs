@@ -3,12 +3,14 @@ use doryen_fov::FovRecursiveShadowCasting;
 
 use crate::{data::Vec2Int, gridmap::FOV_MAP_WIDTH};
 
+/// Used to check if entities are authorized to examine and obtain certain additional data.
 #[derive(PartialEq)]
 pub enum SensingAbility {
     AtmosphericsSensor,
     ShipEngineerKnowledge,
 }
 
+/// The component of entities that can sense other entities.
 #[derive(Component)]
 pub struct Senser {
     pub cell_id: Vec2Int,

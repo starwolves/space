@@ -32,6 +32,7 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
     }
 }
 
+/// Get a position to spawn an entity on around a player.
 pub fn entity_spawn_position_for_player(
     player_transform: Transform,
     player_facing_direction_option: Option<&FacingDirection>,

@@ -8,12 +8,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::gridmap::GridItemData;
 
+/// A resource that links entities to their appropiate connection handles for connected players.
 #[derive(Default)]
 pub struct HandleToEntity {
     pub map: HashMap<u64, Entity>,
     pub inv_map: HashMap<Entity, u64>,
 }
 
+/// The component for an entity controlled by a connected player.
 #[derive(Component, Clone)]
 pub struct ConnectedPlayer {
     pub handle: u64,
@@ -99,6 +101,7 @@ pub enum SummoningLabels {
     NormalSummon,
 }
 
+/// The tickrate of the server loop.
 pub struct TickRate {
     pub physics_rate: u8,
     pub bevy_rate: u8,
@@ -113,9 +116,9 @@ impl Default for TickRate {
     }
 }
 
-// Used for client, we can send this ID as an entityUpdate to the client which indicates it does not belong
-// to a specific entity and it should be customly assigned to something such as UIs and other stuff which
-// are not real server entities but just client GUI instances.
+/// Used for client, we can send this ID as an entityUpdate to the client which indicates it does not belong
+/// to a specific entity and it should be customly assigned to something such as UIs and other stuff which
+/// are not real server entities but just client GUI instances.
 pub struct ServerId {
     pub id: Entity,
 }
@@ -141,6 +144,7 @@ pub struct Vec3Int {
     pub z: i16,
 }
 
+/// Contains entity meta data.
 #[derive(Default)]
 pub struct EntityDataResource {
     pub data: Vec<EntityDataProperties>,
@@ -157,6 +161,7 @@ impl EntityDataResource {
     }
 }
 
+/// Meta data for an entity.
 pub struct EntityDataProperties {
     pub name: String,
     pub id: usize,
@@ -178,9 +183,11 @@ pub struct ShowcaseData {
     pub handle: u64,
 }
 
+/// Component for entities with zero gravity.
 #[derive(Component)]
 pub struct ZeroGravity;
 
+/// Component for entities in the showcase.
 #[derive(Component)]
 pub struct Showcase {
     pub handle: u64,
@@ -192,6 +199,7 @@ pub const JUMPSUIT_SECURITY_ENTITY_NAME: &str = "jumpsuitSecurity";
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = "humanDummy";
 pub const HUMAN_MALE_ENTITY_NAME: &str = "humanMale";
 
+/// Component holding Godot GIProbe properties.
 #[derive(Component, Clone)]
 pub struct GIProbe {
     pub bias: f32,
@@ -204,6 +212,7 @@ pub struct GIProbe {
     pub subdiv: u8,
     pub extents: Vec3,
 }
+/// Component holding Godot ReflectionProbe properties.
 #[derive(Component, Clone)]
 pub struct ReflectionProbe {
     pub projection_enabled: bool,

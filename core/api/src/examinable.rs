@@ -4,12 +4,14 @@ use bevy::prelude::{Component, Entity, SystemLabel};
 
 use crate::chat::ASTRIX;
 
+/// Component for entities that can be examined.
 #[derive(Component, Default)]
 pub struct Examinable {
     pub assigned_texts: BTreeMap<u32, String>,
     pub name: RichName,
 }
 
+/// A proper name for an entity.
 #[derive(Clone, Debug)]
 pub struct RichName {
     pub name: String,
@@ -54,6 +56,7 @@ pub struct InputExamineEntity {
     pub handle: u64,
     pub examine_entity: Entity,
     pub entity: Entity,
+    /// Examine message that is being built and returned to the client.
     pub message: String,
 }
 impl Default for InputExamineEntity {
