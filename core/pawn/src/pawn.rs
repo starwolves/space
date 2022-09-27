@@ -16,7 +16,7 @@ pub enum ShipJobsEnum {
     Security,
     Control,
 }
-/// Pawn component.
+/// The component.
 #[derive(Component)]
 pub struct Pawn {
     pub name: String,

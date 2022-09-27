@@ -14,8 +14,8 @@ use pawn::pawn::{ControllerInput, PersistentPlayerData};
 
 use crate::connection::AuthidI;
 
-/// Manage new player connections.
-pub(crate) fn on_new_player_connection(
+/// Send server configuration to new clients.
+pub(crate) fn send_server_configuration(
     net_on_new_player_connection: &mut EventWriter<NetPlayerConn>,
     handle: &u64,
     tick_rate: &Res<TickRate>,

@@ -7,8 +7,8 @@ use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 use networking::plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID};
 
-/// Manage sending netcode messages.
-pub(crate) fn send_net(
+/// Finalize sending netcode messages to clients as a function.
+pub(crate) fn finalize_send_net(
     net: &mut ResMut<RenetServer>,
     connected_players: &Query<&ConnectedPlayer>,
     handle_to_entity: &Res<HandleToEntity>,
@@ -42,15 +42,15 @@ pub(crate) fn send_net(
     );
 }
 
-/// Process netcode messages.
-pub(crate) fn process_net(
+/// Finalize netcode messages system.
+pub(crate) fn process_finalize_net(
     mut pending_network_message: EventReader<PendingNetworkMessage>,
     connected_players: Query<&ConnectedPlayer>,
     mut net: ResMut<RenetServer>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
     for p in pending_network_message.iter() {
-        send_net(
+        finalize_send_net(
             &mut net,
             &connected_players,
             &handle_to_entity,

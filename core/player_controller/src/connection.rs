@@ -15,21 +15,21 @@ use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PersistentPlayerData};
 
-use crate::{connection_events::on_new_player_connection, health_ui::ClientHealthUICache};
+use crate::{connection_events::send_server_configuration, health_ui::ClientHealthUICache};
 
-/// Component for players that are requesting boarding.
+/// The component for players that are requesting boarding.
 #[derive(Component)]
 pub struct Boarding;
 
-/// Component for entities int he boarding phase.
+/// The component for entities int he boarding phase.
 #[derive(Component)]
 pub struct SetupPhase;
 
-/// Component for entities that are done boarding and about to spawn in on the ship. A stage after [Boarding].
+/// The component for entities that are done boarding and about to spawn in on the ship. A stage after [Boarding].
 #[derive(Component)]
 pub struct OnBoard;
 
-/// Data for spawning a pawn.
+/// Data for spawning.
 #[derive(Clone)]
 pub struct SpawnPawnData {
     pub persistent_player_data: PersistentPlayerData,
@@ -38,7 +38,7 @@ pub struct SpawnPawnData {
     pub designation: PawnDesignation,
 }
 
-/// Manage connection events.
+/// Manage client connection events.
 pub(crate) fn connections(
     tick_rate: Res<TickRate>,
     mut auth_id_i: ResMut<AuthidI>,
@@ -65,7 +65,7 @@ pub(crate) fn connections(
             ServerEvent::ClientConnected(handle, _) => {
                 info!("Incoming connection on [{}]", handle,);
 
-                on_new_player_connection(
+                send_server_configuration(
                     &mut net_on_new_player_connection,
                     handle,
                     &tick_rate,

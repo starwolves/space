@@ -6,8 +6,8 @@ use networking::messages::{
 };
 use pawn::pawn::ControllerInput;
 
-/// Manage controller (as in controller of a pawn) input.
-pub(crate) fn controller_input(
+/// Manage controller input for humanoid. The controller can be controlled by a player or AI.
+pub(crate) fn humanoid_controller_input(
     mut alternative_item_attack_events: EventReader<InputAltItemAttack>,
     mut input_attack_entity: EventReader<InputAttackEntity>,
     mut input_attack_cell: EventReader<InputAttackCell>,
@@ -91,8 +91,8 @@ pub(crate) fn controller_input(
     }
 }
 
-/// Manage player input.
-pub(crate) fn player_input_event(
+/// Manage player input and apply to controller.
+pub(crate) fn apply_movement_input_controller(
     mut movement_input_event: EventReader<InputMovementInput>,
     mut sprinting_input_event: EventReader<InputSprinting>,
     mut query: Query<&mut ControllerInput>,

@@ -47,7 +47,7 @@ pub enum UIDamageType {
     Heavy,
 }
 
-/// Manage sending UI health updates.
+/// Manage sending UI health updates to Godot client.
 pub(crate) fn health_ui_update(
     mut updated_player_health_entities: Query<
         (Entity, &ConnectedPlayer, &HealthComponent),

@@ -62,8 +62,8 @@ use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
 use vector2math::{FloatingVector2, Vector2};
 
-/// Humanoid entity updates.
-pub(crate) fn humanoid_update(
+/// All the core humanoid entity updates for the Godot client.
+pub(crate) fn humanoid_core_entity_updates(
     mut updated_humans: Query<
         (
             Entity,
@@ -508,7 +508,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
     }
 }
 
-/// Spawn human male base handler.
+/// Human male spawner.
 pub fn summon_base_human_male<
     T: BaseEntitySummonable<HumanMaleSummonData> + Send + Sync + 'static,
 >(
@@ -604,7 +604,7 @@ pub trait HumanMaleSummonable {
     fn get_user_name(&self) -> String;
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
-/// Spawn human male handler.
+/// human-male specific spawn components and bundles.
 pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,

@@ -33,7 +33,7 @@ use entity::{
 use pawn::pawn::PersistentPlayerData;
 use ui::ui::{InputUIInputTransmitText, NetUIInputTransmitData};
 
-/// Boarding player.
+/// Component with boarding data.
 pub(crate) struct BoardingPlayer {
     pub player_handle: u64,
     pub player_character_name: String,
@@ -44,7 +44,7 @@ pub(crate) struct BoardingPlayer {
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
-/// Manage clients done boarding.
+/// Perform initialization of spawning player.
 pub(crate) fn done_boarding(
     mut spawn_points: ResMut<SpawnPoints>,
     mut net_done_boarding: EventWriter<NetDoneBoarding>,
@@ -106,8 +106,8 @@ pub(crate) fn done_boarding(
     }
 }
 
-/// Manage client UI input.
-pub(crate) fn ui_input_transmit_data_event(
+/// Recieve boarding UI input.
+pub(crate) fn ui_input_boarding(
     mut event: EventReader<InputUIInputTransmitText>,
     mut boarding_player_event: EventWriter<BoardingPlayer>,
     handle_to_entity: Res<HandleToEntity>,
@@ -211,7 +211,7 @@ pub(crate) fn on_boarding(
     }
 }
 
-/// On client spawning.
+/// Spawn player as human male with preset inventory.
 pub(crate) fn on_spawning(
     mut net_on_new_player_connection: EventWriter<NetOnSpawning>,
     query: Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData), Added<Spawning>>,

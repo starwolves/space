@@ -7,11 +7,11 @@ use bevy::{
     math::Vec2,
     prelude::{EventReader, EventWriter, Query},
 };
-use networking::messages::{InputMap, InputMapRequestDisplayModes, MapInput};
+use networking::messages::{InputMap, InputMapRequestOverlay, MapInput};
 
 use api::data::Vec2Int;
 use std::collections::HashMap;
-/// Manage map input.
+/// Read map input events and apply them to the Map component.
 pub(crate) fn map_input(
     mut input_view_range_change_events: EventReader<InputMap>,
     mut map_holders: Query<&mut Map>,
@@ -39,11 +39,11 @@ pub(crate) fn map_input(
     }
 }
 
-/// Request available map display modes.
-pub(crate) fn request_display_modes(
-    mut events: EventReader<InputMapRequestDisplayModes>,
+/// Request available map overlays.
+pub(crate) fn request_map_overlay(
+    mut events: EventReader<InputMapRequestOverlay>,
     map_holders: Query<&Map>,
-    mut net: EventWriter<NetRequestDisplayModes>,
+    mut net: EventWriter<NetRequestOverlay>,
 ) {
     for event in events.iter() {
         let map_component;
@@ -57,7 +57,7 @@ pub(crate) fn request_display_modes(
             }
         }
 
-        net.send(NetRequestDisplayModes {
+        net.send(NetRequestOverlay {
             handle: event.handle,
             message: ReliableServerMessage::MapSendDisplayModes(
                 map_component.available_display_modes.clone(),
@@ -66,11 +66,11 @@ pub(crate) fn request_display_modes(
     }
 }
 
-pub(crate) struct NetRequestDisplayModes {
+pub(crate) struct NetRequestOverlay {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetRequestDisplayModes {
+impl PendingMessage for NetRequestOverlay {
     fn get_message(&self) -> PendingNetworkMessage {
         PendingNetworkMessage {
             handle: self.handle,

@@ -1,4 +1,4 @@
-use crate::console_commands::console_commands;
+use crate::console_commands::rcon_console_commands;
 use crate::humanoid::default_human_dummy;
 use api::data::{
     HandleToEntity, PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
@@ -16,15 +16,15 @@ use networking::{
 use ui::ui::{InputUIInput, InputUIInputTransmitText, NetUIInputTransmitData};
 
 use super::{
-    boarding::{done_boarding, on_boarding, ui_input_transmit_data_event, BoardingPlayer},
-    input::{controller_input, player_input_event},
+    boarding::{done_boarding, on_boarding, ui_input_boarding, BoardingPlayer},
+    input::{apply_movement_input_controller, humanoid_controller_input},
     net::{
-        build_graphics_event, mouse_direction_update, scene_ready_event, send_server_time,
+        build_graphics, mouse_direction_update, scene_ready_event, send_server_time,
         update_player_count, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
         NetOnNewPlayerConnection, NetOnSetupUI, NetOnSpawning, NetSendServerTime,
         NetSendWorldEnvironment, NetUpdatePlayerCount, NetUserName,
     },
-    setup_ui::ui_input_event,
+    setup_ui::register_ui_input_boarding,
 };
 use crate::{
     boarding::{on_spawning, BoardingAnnouncements},
@@ -32,10 +32,10 @@ use crate::{
     connection::{connections, AuthidI},
     console_commands::{entity_console_commands, inventory_item_console_commands},
     health_ui::{health_ui_update, ClientHealthUICache},
-    humanoid::humanoid_update,
-    send_entity_update::send_entity_updates,
-    send_net::process_net,
-    setup_ui::on_setupui,
+    humanoid::humanoid_core_entity_updates,
+    send_entity_update::finalize_entity_updates,
+    send_net::process_finalize_net,
+    setup_ui::initialize_setupui,
 };
 use bevy::app::CoreStage::PreUpdate;
 
@@ -48,12 +48,12 @@ impl Plugin for ConnectedPlayerPlugin {
         app.init_resource::<HandleToEntity>()
             .add_event::<NetUserName>()
             .add_event::<InputListActionsEntity>()
-            .add_system(player_input_event.label(UpdateLabels::ProcessMovementInput))
+            .add_system(apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput))
             .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
-            .add_system(controller_input.before(UpdateLabels::StandardCharacters))
+            .add_system(humanoid_controller_input.before(UpdateLabels::StandardCharacters))
             .add_event::<BoardingPlayer>()
             .add_system(done_boarding)
-            .add_system(ui_input_event)
+            .add_system(register_ui_input_boarding)
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(10.))
@@ -69,13 +69,13 @@ impl Plugin for ConnectedPlayerPlugin {
                     .with_run_criteria(FixedTimestep::step(2.))
                     .with_system(send_server_time),
             )
-            .add_system(ui_input_transmit_data_event)
+            .add_system(ui_input_boarding)
             .add_system(on_boarding)
             .add_event::<NetUpdatePlayerCount>()
-            .add_system(build_graphics_event)
+            .add_system(build_graphics)
             .add_system(scene_ready_event)
             .add_event::<NetSendServerTime>()
-            .add_system(on_setupui.label(SummoningLabels::TriggerSummon))
+            .add_system(initialize_setupui.label(SummoningLabels::TriggerSummon))
             .add_system_to_stage(PostUpdate, on_spawning.after(PostUpdateLabels::Net))
             .add_system_set_to_stage(
                 PostUpdate,
@@ -99,7 +99,7 @@ impl Plugin for ConnectedPlayerPlugin {
                 PostUpdate,
                 SystemSet::new()
                     .label(PostUpdateLabels::EntityUpdate)
-                    .with_system(humanoid_update),
+                    .with_system(humanoid_core_entity_updates),
             )
             .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
             .add_system_set_to_stage(
@@ -122,18 +122,21 @@ impl Plugin for ConnectedPlayerPlugin {
             )
             .add_system_to_stage(
                 PostUpdate,
-                send_entity_updates
+                finalize_entity_updates
                     .after(PostUpdateLabels::EntityUpdate)
                     .label(PostUpdateLabels::SendEntityUpdates),
             )
-            .add_system(console_commands)
+            .add_system(rcon_console_commands)
             .add_system(
                 inventory_item_console_commands
                     .before(SummoningLabels::TriggerSummon)
                     .label(SummoningLabels::NormalSummon),
             )
             .add_system(entity_console_commands.after(SummoningLabels::DefaultSummon))
-            .add_system_to_stage(PostUpdate, process_net.after(PostUpdateLabels::Net))
+            .add_system_to_stage(
+                PostUpdate,
+                process_finalize_net.after(PostUpdateLabels::Net),
+            )
             .init_resource::<ClientHealthUICache>()
             .init_resource::<BoardingAnnouncements>()
             .init_resource::<ServerId>();

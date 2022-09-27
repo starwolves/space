@@ -119,7 +119,7 @@ pub struct InputMap {
     pub input: MapInput,
 }
 /// Client map request display modes.
-pub struct InputMapRequestDisplayModes {
+pub struct InputMapRequestOverlay {
     pub handle: u64,
     pub entity: Entity,
 }
@@ -169,7 +169,7 @@ pub(crate) fn incoming_messages(
 
     tuple2: (
         EventWriter<TextTreeInputSelection>,
-        EventWriter<InputMapRequestDisplayModes>,
+        EventWriter<InputMapRequestOverlay>,
         EventWriter<InputMap>,
     ),
 
@@ -653,7 +653,7 @@ pub(crate) fn incoming_messages(
                 ReliableClientMessage::MapRequestDisplayModes => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
-                            input_map_request_display_modes.send(InputMapRequestDisplayModes {
+                            input_map_request_display_modes.send(InputMapRequestOverlay {
                                 handle: handle,
                                 entity: *player_entity,
                             });
