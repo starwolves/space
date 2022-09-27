@@ -1,4 +1,6 @@
-//! Bevy rapier rigid body integration.
+//! Bevy Rapier 3D rigid body integration.
+//! A base for rigid bodies.
+//! All physics entities that aren't sensors are rigid bodies, whether they are static or dynamic.
 
 /// Check if entities leave boundaries of physics space.
 mod out_of_bounds_teleportation;

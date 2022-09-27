@@ -15,7 +15,7 @@ use super::{
     spawn::{LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
 };
 
-/// manage "pointArrow" command.
+/// Perform "pointArrow" command.
 pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,

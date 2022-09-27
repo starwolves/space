@@ -12,7 +12,7 @@ use crate::construction_tool::{ConstructionTool, InputConstructionOptions, Input
 
 use super::construction_tool::InputConstruct;
 
-/// Manage construction tool actions.
+/// Manage construction actions.
 pub(crate) fn construction_tool_actions(
     building_action_data: Res<BuildingActions>,
     handle_to_entity: Res<HandleToEntity>,

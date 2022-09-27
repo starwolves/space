@@ -1,4 +1,6 @@
 //! Airlocks with authentication systems.
+//! Can open, close and be locked.
+//! Has a sensor that detect nearby pawn collision and authorization.
 
 /// Air lock actions.
 mod actions;
