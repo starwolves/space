@@ -7,8 +7,8 @@ use api::{
     entity_updates::EntityData,
     gridmap::{
         cell_id_to_world, get_atmos_index, to_doryen_coordinates, world_to_cell_id,
-        AdjacentTileDirection, CellData, EntityGridData, GridMapType, GridmapData, GridmapDetails1,
-        GridmapMain, RemoveCell,
+        AdjacentTileDirection, CellData, EntityGridData, GridMapLayer, GridmapData,
+        GridmapDetails1, GridmapMain, RemoveCell,
     },
     health::{CellUpdate, Health, HealthContainer, StructureHealth},
     inventory::Inventory,
@@ -394,7 +394,7 @@ pub(crate) fn construction_tool(
                 let cell_id_int = cell_id;
 
                 match gridmap_type {
-                    GridMapType::Main => {
+                    GridMapLayer::Main => {
                         match gridmap_main.grid_data.get(&cell_id_int) {
                             Some(cell_data_passed) => {
                                 cell_data = cell_data_passed;
@@ -412,7 +412,7 @@ pub(crate) fn construction_tool(
                             Box::new(Deconstruct1SfxBundle::new),
                         );
                     }
-                    GridMapType::Details1 => {
+                    GridMapLayer::Details1 => {
                         match gridmap_details1.grid_data.get(&cell_id_int) {
                             Some(cell_data_passed) => {
                                 cell_data = cell_data_passed;
@@ -1205,7 +1205,7 @@ pub struct InputConstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
     /// Build on gridmap cell:
-    pub target_cell: (Vec3Int, GridMapType),
+    pub target_cell: (Vec3Int, GridMapLayer),
     /// Entity that requested to construct.
     pub belonging_entity: Entity,
 }
@@ -1220,7 +1220,7 @@ pub struct InputConstructionOptions {
 pub struct InputDeconstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
-    pub target_cell_option: Option<(Vec3Int, GridMapType)>,
+    pub target_cell_option: Option<(Vec3Int, GridMapLayer)>,
     pub target_entity_option: Option<Entity>,
     /// Entity that requested to deconstruct.
     pub belonging_entity: Entity,

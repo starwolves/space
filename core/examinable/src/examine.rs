@@ -30,7 +30,7 @@ impl PendingMessage for NetExamine {
     }
 }
 
-/// Finalize examining the map.
+/// Finalize examining the ship gridmap.
 pub(crate) fn finalize_examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     mut net: EventWriter<NetExamine>,
@@ -60,7 +60,7 @@ impl PendingMessage for NetConnExamine {
     }
 }
 
-/// Examine entity.
+/// Manage examining an entity.
 pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
@@ -117,7 +117,7 @@ pub fn examine_entity(
     }
 }
 
-/// Finalize examining entity.
+/// Finalize examining an entity.
 pub fn finalize_examine_entity(
     mut examine_map_events: ResMut<ExamineEntityMessages>,
     mut net: EventWriter<NetConnExamine>,

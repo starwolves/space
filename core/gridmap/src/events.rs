@@ -9,7 +9,7 @@ use api::{
     chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
     data::{ConnectedPlayer, Vec3Int},
     gridmap::{
-        to_doryen_coordinates, CellData, GridMapType, GridmapData, GridmapDetails1, GridmapMain,
+        to_doryen_coordinates, CellData, GridMapLayer, GridmapData, GridmapDetails1, GridmapMain,
         RemoveCell,
     },
     health::{CellUpdate, Health, HealthContainer, StructureHealth},
@@ -27,8 +27,8 @@ use super::{
     net::NetGridmapUpdates,
 };
 
-/// Manage gridmap updates.
-pub(crate) fn gridmap_updates(
+/// Manage gridmap update events such as adding and removing cells.
+pub(crate) fn gridmap_updates_manager(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
     sensers: Query<(Entity, &Senser, &ConnectedPlayer)>,
@@ -51,7 +51,7 @@ pub(crate) fn gridmap_updates(
                             cell_id.z,
                             cell_update.cell_data.item,
                             cell_update.cell_data.orientation,
-                            GridMapType::Main,
+                            GridMapLayer::Main,
                         ),
                     });
                 } else {
@@ -61,7 +61,7 @@ pub(crate) fn gridmap_updates(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
-                            GridMapType::Main,
+                            GridMapLayer::Main,
                         ),
                     });
                 }
@@ -87,7 +87,7 @@ pub(crate) fn gridmap_updates(
                             cell_id.z,
                             cell_update.cell_data.item,
                             cell_update.cell_data.orientation,
-                            GridMapType::Details1,
+                            GridMapLayer::Details1,
                         ),
                     });
                 } else {
@@ -97,7 +97,7 @@ pub(crate) fn gridmap_updates(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
-                            GridMapType::Details1,
+                            GridMapLayer::Details1,
                         ),
                     });
                 }
@@ -106,10 +106,10 @@ pub(crate) fn gridmap_updates(
     }
 }
 
-/// Examine a ship/gridmap cell.
-pub(crate) fn examine_ship_cell(
+/// Examine a ship/gridmap cell and add the text as a function.
+pub fn examine_ship_cell(
     ship_cell: &CellData,
-    gridmap_type: &GridMapType,
+    gridmap_type: &GridMapLayer,
     gridmap_data: &Res<GridmapData>,
 ) -> String {
     let examine_text: &str;
@@ -128,13 +128,13 @@ pub(crate) fn examine_ship_cell(
 
     if ship_cell.item != -1 {
         match gridmap_type {
-            GridMapType::Main => {
+            GridMapLayer::Main => {
                 examine_text = gridmap_data
                     .main_text_examine_desc
                     .get(&ship_cell.item)
                     .unwrap();
             }
-            GridMapType::Details1 => {
+            GridMapLayer::Details1 => {
                 examine_text = gridmap_data
                     .details1_text_examine_desc
                     .get(&ship_cell.item)
@@ -162,7 +162,7 @@ pub(crate) fn remove_cell(
 ) {
     for event in deconstruct_cell_events.iter() {
         match event.gridmap_type {
-            GridMapType::Main => {
+            GridMapLayer::Main => {
                 let coords = to_doryen_coordinates(event.id.x, event.id.z);
 
                 if event.id.y == 0 {
@@ -232,7 +232,7 @@ pub(crate) fn remove_cell(
 
                 gridmap_main.grid_data.remove(&event.id);
             }
-            GridMapType::Details1 => {
+            GridMapLayer::Details1 => {
                 gridmap_details1.updates.insert(
                     event.id,
                     CellUpdate {

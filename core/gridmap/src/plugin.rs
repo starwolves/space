@@ -21,7 +21,7 @@ use crate::{
 use bevy::app::CoreStage::PostUpdate;
 
 use super::{
-    events::{gridmap_updates, remove_cell},
+    events::{gridmap_updates_manager, remove_cell},
     fov::{projectile_fov, senser_update_fov, DoryenMap},
     net::{NetGridmapUpdates, NetProjectileFOV},
     sensing_ability::gridmap_sensing_ability,
@@ -76,7 +76,7 @@ impl Plugin for GridmapPlugin {
                     .with_run_criteria(
                         FixedTimestep::step(1. / 4.).with_label(INTERPOLATION_LABEL1),
                     )
-                    .with_system(gridmap_updates),
+                    .with_system(gridmap_updates_manager),
             )
             .init_resource::<GridmapMain>()
             .add_system_set_to_stage(

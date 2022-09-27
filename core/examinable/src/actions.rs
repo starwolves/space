@@ -70,11 +70,11 @@ pub(crate) fn set_action_header_name(
                 let cell_data;
 
                 match gridmap.1 {
-                    api::gridmap::GridMapType::Main => {
+                    api::gridmap::GridMapLayer::Main => {
                         names = gridmap_data.main_text_names.clone();
                         cell_data = gridmap_main.grid_data.clone();
                     }
-                    api::gridmap::GridMapType::Details1 => {
+                    api::gridmap::GridMapLayer::Details1 => {
                         names = gridmap_data.details1_text_names.clone();
                         cell_data = gridmap_details1.grid_data.clone();
                     }

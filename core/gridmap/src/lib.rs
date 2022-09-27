@@ -1,4 +1,11 @@
-//! The map consisting of cells representing the ship.
+//! The gridmap consisting of cells that represent the ship.
+//! A spaceship is an enclosed area and can be dynamically modified, constructed and deconstructed by players.
+//! The spaceship is split up into tiles/(ship-)cells which can either be a floor tile, a wall tile or an entity tile.
+//! "Entity tiles" are when entities are statically placed on the gridmap and take up gridmap space.
+//! Tiles/cells can be examined and are included with FOV calculations.
+//! Sensing abilities are integrated with examinig the gridmap so players can examine additional information about individual cells.
+//! The gridmap is split up into multiple layers that can both exist peacefully on the same tiles. One is a "main" layer which includes the main ship construction parts, like walls and floors and tile entities that block other wall constructions. Whereas the "details1" layer is for added details on each gridmap cell, like posters, small lights, repeated visual effects and indicators etc.
+//! Not all tiles are their own traditional entity with their own components, in fact most tiles that have no expected special behaviour have their data stored in a resource rather than as an individual entity with an ID for performance reasons.
 
 /// Setup and build gridmap from data.
 pub mod build;

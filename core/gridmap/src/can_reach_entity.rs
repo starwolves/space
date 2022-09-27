@@ -18,7 +18,7 @@ use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
 
 use crate::events::Cell;
 
-/// Check if entity can be reached as a function.
+/// Check if entity can be reached by another entity with nothing in between to block it as a function.
 pub fn can_reach_entity(
     query_pipeline: &bevy::prelude::Res<RapierContext>,
 

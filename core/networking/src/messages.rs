@@ -2,7 +2,7 @@ use api::{
     console_commands::ConsoleCommandVariantValues,
     data::{HandleToEntity, Vec3Int},
     examinable::InputExamineEntity,
-    gridmap::{ExamineMapMessage, GridMapType, GridmapExamineMessages},
+    gridmap::{ExamineMapMessage, GridMapLayer, GridmapExamineMessages},
     network::{
         InputChatMessage, PendingMessage, PendingNetworkMessage, ReliableClientMessage,
         ReliableServerMessage, UnreliableClientMessage,
@@ -92,7 +92,7 @@ pub struct InputAttackCell {
 #[derive(Debug, Clone)]
 pub struct InputListActionsMap {
     pub requested_by_entity: Entity,
-    pub gridmap_type: GridMapType,
+    pub gridmap_type: GridMapLayer,
     pub gridmap_cell_id: Vec3Int,
     /// Show UI to entity that we check for.
     pub with_ui: bool,
@@ -820,7 +820,7 @@ pub struct InputAction {
     pub fired_action_id: String,
     pub action_taker: Entity,
     pub target_entity_option: Option<Entity>,
-    pub target_cell_option: Option<(GridMapType, Vec3Int)>,
+    pub target_cell_option: Option<(GridMapLayer, Vec3Int)>,
 }
 
 /// Client input toggle auto move.
