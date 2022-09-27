@@ -1,4 +1,4 @@
-use actions::data::{Action, ActionData, BuildingActions, ListActionDataRequests};
+use actions::core::{Action, ActionData, BuildingActions, ListActionDataRequests};
 use api::{
     examinable::Examinable,
     gridmap::{GridmapData, GridmapDetails1, GridmapMain},

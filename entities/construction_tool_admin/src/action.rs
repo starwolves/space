@@ -1,4 +1,4 @@
-use actions::data::{Action, ActionData, ActionRequests, BuildingActions};
+use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use api::{
     data::HandleToEntity,
     gridmap::{cell_id_to_world, GridmapMain},

@@ -1,4 +1,4 @@
-use actions::data::{ActionRequests, BuildingActions};
+use actions::core::{ActionRequests, BuildingActions};
 use api::{
     data::HandleToEntity,
     examinable::InputExamineEntity,

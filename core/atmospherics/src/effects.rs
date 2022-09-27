@@ -10,7 +10,7 @@ use super::plugin::ATMOS_DIFFUSION_LABEL;
 /// The intensity of atmospherics effects.
 const ATMOS_EFFECT_SPEED: f32 = 0.01;
 
-/// Apply atmospherics effects.
+/// Apply atmospherics effects to tiles in [AtmosphericsResource].
 pub(crate) fn atmos_effects(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,

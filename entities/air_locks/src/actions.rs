@@ -1,4 +1,4 @@
-use actions::data::{Action, ActionData, ActionRequests, BuildingActions};
+use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use api::{
     data::{HandleToEntity, Vec3Int},
     data_link::{DataLink, DataLinkType},

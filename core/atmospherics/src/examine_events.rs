@@ -22,7 +22,7 @@ impl PendingMessage for NetAtmosphericsMapExamine {
     }
 }
 
-/// Examine text for cells with atmospherics.
+/// Examine text with data for cells with atmospherics.
 pub(crate) fn examine_map_atmos(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     senser_entities: Query<&Senser>,

@@ -18,7 +18,7 @@ use networking::{
 pub struct BuildingActions {
     pub list: Vec<BuildingAction>,
 }
-/// Requests to execute actions which go through prerequisite checking.
+/// Requests to execute actions which will go through prerequisite checking.
 #[derive(Default)]
 pub struct ActionRequests {
     pub list: HashMap<u64, ActionRequest>,
@@ -31,14 +31,15 @@ pub struct ActionRequest {
 }
 
 impl ActionRequest {
-    /// Get identifier.
+    /// Get action identifier.
     pub fn get_id(&self) -> &str {
         &self.id
     }
-    /// Create from identifier.
+    /// Create from action identifier.
     pub fn from_id(new_id: String) -> Self {
         Self { id: new_id }
     }
+    /// Set action identifier.
     pub fn set_id(&mut self, new_id: String) {
         self.id = new_id;
     }
@@ -173,7 +174,7 @@ pub(crate) fn list_action_data_from_actions_component(
     }
 }
 
-/// A resource storing the current iterated identifiers of action (build) requests.
+/// A resource storing the current uniquely iterated identifier of action requests.
 #[derive(Default)]
 pub(crate) struct ActionIncremented {
     i: u64,
@@ -248,14 +249,14 @@ pub struct Action {
     pub tab_list_priority: u8,
 }
 
-/// A list of actions.
+/// A component for entities with a list of actions available to them.
 #[derive(Component, Default)]
 pub struct Actions {
     pub actions: Vec<Action>,
 }
 
 impl Action {
-    /// Convert action into a new struct suitable to be sent over the net.
+    /// Convert action into a new struct with data suitable to be sent over the net.
     pub fn into_net(
         &self,
         item_name: &str,

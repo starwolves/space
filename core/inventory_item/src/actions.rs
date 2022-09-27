@@ -1,4 +1,4 @@
-use actions::data::{Action, ActionData, BuildingActions};
+use actions::core::{Action, ActionData, BuildingActions};
 use bevy::prelude::{Query, ResMut};
 
 use crate::item::InventoryItem;

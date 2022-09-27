@@ -72,14 +72,14 @@ use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 
-/// Radio component for entities that can hear or speak to radios.
+/// Radio component for entities that can hear or speak through radios.
 #[derive(Component)]
 pub struct Radio {
     pub listen_access: Vec<RadioChannel>,
     pub speak_access: Vec<RadioChannel>,
 }
 
-/// All radio channels.
+/// All available chat channels.
 #[derive(PartialEq, Debug, Clone)]
 pub enum RadioChannel {
     Proximity,
@@ -189,7 +189,7 @@ pub(crate) fn chat_message_input_event(
     }
 }
 
-/// Chat distance.
+/// Chat distance. Impacts font size.
 enum Distance {
     Nearby,
     Further,
@@ -204,7 +204,7 @@ enum TalkStyleVariant {
     Asks,
 }
 
-/// Chat communicator.
+/// The kind of communicator.
 pub enum Communicator {
     Standard,
     Machine,
@@ -1269,7 +1269,7 @@ pub enum EntityProximityMessages {
     Send,
 }
 
-/// Manage entity proximity messages.
+/// Send entity proximity messages to receivers.
 pub(crate) fn send_entity_proximity_messages(
     mut entity_proximity_messages: EventReader<EntityProximityMessage>,
     sensers: Query<(Entity, &Senser)>,

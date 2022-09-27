@@ -1,5 +1,5 @@
 //! Where shared code is put, useful in order to avoid cyclic dependency issues.
-//! However, this crate can and must be reduced a lot.
+//! However, this ugly crate can and must be reduced a lot.
 
 pub mod chat;
 pub mod combat;

@@ -148,8 +148,9 @@ pub(crate) fn atmos_diffusion(
     }
 }
 
-/// Stores map data related to atmospherics.
+/// The resource with the  atmospherics states and data of each tile.
 pub struct AtmosphericsResource {
+    /// Get a tile from this list with [get_atmos_index].
     pub atmospherics: Vec<Atmospherics>,
 }
 
@@ -180,7 +181,9 @@ pub struct Atmospherics {
     pub temperature: f32,
     ///Mol
     pub amount: f32,
+    /// Add data flags for the tile as unhygienic strings, a little extra identifiers addition for other modules to read to make atmos tiles uniquely identifiable.
     pub flags: Vec<String>,
+    /// Add atmospherics effect for this tile, such as atmospherics drainers ie vacuum.
     pub effects: HashMap<EffectType, AtmosEffect>,
     /// If physics should push up on this tile.
     pub forces_push_up: bool,
@@ -207,6 +210,7 @@ pub const CELCIUS_KELVIN_OFFSET: f32 = 273.15;
 pub const DEFAULT_INTERNAL_AMOUNT: f32 = 84.58;
 
 impl Atmospherics {
+    /// Create default atmospherics for internal tiles.
     pub fn new_internal(blocked: bool, forces_push_up: bool) -> Self {
         Self {
             blocked,
@@ -217,13 +221,13 @@ impl Atmospherics {
             forces_push_up,
         }
     }
+    /// Get pressure in kpa.
     pub fn get_pressure(&self) -> f32 {
-        // Return kpa
         (((self.amount * 0.08206 * self.temperature) / 2000.) * 101325.) / 1000.
     }
 }
 
-/// The atmospherics effect for vacuum.
+/// The default atmospherics effect for vacuum.
 pub const VACUUM_ATMOSEFFECT: AtmosEffect = AtmosEffect {
     target_temperature: -270.45 + CELCIUS_KELVIN_OFFSET,
     temperature_speed: 500.,
@@ -244,11 +248,16 @@ pub enum EffectType {
 /// An atmospheric effect.
 #[derive(Clone, Debug)]
 pub struct AtmosEffect {
+    /// The temperature this effect tries to bring the tile to.
     pub target_temperature: f32,
+    /// The intensity at which this effect will change the temperature.
     pub temperature_speed: f32,
+    /// Whether the effect is heating or cooling.
     pub heater: bool,
-
+    /// The amount in mol this effect tries to bring the tile to.
     pub target_amount: f32,
+    /// The intensity at which this effect will change the amount.
     pub amount_speed: f32,
+    /// Whether this effect adds or removes matter.
     pub remover: bool,
 }
