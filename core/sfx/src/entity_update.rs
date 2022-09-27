@@ -5,7 +5,7 @@ use bevy::prelude::{Changed, Entity, Query};
 
 use super::builder::{RepeatingSfx, Sfx};
 
-/// Manage repeating sfx entity updates.
+/// Send repeating sfx entity updates for Godot clients.
 pub(crate) fn repeating_sfx_update(
     mut updated_sfx: Query<(&RepeatingSfx, &mut EntityUpdates), Changed<RepeatingSfx>>,
 ) {
@@ -107,7 +107,7 @@ pub(crate) fn repeating_sfx_update(
     }
 }
 
-/// Manage sfx entity updates.
+/// Send sfx entity updates to Godot clients.
 pub(crate) fn sfx_update(mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), Changed<Sfx>>) {
     for (mut sfx_component, mut entity_updates_component) in updated_sfx.iter_mut() {
         let old_entity_updates = entity_updates_component.updates.clone();

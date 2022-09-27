@@ -1,4 +1,5 @@
 //! Sound effects.
+//! Works with the entities/sounds crate
 
 /// Build base SFX components.
 pub mod builder;

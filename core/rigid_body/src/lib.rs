@@ -1,7 +1,7 @@
 //! Bevy rapier rigid body integration.
 
 /// Check if entities leave boundaries of physics space.
-mod out_of_bounds_check;
+mod out_of_bounds_teleportation;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Rigid body resources.
