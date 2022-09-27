@@ -177,6 +177,7 @@ pub(crate) fn air_lock_actions(
     }
 }
 
+/// Prerequisite check of locking an airlock.
 pub(crate) fn lock_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     examiner: Query<(&Transform, &DataLink)>,

@@ -2,7 +2,7 @@
 name = "rigid_body"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Bevy rapier rigid body integration."
+description="Bevy Rapier 3D rigid body integration."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"

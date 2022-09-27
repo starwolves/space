@@ -17,6 +17,7 @@ use super::{
     spawn::{BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME},
 };
 
+/// On counter window spawn.
 pub(crate) fn counter_window_added(
     counter_windows: Query<(Entity, &Transform), Added<CounterWindow>>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
@@ -40,6 +41,7 @@ pub(crate) fn counter_window_added(
     }
 }
 
+/// On default map counter window spawn.
 pub(crate) fn counter_window_default_map_added(
     mut default_counter_windows: Query<
         (

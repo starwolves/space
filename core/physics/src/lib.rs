@@ -1,4 +1,5 @@
-//! The Bevy rapier physics integration.
+//! The Bevy Rapier 3D physics integration.
+//! Handles general physics events.
 
 /// Manage entity updates.
 mod entity_update;

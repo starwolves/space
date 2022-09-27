@@ -7,6 +7,7 @@ use bevy_rapier3d::{pipeline::CollisionEvent, prelude::Collider};
 
 use crate::counter_window_events::CounterWindowSensorCollision;
 
+/// Handle physics events also with sensors.
 pub(crate) fn physics_events(
     mut collision_events: EventReader<CollisionEvent>,
     interesting_entities_query: Query<(Entity, &EntityData, &Transform)>,

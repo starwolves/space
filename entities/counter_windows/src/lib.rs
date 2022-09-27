@@ -1,4 +1,6 @@
-//! Interactle windows with authorization systems.
+//! Interactable windows with authorization systems.
+//! Can open, close and be locked.
+//! Has a sensor that detect nearby pawn collision and authorization.
 
 /// Manage counter window actions like opening and closing.
 mod actions;

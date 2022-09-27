@@ -2,7 +2,7 @@
 name = "physics"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="The Bevy rapier physics integration."
+description="The Bevy Rapier 3D physics integration."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"

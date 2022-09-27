@@ -51,6 +51,7 @@ use sounds::{
     },
 };
 
+/// Core construction tool system.
 pub(crate) fn construction_tool(
     event_readers: (
         EventReader<InputConstruct>,
@@ -1195,12 +1196,14 @@ pub(crate) fn construction_tool(
     }
 }
 
+/// The component.
 #[derive(Component, Default)]
 pub struct ConstructionTool {
     /// Currently selected construction cell option.
     pub construction_option: Option<String>,
 }
 
+/// Player requested input.
 pub struct InputConstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -1209,14 +1212,14 @@ pub struct InputConstruct {
     /// Entity that requested to construct.
     pub belonging_entity: Entity,
 }
-
+/// Player requested input.
 pub struct InputConstructionOptions {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
     /// Entity that requested to select construction option.
     pub belonging_entity: Entity,
 }
-
+/// Player requested input.
 pub struct InputDeconstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,

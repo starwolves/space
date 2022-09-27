@@ -35,6 +35,7 @@ pub struct CounterWindowOpenRequest {
     pub opened: Entity,
 }
 
+/// Process counter windows events.
 pub(crate) fn counter_window_events(
     mut counter_window_sensor_collisions: EventReader<CounterWindowSensorCollision>,
     mut counter_window_toggle_open_action: EventReader<InputCounterWindowToggleOpen>,
@@ -651,6 +652,7 @@ pub(crate) fn counter_window_events(
     }
 }
 
+/// For the physics sensor.
 #[derive(Component)]
 pub struct CounterWindowSensor {
     pub parent: Entity,
@@ -664,6 +666,7 @@ impl Default for CounterWindowSensor {
     }
 }
 
+/// The component.
 #[derive(Component)]
 pub struct CounterWindow {
     /// State.

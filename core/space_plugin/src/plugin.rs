@@ -58,7 +58,7 @@ pub struct SpacePlugin {
     pub bevy_rate: Option<u8>,
     pub threads_amount: Option<u8>,
     pub give_all_rcon: bool,
-    pub custom_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
+    pub custom_net_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
     pub server_version: String,
 }
 impl Default for SpacePlugin {
@@ -68,7 +68,7 @@ impl Default for SpacePlugin {
             physics_rate: None,
             bevy_rate: None,
             server_version: "0.0.0".to_string(),
-            custom_encryption_key: None,
+            custom_net_encryption_key: None,
             // Dev values.
             threads_amount: Some(2),
             give_all_rcon: true,
@@ -119,7 +119,7 @@ impl Plugin for SpacePlugin {
             .add_plugin(CounterWindowsPlugin)
             .add_plugin(InventoryPlugin)
             .add_plugin(NetworkingPlugin {
-                custom_encryption_key: self.custom_encryption_key,
+                custom_encryption_key: self.custom_net_encryption_key,
             })
             .add_plugin(PhysicsPlugin)
             .add_plugin(HumanoidPlugin)

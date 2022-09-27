@@ -5,7 +5,7 @@ use bevy::prelude::{Changed, Query};
 
 use super::resources::{AccessLightsStatus, AirLock, AirLockStatus};
 
-/// Air lock entity update.
+/// Air lock entity update for Godot clients.
 pub(crate) fn air_lock_update(
     mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,
 ) {
