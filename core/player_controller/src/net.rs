@@ -138,8 +138,8 @@ impl PendingMessage for NetUserName {
     }
 }
 
-/// Manage building graphics.
-pub(crate) fn build_graphics_event(
+/// Build graphics for Godot client.
+pub(crate) fn build_graphics(
     mut build_graphics_events: EventReader<InputBuildGraphics>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_send_world_environment: EventWriter<NetSendWorldEnvironment>,
@@ -205,7 +205,7 @@ pub(crate) fn build_graphics_event(
     }
 }
 
-/// Manage scene ready event.
+/// Manage when client has finished loading in a scene.
 pub fn scene_ready_event(
     mut event: EventReader<InputSceneReady>,
     handle_to_entity: Res<HandleToEntity>,
@@ -230,7 +230,7 @@ pub fn scene_ready_event(
     }
 }
 
-/// Send server time to players.
+/// Send server time to clients for ping update.
 pub(crate) fn send_server_time(
     mut event_writer: EventWriter<NetSendServerTime>,
     connected_players: Query<&ConnectedPlayer>,
@@ -247,7 +247,7 @@ pub(crate) fn send_server_time(
     }
 }
 
-/// Update player count for players.
+/// Update player count info for clients.
 pub(crate) fn update_player_count(
     connected_players: Query<&ConnectedPlayer>,
     mut events: EventWriter<NetUpdatePlayerCount>,
@@ -274,7 +274,7 @@ pub(crate) fn update_player_count(
     }
 }
 
-/// Used to calculate ping on client.
+/// Used to calculate ping for client.
 #[derive(Default)]
 pub(crate) struct TimeStampPerEntity {
     pub data: HashMap<Entity, u64>,

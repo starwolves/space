@@ -7,8 +7,8 @@ use api::{
     sensable::Sensable,
 };
 
-/// Manage sending entity updates.
-pub(crate) fn send_entity_updates(
+/// Finalize entity updates of this frame and send them to Godot clients.
+pub(crate) fn finalize_entity_updates(
     mut updated_entity_updates: Query<
         (
             Entity,

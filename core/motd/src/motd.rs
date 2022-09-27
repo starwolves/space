@@ -17,7 +17,7 @@ impl MOTD {
     }
 }
 
-/// Message of the day visible to players upon connecting.
+/// Resource message of the day visible to players upon connecting.
 pub struct MOTD {
     pub message: String,
 }

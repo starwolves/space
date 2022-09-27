@@ -15,8 +15,8 @@ use networking::messages::InputConsoleCommand;
 use pawn::pawn::Pawn;
 use std::collections::HashMap;
 
-/// Manage input console commands.
-pub(crate) fn console_commands(
+/// Perform RCON console commands.
+pub(crate) fn rcon_console_commands(
     mut console_commands_events: EventReader<InputConsoleCommand>,
     mut rcon_bruteforce_protection: Local<BruteforceProtection>,
     mut connected_players: Query<&mut ConnectedPlayer>,
@@ -52,7 +52,7 @@ pub(crate) fn console_commands(
     }
 }
 
-/// Manage entity console commands.
+/// Perform entity console commands.
 pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
 
@@ -158,7 +158,7 @@ pub(crate) struct BruteforceProtection {
     pub blacklist: Vec<u64>,
 }
 
-/// Manage RCON authorization.
+/// Perform RCON authorization.
 pub(crate) fn rcon_authorization(
     bruteforce_protection: &mut Local<BruteforceProtection>,
     connected_players: &mut Query<&mut ConnectedPlayer>,

@@ -10,7 +10,7 @@ use bevy_renet::RenetServerPlugin;
 use crate::messages::{
     net_system, ExamineEntityMessages, InputAction, InputAltItemAttack, InputAttackCell,
     InputAttackEntity, InputBuildGraphics, InputConsoleCommand, InputDropCurrentItem,
-    InputListActionsMap, InputMap, InputMapChangeDisplayMode, InputMapRequestDisplayModes,
+    InputListActionsMap, InputMap, InputMapChangeDisplayMode, InputMapRequestOverlay,
     InputMouseAction, InputMouseDirectionUpdate, InputMovementInput, InputSceneReady,
     InputSelectBodyPart, InputSprinting, InputSwitchHands, InputTakeOffItem, InputThrowItem,
     InputToggleAutoMove, InputToggleCombatMode, InputUseWorldItem, InputUserName, InputWearItem,
@@ -51,7 +51,7 @@ impl Plugin for NetworkingPlugin {
         )
         .add_event::<InputConsoleCommand>()
         .add_event::<InputMapChangeDisplayMode>()
-        .add_event::<InputMapRequestDisplayModes>()
+        .add_event::<InputMapRequestOverlay>()
         .add_event::<InputMap>()
         .init_resource::<ExamineEntityMessages>()
         .add_event::<InputChatMessage>()

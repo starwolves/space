@@ -3,7 +3,7 @@ use bevy::prelude::{Changed, Query};
 
 use super::world_mode::{WorldMode, WorldModes};
 
-/// Physics entity change world mode.
+/// Physics entity change world mode for Godot client.
 pub(crate) fn world_mode_update(
     mut updated_entities: Query<(&WorldMode, &mut EntityUpdates), Changed<WorldMode>>,
 ) {

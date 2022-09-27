@@ -1,7 +1,7 @@
-//! The 2D mini-map that can display various data.
+//! The 2D mini-map that can display various data with overlays.
 
 /// Manage overlay changes.
-mod change_display_mode;
+mod change_overlay;
 /// Resources.
 pub mod map;
 /// Manage player input.

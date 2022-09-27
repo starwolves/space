@@ -26,8 +26,8 @@ use super::{
     net::NetOnSetupUI,
 };
 
-/// Manage client UI input events.
-pub(crate) fn ui_input_event(
+/// Process player requesting board.
+pub(crate) fn register_ui_input_boarding(
     mut event: EventReader<InputUIInput>,
     handle_to_entity: Res<HandleToEntity>,
     criteria_query: Query<&SoftPlayer>,
@@ -57,11 +57,13 @@ pub(crate) fn ui_input_event(
     }
 }
 
+/// Godot NodePath.
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
+/// Godot NodePath.
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 
-/// Manage on setupUI events.
-pub(crate) fn on_setupui(
+/// Initialize the setup UI by spawning in UI entities etc.
+pub(crate) fn initialize_setupui(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,
     query: Query<(&ConnectedPlayer, &PersistentPlayerData), Added<SetupPhase>>,

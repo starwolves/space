@@ -1,4 +1,5 @@
 //! Logic regarding connected clients.
+//! Currently not cleaned up and too large, must be furthered shattered into crates.
 
 /// Manage player boarding.
 pub mod boarding;
