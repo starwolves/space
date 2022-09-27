@@ -12,7 +12,6 @@ pub(crate) fn startup_atmospherics(
     mut atmospherics: ResMut<AtmosphericsResource>,
     gridmap_main_data: Res<GridmapData>,
 ) {
-    // Setup atmospherics.
     let default_x = FOV_MAP_WIDTH as i16 / 2;
     let default_z = FOV_MAP_WIDTH as i16 / 2;
 

@@ -1,6 +1,7 @@
 use const_format::concatcp;
 use rand::Rng;
 
+/// Contains an RGBA color.
 #[derive(Default)]
 pub struct Color {
     pub r: f32,

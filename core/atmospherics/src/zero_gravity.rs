@@ -9,7 +9,7 @@ use bevy::{
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use rigid_body::rigid_body::RigidBodyData;
 
-/// Manage zero gravity.
+/// Manage zero gravity for rigid bodies.
 pub(crate) fn zero_gravity(
     mut rigid_bodies: Query<(
         Entity,

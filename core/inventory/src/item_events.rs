@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use actions::data::{ActionRequests, BuildingActions};
+use actions::core::{ActionRequests, BuildingActions};
 use api::{
     data::{HandleToEntity, ZeroGravity},
     entity_updates::{EntityData, EntityUpdateData},

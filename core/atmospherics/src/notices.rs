@@ -18,13 +18,13 @@ use super::{
     net::NetAtmosphericsNotices,
 };
 
-/// Atmospherics notices that warn players when they are in the middle of unlivable atmospherics conditions.
+/// Atmospherics notices that warn players when they are under certain atmospherics conditions like unlivable atmospherics conditions.
 #[derive(Default)]
 pub struct AtmosphericsNotices {
     cache: HashMap<Entity, Vec<String>>,
 }
 
-/// Manage atmospherics notices.
+/// Manage visible atmospherics notices for clients.
 pub(crate) fn atmospherics_notices(
     mut net: EventWriter<NetAtmosphericsNotices>,
     atmospherics_resource: Res<AtmosphericsResource>,

@@ -1,7 +1,7 @@
 use api::data::ActionsLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 
-use crate::data::{
+use crate::core::{
     clear_action_building, init_action_data_listing, init_action_request_building,
     list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
     ActionRequests, BuildingActions, ListActionDataRequests,

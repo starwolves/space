@@ -1,4 +1,11 @@
-//! Atmospherics manages gravity, temperature, pressure etc.
+//! Manages gravity, temperature, pressure etc.
+//! Diffusion takes place at a certain tick rate in which the atmospherics values get updated of each tile since atmospherics is tile bound and calculated per tile.
+//! Diffusion is not yet very optimized and even when the atmospheric tiles are in a stabilized state it will continue to recalculate the atmospherics of each active tile.
+//! Tiles can have atmospherics effects, for example when the hull at that part is missing or has holes and is constantly draining temperature and pressure.
+//! There is integration with the mini-map and the atmospherics data overlays it offers.
+//! Tiles with atmospherics can also be examined and have their atmospherics data displayed to the examiner.
+//! When players find themselves in unlivable atmospherics conditions they will get to see label warnings.
+//! Supports zero gravity for entities.
 
 /// Calculate and simulate atmospherics for tiles.
 pub mod diffusion;

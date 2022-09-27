@@ -1,4 +1,4 @@
-use actions::data::BuildingActions;
+use actions::core::BuildingActions;
 use api::{data::Vec3Int, gridmap::cell_id_to_world, inventory::Inventory, pawn::REACH_DISTANCE};
 use bevy::prelude::{warn, Query, ResMut, Transform};
 
