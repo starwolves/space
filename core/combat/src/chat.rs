@@ -33,7 +33,7 @@ impl PendingMessage for NetHitQueryChat {
     }
 }
 
-/// Integrate chat with attacks.
+/// Chat hooks for entities that got hit by something.
 pub fn attacked_by_chat<T: Component>(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -424,7 +424,7 @@ pub fn attacked_by_chat<T: Component>(
     }
 }
 
-/// Manage chat messages when cells are hit.
+/// Chat hooks for when ship cells are hit.
 pub fn hit_query_chat_cells(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -629,7 +629,7 @@ pub fn hit_query_chat_cells(
     }
 }
 
-/// Manage chat messages when blanks are fired and nothing was hit.
+/// Chat hooks for blanks, when nothing was hit.
 pub(crate) fn blanks_chat(
     mut projectile_blanks: EventReader<ProjectileBlank>,
     active_attacks: Res<ActiveAttacks>,

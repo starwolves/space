@@ -185,7 +185,7 @@ pub(crate) fn health_combat_hit_result_sfx_cells(
     }
 }
 
-/// The attack sfx handler.
+/// The attack sfx handler for items used to attack. This decides the sound effects that will play during combat on a per entity basis.
 pub fn attack_sfx<T: Component>(
     mut attack_events: EventReader<Attack>,
     transforms: Query<&Transform>,

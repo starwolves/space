@@ -23,7 +23,7 @@ use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::{
     active_attacks::ActiveAttacks,
-    attack::{Attack, CellHit, EntityHit, QueryCombatHitResult},
+    attack::{Attack, CellHitSimple, EntityHitSimple, QueryCombatHitResult},
 };
 
 pub struct NetAttack {
@@ -39,7 +39,7 @@ pub struct MeleeBlank {
 /// Attack physics query height.
 pub const ATTACK_HEIGHT: f32 = 1.6;
 
-/// Physics query attack result.
+/// The physics query attack result.
 #[derive(Debug)]
 pub struct AttackResult {
     /// The entity id of the hit entity.
@@ -58,7 +58,7 @@ pub struct AttackResult {
     pub is_laser_obstacle: bool,
 }
 
-/// Melee physics query.
+/// The melee physics query event.
 pub struct MeleeDirectQuery {
     /// The entity id of the attacker.
     pub attacker_entity: Entity,
@@ -78,7 +78,7 @@ pub struct MeleeDirectQuery {
     pub incremented_id: u64,
 }
 
-/// Perform a melee physics query.
+/// Perform a melee physics query with event [MeleeDirectQuery].
 pub(crate) fn melee_direct(
     mut melee_direct_events: EventReader<MeleeDirectQuery>,
     attacker_entities: Query<&Transform>,
@@ -303,7 +303,7 @@ pub(crate) fn melee_direct(
             Some(attack_result) => {
                 match attack_result.cell_id_option {
                     Some(cell_id) => {
-                        cell_hits.push(CellHit {
+                        cell_hits.push(CellHitSimple {
                             cell: cell_id,
                             hit_point: cell_id_to_world(cell_id),
                         });
@@ -325,7 +325,7 @@ pub(crate) fn melee_direct(
         for e in entity_hits {
             match attacker_entities.get(e) {
                 Ok(t) => {
-                    entity_hits_transforms.push(EntityHit {
+                    entity_hits_transforms.push(EntityHitSimple {
                         entity: e,
                         hit_point: t.translation,
                     });
@@ -365,7 +365,7 @@ pub(crate) fn melee_direct(
     }
 }
 
-/// Perform the attack handler logic.
+/// Perform the attack handler logic for items. The combat logic and behaviour of items being used as weapons is defined here.
 pub fn melee_attack_handler<T: Component>(
     weapon_entities: Query<(&MeleeCombat, Option<&ProjectileCombat>), With<T>>,
     mut attacks: EventReader<Attack>,

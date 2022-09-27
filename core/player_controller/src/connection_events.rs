@@ -1,9 +1,9 @@
 use api::{
-    connected_player::SoftPlayer,
     data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
     gridmap::GridmapData,
     humanoid::UsedNames,
     network::{ReliableServerMessage, ServerConfigMessage},
+    player_controller::SoftPlayer,
 };
 use bevy::prelude::{Commands, EventWriter, Res, ResMut};
 use chat::chat::get_talk_spaces_setupui;

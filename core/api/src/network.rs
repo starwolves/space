@@ -7,7 +7,7 @@ use bevy::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    combat::NetProjectileType,
+    combat::ProjectileData,
     console_commands::{ConsoleCommandVariant, ConsoleCommandVariantValues},
     entity_updates::EntityUpdateData,
     gridmap::GridMapType,
@@ -136,7 +136,7 @@ pub enum ReliableServerMessage {
     EquippedWornItem(String, u64, String),
     ConsoleWriteLine(String),
     PlaySound(String, f32, f32, Option<Vec3>),
-    FireProjectile(NetProjectileType),
+    FireProjectile(ProjectileData),
     TabData(Vec<NetAction>),
     TextTreeSelection(
         Option<u64>,

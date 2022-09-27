@@ -16,7 +16,7 @@ use crate::entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PAREN
 
 use super::entity_data::{DefaultMapEntity, NetShowcase};
 
-/// A bundle for the basis of entities. Should be used by almost all entities.
+/// A base bundle for the basis of entities. Should be used by almost all entities.
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
     pub examinable: Examinable,

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use api::{
-    combat::{NetProjectileType, ProjectileFOV},
+    combat::{ProjectileData, ProjectileFOV},
     data::{ConnectedPlayer, Vec2Int, Vec3Int},
     gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapData, GridmapMain, FOV_MAP_WIDTH},
     network::ReliableServerMessage,
@@ -32,13 +32,7 @@ pub(crate) fn projectile_fov(
 
     for event in projectile_fov_events.iter() {
         match event.laser_projectile {
-            NetProjectileType::Laser(
-                laser_color,
-                laser_height,
-                laser_radius,
-                start_pos,
-                end_pos,
-            ) => {
+            ProjectileData::Laser(laser_color, laser_height, laser_radius, start_pos, end_pos) => {
                 let direction = (end_pos - start_pos).normalize();
                 let distance = start_pos.distance(end_pos);
 
@@ -69,7 +63,7 @@ pub(crate) fn projectile_fov(
 
                 projectiles_i += 1;
             }
-            NetProjectileType::Ballistic => {}
+            ProjectileData::Ballistic => {}
         }
     }
 
@@ -168,15 +162,13 @@ pub(crate) fn projectile_fov(
 
                         net_projectile_fov.send(NetProjectileFOV {
                             handle: connected_player_component.handle,
-                            message: ReliableServerMessage::FireProjectile(
-                                NetProjectileType::Laser(
-                                    *laser_color,
-                                    *laser_height,
-                                    *laser_radius,
-                                    adjusted_start_pos,
-                                    adjusted_end_pos,
-                                ),
-                            ),
+                            message: ReliableServerMessage::FireProjectile(ProjectileData::Laser(
+                                *laser_color,
+                                *laser_height,
+                                *laser_radius,
+                                adjusted_start_pos,
+                                adjusted_end_pos,
+                            )),
                         });
                     }
                 }

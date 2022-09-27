@@ -5,17 +5,20 @@ use serde::{Deserialize, Serialize};
 
 use crate::{chat::Color, humanoid::MELEE_FISTS_REACH};
 
+/// An event for a projectile that exists for a frame so the FOV for its projectile path can be calculated and the projectile will be displayed on the appropiate client's screens.
 pub struct ProjectileFOV {
-    pub laser_projectile: NetProjectileType,
+    pub laser_projectile: ProjectileData,
 }
 
+/// Contains information about the projectile and its visual graphics.
 #[allow(dead_code)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum NetProjectileType {
+pub enum ProjectileData {
     Laser((f32, f32, f32, f32), f32, f32, Vec3, Vec3),
     Ballistic,
 }
 
+/// All potential damage flags.
 #[allow(dead_code)]
 #[derive(PartialEq, Clone)]
 pub enum DamageFlag {
@@ -25,6 +28,7 @@ pub enum DamageFlag {
     Floor(f32),
 }
 
+/// Contains the modularly built damage data of the attack.
 #[derive(Clone, Default)]
 pub struct DamageModel {
     pub brute: f32,
@@ -33,38 +37,43 @@ pub struct DamageModel {
     pub damage_flags: HashMap<u32, DamageFlag>,
 }
 
+/// Type of damage.
 pub enum DamageType {
     Melee,
     Projectile,
 }
 
+/// Represents the hit result of a combat physics query.
 #[allow(dead_code)]
 pub enum HitResult {
     HitSoft,
     Blocked,
     Missed,
 }
+/// Humanoid animations for combat.
 pub enum CombatStandardAnimation {
     StandardStance,
     PistolStance,
 }
-
+/// Humanoid animations for combat.
 pub enum CombatAttackAnimation {
     OneHandedMeleePunch,
     PistolShot,
 }
-
+/// Combat type.
 #[derive(Clone, Debug)]
 pub enum CombatType {
     MeleeDirect,
     Projectile,
 }
 
+/// Contains (visual graphics) data of laser projectiles.
 #[derive(Clone, Debug)]
 pub enum ProjectileType {
     Laser((f32, f32, f32, f32), f32, f32, f32),
 }
 
+/// The component for items that can be used to perform melee attacks with. Should be used in combination with handlers.
 #[derive(Component)]
 pub struct MeleeCombat {
     pub combat_melee_damage_model: DamageModel,
@@ -88,6 +97,7 @@ impl Default for MeleeCombat {
     }
 }
 
+/// The component for items that can be used to perform projectile attacks with. Should be used in combination with handlers.
 #[derive(Component)]
 pub struct ProjectileCombat {
     pub combat_projectile_damage_model: DamageModel,

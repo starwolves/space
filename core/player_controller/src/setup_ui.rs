@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use api::{
-    connected_player::SoftPlayer,
     data::{
         ConnectedPlayer, HandleToEntity, ServerId, ShowcaseData, HUMAN_MALE_ENTITY_NAME,
         JUMPSUIT_SECURITY_ENTITY_NAME, PISTOL_L1_ENTITY_NAME,
@@ -10,6 +9,7 @@ use api::{
     humanoid::UsedNames,
     network::{EntityWorldType, ReliableServerMessage},
     pawn::PawnDesignation,
+    player_controller::SoftPlayer,
     ui::{UIInputAction, UIInputNodeClass},
 };
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};

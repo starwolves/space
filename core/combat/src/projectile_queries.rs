@@ -23,11 +23,11 @@ use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::{
     active_attacks::ActiveAttacks,
-    attack::{Attack, CellHit, EntityHit, QueryCombatHitResult},
+    attack::{Attack, CellHitSimple, EntityHitSimple, QueryCombatHitResult},
     melee_queries::{AttackResult, ATTACK_HEIGHT},
 };
 
-/// Projectile attack physics query.
+/// The projectile attack physics query.
 pub struct ProjectileQuery {
     /// Entity id of the attacker.
     pub attacker_entity: Entity,
@@ -45,7 +45,7 @@ pub struct ProjectileQuery {
     pub incremented: u64,
 }
 
-/// Perform a projectile attack physics query.
+/// Perform a projectile attack physics query by reading event [ProjectileQuery].
 pub(crate) fn projectile_attack(
     mut projectile_events: EventReader<ProjectileQuery>,
     attacker_entities: Query<&Transform>,
@@ -350,14 +350,14 @@ pub(crate) fn projectile_attack(
         for hit in hit_results {
             match hit.entity_option {
                 Some(e) => hit_entities.push({
-                    EntityHit {
+                    EntityHitSimple {
                         entity: e,
                         hit_point: hit.hit_point,
                     }
                 }),
                 None => match hit.cell_id_option {
                     Some(cell_id) => {
-                        hit_cells.push(CellHit {
+                        hit_cells.push(CellHitSimple {
                             cell: cell_id,
                             hit_point: hit.hit_point,
                         });
