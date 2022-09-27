@@ -1,6 +1,6 @@
 //! Entity base.
 //! Contains logic and resources that interacts with most if not all entities.
-//! Includes entity spawning commands through the console.
+//! Includes the entity spawning base and entity spawn commands through the console.
 
 /// Manage entity related console commands.
 pub mod commands;

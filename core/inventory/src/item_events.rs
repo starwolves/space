@@ -49,7 +49,7 @@ use sounds::{
     shared::sfx_auto_destroy,
 };
 
-/// Pawn drop current item.
+/// Perform drop current item action.
 pub(crate) fn drop_current_item(
     mut drop_current_item_events: EventReader<InputDropCurrentItem>,
     mut rigidbody_positions: Query<&mut Transform>,
@@ -328,7 +328,7 @@ pub(crate) fn drop_current_item(
     }
 }
 
-/// Pawn action registration to pick up item.
+/// Register approved pickup action and fire as new event.
 pub(crate) fn pickup_world_item_action(
     building_action_data: Res<BuildingActions>,
     mut use_world_item_events: EventWriter<InputUseWorldItem>,
@@ -359,7 +359,7 @@ pub(crate) fn pickup_world_item_action(
     }
 }
 
-/// Manage pawns picking up items.
+/// Perform items picking up action.
 pub(crate) fn pickup_world_item(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -549,7 +549,7 @@ pub(crate) fn pickup_world_item(
     }
 }
 
-/// Manage pawns taking off/unequiping items.
+/// Perform taking off/unequiping action.
 pub(crate) fn take_off_item(
     mut take_off_item_events: EventReader<InputTakeOffItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -639,7 +639,7 @@ pub(crate) fn take_off_item(
     }
 }
 
-/// Manage pawns throwing items.
+/// Perform throwing item action.
 pub(crate) fn throw_item(
     mut throw_item_events: EventReader<InputThrowItem>,
     mut rigidbody_positions: Query<&mut Transform>,
@@ -942,7 +942,7 @@ pub(crate) fn throw_item(
     }
 }
 
-/// Manage pawns wearing items.
+/// Perform wearing item action.
 pub(crate) fn wear_item(
     mut wear_item_events: EventReader<InputWearItem>,
     mut inventory_entities: Query<&mut Inventory>,

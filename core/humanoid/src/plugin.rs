@@ -13,13 +13,13 @@ use crate::{
 };
 use bevy::app::CoreStage::PostUpdate;
 
-use super::humanoid::humanoids;
+use super::humanoid::humanoid_core;
 pub struct HumanoidPlugin;
 
 impl Plugin for HumanoidPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(
-            humanoids
+            humanoid_core
                 .label(UpdateLabels::StandardCharacters)
                 .label(CombatLabels::RegisterAttacks)
                 .after(UpdateLabels::ProcessMovementInput),
