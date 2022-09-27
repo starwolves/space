@@ -9,8 +9,8 @@ use bevy::{
 use entity::entity_data::{CachedBroadcastTransform, UpdateTransform};
 use rand::Rng;
 
-/// Build background sound effect.
-pub fn ambience_sfx_builder(
+/// Spawn background sound effect with commands as a function.
+pub fn spawn_ambience_sfx(
     commands: &mut Commands,
     rigid_body_position: Transform,
     builder: Box<dyn Fn(&mut Commands) -> Entity + Sync + Send>,
@@ -166,7 +166,7 @@ pub struct AmbienceSfxTimer {
     pub timer: Timer,
 }
 
-/// Function taht builds a repeating sound effect.
+/// Function that spawns a repeating sound effect with commands.
 pub fn repeating_sfx_builder(
     commands: &mut Commands,
     rigid_body_position: Transform,

@@ -2,8 +2,8 @@ use api::{entity_updates::EntityData, gridmap::FOV_MAP_WIDTH};
 use bevy::prelude::{warn, Entity, Query, Transform, Without};
 use physics::physics::RigidBodyDisabled;
 
-/// Check if rigidbody is out of bounds.
-pub(crate) fn out_of_bounds_check(
+/// Check if rigidbody is out of bounds if so teleport on the mirrored side.
+pub(crate) fn out_of_bounds_tp(
     mut rigid_bodies: Query<(Entity, &EntityData, &mut Transform), (Without<RigidBodyDisabled>,)>,
 ) {
     let max = FOV_MAP_WIDTH as f32 * 0.5 * 2.;

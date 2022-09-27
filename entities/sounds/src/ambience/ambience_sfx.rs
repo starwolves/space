@@ -26,10 +26,10 @@ impl AmbienceSfxBundle {
 
 use bevy::prelude::Transform;
 use bevy::time::Timer;
-use sfx::builder::{ambience_sfx_builder, AmbienceSfxTimer, Sfx};
+use sfx::builder::{spawn_ambience_sfx, AmbienceSfxTimer, Sfx};
 
 pub fn startup_ambience(mut commands: Commands) {
-    ambience_sfx_builder(
+    spawn_ambience_sfx(
         &mut commands,
         Transform::identity(),
         Box::new(AmbienceSfxBundle::new),

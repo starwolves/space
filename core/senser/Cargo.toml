@@ -2,7 +2,7 @@
 name = "senser"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Entities that can be sensed, heard or seen."
+description="Entities that can sense by hearing and seeing."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"

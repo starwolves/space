@@ -1,4 +1,4 @@
-//! Entities that can be sensed, heard or seen.
+//! Entities that can sense by hearing and seeing.
 
 /// The Bevy plugin of this crate.
 pub mod plugin;

@@ -1,4 +1,4 @@
-//! Main core plugin.
+//! Main plugin.
 
-/// The Bevy plugin of this crate.
+/// The main Bevy plugin.
 pub mod plugin;
