@@ -1,4 +1,4 @@
-use api::combat::{NetProjectileType, ProjectileCombat, ProjectileFOV};
+use api::combat::{ProjectileCombat, ProjectileData, ProjectileFOV};
 use bevy::prelude::{warn, Component, EventReader, EventWriter, Query, Res, Transform, Vec3};
 
 use crate::{
@@ -6,7 +6,7 @@ use crate::{
     projectile_queries::ProjectileBlank,
 };
 
-/// Manage laser projectile visuals.
+/// Manage laser projectile visuals that are integrated with FOV checks with [ProjectileFOV].
 pub fn projectile_laser_visuals<T: Component>(
     mut blanks: EventReader<ProjectileBlank>,
     mut hits: EventReader<QueryCombatHitResult>,
@@ -83,7 +83,7 @@ pub fn projectile_laser_visuals<T: Component>(
 
         if c_start_pos.distance(blank.hit_point) > 0.8 {
             projectile_fov.send(ProjectileFOV {
-                laser_projectile: NetProjectileType::Laser(
+                laser_projectile: ProjectileData::Laser(
                     (
                         projectile_combat_component.laser_color.r,
                         projectile_combat_component.laser_color.g,
@@ -158,7 +158,7 @@ pub fn projectile_laser_visuals<T: Component>(
 
             if c_start_pos.distance(entity_hit.hit_point) > 0.8 {
                 projectile_fov.send(ProjectileFOV {
-                    laser_projectile: NetProjectileType::Laser(
+                    laser_projectile: ProjectileData::Laser(
                         (
                             projectile_combat_component.laser_color.r,
                             projectile_combat_component.laser_color.g,
@@ -232,7 +232,7 @@ pub fn projectile_laser_visuals<T: Component>(
 
             if c_start_pos.distance(cell_hit.hit_point) > 0.8 {
                 projectile_fov.send(ProjectileFOV {
-                    laser_projectile: NetProjectileType::Laser(
+                    laser_projectile: ProjectileData::Laser(
                         (
                             projectile_combat_component.laser_color.r,
                             projectile_combat_component.laser_color.g,

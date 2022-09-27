@@ -1,7 +1,7 @@
 use api::data::Vec3Int;
 use bevy::{math::Vec3, prelude::Entity};
 
-/// An attack event.
+/// The attack event.
 #[derive(Clone)]
 pub struct Attack {
     /// Attacker entity id.
@@ -27,19 +27,19 @@ pub struct Attack {
 pub struct QueryCombatHitResult {
     /// Attack id.
     pub incremented_id: u64,
-    pub entities_hits: Vec<EntityHit>,
-    pub cell_hits: Vec<CellHit>,
+    pub entities_hits: Vec<EntityHitSimple>,
+    pub cell_hits: Vec<CellHitSimple>,
 }
 
-/// Entity hit.
+/// Entity hit for combat and related physics queries.
 #[derive(Clone)]
-pub struct EntityHit {
+pub struct EntityHitSimple {
     pub entity: Entity,
     pub hit_point: Vec3,
 }
-/// Cell hit.
+/// Cell hit for  combat and related physics queries.
 #[derive(Clone)]
-pub struct CellHit {
+pub struct CellHitSimple {
     pub cell: Vec3Int,
     pub hit_point: Vec3,
 }

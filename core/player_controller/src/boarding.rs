@@ -12,7 +12,6 @@ use super::{
 
 use api::{
     chat::{escape_bb, get_talk_spaces},
-    connected_player::SoftPlayer,
     console_commands::CONSOLE_ERROR_COLOR,
     data::{
         ConnectedPlayer, HandleToEntity, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
@@ -21,6 +20,7 @@ use api::{
     humanoid::UsedNames,
     network::{ReliableServerMessage, ServerConfigMessage},
     pawn::{PawnDesignation, SpawnPoints, Spawning},
+    player_controller::SoftPlayer,
 };
 use bevy::{
     prelude::{info, warn, Added, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},

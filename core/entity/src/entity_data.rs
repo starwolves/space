@@ -13,7 +13,7 @@ use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use serde::Deserialize;
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
 pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
-/// Initialize entity data.
+/// Initialize meta-data for an entity as a function.
 pub fn initialize_entity_data(
     entity_data: &mut ResMut<EntityDataResource>,
     entity_properties: EntityDataProperties,
@@ -112,7 +112,7 @@ impl PendingMessage for NetShowcase {
         }
     }
 }
-/// Entities that were included in the map itself.
+/// Entities that were included and spawned with the map itself.
 #[derive(Component)]
 pub struct DefaultMapEntity;
 

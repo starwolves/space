@@ -12,7 +12,7 @@ use pawn::pawn::Pawn;
 
 use crate::spawn::{spawn_entity, DefaultSpawnEvent};
 
-/// Process spawning entities via RCON command as a function.
+/// Process spawning entities via RCON command as a function. Such as commands for spawning entities.
 pub fn rcon_spawn_entity(
     entity_name: String,
     target_selector: String,

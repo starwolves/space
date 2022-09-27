@@ -59,13 +59,13 @@ use api::{
         TALK_STYLE_STANDARD_STANDARD, TALK_TYPE_MACHINE_NEARBY_END, TALK_TYPE_MACHINE_NEARBY_START,
         TALK_TYPE_STANDARD_NEARBY_END, TALK_TYPE_STANDARD_NEARBY_START,
     },
-    connected_player::SoftPlayer,
     data::{ConnectedPlayer, HandleToEntity},
     entity_updates::{EntityUpdateData, NetSendEntityUpdates},
     network::{
         EntityWorldType, InputChatMessage, PendingMessage, PendingNetworkMessage,
         ReliableServerMessage,
     },
+    player_controller::SoftPlayer,
     sensable::Sensable,
 };
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};

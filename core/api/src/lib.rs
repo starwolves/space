@@ -3,7 +3,6 @@
 
 pub mod chat;
 pub mod combat;
-pub mod connected_player;
 pub mod console_commands;
 pub mod converters;
 pub mod data;
@@ -18,6 +17,7 @@ pub mod inventory;
 pub mod load_entity;
 pub mod network;
 pub mod pawn;
+pub mod player_controller;
 pub mod rigid_body;
 pub mod sensable;
 pub mod senser;

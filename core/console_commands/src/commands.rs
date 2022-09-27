@@ -29,7 +29,7 @@ impl PendingMessage for NetEntityConsole {
     }
 }
 
-/// Resource containing custom console commands.
+/// Resource containing all registered custom console commands.
 #[derive(Default)]
 pub struct AllConsoleCommands {
     pub list: Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)>,

@@ -26,7 +26,7 @@ pub struct ActiveAttacks {
     pub map: HashMap<u64, ActiveAttack>,
 }
 
-/// An active attack for the cache.
+/// An data struct for the [ActiveAttacks] cache.
 pub struct ActiveAttack {
     pub attack: Attack,
     /// Physics hit result.
@@ -35,7 +35,7 @@ pub struct ActiveAttack {
     pub melee: Option<bool>,
 }
 
-/// Cache attacks.
+/// Cache attacks with [ActiveAttacks].
 pub fn cache_attacks(
     mut attack_events: EventReader<Attack>,
     mut cached_attacks: ResMut<ActiveAttacks>,

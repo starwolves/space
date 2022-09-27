@@ -8,32 +8,32 @@ use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, Re
 
 use crate::{active_attacks::ActiveAttacks, attack::QueryCombatHitResult};
 
-/// Entity hits.
+/// Entity hits from [HealthCombatHitResult].
 pub struct EntityHit {
     pub entity: Entity,
     pub hit_result: HitResult,
     pub limb_hit: String,
 }
-/// Cell hits.
+/// Cell hits from [HealthCombatHitResult].
 pub struct CellHit {
     pub cell_id: Vec3Int,
     pub hit_result: HitResult,
 }
 
-/// Combat results for health.
+/// Combat results for health processing.
 pub struct HealthCombatHitResult {
     pub incremented_id: u64,
     pub entities_hits: Vec<EntityHit>,
     pub cell_hits: Vec<CellHit>,
 }
 
-/// Active damage applyers.
+/// Active damage applyers for health processing.
 #[derive(Default)]
 pub struct ActiveApplyDamage {
     pub list: Vec<DamageApplyer>,
 }
 
-/// A health damage event.
+/// A health damage application event.
 pub struct DamageApplyer {
     /// Attack id.
     pub incremented_id: u64,
@@ -41,14 +41,14 @@ pub struct DamageApplyer {
     pub multipliers: Vec<DamageMultiplier>,
 }
 
-/// For damage applyers.
+/// Information about a damage model contained by [DamageApplyer].
 pub struct ApplyDamageModel {
     pub damage_model: DamageModel,
     /// Damage applyer type, "main" most of the time.
     pub signature: String,
 }
 
-/// Multiply damage.
+/// Multiply damage data contained by [DamageApplyer].
 pub struct DamageMultiplier {
     pub brute: f32,
     pub burn: f32,

@@ -1,11 +1,13 @@
 use bevy::prelude::SystemLabel;
 use serde::{Deserialize, Serialize};
 
+/// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum ConsoleCommandsLabels {
     Finalize,
 }
 
+/// Variants for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ConsoleCommandVariantValues {
     Int(i64),
@@ -13,6 +15,7 @@ pub enum ConsoleCommandVariantValues {
     Float(f32),
     Bool(bool),
 }
+/// Variant types for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ConsoleCommandVariant {
     Int,
