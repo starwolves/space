@@ -6,5 +6,5 @@ mod change_display_mode;
 pub mod map;
 /// Manage player input.
 pub mod map_input;
-/// The Plugin of this crate.
+/// The Bevy plugin of this crate.
 pub mod plugin;
