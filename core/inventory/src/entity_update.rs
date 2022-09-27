@@ -7,7 +7,7 @@ use api::{
 use bevy::prelude::{warn, Changed, Query};
 use inventory_item::item::InventoryItem;
 
-/// Attach items to slots for clients.
+/// Attach items to slots or wear items with 3d models and textures for clients.
 pub(crate) fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,
     pickupables: Query<(&InventoryItem, &EntityData)>,

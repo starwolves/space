@@ -16,6 +16,7 @@ pub struct InventoryItem {
     pub slot_type: SlotType,
     /// Items that are worn by attachment to a slot have this set to true.
     pub is_attached_when_worn: bool,
+    /// How far the entity will be thrown.
     pub throw_force_factor: f32,
     /// The to be played animation when in combat mode whilst holding this item.
     pub combat_standard_animation: CombatStandardAnimation,

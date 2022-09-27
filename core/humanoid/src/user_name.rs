@@ -9,7 +9,7 @@ use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
 use networking::messages::InputUserName;
 use pawn::pawn::PersistentPlayerData;
 
-/// Set character user name.
+/// Set character user name that also isn't already taken.
 pub(crate) fn user_name(
     mut input_user_name_events: EventReader<InputUserName>,
     mut persistent_player_data_query: Query<&mut PersistentPlayerData>,

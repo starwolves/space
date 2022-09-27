@@ -62,12 +62,15 @@ const FIRST_MELEE_TIME: u64 = 433;
 /// Humanoid component.
 #[derive(Component)]
 pub struct Humanoid {
+    /// Lower body blended animation state of humanoid.
     pub current_lower_animation_state: CharacterAnimationState,
+    /// In-game name.
     pub character_name: String,
     /// Whether the humanoid is in combat mode or normal mode.
     pub combat_mode: bool,
     /// The the humanoid is facing.
     pub facing_direction: f32,
+    /// If attacking this frame.
     pub is_attacking: bool,
     /// Timeout between attacks.
     pub next_attack_timer: Timer,
@@ -90,7 +93,7 @@ impl Default for Humanoid {
     }
 }
 
-/// Toggle combat mode.
+/// Toggle combat mode. Ie from melee to projectile.
 pub(crate) fn toggle_combat_mode(
     mut toggle_combat_mode_events: EventReader<InputToggleCombatMode>,
     mut standard_character_query: Query<&mut Humanoid>,
@@ -121,8 +124,8 @@ enum CharacterMovementState {
     Sprinting,
 }
 
-/// Manage humanoids.
-pub(crate) fn humanoids(
+/// Core humanoid logic.
+pub(crate) fn humanoid_core(
     mut humanoids_query: Query<
         (
             Entity,
