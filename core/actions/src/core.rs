@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use api::{
     data::{HandleToEntity, Vec3Int},
     examinable::Examinable,
-    gridmap::GridMapType,
+    gridmap::GridMapLayer,
     network::{NetAction, ReliableServerMessage},
 };
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, With};
@@ -56,7 +56,7 @@ pub struct BuildingAction {
     /// The entity targetted in the action.
     pub target_entity_option: Option<Entity>,
     /// The ship cell targetted in the action.
-    pub target_cell_option: Option<(Vec3Int, GridMapType)>,
+    pub target_cell_option: Option<(Vec3Int, GridMapLayer)>,
 }
 
 /// Data related to an individual action.
@@ -261,7 +261,7 @@ impl Action {
         &self,
         item_name: &str,
         examined_entity_option: Option<Entity>,
-        examined_cell_option: Option<(GridMapType, i16, i16, i16)>,
+        examined_cell_option: Option<(GridMapLayer, i16, i16, i16)>,
         examiner_entity: Entity,
     ) -> NetAction {
         let mut new_entity_option = None;

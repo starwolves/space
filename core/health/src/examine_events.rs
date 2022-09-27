@@ -5,7 +5,7 @@ use api::{
     },
     data::HandleToEntity,
     examinable::Examinable,
-    gridmap::{GridMapType, GridmapDetails1},
+    gridmap::{GridMapLayer, GridmapDetails1},
     health::{HealthComponent, HealthContainer},
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     sensable::Sensable,
@@ -488,10 +488,10 @@ pub(crate) fn examine_map(
         let gridmap_result;
 
         match examine_event.gridmap_type {
-            GridMapType::Main => {
+            GridMapLayer::Main => {
                 gridmap_result = gridmap_main.grid_data.get(&examine_event.gridmap_cell_id);
             }
-            GridMapType::Details1 => {
+            GridMapLayer::Details1 => {
                 gridmap_result = gridmap_details1
                     .grid_data
                     .get(&examine_event.gridmap_cell_id);

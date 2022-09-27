@@ -1,5 +1,14 @@
 use std::collections::HashMap;
 
+use bevy::prelude::{Component, Entity};
+
+use crate::{
+    combat::{DamageFlag, HitResult},
+    gridmap::CellData,
+    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
+};
+
+/// The data for entities and gridmap cells that have health.
 #[derive(Component, Clone)]
 pub struct Health {
     /// The health container.
@@ -18,18 +27,20 @@ pub struct Health {
     pub is_reach_obstacle: bool,
 }
 
-/// The health component with entities containing health.
+/// The health component as a container.
 #[derive(Component)]
 pub struct HealthComponent {
     pub health: Health,
 }
 
+/// For sound effects.
 #[derive(Clone)]
 pub enum HitSoundSurface {
     Soft,
     Metaloid,
 }
 
+/// Health flags acting as damage amplifiers or negators. Such as the armour plating flag.
 #[allow(dead_code)]
 #[derive(PartialEq, Clone)]
 pub enum HealthFlag {
@@ -52,6 +63,7 @@ impl Default for Health {
     }
 }
 
+/// Health for each limb of a humanoid entity.
 #[derive(Debug, Default, Clone)]
 pub struct HumanoidHealth {
     pub head_brute: f32,
@@ -79,6 +91,7 @@ pub struct HumanoidHealth {
     pub left_leg_toxin: f32,
 }
 
+/// Contains health data of the entity.
 #[derive(Clone)]
 pub enum HealthContainer {
     Humanoid(HumanoidHealth),
@@ -92,6 +105,7 @@ pub struct CellUpdate {
     pub cell_data: CellData,
 }
 
+/// Health data for structures like gridmap cells.
 #[derive(Clone, Default)]
 pub struct StructureHealth {
     pub brute: f32,
@@ -99,6 +113,7 @@ pub struct StructureHealth {
     pub toxin: f32,
 }
 
+/// General function for returning the results of damage application.
 pub fn calculate_damage(
     health_flags: &HashMap<u32, HealthFlag>,
     damage_flags: &HashMap<u32, DamageFlag>,
@@ -138,21 +153,13 @@ pub fn calculate_damage(
     (output_brute, output_burn, output_toxin, hit_result)
 }
 
+/// The health data for entities.
 #[derive(Default, Clone)]
 pub struct EntityContainer {
     pub brute: f32,
     pub burn: f32,
     pub toxin: f32,
 }
-
-use bevy::prelude::{Component, Entity};
-
-use crate::{
-    combat::{DamageFlag, HitResult},
-    gridmap::CellData,
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
-
 pub struct NetHealthUpdate {
     pub handle: u64,
     pub message: ReliableServerMessage,

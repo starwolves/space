@@ -6,18 +6,24 @@ use serde::{Deserialize, Serialize};
 use crate::chat::ASTRIX;
 use crate::data::{Vec2Int, Vec3Int};
 
+use crate::examinable::RichName;
+use crate::health::{CellUpdate, Health};
+use std::collections::HashMap;
+
+/// Data stored in a resource of a cell instead of each cell having their own entity with components.
 #[derive(Clone, Default)]
 pub struct CellData {
     /// Cell item id.
     pub item: i64,
     /// Cell rotation.
     pub orientation: i64,
+    /// The health of the cell.
     pub health: Health,
     /// Entity id if cell is an entity.
     pub entity: Option<Entity>,
 }
 
-/// Stores the details 1 gridmap layer.
+/// Stores the details 1 gridmap layer, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 #[derive(Default)]
 pub struct GridmapDetails1 {
     pub grid_data: HashMap<Vec3Int, CellData>,
@@ -31,6 +37,7 @@ pub struct GridmapDetails1 {
 /// Dividible by 2.
 pub const FOV_MAP_WIDTH: usize = 500;
 
+/// Use this to use the Doryen FOV algorithm.
 pub fn to_doryen_coordinates(x: i16, y: i16) -> (usize, usize) {
     let mut n_x = x + FOV_MAP_WIDTH as i16 / 2;
     let mut n_y = y + FOV_MAP_WIDTH as i16 / 2;
@@ -48,6 +55,7 @@ pub fn doryen_coordinates_out_of_range(x: usize, y: usize) -> bool {
 }
 pub const CELL_SIZE: f32 = 2.;
 
+/// Use this to obtain data from large gridmap layer resources.
 pub fn world_to_cell_id(position: Vec3) -> Vec3Int {
     let map_pos = position / CELL_SIZE;
 
@@ -57,9 +65,7 @@ pub fn world_to_cell_id(position: Vec3) -> Vec3Int {
         z: map_pos.z.floor() as i16,
     }
 }
-use crate::health::{CellUpdate, Health};
-use std::collections::HashMap;
-/// Stores the main gridmap layer data.
+/// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 #[derive(Default)]
 pub struct GridmapMain {
     pub grid_data: HashMap<Vec3Int, CellData>,
@@ -67,13 +73,12 @@ pub struct GridmapMain {
     pub updates: HashMap<Vec3Int, CellUpdate>,
 }
 
-/// For entities that are also registered in the gridmap.
+/// For entities that are also registered in the gridmap. (entity tiles)
 pub struct EntityGridData {
     pub entity: Entity,
     pub entity_name: String,
 }
-use crate::examinable::RichName;
-/// Gridmap meta-data.
+/// Gridmap meta-data resource.
 #[derive(Default)]
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
@@ -94,6 +99,7 @@ pub struct GridmapData {
     pub blackcell_blocking_id: i64,
     pub main_cell_properties: HashMap<i64, MainCellProperties>,
 }
+/// Gridmap meta-data set.
 #[derive(Clone)]
 pub struct MainCellProperties {
     pub id: i64,
@@ -135,6 +141,8 @@ impl Default for MainCellProperties {
         }
     }
 }
+
+/// Stores directional rotations alongside their "orientation" value used for Godot gridmaps.
 #[derive(Clone)]
 pub struct GridDirectionRotations {
     pub data: HashMap<AdjacentTileDirection, u8>,
@@ -159,6 +167,7 @@ pub enum AdjacentTileDirection {
 }
 const Y_CENTER_OFFSET: f32 = 1.;
 
+/// From tile id to world position.
 pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
     let mut world_position: Vec3 = Vec3::ZERO;
 
@@ -169,13 +178,14 @@ pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
     world_position
 }
 
-pub fn get_cell_name(ship_cell: &CellData, gridmap_data: &Res<GridmapData>) -> String {
+pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<GridmapData>) -> String {
     gridmap_data
         .main_text_names
         .get(&ship_cell.item)
         .unwrap()
         .get_a_name()
 }
+/// Stores examine messages being built this frame for gridmap examination.
 #[derive(Default)]
 pub struct GridmapExamineMessages {
     pub messages: Vec<ExamineMapMessage>,
@@ -183,7 +193,7 @@ pub struct GridmapExamineMessages {
 pub struct ExamineMapMessage {
     pub handle: u64,
     pub entity: Entity,
-    pub gridmap_type: GridMapType,
+    pub gridmap_type: GridMapLayer,
     pub gridmap_cell_id: Vec3Int,
     /// Map examine message being built and sent back to the player.
     pub message: String,
@@ -193,7 +203,7 @@ impl Default for ExamineMapMessage {
         Self {
             handle: 0,
             entity: Entity::from_bits(0),
-            gridmap_type: GridMapType::Main,
+            gridmap_type: GridMapLayer::Main,
             gridmap_cell_id: Vec3Int::default(),
             message: ASTRIX.to_string(),
         }
@@ -217,7 +227,7 @@ pub fn get_atmos_id(i: usize) -> Vec2Int {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
-pub enum GridMapType {
+pub enum GridMapLayer {
     Main,
     Details1,
 }
@@ -232,7 +242,7 @@ pub struct GridItemData {
 /// Remove gridmap cell event.
 pub struct RemoveCell {
     pub handle_option: Option<u64>,
-    pub gridmap_type: GridMapType,
+    pub gridmap_type: GridMapLayer,
     pub id: Vec3Int,
     pub cell_data: CellData,
 }

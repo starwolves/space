@@ -29,7 +29,7 @@ pub const PLACEABLE_SURFACE_FRICTION: f32 = 0.2;
 /// Physics coefficient combiner of placeable item surfaces.
 pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
-/// Initiate map resource data.
+/// Initiate map resource meta-data.
 pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     gridmap_data.blackcell_blocking_id = *gridmap_data
         .main_name_id_map
@@ -761,7 +761,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     );
 }
 
-/// Initiate other gridmap resource datas from json.
+/// Initiate other gridmap meta-datas from json.
 pub(crate) fn startup_misc_resources(
     mut server_id: ResMut<ServerId>,
     mut gridmap_data: ResMut<GridmapData>,

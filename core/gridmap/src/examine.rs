@@ -1,7 +1,7 @@
 use api::{
     chat::{get_empty_cell_message, get_space_message},
     gridmap::{
-        to_doryen_coordinates, GridMapType, GridmapData, GridmapDetails1, GridmapExamineMessages,
+        to_doryen_coordinates, GridMapLayer, GridmapData, GridmapDetails1, GridmapExamineMessages,
         GridmapMain,
     },
     senser::Senser,
@@ -10,7 +10,7 @@ use bevy::prelude::{warn, Query, Res, ResMut};
 
 use crate::events::examine_ship_cell;
 
-/// Examine the gridmap.
+/// Manage examining the gridmap.
 pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     gridmap_main: Res<GridmapMain>,
@@ -45,10 +45,10 @@ pub(crate) fn examine_map(
             let gridmap_result;
 
             match examine_event.gridmap_type {
-                GridMapType::Main => {
+                GridMapLayer::Main => {
                     gridmap_result = gridmap_main.grid_data.get(&examine_event.gridmap_cell_id);
                 }
-                GridMapType::Details1 => {
+                GridMapLayer::Details1 => {
                     gridmap_result = gridmap_details1
                         .grid_data
                         .get(&examine_event.gridmap_cell_id);

@@ -10,7 +10,7 @@ use crate::{
     combat::ProjectileData,
     console_commands::{ConsoleCommandVariant, ConsoleCommandVariantValues},
     entity_updates::EntityUpdateData,
-    gridmap::GridMapType,
+    gridmap::GridMapLayer,
     ui::{UIInputAction, UIInputNodeClass},
     world_environment::WorldEnvironment,
 };
@@ -29,7 +29,7 @@ pub struct NetAction {
     pub item_name: String,
     pub entity_option: Option<u64>,
     pub belonging_entity: Option<u64>,
-    pub cell_option: Option<(GridMapType, i16, i16, i16)>,
+    pub cell_option: Option<(GridMapLayer, i16, i16, i16)>,
 }
 
 pub enum NetMessageType {
@@ -78,9 +78,9 @@ pub enum ReliableClientMessage {
     BuildGraphics,
     InputChatMessage(String),
     ExamineEntity(u64),
-    ExamineMap(GridMapType, i16, i16, i16),
+    ExamineMap(GridMapLayer, i16, i16, i16),
     TabDataEntity(u64),
-    TabDataMap(GridMapType, i16, i16, i16),
+    TabDataMap(GridMapLayer, i16, i16, i16),
     UseWorldItem(u64),
     DropCurrentItem(Option<Vec3>),
     SwitchHands,
@@ -99,7 +99,7 @@ pub enum ReliableClientMessage {
     TabPressed(
         String,
         Option<u64>,
-        Option<(GridMapType, i16, i16, i16)>,
+        Option<(GridMapLayer, i16, i16, i16)>,
         Option<u64>,
     ),
     TextTreeInput(Option<u64>, String, String, String),
@@ -145,8 +145,8 @@ pub enum ReliableServerMessage {
         String,
         HashMap<String, TextTreeBit>,
     ),
-    RemoveCell(i16, i16, i16, GridMapType),
-    AddCell(i16, i16, i16, i64, i64, GridMapType),
+    RemoveCell(i16, i16, i16, GridMapLayer),
+    AddCell(i16, i16, i16, i64, i64, GridMapLayer),
     MapSendDisplayModes(Vec<(String, String)>),
     MapOverlayUpdate(Vec<(i16, i16, i16)>),
     MapOverlayHoverData(String),

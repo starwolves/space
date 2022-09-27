@@ -17,7 +17,7 @@ use super::net::NetProjectileFOV;
 
 pub const FOV_DISTANCE: usize = 23;
 
-/// Manage projectile FOV.
+/// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
 pub(crate) fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
@@ -178,7 +178,7 @@ pub(crate) fn projectile_fov(
     }
 }
 
-/// DoryenMap resource with FOV map data.
+/// The resource with FOV data.
 pub struct DoryenMap {
     pub map: MapData,
 }

@@ -67,7 +67,7 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
         });
 }
 
-/// Build main gridmap from data.
+/// Build main gridmap from scratch from exported (json) data.
 pub(crate) fn build_main_gridmap(
     current_map_main_data: &Vec<CellDataWID>,
     mut commands: &mut Commands,
@@ -152,7 +152,7 @@ pub(crate) fn build_main_gridmap(
     }
 }
 
-/// Build details 1 gridmap from data.
+/// Build details 1 from scratch from exported (json) data.
 pub(crate) fn build_details1_gridmap(
     current_map_details1_data: &Vec<CellDataWID>,
     gridmap_details1: &mut ResMut<GridmapDetails1>,

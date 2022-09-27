@@ -1,6 +1,6 @@
 use api::{
     data::Vec2Int,
-    gridmap::{get_atmos_index, GridMapType, GridmapMain, RemoveCell},
+    gridmap::{get_atmos_index, GridMapLayer, GridmapMain, RemoveCell},
 };
 use bevy::prelude::{EventReader, Res, ResMut};
 
@@ -14,7 +14,7 @@ pub(crate) fn remove_cell_atmos_event(
 ) {
     for event in deconstruct_cell_events.iter() {
         match event.gridmap_type {
-            GridMapType::Main => {
+            GridMapLayer::Main => {
                 let mut atmospherics = atmospherics_resource
                     .atmospherics
                     .get_mut(get_atmos_index(Vec2Int {
@@ -41,7 +41,7 @@ pub(crate) fn remove_cell_atmos_event(
                     }
                 }
             }
-            GridMapType::Details1 => {}
+            GridMapLayer::Details1 => {}
         }
     }
 }

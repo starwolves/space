@@ -11,7 +11,7 @@ pub struct Examinable {
     pub name: RichName,
 }
 
-/// A proper name for an entity.
+/// A rich examinable name for an entity.
 #[derive(Clone, Debug)]
 pub struct RichName {
     pub name: String,
@@ -47,6 +47,8 @@ impl Default for RichName {
         }
     }
 }
+
+/// System label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum ExamineLabels {
     Start,
