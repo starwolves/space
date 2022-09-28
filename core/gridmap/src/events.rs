@@ -255,7 +255,7 @@ pub(crate) fn remove_cell(
     }
 }
 
-/// Represents a cell.
+/// Component that represents a cell.
 #[derive(Component)]
 pub struct Cell {
     pub id: Vec3Int,

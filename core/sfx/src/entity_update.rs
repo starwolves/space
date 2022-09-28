@@ -289,6 +289,7 @@ pub(crate) fn sfx_update(mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), 
     }
 }
 
+/// Resource containing data on when sfx should be automatically destroyed.
 #[derive(Default)]
 pub struct SfxAutoDestroyTimers {
     pub timers: Vec<(Entity, u8)>,

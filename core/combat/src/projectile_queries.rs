@@ -397,7 +397,7 @@ pub(crate) fn projectile_attack(
     }
 }
 
-/// In case projectile hit nothing.
+/// In case projectile hit nothing as an event.
 pub struct ProjectileBlank {
     /// Hit point location.
     pub hit_point: Vec3,

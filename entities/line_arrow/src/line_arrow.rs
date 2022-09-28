@@ -1,10 +1,10 @@
 use bevy::{prelude::Component, time::Timer};
 
-/// The component.
+/// The component for line arrows.
 #[derive(Component)]
 pub struct LineArrow;
 
-/// For pointing arrows.
+/// The component for pointing arrows.
 #[derive(Component)]
 pub struct PointArrow {
     /// Timer after which the point arrow despawns.

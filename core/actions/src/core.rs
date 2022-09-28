@@ -13,12 +13,12 @@ use networking::{
     plugin::NetActionData,
 };
 
-/// A list of actions being built.
+/// Resource with a list of actions being built this frame.
 #[derive(Default)]
 pub struct BuildingActions {
     pub list: Vec<BuildingAction>,
 }
-/// Requests to execute actions which will go through prerequisite checking.
+/// Resource with requests to execute actions which will go through prerequisite checking this frame.
 #[derive(Default)]
 pub struct ActionRequests {
     pub list: HashMap<u64, ActionRequest>,
@@ -196,7 +196,7 @@ impl ActionIncremented {
     }
 }
 
-/// Request list of available actions for entity with prerequisite checking.
+/// Resource with a request list of available actions for entity with prerequisite checking of this frame.
 #[derive(Default)]
 pub struct ListActionDataRequests {
     pub list: HashMap<u64, ActionRequest>,

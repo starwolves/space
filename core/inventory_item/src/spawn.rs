@@ -85,7 +85,7 @@ pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>
     }
 }
 
-/// Spawn an entity in another entity's inventory through an RCON command.
+/// Function to spawn an entity in another entity's inventory through an RCON command.
 pub fn rcon_spawn_held_entity(
     entity_name: String,
     target_selector: String,
@@ -236,7 +236,7 @@ pub fn rcon_spawn_held_entity(
     }
 }
 
-/// Spawn an entity that is held in someone's hands.
+/// Function to spawn an entity that is held in someone's hands.
 pub fn spawn_held_entity(
     entity_name: String,
     commands: &mut Commands,

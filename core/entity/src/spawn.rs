@@ -173,7 +173,7 @@ pub struct ExportDataRaw {
     pub properties: Vec<ExportProperty>,
 }
 
-/// All properties turned into variants.
+/// All export json properties turned into a variant hashmap.
 pub struct ExportData {
     pub properties: HashMap<String, ConsoleCommandVariantValues>,
 }
@@ -233,12 +233,12 @@ impl Default for SpawnData {
         }
     }
 }
-/// Default spawn events.
+/// Default spawn event.
 pub struct DefaultSpawnEvent {
     pub spawn_data: SpawnData,
 }
 
-/// Spawn event.
+/// Standard spawn event.
 pub struct SpawnEvent<T> {
     pub spawn_data: SpawnData,
     pub summoner: T,

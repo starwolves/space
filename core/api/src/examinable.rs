@@ -54,6 +54,7 @@ pub enum ExamineLabels {
     Start,
     Default,
 }
+/// Input examine entity event.
 pub struct InputExamineEntity {
     pub handle: u64,
     pub examine_entity: Entity,

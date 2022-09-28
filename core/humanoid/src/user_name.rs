@@ -96,7 +96,7 @@ impl PendingMessage for NetPawn {
     }
 }
 
-/// Get a dummy character name.
+/// Get a dummy character name as a function.
 pub fn get_dummy_name(used_names: &mut UsedNames) -> String {
     let return_name = format!("Dummy {}", used_names.dummy_i);
 

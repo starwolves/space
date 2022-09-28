@@ -159,7 +159,7 @@ const VIEW_DISTANCE: f32 = 90.;
 const HEAR_DISTANCE: f32 = 60.;
 const LIGHT_DISTANCE: f32 = 60.;
 
-/// Check if entity is visible to other entity.
+/// Check if entity is visible to other entity as a function.
 fn visible_check(
     sensable_component: &mut Mut<Sensable>,
     senser_component: &mut Mut<Senser>,

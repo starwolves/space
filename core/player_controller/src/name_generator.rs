@@ -2,6 +2,7 @@ use api::humanoid::UsedNames;
 use bevy::prelude::Res;
 use rand::seq::SliceRandom;
 
+/// Array containing male first names.
 const MALE_FIRST_NAMES: &[&str] = &[
     "Anakin", "Angel", "Abel", "Artemis", "Arthur", "Bastian", "Cullen", "Emmett", "Falkor",
     "Faramir", "Fox", "Gandalf", "Gaius", "Geordi", "Grant", "Han", "Harry", "Hugo", "Idris",
@@ -16,6 +17,7 @@ const MALE_FIRST_NAMES: &[&str] = &[
     "Kenmon", "Graygal", "Bobba", "Cadael", "Xantry", "Bengorn", "Yaddu", "Ikev", "Lokesh", "Wolf",
     "Falco",
 ];
+/// Array containing female first names.
 const FEMALE_FIRST_NAMES: &[&str] = &[
     "Aeryn",
     "Amelia",
@@ -80,6 +82,7 @@ const FEMALE_FIRST_NAMES: &[&str] = &[
     "Weronika",
     "Berenika",
 ];
+/// Array containing last names.
 const LAST_NAMES: &[&str] = &[
     "Voight",
     "Barick",

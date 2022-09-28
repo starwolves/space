@@ -33,6 +33,7 @@ use super::{
     },
 };
 
+/// Air lock open request event.
 pub struct AirLockOpenRequest {
     pub opener_option: Option<Entity>,
     pub opened: Entity,

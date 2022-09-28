@@ -9,7 +9,7 @@ use crate::{
 };
 
 /// The data for entities and gridmap cells that have health.
-#[derive(Component, Clone)]
+#[derive(Clone)]
 pub struct Health {
     /// The health container.
     pub health_container: HealthContainer,

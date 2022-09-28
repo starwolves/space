@@ -12,7 +12,7 @@ use bevy::{
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;
 
-/// Accumulated rigid body forces of the atmospherics tick per entity.
+/// Resource with accumulated rigid body forces of the atmospherics tick per entity, could be building for multiple frames.
 #[derive(Default)]
 pub(crate) struct RigidBodyForcesAccumulation {
     pub data: HashMap<Entity, Vec<Vec3>>,

@@ -101,7 +101,7 @@ pub enum SummoningLabels {
     NormalSummon,
 }
 
-/// The tickrate of the server loop.
+/// Resource containing the tickrate of the server loop.
 pub struct TickRate {
     pub physics_rate: u8,
     pub bevy_rate: u8,
@@ -116,7 +116,7 @@ impl Default for TickRate {
     }
 }
 
-/// Used for client, we can send this ID as an entityUpdate to the client which indicates it does not belong
+/// Resource used for client, we can send this ID as an entityUpdate to the client which indicates it does not belong
 /// to a specific entity and it should be customly assigned to something such as UIs and other stuff which
 /// are not real server entities but just client GUI instances.
 pub struct ServerId {
@@ -144,7 +144,7 @@ pub struct Vec3Int {
     pub z: i16,
 }
 
-/// Contains entity meta data.
+/// Resource that contains entity meta data.
 #[derive(Default)]
 pub struct EntityDataResource {
     pub data: Vec<EntityDataProperties>,
@@ -235,6 +235,7 @@ pub enum LockedStatus {
     Closed,
     None,
 }
+/// Air lock open request event.
 pub struct AirLockCloseRequest {
     pub interacter_option: Option<Entity>,
     pub interacted: Entity,

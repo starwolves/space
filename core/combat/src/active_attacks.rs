@@ -20,7 +20,7 @@ impl ActiveAttackIncrement {
     }
 }
 
-/// An active attack cache.
+/// Resource with an active attack cache.
 #[derive(Default)]
 pub struct ActiveAttacks {
     pub map: HashMap<u64, ActiveAttack>,

@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
+/// Check if entity updates for a player has changed.
 pub fn entity_update_changed_detection(
     changed_parameters: &mut Vec<String>,
     entity_updates: &mut HashMap<String, EntityUpdateData>,
@@ -43,6 +44,7 @@ impl PendingMessage for NetSendEntityUpdates {
         }
     }
 }
+/// Personalise entity update set.
 pub fn personalise(
     updates_data: &mut HashMap<String, HashMap<String, EntityUpdateData>>,
     player_handle: u64,
@@ -61,6 +63,7 @@ pub fn personalise(
     }
 }
 
+/// Get difference between this frame and last's frame entity updates per player.
 pub fn get_entity_update_difference(
     old_data: HashMap<String, HashMap<String, EntityUpdateData>>,
     new_data: &HashMap<String, HashMap<String, EntityUpdateData>>,
@@ -111,6 +114,7 @@ pub fn get_entity_update_difference(
 
     difference_data
 }
+/// The base entity component holding base entity data.
 #[derive(Component)]
 pub struct EntityData {
     pub entity_class: String,
@@ -136,6 +140,7 @@ pub enum EntityGroup {
     Pawn,
 }
 
+/// Match entity data as a function.
 pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateData) -> bool {
     let mut is_not_matching = true;
 

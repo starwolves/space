@@ -6,7 +6,7 @@ use bevy::prelude::{info, Res, ResMut};
 
 use crate::diffusion::{Atmospherics, AtmosphericsResource, DEFAULT_INTERNAL_AMOUNT};
 
-/// Initialize atmospherics.
+/// Initialize atmospherics as a startup system.
 pub(crate) fn startup_atmospherics(
     gridmap_main: Res<GridmapMain>,
     mut atmospherics: ResMut<AtmosphericsResource>,

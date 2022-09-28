@@ -49,7 +49,7 @@ pub enum PawnDesignation {
     Dummy,
     Ai,
 }
-/// Contains the spawn data of a to-be-spawned entity.
+/// Component that contains the spawn data of a to-be-spawned entity.
 #[derive(Component)]
 pub struct Spawning {
     pub transform: Transform,
@@ -82,10 +82,11 @@ pub struct SpawnPointRaw {
     pub point_type: String,
     pub transform: String,
 }
-/// All available spawn points for players.
+/// Resource containing all available spawn points for players.
 #[derive(Default)]
 pub struct SpawnPoints {
     pub list: Vec<SpawnPoint>,
     pub i: usize,
 }
+/// How far an entity can reach ie with picking up items.
 pub const REACH_DISTANCE: f32 = 3.;

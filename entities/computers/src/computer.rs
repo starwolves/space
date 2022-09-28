@@ -35,6 +35,7 @@ pub(crate) fn computer_added(
     }
 }
 
+/// The computer component.
 #[derive(Component)]
 pub struct Computer {
     pub computer_type: String,

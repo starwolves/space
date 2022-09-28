@@ -3,7 +3,7 @@ use api::{
     ui::{UIInputAction, UIInputNodeClass},
 };
 
-/// Client input , interaction with UI.
+/// Event as client input , interaction with UI.
 pub struct InputUIInput {
     /// Handle of the connection that input this.
     pub handle: u64,
@@ -17,7 +17,7 @@ pub struct InputUIInput {
     pub ui_type: String,
 }
 
-/// Client input submitting text.
+/// Client input submitting text event.
 pub struct InputUIInputTransmitText {
     /// Handle of the connection that input this.
     pub handle: u64,

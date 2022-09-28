@@ -25,7 +25,7 @@ const HEAVY_UI_RED: f32 = 255.;
 const HEAVY_UI_GREEN: f32 = 0.;
 const HEAVY_UI_BLUE: f32 = 60.;
 
-/// All client health UI caches.
+/// Resource with all client health UI caches.
 #[derive(Default)]
 pub struct ClientHealthUICache {
     pub cache: HashMap<Entity, ClientHealthUI>,

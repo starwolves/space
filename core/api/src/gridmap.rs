@@ -50,6 +50,7 @@ pub fn to_doryen_coordinates(x: i16, y: i16) -> (usize, usize) {
     (n_x as usize, n_y as usize)
 }
 
+/// Check if supplied doryen coordinates are out of range as a function.
 pub fn doryen_coordinates_out_of_range(x: usize, y: usize) -> bool {
     x > FOV_MAP_WIDTH || y > FOV_MAP_WIDTH
 }
@@ -142,7 +143,7 @@ impl Default for MainCellProperties {
     }
 }
 
-/// Stores directional rotations alongside their "orientation" value used for Godot gridmaps.
+/// Directional rotations alongside their "orientation" value used for Godot gridmaps.
 #[derive(Clone)]
 pub struct GridDirectionRotations {
     pub data: HashMap<AdjacentTileDirection, u8>,
@@ -190,6 +191,7 @@ pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<GridmapData>) ->
 pub struct GridmapExamineMessages {
     pub messages: Vec<ExamineMapMessage>,
 }
+/// Examine map message event.
 pub struct ExamineMapMessage {
     pub handle: u64,
     pub entity: Entity,

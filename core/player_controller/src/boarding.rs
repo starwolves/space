@@ -39,7 +39,7 @@ pub(crate) struct BoardingPlayer {
     pub player_character_name: String,
     pub entity: Entity,
 }
-/// Slightly delayed boarding announcements.
+/// Resource for slightly delayed boarding announcements.
 #[derive(Default)]
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,

@@ -210,7 +210,7 @@ pub enum Communicator {
     Machine,
 }
 
-/// Check if a message has a shouting intend.
+/// Check if a message has a shouting intend as a function.
 fn is_shouting(message: &str) -> bool {
     message.ends_with("!!!")
         || message.ends_with("!!?")
@@ -223,12 +223,12 @@ fn is_shouting(message: &str) -> bool {
         || message.ends_with("???")
 }
 
-/// Check if a message has a questioning intend.
+/// Check if a message has a questioning intend as a function.
 fn is_asking(message: &str) -> bool {
     message.ends_with("?") || message.ends_with("??") || message.ends_with("?!")
 }
 
-/// Sets radio channel list for clients in setup UI to only show global chat availability.
+/// Sets radio channel list for clients in setup UI to only show global chat availability as a function.
 pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     vec![(
         "Global".to_string(),
@@ -236,7 +236,7 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     )]
 }
 
-/// Process chat prefixes which act as flags.
+/// Process chat prefixes which act as flags as a function.
 fn get_talk_space(message: String) -> (RadioChannel, String, bool, bool) {
     let radio_channel;
     let content;
@@ -300,7 +300,7 @@ pub enum MessagingPlayerState {
     Alive,
 }
 
-/// The main chat function. It is huge, not-modular and just overall not nice. This will get modularized and rewritten.
+/// Function. It is huge, not-modular and just overall not nice. This will get modularized and rewritten.
 pub fn new_chat_message(
     net_new_chat_message_event: &mut EventWriter<NetChatMessage>,
     handle_to_entity: &Res<HandleToEntity>,
@@ -1244,7 +1244,7 @@ pub fn new_chat_message(
     }
 }
 
-/// Requested proximity message.
+/// Requested proximity message event.
 pub struct EntityProximityMessage {
     pub entities: Vec<Entity>,
     pub message: String,

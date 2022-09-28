@@ -93,7 +93,7 @@ pub(crate) fn connections(
     }
 }
 
-/// On player disconnect.
+/// On player disconnect as a function.
 pub fn on_player_disconnect(
     handle: u64,
     handle_to_entity: &mut ResMut<HandleToEntity>,
@@ -151,7 +151,7 @@ pub fn on_player_disconnect(
     handle_to_entity.map.remove(&handle);
 }
 
-/// Current incremented authentication ID.
+/// Resource with the current incremented authentication ID.
 #[derive(Default)]
 pub(crate) struct AuthidI {
     pub i: u16,

@@ -149,7 +149,7 @@ pub(crate) fn entity_console_commands(
 /// Password to gain access to console RCON commands.
 const RCON_PASSWORD: &str = "KA-BAR";
 
-/// Protect against RCON password bruteforce.
+/// Resource to protect against RCON password bruteforce.
 #[derive(Default)]
 pub(crate) struct BruteforceProtection {
     /// Wrong password attempts by handle.

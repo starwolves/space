@@ -2,7 +2,7 @@ use api::data::Vec3Int;
 use bevy::prelude::{Commands, Component, Entity};
 use bevy_rapier3d::prelude::{CollisionGroups, Damping, GravityScale, Sleeping};
 
-/// Get a desired bit mask.
+/// Get a desired bit mask as a function.
 pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
     match group {
         ColliderGroup::Standard => (
@@ -18,7 +18,7 @@ pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
     }
 }
 
-/// Collder groups.
+/// Collider groups.
 pub enum ColliderGroup {
     NoCollision,
     Standard,
@@ -27,7 +27,7 @@ pub enum ColliderGroup {
 /// Character floor physics friction.
 pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
 
-/// If a entity has this is it is disabled.
+/// Component, an entity has this when its physics is disabled.
 #[derive(Component)]
 pub struct RigidBodyDisabled;
 
