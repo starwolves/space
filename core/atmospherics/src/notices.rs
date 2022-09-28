@@ -18,7 +18,7 @@ use super::{
     net::NetAtmosphericsNotices,
 };
 
-/// Atmospherics notices that warn players when they are under certain atmospherics conditions like unlivable atmospherics conditions.
+/// Resource with atmospherics notices that warn players when they are under certain atmospherics conditions like unlivable atmospherics conditions.
 #[derive(Default)]
 pub struct AtmosphericsNotices {
     cache: HashMap<Entity, Vec<String>>,

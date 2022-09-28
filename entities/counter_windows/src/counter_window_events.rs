@@ -30,6 +30,7 @@ use sounds::{
 
 use super::net::NetCounterWindow;
 
+/// Open counter window request event.
 pub struct CounterWindowOpenRequest {
     pub opener_option: Option<Entity>,
     pub opened: Entity,
@@ -652,7 +653,7 @@ pub(crate) fn counter_window_events(
     }
 }
 
-/// For the physics sensor.
+/// The component for the physics sensor.
 #[derive(Component)]
 pub struct CounterWindowSensor {
     pub parent: Entity,
@@ -721,6 +722,7 @@ pub fn denied_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
 
+/// Counter window sensor collision event.
 pub struct CounterWindowSensorCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
@@ -731,12 +733,14 @@ pub struct CounterWindowSensorCollision {
     pub started: bool,
 }
 
+/// Counter window toggle open event.
 pub struct InputCounterWindowToggleOpen {
     pub handle_option: Option<u64>,
 
     pub opener: Entity,
     pub opened: Entity,
 }
+/// Counter window lock open event.
 pub struct CounterWindowLockOpen {
     pub handle_option: Option<u64>,
 
@@ -744,6 +748,7 @@ pub struct CounterWindowLockOpen {
     pub locker: Entity,
 }
 
+/// Counter window lock closed event.
 pub struct CounterWindowLockClosed {
     pub handle_option: Option<u64>,
 
@@ -751,6 +756,7 @@ pub struct CounterWindowLockClosed {
     pub locker: Entity,
 }
 
+/// Counter window unlock event.
 pub struct CounterWindowUnlock {
     pub handle_option: Option<u64>,
 

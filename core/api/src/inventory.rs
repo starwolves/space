@@ -8,6 +8,7 @@ pub enum SlotType {
     Holster,
 }
 
+/// An inventory slot, an inventory can contain many of these.
 pub struct Slot {
     pub slot_type: SlotType,
     pub slot_name: String,
@@ -15,6 +16,7 @@ pub struct Slot {
     /// The id of the attachment of this slot.
     pub slot_attachment: Option<String>,
 }
+/// The inventory component.
 #[derive(Component)]
 pub struct Inventory {
     pub slots: Vec<Slot>,

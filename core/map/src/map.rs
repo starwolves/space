@@ -16,7 +16,7 @@ pub enum OverlayTile {
     Red,
 }
 
-/// Get overlay tile priority.
+/// Get overlay tile priority as a function.
 pub fn get_overlay_tile_priority(tile: &OverlayTile) -> u8 {
     match tile {
         OverlayTile::Green => 0,
@@ -26,7 +26,7 @@ pub fn get_overlay_tile_priority(tile: &OverlayTile) -> u8 {
     }
 }
 
-/// Get overlay tile item.
+/// Get overlay tile item as a function.
 pub fn get_overlay_tile_item(tile: &OverlayTile) -> i16 {
     match tile {
         OverlayTile::Green => 0,
@@ -60,7 +60,7 @@ pub struct MapHolderData {
     pub hovering_data: String,
 }
 
-/// All mini-maps of entities.
+/// Resource containing all mini-map states of entities.
 #[derive(Default)]
 pub struct MapHolders {
     pub holders: HashMap<Entity, MapHolderData>,
@@ -79,7 +79,7 @@ impl Default for MapHolderData {
     }
 }
 
-/// Mini-map of a player.
+/// The Mini-map component belonging to a player.
 #[derive(Component)]
 pub struct Map {
     /// Currently active display overlay.

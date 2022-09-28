@@ -19,6 +19,7 @@ pub enum FacingDirection {
     Left,
 }
 
+/// Facing direction to Vec2 as a function.
 pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
     match direction {
         FacingDirection::UpLeft => Vec2::new(-1., 1.),
@@ -148,6 +149,7 @@ pub fn entity_spawn_position_for_player(
     (new_transform, facing_direction.clone())
 }
 
+/// Get facing direction offset as a function.
 fn get_offset(player_facing_direction: &FacingDirection, offset: f32) -> Vec3 {
     match player_facing_direction {
         FacingDirection::UpLeft => Vec3::new(offset, 0., offset),

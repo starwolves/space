@@ -11,6 +11,10 @@ use bevy::{
 };
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use serde::Deserialize;
+
+use bevy_renet::renet::RenetServer;
+use bincode::serialize;
+
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
 pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
 /// Initialize meta-data for an entity as a function.
@@ -26,9 +30,6 @@ pub fn initialize_entity_data(
         .insert(entity_properties.name.clone(), entity_properties.id);
     entity_data.data.push(entity_properties);
 }
-
-use bevy_renet::renet::RenetServer;
-use bincode::serialize;
 
 /// Broadcast transforms of entities to players for interpolation.
 pub(crate) fn broadcast_position_updates(
@@ -112,7 +113,7 @@ impl PendingMessage for NetShowcase {
         }
     }
 }
-/// Entities that were included and spawned with the map itself.
+/// Component for entities that were included and spawned with the map itself.
 #[derive(Component)]
 pub struct DefaultMapEntity;
 
@@ -139,17 +140,17 @@ pub struct RawEntity {
     pub transform: String,
     pub data: String,
 }
-/// The reserved server entity.
+/// Component reserved server entity.
 #[derive(Component)]
 pub struct Server;
 
-/// The cache of the latest broadcasted transforms.
+/// Component with the cache of the latest broadcasted transforms for its entity.
 #[derive(Component, Default)]
 pub struct CachedBroadcastTransform {
     pub transform: Transform,
     pub is_active: bool,
 }
-/// UpdateTransform for sound effects.
+/// Component with transform for sound effects.
 #[derive(Component)]
 pub struct UpdateTransform;
 /// The NodePath to the node to spawn entities in on the Godot clients.

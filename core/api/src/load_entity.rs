@@ -9,6 +9,7 @@ use crate::{
 
 use super::entity_updates::personalise;
 
+/// Load an entity in for the client as a function.
 pub fn load_entity(
     entity_updates: &HashMap<String, HashMap<String, EntityUpdateData>>,
     entity_transform: Transform,
@@ -75,6 +76,7 @@ pub fn load_entity(
     });
 }
 
+/// Unload an entity in for the client as a function.
 pub fn unload_entity(
     player_handle: u64,
     entity_id: Entity,

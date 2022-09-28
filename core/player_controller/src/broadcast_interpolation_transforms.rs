@@ -25,7 +25,7 @@ enum InterpolationPriorityRates {
     T24,
 }
 
-/// Interpolation frame.
+/// Resource with interpolation frame.
 #[derive(Default)]
 pub(crate) struct InterpolationFrame {
     pub i: u8,
@@ -164,7 +164,7 @@ pub(crate) fn broadcast_interpolation_transforms(
     }
 }
 
-/// Check if this is the frame for interpolation.
+/// Check if this is the frame for interpolation as a function.
 fn is_interpolation_frame(
     entity_tick_rate: &InterpolationPriorityRates,
     current_frame: u8,

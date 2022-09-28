@@ -36,8 +36,10 @@ impl PendingMessage for NetPlayerConn {
     }
 }
 
+/// The network port the server will listen use for connections.
 pub const SERVER_PORT: u16 = 57713;
 
+/// Network protocol ID.
 const PROTOCOL_ID: u64 = 7;
 
 /// Start server and open and listen to port.
@@ -82,13 +84,13 @@ pub(crate) fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]
     renet_server
 }
 
-/// Client attack cell input.
+/// Client attack cell input event.
 pub struct InputAttackCell {
     pub entity: Entity,
     pub id: Vec3Int,
 }
 
-/// Client input list actions map.
+/// Client input list actions map event.
 #[derive(Debug, Clone)]
 pub struct InputListActionsMap {
     pub requested_by_entity: Entity,
@@ -98,7 +100,7 @@ pub struct InputListActionsMap {
     pub with_ui: bool,
 }
 
-/// Client input change display mode mini-map.
+/// Client input change display mode mini-map event.
 pub struct InputMapChangeDisplayMode {
     pub handle: u64,
     pub entity: Entity,
@@ -112,19 +114,19 @@ pub enum MapInput {
     MouseCell(i16, i16),
 }
 
-/// Client map input.
+/// Client map input event.
 pub struct InputMap {
     pub handle: u64,
     pub entity: Entity,
     pub input: MapInput,
 }
-/// Client map request display modes.
+/// Client map request display modes event.
 pub struct InputMapRequestOverlay {
     pub handle: u64,
     pub entity: Entity,
 }
 
-/// Client inputs of examining entity messages.
+/// Resource with client inputs of examining entity messages.
 #[derive(Default)]
 pub struct ExamineEntityMessages {
     pub messages: Vec<InputExamineEntity>,
@@ -745,7 +747,7 @@ pub fn net_system<T: std::marker::Send + std::marker::Sync + PendingMessage + 's
         });
     }
 }
-/// Client input console command message.
+/// Client input console command message event.
 pub struct InputConsoleCommand {
     /// The connection handle tied to the entity performing the command.
     pub handle_option: Option<u64>,
@@ -757,54 +759,54 @@ pub struct InputConsoleCommand {
     pub command_arguments: Vec<ConsoleCommandVariantValues>,
 }
 
-/// Client input toggle combat mode.
+/// Client input toggle combat mode event.
 pub struct InputToggleCombatMode {
     pub entity: Entity,
 }
 
-/// Client input drop current item.
+/// Client input drop current item event.
 pub struct InputDropCurrentItem {
     pub pickuper_entity: Entity,
     /// Drop item on position, for placeable item surfaces.
     pub input_position_option: Option<Vec3>,
 }
 
-/// Client input throw item.
+/// Client input throw item event.
 pub struct InputThrowItem {
     pub entity: Entity,
     pub position: Vec3,
     pub angle: f32,
 }
 
-/// Client input switch hands.
+/// Client input switch hands event.
 pub struct InputSwitchHands {
     pub entity: Entity,
 }
 
-/// Client input take off item.
+/// Client input take off item event.
 pub struct InputTakeOffItem {
     pub entity: Entity,
     pub slot_name: String,
 }
 
-/// Client input use world item.
+/// Client input use world item event.
 pub struct InputUseWorldItem {
     pub using_entity: Entity,
     pub used_entity: Entity,
 }
 
-/// Client input wear item.
+/// Client input wear item event.
 pub struct InputWearItem {
     pub wearer_entity: Entity,
     pub worn_entity_bits: u64,
     pub wear_slot: String,
 }
-/// Client input user name.
+/// Client input user name event.
 pub struct InputUserName {
     pub entity: Entity,
     pub input_name: String,
 }
-/// Client input list actions entity.
+/// Client input list actions entity event.
 #[derive(Clone)]
 pub struct InputListActionsEntity {
     pub requested_by_entity: Entity,
@@ -814,7 +816,7 @@ pub struct InputListActionsEntity {
     pub with_ui: bool,
 }
 
-/// Client initiates execution of an action.
+/// Client initiates execution of an action event.
 pub struct InputAction {
     /// Action ID.
     pub fired_action_id: String,
@@ -823,39 +825,39 @@ pub struct InputAction {
     pub target_cell_option: Option<(GridMapLayer, Vec3Int)>,
 }
 
-/// Client input toggle auto move.
+/// Client input toggle auto move event.
 pub struct InputToggleAutoMove {
     pub entity: Entity,
 }
 
-/// Client input attack entity.
+/// Client input attack entity event.
 pub struct InputAttackEntity {
     pub entity: Entity,
     pub target_entity_bits: u64,
 }
 
-/// Client input alt item attack.
+/// Client input alt item attack event.
 pub struct InputAltItemAttack {
     pub entity: Entity,
 }
 
-/// Client input mouse action.
+/// Client input mouse action event.
 pub struct InputMouseAction {
     pub entity: Entity,
     pub pressed: bool,
 }
-/// Client input select body part.
+/// Client input select body part event.
 pub struct InputSelectBodyPart {
     pub entity: Entity,
     pub body_part: String,
 }
-/// Client input movement.
+/// Client input movement event.
 pub struct InputMovementInput {
     pub player_entity: Entity,
     pub vector: Vec2,
 }
 
-/// Client text tree input selection.
+/// Client text tree input selection event.
 pub struct TextTreeInputSelection {
     /// Handle of the submitter of the selection.
     pub handle: u64,
@@ -869,28 +871,28 @@ pub struct TextTreeInputSelection {
     pub belonging_entity: Option<u64>,
 }
 
-/// Client input sprinting.
+/// Client input sprinting event.
 pub struct InputSprinting {
     pub entity: Entity,
     pub is_sprinting: bool,
 }
-/// Client input scene ready.
+/// Client input scene ready event.
 pub struct InputSceneReady {
     pub handle: u64,
     pub scene_id: String,
 }
-/// Client input build graphics.
+/// Client input build graphics event.
 pub struct InputBuildGraphics {
     pub handle: u64,
 }
 
-/// Client input mouse direction update.
+/// Client input mouse direction update event.
 pub struct InputMouseDirectionUpdate {
     pub entity: Entity,
     pub direction: f32,
     pub time_stamp: u64,
 }
-/// Client input construction options selection.
+/// Client input construction options selection event.
 pub struct InputConstructionOptionsSelection {
     pub handle_option: Option<u64>,
     pub menu_selection: String,

@@ -1,5 +1,6 @@
 use bevy::prelude::{Component, Entity};
 
+/// The component that links and stores rigid body transform.
 #[derive(Component)]
 pub struct RigidBodyLinkTransform {
     pub follow_entity: Entity,

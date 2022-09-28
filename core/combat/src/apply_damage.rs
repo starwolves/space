@@ -20,14 +20,14 @@ pub struct CellHit {
     pub hit_result: HitResult,
 }
 
-/// Combat results for health processing.
+/// Event with combat results for health processing.
 pub struct HealthCombatHitResult {
     pub incremented_id: u64,
     pub entities_hits: Vec<EntityHit>,
     pub cell_hits: Vec<CellHit>,
 }
 
-/// Active damage applyers for health processing.
+/// Resource with active damage applyers for health processing.
 #[derive(Default)]
 pub struct ActiveApplyDamage {
     pub list: Vec<DamageApplyer>,

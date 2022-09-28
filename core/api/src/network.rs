@@ -37,6 +37,7 @@ pub enum NetMessageType {
     Unreliable(UnreliableServerMessage),
 }
 
+/// Input chat message event.
 pub struct InputChatMessage {
     pub entity: Entity,
     pub message: String,

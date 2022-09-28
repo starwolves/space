@@ -38,13 +38,13 @@ use bevy_rapier3d::{
 
 use std::time::Duration;
 
-/// Link repeated footstep sfx with an entity.
+/// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
 pub(crate) struct LinkedFootstepsSprinting {
     pub entity: Entity,
 }
 
-/// Link repeated footstep sfx with an entity.
+/// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
 pub(crate) struct LinkedFootstepsWalking {
     pub entity: Entity,
@@ -59,7 +59,7 @@ pub enum CharacterAnimationState {
 
 const FIRST_MELEE_TIME: u64 = 433;
 
-/// Humanoid component.
+/// The humanoid component.
 #[derive(Component)]
 pub struct Humanoid {
     /// Lower body blended animation state of humanoid.

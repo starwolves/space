@@ -5,7 +5,7 @@ use bevy::{
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
 
-use crate::timers::free_sfx;
+use crate::{entity_update::SfxAutoDestroyTimers, timers::free_sfx};
 
 use super::{
     entity_update::{repeating_sfx_update, sfx_update},
@@ -29,6 +29,7 @@ impl Plugin for SfxPlugin {
                 .with_system(sfx_update)
                 .with_system(repeating_sfx_update),
         )
-        .add_system(free_sfx);
+        .add_system(free_sfx)
+        .init_resource::<SfxAutoDestroyTimers>();
     }
 }

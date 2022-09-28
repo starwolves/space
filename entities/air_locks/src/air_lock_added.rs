@@ -18,7 +18,7 @@ use crate::spawn::{
 
 use super::resources::AirLock;
 
-/// Air lock collision.
+/// Air lock collision event.
 pub struct AirLockCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
@@ -30,28 +30,28 @@ pub struct AirLockCollision {
     pub started: bool,
 }
 
-/// Air lock toggle open.
+/// Air lock toggle open event.
 pub struct InputAirLockToggleOpen {
     pub handle_option: Option<u64>,
 
     pub opener: Entity,
     pub opened: Entity,
 }
-/// Air lock , lock the door to open.
+/// Air lock , lock the door to open event.
 pub struct AirLockLockOpen {
     pub handle_option: Option<u64>,
 
     pub locked: Entity,
     pub locker: Entity,
 }
-/// Air lock , lock the door to closed.
+/// Air lock , lock the door to closed event.
 pub struct AirLockLockClosed {
     pub handle_option: Option<u64>,
 
     pub locked: Entity,
     pub locker: Entity,
 }
-/// Unlock the air lock.
+/// Unlock the air lock event.
 pub struct AirLockUnlock {
     pub handle_option: Option<u64>,
     pub locked: Entity,

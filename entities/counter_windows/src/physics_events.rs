@@ -59,6 +59,7 @@ pub(crate) fn physics_events(
     }
 }
 
+/// Process generalized physics events as a function.
 fn process_physics_event(
     collider1_entity: Entity,
     collider2_entity: Entity,

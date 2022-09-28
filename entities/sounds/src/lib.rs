@@ -2,7 +2,6 @@
 
 use ambience::ambience_sfx::startup_ambience;
 use bevy::prelude::{App, Plugin};
-use sfx::entity_update::SfxAutoDestroyTimers;
 
 /// Sound library.
 pub mod actions;
@@ -25,7 +24,6 @@ pub struct SoundsPlugin;
 
 impl Plugin for SoundsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(startup_ambience)
-            .init_resource::<SfxAutoDestroyTimers>();
+        app.add_startup_system(startup_ambience);
     }
 }

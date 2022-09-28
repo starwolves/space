@@ -424,7 +424,7 @@ pub const MINIMUM_LIVABLE_TEMPERATURE: f32 = -22. + CELCIUS_KELVIN_OFFSET;
 /// -39.3 degrees celcius
 pub const MAXIMUM_LIVABLE_TEMPERATURE: f32 = 39.3 + CELCIUS_KELVIN_OFFSET;
 
-/// Temperature to tile color for mini-map overlay.
+/// Temperature to tile color for mini-map overlay as a function.
 fn temperature_to_tile_color(temperature: f32) -> OverlayTile {
     if temperature < -40. + CELCIUS_KELVIN_OFFSET {
         OverlayTile::Red
@@ -448,7 +448,7 @@ pub const MINIMUM_LIVABLE_PRESSURE: f32 = 90.;
 /// 180 kpa
 pub const MAXIMUM_LIVABLE_PRESSURE: f32 = 180.;
 
-/// Pressure to tile color for mini-map overlay.
+/// Pressure to tile color for mini-map overlay as a function.
 fn pressure_to_tile_color(pressure_kpa: f32) -> OverlayTile {
     if pressure_kpa < 47.62275 {
         OverlayTile::Red
