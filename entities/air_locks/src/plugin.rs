@@ -21,15 +21,15 @@ use crate::{
         air_lock_actions, build_actions, lock_action_prequisite_check,
         toggle_open_action_prequisite_check,
     },
+    air_lock_events::{
+        AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
+    },
     physics_events::physics_events,
     resources::AirLock,
 };
 
 use super::{
-    air_lock_added::{
-        air_lock_added, air_lock_default_map_added, AirLockCollision, AirLockLockClosed,
-        AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
-    },
+    air_lock_added::{air_lock_added, air_lock_default_map_added},
     air_lock_events::air_lock_events,
     air_lock_tick_timers::air_lock_tick_timers,
     entity_update::air_lock_update,
