@@ -10,7 +10,7 @@ pub fn derive_net_message(item: TokenStream) -> TokenStream {
 
     format!(
         "
-    /// derive(NetMessage) from [networking_macros].
+    /// derive([NetMessage])
     impl PendingMessage for {} {{
         fn get_message(&self) -> PendingNetworkMessage {{
             PendingNetworkMessage {{
