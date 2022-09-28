@@ -5,7 +5,7 @@
 /// Air lock actions.
 mod actions;
 /// On new air lock creation.
-pub mod air_lock_added;
+mod air_lock_added;
 /// Manage air lock events.
 pub mod air_lock_events;
 /// Manage air lock timers like auto-close.
