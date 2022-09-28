@@ -68,6 +68,7 @@ use api::{
     player_controller::SoftPlayer,
     sensable::Sensable,
 };
+use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
@@ -89,19 +90,11 @@ pub enum RadioChannel {
     Security,
     SpecialOps,
 }
+#[derive(NetMessage)]
 pub struct NetChatMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetChatMessage {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
-
 /// Handle chat message input.
 pub(crate) fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
@@ -1249,20 +1242,11 @@ pub struct EntityProximityMessage {
     pub entities: Vec<Entity>,
     pub message: String,
 }
-
+#[derive(NetMessage)]
 pub(crate) struct NetProximityMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetProximityMessage {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
-
 /// Requested entity proximity messages systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum EntityProximityMessages {

@@ -4,6 +4,7 @@ use bevy::{
     math::{Quat, Vec2, Vec3},
     prelude::Component,
 };
+use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
 
 use crate::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
@@ -32,17 +33,10 @@ pub fn entity_update_changed_detection(
     }
 }
 
+#[derive(NetMessage)]
 pub struct NetSendEntityUpdates {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetSendEntityUpdates {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 /// Personalise entity update set.
 pub fn personalise(

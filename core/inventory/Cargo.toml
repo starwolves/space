@@ -18,6 +18,7 @@ bevy_rapier3d = "0.16.0"
 rand = "0.8.5"
 
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
 sounds = { path = "../../entities/sounds" }
 inventory_item = { path = "../inventory_item" }
 pawn = { path = "../pawn" }

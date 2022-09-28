@@ -6,6 +6,7 @@ use bevy::prelude::SystemSet;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
+use networking_macros::NetMessage;
 
 use crate::messages::{
     net_system, ExamineEntityMessages, InputAction, InputAltItemAttack, InputAttackCell,
@@ -83,28 +84,13 @@ impl Plugin for NetworkingPlugin {
 pub const RENET_RELIABLE_CHANNEL_ID: u8 = 0;
 pub const RENET_UNRELIABLE_CHANNEL_ID: u8 = 1;
 pub const RENET_BLOCKING_CHANNEL_ID: u8 = 2;
-
+#[derive(NetMessage)]
 pub struct NetActionData {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetActionData {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub struct NetEvent {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetEvent {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }

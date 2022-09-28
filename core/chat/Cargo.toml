@@ -17,6 +17,8 @@ default-features = false
 
 api = { path = "../api" }
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
+
 sfx = { path = "../sfx" }
 pawn = { path = "../pawn" }
 

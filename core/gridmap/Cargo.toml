@@ -20,6 +20,7 @@ serde = {version= "1.0.137"}
 serde_json = {version= "1.0.81"}
 
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
 health = { path = "../health" }
 data_converters = { path = "../data_converters" }
 entity = { path = "../entity" }

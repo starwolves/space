@@ -6,20 +6,13 @@ use api::{
     senser::{Senser, SensingAbility},
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
+use networking_macros::NetMessage;
 
 use crate::diffusion::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
-
+#[derive(NetMessage)]
 pub(crate) struct NetAtmosphericsMapExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetAtmosphericsMapExamine {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Examine text with data for cells with atmospherics.

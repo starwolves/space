@@ -5,18 +5,11 @@ use api::{
     senser::{Senser, SensingAbility},
 };
 use bevy::prelude::{warn, Query, ResMut};
-
+use networking_macros::NetMessage;
+#[derive(NetMessage)]
 pub(crate) struct NetPawnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetPawnExamine {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Examine gridmap.

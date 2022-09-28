@@ -11,131 +11,61 @@ use bevy::prelude::{
 };
 use humanoid::humanoid::Humanoid;
 use networking::messages::{InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady};
+use networking_macros::NetMessage;
 
 use std::{collections::HashMap, f32::consts::PI};
 
 use super::connection::{Boarding, SetupPhase};
-
+#[derive(NetMessage)]
 pub(crate) struct NetSendServerTime {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetSendServerTime {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
 
+#[derive(NetMessage)]
 pub(crate) struct NetSendWorldEnvironment {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetSendWorldEnvironment {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetUpdatePlayerCount {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetUpdatePlayerCount {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetDoneBoarding {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetDoneBoarding {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetExamineEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetExamineEntity {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetOnBoarding {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetOnBoarding {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetOnSetupUI {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetOnSetupUI {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetOnSpawning {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetOnSpawning {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetOnNewPlayerConnection {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetOnNewPlayerConnection {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub(crate) struct NetUserName {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetUserName {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Build graphics for Godot client.

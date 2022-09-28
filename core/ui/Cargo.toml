@@ -12,3 +12,4 @@ edition = "2021"
 [dependencies]
 
 api = { path = "../api" }
+networking_macros = { path = "../networking_macros" }

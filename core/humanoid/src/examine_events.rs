@@ -9,20 +9,13 @@ use api::{
 };
 use bevy::prelude::{Query, ResMut};
 use networking::messages::ExamineEntityMessages;
+use networking_macros::NetMessage;
 
 use crate::humanoid::Humanoid;
-
+#[derive(NetMessage)]
 pub(crate) struct ExamineEntityPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for ExamineEntityPawn {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Examine a humanoid entity.

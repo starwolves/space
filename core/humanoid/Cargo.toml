@@ -17,6 +17,8 @@ default-features = false
 bevy_rapier3d = "0.16.0"
 
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
+
 sounds = { path = "../../entities/sounds" }
 pawn = { path = "../pawn" }
 inventory_item = { path = "../inventory_item" }

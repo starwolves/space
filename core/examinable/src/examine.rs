@@ -16,18 +16,12 @@ use api::{
 use bevy::prelude::{warn, Query, Res};
 
 use networking::messages::ExamineEntityMessages;
+use networking_macros::NetMessage;
 
+#[derive(NetMessage)]
 pub(crate) struct NetExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetExamine {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Finalize examining the ship gridmap.
@@ -46,18 +40,10 @@ pub(crate) fn finalize_examine_map(
 
     examine_map_events.messages.clear();
 }
-
+#[derive(NetMessage)]
 pub struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetConnExamine {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Manage examining an entity.

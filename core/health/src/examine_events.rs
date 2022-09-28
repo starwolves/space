@@ -13,20 +13,12 @@ use api::{
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
 use networking::messages::ExamineEntityMessages;
-
+use networking_macros::NetMessage;
+#[derive(NetMessage)]
 pub(crate) struct ExamineEntityPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for ExamineEntityPawn {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
-
 /// Examine an entity's health.
 pub(crate) fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
@@ -451,20 +443,11 @@ pub(crate) fn examine_entity(
         }
     }
 }
-
+#[derive(NetMessage)]
 pub(crate) struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetConnExamine {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
-
 /// Examine a ship cell's health.
 pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,

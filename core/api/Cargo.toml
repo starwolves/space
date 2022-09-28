@@ -19,3 +19,5 @@ rand = "0.8.5"
 bevy_rapier3d = "0.16.0"
 doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
 const_format = "0.2.23"
+
+networking_macros = { path = "../networking_macros" }
