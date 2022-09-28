@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
     data::Vec2Int,
-    entity_updates::{EntityData, EntityGroup},
+    entity_updates::EntityData,
     examinable::{Examinable, RichName},
     gridmap::{get_atmos_index, world_to_cell_id, EntityGridData, GridmapMain},
 };
@@ -17,46 +17,6 @@ use crate::spawn::{
 };
 
 use super::resources::AirLock;
-
-/// Air lock collision event.
-pub struct AirLockCollision {
-    pub collider1_entity: Entity,
-    pub collider2_entity: Entity,
-
-    pub collider1_group: EntityGroup,
-    pub collider2_group: EntityGroup,
-
-    /// Collision started or ended.
-    pub started: bool,
-}
-
-/// Air lock toggle open event.
-pub struct InputAirLockToggleOpen {
-    pub handle_option: Option<u64>,
-
-    pub opener: Entity,
-    pub opened: Entity,
-}
-/// Air lock , lock the door to open event.
-pub struct AirLockLockOpen {
-    pub handle_option: Option<u64>,
-
-    pub locked: Entity,
-    pub locker: Entity,
-}
-/// Air lock , lock the door to closed event.
-pub struct AirLockLockClosed {
-    pub handle_option: Option<u64>,
-
-    pub locked: Entity,
-    pub locker: Entity,
-}
-/// Unlock the air lock event.
-pub struct AirLockUnlock {
-    pub handle_option: Option<u64>,
-    pub locked: Entity,
-    pub locker: Entity,
-}
 
 /// On new air lock spawn.
 pub(crate) fn air_lock_added(

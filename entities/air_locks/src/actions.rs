@@ -6,11 +6,11 @@ use api::{
 };
 use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
 
-use crate::resources::AirLock;
-
-use super::air_lock_added::{
-    AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
+use crate::{
+    air_lock_events::{AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen},
+    resources::AirLock,
 };
+
 /// Action prerequite check.
 pub(crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,

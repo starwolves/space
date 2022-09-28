@@ -24,9 +24,6 @@ use sounds::{
 };
 
 use super::{
-    air_lock_added::{
-        AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
-    },
     net::NetAirLock,
     resources::{
         closed_timer, denied_timer, open_timer, AccessLightsStatus, AirLock, AirLockStatus,
@@ -552,4 +549,44 @@ pub(crate) fn air_lock_events(
             Err(_rr) => {}
         }
     }
+}
+
+/// Air lock collision event.
+pub struct AirLockCollision {
+    pub collider1_entity: Entity,
+    pub collider2_entity: Entity,
+
+    pub collider1_group: EntityGroup,
+    pub collider2_group: EntityGroup,
+
+    /// Collision started or ended.
+    pub started: bool,
+}
+
+/// Air lock toggle open event.
+pub struct InputAirLockToggleOpen {
+    pub handle_option: Option<u64>,
+
+    pub opener: Entity,
+    pub opened: Entity,
+}
+/// Air lock , lock the door to open event.
+pub struct AirLockLockOpen {
+    pub handle_option: Option<u64>,
+
+    pub locked: Entity,
+    pub locker: Entity,
+}
+/// Air lock , lock the door to closed event.
+pub struct AirLockLockClosed {
+    pub handle_option: Option<u64>,
+
+    pub locked: Entity,
+    pub locker: Entity,
+}
+/// Unlock the air lock event.
+pub struct AirLockUnlock {
+    pub handle_option: Option<u64>,
+    pub locked: Entity,
+    pub locker: Entity,
 }

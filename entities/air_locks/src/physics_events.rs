@@ -5,7 +5,7 @@ use bevy::{
 };
 use bevy_rapier3d::{pipeline::CollisionEvent, prelude::Collider};
 
-use crate::air_lock_added::AirLockCollision;
+use crate::air_lock_events::AirLockCollision;
 
 /// Manage air lock physics events as interactions with pawns.
 pub(crate) fn physics_events(
