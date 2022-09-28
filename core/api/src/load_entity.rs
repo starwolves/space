@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Entity, EventWriter, Transform};
-
-use crate::{
-    entity_updates::{EntityData, EntityUpdateData, EntityUpdates},
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
+use networking_macros::NetMessage;
 
 use super::entity_updates::personalise;
+use crate::network::{PendingMessage, PendingNetworkMessage};
+use crate::{
+    entity_updates::{EntityData, EntityUpdateData, EntityUpdates},
+    network::ReliableServerMessage,
+};
 
 /// Load an entity in for the client as a function.
 pub fn load_entity(
@@ -88,28 +89,13 @@ pub fn unload_entity(
         message: ReliableServerMessage::UnloadEntity(entity_id.to_bits(), unload_entirely),
     });
 }
-
+#[derive(NetMessage)]
 pub struct NetUnloadEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetUnloadEntity {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub struct NetLoadEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetLoadEntity {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }

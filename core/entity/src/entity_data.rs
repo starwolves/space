@@ -10,6 +10,7 @@ use bevy::{
     time::{FixedTimesteps, Time},
 };
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
+use networking_macros::NetMessage;
 use serde::Deserialize;
 
 use bevy_renet::renet::RenetServer;
@@ -100,18 +101,10 @@ pub(crate) fn broadcast_position_updates(
     }
 }
 pub const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
-
+#[derive(NetMessage)]
 pub struct NetShowcase {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetShowcase {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 /// Component for entities that were included and spawned with the map itself.
 #[derive(Component)]

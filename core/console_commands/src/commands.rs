@@ -3,30 +3,17 @@ use api::{
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
 };
 use bevy::prelude::{info, ResMut};
+use networking_macros::NetMessage;
 
+#[derive(NetMessage)]
 pub struct NetConsoleCommands {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetConsoleCommands {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub struct NetEntityConsole {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetEntityConsole {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Resource containing all registered custom console commands.

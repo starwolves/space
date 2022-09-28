@@ -15,5 +15,6 @@ default-features = false
 
 [dependencies]
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
 api = { path = "../api" }
 actions = { path = "../actions" }

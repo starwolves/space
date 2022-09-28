@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Component, Entity};
+use networking_macros::NetMessage;
 
 use crate::{
     combat::{DamageFlag, HitResult},
@@ -160,27 +161,13 @@ pub struct EntityContainer {
     pub burn: f32,
     pub toxin: f32,
 }
+#[derive(NetMessage)]
 pub struct NetHealthUpdate {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetHealthUpdate {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
+#[derive(NetMessage)]
 pub struct NetHealth {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetHealth {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }

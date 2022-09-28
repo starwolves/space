@@ -17,3 +17,4 @@ default-features = false
 api = { path = "../api" }
 actions = { path = "../actions" }
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }

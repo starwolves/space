@@ -12,6 +12,7 @@ use bevy::{
     math::{Vec2, Vec3},
     prelude::{info, warn, Entity, EventReader, EventWriter, Res, ResMut},
 };
+use networking_macros::NetMessage;
 use ui::ui::{InputUIInput, InputUIInputTransmitText};
 
 use std::{net::UdpSocket, time::SystemTime};
@@ -22,18 +23,10 @@ use bevy_renet::renet::{
 };
 
 use super::plugin::{RENET_RELIABLE_CHANNEL_ID, RENET_UNRELIABLE_CHANNEL_ID};
-
+#[derive(NetMessage)]
 pub struct NetPlayerConn {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetPlayerConn {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// The network port the server will listen use for connections.

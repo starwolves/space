@@ -19,6 +19,7 @@ bincode = "1.3.3"
 serde = {version= "1.0.137"}
 
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
 health = { path = "../health" }
 pawn = { path = "../pawn" }
 api = { path = "../api" }

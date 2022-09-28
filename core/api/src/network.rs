@@ -4,6 +4,7 @@ use bevy::{
     math::{Quat, Vec2, Vec3},
     prelude::Entity,
 };
+use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -52,18 +53,10 @@ pub enum EntityWorldType {
 pub trait PendingMessage {
     fn get_message(&self) -> PendingNetworkMessage;
 }
-
+#[derive(NetMessage)]
 pub struct PendingNetworkMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for PendingNetworkMessage {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Gets serialized and sent over the net, this is the client message.

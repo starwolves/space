@@ -19,6 +19,7 @@ rand = "0.8.5"
 
 
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
 health = { path = "../health" }
 sounds = { path = "../../entities/sounds" }
 physics = { path = "../physics" }

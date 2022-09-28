@@ -20,6 +20,7 @@ bevy_rapier3d = "0.16.0"
 
 entity = { path = "../../core/entity" }
 networking = { path = "../../core/networking" }
+networking_macros = { path = "../../core/networking_macros" }
 atmospherics = { path = "../../core/atmospherics" }
 map = { path = "../../core/map" }
 pawn = { path = "../../core/pawn" }

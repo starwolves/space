@@ -2,6 +2,7 @@ use api::{
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     ui::{UIInputAction, UIInputNodeClass},
 };
+use networking_macros::NetMessage;
 
 /// Event as client input , interaction with UI.
 pub struct InputUIInput {
@@ -28,16 +29,8 @@ pub struct InputUIInputTransmitText {
     /// The input text from the client.
     pub input_text: String,
 }
-
+#[derive(NetMessage)]
 pub struct NetUIInputTransmitData {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetUIInputTransmitData {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }

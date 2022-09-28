@@ -17,4 +17,6 @@ default-features = false
 serde = "1.0.137"
 
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
+
 api = { path = "../api" }

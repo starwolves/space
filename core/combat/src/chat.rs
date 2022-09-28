@@ -13,26 +13,18 @@ use api::{
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use chat::chat::EntityProximityMessage;
 use inventory_item::item::InventoryItem;
+use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,
     projectile_queries::ProjectileBlank,
 };
-
+#[derive(NetMessage)]
 pub struct NetHitQueryChat {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-impl PendingMessage for NetHitQueryChat {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
-}
-
 /// Chat hooks for entities that got hit by something.
 pub fn attacked_by_chat<T: Component>(
     mut query_hit_results: EventReader<QueryCombatHitResult>,

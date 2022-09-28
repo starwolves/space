@@ -1,19 +1,16 @@
 [package]
-name = "map"
+name = "networking_macros"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="The 2D mini-map that can display various data."
+description="Netcode macros."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
-[dependencies.bevy]
-version = "0.8.0"
-default-features = false
+[lib]
+proc-macro = true
 
 [dependencies]
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-api = { path = "../api" }
+syn = "1.0.101"

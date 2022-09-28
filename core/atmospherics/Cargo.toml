@@ -18,6 +18,8 @@ bevy_rapier3d = "0.16.0"
 
 
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
+
 pawn = { path = "../pawn" }
 api = { path = "../api" }
 map = { path = "../map" }

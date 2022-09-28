@@ -18,5 +18,6 @@ bevy_renet = "0.0.5"
 bincode = "1.3.3"
 local_ipaddress = "0.1.3"
 
+networking_macros = { path = "../networking_macros" }
 api = { path = "../api" }
 ui = { path = "../ui" }

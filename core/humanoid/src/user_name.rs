@@ -7,6 +7,7 @@ use api::{
 };
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
 use networking::messages::InputUserName;
+use networking_macros::NetMessage;
 use pawn::pawn::PersistentPlayerData;
 
 /// Set character user name that also isn't already taken.
@@ -82,18 +83,10 @@ pub(crate) fn user_name(
         }
     }
 }
-
+#[derive(NetMessage)]
 pub(crate) struct NetPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetPawn {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Get a dummy character name as a function.

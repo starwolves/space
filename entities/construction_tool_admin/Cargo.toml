@@ -21,6 +21,7 @@ bevy_rapier3d = "0.16.0"
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }
 networking = { path = "../../core/networking" }
+networking_macros = { path = "../../core/networking_macros" }
 pawn = { path = "../../core/pawn" }
 combat = { path = "../../core/combat" }
 atmospherics = { path = "../../core/atmospherics" }

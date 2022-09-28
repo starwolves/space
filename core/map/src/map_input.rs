@@ -10,6 +10,7 @@ use bevy::{
 use networking::messages::{InputMap, InputMapRequestOverlay, MapInput};
 
 use api::data::Vec2Int;
+use networking_macros::NetMessage;
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.
 pub(crate) fn map_input(
@@ -66,17 +67,10 @@ pub(crate) fn request_map_overlay(
     }
 }
 
+#[derive(NetMessage)]
 pub(crate) struct NetRequestOverlay {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-impl PendingMessage for NetRequestOverlay {
-    fn get_message(&self) -> PendingNetworkMessage {
-        PendingNetworkMessage {
-            handle: self.handle,
-            message: self.message.clone(),
-        }
-    }
 }
 
 /// Mini-map data resource.
