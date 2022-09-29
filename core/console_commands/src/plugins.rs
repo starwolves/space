@@ -1,6 +1,6 @@
-use api::data::{PostUpdateLabels, StartupLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
+use server::labels::{PostUpdateLabels, StartupLabels};
 
 use crate::commands::{
     initialize_console_commands, AllConsoleCommands, ConsoleCommandsLabels, GiveAllRCON,

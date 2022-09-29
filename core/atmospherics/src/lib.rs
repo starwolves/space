@@ -30,4 +30,4 @@ mod rigidbody_forces;
 /// Authorization check if a pawn can examine and see atmospherics data.
 mod sensing_ability;
 /// Manage zero gravity.
-mod zero_gravity;
+pub mod zero_gravity;

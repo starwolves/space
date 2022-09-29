@@ -32,3 +32,5 @@ senser = { path = "../senser" }
 sensable = { path = "../sensable" }
 gridmap = { path = "../gridmap" }
 server = { path = "../server" }
+showcase = { path = "../showcase" }
+atmospherics = { path = "../atmospherics" }

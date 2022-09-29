@@ -2,7 +2,6 @@ use std::time::Duration;
 
 use actions::plugin::ActionsPlugin;
 use air_locks::plugin::AirLocksPlugin;
-use api::data::TickRate;
 use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use bevy::{
@@ -47,6 +46,7 @@ use player_controller::plugin::ConnectedPlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
 use rigid_body::plugin::RigidBodyPlugin;
 use senser::plugin::SenserPlugin;
+use server::core::TickRate;
 use sfx::plugin::SfxPlugin;
 use sounds::SoundsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;

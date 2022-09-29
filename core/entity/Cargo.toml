@@ -26,3 +26,4 @@ console_commands = { path = "../console_commands" }
 examinable = { path = "../examinable" }
 sensable = { path = "../sensable" }
 server = { path = "../server" }
+showcase = { path = "../showcase" }

@@ -2,8 +2,7 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use api::{
     data::{
-        NoData, Showcase, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
-        JUMPSUIT_SECURITY_ENTITY_NAME,
+        NoData, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
     },
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
     humanoid::UsedNames,
@@ -34,6 +33,7 @@ use pawn::pawn::{
 };
 use senser::senser::Senser;
 use server::core::ConnectedPlayer;
+use showcase::core::Showcase;
 
 use crate::connection::SpawnPawnData;
 

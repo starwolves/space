@@ -21,3 +21,4 @@ entity = { path = "../entity" }
 physics = { path = "../physics" }
 api = { path = "../api" }
 senser = { path = "../senser" }
+showcase = { path = "../showcase" }

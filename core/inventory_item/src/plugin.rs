@@ -1,7 +1,7 @@
-use api::data::{ActionsLabels, PostUpdateLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use networking::messages::GodotVariant;
+use server::labels::{ActionsLabels, PostUpdateLabels};
 
 use crate::actions::build_actions;
 

@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
-use api::{data::Showcase, rigid_body::RigidBodyLinkTransform};
+use api::rigid_body::RigidBodyLinkTransform;
 use bevy::prelude::{warn, Entity, Query, Transform, Without};
+use showcase::core::Showcase;
 
 /// Manage and link rigid body transform.
 pub(crate) fn rigidbody_link_transform(

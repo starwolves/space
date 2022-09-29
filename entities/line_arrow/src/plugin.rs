@@ -1,4 +1,3 @@
-use api::data::{StartupLabels, SummoningLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
@@ -7,6 +6,7 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use networking::messages::GodotVariant;
+use server::labels::{StartupLabels, SummoningLabels};
 
 use crate::console_command::entity_console_commands;
 

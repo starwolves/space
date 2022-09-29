@@ -15,4 +15,4 @@ default-features = false
 
 [dependencies]
 space_plugin = { path = "../core/space_plugin" }
-api = { path = "../core/api" }
+server = { path = "../core/server" }

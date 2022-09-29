@@ -1,9 +1,4 @@
-use api::{
-    data::{ShowcaseData},
-    humanoid::UsedNames,
-    inventory::Inventory,
-    rigid_body::RigidBodyLinkTransform,
-};
+use api::{humanoid::UsedNames, inventory::Inventory, rigid_body::RigidBodyLinkTransform};
 use bevy::prelude::{
     warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
 };
@@ -19,6 +14,7 @@ use gridmap::{commands::rcon_spawn_entity, grid::GridmapMain};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
 use server::core::HandleToEntity;
+use showcase::core::ShowcaseData;
 
 use crate::combat::{MeleeCombat, ProjectileCombat};
 

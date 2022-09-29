@@ -6,13 +6,13 @@ use crate::{
         NetExamine,
     },
 };
-use api::data::{ActionsLabels, PostUpdateLabels, PreUpdateLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 use bevy::{
     app::CoreStage::{PostUpdate, PreUpdate},
     prelude::SystemSet,
 };
 use networking::messages::net_system;
+use server::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels};
 
 pub struct ExaminablePlugin;
 impl Plugin for ExaminablePlugin {

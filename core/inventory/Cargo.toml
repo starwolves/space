@@ -32,3 +32,4 @@ examinable = { path = "../examinable" }
 sensable = { path = "../sensable" }
 health = { path = "../health" }
 server = { path = "../server" }
+atmospherics = { path = "../atmospherics" }

@@ -1,4 +1,3 @@
-use api::data::{CombatLabels, StartupLabels, SummoningLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
@@ -7,6 +6,7 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use rigid_body::spawn::summon_rigid_body;
+use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::computer::Computer;
 

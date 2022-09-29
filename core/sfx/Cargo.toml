@@ -20,3 +20,4 @@ entity = { path = "../entity" }
 sensable = { path = "../sensable" }
 api = { path = "../api" }
 networking = { path = "../networking" }
+server = { path = "../server" }

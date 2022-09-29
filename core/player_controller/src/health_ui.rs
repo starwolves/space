@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use api::{entity_updates::EntityUpdateData};
+use api::entity_updates::EntityUpdateData;
 use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
 use health::core::{HealthComponent, HealthContainer};
 use networking::messages::{EntityWorldType, NetHealthUpdate, ReliableServerMessage};

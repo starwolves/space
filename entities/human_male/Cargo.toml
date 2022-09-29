@@ -19,3 +19,4 @@ rigid_body = { path = "../../core/rigid_body" }
 player_controller = { path = "../../core/player_controller" }
 api = { path = "../../core/api" }
 combat = { path = "../../core/combat" }
+server = { path = "../../core/server" }

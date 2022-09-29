@@ -42,3 +42,4 @@ senser = { path = "../senser" }
 world_environment = { path = "../world_environment" }
 data_link = { path = "../data_link" }
 server = { path = "../server" }
+showcase = { path = "../showcase" }

@@ -1,4 +1,4 @@
-use api::data::{CombatLabels, StartupLabels, SummoningLabels, PISTOL_L1_ENTITY_NAME};
+use api::data::PISTOL_L1_ENTITY_NAME;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::{
     laser_visuals::projectile_laser_visuals,
@@ -13,6 +13,7 @@ use entity::{
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
+use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::pistol_l1::PistolL1;
 

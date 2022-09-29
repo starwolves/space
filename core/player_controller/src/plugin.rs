@@ -1,9 +1,6 @@
 use crate::boarding::NetUIInputTransmitData;
 use crate::console_commands::rcon_console_commands;
 use crate::humanoid::default_human_dummy;
-use api::data::{
-    PostUpdateLabels, PreUpdateLabels, ServerId, SummoningLabels, UpdateLabels,
-};
 use bevy::app::CoreStage::PostUpdate;
 use bevy::{
     prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
@@ -14,7 +11,8 @@ use networking::{
     messages::{net_system, InputListActionsEntity},
     plugin::NetActionData,
 };
-use server::core::HandleToEntity;
+use server::core::{HandleToEntity, ServerId};
+use server::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
 
 use super::{
     boarding::{done_boarding, on_boarding, ui_input_boarding, BoardingPlayer},

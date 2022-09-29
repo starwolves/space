@@ -1,12 +1,10 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
-use api::{
-    data::{Showcase},
-    entity_updates::{personalise, EntityUpdates},
-};
+use api::entity_updates::{personalise, EntityUpdates};
 use networking::messages::{EntityWorldType, NetSendEntityUpdates, ReliableServerMessage};
 use sensable::core::Sensable;
 use server::core::{ConnectedPlayer, HandleToEntity};
+use showcase::core::Showcase;
 
 /// Finalize entity updates of this frame and send them to Godot clients.
 pub(crate) fn finalize_entity_updates(

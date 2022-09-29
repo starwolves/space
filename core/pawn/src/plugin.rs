@@ -1,5 +1,5 @@
-use api::data::ActionsLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
+use server::labels::ActionsLabels;
 
 use crate::actions::{examine, examine_prerequisite_check};
 

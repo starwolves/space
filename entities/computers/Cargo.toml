@@ -25,3 +25,4 @@ combat = { path = "../../core/combat" }
 examinable = { path = "../../core/examinable" }
 health = { path = "../../core/health" }
 data_converters = { path = "../../core/data_converters" }
+server = { path = "../../core/server" }

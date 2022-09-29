@@ -1,4 +1,3 @@
-use api::data::{CombatLabels, StartupLabels, SummoningLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::{
     melee_queries::melee_attack_handler,
@@ -11,6 +10,7 @@ use entity::{
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
+use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::helmet::Helmet;
 

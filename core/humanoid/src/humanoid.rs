@@ -1,10 +1,7 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use api::{
-    data::{Showcase, TickRate, ZeroGravity},
-    gridmap::world_to_cell_id,
-    inventory::Inventory,
-};
+use api::{gridmap::world_to_cell_id, inventory::Inventory};
+use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
     hierarchy::Children,
     math::{Quat, Vec2, Vec3},
@@ -28,8 +25,9 @@ use pawn::pawn::{
 };
 use rigid_body::rigid_body::RigidBodyData;
 use sensable::core::Sensable;
-use server::core::HandleToEntity;
+use server::core::{HandleToEntity, TickRate};
 use sfx::builder::repeating_sfx_builder;
+use showcase::core::Showcase;
 use sounds::actions::{
     footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
     footsteps_walking_sfx::FootstepsWalkingSfxBundle,

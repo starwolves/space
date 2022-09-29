@@ -22,3 +22,4 @@ physics = { path = "../../core/physics" }
 api = { path = "../../core/api" }
 sensable = { path = "../../core/sensable" }
 data_converters = { path = "../../core/data_converters" }
+server = { path = "../../core/server" }

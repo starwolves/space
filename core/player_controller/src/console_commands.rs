@@ -1,7 +1,4 @@
-use api::{
-    humanoid::UsedNames,
-    inventory::Inventory,
-};
+use api::{humanoid::UsedNames, inventory::Inventory};
 use bevy::prelude::EventReader;
 use bevy::prelude::{Commands, Entity, EventWriter, Local, Query, Res, ResMut, Transform};
 use console_commands::commands::{

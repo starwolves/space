@@ -67,7 +67,7 @@ use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use sensable::core::Sensable;
 use senser::senser::{to_doryen_coordinates, Senser};
-use server::core::{HandleToEntity, ConnectedPlayer};
+use server::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 

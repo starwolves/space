@@ -19,3 +19,4 @@ networking_macros = { path = "../networking_macros" }
 api = { path = "../api" }
 senser = { path = "../senser" }
 data_link = { path = "../data_link" }
+server = { path = "../server" }

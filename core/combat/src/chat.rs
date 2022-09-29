@@ -1,4 +1,4 @@
-use api::{gridmap::world_to_cell_id};
+use api::gridmap::world_to_cell_id;
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use chat::chat::EntityProximityMessage;
 use examinable::examine::Examinable;
