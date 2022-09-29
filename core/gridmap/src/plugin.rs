@@ -1,7 +1,7 @@
 use api::{
-    data::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels},
-    gridmap::{
-        ExamineMapMessage, GridmapDetails1, GridmapExamineMessages, GridmapMain, RemoveCell,
+    data::{
+        ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels,
+        UpdateLabels,
     },
     pawn::SpawnPoints,
 };
@@ -14,11 +14,15 @@ use examinable::examine::RichName;
 use networking::messages::net_system;
 
 use crate::{
-    examine::{examine_map, set_action_header_name},
-    grid::GridmapData,
+    examine::{
+        examine_map, examine_map_abilities, examine_map_health, finalize_grid_examine_input,
+        set_action_header_name,
+    },
+    fov::ProjectileFOV,
+    grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
     init_meta::{startup_build_map, startup_map_cells, startup_misc_resources},
 };
-use bevy::app::CoreStage::PostUpdate;
+use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
 use super::{
     events::{gridmap_updates_manager, remove_cell},
@@ -88,13 +92,19 @@ impl Plugin for GridmapPlugin {
                     .with_system(net_system::<NetGridmapUpdates>),
             )
             .add_system(gridmap_sensing_ability)
-            .add_event::<ExamineMapMessage>()
             .add_system(examine_map.after(ActionsLabels::Action))
             .add_system(
                 set_action_header_name
                     .after(ActionsLabels::Build)
                     .before(ActionsLabels::Approve),
             )
-            .init_resource::<GridmapExamineMessages>();
+            .add_system(examine_map.after(ActionsLabels::Action))
+            .add_system(examine_map_health.after(ActionsLabels::Action))
+            .add_system(examine_map_abilities.after(ActionsLabels::Action))
+            .add_event::<ProjectileFOV>()
+            .add_system_to_stage(
+                PreUpdate,
+                finalize_grid_examine_input.after(PreUpdateLabels::ProcessInput),
+            );
     }
 }

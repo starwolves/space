@@ -1,10 +1,7 @@
 use api::{
-    combat::{MeleeCombat, ProjectileCombat},
-    data::{EntityDataResource, HandleToEntity, ShowcaseData},
-    gridmap::GridmapMain,
+    data::{HandleToEntity, ShowcaseData},
     humanoid::UsedNames,
     inventory::Inventory,
-    network::ReliableServerMessage,
     rigid_body::RigidBodyLinkTransform,
 };
 use bevy::prelude::{
@@ -14,11 +11,13 @@ use console_commands::{
     commands::{NetEntityConsole, CONSOLE_ERROR_COLOR},
     player_selectors::player_selector_to_entities,
 };
-use entity::{
-    commands::rcon_spawn_entity,
-    spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
-};
+use entity::spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent};
+use entity_grid_meta::core::EntityDataResource;
+use gridmap::{commands::rcon_spawn_entity, grid::GridmapMain};
+use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
+
+use crate::combat::{MeleeCombat, ProjectileCombat};
 
 use super::item::InventoryItem;
 

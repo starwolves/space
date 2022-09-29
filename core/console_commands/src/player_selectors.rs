@@ -1,5 +1,6 @@
-use api::{humanoid::UsedNames, network::ReliableServerMessage};
+use api::humanoid::UsedNames;
 use bevy::prelude::{Entity, EventWriter, ResMut};
+use networking::messages::ReliableServerMessage;
 
 use crate::commands::NetEntityConsole;
 

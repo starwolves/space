@@ -1,10 +1,4 @@
-use api::{
-    data::{
-        ActionsLabels, CombatLabels, EntityDataProperties, EntityDataResource, PostUpdateLabels,
-        StartupLabels, SummoningLabels,
-    },
-    gridmap::GridItemData,
-};
+use api::data::{ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 use bevy::{
     math::Quat,
     prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet, Transform},
@@ -14,6 +8,7 @@ use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
+use entity_grid_meta::core::{EntityDataProperties, EntityDataResource, GridItemData};
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
 

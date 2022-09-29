@@ -1,8 +1,4 @@
-use api::{
-    data::Vec3Int,
-    gridmap::{cell_id_to_world, to_doryen_coordinates, CellData, GridmapDetails1, GridmapMain},
-    health::{Health, HealthContainer, HealthFlag, StructureHealth},
-};
+use api::{data::Vec3Int, health::StructureHealth};
 use bevy::{
     hierarchy::BuildChildren,
     math::Vec3,
@@ -12,13 +8,15 @@ use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
 };
 use data_converters::converters::string_vec3_to_vec3;
+use health::core::{Health, HealthContainer, HealthFlag};
 use physics::physics::{get_bit_masks, ColliderGroup, CHARACTER_FLOOR_FRICTION};
+use senser::senser::to_doryen_coordinates;
 
 use std::collections::HashMap;
 
 use crate::{
     events::{Cell, CellDataWID},
-    grid::GridmapData,
+    grid::{cell_id_to_world, CellData, GridmapData, GridmapDetails1, GridmapMain},
 };
 
 use super::fov::DoryenMap;

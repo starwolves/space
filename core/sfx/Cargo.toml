@@ -17,4 +17,6 @@ default-features = false
 rand = "0.8.5"
 
 entity = { path = "../entity" }
+sensable = { path = "../sensable" }
 api = { path = "../api" }
+networking = { path = "../networking" }

@@ -1,10 +1,8 @@
 use actions::core::{ActionRequests, BuildingActions};
-use api::{
-    data::HandleToEntity,
-    gridmap::{ExamineMapMessage, GridmapExamineMessages},
-};
+use api::data::HandleToEntity;
 use bevy::prelude::{warn, Res, ResMut};
-use networking::messages::{ExamineEntityMessages, InputExamineEntity};
+use examinable::examine::{ExamineEntityMessages, GridmapExamineMessages};
+use networking::messages::{InputExamineEntity, InputExamineMap};
 
 /// Pawn examine action prerequisite check.
 pub(crate) fn examine_prerequisite_check(mut building_action_data: ResMut<BuildingActions>) {
@@ -53,7 +51,7 @@ pub(crate) fn examine(
                         None => {
                             let c = building.target_cell_option.clone().unwrap();
 
-                            examine_map_messages.messages.push(ExamineMapMessage {
+                            examine_map_messages.messages.push(InputExamineMap {
                                 handle: *handle,
                                 entity: building.action_taker,
                                 gridmap_type: c.1,

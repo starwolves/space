@@ -1,12 +1,13 @@
-use api::{
-    combat::{DamageModel, HitResult, MeleeCombat, ProjectileCombat},
-    data::Vec3Int,
-    gridmap::GridmapMain,
-    health::{calculate_damage, HealthComponent, HealthContainer},
-};
+use api::data::Vec3Int;
 use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, ResMut};
+use gridmap::grid::GridmapMain;
+use health::core::{HealthComponent, HealthContainer};
+use inventory_item::combat::{DamageModel, MeleeCombat, ProjectileCombat};
 
-use crate::{active_attacks::ActiveAttacks, attack::QueryCombatHitResult};
+use crate::{
+    active_attacks::ActiveAttacks,
+    attack::{calculate_damage, HitResult, QueryCombatHitResult},
+};
 
 /// Entity hits from [HealthCombatHitResult].
 pub struct EntityHit {

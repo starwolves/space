@@ -1,12 +1,10 @@
-use api::{
-    data::ZeroGravity,
-    gridmap::{world_to_cell_id, GridmapMain},
-};
+use api::{data::ZeroGravity, gridmap::world_to_cell_id};
 use bevy::{
     hierarchy::Children,
     prelude::{warn, Commands, Entity, Query, Res, Transform, With},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use gridmap::grid::GridmapMain;
 use rigid_body::rigid_body::RigidBodyData;
 
 /// Manage zero gravity for rigid bodies.

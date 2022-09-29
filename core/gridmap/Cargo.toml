@@ -28,3 +28,7 @@ physics = { path = "../physics" }
 api = { path = "../api" }
 examinable = { path = "../examinable" }
 actions = { path = "../actions" }
+senser = { path = "../senser" }
+pawn = { path = "../pawn" }
+console_commands = { path = "../console_commands" }
+entity_grid_meta = { path = "../entity_grid_meta" }

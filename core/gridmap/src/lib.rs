@@ -11,12 +11,16 @@
 pub mod build;
 /// Check if an entity can reach another entity.
 pub mod can_reach_entity;
+/// Gridmap commands.
+pub mod commands;
 /// Manage gridmap events.
 pub mod events;
 /// Manage gridmap exmination.
 mod examine;
 /// Manage gridmap FOV.
 pub mod fov;
+/// Get a spawn position for an item that is free.
+pub mod get_spawn_position;
 /// Core gridmap resources.
 pub mod grid;
 /// Initialize gridmap meta data.

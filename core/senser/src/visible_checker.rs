@@ -7,12 +7,13 @@ use bevy_rapier3d::prelude::RigidBody;
 use api::{
     data::ConnectedPlayer,
     entity_updates::{EntityData, EntityUpdates},
-    gridmap::{to_doryen_coordinates, world_to_cell_id},
-    load_entity::{load_entity, unload_entity, NetLoadEntity, NetUnloadEntity},
-    sensable::Sensable,
-    senser::Senser,
+    gridmap::world_to_cell_id,
 };
+use networking::messages::{load_entity, unload_entity, NetLoadEntity, NetUnloadEntity};
 use physics::world_mode::{WorldMode, WorldModes};
+use sensable::core::Sensable;
+
+use crate::senser::{to_doryen_coordinates, Senser};
 
 /// Perform FOV checks to see what is and what isn't visible.
 pub(crate) fn visible_checker(

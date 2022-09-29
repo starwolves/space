@@ -16,5 +16,7 @@ default-features = false
 [dependencies]
 api = { path = "../api" }
 actions = { path = "../actions" }
+senser = { path = "../senser" }
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
+sensable = { path = "../sensable" }

@@ -26,3 +26,5 @@ map = { path = "../map" }
 physics = { path = "../physics" }
 rigid_body = { path = "../rigid_body" }
 gridmap = { path = "../gridmap" }
+senser = { path = "../senser" }
+examinable = { path = "../examinable" }

@@ -1,4 +1,4 @@
-use api::{gridmap::GridmapMain, health::HealthComponent, pawn::REACH_DISTANCE};
+use api::pawn::REACH_DISTANCE;
 use bevy::{
     hierarchy::Parent,
     math::Vec3,
@@ -10,9 +10,13 @@ use bevy_rapier3d::{
     prelude::{Collider, InteractionGroups},
     rapier::prelude::Ray,
 };
+use health::core::HealthComponent;
 use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
 
-use crate::{events::Cell, grid::GridmapData};
+use crate::{
+    events::Cell,
+    grid::{GridmapData, GridmapMain},
+};
 
 /// Check if entity can be reached by another entity with nothing in between to block it as a function.
 pub fn can_reach_entity(

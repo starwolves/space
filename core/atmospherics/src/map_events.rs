@@ -2,8 +2,7 @@ use std::collections::HashSet;
 
 use api::{
     data::{ConnectedPlayer, Vec2Int},
-    gridmap::{get_atmos_id, get_atmos_index, world_to_cell_id, FOV_MAP_WIDTH},
-    network::ReliableServerMessage,
+    gridmap::world_to_cell_id,
 };
 use bevy::{
     math::Vec3,
@@ -12,8 +11,12 @@ use bevy::{
 use map::map::{
     get_overlay_tile_item, get_overlay_tile_priority, Map, MapHolderData, MapHolders, OverlayTile,
 };
+use networking::messages::ReliableServerMessage;
+use senser::senser::FOV_MAP_WIDTH;
 
-use crate::diffusion::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
+use crate::diffusion::{
+    get_atmos_id, get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET,
+};
 
 use super::net::{NetMapDisplayAtmospherics, NetMapHoverAtmospherics};
 

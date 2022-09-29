@@ -7,16 +7,16 @@ use api::{
     },
     entity_updates::EntityUpdateData,
     humanoid::UsedNames,
-    network::{EntityWorldType, ReliableServerMessage},
     pawn::PawnDesignation,
     player_controller::SoftPlayer,
-    ui::{UIInputAction, UIInputNodeClass},
 };
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::{SpawnData, SpawnEvent};
 use motd::motd::MOTD;
+use networking::messages::{
+    EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction, UIInputNodeClass,
+};
 use pawn::pawn::PersistentPlayerData;
-use ui::ui::InputUIInput;
 
 use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
 

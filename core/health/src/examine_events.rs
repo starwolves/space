@@ -1,19 +1,18 @@
-use api::gridmap::{to_doryen_coordinates, GridmapExamineMessages, GridmapMain};
+use crate::core::{HealthComponent, HealthContainer};
 use api::{
     chat::{
         EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
     },
     data::HandleToEntity,
-    gridmap::{GridMapLayer, GridmapDetails1},
-    health::{HealthComponent, HealthContainer},
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-    sensable::Sensable,
-    senser::Senser,
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
-use examinable::examine::Examinable;
-use networking::messages::ExamineEntityMessages;
+use examinable::examine::{Examinable, ExamineEntityMessages};
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
+use sensable::core::Sensable;
+use senser::senser::Senser;
 #[derive(NetMessage)]
 pub(crate) struct ExamineEntityPawn {
     pub handle: u64,
@@ -447,130 +446,4 @@ pub(crate) fn examine_entity(
 pub(crate) struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
-}
-/// Examine a ship cell's health.
-pub(crate) fn examine_map(
-    mut examine_map_events: ResMut<GridmapExamineMessages>,
-    gridmap_main: Res<GridmapMain>,
-    gridmap_details1: Res<GridmapDetails1>,
-    senser_entities: Query<&Senser>,
-) {
-    for examine_event in examine_map_events.messages.iter_mut() {
-        let examiner_senser_component;
-
-        match senser_entities.get(examine_event.entity) {
-            Ok(examiner_senser) => {
-                examiner_senser_component = examiner_senser;
-            }
-            Err(_rr) => {
-                warn!("Couldn't find examiner entity in &Senser query.");
-                continue;
-            }
-        }
-
-        let gridmap_result;
-
-        match examine_event.gridmap_type {
-            GridMapLayer::Main => {
-                gridmap_result = gridmap_main.grid_data.get(&examine_event.gridmap_cell_id);
-            }
-            GridMapLayer::Details1 => {
-                gridmap_result = gridmap_details1
-                    .grid_data
-                    .get(&examine_event.gridmap_cell_id);
-            }
-        }
-
-        let ship_cell_option;
-
-        match gridmap_result {
-            Some(gridmap_cell) => ship_cell_option = Some(gridmap_cell),
-            None => {
-                ship_cell_option = None;
-            }
-        }
-
-        let coords = to_doryen_coordinates(
-            examine_event.gridmap_cell_id.x,
-            examine_event.gridmap_cell_id.z,
-        );
-        if examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
-            match ship_cell_option {
-                Some(ship_cell) => {
-                    let mut message = "".to_string();
-
-                    let structure_health;
-
-                    match &ship_cell.health.health_container {
-                        HealthContainer::Structure(t) => {
-                            structure_health = t;
-                        }
-                        _ => {
-                            continue;
-                        }
-                    }
-
-                    if structure_health.brute < 25.
-                        && structure_health.burn < 25.
-                        && structure_health.toxin < 25.
-                    {
-                        message = message
-                            + "[font="
-                            + FURTHER_ITALIC_FONT
-                            + "][color="
-                            + HEALTHY_COLOR
-                            + "]\nIt is in perfect shape.[/color][/font]";
-                    } else {
-                        if structure_health.brute > 75. {
-                            message = message
-                                + "[font="
-                                + FURTHER_ITALIC_FONT
-                                + "][color="
-                                + UNHEALTHY_COLOR
-                                + "]\nIt is heavily damaged.[/color][/font]";
-                        } else if structure_health.brute > 50. {
-                            message = message
-                                + "[font="
-                                + FURTHER_ITALIC_FONT
-                                + "][color="
-                                + UNHEALTHY_COLOR
-                                + "]\nIt is damaged.[/color][/font]";
-                        } else if structure_health.brute > 25. {
-                            message = message
-                                + "[font="
-                                + FURTHER_ITALIC_FONT
-                                + "][color="
-                                + UNHEALTHY_COLOR
-                                + "]\nIt is slightly damaged.[/color][/font]";
-                        }
-
-                        if structure_health.burn > 75. {
-                            message = message
-                                + "[font="
-                                + FURTHER_ITALIC_FONT
-                                + "][color="
-                                + UNHEALTHY_COLOR
-                                + "]\nIt suffers from heavy burn damage.[/color][/font]";
-                        } else if structure_health.burn > 50. {
-                            message = message
-                                + "[font="
-                                + FURTHER_ITALIC_FONT
-                                + "][color="
-                                + UNHEALTHY_COLOR
-                                + "]\nIt suffers burn damage.[/color][/font]";
-                        } else if structure_health.burn > 25. {
-                            message = message
-                                + "[font="
-                                + FURTHER_ITALIC_FONT
-                                + "][color="
-                                + UNHEALTHY_COLOR
-                                + "]\nIt has slight burn damage.[/color][/font]";
-                        }
-                    }
-                    examine_event.message = examine_event.message.clone() + &message + "\n";
-                }
-                None => {}
-            }
-        }
-    }
 }

@@ -1,21 +1,21 @@
-use api::{
-    data::{EntityDataProperties, EntityDataResource, HandleToEntity},
-    network::{
-        PendingMessage, PendingNetworkMessage, ReliableServerMessage, UnreliableServerMessage,
-    },
-    sensable::Sensable,
-};
+use api::data::HandleToEntity;
 use bevy::{
     prelude::{warn, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
     time::{FixedTimesteps, Time},
 };
-use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
+use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
+use networking::{
+    messages::{ReliableServerMessage, UnreliableServerMessage},
+    plugin::RENET_UNRELIABLE_CHANNEL_ID,
+};
 use networking_macros::NetMessage;
+use sensable::core::Sensable;
 use serde::Deserialize;
 
 use bevy_renet::renet::RenetServer;
 use bincode::serialize;
-
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
 pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
 /// Initialize meta-data for an entity as a function.

@@ -14,13 +14,12 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
+voca_rs = "1.14.0"
 
 api = { path = "../api" }
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
-
 sfx = { path = "../sfx" }
 pawn = { path = "../pawn" }
-
-
-voca_rs = "1.14.0"
+sensable = { path = "../sensable" }
+senser = { path = "../senser" }

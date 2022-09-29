@@ -1,3 +1,4 @@
+use crate::boarding::NetUIInputTransmitData;
 use crate::console_commands::rcon_console_commands;
 use crate::humanoid::default_human_dummy;
 use api::data::{
@@ -13,7 +14,6 @@ use networking::{
     messages::{net_system, InputListActionsEntity},
     plugin::NetActionData,
 };
-use ui::ui::{InputUIInput, InputUIInputTransmitText, NetUIInputTransmitData};
 
 use super::{
     boarding::{done_boarding, on_boarding, ui_input_boarding, BoardingPlayer},
@@ -89,10 +89,8 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_event::<NetOnBoarding>()
             .add_event::<NetOnNewPlayerConnection>()
             .add_event::<NetExamineEntity>()
-            .add_event::<InputUIInputTransmitText>()
             .add_event::<NetDoneBoarding>()
             .add_event::<NetOnSetupUI>()
-            .add_event::<InputUIInput>()
             .init_resource::<AuthidI>()
             .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms)
             .add_system_set_to_stage(

@@ -21,7 +21,8 @@ serde = {version= "1.0.137"}
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
 health = { path = "../health" }
-pawn = { path = "../pawn" }
 api = { path = "../api" }
 console_commands = { path = "../console_commands" }
 examinable = { path = "../examinable" }
+entity_grid_meta = { path = "../entity_grid_meta" }
+sensable = { path = "../sensable" }

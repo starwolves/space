@@ -1,31 +1,29 @@
 use api::data::{PostUpdateLabels, PreUpdateLabels};
-use api::network::{
-    InputChatMessage, PendingMessage, PendingNetworkMessage, ReliableServerMessage,
-};
 use bevy::prelude::SystemSet;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
 use networking_macros::NetMessage;
 
-use crate::messages::{
-    net_system, ExamineEntityMessages, InputAction, InputAltItemAttack, InputAttackCell,
-    InputAttackEntity, InputBuildGraphics, InputConsoleCommand, InputDropCurrentItem,
-    InputListActionsMap, InputMap, InputMapChangeDisplayMode, InputMapRequestOverlay,
-    InputMouseAction, InputMouseDirectionUpdate, InputMovementInput, InputSceneReady,
-    InputSelectBodyPart, InputSprinting, InputSwitchHands, InputTakeOffItem, InputThrowItem,
-    InputToggleAutoMove, InputToggleCombatMode, InputUseWorldItem, InputUserName, InputWearItem,
-    NetPlayerConn, TextTreeInputSelection,
-};
-
 use super::messages::{incoming_messages, startup_listen_connections};
+use crate::messages::PendingMessage;
+use crate::messages::{
+    net_system, InputAction, InputAltItemAttack, InputAttackCell, InputAttackEntity,
+    InputBuildGraphics, InputChatMessage, InputConsoleCommand, InputDropCurrentItem,
+    InputExamineEntity, InputExamineMap, InputListActionsMap, InputMap, InputMapChangeDisplayMode,
+    InputMapRequestOverlay, InputMouseAction, InputMouseDirectionUpdate, InputMovementInput,
+    InputSceneReady, InputSelectBodyPart, InputSprinting, InputSwitchHands, InputTakeOffItem,
+    InputThrowItem, InputToggleAutoMove, InputToggleCombatMode, InputUIInput,
+    InputUIInputTransmitText, InputUseWorldItem, InputUserName, InputWearItem, NetHealth,
+    NetHealthUpdate, NetLoadEntity, NetPlayerConn, NetSendEntityUpdates, NetUnloadEntity,
+    PendingNetworkMessage, ReliableServerMessage, TextTreeInputSelection,
+};
 use bevy::app::CoreStage::PostUpdate;
 use bevy::app::CoreStage::PreUpdate;
 pub struct NetworkingPlugin {
     pub custom_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
 }
 
-// not pub.
 const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"lFNpVdFi5LhL8xlDFtnobx5onFR30afX";
 
 impl Plugin for NetworkingPlugin {
@@ -38,23 +36,17 @@ impl Plugin for NetworkingPlugin {
         }
         .add_system_to_stage(
             PreUpdate,
-            incoming_messages.after(PreUpdateLabels::NetEvents),
+            incoming_messages
+                .after(PreUpdateLabels::NetEvents)
+                .label(PreUpdateLabels::ProcessInput),
         )
         .add_event::<NetPlayerConn>()
         .add_event::<PendingNetworkMessage>()
         .add_event::<InputListActionsMap>()
-        .add_system_set_to_stage(
-            PostUpdate,
-            SystemSet::new()
-                .after(PostUpdateLabels::VisibleChecker)
-                .label(PostUpdateLabels::Net)
-                .with_system(net_system::<NetPlayerConn>),
-        )
         .add_event::<InputConsoleCommand>()
         .add_event::<InputMapChangeDisplayMode>()
         .add_event::<InputMapRequestOverlay>()
         .add_event::<InputMap>()
-        .init_resource::<ExamineEntityMessages>()
         .add_event::<InputChatMessage>()
         .add_event::<InputToggleCombatMode>()
         .add_event::<InputUserName>()
@@ -77,7 +69,28 @@ impl Plugin for NetworkingPlugin {
         .add_event::<InputSelectBodyPart>()
         .add_event::<InputMouseDirectionUpdate>()
         .add_event::<InputSceneReady>()
-        .add_event::<NetActionData>();
+        .add_event::<NetActionData>()
+        .add_event::<InputUIInputTransmitText>()
+        .add_event::<InputUIInput>()
+        .add_event::<InputExamineEntity>()
+        .add_event::<InputExamineMap>()
+        .add_system_set_to_stage(
+            PostUpdate,
+            SystemSet::new()
+                .after(PostUpdateLabels::VisibleChecker)
+                .label(PostUpdateLabels::Net)
+                .with_system(net_system::<NetHealthUpdate>)
+                .with_system(net_system::<NetHealth>)
+                .with_system(net_system::<NetPlayerConn>)
+                .with_system(net_system::<NetLoadEntity>)
+                .with_system(net_system::<NetUnloadEntity>)
+                .with_system(net_system::<NetSendEntityUpdates>),
+        )
+        .add_event::<NetHealthUpdate>()
+        .add_event::<NetHealth>()
+        .add_event::<NetSendEntityUpdates>()
+        .add_event::<NetUnloadEntity>()
+        .add_event::<NetLoadEntity>();
     }
 }
 

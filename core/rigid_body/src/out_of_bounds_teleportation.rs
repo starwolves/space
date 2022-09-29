@@ -1,6 +1,7 @@
-use api::{entity_updates::EntityData, gridmap::FOV_MAP_WIDTH};
+use api::entity_updates::EntityData;
 use bevy::prelude::{warn, Entity, Query, Transform, Without};
 use physics::physics::RigidBodyDisabled;
+use senser::senser::FOV_MAP_WIDTH;
 
 /// Check if rigidbody is out of bounds if so teleport on the mirrored side.
 pub(crate) fn out_of_bounds_tp(

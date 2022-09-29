@@ -29,3 +29,5 @@ api = { path = "../api" }
 gridmap = { path = "../gridmap" }
 actions = { path = "../actions" }
 examinable = { path = "../examinable" }
+sensable = { path = "../sensable" }
+health = { path = "../health" }

@@ -1,17 +1,14 @@
-use api::{
-    chat::FURTHER_NORMAL_FONT,
-    health::HealthComponent,
-    inventory::Inventory,
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-    sensable::Sensable,
-    senser::Senser,
-};
-use bevy::prelude::{Query, ResMut};
-use examinable::examine::Examinable;
-use networking::messages::ExamineEntityMessages;
-use networking_macros::NetMessage;
-
 use crate::humanoid::Humanoid;
+use api::{chat::FURTHER_NORMAL_FONT, inventory::Inventory};
+use bevy::prelude::{Query, ResMut};
+use examinable::examine::{Examinable, ExamineEntityMessages};
+use health::core::HealthComponent;
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::ReliableServerMessage;
+use networking_macros::NetMessage;
+use sensable::core::Sensable;
+use senser::senser::Senser;
 #[derive(NetMessage)]
 pub(crate) struct ExamineEntityPawn {
     pub handle: u64,

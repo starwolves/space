@@ -20,3 +20,4 @@ bevy_rapier3d = "0.16.0"
 entity = { path = "../entity" }
 physics = { path = "../physics" }
 api = { path = "../api" }
+senser = { path = "../senser" }

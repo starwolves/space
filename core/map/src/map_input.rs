@@ -1,16 +1,15 @@
 use crate::map::Map;
-use api::{
-    gridmap::FOV_MAP_WIDTH,
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
 use bevy::{
     math::Vec2,
     prelude::{EventReader, EventWriter, Query},
 };
-use networking::messages::{InputMap, InputMapRequestOverlay, MapInput};
+use networking::messages::{InputMap, InputMapRequestOverlay, MapInput, ReliableServerMessage};
 
 use api::data::Vec2Int;
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
 use networking_macros::NetMessage;
+use senser::senser::FOV_MAP_WIDTH;
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.
 pub(crate) fn map_input(

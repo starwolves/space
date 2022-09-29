@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use api::{data::Vec2Int, gridmap::FOV_MAP_WIDTH};
+use api::data::Vec2Int;
 
 use bevy::{
     math::Vec2,
     prelude::{Component, Entity},
 };
+use senser::senser::FOV_MAP_WIDTH;
 
 /// Mini-map overlay tile color.
 #[derive(Clone, PartialEq)]

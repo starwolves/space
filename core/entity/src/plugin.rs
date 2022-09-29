@@ -1,6 +1,4 @@
-use api::data::{EntityDataResource, PostUpdateLabels, StartupLabels, SummoningLabels};
-use api::entity_updates::NetSendEntityUpdates;
-use api::load_entity::{NetLoadEntity, NetUnloadEntity};
+use api::data::{PostUpdateLabels, StartupLabels, SummoningLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
@@ -16,11 +14,7 @@ use bevy::app::CoreStage::PostUpdate;
 pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<EntityDataResource>()
-            .add_event::<NetShowcase>()
-            .add_event::<NetSendEntityUpdates>()
-            .add_event::<NetUnloadEntity>()
-            .add_event::<NetLoadEntity>()
+        app.add_event::<NetShowcase>()
             .add_event::<RawSpawnEvent>()
             .add_event::<DefaultSpawnEvent>()
             .add_system_set(
@@ -45,9 +39,6 @@ impl Plugin for EntityPlugin {
                 SystemSet::new()
                     .after(PostUpdateLabels::VisibleChecker)
                     .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<NetLoadEntity>)
-                    .with_system(net_system::<NetUnloadEntity>)
-                    .with_system(net_system::<NetSendEntityUpdates>)
                     .with_system(net_system::<NetShowcase>),
             );
     }

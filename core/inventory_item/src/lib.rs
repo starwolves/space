@@ -3,6 +3,8 @@
 
 /// Manage actions related to inventory items.
 mod actions;
+/// Combat resources of items.
+pub mod combat;
 /// Manage entity updates for inventory items.
 pub mod entity_update;
 /// Components.

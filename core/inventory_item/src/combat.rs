@@ -1,78 +1,8 @@
 use std::collections::HashMap;
 
-use bevy::{math::Vec3, prelude::Component};
-use serde::{Deserialize, Serialize};
-
-use crate::{chat::Color, humanoid::MELEE_FISTS_REACH};
-
-/// An event for a projectile that exists for a frame so the FOV for its projectile path can be calculated and the projectile will be displayed on the appropiate client's screens.
-pub struct ProjectileFOV {
-    pub laser_projectile: ProjectileData,
-}
-
-/// Contains information about the projectile and its visual graphics.
-#[allow(dead_code)]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum ProjectileData {
-    Laser((f32, f32, f32, f32), f32, f32, Vec3, Vec3),
-    Ballistic,
-}
-
-/// All potential damage flags.
-#[allow(dead_code)]
-#[derive(PartialEq, Clone)]
-pub enum DamageFlag {
-    SoftDamage, //Ie fists.
-    WeakLethalLaser,
-    Stun(f32),
-    Floor(f32),
-}
-
-/// Contains the modularly built damage data of the attack.
-#[derive(Clone, Default)]
-pub struct DamageModel {
-    pub brute: f32,
-    pub burn: f32,
-    pub toxin: f32,
-    pub damage_flags: HashMap<u32, DamageFlag>,
-}
-
-/// Type of damage.
-pub enum DamageType {
-    Melee,
-    Projectile,
-}
-
-/// Represents the hit result of a combat physics query.
-#[allow(dead_code)]
-pub enum HitResult {
-    HitSoft,
-    Blocked,
-    Missed,
-}
-/// Humanoid animations for combat.
-pub enum CombatStandardAnimation {
-    StandardStance,
-    PistolStance,
-}
-/// Humanoid animations for combat.
-pub enum CombatAttackAnimation {
-    OneHandedMeleePunch,
-    PistolShot,
-}
-/// Combat type.
-#[derive(Clone, Debug)]
-pub enum CombatType {
-    MeleeDirect,
-    Projectile,
-}
-
-/// Contains (visual graphics) data of laser projectiles.
-#[derive(Clone, Debug)]
-pub enum ProjectileType {
-    Laser((f32, f32, f32, f32), f32, f32, f32),
-}
-
+use api::{chat::Color, humanoid::MELEE_FISTS_REACH};
+use bevy::prelude::Component;
+use health::core::DamageFlag;
 /// The component for items that can be used to perform melee attacks with. Should be used in combination with handlers.
 #[derive(Component)]
 pub struct MeleeCombat {
@@ -129,7 +59,15 @@ impl Default for ProjectileCombat {
     }
 }
 
-pub const DEFAULT_INVENTORY_ITEM_DAMAGE: f32 = 9.;
+/// Contains the modularly built damage data of the attack.
+#[derive(Clone, Default)]
+pub struct DamageModel {
+    pub brute: f32,
+    pub burn: f32,
+    pub toxin: f32,
+    pub damage_flags: HashMap<u32, DamageFlag>,
+}
+
 pub fn get_default_strike_words() -> Vec<String> {
     vec![
         "hit".to_string(),
@@ -155,4 +93,10 @@ pub fn get_default_fists_words() -> Vec<String> {
         "hit".to_string(),
         "swung at".to_string(),
     ]
+}
+
+/// Humanoid animations for combat.
+pub enum CombatAttackAnimation {
+    OneHandedMeleePunch,
+    PistolShot,
 }

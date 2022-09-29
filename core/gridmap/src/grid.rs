@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
-use api::gridmap::{CellData, GridDirectionRotations};
-use bevy::prelude::{Res, Transform};
+use api::{data::Vec3Int, gridmap::CELL_SIZE};
+use bevy::prelude::{Entity, Res, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
 use examinable::examine::RichName;
+use health::core::Health;
+use networking::messages::GridMapLayer;
 
 /// Gridmap meta-data resource.
 #[derive(Default)]
@@ -75,4 +77,87 @@ pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<GridmapData>) ->
         .get(&ship_cell.item)
         .unwrap()
         .get_a_name()
+}
+
+/// Data stored in a resource of a cell instead of each cell having their own entity with components.
+#[derive(Clone, Default)]
+pub struct CellData {
+    /// Cell item id.
+    pub item: i64,
+    /// Cell rotation.
+    pub orientation: i64,
+    /// The health of the cell.
+    pub health: Health,
+    /// Entity id if cell is an entity.
+    pub entity: Option<Entity>,
+}
+
+/// Stores the details 1 gridmap layer, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
+#[derive(Default)]
+pub struct GridmapDetails1 {
+    pub grid_data: HashMap<Vec3Int, CellData>,
+    pub updates: HashMap<Vec3Int, CellUpdate>,
+}
+
+/// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
+#[derive(Default)]
+pub struct GridmapMain {
+    pub grid_data: HashMap<Vec3Int, CellData>,
+    pub entity_data: HashMap<Vec3Int, EntityGridData>,
+    pub updates: HashMap<Vec3Int, CellUpdate>,
+}
+
+/// For entities that are also registered in the gridmap. (entity tiles)
+pub struct EntityGridData {
+    pub entity: Entity,
+    pub entity_name: String,
+}
+/// Directional rotations alongside their "orientation" value used for Godot gridmaps.
+#[derive(Clone)]
+pub struct GridDirectionRotations {
+    pub data: HashMap<AdjacentTileDirection, u8>,
+}
+
+impl GridDirectionRotations {
+    pub fn default_wall_rotations() -> Self {
+        let mut data = HashMap::new();
+        data.insert(AdjacentTileDirection::Left, 23);
+        data.insert(AdjacentTileDirection::Right, 19);
+        data.insert(AdjacentTileDirection::Up, 14);
+        data.insert(AdjacentTileDirection::Down, 4);
+        Self { data }
+    }
+}
+#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+pub enum AdjacentTileDirection {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+const Y_CENTER_OFFSET: f32 = 1.;
+
+/// From tile id to world position.
+pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
+    let mut world_position: Vec3 = Vec3::ZERO;
+
+    world_position.x = (cell_id.x as f32 * CELL_SIZE) + Y_CENTER_OFFSET;
+    world_position.y = (cell_id.y as f32 * CELL_SIZE) + Y_CENTER_OFFSET;
+    world_position.z = (cell_id.z as f32 * CELL_SIZE) + Y_CENTER_OFFSET;
+
+    world_position
+}
+
+/// Remove gridmap cell event.
+pub struct RemoveCell {
+    pub handle_option: Option<u64>,
+    pub gridmap_type: GridMapLayer,
+    pub id: Vec3Int,
+    pub cell_data: CellData,
+}
+
+/// A pending cell update like a cell construction.
+pub struct CellUpdate {
+    pub entities_received: Vec<Entity>,
+    pub cell_data: CellData,
 }

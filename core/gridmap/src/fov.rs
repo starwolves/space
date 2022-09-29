@@ -1,23 +1,27 @@
 use std::collections::HashMap;
 
 use api::{
-    combat::{ProjectileData, ProjectileFOV},
     data::{ConnectedPlayer, Vec2Int, Vec3Int},
-    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapMain, FOV_MAP_WIDTH},
-    network::ReliableServerMessage,
-    senser::Senser,
+    gridmap::world_to_cell_id,
 };
 use bevy::{
     math::Vec3,
     prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
+use networking::messages::{ProjectileData, ReliableServerMessage};
+use senser::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
 
-use crate::grid::GridmapData;
+use crate::grid::{GridmapData, GridmapMain};
 
 use super::net::NetProjectileFOV;
 
 pub const FOV_DISTANCE: usize = 23;
+
+/// An event for a projectile that exists for a frame so the FOV for its projectile path can be calculated and the projectile will be displayed on the appropiate client's screens.
+pub struct ProjectileFOV {
+    pub laser_projectile: ProjectileData,
+}
 
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
 pub(crate) fn projectile_fov(

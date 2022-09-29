@@ -8,20 +8,18 @@ use bevy::{
 use api::{
     chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
     data::{ConnectedPlayer, Vec3Int},
-    gridmap::{
-        to_doryen_coordinates, CellData, GridMapLayer, GridmapDetails1, GridmapMain, RemoveCell,
-    },
-    health::{CellUpdate, Health, HealthContainer, StructureHealth},
-    network::ReliableServerMessage,
-    senser::Senser,
+    health::StructureHealth,
 };
 
 use bevy_rapier3d::prelude::RigidBody;
 use doryen_fov::FovAlgorithm;
 
+use health::core::{Health, HealthContainer};
+use networking::messages::{GridMapLayer, ReliableServerMessage};
+use senser::senser::{to_doryen_coordinates, Senser};
 use serde::Deserialize;
 
-use crate::grid::GridmapData;
+use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMain, RemoveCell};
 
 use super::{
     fov::{DoryenMap, FOV_DISTANCE},

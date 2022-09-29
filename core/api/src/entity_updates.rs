@@ -4,10 +4,7 @@ use bevy::{
     math::{Quat, Vec2, Vec3},
     prelude::Component,
 };
-use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
-
-use crate::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 
 /// Check if entity updates for a player has changed.
 pub fn entity_update_changed_detection(
@@ -33,11 +30,6 @@ pub fn entity_update_changed_detection(
     }
 }
 
-#[derive(NetMessage)]
-pub struct NetSendEntityUpdates {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 /// Personalise entity update set.
 pub fn personalise(
     updates_data: &mut HashMap<String, HashMap<String, EntityUpdateData>>,

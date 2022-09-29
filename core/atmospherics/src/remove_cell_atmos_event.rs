@@ -1,10 +1,9 @@
-use api::{
-    data::Vec2Int,
-    gridmap::{get_atmos_index, GridMapLayer, GridmapMain, RemoveCell},
-};
+use api::data::Vec2Int;
 use bevy::prelude::{EventReader, Res, ResMut};
+use gridmap::grid::{GridmapMain, RemoveCell};
+use networking::messages::GridMapLayer;
 
-use crate::diffusion::{AtmosphericsResource, EffectType, VACUUM_ATMOSEFFECT};
+use crate::diffusion::{get_atmos_index, AtmosphericsResource, EffectType, VACUUM_ATMOSEFFECT};
 
 /// When a cell gets removed, ie deconstruct event on floor or wall tile, update atmospherics.
 pub(crate) fn remove_cell_atmos_event(

@@ -1,8 +1,9 @@
-use api::network::{GodotVariant, PendingMessage, PendingNetworkMessage, ReliableServerMessage};
-use bevy::prelude::{info, ResMut};
-use networking_macros::NetMessage;
-
 use bevy::prelude::SystemLabel;
+use bevy::prelude::{info, ResMut};
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::{GodotVariant, ReliableServerMessage};
+use networking_macros::NetMessage;
 
 #[derive(NetMessage)]
 pub struct NetConsoleCommands {

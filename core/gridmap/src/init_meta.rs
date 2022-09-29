@@ -3,7 +3,6 @@ use std::{collections::HashMap, fs, path::Path};
 use api::{
     chat::EXAMINATION_EMPTY,
     data::{ServerId, TickRate},
-    gridmap::{AdjacentTileDirection, GridDirectionRotations, GridmapDetails1, GridmapMain},
     pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints},
 };
 use bevy::prelude::{info, Commands, EventWriter, Res, ResMut, Transform};
@@ -18,7 +17,10 @@ use crate::{
     build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},
     events::CellDataWID,
     fov::DoryenMap,
-    grid::{GridmapData, MainCellProperties},
+    grid::{
+        AdjacentTileDirection, GridDirectionRotations, GridmapData, GridmapDetails1, GridmapMain,
+        MainCellProperties,
+    },
     plugin::Details1CellProperties,
 };
 

@@ -1,13 +1,11 @@
-use api::{
-    entity_updates::{EntityData, EntityUpdates},
-    sensable::Sensable,
-};
+use api::entity_updates::{EntityData, EntityUpdates};
 use bevy::{
     prelude::{Commands, Component, Entity, Transform},
     time::Timer,
 };
 use entity::entity_data::{CachedBroadcastTransform, UpdateTransform};
 use rand::Rng;
+use sensable::core::Sensable;
 
 /// Spawn background sound effect with commands as a function.
 pub fn spawn_ambience_sfx(
