@@ -18,7 +18,6 @@ bevy_rapier3d = "0.16.0"
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
-
 sounds = { path = "../../entities/sounds" }
 pawn = { path = "../pawn" }
 inventory_item = { path = "../inventory_item" }
@@ -27,3 +26,5 @@ health = { path = "../health" }
 sfx = { path = "../sfx" }
 rigid_body = { path = "../rigid_body" }
 api = { path = "../api" }
+examinable = { path = "../examinable" }
+console_commands = { path = "../console_commands" }

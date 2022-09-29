@@ -1,14 +1,15 @@
+use std::collections::BTreeMap;
+
 use api::{
     chat::END_ASTRIX,
     gridmap::GridmapExamineMessages,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
 };
-use bevy::prelude::{EventWriter, ResMut};
+use bevy::prelude::{Component, EventWriter, ResMut, SystemLabel};
 
 use api::{
     chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT},
     data::HandleToEntity,
-    examinable::Examinable,
     health::{HealthComponent, HealthContainer},
     sensable::Sensable,
     senser::Senser,
@@ -118,4 +119,55 @@ pub fn finalize_examine_entity(
     }
 
     examine_map_events.messages.clear();
+}
+
+/// Component for entities that can be examined.
+#[derive(Component, Default)]
+pub struct Examinable {
+    pub assigned_texts: BTreeMap<u32, String>,
+    pub name: RichName,
+}
+
+/// A rich examinable name for an entity.
+#[derive(Clone, Debug)]
+pub struct RichName {
+    pub name: String,
+    pub n: bool,
+    pub the: bool,
+}
+
+impl RichName {
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn get_a_name(&self) -> String {
+        let prefix;
+        if self.the {
+            prefix = "the";
+        } else {
+            if self.n {
+                prefix = "an";
+            } else {
+                prefix = "a";
+            }
+        }
+        prefix.to_owned() + " " + &self.name
+    }
+}
+
+impl Default for RichName {
+    fn default() -> Self {
+        Self {
+            name: "".to_string(),
+            n: false,
+            the: false,
+        }
+    }
+}
+
+/// System label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum ExamineLabels {
+    Start,
+    Default,
 }

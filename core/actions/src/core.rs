@@ -2,11 +2,10 @@ use std::collections::HashMap;
 
 use api::{
     data::{HandleToEntity, Vec3Int},
-    examinable::Examinable,
     gridmap::GridMapLayer,
     network::{NetAction, ReliableServerMessage},
 };
-use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, With};
+use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
 use networking::messages::InputAction;
 use networking::{
     messages::{InputListActionsEntity, InputListActionsMap},
@@ -156,7 +155,7 @@ pub(crate) fn list_action_data_finalizer(
 
 /// Append actions found in [Actions] component of entities to their list.
 pub(crate) fn list_action_data_from_actions_component(
-    examinable_query: Query<&Actions, With<Examinable>>,
+    examinable_query: Query<&Actions>,
     mut building_actions: ResMut<BuildingActions>,
 ) {
     for building_action in building_actions.list.iter_mut() {

@@ -1,8 +1,7 @@
 use api::{
     combat::{CombatType, MeleeCombat, ProjectileCombat},
     data::Vec3Int,
-    examinable::Examinable,
-    gridmap::{cell_id_to_world, GridmapData, GridmapMain},
+    gridmap::{cell_id_to_world, GridmapMain},
     health::HealthComponent,
     network::ReliableServerMessage,
 };
@@ -18,7 +17,8 @@ use bevy_rapier3d::{
     plugin::RapierContext,
     prelude::{Collider, InteractionGroups},
 };
-use gridmap::events::Cell;
+use examinable::examine::Examinable;
+use gridmap::{events::Cell, grid::GridmapData};
 use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::{

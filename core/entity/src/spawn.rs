@@ -1,15 +1,14 @@
 use std::collections::HashMap;
 
 use api::{
-    console_commands::ConsoleCommandVariantValues,
     data::{EntityDataResource, NoData, Showcase, ShowcaseData},
     entity_updates::{EntityData, EntityGroup, EntityUpdates},
-    examinable::Examinable,
     health::{Health, HealthComponent},
-    network::ReliableServerMessage,
+    network::{GodotVariantValues, ReliableServerMessage},
     sensable::Sensable,
 };
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
+use examinable::examine::Examinable;
 use serde::Deserialize;
 
 use crate::entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PARENT};
@@ -175,7 +174,7 @@ pub struct ExportDataRaw {
 
 /// All export json properties turned into a variant hashmap.
 pub struct ExportData {
-    pub properties: HashMap<String, ConsoleCommandVariantValues>,
+    pub properties: HashMap<String, GodotVariantValues>,
 }
 
 impl ExportData {
@@ -184,7 +183,7 @@ impl ExportData {
         for property in raw.properties {
             let v;
             if property.value_type == 4 {
-                v = ConsoleCommandVariantValues::String(property.value)
+                v = GodotVariantValues::String(property.value)
             } else {
                 warn!("Entity from entities.json had unknown type!");
                 continue;

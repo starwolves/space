@@ -4,12 +4,12 @@ use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
     data::Vec2Int,
     entity_updates::EntityData,
-    examinable::{Examinable, RichName},
     gridmap::{get_atmos_index, world_to_cell_id, EntityGridData, GridmapMain},
 };
 use atmospherics::diffusion::AtmosphericsResource;
 use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
 use entity::entity_data::DefaultMapEntity;
+use examinable::examine::{Examinable, RichName};
 use map::{map::GREEN_MAP_TILE_ENTRANCE, map_input::MapData};
 
 use crate::spawn::{

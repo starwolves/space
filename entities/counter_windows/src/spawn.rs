@@ -60,7 +60,6 @@ use api::{
     converters::string_transform_to_transform,
     data::NoData,
     entity_updates::{EntityData, EntityGroup},
-    examinable::{Examinable, RichName},
     health::Health,
 };
 use bevy::{
@@ -73,6 +72,7 @@ use entity::{
     entity_data::RawSpawnEvent,
     spawn::{BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent},
 };
+use examinable::examine::{Examinable, RichName};
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};

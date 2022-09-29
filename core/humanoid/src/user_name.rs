@@ -1,11 +1,11 @@
 use api::{
     chat::escape_bb,
-    console_commands::CONSOLE_ERROR_COLOR,
     data::HandleToEntity,
     humanoid::UsedNames,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
 };
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
+use console_commands::commands::CONSOLE_ERROR_COLOR;
 use networking::messages::InputUserName;
 use networking_macros::NetMessage;
 use pawn::pawn::PersistentPlayerData;

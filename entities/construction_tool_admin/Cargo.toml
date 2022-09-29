@@ -32,3 +32,4 @@ sounds = { path = "../sounds" }
 api = { path = "../../core/api" }
 physics = { path = "../../core/physics" }
 actions = { path = "../../core/actions" }
+examinable = { path = "../../core/examinable" }

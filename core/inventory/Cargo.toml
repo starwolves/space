@@ -28,3 +28,4 @@ sfx = { path = "../sfx" }
 api = { path = "../api" }
 gridmap = { path = "../gridmap" }
 actions = { path = "../actions" }
+examinable = { path = "../examinable" }

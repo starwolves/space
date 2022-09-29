@@ -1,6 +1,5 @@
 use api::{
     chat::FURTHER_NORMAL_FONT,
-    examinable::Examinable,
     health::HealthComponent,
     inventory::Inventory,
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
@@ -8,6 +7,7 @@ use api::{
     senser::Senser,
 };
 use bevy::prelude::{Query, ResMut};
+use examinable::examine::Examinable;
 use networking::messages::ExamineEntityMessages;
 use networking_macros::NetMessage;
 

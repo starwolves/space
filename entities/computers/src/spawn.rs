@@ -36,12 +36,7 @@ impl BaseEntitySummonable<NoData> for ComputerSummoner {
     }
 }
 
-use api::{
-    converters::string_transform_to_transform,
-    data::NoData,
-    examinable::{Examinable, RichName},
-    health::Health,
-};
+use api::{converters::string_transform_to_transform, data::NoData, health::Health};
 use bevy::{
     math::{Mat4, Quat, Vec3},
     prelude::{warn, Commands, EventReader, EventWriter, Transform},
@@ -54,6 +49,7 @@ use entity::{
         SpawnEvent,
     },
 };
+use examinable::examine::{Examinable, RichName};
 use rigid_body::{
     rigid_body::STANDARD_BODY_FRICTION,
     spawn::{RigidBodyBundle, RigidBodySummonable},

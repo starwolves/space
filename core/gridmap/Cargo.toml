@@ -26,3 +26,5 @@ data_converters = { path = "../data_converters" }
 entity = { path = "../entity" }
 physics = { path = "../physics" }
 api = { path = "../api" }
+examinable = { path = "../examinable" }
+actions = { path = "../actions" }

@@ -1,11 +1,10 @@
 use api::{
-    console_commands::ConsoleCommandVariantValues,
+    chat::ASTRIX,
     data::{HandleToEntity, Vec3Int},
-    examinable::InputExamineEntity,
     gridmap::{ExamineMapMessage, GridMapLayer, GridmapExamineMessages},
     network::{
-        InputChatMessage, PendingMessage, PendingNetworkMessage, ReliableClientMessage,
-        ReliableServerMessage, UnreliableClientMessage,
+        GodotVariantValues, InputChatMessage, PendingMessage, PendingNetworkMessage,
+        ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage,
     },
 };
 use bevy::{
@@ -749,7 +748,7 @@ pub struct InputConsoleCommand {
     /// The command name.
     pub command_name: String,
     /// The passed arguments to the command as variants.
-    pub command_arguments: Vec<ConsoleCommandVariantValues>,
+    pub command_arguments: Vec<GodotVariantValues>,
 }
 
 /// Client input toggle combat mode event.
@@ -891,4 +890,22 @@ pub struct InputConstructionOptionsSelection {
     pub menu_selection: String,
     // Entity has been validated.
     pub entity: Entity,
+}
+/// Input examine entity event.
+pub struct InputExamineEntity {
+    pub handle: u64,
+    pub examine_entity: Entity,
+    pub entity: Entity,
+    /// Examine message that is being built and returned to the client.
+    pub message: String,
+}
+impl Default for InputExamineEntity {
+    fn default() -> Self {
+        Self {
+            handle: 0,
+            examine_entity: Entity::from_bits(0),
+            entity: Entity::from_bits(0),
+            message: ASTRIX.to_string(),
+        }
+    }
 }

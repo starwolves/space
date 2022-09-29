@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     combat::ProjectileData,
-    console_commands::{ConsoleCommandVariant, ConsoleCommandVariantValues},
     entity_updates::EntityUpdateData,
     gridmap::GridMapLayer,
     ui::{UIInputAction, UIInputNodeClass},
@@ -80,7 +79,7 @@ pub enum ReliableClientMessage {
     SwitchHands,
     WearItem(u64, String),
     TakeOffItem(String),
-    ConsoleCommand(String, Vec<ConsoleCommandVariantValues>),
+    ConsoleCommand(String, Vec<GodotVariantValues>),
     ToggleCombatModeInput,
     InputMouseAction(bool),
     SelectBodyPart(String),
@@ -164,7 +163,7 @@ pub enum ServerConfigMessage {
     ServerEntityId(u64),
     RepeatingSFX(String, Vec<String>),
     FinishedInitialization,
-    ConsoleCommands(Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)>),
+    ConsoleCommands(Vec<(String, String, Vec<(String, GodotVariant)>)>),
     TalkSpaces(Vec<(String, String)>),
     PlaceableItemsSurfaces(Vec<i64>),
     NonBlockingCells(Vec<i64>),
@@ -182,4 +181,21 @@ pub enum UnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
     MapViewRange(f32),
     MapOverlayMouseHoverCell(i16, i16),
+}
+
+/// Variants for input console commands with values.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum GodotVariantValues {
+    Int(i64),
+    String(String),
+    Float(f32),
+    Bool(bool),
+}
+/// Variant types for input console commands with values.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum GodotVariant {
+    Int,
+    String,
+    Float,
+    Bool,
 }

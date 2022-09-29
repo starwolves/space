@@ -1,6 +1,5 @@
 use api::{
     combat::{MeleeCombat, ProjectileCombat},
-    console_commands::CONSOLE_ERROR_COLOR,
     data::{EntityDataResource, HandleToEntity, ShowcaseData},
     gridmap::GridmapMain,
     humanoid::UsedNames,
@@ -11,7 +10,10 @@ use api::{
 use bevy::prelude::{
     warn, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
 };
-use console_commands::{commands::NetEntityConsole, player_selectors::player_selector_to_entities};
+use console_commands::{
+    commands::{NetEntityConsole, CONSOLE_ERROR_COLOR},
+    player_selectors::player_selector_to_entities,
+};
 use entity::{
     commands::rcon_spawn_entity,
     spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},

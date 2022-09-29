@@ -4,9 +4,8 @@ use actions::core::{ActionRequests, BuildingActions};
 use api::{
     data::{HandleToEntity, ZeroGravity},
     entity_updates::{EntityData, EntityUpdateData},
-    examinable::Examinable,
     get_spawn_position::entity_spawn_position_for_player,
-    gridmap::{GridmapData, GridmapMain},
+    gridmap::GridmapMain,
     health::HealthComponent,
     inventory::Inventory,
     network::{EntityWorldType, ReliableServerMessage},
@@ -27,7 +26,8 @@ use bevy_rapier3d::{
     plugin::RapierContext,
     prelude::{Collider, CollisionGroups, Damping, ExternalForce, GravityScale, Sleeping},
 };
-use gridmap::{can_reach_entity::can_reach_entity, events::Cell};
+use examinable::examine::Examinable;
+use gridmap::{can_reach_entity::can_reach_entity, events::Cell, grid::GridmapData};
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use inventory_item::item::InventoryItem;
 use networking::messages::{

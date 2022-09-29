@@ -1,5 +1,5 @@
 use crate::{
-    actions::{build_actions, set_action_header_name},
+    actions::build_actions,
     examine::{
         examine_entity, finalize_examine_entity, finalize_examine_map, NetConnExamine, NetExamine,
     },
@@ -16,11 +16,6 @@ impl Plugin for ExaminablePlugin {
             build_actions
                 .label(ActionsLabels::Build)
                 .after(ActionsLabels::Init),
-        )
-        .add_system(
-            set_action_header_name
-                .after(ActionsLabels::Build)
-                .before(ActionsLabels::Approve),
         )
         .add_system_to_stage(
             PostUpdate,

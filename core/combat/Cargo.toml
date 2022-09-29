@@ -28,3 +28,4 @@ gridmap = { path = "../gridmap" }
 sfx = { path = "../sfx" }
 inventory_item = { path = "../inventory_item" }
 chat = { path = "../chat" }
+examinable = { path = "../examinable" }

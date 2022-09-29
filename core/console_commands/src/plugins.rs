@@ -1,12 +1,10 @@
-use api::{
-    console_commands::ConsoleCommandsLabels,
-    data::{PostUpdateLabels, StartupLabels},
-};
+use api::data::{PostUpdateLabels, StartupLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
 
 use crate::commands::{
-    initialize_console_commands, AllConsoleCommands, GiveAllRCON, NetEntityConsole,
+    initialize_console_commands, AllConsoleCommands, ConsoleCommandsLabels, GiveAllRCON,
+    NetEntityConsole,
 };
 use bevy::app::CoreStage::PostUpdate;
 
