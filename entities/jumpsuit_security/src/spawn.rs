@@ -1,6 +1,3 @@
-use api::combat::DamageFlag;
-use api::combat::DamageModel;
-use api::combat::MeleeCombat;
 use api::converters::string_transform_to_transform;
 use api::data::NoData;
 use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
@@ -21,6 +18,9 @@ use entity::spawn::SpawnData;
 use entity::spawn::SpawnEvent;
 use examinable::examine::Examinable;
 use examinable::examine::RichName;
+use health::core::DamageFlag;
+use inventory_item::combat::DamageModel;
+use inventory_item::combat::MeleeCombat;
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::InventoryItemBundle;
 use inventory_item::spawn::InventoryItemSummonable;

@@ -1,9 +1,4 @@
-use api::{
-    combat::ProjectileCombat,
-    data::Vec3Int,
-    gridmap::{cell_id_to_world, GridmapMain},
-    health::HealthComponent,
-};
+use api::data::Vec3Int;
 use bevy::{
     hierarchy::Parent,
     math::{Quat, Vec3},
@@ -18,7 +13,12 @@ use bevy_rapier3d::{
     rapier::prelude::Ray,
 };
 use examinable::examine::Examinable;
-use gridmap::{events::Cell, grid::GridmapData};
+use gridmap::{
+    events::Cell,
+    grid::{cell_id_to_world, GridmapData, GridmapMain},
+};
+use health::core::HealthComponent;
+use inventory_item::combat::ProjectileCombat;
 use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::{

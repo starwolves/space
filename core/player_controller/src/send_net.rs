@@ -1,11 +1,11 @@
-use api::{
-    data::{ConnectedPlayer, HandleToEntity},
-    network::{PendingNetworkMessage, ReliableServerMessage},
-};
+use api::data::{ConnectedPlayer, HandleToEntity};
 use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
 use bevy_renet::renet::RenetServer;
 use bincode::serialize;
-use networking::plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID};
+use networking::{
+    messages::{PendingNetworkMessage, ReliableServerMessage},
+    plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID},
+};
 
 /// Finalize sending netcode messages to clients as a function.
 pub(crate) fn finalize_send_net(

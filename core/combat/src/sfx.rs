@@ -1,9 +1,13 @@
-use api::{combat::HitResult, gridmap::cell_id_to_world};
 use bevy::prelude::{warn, Commands, Component, EventReader, Query, Res, ResMut, Transform};
+use gridmap::grid::cell_id_to_world;
 use sfx::entity_update::SfxAutoDestroyTimers;
 use sounds::shared::CombatSoundSet;
 
-use crate::{active_attacks::ActiveAttacks, apply_damage::HealthCombatHitResult, attack::Attack};
+use crate::{
+    active_attacks::ActiveAttacks,
+    apply_damage::HealthCombatHitResult,
+    attack::{Attack, HitResult},
+};
 
 /// Get the right sounds to spawn for combat.
 pub fn health_combat_hit_result_sfx<T: Component>(

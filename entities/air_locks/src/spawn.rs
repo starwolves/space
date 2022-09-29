@@ -6,7 +6,6 @@ use api::{
     converters::string_transform_to_transform,
     data::NoData,
     entity_updates::EntityGroup,
-    health::Health,
 };
 use bevy::{
     math::Vec3,
@@ -18,6 +17,7 @@ use entity::{
     spawn::{BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent},
 };
 use examinable::examine::{Examinable, RichName};
+use health::core::Health;
 use pawn::pawn::ShipAuthorizationEnum;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 

@@ -1,30 +1,12 @@
-use api::{
-    data::{ActionsLabels, PostUpdateLabels},
-    health::{NetHealth, NetHealthUpdate},
-};
-use bevy::{
-    app::CoreStage::PostUpdate,
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
-};
-use networking::messages::net_system;
+use api::data::ActionsLabels;
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 
-use crate::examine_events::{examine_entity, examine_map};
+use crate::examine_events::examine_entity;
 
 pub struct HealthPlugin;
 
 impl Plugin for HealthPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(
-            PostUpdate,
-            SystemSet::new()
-                .after(PostUpdateLabels::VisibleChecker)
-                .label(PostUpdateLabels::Net)
-                .with_system(net_system::<NetHealthUpdate>)
-                .with_system(net_system::<NetHealth>),
-        )
-        .add_event::<NetHealthUpdate>()
-        .add_event::<NetHealth>()
-        .add_system(examine_map.after(ActionsLabels::Action))
-        .add_system(examine_entity.after(ActionsLabels::Action));
+        app.add_system(examine_entity.after(ActionsLabels::Action));
     }
 }

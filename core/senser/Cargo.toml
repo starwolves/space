@@ -15,6 +15,9 @@ default-features = false
 
 [dependencies]
 bevy_rapier3d = "0.16.0"
+doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
 
 physics = { path = "../physics" }
 api = { path = "../api" }
+sensable = { path = "../sensable" }
+networking = { path = "../networking" }

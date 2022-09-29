@@ -1,23 +1,20 @@
 use std::collections::BTreeMap;
 
-use api::{
-    chat::END_ASTRIX,
-    gridmap::GridmapExamineMessages,
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
-use bevy::prelude::{Component, EventWriter, ResMut, SystemLabel};
+use api::chat::END_ASTRIX;
+use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
 
 use api::{
     chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT},
     data::HandleToEntity,
-    health::{HealthComponent, HealthContainer},
-    sensable::Sensable,
-    senser::Senser,
 };
 use bevy::prelude::{warn, Query, Res};
-
-use networking::messages::ExamineEntityMessages;
+use networking::messages::InputExamineEntity;
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::{InputExamineMap, ReliableServerMessage};
 use networking_macros::NetMessage;
+use sensable::core::Sensable;
+use senser::senser::Senser;
 
 #[derive(NetMessage)]
 pub(crate) struct NetExamine {
@@ -52,7 +49,7 @@ pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
     criteria_query: Query<&Senser>,
-    q0: Query<(&Examinable, &Sensable, &HealthComponent)>,
+    q0: Query<(&Examinable, &Sensable)>,
 ) {
     for examine_event in examine_entity_events.messages.iter_mut() {
         let entity_reference = examine_event.examine_entity;
@@ -66,25 +63,19 @@ pub fn examine_entity(
         }
 
         match q0.get(entity_reference) {
-            Ok((examinable_component, sensable_component, health_component)) => {
+            Ok((examinable_component, sensable_component)) => {
                 let mut text = "".to_string();
 
-                match &health_component.health.health_container {
-                    HealthContainer::Entity(_entity_container) => {
-                        let mut examinable_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]";
-                        for (_text_id, assigned_text) in examinable_component.assigned_texts.iter()
-                        {
-                            examinable_text = examinable_text + "\n";
-                            examinable_text = examinable_text + assigned_text;
-                        }
+                let mut examinable_text = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]";
+                for (_text_id, assigned_text) in examinable_component.assigned_texts.iter() {
+                    examinable_text = examinable_text + "\n";
+                    examinable_text = examinable_text + assigned_text;
+                }
 
-                        examinable_text = examinable_text + "\n" + "[/font]";
+                examinable_text = examinable_text + "\n" + "[/font]";
 
-                        if examinable_component.assigned_texts.len() > 0 {
-                            text = examinable_text;
-                        }
-                    }
-                    _ => (),
+                if examinable_component.assigned_texts.len() > 0 {
+                    text = examinable_text;
                 }
 
                 let entity = handle_to_entity.map.get(&examine_event.handle).expect(
@@ -170,4 +161,24 @@ impl Default for RichName {
 pub enum ExamineLabels {
     Start,
     Default,
+}
+
+/// Stores examine messages being built this frame for gridmap examination.
+#[derive(Default)]
+pub struct GridmapExamineMessages {
+    pub messages: Vec<InputExamineMap>,
+}
+/// Resource with client inputs of examining entity messages.
+#[derive(Default)]
+pub struct ExamineEntityMessages {
+    pub messages: Vec<InputExamineEntity>,
+}
+
+pub fn finalize_entity_examine_input(
+    mut examine_messages: ResMut<ExamineEntityMessages>,
+    mut entity_examine_input: EventReader<InputExamineEntity>,
+) {
+    for input_event in entity_examine_input.iter() {
+        examine_messages.messages.push(input_event.clone());
+    }
 }

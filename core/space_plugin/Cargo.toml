@@ -41,6 +41,7 @@ api = { path = "../api" }
 examinable = { path = "../examinable" }
 chat = { path = "../chat" }
 motd = { path = "../motd" }
+entity_grid_meta = { path = "../entity_grid_meta" }
 
 
 sounds = { path = "../../entities/sounds" }

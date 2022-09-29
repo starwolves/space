@@ -6,8 +6,6 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::gridmap::GridItemData;
-
 /// A resource that links entities to their appropiate connection handles for connected players.
 #[derive(Default)]
 pub struct HandleToEntity {
@@ -64,6 +62,7 @@ pub enum ActionsLabels {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum PreUpdateLabels {
     NetEvents,
+    ProcessInput,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -142,40 +141,6 @@ pub struct Vec3Int {
     pub x: i16,
     pub y: i16,
     pub z: i16,
-}
-
-/// Resource that contains entity meta data.
-#[derive(Default)]
-pub struct EntityDataResource {
-    pub data: Vec<EntityDataProperties>,
-    pub incremented_id: usize,
-    pub id_to_name: HashMap<usize, String>,
-    pub name_to_id: HashMap<String, usize>,
-}
-
-impl EntityDataResource {
-    pub fn get_id_inc(&mut self) -> usize {
-        let return_val = self.incremented_id.clone();
-        self.incremented_id += 1;
-        return_val
-    }
-}
-
-/// Meta data for an entity.
-pub struct EntityDataProperties {
-    pub name: String,
-    pub id: usize,
-    pub grid_item: Option<GridItemData>,
-}
-
-impl Default for EntityDataProperties {
-    fn default() -> Self {
-        Self {
-            name: Default::default(),
-            id: Default::default(),
-            grid_item: None,
-        }
-    }
 }
 
 #[derive(Clone)]

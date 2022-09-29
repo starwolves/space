@@ -1,11 +1,11 @@
-use api::{
-    data::{Vec2Int, Vec3Int},
-    gridmap::{get_atmos_index, GridmapMain, FOV_MAP_WIDTH},
-};
+use api::data::{Vec2Int, Vec3Int};
 use bevy::prelude::{info, Res, ResMut};
-use gridmap::grid::GridmapData;
+use gridmap::grid::{GridmapData, GridmapMain};
+use senser::senser::FOV_MAP_WIDTH;
 
-use crate::diffusion::{Atmospherics, AtmosphericsResource, DEFAULT_INTERNAL_AMOUNT};
+use crate::diffusion::{
+    get_atmos_index, Atmospherics, AtmosphericsResource, DEFAULT_INTERNAL_AMOUNT,
+};
 
 /// Initialize atmospherics as a startup system.
 pub(crate) fn startup_atmospherics(

@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 
 use api::{
-    data::{EntityDataResource, NoData, Showcase, ShowcaseData},
+    data::{NoData, Showcase, ShowcaseData},
     entity_updates::{EntityData, EntityGroup, EntityUpdates},
-    health::{Health, HealthComponent},
-    network::{GodotVariantValues, ReliableServerMessage},
-    sensable::Sensable,
 };
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
+use entity_grid_meta::core::EntityDataResource;
 use examinable::examine::Examinable;
+use health::core::{Health, HealthComponent};
+use networking::messages::{GodotVariantValues, ReliableServerMessage};
+use sensable::core::Sensable;
 use serde::Deserialize;
 
 use crate::entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PARENT};

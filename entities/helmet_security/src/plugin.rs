@@ -1,6 +1,4 @@
-use api::data::{
-    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
-};
+use api::data::{CombatLabels, StartupLabels, SummoningLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::{
     melee_queries::melee_attack_handler,
@@ -10,6 +8,7 @@ use entity::{
     entity_data::{initialize_entity_data, HELMET_SECURITY_ENTITY_NAME},
     spawn::{summon_base_entity, SpawnEvent},
 };
+use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
 

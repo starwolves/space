@@ -1,14 +1,12 @@
 use std::collections::HashMap;
 
-use api::{
-    data::Vec2Int,
-    gridmap::{get_atmos_index, FOV_MAP_WIDTH},
-};
+use api::data::Vec2Int;
 use bevy::{
     math::Vec3,
     prelude::{warn, Entity, Res, ResMut},
     time::{FixedTimesteps, Time},
 };
+use senser::senser::FOV_MAP_WIDTH;
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;
 
@@ -260,4 +258,21 @@ pub struct AtmosEffect {
     pub amount_speed: f32,
     /// Whether this effect adds or removes matter.
     pub remover: bool,
+}
+
+pub fn get_atmos_index(id: Vec2Int) -> usize {
+    let idx: u32 = (id.x + (FOV_MAP_WIDTH / 2) as i16) as u32;
+    let idy: u32 = (id.y + (FOV_MAP_WIDTH / 2) as i16) as u32;
+
+    (idx + (idy * FOV_MAP_WIDTH as u32)) as usize
+}
+
+pub fn get_atmos_id(i: usize) -> Vec2Int {
+    let y = (i as f32 / FOV_MAP_WIDTH as f32).floor() as usize;
+    let x = i - (y * FOV_MAP_WIDTH);
+
+    Vec2Int {
+        x: x as i16 - (FOV_MAP_WIDTH as i16 / 2),
+        y: y as i16 - (FOV_MAP_WIDTH as i16 / 2),
+    }
 }

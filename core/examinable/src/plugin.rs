@@ -1,12 +1,17 @@
 use crate::{
     actions::build_actions,
     examine::{
-        examine_entity, finalize_examine_entity, finalize_examine_map, NetConnExamine, NetExamine,
+        examine_entity, finalize_entity_examine_input, finalize_examine_entity,
+        finalize_examine_map, ExamineEntityMessages, GridmapExamineMessages, NetConnExamine,
+        NetExamine,
     },
 };
-use api::data::{ActionsLabels, PostUpdateLabels};
+use api::data::{ActionsLabels, PostUpdateLabels, PreUpdateLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
-use bevy::{app::CoreStage::PostUpdate, prelude::SystemSet};
+use bevy::{
+    app::CoreStage::{PostUpdate, PreUpdate},
+    prelude::SystemSet,
+};
 use networking::messages::net_system;
 
 pub struct ExaminablePlugin;
@@ -35,6 +40,12 @@ impl Plugin for ExaminablePlugin {
             PostUpdate,
             finalize_examine_entity.before(PostUpdateLabels::EntityUpdate),
         )
-        .add_system(examine_entity.after(ActionsLabels::Action));
+        .add_system(examine_entity.after(ActionsLabels::Action))
+        .init_resource::<ExamineEntityMessages>()
+        .init_resource::<GridmapExamineMessages>()
+        .add_system_to_stage(
+            PreUpdate,
+            finalize_entity_examine_input.after(PreUpdateLabels::ProcessInput),
+        );
     }
 }

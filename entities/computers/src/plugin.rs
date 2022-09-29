@@ -1,12 +1,11 @@
-use api::data::{
-    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
-};
+use api::data::{CombatLabels, StartupLabels, SummoningLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
+use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use rigid_body::spawn::summon_rigid_body;
 
 use crate::computer::Computer;

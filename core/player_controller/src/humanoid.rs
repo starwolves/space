@@ -1,23 +1,15 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use api::{
-    combat::{
-        CombatAttackAnimation, CombatStandardAnimation, DamageFlag, DamageModel, MeleeCombat,
-        ProjectileCombat,
-    },
     data::{
-        ConnectedPlayer, EntityDataResource, NoData, Showcase, HUMAN_DUMMY_ENTITY_NAME,
-        HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
+        ConnectedPlayer, NoData, Showcase, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
+        JUMPSUIT_SECURITY_ENTITY_NAME,
     },
     data_link::{DataLink, DataLinkType},
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
-    get_spawn_position::FacingDirection,
-    health::{Health, HealthContainer, HumanoidHealth},
     humanoid::UsedNames,
     inventory::{Inventory, Slot, SlotType},
-    network::ReliableServerMessage,
     pawn::PawnDesignation,
-    senser::Senser,
 };
 use bevy::{
     math::Vec2,
@@ -34,15 +26,23 @@ use entity::{
         DefaultSpawnEvent, SpawnData, SpawnEvent,
     },
 };
+use entity_grid_meta::core::EntityDataResource;
 use examinable::examine::{Examinable, RichName};
-use pawn::pawn::{ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
+use health::core::{DamageFlag, Health, HealthContainer, HumanoidHealth};
+use networking::messages::ReliableServerMessage;
+use pawn::pawn::{FacingDirection, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
+use senser::senser::Senser;
 
 use crate::connection::SpawnPawnData;
 
 use std::collections::BTreeMap;
 
 use bevy::prelude::{Commands, EventWriter, ResMut};
-use inventory_item::spawn::spawn_held_entity;
+use inventory_item::{
+    combat::{CombatAttackAnimation, DamageModel, MeleeCombat, ProjectileCombat},
+    item::CombatStandardAnimation,
+    spawn::spawn_held_entity,
+};
 
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};

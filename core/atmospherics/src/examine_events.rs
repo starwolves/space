@@ -1,14 +1,15 @@
+use crate::diffusion::{get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
 use api::{
     chat::{ATMOSPHERICS_TEXT_COLOR, FURTHER_ITALIC_FONT},
     data::Vec2Int,
-    gridmap::{get_atmos_index, GridmapExamineMessages},
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-    senser::{Senser, SensingAbility},
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
+use examinable::examine::GridmapExamineMessages;
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
-
-use crate::diffusion::{AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
+use senser::senser::{Senser, SensingAbility};
 #[derive(NetMessage)]
 pub(crate) struct NetAtmosphericsMapExamine {
     pub handle: u64,

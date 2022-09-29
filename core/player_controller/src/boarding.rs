@@ -17,7 +17,6 @@ use api::{
         PISTOL_L1_ENTITY_NAME,
     },
     humanoid::UsedNames,
-    network::{ReliableServerMessage, ServerConfigMessage},
     pawn::{PawnDesignation, SpawnPoints, Spawning},
     player_controller::SoftPlayer,
 };
@@ -30,8 +29,11 @@ use entity::{
     entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
     spawn::{SpawnData, SpawnEvent},
 };
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
+use networking_macros::NetMessage;
 use pawn::pawn::PersistentPlayerData;
-use ui::ui::{InputUIInputTransmitText, NetUIInputTransmitData};
 
 /// Component with boarding data.
 pub(crate) struct BoardingPlayer {
@@ -286,4 +288,9 @@ pub(crate) fn on_spawning(
             )),
         });
     }
+}
+#[derive(NetMessage)]
+pub struct NetUIInputTransmitData {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
 }

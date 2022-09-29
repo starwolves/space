@@ -1,21 +1,25 @@
-use api::{
-    combat::{
-        get_default_fists_words, get_default_trigger_fists_words, get_default_trigger_melee_words,
-        get_default_trigger_weapon_words, MeleeCombat, ProjectileCombat,
-    },
-    data::HandleToEntity,
-    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapMain},
-    health::{HealthComponent, HealthContainer},
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-    senser::Senser,
-};
+use api::{data::HandleToEntity, gridmap::world_to_cell_id};
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use chat::chat::EntityProximityMessage;
 use examinable::examine::Examinable;
 use gridmap::grid::GridmapData;
+use gridmap::grid::GridmapMain;
+use health::core::HealthComponent;
+use health::core::HealthContainer;
+use inventory_item::combat::get_default_fists_words;
+use inventory_item::combat::get_default_trigger_fists_words;
+use inventory_item::combat::get_default_trigger_melee_words;
+use inventory_item::combat::get_default_trigger_weapon_words;
+use inventory_item::combat::MeleeCombat;
+use inventory_item::combat::ProjectileCombat;
 use inventory_item::item::InventoryItem;
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
+use senser::senser::to_doryen_coordinates;
+use senser::senser::Senser;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,

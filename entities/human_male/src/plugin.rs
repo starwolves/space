@@ -1,10 +1,10 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use entity::{entity_data::initialize_entity_data, spawn::SpawnEvent};
+use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use player_controller::humanoid::{summon_base_human_male, summon_human_male, HumanMaleSummoner};
 
 use api::data::{
-    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
-    HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
+    CombatLabels, StartupLabels, SummoningLabels, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
 };
 use rigid_body::spawn::summon_rigid_body;
 

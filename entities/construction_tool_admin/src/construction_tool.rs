@@ -3,21 +3,14 @@ use std::collections::HashMap;
 use super::net::NetConstructionTool;
 use api::{
     chat::FURTHER_ITALIC_FONT,
-    data::{ConnectedPlayer, EntityDataResource, HandleToEntity, Vec2Int, Vec3Int},
+    data::{ConnectedPlayer, HandleToEntity, Vec2Int, Vec3Int},
     entity_updates::EntityData,
-    gridmap::{
-        cell_id_to_world, get_atmos_index, to_doryen_coordinates, world_to_cell_id,
-        AdjacentTileDirection, CellData, EntityGridData, GridMapLayer, GridmapDetails1,
-        GridmapMain, RemoveCell,
-    },
-    health::{CellUpdate, Health, HealthContainer, StructureHealth},
+    gridmap::world_to_cell_id,
+    health::StructureHealth,
     inventory::Inventory,
-    network::{ReliableServerMessage, TextTreeBit},
-    sensable::Sensable,
-    senser::Senser,
 };
 
-use atmospherics::diffusion::{AtmosphericsResource, EffectType};
+use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource, EffectType};
 use bevy::{
     math::Quat,
     prelude::{
@@ -27,17 +20,26 @@ use bevy::{
 };
 use doryen_fov::FovAlgorithm;
 use entity::spawn::{DefaultSpawnEvent, SpawnData};
+use entity_grid_meta::core::EntityDataResource;
 use gridmap::{
     build::spawn_main_cell,
     fov::{DoryenMap, FOV_DISTANCE},
-    grid::GridmapData,
+    grid::{
+        cell_id_to_world, AdjacentTileDirection, CellData, CellUpdate, EntityGridData, GridmapData,
+        GridmapDetails1, GridmapMain, RemoveCell,
+    },
 };
-use networking::messages::InputConstructionOptionsSelection;
+use health::core::{Health, HealthContainer};
+use networking::messages::{
+    GridMapLayer, InputConstructionOptionsSelection, ReliableServerMessage, TextTreeBit,
+};
 use physics::physics::RigidBodyDisabled;
 
 use inventory_item::item::InventoryItem;
 use pawn::pawn::Pawn;
 use rand::Rng;
+use sensable::core::Sensable;
+use senser::senser::{to_doryen_coordinates, Senser};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     construction::{

@@ -1,7 +1,6 @@
 use api::{
     converters::string_transform_to_transform,
     entity_updates::{EntityData, EntityUpdates},
-    sensable::Sensable,
 };
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use entity::{
@@ -9,6 +8,7 @@ use entity::{
     spawn::{SpawnData, SpawnEvent},
 };
 use physics::world_mode::{WorldMode, WorldModes};
+use sensable::core::Sensable;
 
 use super::{
     omni_light::OmniLight,

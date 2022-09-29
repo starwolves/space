@@ -19,3 +19,7 @@ pawn = { path = "../pawn" }
 console_commands = { path = "../console_commands" }
 api = { path = "../api" }
 actions = { path = "../actions" }
+networking = { path = "../networking" }
+health = { path = "../health" }
+gridmap = { path = "../gridmap" }
+entity_grid_meta = { path = "../entity_grid_meta" }

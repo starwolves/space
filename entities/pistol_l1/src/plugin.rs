@@ -1,7 +1,4 @@
-use api::data::{
-    CombatLabels, EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels,
-    PISTOL_L1_ENTITY_NAME,
-};
+use api::data::{CombatLabels, StartupLabels, SummoningLabels, PISTOL_L1_ENTITY_NAME};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::{
     laser_visuals::projectile_laser_visuals,
@@ -13,6 +10,7 @@ use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
 };
+use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
 

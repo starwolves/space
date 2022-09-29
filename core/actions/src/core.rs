@@ -1,12 +1,8 @@
 use std::collections::HashMap;
 
-use api::{
-    data::{HandleToEntity, Vec3Int},
-    gridmap::GridMapLayer,
-    network::{NetAction, ReliableServerMessage},
-};
+use api::data::{HandleToEntity, Vec3Int};
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
-use networking::messages::InputAction;
+use networking::messages::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
 use networking::{
     messages::{InputListActionsEntity, InputListActionsMap},
     plugin::NetActionData,

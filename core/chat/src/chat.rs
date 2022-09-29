@@ -5,12 +5,7 @@ use bevy::{
     prelude::{error, warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform},
 };
 
-use api::{
-    gridmap::{to_doryen_coordinates, world_to_cell_id},
-    senser::Senser,
-};
-use bevy::prelude::SystemLabel;
-
+use api::gridmap::world_to_cell_id;
 use api::{
     chat::{
         escape_bb, BILLBOARD_DATA_SECURITY_END, BILLBOARD_DATA_SECURITY_START,
@@ -60,16 +55,19 @@ use api::{
         TALK_TYPE_STANDARD_NEARBY_END, TALK_TYPE_STANDARD_NEARBY_START,
     },
     data::{ConnectedPlayer, HandleToEntity},
-    entity_updates::{EntityUpdateData, NetSendEntityUpdates},
-    network::{
-        EntityWorldType, InputChatMessage, PendingMessage, PendingNetworkMessage,
-        ReliableServerMessage,
-    },
+    entity_updates::EntityUpdateData,
     player_controller::SoftPlayer,
-    sensable::Sensable,
+};
+use bevy::prelude::SystemLabel;
+use networking::messages::PendingMessage;
+use networking::messages::ReliableServerMessage;
+use networking::messages::{
+    EntityWorldType, InputChatMessage, NetSendEntityUpdates, PendingNetworkMessage,
 };
 use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
+use sensable::core::Sensable;
+use senser::senser::{to_doryen_coordinates, Senser};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 

@@ -1,5 +1,38 @@
 use std::collections::BTreeMap;
 
+use api::converters::string_transform_to_transform;
+use api::data::NoData;
+use api::inventory::SlotType;
+use bevy::math::Mat4;
+use bevy::math::Quat;
+use bevy::math::Vec3;
+use bevy::prelude::Commands;
+use bevy::prelude::EventReader;
+use bevy::prelude::EventWriter;
+use bevy::prelude::Transform;
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
+use entity::entity_data::RawSpawnEvent;
+use entity::entity_data::HELMET_SECURITY_ENTITY_NAME;
+use entity::spawn::BaseEntityBundle;
+use entity::spawn::BaseEntitySummonable;
+use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::SpawnData;
+use entity::spawn::SpawnEvent;
+use examinable::examine::Examinable;
+use examinable::examine::RichName;
+use health::core::DamageFlag;
+use inventory_item::combat::DamageModel;
+use inventory_item::combat::MeleeCombat;
+use inventory_item::item::InventoryItem;
+use inventory_item::spawn::InventoryItemBundle;
+use inventory_item::spawn::InventoryItemSummonable;
+use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
+use rigid_body::spawn::RigidBodyBundle;
+use rigid_body::spawn::RigidBodySummonable;
+
+use super::helmet::Helmet;
+
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -94,39 +127,6 @@ impl InventoryItemSummonable for HelmetSummoner {
         }
     }
 }
-use api::combat::DamageFlag;
-use api::combat::DamageModel;
-use api::combat::MeleeCombat;
-use api::combat::DEFAULT_INVENTORY_ITEM_DAMAGE;
-use api::converters::string_transform_to_transform;
-use api::data::NoData;
-use api::inventory::SlotType;
-use bevy::math::Mat4;
-use bevy::math::Quat;
-use bevy::math::Vec3;
-use bevy::prelude::Commands;
-use bevy::prelude::EventReader;
-use bevy::prelude::EventWriter;
-use bevy::prelude::Transform;
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use entity::entity_data::RawSpawnEvent;
-use entity::entity_data::HELMET_SECURITY_ENTITY_NAME;
-use entity::spawn::BaseEntityBundle;
-use entity::spawn::BaseEntitySummonable;
-use entity::spawn::DefaultSpawnEvent;
-use entity::spawn::SpawnData;
-use entity::spawn::SpawnEvent;
-use examinable::examine::Examinable;
-use examinable::examine::RichName;
-use inventory_item::item::InventoryItem;
-use inventory_item::spawn::InventoryItemBundle;
-use inventory_item::spawn::InventoryItemSummonable;
-use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
-use rigid_body::spawn::RigidBodyBundle;
-use rigid_body::spawn::RigidBodySummonable;
-
-use super::helmet::Helmet;
-
 impl RigidBodySummonable<NoData> for HelmetSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);

@@ -28,3 +28,6 @@ rigid_body = { path = "../rigid_body" }
 api = { path = "../api" }
 examinable = { path = "../examinable" }
 console_commands = { path = "../console_commands" }
+senser = { path = "../senser" }
+sensable = { path = "../sensable" }
+gridmap = { path = "../gridmap" }

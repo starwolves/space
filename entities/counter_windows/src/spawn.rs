@@ -1,5 +1,29 @@
 use std::collections::BTreeMap;
 
+use api::{
+    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
+    converters::string_transform_to_transform,
+    data::NoData,
+    entity_updates::{EntityData, EntityGroup},
+};
+use bevy::{
+    hierarchy::BuildChildren,
+    math::Vec3,
+    prelude::{warn, Commands, EventReader, EventWriter, GlobalTransform, Transform},
+};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use entity::{
+    entity_data::RawSpawnEvent,
+    spawn::{BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent},
+};
+use examinable::examine::{Examinable, RichName};
+use health::core::Health;
+use pawn::pawn::ShipAuthorizationEnum;
+use physics::physics::{get_bit_masks, ColliderGroup};
+use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
+
+use super::counter_window_events::{CounterWindow, CounterWindowSensor};
+
 pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
@@ -55,30 +79,6 @@ impl BaseEntitySummonable<NoData> for CounterWindowSummoner {
         }
     }
 }
-use api::{
-    chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    converters::string_transform_to_transform,
-    data::NoData,
-    entity_updates::{EntityData, EntityGroup},
-    health::Health,
-};
-use bevy::{
-    hierarchy::BuildChildren,
-    math::Vec3,
-    prelude::{warn, Commands, EventReader, EventWriter, GlobalTransform, Transform},
-};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use entity::{
-    entity_data::RawSpawnEvent,
-    spawn::{BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent},
-};
-use examinable::examine::{Examinable, RichName};
-use pawn::pawn::ShipAuthorizationEnum;
-use physics::physics::{get_bit_masks, ColliderGroup};
-use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
-
-use super::counter_window_events::{CounterWindow, CounterWindowSensor};
-
 impl RigidBodySummonable<NoData> for CounterWindowSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);

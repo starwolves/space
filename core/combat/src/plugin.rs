@@ -1,5 +1,5 @@
+use api::data::CombatLabels;
 use api::data::PostUpdateLabels;
-use api::{combat::ProjectileFOV, data::CombatLabels};
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use chat::chat::EntityProximityMessages;
@@ -52,7 +52,6 @@ impl Plugin for CombatPlugin {
                 .after(EntityProximityMessages::Send),
         )
         .add_event::<Attack>()
-        .add_event::<ProjectileFOV>()
         .add_event::<MeleeDirectQuery>()
         .add_event::<QueryCombatHitResult>()
         .add_event::<ProjectileQuery>()

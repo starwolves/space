@@ -1,22 +1,22 @@
 use api::{
     data::{TickRate, Vec2Int},
-    gridmap::{
-        get_atmos_index, world_to_cell_id, AdjacentTileDirection, GridmapMain, FOV_MAP_WIDTH,
-    },
+    gridmap::world_to_cell_id,
 };
 use bevy::{
     math::Vec3,
     prelude::{Entity, Query, Res, ResMut, Transform, Without},
 };
 use bevy_rapier3d::prelude::ExternalForce;
+use gridmap::grid::{AdjacentTileDirection, GridmapMain};
 use pawn::pawn::Pawn;
 use physics::physics::RigidBodyDisabled;
+use senser::senser::FOV_MAP_WIDTH;
 
 use std::collections::HashMap;
 
 use bevy_rapier3d::prelude::Velocity;
 
-use crate::diffusion::{AtmosphericsResource, DIFFUSION_STEP};
+use crate::diffusion::{get_atmos_index, AtmosphericsResource, DIFFUSION_STEP};
 
 use super::diffusion::RigidBodyForcesAccumulation;
 

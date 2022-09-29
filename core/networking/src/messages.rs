@@ -1,20 +1,17 @@
 use api::{
     chat::ASTRIX,
     data::{HandleToEntity, Vec3Int},
-    gridmap::{ExamineMapMessage, GridMapLayer, GridmapExamineMessages},
-    network::{
-        GodotVariantValues, InputChatMessage, PendingMessage, PendingNetworkMessage,
-        ReliableClientMessage, ReliableServerMessage, UnreliableClientMessage,
-    },
+    entity_updates::{personalise, EntityData, EntityUpdateData, EntityUpdates},
+    world_environment::WorldEnvironment,
 };
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, warn, Entity, EventReader, EventWriter, Res, ResMut},
+    prelude::{info, warn, Entity, EventReader, EventWriter, Quat, Res, ResMut, Transform},
 };
 use networking_macros::NetMessage;
-use ui::ui::{InputUIInput, InputUIInputTransmitText};
+use serde::{Deserialize, Serialize};
 
-use std::{net::UdpSocket, time::SystemTime};
+use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
 use bevy_renet::renet::{
     ChannelConfig, ReliableChannelConfig, RenetConnectionConfig, RenetServer, ServerAuthentication,
@@ -118,12 +115,6 @@ pub struct InputMapRequestOverlay {
     pub entity: Entity,
 }
 
-/// Resource with client inputs of examining entity messages.
-#[derive(Default)]
-pub struct ExamineEntityMessages {
-    pub messages: Vec<InputExamineEntity>,
-}
-
 /// Manage incoming network messages from clients.
 pub(crate) fn incoming_messages(
     tuple0: (
@@ -135,13 +126,13 @@ pub(crate) fn incoming_messages(
         EventWriter<InputBuildGraphics>,
         EventWriter<InputChatMessage>,
         EventWriter<InputSprinting>,
-        ResMut<ExamineEntityMessages>,
-        ResMut<GridmapExamineMessages>,
         EventWriter<InputUseWorldItem>,
         EventWriter<InputDropCurrentItem>,
         EventWriter<InputSwitchHands>,
         EventWriter<InputWearItem>,
         EventWriter<InputTakeOffItem>,
+        EventWriter<InputExamineEntity>,
+        EventWriter<InputExamineMap>,
     ),
 
     tuple1: (
@@ -180,13 +171,13 @@ pub(crate) fn incoming_messages(
         mut build_graphics_event,
         mut input_chat_message_event,
         mut input_sprinting_event,
-        mut examine_entity,
-        mut examine_map,
         mut use_world_item,
         mut drop_current_item,
         mut switch_hands,
         mut wear_items,
         mut take_off_item,
+        mut input_examine_entity,
+        mut input_examine_map,
     ) = tuple0;
 
     let (
@@ -298,7 +289,7 @@ pub(crate) fn incoming_messages(
                 ReliableClientMessage::ExamineEntity(entity_id) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
-                            examine_entity.messages.push(InputExamineEntity {
+                            input_examine_entity.send(InputExamineEntity {
                                 handle: handle,
                                 examine_entity: Entity::from_bits(entity_id),
                                 entity: *player_entity,
@@ -317,7 +308,7 @@ pub(crate) fn incoming_messages(
                     cell_id_z,
                 ) => match handle_to_entity.map.get(&handle) {
                     Some(player_entity) => {
-                        examine_map.messages.push(ExamineMapMessage {
+                        input_examine_map.send(InputExamineMap {
                             handle: handle,
                             entity: *player_entity,
                             gridmap_type: grid_map_type,
@@ -892,6 +883,7 @@ pub struct InputConstructionOptionsSelection {
     pub entity: Entity,
 }
 /// Input examine entity event.
+#[derive(Clone)]
 pub struct InputExamineEntity {
     pub handle: u64,
     pub examine_entity: Entity,
@@ -908,4 +900,365 @@ impl Default for InputExamineEntity {
             message: ASTRIX.to_string(),
         }
     }
+}
+
+/// Event as client input , interaction with UI.
+pub struct InputUIInput {
+    /// Handle of the connection that input this.
+    pub handle: u64,
+    /// The Godot node class of the input element.
+    pub node_class: UIInputNodeClass,
+    /// The action ID.
+    pub action: UIInputAction,
+    /// The Godot node name of the input element.
+    pub node_name: String,
+    /// The UI this input was submitted from.
+    pub ui_type: String,
+}
+
+/// Client input submitting text event.
+pub struct InputUIInputTransmitText {
+    /// Handle of the connection that input this.
+    pub handle: u64,
+    /// The UI this input was submitted from.
+    pub ui_type: String,
+    /// The Godot node path of the input element.
+    pub node_path: String,
+    /// The input text from the client.
+    pub input_text: String,
+}
+/// Examine map message event.
+#[derive(Clone)]
+pub struct InputExamineMap {
+    pub handle: u64,
+    pub entity: Entity,
+    pub gridmap_type: GridMapLayer,
+    pub gridmap_cell_id: Vec3Int,
+    /// Map examine message being built and sent back to the player.
+    pub message: String,
+}
+impl Default for InputExamineMap {
+    fn default() -> Self {
+        Self {
+            handle: 0,
+            entity: Entity::from_bits(0),
+            gridmap_type: GridMapLayer::Main,
+            gridmap_cell_id: Vec3Int::default(),
+            message: ASTRIX.to_string(),
+        }
+    }
+}
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+pub enum GridMapLayer {
+    Main,
+    Details1,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NetAction {
+    pub id: String,
+    pub text: String,
+    pub tab_list_priority: u8,
+    pub item_name: String,
+    pub entity_option: Option<u64>,
+    pub belonging_entity: Option<u64>,
+    pub cell_option: Option<(GridMapLayer, i16, i16, i16)>,
+}
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ReliableClientMessage {
+    Awoo,
+    HeartBeat,
+    UIInput(UIInputNodeClass, UIInputAction, String, String),
+    SceneReady(String),
+    UIInputTransmitData(String, String, String),
+    MovementInput(Vec2),
+    SprintInput(bool),
+    BuildGraphics,
+    InputChatMessage(String),
+    ExamineEntity(u64),
+    ExamineMap(GridMapLayer, i16, i16, i16),
+    TabDataEntity(u64),
+    TabDataMap(GridMapLayer, i16, i16, i16),
+    UseWorldItem(u64),
+    DropCurrentItem(Option<Vec3>),
+    SwitchHands,
+    WearItem(u64, String),
+    TakeOffItem(String),
+    ConsoleCommand(String, Vec<GodotVariantValues>),
+    ToggleCombatModeInput,
+    InputMouseAction(bool),
+    SelectBodyPart(String),
+    ToggleAutoMove,
+    UserName(String),
+    AttackEntity(u64),
+    AltItemAttack,
+    ThrowItem(Vec3, f32),
+    AttackCell(i16, i16, i16),
+    TabPressed(
+        String,
+        Option<u64>,
+        Option<(GridMapLayer, i16, i16, i16)>,
+        Option<u64>,
+    ),
+    TextTreeInput(Option<u64>, String, String, String),
+    MapChangeDisplayMode(String),
+    MapRequestDisplayModes,
+    MapCameraPosition(Vec2),
+}
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ReliableServerMessage {
+    EntityUpdate(
+        u64,
+        HashMap<String, HashMap<String, EntityUpdateData>>,
+        bool,
+        EntityWorldType,
+    ),
+    ConfigMessage(ServerConfigMessage),
+    UIRequestInput(String, String),
+    LoadEntity(
+        String,
+        String,
+        HashMap<String, HashMap<String, EntityUpdateData>>,
+        u64,
+        bool,
+        String,
+        String,
+        bool,
+    ),
+    UnloadEntity(u64, bool),
+    ChatMessage(String),
+    PickedUpItem(String, u64, String),
+    DropItem(String),
+    SwitchHands,
+    EquippedWornItem(String, u64, String),
+    ConsoleWriteLine(String),
+    PlaySound(String, f32, f32, Option<Vec3>),
+    FireProjectile(ProjectileData),
+    TabData(Vec<NetAction>),
+    TextTreeSelection(
+        Option<u64>,
+        String,
+        String,
+        String,
+        HashMap<String, TextTreeBit>,
+    ),
+    RemoveCell(i16, i16, i16, GridMapLayer),
+    AddCell(i16, i16, i16, i64, i64, GridMapLayer),
+    MapSendDisplayModes(Vec<(String, String)>),
+    MapOverlayUpdate(Vec<(i16, i16, i16)>),
+    MapOverlayHoverData(String),
+    UIAddNotice(String),
+    UIRemoveNotice(String),
+    MapDefaultAddition(i16, i16, i16),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ServerConfigMessage {
+    Awoo,
+    WorldEnvironment(WorldEnvironment),
+    ServerTime,
+    ConnectedPlayers(u16),
+    TickRate(u8),
+    EntityId(u64),
+    BlackCellID(i64, i64),
+    OrderedCellsMain(Vec<String>),
+    OrderedCellsDetails1(Vec<String>),
+    ChangeScene(bool, String),
+    ServerEntityId(u64),
+    RepeatingSFX(String, Vec<String>),
+    FinishedInitialization,
+    ConsoleCommands(Vec<(String, String, Vec<(String, GodotVariant)>)>),
+    TalkSpaces(Vec<(String, String)>),
+    PlaceableItemsSurfaces(Vec<i64>),
+    NonBlockingCells(Vec<i64>),
+}
+
+/// This message gets sent at high intervals.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum UnreliableServerMessage {
+    TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
+    PositionUpdate(u64, Vec3, u64),
+}
+/// This message gets sent at high intervals.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum UnreliableClientMessage {
+    MouseDirectionUpdate(f32, u64),
+    MapViewRange(f32),
+    MapOverlayMouseHoverCell(i16, i16),
+}
+
+/// Variants for input console commands with values.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum GodotVariantValues {
+    Int(i64),
+    String(String),
+    Float(f32),
+    Bool(bool),
+}
+/// Variant types for input console commands with values.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum GodotVariant {
+    Int,
+    String,
+    Float,
+    Bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum UIInputNodeClass {
+    Button,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum UIInputAction {
+    Pressed,
+}
+
+/// Contains information about the projectile and its visual graphics.
+#[allow(dead_code)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ProjectileData {
+    Laser((f32, f32, f32, f32), f32, f32, Vec3, Vec3),
+    Ballistic,
+}
+
+pub trait PendingMessage {
+    fn get_message(&self) -> PendingNetworkMessage;
+}
+#[derive(NetMessage)]
+pub struct PendingNetworkMessage {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+
+pub enum NetMessageType {
+    Reliable(ReliableServerMessage),
+    Unreliable(UnreliableServerMessage),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum EntityWorldType {
+    Main,
+    HealthUI,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum TextTreeBit {
+    Final(Vec<String>),
+    Bit(HashMap<String, TextTreeBit>),
+}
+
+/// Input chat message event.
+pub struct InputChatMessage {
+    pub entity: Entity,
+    pub message: String,
+}
+
+#[derive(NetMessage)]
+pub struct NetSendEntityUpdates {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+#[derive(NetMessage)]
+pub struct NetHealthUpdate {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+#[derive(NetMessage)]
+pub struct NetHealth {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+#[derive(NetMessage)]
+pub struct NetUnloadEntity {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+#[derive(NetMessage)]
+pub struct NetLoadEntity {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+
+/// Load an entity in for the client as a function.
+pub fn load_entity(
+    entity_updates: &HashMap<String, HashMap<String, EntityUpdateData>>,
+    entity_transform: Transform,
+    interpolated_transform: bool,
+    net_load_entity: &mut EventWriter<NetLoadEntity>,
+    player_handle: u64,
+    entity_data: &EntityData,
+    entity_updates_component: &EntityUpdates,
+    entity_id: Entity,
+    load_entirely: bool,
+) {
+    let mut hash_map;
+
+    if load_entirely {
+        hash_map = entity_updates.clone();
+
+        personalise(&mut hash_map, player_handle, entity_updates_component);
+
+        let transform_entity_update = EntityUpdateData::Transform(
+            entity_transform.translation,
+            entity_transform.rotation,
+            entity_transform.scale,
+        );
+
+        match interpolated_transform {
+            true => {
+                let mut transform_hash_map = HashMap::new();
+                transform_hash_map.insert("transform".to_string(), transform_entity_update);
+
+                hash_map.insert("rawTransform".to_string(), transform_hash_map);
+            }
+            false => {
+                let root_map_option = hash_map.get_mut(&".".to_string());
+
+                match root_map_option {
+                    Some(root_map) => {
+                        root_map.insert("transform".to_string(), transform_entity_update);
+                    }
+                    None => {
+                        let mut transform_hash_map = HashMap::new();
+                        transform_hash_map.insert("transform".to_string(), transform_entity_update);
+
+                        hash_map.insert(".".to_string(), transform_hash_map);
+                    }
+                }
+            }
+        }
+    } else {
+        hash_map = HashMap::new();
+    }
+
+    net_load_entity.send(NetLoadEntity {
+        handle: player_handle,
+        message: ReliableServerMessage::LoadEntity(
+            entity_data.entity_class.clone(),
+            entity_data.entity_name.clone(),
+            hash_map,
+            entity_id.to_bits(),
+            load_entirely,
+            "main".to_string(),
+            "".to_string(),
+            false,
+        ),
+    });
+}
+
+/// Unload an entity in for the client as a function.
+pub fn unload_entity(
+    player_handle: u64,
+    entity_id: Entity,
+    net_unload_entity: &mut EventWriter<NetUnloadEntity>,
+    unload_entirely: bool,
+) {
+    net_unload_entity.send(NetUnloadEntity {
+        handle: player_handle,
+        message: ReliableServerMessage::UnloadEntity(entity_id.to_bits(), unload_entirely),
+    });
 }

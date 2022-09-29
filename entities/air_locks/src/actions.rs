@@ -2,9 +2,9 @@ use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use api::{
     data::{HandleToEntity, Vec3Int},
     data_link::{DataLink, DataLinkType},
-    gridmap::cell_id_to_world,
 };
 use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
+use gridmap::grid::cell_id_to_world;
 
 use crate::{
     air_lock_events::{AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen},

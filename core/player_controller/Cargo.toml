@@ -34,6 +34,9 @@ api = { path = "../api" }
 map = { path = "../map" }
 motd = { path = "../motd" }
 chat = { path = "../chat" }
-ui = { path = "../ui" }
 gridmap = { path = "../gridmap" }
 examinable = { path = "../examinable" }
+sensable = { path = "../sensable" }
+entity_grid_meta = { path = "../entity_grid_meta" }
+health = { path = "../health" }
+senser = { path = "../senser" }

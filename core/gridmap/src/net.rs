@@ -1,4 +1,6 @@
-use api::network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage};
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
 #[derive(NetMessage)]
 pub(crate) struct NetGridmapUpdates {

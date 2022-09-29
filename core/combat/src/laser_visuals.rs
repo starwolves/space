@@ -1,5 +1,7 @@
-use api::combat::{ProjectileCombat, ProjectileData, ProjectileFOV};
 use bevy::prelude::{warn, Component, EventReader, EventWriter, Query, Res, Transform, Vec3};
+use gridmap::fov::ProjectileFOV;
+use inventory_item::combat::ProjectileCombat;
+use networking::messages::ProjectileData;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult,
