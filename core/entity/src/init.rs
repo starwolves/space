@@ -1,7 +1,8 @@
 use bevy::prelude::{info, Res, ResMut};
 use console_commands::commands::AllConsoleCommands;
-use entity_grid_meta::core::EntityDataResource;
 use networking::messages::GodotVariant;
+
+use crate::meta::EntityDataResource;
 
 /// Print startup entity data to console.
 pub(crate) fn startup_entities(entity_data: Res<EntityDataResource>) {

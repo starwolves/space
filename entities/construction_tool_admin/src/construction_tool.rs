@@ -19,8 +19,10 @@ use bevy::{
     },
 };
 use doryen_fov::FovAlgorithm;
-use entity::spawn::{DefaultSpawnEvent, SpawnData};
-use entity_grid_meta::core::EntityDataResource;
+use entity::{
+    meta::EntityDataResource,
+    spawn::{DefaultSpawnEvent, SpawnData},
+};
 use gridmap::{
     build::spawn_main_cell,
     fov::{DoryenMap, FOV_DISTANCE},

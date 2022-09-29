@@ -1,5 +1,5 @@
 [package]
-name = "entity_grid_meta"
+name = "grid_meta"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Entity and gridmap meta data."

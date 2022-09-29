@@ -26,7 +26,6 @@ use console_commands::plugins::ConsoleCommandsPlugin;
 use construction_tool_admin::plugin::ConstructionToolAdminPlugin;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
-use entity_grid_meta::plugin::EntityGridMetaPlugin;
 use examinable::plugin::ExaminablePlugin;
 use gridmap::plugin::GridmapPlugin;
 use health::plugin::HealthPlugin;
@@ -138,8 +137,7 @@ impl Plugin for SpacePlugin {
             .add_plugin(PointArrowPlugin)
             .add_plugin(SoundsPlugin)
             .add_plugin(ExaminablePlugin)
-            .add_plugin(ChatPlugin)
-            .add_plugin(EntityGridMetaPlugin);
+            .add_plugin(ChatPlugin);
         match self.threads_amount {
             Some(amn) => {
                 app.insert_resource(DefaultTaskPoolOptions::with_num_threads(amn.into()));

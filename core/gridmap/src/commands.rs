@@ -4,8 +4,10 @@ use console_commands::{
     commands::{NetEntityConsole, CONSOLE_ERROR_COLOR},
     player_selectors::player_selector_to_entities,
 };
-use entity::spawn::{spawn_entity, DefaultSpawnEvent};
-use entity_grid_meta::core::EntityDataResource;
+use entity::{
+    meta::EntityDataResource,
+    spawn::{spawn_entity, DefaultSpawnEvent},
+};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
 

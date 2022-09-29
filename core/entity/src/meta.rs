@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::Transform;
+use grid_meta::core::GridItemData;
 
 /// Resource that contains entity meta data.
 #[derive(Default)]
@@ -34,11 +34,4 @@ pub struct EntityDataProperties {
     pub name: String,
     pub id: usize,
     pub grid_item: Option<GridItemData>,
-}
-
-/// For entities that are also registered with the gridmap.
-pub struct GridItemData {
-    pub transform_offset: Transform,
-    /// So this entity can be built on a cell when another item is already present on that cell.
-    pub can_be_built_with_grid_item: Vec<String>,
 }

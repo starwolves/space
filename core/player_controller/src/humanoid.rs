@@ -21,12 +21,12 @@ use bevy::{
 };
 use entity::{
     entity_data::NetShowcase,
+    meta::EntityDataResource,
     spawn::{
         base_entity_builder, BaseEntityBundle, BaseEntityData, BaseEntitySummonable,
         DefaultSpawnEvent, SpawnData, SpawnEvent,
     },
 };
-use entity_grid_meta::core::EntityDataResource;
 use examinable::examine::{Examinable, RichName};
 use health::core::{DamageFlag, Health, HealthContainer, HumanoidHealth};
 use networking::messages::ReliableServerMessage;

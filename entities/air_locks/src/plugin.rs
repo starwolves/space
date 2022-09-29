@@ -5,9 +5,10 @@ use bevy::prelude::{
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
     entity_data::initialize_entity_data,
+    meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
-use entity_grid_meta::core::{EntityDataProperties, EntityDataResource, GridItemData};
+use grid_meta::core::GridItemData;
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
 

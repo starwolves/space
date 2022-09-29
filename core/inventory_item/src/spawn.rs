@@ -11,8 +11,10 @@ use console_commands::{
     commands::{NetEntityConsole, CONSOLE_ERROR_COLOR},
     player_selectors::player_selector_to_entities,
 };
-use entity::spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent};
-use entity_grid_meta::core::EntityDataResource;
+use entity::{
+    meta::EntityDataResource,
+    spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
+};
 use gridmap::{commands::rcon_spawn_entity, grid::GridmapMain};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;

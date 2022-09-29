@@ -6,9 +6,9 @@ use combat::{
 };
 use entity::{
     entity_data::initialize_entity_data,
+    meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
-use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
 

@@ -33,5 +33,5 @@ combat = { path = "../../core/combat" }
 actions = { path = "../../core/actions" }
 examinable = { path = "../../core/examinable" }
 gridmap = { path = "../../core/gridmap" }
-entity_grid_meta = { path = "../../core/entity_grid_meta" }
+grid_meta = { path = "../../core/grid_meta" }
 health = { path = "../../core/health" }
