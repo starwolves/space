@@ -1,8 +1,8 @@
 [package]
-name = "map"
+name = "data_link"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="The 2D mini-map that can display various data."
+description="Data link for pawns."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
@@ -14,8 +14,3 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-api = { path = "../api" }
-senser = { path = "../senser" }
-data_link = { path = "../data_link" }

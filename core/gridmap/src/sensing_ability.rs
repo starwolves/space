@@ -1,5 +1,5 @@
-use api::data_link::{DataLink, DataLinkType};
 use bevy::prelude::{Changed, Query};
+use data_link::core::{DataLink, DataLinkType};
 use senser::senser::{Senser, SensingAbility};
 
 /// Allow players to examine the gridmap and get cell information.

@@ -3,7 +3,6 @@
 
 pub mod chat;
 pub mod data;
-pub mod data_link;
 pub mod entity_updates;
 pub mod gridmap;
 pub mod health;
