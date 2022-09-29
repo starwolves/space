@@ -1,8 +1,9 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use api::{data::HandleToEntity, inventory::Inventory, pawn::REACH_DISTANCE};
+use api::{data::HandleToEntity, inventory::Inventory};
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
 use gridmap::grid::{cell_id_to_world, GridmapMain};
 use networking::messages::{InputConstructionOptionsSelection, TextTreeInputSelection};
+use pawn::pawn::REACH_DISTANCE;
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
 

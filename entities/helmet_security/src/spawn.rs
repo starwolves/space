@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use api::converters::string_transform_to_transform;
 use api::data::NoData;
 use api::inventory::SlotType;
 use bevy::math::Mat4;
@@ -12,6 +11,7 @@ use bevy::prelude::EventWriter;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
+use data_converters::converters::string_transform_to_transform;
 use entity::entity_data::RawSpawnEvent;
 use entity::entity_data::HELMET_SECURITY_ENTITY_NAME;
 use entity::spawn::BaseEntityBundle;

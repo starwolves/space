@@ -5,7 +5,6 @@ use api::{
     data::{HandleToEntity, ZeroGravity},
     entity_updates::{EntityData, EntityUpdateData},
     inventory::Inventory,
-    pawn::REACH_DISTANCE,
     rigid_body::RigidBodyLinkTransform,
 };
 
@@ -41,7 +40,7 @@ use sensable::core::Sensable;
 use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
 };
-use pawn::pawn::{ControllerInput, Pawn};
+use pawn::pawn::{ControllerInput, Pawn, REACH_DISTANCE};
 use physics::{
     physics::{disable_rigidbody, enable_rigidbody},
     world_mode::{WorldMode, WorldModes},

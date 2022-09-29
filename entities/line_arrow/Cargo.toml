@@ -21,4 +21,3 @@ physics = { path = "../../core/physics" }
 api = { path = "../../core/api" }
 examinable = { path = "../../core/examinable" }
 sensable = { path = "../../core/sensable" }
-grid_meta = { path = "../../core/grid_meta" }

@@ -37,6 +37,6 @@ chat = { path = "../chat" }
 gridmap = { path = "../gridmap" }
 examinable = { path = "../examinable" }
 sensable = { path = "../sensable" }
-grid_meta = { path = "../grid_meta" }
 health = { path = "../health" }
 senser = { path = "../senser" }
+world_environment = { path = "../world_environment" }

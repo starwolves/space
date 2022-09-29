@@ -24,5 +24,4 @@ health = { path = "../health" }
 api = { path = "../api" }
 console_commands = { path = "../console_commands" }
 examinable = { path = "../examinable" }
-grid_meta = { path = "../grid_meta" }
 sensable = { path = "../sensable" }

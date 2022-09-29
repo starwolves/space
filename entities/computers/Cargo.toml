@@ -23,5 +23,5 @@ rigid_body = { path = "../../core/rigid_body" }
 api = { path = "../../core/api" }
 combat = { path = "../../core/combat" }
 examinable = { path = "../../core/examinable" }
-grid_meta = { path = "../../core/grid_meta" }
 health = { path = "../../core/health" }
+data_converters = { path = "../../core/data_converters" }

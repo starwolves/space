@@ -7,7 +7,6 @@ use api::{
     },
     entity_updates::EntityUpdateData,
     humanoid::UsedNames,
-    pawn::PawnDesignation,
     player_controller::SoftPlayer,
 };
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
@@ -16,7 +15,7 @@ use motd::motd::MOTD;
 use networking::messages::{
     EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction, UIInputNodeClass,
 };
-use pawn::pawn::PersistentPlayerData;
+use pawn::pawn::{PawnDesignation, PersistentPlayerData};
 
 use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
 

@@ -1,3 +1,4 @@
+use bevy::prelude::Transform;
 use bevy::prelude::Vec3;
 
 use crate::data::Vec3Int;
@@ -14,3 +15,10 @@ pub fn world_to_cell_id(position: Vec3) -> Vec3Int {
 }
 /// Size of a cell.
 pub const CELL_SIZE: f32 = 2.;
+
+/// For entities that are also registered with the gridmap.
+pub struct GridItemData {
+    pub transform_offset: Transform,
+    /// So this entity can be built on a cell when another item is already present on that cell.
+    pub can_be_built_with_grid_item: Vec<String>,
+}

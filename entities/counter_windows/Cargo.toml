@@ -31,5 +31,5 @@ combat = { path = "../../core/combat" }
 actions = { path = "../../core/actions" }
 examinable = { path = "../../core/examinable" }
 gridmap = { path = "../../core/gridmap" }
-grid_meta = { path = "../../core/grid_meta" }
 health = { path = "../../core/health" }
+data_converters = { path = "../../core/data_converters" }

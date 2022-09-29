@@ -1,7 +1,6 @@
-use api::world_environment::WorldEnvironment;
 use bevy::prelude::{App, Plugin};
 
-use crate::environment::startup_environment;
+use crate::environment::{startup_environment, WorldEnvironment};
 
 pub struct WorldEnvironmentPlugin;
 

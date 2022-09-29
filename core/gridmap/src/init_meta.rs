@@ -3,7 +3,6 @@ use std::{collections::HashMap, fs, path::Path};
 use api::{
     chat::EXAMINATION_EMPTY,
     data::{ServerId, TickRate},
-    pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints},
 };
 use bevy::prelude::{info, Commands, EventWriter, Res, ResMut, Transform};
 use bevy_rapier3d::{
@@ -12,6 +11,7 @@ use bevy_rapier3d::{
 };
 use entity::entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server};
 use examinable::examine::RichName;
+use pawn::pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints};
 
 use crate::{
     build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},

@@ -2,7 +2,6 @@ use api::{
     data::{ConnectedPlayer, GIProbe, HandleToEntity, ReflectionProbe},
     entity_updates::{EntityData, EntityUpdates},
     player_controller::SoftPlayer,
-    world_environment::WorldEnvironment,
 };
 use bevy::prelude::{
     Commands, Entity, EventReader, EventWriter, Local, Query, Res, Transform, Without,
@@ -13,6 +12,7 @@ use networking::messages::{
     ReliableServerMessage, ServerConfigMessage,
 };
 use networking_macros::NetMessage;
+use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, f32::consts::PI};
 

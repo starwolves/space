@@ -17,7 +17,6 @@ use api::{
         PISTOL_L1_ENTITY_NAME,
     },
     humanoid::UsedNames,
-    pawn::{PawnDesignation, SpawnPoints, Spawning},
     player_controller::SoftPlayer,
 };
 use bevy::{
@@ -33,7 +32,7 @@ use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
-use pawn::pawn::PersistentPlayerData;
+use pawn::pawn::{PawnDesignation, PersistentPlayerData, SpawnPoints, Spawning};
 
 /// Component with boarding data.
 pub(crate) struct BoardingPlayer {
