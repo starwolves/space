@@ -1,9 +1,7 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use api::{
-    data::{HandleToEntity, Vec3Int},
-    data_link::{DataLink, DataLinkType},
-};
+use api::data::{HandleToEntity, Vec3Int};
 use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
+use data_link::core::{DataLink, DataLinkType};
 use gridmap::grid::cell_id_to_world;
 
 use crate::counter_window_events::CounterWindow;

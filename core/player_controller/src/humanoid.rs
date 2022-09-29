@@ -5,7 +5,6 @@ use api::{
         ConnectedPlayer, NoData, Showcase, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
         JUMPSUIT_SECURITY_ENTITY_NAME,
     },
-    data_link::{DataLink, DataLinkType},
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
     humanoid::UsedNames,
     inventory::{Inventory, Slot, SlotType},
@@ -18,6 +17,7 @@ use bevy::{
     math::Vec3,
     prelude::{EventReader, Transform},
 };
+use data_link::core::{DataLink, DataLinkType};
 use entity::{
     entity_data::NetShowcase,
     meta::EntityDataResource,
