@@ -8,8 +8,7 @@ use bevy::prelude::{Commands, Entity, EventWriter, Local, Query, Res, ResMut, Tr
 use console_commands::commands::{
     NetConsoleCommands, NetEntityConsole, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR,
 };
-use entity::spawn::DefaultSpawnEvent;
-use entity_grid_meta::core::EntityDataResource;
+use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
 use gridmap::{commands::rcon_spawn_entity, grid::GridmapMain};
 use inventory_item::spawn::rcon_spawn_held_entity;
 use networking::messages::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};

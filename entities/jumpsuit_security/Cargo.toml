@@ -23,4 +23,4 @@ api = { path = "../../core/api" }
 combat = { path = "../../core/combat" }
 examinable = { path = "../../core/examinable" }
 health = { path = "../../core/health" }
-entity_grid_meta = { path = "../../core/entity_grid_meta" }
+grid_meta = { path = "../../core/grid_meta" }

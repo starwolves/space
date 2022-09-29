@@ -7,8 +7,8 @@ use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, Syste
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_data::{initialize_entity_data, CONSTRUCTION_TOOL_ENTITY_NAME};
+use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{summon_base_entity, SpawnEvent};
-use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use inventory_item::spawn::summon_inventory_item;
 use networking::messages::{net_system, InputConstructionOptionsSelection};
 use rigid_body::spawn::summon_rigid_body;

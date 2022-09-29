@@ -3,9 +3,9 @@ use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
     entity_data::initialize_entity_data,
+    meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
-use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use networking::messages::GodotVariant;
 
 use crate::console_command::entity_console_commands;

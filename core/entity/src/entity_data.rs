@@ -3,7 +3,6 @@ use bevy::{
     prelude::{warn, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
     time::{FixedTimesteps, Time},
 };
-use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
 use networking::{
     messages::{ReliableServerMessage, UnreliableServerMessage},
     plugin::RENET_UNRELIABLE_CHANNEL_ID,
@@ -16,6 +15,8 @@ use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
+
+use crate::meta::{EntityDataProperties, EntityDataResource};
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
 pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
 /// Initialize meta-data for an entity as a function.

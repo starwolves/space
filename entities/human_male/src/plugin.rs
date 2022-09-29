@@ -1,6 +1,9 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
-use entity::{entity_data::initialize_entity_data, spawn::SpawnEvent};
-use entity_grid_meta::core::{EntityDataProperties, EntityDataResource};
+use entity::{
+    entity_data::initialize_entity_data,
+    meta::{EntityDataProperties, EntityDataResource},
+    spawn::SpawnEvent,
+};
 use player_controller::humanoid::{summon_base_human_male, summon_human_male, HumanMaleSummoner};
 
 use api::data::{

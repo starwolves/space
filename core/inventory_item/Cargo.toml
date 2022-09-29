@@ -22,4 +22,4 @@ actions = { path = "../actions" }
 networking = { path = "../networking" }
 health = { path = "../health" }
 gridmap = { path = "../gridmap" }
-entity_grid_meta = { path = "../entity_grid_meta" }
+grid_meta = { path = "../grid_meta" }

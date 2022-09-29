@@ -6,6 +6,7 @@ use networking::messages::net_system;
 
 use crate::entity_data::{RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::init::{initialize_console_commands, startup_entities};
+use crate::meta::EntityDataResource;
 use crate::spawn::DefaultSpawnEvent;
 
 use super::entity_data::{broadcast_position_updates, NetShowcase};
@@ -15,6 +16,7 @@ pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<NetShowcase>()
+            .init_resource::<EntityDataResource>()
             .add_event::<RawSpawnEvent>()
             .add_event::<DefaultSpawnEvent>()
             .add_system_set(
