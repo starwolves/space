@@ -3,7 +3,6 @@ use api::{
     chat::{
         EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
     },
-    data::HandleToEntity,
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
 use examinable::examine::{Examinable, ExamineEntityMessages};
@@ -13,6 +12,7 @@ use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
 use sensable::core::Sensable;
 use senser::senser::Senser;
+use server::core::HandleToEntity;
 #[derive(NetMessage)]
 pub(crate) struct ExamineEntityPawn {
     pub handle: u64,

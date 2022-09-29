@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::net::NetConstructionTool;
 use api::{
     chat::FURTHER_ITALIC_FONT,
-    data::{ConnectedPlayer, HandleToEntity, Vec2Int, Vec3Int},
+    data::{Vec2Int, Vec3Int},
     entity_updates::EntityData,
     gridmap::world_to_cell_id,
     health::StructureHealth,
@@ -42,6 +42,7 @@ use pawn::pawn::Pawn;
 use rand::Rng;
 use sensable::core::Sensable;
 use senser::senser::{to_doryen_coordinates, Senser};
+use server::core::{HandleToEntity, ConnectedPlayer};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     construction::{

@@ -1,4 +1,4 @@
-use api::{data::HandleToEntity, humanoid::UsedNames};
+use api::{humanoid::UsedNames};
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, Transform};
 use console_commands::{
     commands::{NetEntityConsole, CONSOLE_ERROR_COLOR},
@@ -10,6 +10,7 @@ use entity::{
 };
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
+use server::core::HandleToEntity;
 
 use crate::{get_spawn_position::entity_spawn_position_for_player, grid::GridmapMain};
 

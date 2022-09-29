@@ -5,7 +5,6 @@ use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
 
 use api::{
     chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT},
-    data::HandleToEntity,
 };
 use bevy::prelude::{warn, Query, Res};
 use networking::messages::InputExamineEntity;
@@ -15,6 +14,7 @@ use networking::messages::{InputExamineMap, ReliableServerMessage};
 use networking_macros::NetMessage;
 use sensable::core::Sensable;
 use senser::senser::Senser;
+use server::core::HandleToEntity;
 
 #[derive(NetMessage)]
 pub(crate) struct NetExamine {

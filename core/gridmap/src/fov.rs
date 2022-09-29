@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use api::{
-    data::{ConnectedPlayer, Vec2Int, Vec3Int},
+    data::{Vec2Int, Vec3Int},
     gridmap::world_to_cell_id,
 };
 use bevy::{
@@ -11,6 +11,7 @@ use bevy::{
 use doryen_fov::{FovAlgorithm, MapData};
 use networking::messages::{ProjectileData, ReliableServerMessage};
 use senser::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
+use server::core::ConnectedPlayer;
 
 use crate::grid::{GridmapData, GridmapMain};
 

@@ -20,3 +20,4 @@ api = { path = "../api" }
 senser = { path = "../senser" }
 examinable = { path = "../examinable" }
 sensable = { path = "../sensable" }
+server = { path = "../server" }

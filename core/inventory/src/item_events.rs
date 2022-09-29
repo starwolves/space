@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use actions::core::{ActionRequests, BuildingActions};
 use api::{
-    data::{HandleToEntity, ZeroGravity},
+    data::{ZeroGravity},
     entity_updates::{EntityData, EntityUpdateData},
     inventory::Inventory,
     rigid_body::RigidBodyLinkTransform,
@@ -36,6 +36,7 @@ use networking::messages::{
 };
 use rand::Rng;
 use sensable::core::Sensable;
+use server::core::HandleToEntity;
 
 use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,

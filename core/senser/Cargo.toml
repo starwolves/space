@@ -21,3 +21,4 @@ physics = { path = "../physics" }
 api = { path = "../api" }
 sensable = { path = "../sensable" }
 networking = { path = "../networking" }
+server = { path = "../server" }

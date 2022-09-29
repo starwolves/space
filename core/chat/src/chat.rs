@@ -54,7 +54,6 @@ use api::{
         TALK_STYLE_STANDARD_STANDARD, TALK_TYPE_MACHINE_NEARBY_END, TALK_TYPE_MACHINE_NEARBY_START,
         TALK_TYPE_STANDARD_NEARBY_END, TALK_TYPE_STANDARD_NEARBY_START,
     },
-    data::{ConnectedPlayer, HandleToEntity},
     entity_updates::EntityUpdateData,
     player_controller::SoftPlayer,
 };
@@ -68,6 +67,7 @@ use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use sensable::core::Sensable;
 use senser::senser::{to_doryen_coordinates, Senser};
+use server::core::{HandleToEntity, ConnectedPlayer};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 

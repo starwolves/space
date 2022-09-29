@@ -1,7 +1,7 @@
-use api::data::HandleToEntity;
 use bevy::ecs::entity::Entity;
 use bevy::prelude::{Component, EventWriter, Res};
 use networking::messages::{unload_entity, NetUnloadEntity};
+use server::core::HandleToEntity;
 
 /// The component for entities that can be sensed.
 #[derive(Component, Default)]

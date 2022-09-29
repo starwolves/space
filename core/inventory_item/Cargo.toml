@@ -22,3 +22,4 @@ actions = { path = "../actions" }
 networking = { path = "../networking" }
 health = { path = "../health" }
 gridmap = { path = "../gridmap" }
+server = { path = "../server" }

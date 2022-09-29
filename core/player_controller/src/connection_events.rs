@@ -1,5 +1,5 @@
 use api::{
-    data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
+    data::{ServerId, TickRate},
     humanoid::UsedNames,
     player_controller::SoftPlayer,
 };
@@ -10,6 +10,7 @@ use gridmap::grid::GridmapData;
 use map::map_input::MapData;
 use networking::messages::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
 use pawn::pawn::{ControllerInput, PersistentPlayerData};
+use server::core::{HandleToEntity, ConnectedPlayer};
 
 use crate::connection::AuthidI;
 

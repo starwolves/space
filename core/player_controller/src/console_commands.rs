@@ -1,5 +1,4 @@
 use api::{
-    data::{ConnectedPlayer, HandleToEntity},
     humanoid::UsedNames,
     inventory::Inventory,
 };
@@ -13,6 +12,7 @@ use gridmap::{commands::rcon_spawn_entity, grid::GridmapMain};
 use inventory_item::spawn::rcon_spawn_held_entity;
 use networking::messages::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
 use pawn::pawn::Pawn;
+use server::core::{ConnectedPlayer, HandleToEntity};
 use std::collections::HashMap;
 
 /// Perform RCON console commands.

@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use api::{
-    data::{ConnectedPlayer, Vec2Int, ZeroGravity},
+    data::{Vec2Int, ZeroGravity},
     gridmap::world_to_cell_id,
 };
 use bevy::prelude::{Entity, EventWriter, Local, Query, Res, Transform};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
+use server::core::ConnectedPlayer;
 
 use crate::diffusion::{get_atmos_index, AtmosphericsResource};
 

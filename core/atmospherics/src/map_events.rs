@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use api::{
-    data::{ConnectedPlayer, Vec2Int},
+    data::{Vec2Int},
     gridmap::world_to_cell_id,
 };
 use bevy::{
@@ -13,6 +13,7 @@ use map::map::{
 };
 use networking::messages::ReliableServerMessage;
 use senser::senser::FOV_MAP_WIDTH;
+use server::core::ConnectedPlayer;
 
 use crate::diffusion::{
     get_atmos_id, get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET,

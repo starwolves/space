@@ -32,3 +32,4 @@ senser = { path = "../senser" }
 pawn = { path = "../pawn" }
 console_commands = { path = "../console_commands" }
 data_link = { path = "../data_link" }
+server = { path = "../server" }

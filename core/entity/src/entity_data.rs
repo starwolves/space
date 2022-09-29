@@ -1,4 +1,3 @@
-use api::data::HandleToEntity;
 use bevy::{
     prelude::{warn, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
     time::{FixedTimesteps, Time},
@@ -15,6 +14,7 @@ use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
+use server::core::HandleToEntity;
 
 use crate::meta::{EntityDataProperties, EntityDataResource};
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";

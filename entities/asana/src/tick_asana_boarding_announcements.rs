@@ -1,4 +1,3 @@
-use api::data::{ConnectedPlayer, HandleToEntity};
 use bevy::{
     math::Vec3,
     prelude::{Entity, EventWriter, Query, Res, ResMut, Transform},
@@ -7,6 +6,7 @@ use bevy::{
 use chat::chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMessage, Radio};
 use pawn::pawn::{PersistentPlayerData, ShipJobsEnum};
 use player_controller::boarding::BoardingAnnouncements;
+use server::core::{HandleToEntity, ConnectedPlayer};
 
 /// Manage asana boarding announcements.
 pub(crate) fn tick_asana_boarding_announcements(

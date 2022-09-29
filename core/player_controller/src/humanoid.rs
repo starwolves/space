@@ -2,7 +2,7 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use api::{
     data::{
-        ConnectedPlayer, NoData, Showcase, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
+        NoData, Showcase, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
         JUMPSUIT_SECURITY_ENTITY_NAME,
     },
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
@@ -33,6 +33,7 @@ use pawn::pawn::{
     FacingDirection, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum,
 };
 use senser::senser::Senser;
+use server::core::ConnectedPlayer;
 
 use crate::connection::SpawnPawnData;
 

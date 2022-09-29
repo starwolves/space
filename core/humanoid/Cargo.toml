@@ -31,3 +31,4 @@ console_commands = { path = "../console_commands" }
 senser = { path = "../senser" }
 sensable = { path = "../sensable" }
 gridmap = { path = "../gridmap" }
+server = { path = "../server" }

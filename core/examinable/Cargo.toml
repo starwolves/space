@@ -20,3 +20,4 @@ senser = { path = "../senser" }
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
 sensable = { path = "../sensable" }
+server = { path = "../server" }

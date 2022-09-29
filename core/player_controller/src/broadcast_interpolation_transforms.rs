@@ -1,4 +1,3 @@
-use api::data::{ConnectedPlayer, HandleToEntity};
 use bevy::{
     math::Vec3,
     prelude::{Entity, Local, Query, Res, ResMut, Transform, With, Without},
@@ -11,6 +10,7 @@ use entity::entity_data::CachedBroadcastTransform;
 use networking::{messages::UnreliableServerMessage, plugin::RENET_UNRELIABLE_CHANNEL_ID};
 use physics::physics::RigidBodyDisabled;
 use sensable::core::Sensable;
+use server::core::{HandleToEntity, ConnectedPlayer};
 
 /// All transform interpolation rates.
 #[derive(Debug)]
