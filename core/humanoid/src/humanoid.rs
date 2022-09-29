@@ -1,7 +1,7 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use api::{
-    data::{HandleToEntity, Showcase, TickRate, ZeroGravity},
+    data::{Showcase, TickRate, ZeroGravity},
     gridmap::world_to_cell_id,
     inventory::Inventory,
 };
@@ -28,6 +28,7 @@ use pawn::pawn::{
 };
 use rigid_body::rigid_body::RigidBodyData;
 use sensable::core::Sensable;
+use server::core::HandleToEntity;
 use sfx::builder::repeating_sfx_builder;
 use sounds::actions::{
     footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,

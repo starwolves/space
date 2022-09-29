@@ -1,5 +1,5 @@
 use api::{
-    data::{HandleToEntity, ShowcaseData},
+    data::{ShowcaseData},
     humanoid::UsedNames,
     inventory::Inventory,
     rigid_body::RigidBodyLinkTransform,
@@ -18,6 +18,7 @@ use entity::{
 use gridmap::{commands::rcon_spawn_entity, grid::GridmapMain};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
+use server::core::HandleToEntity;
 
 use crate::combat::{MeleeCombat, ProjectileCombat};
 

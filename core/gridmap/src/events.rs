@@ -7,7 +7,7 @@ use bevy::{
 
 use api::{
     chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
-    data::{ConnectedPlayer, Vec3Int},
+    data::{Vec3Int},
     health::StructureHealth,
 };
 
@@ -18,6 +18,7 @@ use health::core::{Health, HealthContainer};
 use networking::messages::{GridMapLayer, ReliableServerMessage};
 use senser::senser::{to_doryen_coordinates, Senser};
 use serde::Deserialize;
+use server::core::ConnectedPlayer;
 
 use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMain, RemoveCell};
 

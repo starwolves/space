@@ -1,5 +1,5 @@
 use api::{
-    data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
+    data::{ServerId, TickRate},
     humanoid::UsedNames,
 };
 use bevy::{
@@ -13,6 +13,7 @@ use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PawnDesignation, PersistentPlayerData};
+use server::core::{ConnectedPlayer, HandleToEntity};
 
 use crate::{connection_events::send_server_configuration, health_ui::ClientHealthUICache};
 

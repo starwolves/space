@@ -1,8 +1,8 @@
 [package]
-name = "networking"
+name = "server"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Netcode."
+description="Server crate."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
@@ -14,12 +14,3 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
-bevy_renet = "0.0.5"
-bincode = "1.3.3"
-local_ipaddress = "0.1.3"
-serde = "1.0.137"
-
-networking_macros = { path = "../networking_macros" }
-api = { path = "../api" }
-world_environment = { path = "../world_environment" }
-server = { path = "../server" }

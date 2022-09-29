@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use api::data::{HandleToEntity, Vec3Int};
+use api::data::{Vec3Int};
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
 use networking::messages::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
 use networking::{
     messages::{InputListActionsEntity, InputListActionsMap},
     plugin::NetActionData,
 };
+use server::core::HandleToEntity;
 
 /// Resource with a list of actions being built this frame.
 #[derive(Default)]

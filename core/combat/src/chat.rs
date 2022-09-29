@@ -1,4 +1,4 @@
-use api::{data::HandleToEntity, gridmap::world_to_cell_id};
+use api::{gridmap::world_to_cell_id};
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use chat::chat::EntityProximityMessage;
 use examinable::examine::Examinable;
@@ -20,6 +20,7 @@ use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
 use senser::senser::to_doryen_coordinates;
 use senser::senser::Senser;
+use server::core::HandleToEntity;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,

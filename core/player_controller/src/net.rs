@@ -1,5 +1,5 @@
 use api::{
-    data::{ConnectedPlayer, GIProbe, HandleToEntity, ReflectionProbe},
+    data::{GIProbe, ReflectionProbe},
     entity_updates::{EntityData, EntityUpdates},
     player_controller::SoftPlayer,
 };
@@ -12,6 +12,7 @@ use networking::messages::{
     ReliableServerMessage, ServerConfigMessage,
 };
 use networking_macros::NetMessage;
+use server::core::{HandleToEntity, ConnectedPlayer};
 use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, f32::consts::PI};

@@ -17,3 +17,4 @@ default-features = false
 
 api = { path = "../api" }
 networking = { path = "../networking" }
+server = { path = "../server" }

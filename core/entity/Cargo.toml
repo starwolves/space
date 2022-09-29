@@ -25,3 +25,4 @@ api = { path = "../api" }
 console_commands = { path = "../console_commands" }
 examinable = { path = "../examinable" }
 sensable = { path = "../sensable" }
+server = { path = "../server" }

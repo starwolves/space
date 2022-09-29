@@ -1,4 +1,4 @@
-use api::{chat::escape_bb, data::HandleToEntity, humanoid::UsedNames};
+use api::{chat::escape_bb, humanoid::UsedNames};
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
 use console_commands::commands::CONSOLE_ERROR_COLOR;
 use networking::messages::PendingMessage;
@@ -6,6 +6,7 @@ use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUserName, ReliableServerMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::PersistentPlayerData;
+use server::core::HandleToEntity;
 
 /// Set character user name that also isn't already taken.
 pub(crate) fn user_name(

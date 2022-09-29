@@ -5,13 +5,13 @@ use bevy::{
 use bevy_rapier3d::prelude::RigidBody;
 
 use api::{
-    data::ConnectedPlayer,
     entity_updates::{EntityData, EntityUpdates},
     gridmap::world_to_cell_id,
 };
 use networking::messages::{load_entity, unload_entity, NetLoadEntity, NetUnloadEntity};
 use physics::world_mode::{WorldMode, WorldModes};
 use sensable::core::Sensable;
+use server::core::ConnectedPlayer;
 
 use crate::senser::{to_doryen_coordinates, Senser};
 

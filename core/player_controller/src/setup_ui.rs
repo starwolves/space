@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use api::{
     data::{
-        ConnectedPlayer, HandleToEntity, ServerId, ShowcaseData, HUMAN_MALE_ENTITY_NAME,
+        ServerId, ShowcaseData, HUMAN_MALE_ENTITY_NAME,
         JUMPSUIT_SECURITY_ENTITY_NAME, PISTOL_L1_ENTITY_NAME,
     },
     entity_updates::EntityUpdateData,
@@ -16,6 +16,7 @@ use networking::messages::{
     EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction, UIInputNodeClass,
 };
 use pawn::pawn::{PawnDesignation, PersistentPlayerData};
+use server::core::{HandleToEntity, ConnectedPlayer};
 
 use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
 

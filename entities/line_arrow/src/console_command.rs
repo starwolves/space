@@ -1,4 +1,3 @@
-use api::data::HandleToEntity;
 use bevy::{
     math::Vec3,
     prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform},
@@ -7,6 +6,7 @@ use bevy::{
 use entity::spawn::{SpawnData, SpawnEvent};
 use networking::messages::{GodotVariantValues, InputConsoleCommand, NetUnloadEntity};
 use sensable::core::Sensable;
+use server::core::HandleToEntity;
 
 use super::{
     line_arrow::PointArrow,

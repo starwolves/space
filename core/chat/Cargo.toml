@@ -23,3 +23,4 @@ sfx = { path = "../sfx" }
 pawn = { path = "../pawn" }
 sensable = { path = "../sensable" }
 senser = { path = "../senser" }
+server = { path = "../server" }

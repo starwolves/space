@@ -1,6 +1,6 @@
 use api::{
     chat::ASTRIX,
-    data::{HandleToEntity, Vec3Int},
+    data::{Vec3Int},
     entity_updates::{personalise, EntityData, EntityUpdateData, EntityUpdates},
 };
 use bevy::{
@@ -9,6 +9,7 @@ use bevy::{
 };
 use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
+use server::core::HandleToEntity;
 use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};

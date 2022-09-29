@@ -37,3 +37,4 @@ sensable = { path = "../../core/sensable" }
 senser = { path = "../../core/senser" }
 health = { path = "../../core/health" }
 data_converters = { path = "../../core/data_converters" }
+server = { path = "../../core/server" }
