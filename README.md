@@ -19,12 +19,16 @@
 
 The repository of a modular and moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client it communicates with is made with Godot as the official closed-source prototype Space Frontiers client. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
 
+You can see gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).
 
-### Socials:
+### Community & Organization
+Socials:
 * [Discord](https://discord.gg/yYpMun9CTT)
 * [Matrix](https://matrix.to/#/#space-frontiers:comms.starwolves.io)
 
-You can see gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).
+We are by no means ordinary, revolutionary would be a better word.
+At the top there is integrity, values and strong personalities together with honest beings and leaders that operate in truth and good faith.
+
 
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own server. 👑
@@ -100,4 +104,4 @@ Contributors of this project have to agree to our [Collaberative License Agreeme
 
 ## License
 
-This repository is licensed under a [restrictive proprietary license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE) that we intend to support with good faith and integrity.
+This repository is licensed under a [restrictive proprietary license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE) that we intend to support with good faith and integrity to both grant and support western freedoms for individual communities and thus without elements of modern day cancel culture 👑.
