@@ -1,6 +1,6 @@
-use api::{converters::string_color_to_color, data::ReflectionProbe};
+use api::data::ReflectionProbe;
 use bevy::math::Vec3;
-use data_converters::converters::string_vec3_to_vec3;
+use data_converters::converters::{string_color_to_color, string_vec3_to_vec3};
 use serde::Deserialize;
 
 /// Raw json data.

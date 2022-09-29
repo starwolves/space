@@ -1,9 +1,5 @@
-use api::{
-    data::{
-        ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels,
-        UpdateLabels,
-    },
-    pawn::SpawnPoints,
+use api::data::{
+    ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
 use bevy::{
     prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
@@ -12,6 +8,7 @@ use bevy::{
 use entity::entity_data::INTERPOLATION_LABEL1;
 use examinable::examine::RichName;
 use networking::messages::net_system;
+use pawn::pawn::SpawnPoints;
 
 use crate::{
     examine::{

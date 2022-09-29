@@ -1,8 +1,6 @@
-use api::{
-    converters::string_transform_to_transform,
-    entity_updates::{EntityData, EntityUpdates},
-};
+use api::entity_updates::{EntityData, EntityUpdates};
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
+use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::RawSpawnEvent,
     spawn::{SpawnData, SpawnEvent},

@@ -4,7 +4,6 @@ use api::{
     data::{HandleToEntity, Showcase, TickRate, ZeroGravity},
     gridmap::world_to_cell_id,
     inventory::Inventory,
-    pawn::PawnYAxisRotations,
 };
 use bevy::{
     hierarchy::Children,
@@ -24,7 +23,9 @@ use inventory_item::{
     item::{CombatStandardAnimation, InventoryItem},
 };
 use networking::messages::{InputToggleCombatMode, NetUnloadEntity};
-use pawn::pawn::{facing_direction_to_direction, ControllerInput, FacingDirection, Pawn};
+use pawn::pawn::{
+    facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
+};
 use rigid_body::rigid_body::RigidBodyData;
 use sensable::core::Sensable;
 use sfx::builder::repeating_sfx_builder;

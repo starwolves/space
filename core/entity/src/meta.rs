@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use grid_meta::core::GridItemData;
+use api::gridmap::GridItemData;
 
 /// Resource that contains entity meta data.
 #[derive(Default)]

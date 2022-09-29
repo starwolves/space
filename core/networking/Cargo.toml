@@ -21,3 +21,4 @@ serde = "1.0.137"
 
 networking_macros = { path = "../networking_macros" }
 api = { path = "../api" }
+world_environment = { path = "../world_environment" }

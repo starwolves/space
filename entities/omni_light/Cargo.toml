@@ -21,3 +21,4 @@ entity = { path = "../../core/entity" }
 physics = { path = "../../core/physics" }
 api = { path = "../../core/api" }
 sensable = { path = "../../core/sensable" }
+data_converters = { path = "../../core/data_converters" }

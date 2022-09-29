@@ -9,7 +9,6 @@ use api::{
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
     humanoid::UsedNames,
     inventory::{Inventory, Slot, SlotType},
-    pawn::PawnDesignation,
 };
 use bevy::{
     math::Vec2,
@@ -30,7 +29,9 @@ use entity::{
 use examinable::examine::{Examinable, RichName};
 use health::core::{DamageFlag, Health, HealthContainer, HumanoidHealth};
 use networking::messages::ReliableServerMessage;
-use pawn::pawn::{FacingDirection, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
+use pawn::pawn::{
+    FacingDirection, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum,
+};
 use senser::senser::Senser;
 
 use crate::connection::SpawnPawnData;

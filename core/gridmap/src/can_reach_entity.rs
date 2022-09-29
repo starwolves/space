@@ -1,4 +1,3 @@
-use api::pawn::REACH_DISTANCE;
 use bevy::{
     hierarchy::Parent,
     math::Vec3,
@@ -11,6 +10,7 @@ use bevy_rapier3d::{
     rapier::prelude::Ray,
 };
 use health::core::HealthComponent;
+use pawn::pawn::REACH_DISTANCE;
 use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
 
 use crate::{

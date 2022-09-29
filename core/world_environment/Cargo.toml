@@ -15,5 +15,6 @@ default-features = false
 
 [dependencies]
 serde_json = "1.0.81"
+serde = "1.0.137"
 
-api = { path = "../api" }
+data_converters = { path = "../data_converters" }

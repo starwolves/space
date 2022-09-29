@@ -1,4 +1,3 @@
-use api::converters::string_transform_to_transform;
 use api::data::NoData;
 use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
 use api::inventory::SlotType;
@@ -10,6 +9,7 @@ use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use data_converters::converters::string_transform_to_transform;
 use entity::entity_data::RawSpawnEvent;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::BaseEntitySummonable;

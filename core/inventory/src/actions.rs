@@ -1,7 +1,8 @@
 use actions::core::BuildingActions;
-use api::{data::Vec3Int, inventory::Inventory, pawn::REACH_DISTANCE};
+use api::{data::Vec3Int, inventory::Inventory};
 use bevy::prelude::{warn, Query, ResMut, Transform};
 use gridmap::grid::cell_id_to_world;
+use pawn::pawn::REACH_DISTANCE;
 
 /// Inventory item action prerequisite check for pickup action.
 pub(crate) fn pickup_prerequisite_check(

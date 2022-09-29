@@ -31,4 +31,3 @@ actions = { path = "../actions" }
 senser = { path = "../senser" }
 pawn = { path = "../pawn" }
 console_commands = { path = "../console_commands" }
-grid_meta = { path = "../grid_meta" }
