@@ -1,9 +1,9 @@
-use api::data::{PostUpdateLabels, PreUpdateLabels};
 use bevy::prelude::SystemSet;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
 use networking_macros::NetMessage;
+use server::labels::{PostUpdateLabels, PreUpdateLabels};
 
 use super::messages::{incoming_messages, startup_listen_connections};
 use crate::messages::PendingMessage;

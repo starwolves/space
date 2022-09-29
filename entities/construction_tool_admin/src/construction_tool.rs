@@ -42,7 +42,7 @@ use pawn::pawn::Pawn;
 use rand::Rng;
 use sensable::core::Sensable;
 use senser::senser::{to_doryen_coordinates, Senser};
-use server::core::{HandleToEntity, ConnectedPlayer};
+use server::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     construction::{

@@ -7,7 +7,7 @@ use bevy::{
 
 use api::{
     chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
-    data::{Vec3Int},
+    data::Vec3Int,
     health::StructureHealth,
 };
 

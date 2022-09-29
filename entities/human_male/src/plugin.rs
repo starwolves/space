@@ -6,10 +6,9 @@ use entity::{
 };
 use player_controller::humanoid::{summon_base_human_male, summon_human_male, HumanMaleSummoner};
 
-use api::data::{
-    CombatLabels, StartupLabels, SummoningLabels, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
-};
+use api::data::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 use rigid_body::spawn::summon_rigid_body;
+use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::hands_attack_handler::hands_attack_handler;
 

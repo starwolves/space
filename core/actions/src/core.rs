@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use api::data::{Vec3Int};
+use api::data::Vec3Int;
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
 use networking::messages::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
 use networking::{

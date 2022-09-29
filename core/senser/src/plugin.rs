@@ -1,5 +1,5 @@
-use api::data::PostUpdateLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
+use server::labels::PostUpdateLabels;
 
 use super::visible_checker::visible_checker;
 use bevy::app::CoreStage::PostUpdate;

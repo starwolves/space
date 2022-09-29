@@ -12,10 +12,7 @@ use super::{
 
 use api::{
     chat::{escape_bb, get_talk_spaces},
-    data::{
-        HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
-        PISTOL_L1_ENTITY_NAME,
-    },
+    data::{HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME, PISTOL_L1_ENTITY_NAME},
     humanoid::UsedNames,
     player_controller::SoftPlayer,
 };
@@ -33,7 +30,7 @@ use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PawnDesignation, PersistentPlayerData, SpawnPoints, Spawning};
-use server::core::{HandleToEntity, ConnectedPlayer};
+use server::core::{ConnectedPlayer, HandleToEntity};
 
 /// Component with boarding data.
 pub(crate) struct BoardingPlayer {

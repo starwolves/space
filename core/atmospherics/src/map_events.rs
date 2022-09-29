@@ -1,9 +1,6 @@
 use std::collections::HashSet;
 
-use api::{
-    data::{Vec2Int},
-    gridmap::world_to_cell_id,
-};
+use api::{data::Vec2Int, gridmap::world_to_cell_id};
 use bevy::{
     math::Vec3,
     prelude::{Entity, EventWriter, Query, Res, ResMut},

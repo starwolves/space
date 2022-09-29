@@ -17,3 +17,4 @@ default-features = false
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
 api = { path = "../api" }
+server = { path = "../server" }

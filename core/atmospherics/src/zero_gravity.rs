@@ -1,7 +1,7 @@
-use api::{data::ZeroGravity, gridmap::world_to_cell_id};
+use api::gridmap::world_to_cell_id;
 use bevy::{
     hierarchy::Children,
-    prelude::{warn, Commands, Entity, Query, Res, Transform, With},
+    prelude::{warn, Commands, Component, Entity, Query, Res, Transform, With},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use gridmap::grid::GridmapMain;
@@ -75,3 +75,7 @@ pub(crate) fn zero_gravity(
         }
     }
 }
+
+/// Component for entities with zero gravity.
+#[derive(Component)]
+pub struct ZeroGravity;

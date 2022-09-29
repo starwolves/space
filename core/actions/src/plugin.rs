@@ -1,5 +1,5 @@
-use api::data::ActionsLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
+use server::labels::ActionsLabels;
 
 use crate::core::{
     clear_action_building, init_action_data_listing, init_action_request_building,

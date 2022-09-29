@@ -1,6 +1,6 @@
-use api::data::PostUpdateLabels;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
+use server::labels::PostUpdateLabels;
 
 use crate::chat::{
     chat_message_input_event, send_entity_proximity_messages, EntityProximityMessage,

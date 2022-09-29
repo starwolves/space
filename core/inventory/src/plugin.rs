@@ -1,6 +1,6 @@
-use api::data::{ActionsLabels, PostUpdateLabels, UpdateLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::messages::net_system;
+use server::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
 
 use crate::{actions::pickup_prerequisite_check, item_events::pickup_world_item_action};
 

@@ -1,5 +1,5 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use api::data::{Vec3Int};
+use api::data::Vec3Int;
 use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
 use data_link::core::{DataLink, DataLinkType};
 use gridmap::grid::cell_id_to_world;

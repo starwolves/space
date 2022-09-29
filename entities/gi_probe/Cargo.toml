@@ -20,3 +20,4 @@ serde_json = {version= "1.0.81"}
 entity = { path = "../../core/entity" }
 data_converters = { path = "../../core/data_converters" }
 api = { path = "../../core/api" }
+server = { path = "../../core/server" }

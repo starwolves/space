@@ -1,8 +1,8 @@
 [package]
-name = "reflection_probe"
+name = "showcase"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Manages client-side reflection graphics."
+description="For showcase."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
@@ -14,10 +14,3 @@ version = "0.8.0"
 default-features = false
 
 [dependencies]
-serde = {version= "1.0.137"}
-serde_json = {version= "1.0.81"}
-
-entity = { path = "../../core/entity" }
-data_converters = { path = "../../core/data_converters" }
-api = { path = "../../core/api" }
-server = { path = "../../core/server" }

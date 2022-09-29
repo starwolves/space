@@ -2,12 +2,12 @@ use std::collections::HashMap;
 
 use actions::core::{ActionRequests, BuildingActions};
 use api::{
-    data::{ZeroGravity},
     entity_updates::{EntityData, EntityUpdateData},
     inventory::Inventory,
     rigid_body::RigidBodyLinkTransform,
 };
 
+use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
     hierarchy::{Children, Parent},
     math::Vec3,

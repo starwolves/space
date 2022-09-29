@@ -1,8 +1,8 @@
-use api::data::{PostUpdateLabels, StartupLabels, SummoningLabels};
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
 use networking::messages::net_system;
+use server::labels::{PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use crate::entity_data::{RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::init::{initialize_console_commands, startup_entities};

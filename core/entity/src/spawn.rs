@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use api::{
-    data::{NoData, Showcase, ShowcaseData},
+    data::NoData,
     entity_updates::{EntityData, EntityGroup, EntityUpdates},
 };
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
@@ -10,6 +10,7 @@ use health::core::{Health, HealthComponent};
 use networking::messages::{GodotVariantValues, ReliableServerMessage};
 use sensable::core::Sensable;
 use serde::Deserialize;
+use showcase::core::{Showcase, ShowcaseData};
 
 use crate::{
     entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PARENT},

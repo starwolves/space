@@ -1,107 +1,8 @@
-
 use bevy::{
     math::Vec3,
-    prelude::{Component, Entity, SystemLabel},
+    prelude::{Component, Entity},
 };
 use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum StartupLabels {
-    ConsoleCommands,
-    MiscResources,
-    InitDefaultGridmapData,
-    BuildGridmap,
-    InitAtmospherics,
-    ListenConnections,
-    InitEntities,
-    ServerIsLive,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum MapLabels {
-    ChangeMode,
-    MapInput,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum ActionsLabels {
-    Clear,
-    Init,
-    Build,
-    Approve,
-    Action,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum PreUpdateLabels {
-    NetEvents,
-    ProcessInput,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum CombatLabels {
-    RegisterAttacks,
-    CacheAttack,
-    WeaponHandler,
-    Query,
-    StartApplyDamage,
-    FinalizeApplyDamage,
-    DamageResults,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum UpdateLabels {
-    ProcessMovementInput,
-    DropCurrentItem,
-    StandardCharacters,
-    TextTreeInputSelection,
-    DeconstructCell,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum PostUpdateLabels {
-    EntityUpdate,
-    SendEntityUpdates,
-    VisibleChecker,
-    Net,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum SummoningLabels {
-    TriggerSummon,
-    DefaultSummon,
-    NormalSummon,
-}
-
-/// Resource containing the tickrate of the server loop.
-pub struct TickRate {
-    pub physics_rate: u8,
-    pub bevy_rate: u8,
-}
-
-impl Default for TickRate {
-    fn default() -> Self {
-        TickRate {
-            physics_rate: 24,
-            bevy_rate: 64,
-        }
-    }
-}
-
-/// Resource used for client, we can send this ID as an entityUpdate to the client which indicates it does not belong
-/// to a specific entity and it should be customly assigned to something such as UIs and other stuff which
-/// are not real server entities but just client GUI instances.
-pub struct ServerId {
-    pub id: Entity,
-}
-
-impl Default for ServerId {
-    fn default() -> Self {
-        ServerId {
-            id: Entity::from_raw(0),
-        }
-    }
-}
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug, Default)]
 pub struct Vec2Int {
@@ -114,21 +15,6 @@ pub struct Vec3Int {
     pub x: i16,
     pub y: i16,
     pub z: i16,
-}
-
-#[derive(Clone)]
-pub struct ShowcaseData {
-    pub handle: u64,
-}
-
-/// Component for entities with zero gravity.
-#[derive(Component)]
-pub struct ZeroGravity;
-
-/// Component for entities in the showcase.
-#[derive(Component)]
-pub struct Showcase {
-    pub handle: u64,
 }
 
 pub const PISTOL_L1_ENTITY_NAME: &str = "pistolL1";

@@ -1,4 +1,4 @@
-use api::{humanoid::UsedNames};
+use api::humanoid::UsedNames;
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, Transform};
 use console_commands::{
     commands::{NetEntityConsole, CONSOLE_ERROR_COLOR},

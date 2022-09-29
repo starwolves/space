@@ -1,6 +1,6 @@
 use api::{
     chat::ASTRIX,
-    data::{Vec3Int},
+    data::Vec3Int,
     entity_updates::{personalise, EntityData, EntityUpdateData, EntityUpdates},
 };
 use bevy::{

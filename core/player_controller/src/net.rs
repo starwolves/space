@@ -12,7 +12,7 @@ use networking::messages::{
     ReliableServerMessage, ServerConfigMessage,
 };
 use networking_macros::NetMessage;
-use server::core::{HandleToEntity, ConnectedPlayer};
+use server::core::{ConnectedPlayer, HandleToEntity};
 use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, f32::consts::PI};

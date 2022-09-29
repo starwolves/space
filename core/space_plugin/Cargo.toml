@@ -37,10 +37,10 @@ entity = { path = "../entity" }
 map = { path = "../map" }
 inventory = { path = "../inventory" }
 rigid_body = { path = "../rigid_body" }
-api = { path = "../api" }
 examinable = { path = "../examinable" }
 chat = { path = "../chat" }
 motd = { path = "../motd" }
+server = { path = "../server" }
 
 sounds = { path = "../../entities/sounds" }
 air_locks = { path = "../../entities/air_locks" }

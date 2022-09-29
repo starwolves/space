@@ -1,8 +1,6 @@
 use crate::core::{HealthComponent, HealthContainer};
-use api::{
-    chat::{
-        EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
-    },
+use api::chat::{
+    EXAMINATION_EMPTY, FURTHER_ITALIC_FONT, FURTHER_NORMAL_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 use bevy::prelude::{warn, Query, Res, ResMut};
 use examinable::examine::{Examinable, ExamineEntityMessages};

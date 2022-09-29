@@ -3,9 +3,7 @@ use std::collections::BTreeMap;
 use api::chat::END_ASTRIX;
 use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
 
-use api::{
-    chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT},
-};
+use api::chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 use bevy::prelude::{warn, Query, Res};
 use networking::messages::InputExamineEntity;
 use networking::messages::PendingMessage;
