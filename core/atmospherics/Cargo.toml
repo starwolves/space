@@ -25,3 +25,4 @@ api = { path = "../api" }
 map = { path = "../map" }
 physics = { path = "../physics" }
 rigid_body = { path = "../rigid_body" }
+gridmap = { path = "../gridmap" }

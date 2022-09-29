@@ -3,12 +3,10 @@
 
 pub mod chat;
 pub mod combat;
-pub mod console_commands;
 pub mod converters;
 pub mod data;
 pub mod data_link;
 pub mod entity_updates;
-pub mod examinable;
 pub mod get_spawn_position;
 pub mod gridmap;
 pub mod health;

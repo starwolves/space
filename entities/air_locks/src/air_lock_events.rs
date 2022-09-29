@@ -2,7 +2,6 @@ use api::{
     chat::{FURTHER_ITALIC_FONT, WARNING_COLOR},
     data::{AirLockCloseRequest, LockedStatus, Vec2Int},
     entity_updates::EntityGroup,
-    examinable::Examinable,
     gridmap::{get_atmos_index, world_to_cell_id},
     network::ReliableServerMessage,
 };
@@ -12,6 +11,7 @@ use bevy::{
     prelude::{warn, Commands, Entity, EventReader, EventWriter, Query, ResMut, Transform},
 };
 use bevy_rapier3d::prelude::CollisionGroups;
+use examinable::examine::Examinable;
 use pawn::pawn::{Pawn, ShipAuthorization};
 use physics::physics::{get_bit_masks, ColliderGroup};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};

@@ -1,8 +1,9 @@
 use api::{
     data::{Vec2Int, Vec3Int},
-    gridmap::{get_atmos_index, GridmapData, GridmapMain, FOV_MAP_WIDTH},
+    gridmap::{get_atmos_index, GridmapMain, FOV_MAP_WIDTH},
 };
 use bevy::prelude::{info, Res, ResMut};
+use gridmap::grid::GridmapData;
 
 use crate::diffusion::{Atmospherics, AtmosphericsResource, DEFAULT_INTERNAL_AMOUNT};
 

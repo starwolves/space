@@ -7,8 +7,8 @@ use api::{
     entity_updates::EntityData,
     gridmap::{
         cell_id_to_world, get_atmos_index, to_doryen_coordinates, world_to_cell_id,
-        AdjacentTileDirection, CellData, EntityGridData, GridMapLayer, GridmapData,
-        GridmapDetails1, GridmapMain, RemoveCell,
+        AdjacentTileDirection, CellData, EntityGridData, GridMapLayer, GridmapDetails1,
+        GridmapMain, RemoveCell,
     },
     health::{CellUpdate, Health, HealthContainer, StructureHealth},
     inventory::Inventory,
@@ -30,6 +30,7 @@ use entity::spawn::{DefaultSpawnEvent, SpawnData};
 use gridmap::{
     build::spawn_main_cell,
     fov::{DoryenMap, FOV_DISTANCE},
+    grid::GridmapData,
 };
 use networking::messages::InputConstructionOptionsSelection;
 use physics::physics::RigidBodyDisabled;

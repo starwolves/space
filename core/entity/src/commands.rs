@@ -1,5 +1,4 @@
 use api::{
-    console_commands::CONSOLE_ERROR_COLOR,
     data::{EntityDataResource, HandleToEntity},
     get_spawn_position::entity_spawn_position_for_player,
     gridmap::GridmapMain,
@@ -7,7 +6,10 @@ use api::{
     network::ReliableServerMessage,
 };
 use bevy::prelude::{Commands, Entity, EventWriter, Query, Res, ResMut, Transform};
-use console_commands::{commands::NetEntityConsole, player_selectors::player_selector_to_entities};
+use console_commands::{
+    commands::{NetEntityConsole, CONSOLE_ERROR_COLOR},
+    player_selectors::player_selector_to_entities,
+};
 use pawn::pawn::Pawn;
 
 use crate::spawn::{spawn_entity, DefaultSpawnEvent};

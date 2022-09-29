@@ -3,11 +3,7 @@ use std::{collections::HashMap, fs, path::Path};
 use api::{
     chat::EXAMINATION_EMPTY,
     data::{ServerId, TickRate},
-    examinable::RichName,
-    gridmap::{
-        AdjacentTileDirection, GridDirectionRotations, GridmapData, GridmapDetails1, GridmapMain,
-        MainCellProperties,
-    },
+    gridmap::{AdjacentTileDirection, GridDirectionRotations, GridmapDetails1, GridmapMain},
     pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints},
 };
 use bevy::prelude::{info, Commands, EventWriter, Res, ResMut, Transform};
@@ -16,11 +12,13 @@ use bevy_rapier3d::{
     prelude::{CoefficientCombineRule, Collider},
 };
 use entity::entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server};
+use examinable::examine::RichName;
 
 use crate::{
     build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},
     events::CellDataWID,
     fov::DoryenMap,
+    grid::{GridmapData, MainCellProperties},
     plugin::Details1CellProperties,
 };
 

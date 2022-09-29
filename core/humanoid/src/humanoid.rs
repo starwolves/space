@@ -3,7 +3,6 @@ use std::{collections::HashMap, f32::consts::PI};
 use api::{
     combat::{CombatStandardAnimation, DamageFlag, MeleeCombat, ProjectileCombat},
     data::{HandleToEntity, Showcase, TickRate, ZeroGravity},
-    examinable::Examinable,
     get_spawn_position::{facing_direction_to_direction, FacingDirection},
     gridmap::{world_to_cell_id, GridmapMain},
     inventory::Inventory,
@@ -21,6 +20,7 @@ use bevy::{
     time::{Time, Timer},
 };
 use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
+use examinable::examine::Examinable;
 use inventory_item::item::InventoryItem;
 use networking::messages::InputToggleCombatMode;
 use pawn::pawn::{ControllerInput, Pawn};

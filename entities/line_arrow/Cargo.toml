@@ -19,3 +19,4 @@ entity = { path = "../../core/entity" }
 networking = { path = "../../core/networking" }
 physics = { path = "../../core/physics" }
 api = { path = "../../core/api" }
+examinable = { path = "../../core/examinable" }

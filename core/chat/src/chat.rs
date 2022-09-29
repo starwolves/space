@@ -293,7 +293,7 @@ pub enum MessagingPlayerState {
     Alive,
 }
 
-/// Function. It is huge, not-modular and just overall not nice. This will get modularized and rewritten.
+/// Function. It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
 pub fn new_chat_message(
     net_new_chat_message_event: &mut EventWriter<NetChatMessage>,
     handle_to_entity: &Res<HandleToEntity>,

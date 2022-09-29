@@ -1,14 +1,15 @@
 use api::{
-    console_commands::{ConsoleCommandVariantValues, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR},
     data::{ConnectedPlayer, EntityDataResource, HandleToEntity},
     gridmap::GridmapMain,
     humanoid::UsedNames,
     inventory::Inventory,
-    network::ReliableServerMessage,
+    network::{GodotVariantValues, ReliableServerMessage},
 };
 use bevy::prelude::EventReader;
 use bevy::prelude::{Commands, Entity, EventWriter, Local, Query, Res, ResMut, Transform};
-use console_commands::commands::{NetConsoleCommands, NetEntityConsole};
+use console_commands::commands::{
+    NetConsoleCommands, NetEntityConsole, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR,
+};
 use entity::{commands::rcon_spawn_entity, spawn::DefaultSpawnEvent};
 use inventory_item::spawn::rcon_spawn_held_entity;
 use networking::messages::InputConsoleCommand;
@@ -27,7 +28,7 @@ pub(crate) fn rcon_console_commands(
             && console_command_event.handle_option.is_some()
         {
             match &console_command_event.command_arguments[0] {
-                ConsoleCommandVariantValues::String(value) => {
+                GodotVariantValues::String(value) => {
                     rcon_authorization(
                         &mut rcon_bruteforce_protection,
                         &mut connected_players,
@@ -97,7 +98,7 @@ pub(crate) fn entity_console_commands(
             let entity_name;
 
             match &console_command_event.command_arguments[0] {
-                ConsoleCommandVariantValues::String(value) => {
+                GodotVariantValues::String(value) => {
                     entity_name = value;
                 }
                 _ => {
@@ -108,7 +109,7 @@ pub(crate) fn entity_console_commands(
             let spawn_amount;
 
             match &console_command_event.command_arguments[1] {
-                ConsoleCommandVariantValues::Int(value) => {
+                GodotVariantValues::Int(value) => {
                     spawn_amount = *value;
                 }
                 _ => {
@@ -119,7 +120,7 @@ pub(crate) fn entity_console_commands(
             let player_selector;
 
             match &console_command_event.command_arguments[2] {
-                ConsoleCommandVariantValues::String(value) => {
+                GodotVariantValues::String(value) => {
                     player_selector = value;
                 }
                 _ => {
@@ -302,7 +303,7 @@ pub(crate) fn inventory_item_console_commands(
             let entity_name;
 
             match &console_command_event.command_arguments[0] {
-                ConsoleCommandVariantValues::String(value) => {
+                GodotVariantValues::String(value) => {
                     entity_name = value;
                 }
                 _ => {
@@ -313,7 +314,7 @@ pub(crate) fn inventory_item_console_commands(
             let player_selector;
 
             match &console_command_event.command_arguments[1] {
-                ConsoleCommandVariantValues::String(value) => {
+                GodotVariantValues::String(value) => {
                     player_selector = value;
                 }
                 _ => {

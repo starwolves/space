@@ -1,6 +1,5 @@
 use api::{
     data::{ConnectedPlayer, HandleToEntity, ServerId, TickRate},
-    gridmap::GridmapData,
     humanoid::UsedNames,
     pawn::PawnDesignation,
 };
@@ -10,6 +9,7 @@ use bevy::{
 };
 use bevy_renet::renet::ServerEvent;
 use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
+use gridmap::grid::GridmapData;
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;

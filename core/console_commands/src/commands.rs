@@ -1,9 +1,8 @@
-use api::{
-    console_commands::ConsoleCommandVariant,
-    network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
-};
+use api::network::{GodotVariant, PendingMessage, PendingNetworkMessage, ReliableServerMessage};
 use bevy::prelude::{info, ResMut};
 use networking_macros::NetMessage;
+
+use bevy::prelude::SystemLabel;
 
 #[derive(NetMessage)]
 pub struct NetConsoleCommands {
@@ -19,7 +18,7 @@ pub struct NetEntityConsole {
 /// Resource containing all registered custom console commands.
 #[derive(Default)]
 pub struct AllConsoleCommands {
-    pub list: Vec<(String, String, Vec<(String, ConsoleCommandVariant)>)>,
+    pub list: Vec<(String, String, Vec<(String, GodotVariant)>)>,
 }
 /// Initialize console commands.
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
@@ -27,7 +26,7 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
         "rcon".to_string(),
         "For server administrators only. Obtaining rcon status allows for usage of rcon_* commands"
             .to_string(),
-        vec![("password".to_string(), ConsoleCommandVariant::String)],
+        vec![("password".to_string(), GodotVariant::String)],
     ));
 
     commands.list.push((
@@ -44,3 +43,11 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 pub struct GiveAllRCON {
     pub give: bool,
 }
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum ConsoleCommandsLabels {
+    Finalize,
+}
+
+pub const CONSOLE_SUCCESS_COLOR: &str = "#3cff00";
+pub const CONSOLE_ERROR_COLOR: &str = "#ff6600";

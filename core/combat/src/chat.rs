@@ -4,14 +4,15 @@ use api::{
         get_default_trigger_weapon_words, MeleeCombat, ProjectileCombat,
     },
     data::HandleToEntity,
-    examinable::Examinable,
-    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapData, GridmapMain},
+    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapMain},
     health::{HealthComponent, HealthContainer},
     network::{PendingMessage, PendingNetworkMessage, ReliableServerMessage},
     senser::Senser,
 };
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use chat::chat::EntityProximityMessage;
+use examinable::examine::Examinable;
+use gridmap::grid::GridmapData;
 use inventory_item::item::InventoryItem;
 use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;

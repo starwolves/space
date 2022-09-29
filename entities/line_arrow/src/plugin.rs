@@ -1,9 +1,9 @@
 use api::{
-    console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
     data::{EntityDataProperties, EntityDataResource, StartupLabels, SummoningLabels},
+    network::GodotVariant,
 };
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
-use console_commands::commands::AllConsoleCommands;
+use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
     entity_data::initialize_entity_data,
     spawn::{summon_base_entity, SpawnEvent},
@@ -53,10 +53,10 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
         "pointArrow".to_string(),
         "Spawn an arrow with a specified duration and world position to point at.".to_string(),
         vec![
-            ("x".to_string(), ConsoleCommandVariant::Float),
-            ("y".to_string(), ConsoleCommandVariant::Float),
-            ("z".to_string(), ConsoleCommandVariant::Float),
-            ("duration".to_string(), ConsoleCommandVariant::Int),
+            ("x".to_string(), GodotVariant::Float),
+            ("y".to_string(), GodotVariant::Float),
+            ("z".to_string(), GodotVariant::Float),
+            ("duration".to_string(), GodotVariant::Int),
         ],
     ));
 }

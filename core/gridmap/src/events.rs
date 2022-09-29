@@ -9,8 +9,7 @@ use api::{
     chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
     data::{ConnectedPlayer, Vec3Int},
     gridmap::{
-        to_doryen_coordinates, CellData, GridMapLayer, GridmapData, GridmapDetails1, GridmapMain,
-        RemoveCell,
+        to_doryen_coordinates, CellData, GridMapLayer, GridmapDetails1, GridmapMain, RemoveCell,
     },
     health::{CellUpdate, Health, HealthContainer, StructureHealth},
     network::ReliableServerMessage,
@@ -21,6 +20,8 @@ use bevy_rapier3d::prelude::RigidBody;
 use doryen_fov::FovAlgorithm;
 
 use serde::Deserialize;
+
+use crate::grid::GridmapData;
 
 use super::{
     fov::{DoryenMap, FOV_DISTANCE},

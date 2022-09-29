@@ -12,7 +12,6 @@ use super::{
 
 use api::{
     chat::{escape_bb, get_talk_spaces},
-    console_commands::CONSOLE_ERROR_COLOR,
     data::{
         ConnectedPlayer, HandleToEntity, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
         PISTOL_L1_ENTITY_NAME,
@@ -26,6 +25,7 @@ use bevy::{
     prelude::{info, warn, Added, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
     time::Timer,
 };
+use console_commands::commands::CONSOLE_ERROR_COLOR;
 use entity::{
     entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
     spawn::{SpawnData, SpawnEvent},

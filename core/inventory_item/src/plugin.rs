@@ -1,9 +1,9 @@
 use api::{
-    console_commands::{ConsoleCommandVariant, ConsoleCommandsLabels},
     data::{ActionsLabels, PostUpdateLabels},
+    network::GodotVariant,
 };
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
-use console_commands::commands::AllConsoleCommands;
+use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 
 use crate::actions::build_actions;
 
@@ -41,8 +41,8 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
         "For server administrators only. Spawn in held entities in hands or in proximity."
             .to_string(),
         vec![
-            ("entity_name".to_string(), ConsoleCommandVariant::String),
-            ("player_selector".to_string(), ConsoleCommandVariant::String),
+            ("entity_name".to_string(), GodotVariant::String),
+            ("player_selector".to_string(), GodotVariant::String),
         ],
     ));
 }

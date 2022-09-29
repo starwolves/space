@@ -11,7 +11,6 @@ use api::{
     },
     data_link::{DataLink, DataLinkType},
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
-    examinable::{Examinable, RichName},
     get_spawn_position::FacingDirection,
     health::{Health, HealthContainer, HumanoidHealth},
     humanoid::UsedNames,
@@ -35,6 +34,7 @@ use entity::{
         DefaultSpawnEvent, SpawnData, SpawnEvent,
     },
 };
+use examinable::examine::{Examinable, RichName};
 use pawn::pawn::{ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
 
 use crate::connection::SpawnPawnData;

@@ -4,8 +4,6 @@ use api::combat::MeleeCombat;
 use api::converters::string_transform_to_transform;
 use api::data::NoData;
 use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
-use api::examinable::Examinable;
-use api::examinable::RichName;
 use api::inventory::SlotType;
 use bevy::math::Mat4;
 use bevy::math::Quat;
@@ -21,6 +19,8 @@ use entity::spawn::BaseEntitySummonable;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::SpawnData;
 use entity::spawn::SpawnEvent;
+use examinable::examine::Examinable;
+use examinable::examine::RichName;
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::InventoryItemBundle;
 use inventory_item::spawn::InventoryItemSummonable;
@@ -28,6 +28,7 @@ use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
 use rigid_body::spawn::RigidBodyBundle;
 use rigid_body::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
+use std::collections::HashMap;
 
 use super::jumpsuit::Jumpsuit;
 
@@ -64,7 +65,6 @@ impl BaseEntitySummonable<NoData> for JumpsuitSummoner {
         }
     }
 }
-use std::collections::HashMap;
 
 impl InventoryItemSummonable for JumpsuitSummoner {
     fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {

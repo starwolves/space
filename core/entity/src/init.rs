@@ -1,4 +1,4 @@
-use api::{console_commands::ConsoleCommandVariant, data::EntityDataResource};
+use api::{data::EntityDataResource, network::GodotVariant};
 use bevy::prelude::{info, Res, ResMut};
 use console_commands::commands::AllConsoleCommands;
 
@@ -13,9 +13,9 @@ pub(crate) fn initialize_console_commands(mut commands: ResMut<AllConsoleCommand
         "spawn".to_string(),
         "For server administrators only. Spawn in entities in proximity.".to_string(),
         vec![
-            ("entity_name".to_string(), ConsoleCommandVariant::String),
-            ("amount".to_string(), ConsoleCommandVariant::Int),
-            ("player_selector".to_string(), ConsoleCommandVariant::String),
+            ("entity_name".to_string(), GodotVariant::String),
+            ("amount".to_string(), GodotVariant::Int),
+            ("player_selector".to_string(), GodotVariant::String),
         ],
     ));
 }

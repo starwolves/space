@@ -18,7 +18,5 @@ serde = {version= "1.0.137"}
 serde_json = {version= "1.0.81"}
 
 entity = { path = "../../core/entity" }
-inventory_item = { path = "../../core/inventory_item" }
 data_converters = { path = "../../core/data_converters" }
 api = { path = "../../core/api" }
-

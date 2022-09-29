@@ -1,6 +1,6 @@
 use api::{
-    console_commands::ConsoleCommandVariantValues, data::HandleToEntity,
-    load_entity::NetUnloadEntity, sensable::Sensable,
+    data::HandleToEntity, load_entity::NetUnloadEntity, network::GodotVariantValues,
+    sensable::Sensable,
 };
 use bevy::{
     math::Vec3,
@@ -29,16 +29,16 @@ pub(crate) fn entity_console_commands(
 
             match command.command_arguments.get(0) {
                 Some(variant_val) => match variant_val {
-                    ConsoleCommandVariantValues::Int(_) => {
+                    GodotVariantValues::Int(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::String(_) => {
+                    GodotVariantValues::String(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::Float(val) => {
+                    GodotVariantValues::Float(val) => {
                         x = *val;
                     }
-                    ConsoleCommandVariantValues::Bool(_) => {
+                    GodotVariantValues::Bool(_) => {
                         continue;
                     }
                 },
@@ -49,16 +49,16 @@ pub(crate) fn entity_console_commands(
 
             match command.command_arguments.get(1) {
                 Some(variant_val) => match variant_val {
-                    ConsoleCommandVariantValues::Int(_) => {
+                    GodotVariantValues::Int(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::String(_) => {
+                    GodotVariantValues::String(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::Float(val) => {
+                    GodotVariantValues::Float(val) => {
                         y = *val;
                     }
-                    ConsoleCommandVariantValues::Bool(_) => {
+                    GodotVariantValues::Bool(_) => {
                         continue;
                     }
                 },
@@ -69,16 +69,16 @@ pub(crate) fn entity_console_commands(
 
             match command.command_arguments.get(2) {
                 Some(variant_val) => match variant_val {
-                    ConsoleCommandVariantValues::Int(_) => {
+                    GodotVariantValues::Int(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::String(_) => {
+                    GodotVariantValues::String(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::Float(val) => {
+                    GodotVariantValues::Float(val) => {
                         z = *val;
                     }
-                    ConsoleCommandVariantValues::Bool(_) => {
+                    GodotVariantValues::Bool(_) => {
                         continue;
                     }
                 },
@@ -91,16 +91,16 @@ pub(crate) fn entity_console_commands(
 
             match command.command_arguments.get(3) {
                 Some(variant_val) => match variant_val {
-                    ConsoleCommandVariantValues::Int(val) => {
+                    GodotVariantValues::Int(val) => {
                         duration = *val;
                     }
-                    ConsoleCommandVariantValues::String(_) => {
+                    GodotVariantValues::String(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::Float(_) => {
+                    GodotVariantValues::Float(_) => {
                         continue;
                     }
-                    ConsoleCommandVariantValues::Bool(_) => {
+                    GodotVariantValues::Bool(_) => {
                         continue;
                     }
                 },

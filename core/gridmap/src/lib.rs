@@ -17,6 +17,8 @@ pub mod events;
 mod examine;
 /// Manage gridmap FOV.
 pub mod fov;
+/// Core gridmap resources.
+pub mod grid;
 /// Initialize gridmap meta data.
 mod init_meta;
 /// Manage gridmap netcode.

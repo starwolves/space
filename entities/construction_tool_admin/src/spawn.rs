@@ -1,7 +1,6 @@
 use api::combat::{DamageFlag, DamageModel, MeleeCombat, DEFAULT_INVENTORY_ITEM_DAMAGE};
 use api::converters::string_transform_to_transform;
 use api::data::NoData;
-use api::examinable::{Examinable, RichName};
 use api::inventory::SlotType;
 use bevy::math::{Mat4, Quat, Vec3};
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
@@ -10,6 +9,7 @@ use entity::entity_data::{RawSpawnEvent, CONSTRUCTION_TOOL_ENTITY_NAME};
 use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,
 };
+use examinable::examine::{Examinable, RichName};
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
 use rigid_body::rigid_body::STANDARD_BODY_FRICTION;

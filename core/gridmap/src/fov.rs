@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use api::{
     combat::{ProjectileData, ProjectileFOV},
     data::{ConnectedPlayer, Vec2Int, Vec3Int},
-    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapData, GridmapMain, FOV_MAP_WIDTH},
+    gridmap::{to_doryen_coordinates, world_to_cell_id, GridmapMain, FOV_MAP_WIDTH},
     network::ReliableServerMessage,
     senser::Senser,
 };
@@ -12,6 +12,8 @@ use bevy::{
     prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
+
+use crate::grid::GridmapData;
 
 use super::net::NetProjectileFOV;
 
