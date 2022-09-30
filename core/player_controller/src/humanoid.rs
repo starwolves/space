@@ -1,9 +1,6 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use api::{
-    humanoid::UsedNames,
-    inventory::{Inventory, Slot, SlotType},
-};
+use api::inventory::{Inventory, Slot, SlotType};
 use bevy::{
     math::Vec2,
     prelude::{Changed, Entity, Query},
@@ -53,7 +50,7 @@ use humanoid::{
     humanoid::{
         CharacterAnimationState, Humanoid, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
     },
-    user_name::get_dummy_name,
+    user_name::{get_dummy_name, UsedNames},
 };
 use inventory_item::item::InventoryItem;
 use map::map::Map;

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use api::{humanoid::UsedNames, player_controller::SoftPlayer};
+use api::player_controller::SoftPlayer;
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::{SpawnData, SpawnEvent};
-use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
+use humanoid::{humanoid::HUMAN_MALE_ENTITY_NAME, user_name::UsedNames};
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use motd::motd::MOTD;
 use networking::messages::{

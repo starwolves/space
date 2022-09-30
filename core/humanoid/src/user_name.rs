@@ -1,4 +1,7 @@
-use api::{chat::escape_bb, humanoid::UsedNames};
+use std::collections::HashMap;
+
+use api::chat::escape_bb;
+use bevy::prelude::Entity;
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
 use console_commands::commands::CONSOLE_ERROR_COLOR;
 use networking::messages::PendingMessage;
@@ -94,4 +97,15 @@ pub fn get_dummy_name(used_names: &mut UsedNames) -> String {
     used_names.dummy_i += 1;
 
     return_name
+}
+
+/// Resource keeping track of which in-game character names are taken.
+#[derive(Default, Clone)]
+pub struct UsedNames {
+    /// Character names.
+    pub names: HashMap<String, Entity>,
+    /// Global user names.
+    pub user_names: HashMap<String, Entity>,
+    pub player_i: u32,
+    pub dummy_i: u32,
 }

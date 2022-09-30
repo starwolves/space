@@ -11,8 +11,6 @@
 pub mod build;
 /// Check if an entity can reach another entity.
 pub mod can_reach_entity;
-/// Gridmap commands.
-pub mod commands;
 /// Manage gridmap events.
 pub mod events;
 /// Manage gridmap exmination.

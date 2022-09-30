@@ -30,3 +30,5 @@ pub(crate) fn build_actions(
         }
     }
 }
+/// How far melee fists attacks can reach.
+pub const MELEE_FISTS_REACH: f32 = 1.2;

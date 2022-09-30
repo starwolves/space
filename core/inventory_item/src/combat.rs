@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use api::{chat::Color, humanoid::MELEE_FISTS_REACH};
+use api::chat::Color;
 use bevy::prelude::Component;
-use entity::health::DamageFlag;
+use entity::{actions::MELEE_FISTS_REACH, health::DamageFlag};
 /// The component for items that can be used to perform melee attacks with. Should be used in combination with handlers.
 #[derive(Component)]
 pub struct MeleeCombat {

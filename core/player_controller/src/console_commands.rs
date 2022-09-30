@@ -1,16 +1,21 @@
-use api::{humanoid::UsedNames, inventory::Inventory};
-use bevy::prelude::EventReader;
+use api::inventory::Inventory;
+use bevy::prelude::{warn, EventReader};
 use bevy::prelude::{Commands, Entity, EventWriter, Local, Query, Res, ResMut, Transform};
 use console_commands::commands::{
     NetConsoleCommands, NetEntityConsole, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR,
 };
+use entity::spawn::spawn_entity;
 use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
-use gridmap::{commands::rcon_spawn_entity, grid::GridmapMain};
-use inventory_item::spawn::rcon_spawn_held_entity;
+use gridmap::get_spawn_position::entity_spawn_position_for_player;
+use gridmap::grid::GridmapMain;
+use humanoid::user_name::UsedNames;
+use inventory_item::spawn::spawn_held_entity;
 use networking::messages::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
 use pawn::pawn::Pawn;
 use server::core::{ConnectedPlayer, HandleToEntity};
 use std::collections::HashMap;
+
+use crate::player_selectors::player_selector_to_entities;
 
 /// Perform RCON console commands.
 pub(crate) fn rcon_console_commands(
@@ -333,6 +338,295 @@ pub(crate) fn inventory_item_console_commands(
                 &mut entity_data,
                 &mut default_spawner,
             );
+        }
+    }
+}
+
+/// Process spawning entities via RCON command as a function. Such as commands for spawning entities.
+pub fn rcon_spawn_entity(
+    entity_name: String,
+    target_selector: String,
+    mut spawn_amount: i64,
+    commands: &mut Commands,
+    command_executor_entity: Entity,
+    command_executor_handle_option: Option<u64>,
+    rigid_body_positions: &mut Query<(&Transform, &Pawn)>,
+    net_console_commands: &mut EventWriter<NetEntityConsole>,
+    gridmap_main: &Res<GridmapMain>,
+    used_names: &mut ResMut<UsedNames>,
+    handle_to_entity: &Res<HandleToEntity>,
+    entity_data: &ResMut<EntityDataResource>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
+) {
+    if spawn_amount > 5 {
+        spawn_amount = 5;
+        match command_executor_handle_option {
+            Some(t) => {
+                net_console_commands.send(NetEntityConsole {
+                    handle: t,
+                    message: ReliableServerMessage::ConsoleWriteLine(
+                        "Capped amount to 5, maniac protection.".to_string(),
+                    ),
+                });
+            }
+            None => {}
+        }
+    }
+
+    for target_entity in player_selector_to_entities(
+        command_executor_entity,
+        command_executor_handle_option,
+        &target_selector,
+        used_names,
+        net_console_commands,
+    )
+    .iter()
+    {
+        let player_position;
+        let standard_character_component;
+
+        match rigid_body_positions.get(*target_entity) {
+            Ok((position, pawn_component)) => {
+                player_position = position.clone();
+                standard_character_component = pawn_component;
+            }
+            Err(_rr) => {
+                continue;
+            }
+        }
+
+        let player_handle;
+
+        match handle_to_entity.inv_map.get(target_entity) {
+            Some(handle) => {
+                player_handle = Some(*handle);
+            }
+            None => {
+                player_handle = None;
+            }
+        }
+
+        let spawn_position = entity_spawn_position_for_player(
+            player_position,
+            Some(&standard_character_component.facing_direction),
+            None,
+            gridmap_main,
+        );
+
+        let mut final_result = None;
+
+        let mut individual_transform = spawn_position.0.clone();
+
+        for _i in 0..spawn_amount {
+            final_result = spawn_entity(
+                entity_name.clone(),
+                individual_transform,
+                commands,
+                true,
+                entity_data,
+                None,
+                None,
+                None,
+                default_spawner,
+            );
+            individual_transform.translation.x += 0.5;
+            individual_transform = entity_spawn_position_for_player(
+                individual_transform,
+                Some(&standard_character_component.facing_direction),
+                None,
+                gridmap_main,
+            )
+            .0;
+        }
+
+        if spawn_amount > 0 {
+            match final_result {
+                Some(_) => {}
+                None => match command_executor_handle_option {
+                    Some(t) => {
+                        net_console_commands.send(NetEntityConsole {
+                            handle: t,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=".to_string()
+                                    + CONSOLE_ERROR_COLOR
+                                    + "]Unknown entity name \""
+                                    + &entity_name
+                                    + "\" was provided.[/color]",
+                            ),
+                        });
+                    }
+                    None => {}
+                },
+            }
+        }
+
+        if player_handle.is_some() {
+            if spawn_amount == 1 {
+                net_console_commands.send(NetEntityConsole {
+                    handle: player_handle.unwrap(),
+                    message: ReliableServerMessage::ChatMessage(
+                        "A new entity has appeared in your proximity.".to_string(),
+                    ),
+                });
+            } else if spawn_amount > 1 {
+                net_console_commands.send(NetEntityConsole {
+                    handle: player_handle.unwrap(),
+                    message: ReliableServerMessage::ChatMessage(
+                        "New entities have appeared in your proximity.".to_string(),
+                    ),
+                });
+            }
+        }
+    }
+}
+
+/// Function to spawn an entity in another entity's inventory through an RCON command.
+pub fn rcon_spawn_held_entity(
+    entity_name: String,
+    target_selector: String,
+    mut commands: &mut Commands,
+    command_executor_entity: Entity,
+    command_executor_handle_option: Option<u64>,
+    mut net_console_commands: &mut EventWriter<NetEntityConsole>,
+    player_inventory_query: &mut Query<&mut Inventory>,
+    mut rigid_body_positions: &mut Query<(&Transform, &Pawn)>,
+    gridmap_main: &Res<GridmapMain>,
+    mut used_names: &mut ResMut<UsedNames>,
+    handle_to_entity: &Res<HandleToEntity>,
+    entity_data: &mut ResMut<EntityDataResource>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
+) {
+    for target_entity in player_selector_to_entities(
+        command_executor_entity,
+        command_executor_handle_option,
+        &target_selector,
+        used_names,
+        net_console_commands,
+    )
+    .iter()
+    {
+        let mut player_inventory;
+
+        match player_inventory_query.get_mut(*target_entity) {
+            Ok(inventory) => {
+                player_inventory = inventory;
+            }
+            Err(_rr) => {
+                match command_executor_handle_option {
+                    Some(t) => {
+                        net_console_commands.send(NetEntityConsole {
+                            handle: t,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
+                            ),
+                        });
+                    }
+                    None => {}
+                }
+                warn!("spawn_held_entity console command couldn't find inventory component beloning to player target.");
+
+                continue;
+            }
+        }
+
+        let player_handle;
+
+        match handle_to_entity.inv_map.get(target_entity) {
+            Some(handle) => {
+                player_handle = *handle;
+            }
+            None => {
+                match command_executor_handle_option {
+                    Some(t) => {
+                        net_console_commands.send(NetEntityConsole {
+                            handle: t,
+                            message: ReliableServerMessage::ConsoleWriteLine(
+                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
+                            ),
+                        });
+                    }
+                    None => {}
+                }
+
+                warn!("spawn_held_entity console command couldn't find handle belonging to target entity.");
+                continue;
+            }
+        }
+
+        let mut available_slot = None;
+
+        for slot in player_inventory.slots.iter_mut() {
+            let is_hand = matches!(slot.slot_name.as_str(), "left_hand" | "right_hand");
+            if is_hand && slot.slot_item.is_none() {
+                available_slot = Some(slot);
+            }
+        }
+
+        match available_slot {
+            Some(slot) => {
+                let entity_option = spawn_held_entity(
+                    entity_name.clone(),
+                    commands,
+                    command_executor_entity,
+                    None,
+                    &entity_data,
+                    default_spawner,
+                );
+
+                match entity_option {
+                    Some(entity) => {
+                        slot.slot_item = Some(entity);
+
+                        net_console_commands.send(NetEntityConsole {
+                            handle: player_handle,
+                            message: ReliableServerMessage::PickedUpItem(
+                                entity_name.clone(),
+                                entity.to_bits(),
+                                slot.slot_name.clone(),
+                            ),
+                        });
+
+                        net_console_commands.send(NetEntityConsole {
+                            handle: player_handle,
+                            message: ReliableServerMessage::ChatMessage(
+                                "A new entity has appeared in your hand.".to_string(),
+                            ),
+                        });
+                    }
+                    None => match command_executor_handle_option {
+                        Some(t) => {
+                            net_console_commands.send(NetEntityConsole {
+                                handle: t,
+                                message: ReliableServerMessage::ConsoleWriteLine(
+                                    "[color=".to_string()
+                                        + CONSOLE_ERROR_COLOR
+                                        + "]Unknown entity name \""
+                                        + &entity_name
+                                        + "\" was provided.[/color]",
+                                ),
+                            });
+                        }
+                        None => {}
+                    },
+                }
+            }
+            None => {
+                rcon_spawn_entity(
+                    entity_name.clone(),
+                    target_selector.clone(),
+                    1,
+                    &mut commands,
+                    command_executor_entity,
+                    command_executor_handle_option,
+                    &mut rigid_body_positions,
+                    &mut net_console_commands,
+                    &gridmap_main,
+                    &mut used_names,
+                    handle_to_entity,
+                    &entity_data,
+                    default_spawner,
+                );
+            }
         }
     }
 }

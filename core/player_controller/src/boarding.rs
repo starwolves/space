@@ -12,7 +12,6 @@ use super::{
 
 use api::{
     chat::{escape_bb, get_talk_spaces},
-    humanoid::UsedNames,
     player_controller::SoftPlayer,
 };
 use bevy::{
@@ -23,7 +22,7 @@ use console_commands::commands::CONSOLE_ERROR_COLOR;
 use construction_tool_admin::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
 use entity::spawn::{SpawnData, SpawnEvent};
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
-use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
+use humanoid::{humanoid::HUMAN_MALE_ENTITY_NAME, user_name::UsedNames};
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;

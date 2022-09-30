@@ -21,6 +21,8 @@ mod input;
 mod name_generator;
 /// Manage netcode.
 mod net;
+/// Select players with special text character-based queries.
+pub mod player_selectors;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Finalize sending entity updates to a player controller.

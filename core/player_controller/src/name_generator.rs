@@ -1,5 +1,5 @@
-use api::humanoid::UsedNames;
 use bevy::prelude::Res;
+use humanoid::user_name::UsedNames;
 use rand::seq::SliceRandom;
 
 /// Array containing male first names.

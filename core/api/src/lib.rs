@@ -2,7 +2,6 @@
 //! However, this ugly crate can and must be reduced a lot.
 
 pub mod chat;
-pub mod humanoid;
 pub mod inventory;
 pub mod player_controller;
 pub mod rigid_body;

@@ -15,11 +15,9 @@ default-features = false
 
 [dependencies]
 entity = { path = "../entity" }
-pawn = { path = "../pawn" }
 console_commands = { path = "../console_commands" }
 api = { path = "../api" }
 actions = { path = "../actions" }
 networking = { path = "../networking" }
-gridmap = { path = "../gridmap" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }
