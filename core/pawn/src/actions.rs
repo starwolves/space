@@ -1,6 +1,6 @@
 use actions::core::{ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Res, ResMut};
-use examinable::examine::{ExamineEntityMessages, GridmapExamineMessages};
+use entity::examine::{ExamineEntityMessages, GridmapExamineMessages};
 use networking::messages::{InputExamineEntity, InputExamineMap};
 use server::core::HandleToEntity;
 

@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use api::entity_updates::EntityUpdateData;
 use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
-use health::core::{HealthComponent, HealthContainer};
-use networking::messages::{EntityWorldType, NetHealthUpdate, ReliableServerMessage};
+use entity::health::{HealthComponent, HealthContainer};
+use networking::messages::{
+    EntityUpdateData, EntityWorldType, NetHealthUpdate, ReliableServerMessage,
+};
 use server::core::ConnectedPlayer;
 
 const UI_ALPHA: f32 = 146.;

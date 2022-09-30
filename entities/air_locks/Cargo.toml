@@ -31,9 +31,9 @@ rigid_body = { path = "../../core/rigid_body" }
 api = { path = "../../core/api" }
 combat = { path = "../../core/combat" }
 actions = { path = "../../core/actions" }
-examinable = { path = "../../core/examinable" }
+
 gridmap = { path = "../../core/gridmap" }
-health = { path = "../../core/health" }
+
 data_converters = { path = "../../core/data_converters" }
 data_link = { path = "../../core/data_link" }
 server = { path = "../../core/server" }

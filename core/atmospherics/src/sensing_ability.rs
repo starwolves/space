@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
 use data_link::core::{DataLink, DataLinkType};
-use senser::senser::{Senser, SensingAbility};
+use entity::senser::{Senser, SensingAbility};
 
 /// Sensing ability allows players to obtain atmospherics data of a tile by examining it.
 pub(crate) fn atmospherics_sensing_ability(

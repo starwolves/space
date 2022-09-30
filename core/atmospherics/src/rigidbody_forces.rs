@@ -3,11 +3,11 @@ use bevy::{
     prelude::{Entity, Query, Res, ResMut, Transform, Without},
 };
 use bevy_rapier3d::prelude::ExternalForce;
+use entity::senser::FOV_MAP_WIDTH;
 use gridmap::grid::{AdjacentTileDirection, GridmapMain};
 use math::grid::{world_to_cell_id, Vec2Int};
 use pawn::pawn::Pawn;
 use physics::physics::RigidBodyDisabled;
-use senser::senser::FOV_MAP_WIDTH;
 use server::core::TickRate;
 
 use std::collections::HashMap;

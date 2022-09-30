@@ -11,12 +11,11 @@ use bevy_rapier3d::{
     prelude::{Collider, InteractionGroups},
     rapier::prelude::Ray,
 };
-use examinable::examine::Examinable;
+use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::{
     events::Cell,
     grid::{cell_id_to_world, GridmapData, GridmapMain},
 };
-use health::core::HealthComponent;
 use inventory_item::combat::ProjectileCombat;
 use math::grid::Vec3Int;
 use physics::physics::{get_bit_masks, ColliderGroup};

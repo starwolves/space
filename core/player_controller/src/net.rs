@@ -1,14 +1,14 @@
-use api::{
-    entity_updates::{EntityData, EntityUpdates},
-    player_controller::SoftPlayer,
-};
+use api::player_controller::SoftPlayer;
 use bevy::prelude::{
     Commands, Entity, EventReader, EventWriter, Local, Query, Res, Transform, Without,
 };
+use entity::entity_data::load_entity;
+use entity::entity_data::EntityData;
+use entity::entity_data::EntityUpdates;
 use gi_probe::core::GIProbe;
 use humanoid::humanoid::Humanoid;
 use networking::messages::{
-    load_entity, InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady, NetLoadEntity,
+    InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady, NetLoadEntity,
     ReliableServerMessage, ServerConfigMessage,
 };
 use networking_macros::NetMessage;

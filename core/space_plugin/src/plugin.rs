@@ -25,9 +25,7 @@ use console_commands::plugins::ConsoleCommandsPlugin;
 use construction_tool_admin::plugin::ConstructionToolAdminPlugin;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
-use examinable::plugin::ExaminablePlugin;
 use gridmap::plugin::GridmapPlugin;
-use health::plugin::HealthPlugin;
 use helmet_security::plugin::HelmetsPlugin;
 use human_male::plugin::HumanMalePlugin;
 use humanoid::plugin::HumanoidPlugin;
@@ -40,12 +38,10 @@ use motd::motd::MOTD;
 use networking::plugin::NetworkingPlugin;
 use omni_light::plugin::OmniLightPlugin;
 use pawn::plugin::PawnPlugin;
-use physics::plugin::PhysicsPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
 use player_controller::plugin::ConnectedPlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
 use rigid_body::plugin::RigidBodyPlugin;
-use senser::plugin::SenserPlugin;
 use server::core::TickRate;
 use sfx::plugin::SfxPlugin;
 use sounds::SoundsPlugin;
@@ -106,7 +102,6 @@ impl Plugin for SpacePlugin {
             .add_plugin(PawnPlugin)
             .add_plugin(HumanMalePlugin)
             .add_plugin(SfxPlugin)
-            .add_plugin(HealthPlugin)
             .add_plugin(EntityPlugin)
             .add_plugin(AtmosphericsPlugin)
             .add_plugin(ConsoleCommandsPlugin {
@@ -121,7 +116,6 @@ impl Plugin for SpacePlugin {
             .add_plugin(NetworkingPlugin {
                 custom_encryption_key: self.custom_net_encryption_key,
             })
-            .add_plugin(PhysicsPlugin)
             .add_plugin(HumanoidPlugin)
             .add_plugin(RigidBodyPlugin)
             .add_plugin(ComputersPlugin)
@@ -129,14 +123,12 @@ impl Plugin for SpacePlugin {
             .add_plugin(OmniLightPlugin)
             .add_plugin(ReflectionProbePlugin)
             .add_plugin(InventoryItemPlugin)
-            .add_plugin(SenserPlugin)
             .add_plugin(JumpsuitsPlugin)
             .add_plugin(HelmetsPlugin)
             .add_plugin(PistolL1Plugin)
             .add_plugin(LineArrowPlugin)
             .add_plugin(PointArrowPlugin)
             .add_plugin(SoundsPlugin)
-            .add_plugin(ExaminablePlugin)
             .add_plugin(ChatPlugin);
         match self.threads_amount {
             Some(amn) => {

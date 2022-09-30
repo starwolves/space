@@ -53,20 +53,21 @@ use api::{
         TALK_STYLE_STANDARD_STANDARD, TALK_TYPE_MACHINE_NEARBY_END, TALK_TYPE_MACHINE_NEARBY_START,
         TALK_TYPE_STANDARD_NEARBY_END, TALK_TYPE_STANDARD_NEARBY_START,
     },
-    entity_updates::EntityUpdateData,
     player_controller::SoftPlayer,
 };
 use bevy::prelude::SystemLabel;
+use entity::{
+    sensable::Sensable,
+    senser::{to_doryen_coordinates, Senser},
+};
 use math::grid::world_to_cell_id;
-use networking::messages::PendingMessage;
 use networking::messages::ReliableServerMessage;
+use networking::messages::{EntityUpdateData, PendingMessage};
 use networking::messages::{
     EntityWorldType, InputChatMessage, NetSendEntityUpdates, PendingNetworkMessage,
 };
 use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
-use sensable::core::Sensable;
-use senser::senser::{to_doryen_coordinates, Senser};
 use server::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;

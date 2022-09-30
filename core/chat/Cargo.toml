@@ -21,7 +21,6 @@ networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
 sfx = { path = "../sfx" }
 pawn = { path = "../pawn" }
-sensable = { path = "../sensable" }
-senser = { path = "../senser" }
+entity = { path = "../entity" }
 server = { path = "../server" }
 math = { path = "../math" }

@@ -1,4 +1,3 @@
-use api::health::StructureHealth;
 use bevy::{
     hierarchy::BuildChildren,
     math::Vec3,
@@ -8,10 +7,12 @@ use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
 };
 use data_converters::converters::string_vec3_to_vec3;
-use health::core::{Health, HealthContainer, HealthFlag};
+use entity::{
+    health::{Health, HealthContainer, HealthFlag, StructureHealth},
+    senser::to_doryen_coordinates,
+};
 use math::grid::Vec3Int;
 use physics::physics::{get_bit_masks, ColliderGroup, CHARACTER_FLOOR_FRICTION};
-use senser::senser::to_doryen_coordinates;
 
 use std::collections::HashMap;
 

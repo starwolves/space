@@ -20,15 +20,13 @@ rand = "0.8.5"
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
-health = { path = "../health" }
+
 sounds = { path = "../../entities/sounds" }
 physics = { path = "../physics" }
-api = { path = "../api" }
 gridmap = { path = "../gridmap" }
 sfx = { path = "../sfx" }
 inventory_item = { path = "../inventory_item" }
 chat = { path = "../chat" }
-examinable = { path = "../examinable" }
-senser = { path = "../senser" }
+entity = { path = "../entity" }
 server = { path = "../server" }
 math = { path = "../math" }

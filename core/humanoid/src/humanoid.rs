@@ -12,9 +12,8 @@ use bevy::{
     time::{Time, Timer},
 };
 use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
-use examinable::examine::Examinable;
+use entity::{examine::Examinable, health::DamageFlag, sensable::Sensable};
 use gridmap::grid::GridmapMain;
-use health::core::DamageFlag;
 use inventory_item::{
     combat::{MeleeCombat, ProjectileCombat},
     item::{CombatStandardAnimation, InventoryItem},
@@ -25,7 +24,6 @@ use pawn::pawn::{
     facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
 };
 use rigid_body::rigid_body::RigidBodyData;
-use sensable::core::Sensable;
 use server::core::{HandleToEntity, TickRate};
 use sfx::builder::repeating_sfx_builder;
 use showcase::core::Showcase;

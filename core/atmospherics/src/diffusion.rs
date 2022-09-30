@@ -5,8 +5,8 @@ use bevy::{
     prelude::{warn, Entity, Res, ResMut},
     time::{FixedTimesteps, Time},
 };
+use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
-use senser::senser::FOV_MAP_WIDTH;
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;
 

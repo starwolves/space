@@ -5,11 +5,11 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use data_converters::converters::string_transform_to_transform;
 use entity::entity_data::RawSpawnEvent;
+use entity::examine::{Examinable, RichName};
+use entity::health::DamageFlag;
 use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
 };
-use examinable::examine::{Examinable, RichName};
-use health::core::DamageFlag;
 use inventory_item::combat::{DamageModel, MeleeCombat};
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};

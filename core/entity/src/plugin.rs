@@ -2,15 +2,25 @@ use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
 use networking::messages::net_system;
-use server::labels::{PostUpdateLabels, StartupLabels, SummoningLabels};
+use server::labels::{
+    ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels,
+};
 
-use crate::entity_data::{RawSpawnEvent, INTERPOLATION_LABEL1};
+use crate::actions::build_actions;
+use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
+use crate::examine::{
+    examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
+    finalize_examine_map, ExamineEntityMessages, GridmapExamineMessages, NetConnExamine,
+    NetExamine,
+};
 use crate::init::{initialize_console_commands, startup_entities};
 use crate::meta::EntityDataResource;
 use crate::spawn::DefaultSpawnEvent;
+use crate::visible_checker::visible_checker;
 
 use super::entity_data::{broadcast_position_updates, NetShowcase};
 use bevy::app::CoreStage::PostUpdate;
+use bevy::app::CoreStage::PreUpdate;
 
 pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
@@ -42,6 +52,49 @@ impl Plugin for EntityPlugin {
                     .after(PostUpdateLabels::VisibleChecker)
                     .label(PostUpdateLabels::Net)
                     .with_system(net_system::<NetShowcase>),
-            );
+            )
+            .add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .label(PostUpdateLabels::EntityUpdate)
+                    .with_system(world_mode_update),
+            )
+            .add_system_to_stage(
+                PostUpdate,
+                visible_checker
+                    .after(PostUpdateLabels::SendEntityUpdates)
+                    .label(PostUpdateLabels::VisibleChecker),
+            )
+            .add_system(
+                build_actions
+                    .label(ActionsLabels::Build)
+                    .after(ActionsLabels::Init),
+            )
+            .add_system_to_stage(
+                PostUpdate,
+                finalize_examine_map.before(PostUpdateLabels::EntityUpdate),
+            )
+            .add_event::<NetExamine>()
+            .add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net)
+                    .with_system(net_system::<NetExamine>)
+                    .with_system(net_system::<NetConnExamine>),
+            )
+            .add_event::<NetConnExamine>()
+            .add_system_to_stage(
+                PostUpdate,
+                finalize_examine_entity.before(PostUpdateLabels::EntityUpdate),
+            )
+            .add_system(examine_entity_health.after(ActionsLabels::Action))
+            .init_resource::<ExamineEntityMessages>()
+            .init_resource::<GridmapExamineMessages>()
+            .add_system_to_stage(
+                PreUpdate,
+                finalize_entity_examine_input.after(PreUpdateLabels::ProcessInput),
+            )
+            .add_system(examine_entity.after(ActionsLabels::Action));
     }
 }

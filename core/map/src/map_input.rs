@@ -3,13 +3,13 @@ use bevy::{
     math::Vec2,
     prelude::{EventReader, EventWriter, Query},
 };
+use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
 use networking::messages::{InputMap, InputMapRequestOverlay, MapInput, ReliableServerMessage};
 
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking_macros::NetMessage;
-use senser::senser::FOV_MAP_WIDTH;
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.
 pub(crate) fn map_input(

@@ -35,10 +35,9 @@ map = { path = "../map" }
 motd = { path = "../motd" }
 chat = { path = "../chat" }
 gridmap = { path = "../gridmap" }
-examinable = { path = "../examinable" }
-sensable = { path = "../sensable" }
-health = { path = "../health" }
-senser = { path = "../senser" }
+
+
+
 world_environment = { path = "../world_environment" }
 data_link = { path = "../data_link" }
 server = { path = "../server" }

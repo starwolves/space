@@ -26,18 +26,17 @@ gridmap = { path = "../gridmap" }
 humanoid = { path = "../humanoid" }
 inventory_item = { path = "../inventory_item" }
 networking = { path = "../networking" }
-physics = { path = "../physics" }
-senser = { path = "../senser" }
+
 actions = { path = "../actions" }
 world_environment = { path = "../world_environment" }
 pawn = { path = "../pawn" }
 sfx = { path = "../sfx" }
-health = { path = "../health" }
+
 entity = { path = "../entity" }
 map = { path = "../map" }
 inventory = { path = "../inventory" }
 rigid_body = { path = "../rigid_body" }
-examinable = { path = "../examinable" }
+
 chat = { path = "../chat" }
 motd = { path = "../motd" }
 server = { path = "../server" }

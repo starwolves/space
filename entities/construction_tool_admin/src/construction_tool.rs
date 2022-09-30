@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
 use super::net::NetConstructionTool;
-use api::{
-    chat::FURTHER_ITALIC_FONT, entity_updates::EntityData, health::StructureHealth,
-    inventory::Inventory,
-};
+use api::{chat::FURTHER_ITALIC_FONT, inventory::Inventory};
 
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource, EffectType};
 use bevy::{
@@ -16,7 +13,11 @@ use bevy::{
 };
 use doryen_fov::FovAlgorithm;
 use entity::{
+    entity_data::EntityData,
+    health::{Health, HealthContainer, StructureHealth},
     meta::EntityDataResource,
+    sensable::Sensable,
+    senser::{to_doryen_coordinates, Senser},
     spawn::{DefaultSpawnEvent, SpawnData},
 };
 use gridmap::{
@@ -27,7 +28,6 @@ use gridmap::{
         GridmapDetails1, GridmapMain, RemoveCell,
     },
 };
-use health::core::{Health, HealthContainer};
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::messages::{
     GridMapLayer, InputConstructionOptionsSelection, ReliableServerMessage, TextTreeBit,
@@ -37,8 +37,6 @@ use physics::physics::RigidBodyDisabled;
 use inventory_item::item::InventoryItem;
 use pawn::pawn::Pawn;
 use rand::Rng;
-use sensable::core::Sensable;
-use senser::senser::{to_doryen_coordinates, Senser};
 use server::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{

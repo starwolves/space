@@ -1,9 +1,9 @@
-use api::entity_updates::{EntityData, EntityGroup};
 use bevy::{
     hierarchy::Parent,
     prelude::{Entity, EventReader, EventWriter, Query, Transform, With},
 };
 use bevy_rapier3d::{pipeline::CollisionEvent, prelude::Collider};
+use entity::entity_data::{EntityData, EntityGroup};
 
 use crate::counter_window_events::CounterWindowSensorCollision;
 

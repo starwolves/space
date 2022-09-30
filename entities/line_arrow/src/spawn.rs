@@ -5,11 +5,13 @@ use bevy::{
     prelude::{Commands, EventReader, EventWriter, Transform},
     time::Timer,
 };
-use entity::spawn::{
-    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
+use entity::{
+    entity_data::{WorldMode, WorldModes},
+    examine::{Examinable, RichName},
+    spawn::{
+        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
+    },
 };
-use examinable::examine::{Examinable, RichName};
-use physics::world_mode::{WorldMode, WorldModes};
 
 pub fn get_default_transform() -> Transform {
     Transform::identity()

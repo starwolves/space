@@ -10,12 +10,11 @@ use bevy_rapier3d::{
     plugin::RapierContext,
     prelude::{Collider, InteractionGroups},
 };
-use examinable::examine::Examinable;
+use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::{
     events::Cell,
     grid::{cell_id_to_world, GridmapData, GridmapMain},
 };
-use health::core::HealthComponent;
 use inventory_item::combat::{MeleeCombat, ProjectileCombat};
 use math::grid::Vec3Int;
 use networking::messages::ReliableServerMessage;

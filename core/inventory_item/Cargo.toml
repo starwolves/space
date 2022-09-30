@@ -20,7 +20,6 @@ console_commands = { path = "../console_commands" }
 api = { path = "../api" }
 actions = { path = "../actions" }
 networking = { path = "../networking" }
-health = { path = "../health" }
 gridmap = { path = "../gridmap" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }
