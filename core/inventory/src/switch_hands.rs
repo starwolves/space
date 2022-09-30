@@ -1,5 +1,5 @@
-use api::inventory::Inventory;
 use bevy::prelude::{EventReader, EventWriter, Query, Res};
+use inventory_api::core::Inventory;
 use networking::messages::{InputSwitchHands, ReliableServerMessage};
 use server::core::HandleToEntity;
 

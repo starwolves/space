@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use actions::core::{ActionRequests, BuildingActions};
-use api::{inventory::Inventory, rigid_body::RigidBodyLinkTransform};
 
 use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
@@ -29,6 +28,7 @@ use gridmap::{
     grid::{GridmapData, GridmapMain},
 };
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
+use inventory_api::core::Inventory;
 use inventory_item::item::InventoryItem;
 use networking::messages::{
     EntityUpdateData, EntityWorldType, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
@@ -41,7 +41,7 @@ use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
 };
 use pawn::pawn::{ControllerInput, Pawn, REACH_DISTANCE};
-use physics::physics::{disable_rigidbody, enable_rigidbody};
+use physics::physics::{disable_rigidbody, enable_rigidbody, RigidBodyLinkTransform};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},

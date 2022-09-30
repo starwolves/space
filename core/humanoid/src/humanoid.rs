@@ -1,6 +1,5 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use api::inventory::Inventory;
 use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
     hierarchy::Children,
@@ -14,6 +13,7 @@ use bevy::{
 use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
 use entity::{examine::Examinable, health::DamageFlag, sensable::Sensable};
 use gridmap::grid::GridmapMain;
+use inventory_api::core::Inventory;
 use inventory_item::{
     combat::{MeleeCombat, ProjectileCombat},
     item::{CombatStandardAnimation, InventoryItem},

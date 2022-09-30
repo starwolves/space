@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use super::net::NetConstructionTool;
-use api::{chat::FURTHER_ITALIC_FONT, inventory::Inventory};
 
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource, EffectType};
 use bevy::{
@@ -11,6 +10,7 @@ use bevy::{
         Transform, Without,
     },
 };
+use chat_api::core::FURTHER_ITALIC_FONT;
 use doryen_fov::FovAlgorithm;
 use entity::{
     entity_data::EntityData,
@@ -28,6 +28,7 @@ use gridmap::{
         GridmapDetails1, GridmapMain, RemoveCell,
     },
 };
+use inventory_api::core::Inventory;
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::messages::{
     GridMapLayer, InputConstructionOptionsSelection, ReliableServerMessage, TextTreeBit,

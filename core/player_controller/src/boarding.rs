@@ -10,17 +10,17 @@ use super::{
     setup_ui::INPUT_NAME_PATH,
 };
 
-use api::{
-    chat::{escape_bb, get_talk_spaces},
-    player_controller::SoftPlayer,
-};
 use bevy::{
     prelude::{info, warn, Added, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut},
     time::Timer,
 };
+use chat_api::core::{escape_bb, get_talk_spaces};
 use console_commands::commands::CONSOLE_ERROR_COLOR;
 use construction_tool_admin::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
-use entity::spawn::{SpawnData, SpawnEvent};
+use entity::{
+    meta::SoftPlayer,
+    spawn::{SpawnData, SpawnEvent},
+};
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
 use humanoid::{humanoid::HUMAN_MALE_ENTITY_NAME, user_name::UsedNames};
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;

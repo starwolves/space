@@ -1,17 +1,13 @@
 [package]
-name = "api"
+name = "chat_api"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Shared resources."
+description="Chat API to prevent cyclic dependencies."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
-
-[dependencies.bevy]
-version = "0.8.0"
-default-features = false
 
 [dependencies]
 rand = "0.8.5"

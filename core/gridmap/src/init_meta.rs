@@ -1,11 +1,11 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use api::chat::EXAMINATION_EMPTY;
 use bevy::prelude::{info, Commands, EventWriter, Res, ResMut, Transform};
 use bevy_rapier3d::{
     plugin::{RapierConfiguration, TimestepMode},
     prelude::{CoefficientCombineRule, Collider},
 };
+use chat_api::core::EXAMINATION_EMPTY;
 use entity::{
     entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server},
     examine::RichName,

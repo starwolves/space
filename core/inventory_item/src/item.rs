@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use api::inventory::SlotType;
 use bevy::prelude::{Component, Entity, Transform};
+use inventory_api::core::SlotType;
 
 /// Humanoid animations for combat.
 pub enum CombatStandardAnimation {

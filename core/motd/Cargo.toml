@@ -10,5 +10,4 @@ license-file="LICENSE"
 edition = "2021"
 
 [dependencies]
-
-api = { path = "../api" }
+chat_api = { path = "../chat_api" }

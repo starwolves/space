@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use api::chat::escape_bb;
 use bevy::prelude::Entity;
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
+use chat_api::core::escape_bb;
 use console_commands::commands::CONSOLE_ERROR_COLOR;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;

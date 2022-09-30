@@ -1,6 +1,5 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use api::inventory::{Inventory, Slot, SlotType};
 use bevy::{
     math::Vec2,
     prelude::{Changed, Entity, Query},
@@ -24,6 +23,7 @@ use entity::{
     },
 };
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
+use inventory_api::core::{Inventory, Slot, SlotType};
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use networking::messages::{EntityUpdateData, ReliableServerMessage};
 use pawn::pawn::{

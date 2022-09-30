@@ -1,5 +1,4 @@
 use air_locks::air_lock_events::{AirLockCloseRequest, LockedStatus};
-use api::chat::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::{
     hierarchy::Children,
@@ -10,6 +9,7 @@ use bevy::{
     time::Timer,
 };
 use bevy_rapier3d::prelude::{Collider, CollisionGroups};
+use chat_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use math::grid::{world_to_cell_id, Vec2Int};
 use networking::messages::ReliableServerMessage;

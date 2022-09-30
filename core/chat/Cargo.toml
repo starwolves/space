@@ -16,7 +16,6 @@ default-features = false
 [dependencies]
 voca_rs = "1.14.0"
 
-api = { path = "../api" }
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
 sfx = { path = "../sfx" }
@@ -24,3 +23,4 @@ pawn = { path = "../pawn" }
 entity = { path = "../entity" }
 server = { path = "../server" }
 math = { path = "../math" }
+chat_api = { path = "../chat_api" }

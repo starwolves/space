@@ -5,9 +5,8 @@ use bevy::{
     },
 };
 
-use api::chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT};
-
 use bevy_rapier3d::prelude::RigidBody;
+use chat_api::core::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT};
 use doryen_fov::FovAlgorithm;
 
 use entity::{

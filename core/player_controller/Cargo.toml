@@ -26,18 +26,16 @@ networking_macros = { path = "../networking_macros" }
 entity = { path = "../entity" }
 humanoid = { path = "../humanoid" }
 inventory_item = { path = "../inventory_item" }
+inventory_api = { path = "../inventory_api" }
 pawn = { path = "../pawn" }
 rigid_body = { path = "../rigid_body" }
 physics = { path = "../physics" }
 console_commands = { path = "../console_commands" }
-api = { path = "../api" }
+chat_api = { path = "../chat_api" }
 map = { path = "../map" }
 motd = { path = "../motd" }
 chat = { path = "../chat" }
 gridmap = { path = "../gridmap" }
-
-
-
 world_environment = { path = "../world_environment" }
 data_link = { path = "../data_link" }
 server = { path = "../server" }
