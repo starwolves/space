@@ -105,3 +105,7 @@ Contributors of this project have to agree to our [Collaberative License Agreeme
 ## License
 
 This repository is licensed under a [restrictive proprietary license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE) that we intend to support with good faith and integrity to both grant and support western freedoms for individual communities and thus without elements of modern day cancel culture 👑.
+
+### AGPLv3 Milestone
+
+In the further future when a yet to be-decided amount of copies have been sold: the entire codebase will go Free Open Source (FOSS) under The GNU Affero General Public License version 3.
