@@ -1,8 +1,10 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
-use api::entity_updates::{personalise, EntityUpdates};
+use entity::{
+    entity_data::{personalise, EntityUpdates},
+    sensable::Sensable,
+};
 use networking::messages::{EntityWorldType, NetSendEntityUpdates, ReliableServerMessage};
-use sensable::core::Sensable;
 use server::core::{ConnectedPlayer, HandleToEntity};
 use showcase::core::Showcase;
 

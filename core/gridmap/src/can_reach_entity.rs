@@ -9,7 +9,7 @@ use bevy_rapier3d::{
     prelude::{Collider, InteractionGroups},
     rapier::prelude::Ray,
 };
-use health::core::HealthComponent;
+use entity::health::HealthComponent;
 use pawn::pawn::REACH_DISTANCE;
 use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
 

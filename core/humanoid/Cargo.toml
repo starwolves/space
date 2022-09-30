@@ -22,14 +22,13 @@ sounds = { path = "../../entities/sounds" }
 pawn = { path = "../pawn" }
 inventory_item = { path = "../inventory_item" }
 combat = { path = "../combat" }
-health = { path = "../health" }
+
 sfx = { path = "../sfx" }
 rigid_body = { path = "../rigid_body" }
 api = { path = "../api" }
-examinable = { path = "../examinable" }
+
 console_commands = { path = "../console_commands" }
-senser = { path = "../senser" }
-sensable = { path = "../sensable" }
+entity = { path = "../entity" }
 gridmap = { path = "../gridmap" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }

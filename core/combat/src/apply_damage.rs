@@ -1,6 +1,6 @@
 use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, ResMut};
+use entity::health::{HealthComponent, HealthContainer};
 use gridmap::grid::GridmapMain;
-use health::core::{HealthComponent, HealthContainer};
 use inventory_item::combat::{DamageModel, MeleeCombat, ProjectileCombat};
 use math::grid::Vec3Int;
 

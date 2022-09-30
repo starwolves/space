@@ -5,9 +5,9 @@ use bevy::{
     prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
+use entity::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::messages::{ProjectileData, ReliableServerMessage};
-use senser::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
 use server::core::ConnectedPlayer;
 
 use crate::grid::{GridmapData, GridmapMain};

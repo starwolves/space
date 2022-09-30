@@ -1,11 +1,7 @@
 use std::collections::HashMap;
 
 use actions::core::{ActionRequests, BuildingActions};
-use api::{
-    entity_updates::{EntityData, EntityUpdateData},
-    inventory::Inventory,
-    rigid_body::RigidBodyLinkTransform,
-};
+use api::{inventory::Inventory, rigid_body::RigidBodyLinkTransform};
 
 use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
@@ -20,32 +16,32 @@ use bevy_rapier3d::{
     plugin::RapierContext,
     prelude::{Collider, CollisionGroups, Damping, ExternalForce, GravityScale, Sleeping},
 };
-use examinable::examine::Examinable;
+use entity::{
+    entity_data::{EntityData, WorldMode, WorldModes},
+    examine::Examinable,
+    health::HealthComponent,
+    sensable::Sensable,
+};
 use gridmap::{
     can_reach_entity::can_reach_entity,
     events::Cell,
     get_spawn_position::entity_spawn_position_for_player,
     grid::{GridmapData, GridmapMain},
 };
-use health::core::HealthComponent;
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use inventory_item::item::InventoryItem;
 use networking::messages::{
-    EntityWorldType, InputDropCurrentItem, InputTakeOffItem, InputThrowItem, InputUseWorldItem,
-    InputWearItem, ReliableServerMessage,
+    EntityUpdateData, EntityWorldType, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
+    InputUseWorldItem, InputWearItem, ReliableServerMessage,
 };
 use rand::Rng;
-use sensable::core::Sensable;
 use server::core::HandleToEntity;
 
 use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
 };
 use pawn::pawn::{ControllerInput, Pawn, REACH_DISTANCE};
-use physics::{
-    physics::{disable_rigidbody, enable_rigidbody},
-    world_mode::{WorldMode, WorldModes},
-};
+use physics::physics::{disable_rigidbody, enable_rigidbody};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     actions::{throw1_sfx::Throw1SfxBundle, throw2_sfx::Throw2SfxBundle},

@@ -2,8 +2,7 @@ use bevy::{
     prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
     time::FixedTimestep,
 };
-use entity::entity_data::INTERPOLATION_LABEL1;
-use examinable::examine::RichName;
+use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
 use networking::messages::net_system;
 use pawn::pawn::SpawnPoints;
 use server::labels::{

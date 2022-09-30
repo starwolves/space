@@ -17,14 +17,15 @@ default-features = false
 bevy_renet = "0.0.5"
 bincode = "1.3.3"
 serde = {version= "1.0.137"}
+doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
+bevy_rapier3d = "0.16.0"
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
-health = { path = "../health" }
+math = { path = "../math" }
 api = { path = "../api" }
 console_commands = { path = "../console_commands" }
-examinable = { path = "../examinable" }
-sensable = { path = "../sensable" }
+actions = { path = "../actions" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }
 gridmap_meta = { path = "../gridmap_meta" }

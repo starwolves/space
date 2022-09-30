@@ -1,17 +1,19 @@
 use std::collections::HashMap;
 
-use api::entity_updates::{EntityData, EntityGroup, EntityUpdates};
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
-use examinable::examine::Examinable;
-use health::core::{Health, HealthComponent};
 use networking::messages::{GodotVariantValues, ReliableServerMessage};
-use sensable::core::Sensable;
 use serde::Deserialize;
 use showcase::core::{Showcase, ShowcaseData};
 
 use crate::{
-    entity_data::{CachedBroadcastTransform, RawEntity, ENTITY_SPAWN_PARENT},
+    entity_data::{
+        CachedBroadcastTransform, EntityData, EntityGroup, EntityUpdates, RawEntity,
+        ENTITY_SPAWN_PARENT,
+    },
+    examine::Examinable,
+    health::{Health, HealthComponent},
     meta::EntityDataResource,
+    sensable::Sensable,
 };
 
 use super::entity_data::{DefaultMapEntity, NetShowcase};

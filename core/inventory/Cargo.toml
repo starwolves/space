@@ -28,9 +28,7 @@ sfx = { path = "../sfx" }
 api = { path = "../api" }
 gridmap = { path = "../gridmap" }
 actions = { path = "../actions" }
-examinable = { path = "../examinable" }
-sensable = { path = "../sensable" }
-health = { path = "../health" }
+entity = { path = "../entity" }
 server = { path = "../server" }
 atmospherics = { path = "../atmospherics" }
 math = { path = "../math" }

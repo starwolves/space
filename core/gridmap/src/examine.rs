@@ -4,10 +4,12 @@ use api::chat::{
     HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
-use examinable::examine::{Examinable, GridmapExamineMessages};
-use health::core::HealthContainer;
+use entity::{
+    examine::{Examinable, GridmapExamineMessages},
+    health::HealthContainer,
+    senser::{to_doryen_coordinates, Senser, SensingAbility},
+};
 use networking::messages::{GridMapLayer, InputExamineMap};
-use senser::senser::{to_doryen_coordinates, Senser, SensingAbility};
 
 use crate::{
     events::examine_ship_cell,

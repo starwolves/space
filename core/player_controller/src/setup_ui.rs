@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
-use api::{entity_updates::EntityUpdateData, humanoid::UsedNames, player_controller::SoftPlayer};
+use api::{humanoid::UsedNames, player_controller::SoftPlayer};
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::{SpawnData, SpawnEvent};
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use motd::motd::MOTD;
 use networking::messages::{
-    EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction, UIInputNodeClass,
+    EntityUpdateData, EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction,
+    UIInputNodeClass,
 };
 use pawn::pawn::{PawnDesignation, PersistentPlayerData};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;

@@ -16,8 +16,7 @@ default-features = false
 [dependencies]
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
-api = { path = "../api" }
-senser = { path = "../senser" }
 data_link = { path = "../data_link" }
 server = { path = "../server" }
 math = { path = "../math" }
+entity = { path = "../entity" }

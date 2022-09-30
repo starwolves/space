@@ -1,12 +1,10 @@
-use api::entity_updates::{EntityData, EntityUpdates};
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use data_converters::converters::string_transform_to_transform;
 use entity::{
-    entity_data::RawSpawnEvent,
+    entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
+    sensable::Sensable,
     spawn::{SpawnData, SpawnEvent},
 };
-use physics::world_mode::{WorldMode, WorldModes};
-use sensable::core::Sensable;
 
 use super::{
     omni_light::OmniLight,

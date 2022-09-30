@@ -6,11 +6,11 @@ use bevy_rapier3d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
     GravityScale, RigidBody, Sleeping, Velocity,
 };
-use entity::spawn::{NoData, SpawnData, SpawnEvent};
-use physics::{
-    physics::{get_bit_masks, ColliderGroup, RigidBodyDisabled},
-    world_mode::{WorldMode, WorldModes},
+use entity::{
+    entity_data::{WorldMode, WorldModes},
+    spawn::{NoData, SpawnData, SpawnEvent},
 };
+use physics::physics::{get_bit_masks, ColliderGroup, RigidBodyDisabled};
 
 use crate::rigid_body::RigidBodyData;
 

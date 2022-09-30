@@ -1,10 +1,12 @@
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use chat::chat::EntityProximityMessage;
-use examinable::examine::Examinable;
+use entity::examine::Examinable;
+use entity::health::HealthComponent;
+use entity::health::HealthContainer;
+use entity::senser::to_doryen_coordinates;
+use entity::senser::Senser;
 use gridmap::grid::GridmapData;
 use gridmap::grid::GridmapMain;
-use health::core::HealthComponent;
-use health::core::HealthContainer;
 use inventory_item::combat::get_default_fists_words;
 use inventory_item::combat::get_default_trigger_fists_words;
 use inventory_item::combat::get_default_trigger_melee_words;
@@ -18,8 +20,6 @@ use networking::messages::PendingNetworkMessage;
 use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
-use senser::senser::to_doryen_coordinates;
-use senser::senser::Senser;
 use server::core::HandleToEntity;
 
 use crate::{

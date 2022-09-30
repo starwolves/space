@@ -1,4 +1,10 @@
 use crate::core::GIProbe;
+use bevy::prelude::{Commands, EventReader, EventWriter};
+use data_converters::converters::string_transform_to_transform;
+use entity::{
+    entity_data::{EntityData, EntityUpdates, RawSpawnEvent},
+    spawn::{SpawnData, SpawnEvent},
+};
 
 use super::process_content::ExportData;
 
@@ -65,10 +71,3 @@ pub fn summon_raw_gi_probe(
         }
     }
 }
-use api::entity_updates::{EntityData, EntityUpdates};
-use bevy::prelude::{Commands, EventReader, EventWriter};
-use data_converters::converters::string_transform_to_transform;
-use entity::{
-    entity_data::RawSpawnEvent,
-    spawn::{SpawnData, SpawnEvent},
-};

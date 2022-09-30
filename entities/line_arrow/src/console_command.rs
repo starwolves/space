@@ -3,9 +3,11 @@ use bevy::{
     prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform},
     time::Time,
 };
-use entity::spawn::{SpawnData, SpawnEvent};
+use entity::{
+    sensable::Sensable,
+    spawn::{SpawnData, SpawnEvent},
+};
 use networking::messages::{GodotVariantValues, InputConsoleCommand, NetUnloadEntity};
-use sensable::core::Sensable;
 use server::core::HandleToEntity;
 
 use super::{

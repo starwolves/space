@@ -18,8 +18,6 @@ serde = {version= "1.0.137"}
 serde_json = {version= "1.0.81"}
 
 entity = { path = "../../core/entity" }
-physics = { path = "../../core/physics" }
-api = { path = "../../core/api" }
-sensable = { path = "../../core/sensable" }
 data_converters = { path = "../../core/data_converters" }
 server = { path = "../../core/server" }
+networking = { path = "../../core/networking" }

@@ -2,8 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Entity, Res, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
-use examinable::examine::RichName;
-use health::core::Health;
+use entity::{examine::RichName, health::Health};
 use math::grid::{Vec3Int, CELL_SIZE};
 use networking::messages::GridMapLayer;
 

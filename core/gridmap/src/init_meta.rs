@@ -6,8 +6,10 @@ use bevy_rapier3d::{
     plugin::{RapierConfiguration, TimestepMode},
     prelude::{CoefficientCombineRule, Collider},
 };
-use entity::entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server};
-use examinable::examine::RichName;
+use entity::{
+    entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server},
+    examine::RichName,
+};
 use pawn::pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints};
 use server::core::{ServerId, TickRate};
 

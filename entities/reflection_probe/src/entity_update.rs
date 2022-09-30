@@ -1,5 +1,6 @@
-use api::entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates};
 use bevy::prelude::{Changed, Query};
+use entity::entity_data::{get_entity_update_difference, EntityUpdates};
+use networking::messages::EntityUpdateData;
 
 use crate::core::ReflectionProbe;
 

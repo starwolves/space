@@ -4,8 +4,8 @@ use bevy::{
     math::Vec2,
     prelude::{Component, Entity},
 };
+use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
-use senser::senser::FOV_MAP_WIDTH;
 
 /// Mini-map overlay tile color.
 #[derive(Clone, PartialEq)]

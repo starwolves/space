@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::{math::Vec3, prelude::Entity};
-use health::core::{DamageFlag, HealthFlag};
+use entity::health::{DamageFlag, HealthFlag};
 use math::grid::Vec3Int;
 
 /// The attack event.
