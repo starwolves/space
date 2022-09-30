@@ -1,5 +1,6 @@
 //! Interact with inventory entities.
-//! For individual entities that can be put inside inventory containers with the standard actions applied to them.
+//! For individual entities that can be put inside inventory containers.
+//! Includes combat components for inventory items.
 
 /// Manage actions related to inventory items.
 mod actions;
