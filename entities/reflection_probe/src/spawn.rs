@@ -1,13 +1,12 @@
-use api::{
-    data::ReflectionProbe,
-    entity_updates::{EntityData, EntityUpdates},
-};
+use api::entity_updates::{EntityData, EntityUpdates};
 use bevy::prelude::{Commands, EventReader, EventWriter};
 use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::RawSpawnEvent,
     spawn::{SpawnData, SpawnEvent},
 };
+
+use crate::core::ReflectionProbe;
 
 use super::process_content::{ExportData, ExportDataRaw};
 

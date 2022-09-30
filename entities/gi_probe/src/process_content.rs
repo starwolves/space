@@ -1,6 +1,7 @@
-use api::data::GIProbe;
 use data_converters::converters::string_vec3_to_vec3;
 use serde::Deserialize;
+
+use crate::core::GIProbe;
 
 /// Json data.
 #[derive(Deserialize)]

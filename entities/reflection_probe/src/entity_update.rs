@@ -1,8 +1,7 @@
-use api::{
-    data::ReflectionProbe,
-    entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
-};
+use api::entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates};
 use bevy::prelude::{Changed, Query};
+
+use crate::core::ReflectionProbe;
 
 /// Reflection probe entity update.
 pub(crate) fn reflection_probe_update(

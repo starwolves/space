@@ -1,13 +1,12 @@
-use api::data::NoData;
 use api::inventory::SlotType;
 use bevy::math::{Mat4, Quat, Vec3};
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use data_converters::converters::string_transform_to_transform;
-use entity::entity_data::{RawSpawnEvent, CONSTRUCTION_TOOL_ENTITY_NAME};
+use entity::entity_data::RawSpawnEvent;
 use entity::spawn::{
-    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,
+    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
 };
 use examinable::examine::{Examinable, RichName};
 use health::core::DamageFlag;
@@ -17,6 +16,8 @@ use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
 use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 use std::collections::BTreeMap;
+
+use crate::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
 
 use super::construction_tool::ConstructionTool;
 

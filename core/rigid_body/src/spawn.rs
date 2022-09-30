@@ -1,4 +1,3 @@
-use api::data::NoData;
 use bevy::{
     hierarchy::BuildChildren,
     prelude::{Commands, Entity, EventReader, GlobalTransform, Transform},
@@ -7,7 +6,7 @@ use bevy_rapier3d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
     GravityScale, RigidBody, Sleeping, Velocity,
 };
-use entity::spawn::{SpawnData, SpawnEvent};
+use entity::spawn::{NoData, SpawnData, SpawnEvent};
 use physics::{
     physics::{get_bit_masks, ColliderGroup, RigidBodyDisabled},
     world_mode::{WorldMode, WorldModes},

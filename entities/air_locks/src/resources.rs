@@ -1,6 +1,7 @@
-use api::data::LockedStatus;
 use bevy::{prelude::Component, time::Timer};
 use pawn::pawn::ShipAuthorizationEnum;
+
+use crate::air_lock_events::LockedStatus;
 
 /// Air lock component.
 #[derive(Component)]

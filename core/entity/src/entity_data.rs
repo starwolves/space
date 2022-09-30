@@ -17,8 +17,6 @@ use networking::messages::PendingNetworkMessage;
 use server::core::HandleToEntity;
 
 use crate::meta::{EntityDataProperties, EntityDataResource};
-pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
-pub const HELMET_SECURITY_ENTITY_NAME: &str = "helmetSecurity";
 /// Initialize meta-data for an entity as a function.
 pub fn initialize_entity_data(
     entity_data: &mut ResMut<EntityDataResource>,

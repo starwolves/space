@@ -30,3 +30,4 @@ senser = { path = "../senser" }
 examinable = { path = "../examinable" }
 data_link = { path = "../data_link" }
 server = { path = "../server" }
+math = { path = "../math" }

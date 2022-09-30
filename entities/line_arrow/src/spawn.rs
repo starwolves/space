@@ -1,13 +1,12 @@
 use std::collections::BTreeMap;
 
 use super::line_arrow::{LineArrow, PointArrow};
-use api::data::NoData;
 use bevy::{
     prelude::{Commands, EventReader, EventWriter, Transform},
     time::Timer,
 };
 use entity::spawn::{
-    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent,
+    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
 };
 use examinable::examine::{Examinable, RichName};
 use physics::world_mode::{WorldMode, WorldModes};

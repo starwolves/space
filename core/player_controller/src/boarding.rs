@@ -12,7 +12,6 @@ use super::{
 
 use api::{
     chat::{escape_bb, get_talk_spaces},
-    data::{HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME, PISTOL_L1_ENTITY_NAME},
     humanoid::UsedNames,
     player_controller::SoftPlayer,
 };
@@ -21,15 +20,17 @@ use bevy::{
     time::Timer,
 };
 use console_commands::commands::CONSOLE_ERROR_COLOR;
-use entity::{
-    entity_data::{CONSTRUCTION_TOOL_ENTITY_NAME, HELMET_SECURITY_ENTITY_NAME},
-    spawn::{SpawnData, SpawnEvent},
-};
+use construction_tool_admin::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
+use entity::spawn::{SpawnData, SpawnEvent};
+use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
+use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
+use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PawnDesignation, PersistentPlayerData, SpawnPoints, Spawning};
+use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use server::core::{ConnectedPlayer, HandleToEntity};
 
 /// Component with boarding data.

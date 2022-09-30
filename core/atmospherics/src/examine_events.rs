@@ -1,10 +1,8 @@
 use crate::diffusion::{get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
-use api::{
-    chat::{ATMOSPHERICS_TEXT_COLOR, FURTHER_ITALIC_FONT},
-    data::Vec2Int,
-};
+use api::chat::{ATMOSPHERICS_TEXT_COLOR, FURTHER_ITALIC_FONT};
 use bevy::prelude::{warn, Query, Res, ResMut};
 use examinable::examine::GridmapExamineMessages;
+use math::grid::Vec2Int;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::ReliableServerMessage;

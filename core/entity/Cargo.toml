@@ -27,3 +27,4 @@ examinable = { path = "../examinable" }
 sensable = { path = "../sensable" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }
+gridmap_meta = { path = "../gridmap_meta" }

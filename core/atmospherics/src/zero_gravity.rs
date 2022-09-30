@@ -1,10 +1,10 @@
-use api::gridmap::world_to_cell_id;
 use bevy::{
     hierarchy::Children,
     prelude::{warn, Commands, Component, Entity, Query, Res, Transform, With},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use gridmap::grid::GridmapMain;
+use math::grid::world_to_cell_id;
 use rigid_body::rigid_body::RigidBodyData;
 
 /// Manage zero gravity for rigid bodies.

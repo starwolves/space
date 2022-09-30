@@ -7,7 +7,6 @@ use bevy::{
 
 use api::{
     chat::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT},
-    data::Vec3Int,
     health::StructureHealth,
 };
 
@@ -15,6 +14,7 @@ use bevy_rapier3d::prelude::RigidBody;
 use doryen_fov::FovAlgorithm;
 
 use health::core::{Health, HealthContainer};
+use math::grid::Vec3Int;
 use networking::messages::{GridMapLayer, ReliableServerMessage};
 use senser::senser::{to_doryen_coordinates, Senser};
 use serde::Deserialize;

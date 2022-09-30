@@ -37,3 +37,5 @@ health = { path = "../../core/health" }
 data_converters = { path = "../../core/data_converters" }
 data_link = { path = "../../core/data_link" }
 server = { path = "../../core/server" }
+math = { path = "../../core/math" }
+gridmap_meta = { path = "../../core/gridmap_meta" }

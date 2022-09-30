@@ -1,4 +1,3 @@
-use api::data::NoData;
 use bevy::{
     math::{Mat4, Quat, Vec3},
     prelude::{warn, Commands, EventReader, EventWriter, Transform},
@@ -8,8 +7,8 @@ use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::RawSpawnEvent,
     spawn::{
-        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, ExportProperty, SpawnData,
-        SpawnEvent,
+        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, ExportProperty, NoData,
+        SpawnData, SpawnEvent,
     },
 };
 use examinable::examine::{Examinable, RichName};

@@ -18,3 +18,4 @@ bevy_rapier3d = "0.16.0"
 
 api = { path = "../api" }
 server = { path = "../server" }
+math = { path = "../math" }

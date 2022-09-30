@@ -3,7 +3,7 @@ use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
-use entity::entity_data::{initialize_entity_data, CONSTRUCTION_TOOL_ENTITY_NAME};
+use entity::entity_data::initialize_entity_data;
 use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{summon_base_entity, SpawnEvent};
 use inventory_item::spawn::summon_inventory_item;
@@ -19,7 +19,7 @@ use crate::action::{
     construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
     text_tree_input_selection,
 };
-use crate::construction_tool::ConstructionTool;
+use crate::construction_tool::{ConstructionTool, CONSTRUCTION_TOOL_ENTITY_NAME};
 
 use super::{
     construction_tool::{

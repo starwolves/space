@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 
-use api::data::Vec2Int;
-
 use bevy::{
     math::Vec2,
     prelude::{Component, Entity},
 };
+use math::grid::Vec2Int;
 use senser::senser::FOV_MAP_WIDTH;
 
 /// Mini-map overlay tile color.

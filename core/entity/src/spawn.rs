@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use api::{
-    data::NoData,
-    entity_updates::{EntityData, EntityGroup, EntityUpdates},
-};
+use api::entity_updates::{EntityData, EntityGroup, EntityUpdates};
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
 use examinable::examine::Examinable;
 use health::core::{Health, HealthComponent};
@@ -302,3 +299,4 @@ pub fn spawn_entity(
 
     return_entity
 }
+pub struct NoData;

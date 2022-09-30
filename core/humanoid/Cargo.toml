@@ -34,3 +34,4 @@ gridmap = { path = "../gridmap" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }
 atmospherics = { path = "../atmospherics" }
+math = { path = "../math" }

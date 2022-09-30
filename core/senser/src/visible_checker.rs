@@ -4,10 +4,8 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::RigidBody;
 
-use api::{
-    entity_updates::{EntityData, EntityUpdates},
-    gridmap::world_to_cell_id,
-};
+use api::entity_updates::{EntityData, EntityUpdates};
+use math::grid::world_to_cell_id;
 use networking::messages::{load_entity, unload_entity, NetLoadEntity, NetUnloadEntity};
 use physics::world_mode::{WorldMode, WorldModes};
 use sensable::core::Sensable;

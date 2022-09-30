@@ -1,4 +1,3 @@
-use api::gridmap::GridItemData;
 use bevy::prelude::{
     App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemLabel, SystemSet, Transform,
 };
@@ -8,6 +7,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
+use gridmap_meta::core::GridItemData;
 use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
 use server::labels::{

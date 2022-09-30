@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use api::data::Vec2Int;
 use bevy::{
     math::Vec3,
     prelude::{warn, Entity, Res, ResMut},
     time::{FixedTimesteps, Time},
 };
+use math::grid::Vec2Int;
 use senser::senser::FOV_MAP_WIDTH;
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;
