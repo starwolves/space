@@ -1,6 +1,6 @@
-use api::data::{Vec2Int, Vec3Int};
 use bevy::prelude::{info, Res, ResMut};
 use gridmap::grid::{GridmapData, GridmapMain};
+use math::grid::{Vec2Int, Vec3Int};
 use senser::senser::FOV_MAP_WIDTH;
 
 use crate::diffusion::{

@@ -2,11 +2,7 @@ use std::collections::HashMap;
 
 use super::net::NetConstructionTool;
 use api::{
-    chat::FURTHER_ITALIC_FONT,
-    data::{Vec2Int, Vec3Int},
-    entity_updates::EntityData,
-    gridmap::world_to_cell_id,
-    health::StructureHealth,
+    chat::FURTHER_ITALIC_FONT, entity_updates::EntityData, health::StructureHealth,
     inventory::Inventory,
 };
 
@@ -32,6 +28,7 @@ use gridmap::{
     },
 };
 use health::core::{Health, HealthContainer};
+use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::messages::{
     GridMapLayer, InputConstructionOptionsSelection, ReliableServerMessage, TextTreeBit,
 };
@@ -1234,3 +1231,4 @@ pub struct InputDeconstruct {
     /// Entity that requested to deconstruct.
     pub belonging_entity: Entity,
 }
+pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";

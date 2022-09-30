@@ -4,9 +4,9 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::SpawnEvent,
 };
+use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 use player_controller::humanoid::{summon_base_human_male, summon_human_male, HumanMaleSummoner};
 
-use api::data::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 use rigid_body::spawn::summon_rigid_body;
 use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
 

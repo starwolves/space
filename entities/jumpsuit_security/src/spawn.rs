@@ -1,5 +1,3 @@
-use api::data::NoData;
-use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
 use api::inventory::SlotType;
 use bevy::math::Mat4;
 use bevy::math::Quat;
@@ -14,6 +12,7 @@ use entity::entity_data::RawSpawnEvent;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::BaseEntitySummonable;
 use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::NoData;
 use entity::spawn::SpawnData;
 use entity::spawn::SpawnEvent;
 use examinable::examine::Examinable;
@@ -29,6 +28,8 @@ use rigid_body::spawn::RigidBodyBundle;
 use rigid_body::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
+
+use crate::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 
 use super::jumpsuit::Jumpsuit;
 

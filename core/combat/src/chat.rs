@@ -1,4 +1,3 @@
-use api::gridmap::world_to_cell_id;
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
 use chat::chat::EntityProximityMessage;
 use examinable::examine::Examinable;
@@ -13,6 +12,7 @@ use inventory_item::combat::get_default_trigger_weapon_words;
 use inventory_item::combat::MeleeCombat;
 use inventory_item::combat::ProjectileCombat;
 use inventory_item::item::InventoryItem;
+use math::grid::world_to_cell_id;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::ReliableServerMessage;

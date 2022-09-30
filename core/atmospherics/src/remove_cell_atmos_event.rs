@@ -1,6 +1,6 @@
-use api::data::Vec2Int;
 use bevy::prelude::{EventReader, Res, ResMut};
 use gridmap::grid::{GridmapMain, RemoveCell};
+use math::grid::Vec2Int;
 use networking::messages::GridMapLayer;
 
 use crate::diffusion::{get_atmos_index, AtmosphericsResource, EffectType, VACUUM_ATMOSEFFECT};

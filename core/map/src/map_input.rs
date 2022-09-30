@@ -3,9 +3,9 @@ use bevy::{
     math::Vec2,
     prelude::{EventReader, EventWriter, Query},
 };
+use math::grid::Vec2Int;
 use networking::messages::{InputMap, InputMapRequestOverlay, MapInput, ReliableServerMessage};
 
-use api::data::Vec2Int;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking_macros::NetMessage;

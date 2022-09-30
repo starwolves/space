@@ -1,12 +1,12 @@
 use api::{
     chat::ASTRIX,
-    data::Vec3Int,
     entity_updates::{personalise, EntityData, EntityUpdateData, EntityUpdates},
 };
 use bevy::{
     math::{Vec2, Vec3},
     prelude::{info, warn, Entity, EventReader, EventWriter, Quat, Res, ResMut, Transform},
 };
+use math::grid::Vec3Int;
 use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
 use server::core::HandleToEntity;

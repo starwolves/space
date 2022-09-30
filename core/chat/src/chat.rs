@@ -5,7 +5,6 @@ use bevy::{
     prelude::{error, warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform},
 };
 
-use api::gridmap::world_to_cell_id;
 use api::{
     chat::{
         escape_bb, BILLBOARD_DATA_SECURITY_END, BILLBOARD_DATA_SECURITY_START,
@@ -58,6 +57,7 @@ use api::{
     player_controller::SoftPlayer,
 };
 use bevy::prelude::SystemLabel;
+use math::grid::world_to_cell_id;
 use networking::messages::PendingMessage;
 use networking::messages::ReliableServerMessage;
 use networking::messages::{

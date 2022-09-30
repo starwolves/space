@@ -1,4 +1,3 @@
-use api::data::Vec3Int;
 use bevy::{
     hierarchy::Parent,
     math::{Quat, Vec3},
@@ -18,6 +17,7 @@ use gridmap::{
 };
 use health::core::HealthComponent;
 use inventory_item::combat::{MeleeCombat, ProjectileCombat};
+use math::grid::Vec3Int;
 use networking::messages::ReliableServerMessage;
 use physics::physics::{get_bit_masks, ColliderGroup};
 

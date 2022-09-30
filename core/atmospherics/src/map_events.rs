@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-use api::{data::Vec2Int, gridmap::world_to_cell_id};
 use bevy::{
     math::Vec3,
     prelude::{Entity, EventWriter, Query, Res, ResMut},
@@ -8,6 +7,7 @@ use bevy::{
 use map::map::{
     get_overlay_tile_item, get_overlay_tile_priority, Map, MapHolderData, MapHolders, OverlayTile,
 };
+use math::grid::{world_to_cell_id, Vec2Int};
 use networking::messages::ReliableServerMessage;
 use senser::senser::FOV_MAP_WIDTH;
 use server::core::ConnectedPlayer;

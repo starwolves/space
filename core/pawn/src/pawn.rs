@@ -1,4 +1,3 @@
-use api::data::Vec3Int;
 use bevy::{
     math::Vec2,
     prelude::{Component, Entity},
@@ -116,6 +115,7 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
 use bevy::{math::Quat, prelude::Transform};
 use bevy_rapier3d::na::Quaternion;
 use data_converters::converters::string_transform_to_transform;
+use math::grid::Vec3Int;
 use serde::Deserialize;
 
 pub struct PawnYAxisRotations;

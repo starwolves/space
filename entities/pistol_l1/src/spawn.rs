@@ -1,6 +1,4 @@
 use api::chat::Color;
-use api::data::NoData;
-use api::data::PISTOL_L1_ENTITY_NAME;
 use api::inventory::SlotType;
 use bevy::math::Mat4;
 use bevy::math::Quat;
@@ -16,6 +14,7 @@ use entity::entity_data::RawSpawnEvent;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::BaseEntitySummonable;
 use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::NoData;
 use entity::spawn::SpawnData;
 use entity::spawn::SpawnEvent;
 use examinable::examine::Examinable;
@@ -161,6 +160,8 @@ impl RigidBodySummonable<NoData> for PistolL1Summoner {
         }
     }
 }
+
+use crate::pistol_l1::PISTOL_L1_ENTITY_NAME;
 
 use super::pistol_l1::PistolL1;
 

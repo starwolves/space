@@ -1,17 +1,18 @@
 use api::{
-    data::{GIProbe, ReflectionProbe},
     entity_updates::{EntityData, EntityUpdates},
     player_controller::SoftPlayer,
 };
 use bevy::prelude::{
     Commands, Entity, EventReader, EventWriter, Local, Query, Res, Transform, Without,
 };
+use gi_probe::core::GIProbe;
 use humanoid::humanoid::Humanoid;
 use networking::messages::{
     load_entity, InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady, NetLoadEntity,
     ReliableServerMessage, ServerConfigMessage,
 };
 use networking_macros::NetMessage;
+use reflection_probe::core::ReflectionProbe;
 use server::core::{ConnectedPlayer, HandleToEntity};
 use world_environment::environment::WorldEnvironment;
 

@@ -1,7 +1,18 @@
-use bevy::prelude::Transform;
 use bevy::prelude::Vec3;
+use serde::{Deserialize, Serialize};
 
-use crate::data::Vec3Int;
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug, Default)]
+pub struct Vec2Int {
+    pub x: i16,
+    pub y: i16,
+}
+
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug, Serialize, Deserialize, Default)]
+pub struct Vec3Int {
+    pub x: i16,
+    pub y: i16,
+    pub z: i16,
+}
 
 /// Use this to obtain data from large gridmap layer resources.
 pub fn world_to_cell_id(position: Vec3) -> Vec3Int {
@@ -15,10 +26,3 @@ pub fn world_to_cell_id(position: Vec3) -> Vec3Int {
 }
 /// Size of a cell.
 pub const CELL_SIZE: f32 = 2.;
-
-/// For entities that are also registered with the gridmap.
-pub struct GridItemData {
-    pub transform_offset: Transform,
-    /// So this entity can be built on a cell when another item is already present on that cell.
-    pub can_be_built_with_grid_item: Vec<String>,
-}

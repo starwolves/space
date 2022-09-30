@@ -1,4 +1,3 @@
-use api::data::Vec2Int;
 use bevy::{
     math::{Quat, Vec3},
     prelude::Transform,
@@ -112,6 +111,7 @@ pub fn isometry_to_transform(isometry: Isometry<Real>) -> Transform {
     }
 }
 use bevy::math::Mat3;
+use math::grid::Vec2Int;
 
 pub fn string_color_to_color(string_color: &str) -> (f32, f32, f32, f32) {
     let string_values: Vec<&str> = string_color.split(",").collect();

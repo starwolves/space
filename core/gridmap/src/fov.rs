@@ -1,14 +1,11 @@
 use std::collections::HashMap;
 
-use api::{
-    data::{Vec2Int, Vec3Int},
-    gridmap::world_to_cell_id,
-};
 use bevy::{
     math::Vec3,
     prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
+use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::messages::{ProjectileData, ReliableServerMessage};
 use senser::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
 use server::core::ConnectedPlayer;

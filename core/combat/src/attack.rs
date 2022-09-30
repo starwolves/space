@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use api::data::Vec3Int;
 use bevy::{math::Vec3, prelude::Entity};
 use health::core::{DamageFlag, HealthFlag};
+use math::grid::Vec3Int;
 
 /// The attack event.
 #[derive(Clone)]

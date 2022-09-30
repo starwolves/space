@@ -3,7 +3,6 @@ use std::collections::BTreeMap;
 use super::resources::AirLock;
 use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    data::NoData,
     entity_updates::EntityGroup,
 };
 use bevy::{
@@ -14,7 +13,9 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::RawSpawnEvent,
-    spawn::{BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, SpawnData, SpawnEvent},
+    spawn::{
+        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
+    },
 };
 use examinable::examine::{Examinable, RichName};
 use health::core::Health;

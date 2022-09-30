@@ -1,9 +1,6 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use api::{
-    data::{
-        NoData, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME, JUMPSUIT_SECURITY_ENTITY_NAME,
-    },
     entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
     humanoid::UsedNames,
     inventory::{Inventory, Slot, SlotType},
@@ -22,11 +19,13 @@ use entity::{
     meta::EntityDataResource,
     spawn::{
         base_entity_builder, BaseEntityBundle, BaseEntityData, BaseEntitySummonable,
-        DefaultSpawnEvent, SpawnData, SpawnEvent,
+        DefaultSpawnEvent, SpawnData, SpawnEvent, NoData,
     },
 };
 use examinable::examine::{Examinable, RichName};
 use health::core::{DamageFlag, Health, HealthContainer, HumanoidHealth};
+use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
+use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::{
     FacingDirection, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum,
@@ -48,9 +47,11 @@ use inventory_item::{
 
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
-use entity::entity_data::{ENTITY_SPAWN_PARENT, HELMET_SECURITY_ENTITY_NAME};
+use entity::entity_data::ENTITY_SPAWN_PARENT;
 use humanoid::{
-    humanoid::{CharacterAnimationState, Humanoid},
+    humanoid::{
+        CharacterAnimationState, Humanoid, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME,
+    },
     user_name::get_dummy_name,
 };
 use inventory_item::item::InventoryItem;

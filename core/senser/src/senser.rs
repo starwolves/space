@@ -1,6 +1,6 @@
-use api::data::Vec2Int;
 use bevy::prelude::{Component, Entity};
 use doryen_fov::FovRecursiveShadowCasting;
+use math::grid::Vec2Int;
 
 /// Used to check if entities are authorized to examine and obtain certain additional data.
 #[derive(PartialEq)]

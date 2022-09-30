@@ -38,3 +38,4 @@ senser = { path = "../../core/senser" }
 health = { path = "../../core/health" }
 data_converters = { path = "../../core/data_converters" }
 server = { path = "../../core/server" }
+math = { path = "../../core/math" }

@@ -1,4 +1,3 @@
-use api::data::JUMPSUIT_SECURITY_ENTITY_NAME;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::{
     melee_queries::melee_attack_handler,
@@ -13,7 +12,7 @@ use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
 use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
-use crate::jumpsuit::Jumpsuit;
+use crate::jumpsuit::{Jumpsuit, JUMPSUIT_SECURITY_ENTITY_NAME};
 
 use super::spawn::{
     default_summon_jumpsuit, summon_jumpsuit, summon_raw_jumpsuit, JumpsuitSummoner,

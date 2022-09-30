@@ -20,3 +20,4 @@ api = { path = "../api" }
 senser = { path = "../senser" }
 data_link = { path = "../data_link" }
 server = { path = "../server" }
+math = { path = "../math" }

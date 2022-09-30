@@ -2,9 +2,7 @@
 //! However, this ugly crate can and must be reduced a lot.
 
 pub mod chat;
-pub mod data;
 pub mod entity_updates;
-pub mod gridmap;
 pub mod health;
 pub mod humanoid;
 pub mod inventory;

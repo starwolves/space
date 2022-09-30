@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use api::data::Vec3Int;
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
+use math::grid::Vec3Int;
 use networking::messages::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
 use networking::{
     messages::{InputListActionsEntity, InputListActionsMap},

@@ -2,9 +2,7 @@ use std::collections::BTreeMap;
 
 use api::{
     chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR},
-    data::Vec2Int,
     entity_updates::EntityData,
-    gridmap::world_to_cell_id,
 };
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
@@ -12,6 +10,7 @@ use entity::entity_data::DefaultMapEntity;
 use examinable::examine::{Examinable, RichName};
 use gridmap::grid::{EntityGridData, GridmapMain};
 use map::{map::GREEN_MAP_TILE_COUNTER, map_input::MapData};
+use math::grid::{world_to_cell_id, Vec2Int};
 
 use super::{
     counter_window_events::CounterWindow,

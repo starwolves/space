@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use api::{data::Vec2Int, gridmap::world_to_cell_id};
 use bevy::prelude::{Entity, EventWriter, Local, Query, Res, Transform};
+use math::grid::{world_to_cell_id, Vec2Int};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
 use server::core::ConnectedPlayer;

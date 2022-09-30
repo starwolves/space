@@ -1,10 +1,10 @@
 use std::f32::consts::PI;
 
-use api::gridmap::world_to_cell_id;
 use bevy::{
     math::Vec3,
     prelude::{Res, Transform},
 };
+use math::grid::world_to_cell_id;
 use pawn::pawn::FacingDirection;
 
 use crate::grid::GridmapMain;

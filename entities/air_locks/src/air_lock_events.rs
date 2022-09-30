@@ -1,8 +1,6 @@
 use api::{
     chat::{FURTHER_ITALIC_FONT, WARNING_COLOR},
-    data::{AirLockCloseRequest, LockedStatus, Vec2Int},
     entity_updates::EntityGroup,
-    gridmap::world_to_cell_id,
 };
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::{
@@ -11,6 +9,7 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::CollisionGroups;
 use examinable::examine::Examinable;
+use math::grid::{world_to_cell_id, Vec2Int};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization};
 use physics::physics::{get_bit_masks, ColliderGroup};
@@ -589,4 +588,14 @@ pub struct AirLockUnlock {
     pub handle_option: Option<u64>,
     pub locked: Entity,
     pub locker: Entity,
+}
+pub enum LockedStatus {
+    Open,
+    Closed,
+    None,
+}
+/// Air lock open request event.
+pub struct AirLockCloseRequest {
+    pub interacter_option: Option<Entity>,
+    pub interacted: Entity,
 }

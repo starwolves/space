@@ -17,3 +17,4 @@ default-features = false
 bevy_rapier3d = "0.16.0"
 
 api = { path = "../api" }
+math = { path = "../math" }

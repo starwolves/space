@@ -1,8 +1,7 @@
+use air_locks::air_lock_events::{AirLockCloseRequest, LockedStatus};
 use api::{
     chat::{FURTHER_ITALIC_FONT, WARNING_COLOR},
-    data::{AirLockCloseRequest, LockedStatus, Vec2Int},
     entity_updates::EntityGroup,
-    gridmap::world_to_cell_id,
 };
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::{
@@ -15,6 +14,7 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::{Collider, CollisionGroups};
 use examinable::examine::Examinable;
+use math::grid::{world_to_cell_id, Vec2Int};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
 use physics::physics::{get_bit_masks, ColliderGroup};

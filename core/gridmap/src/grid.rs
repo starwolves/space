@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use api::{data::Vec3Int, gridmap::CELL_SIZE};
 use bevy::prelude::{Entity, Res, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
 use examinable::examine::RichName;
 use health::core::Health;
+use math::grid::{Vec3Int, CELL_SIZE};
 use networking::messages::GridMapLayer;
 
 /// Gridmap meta-data resource.

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use api::{gridmap::world_to_cell_id, inventory::Inventory};
+use api::inventory::Inventory;
 use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
     hierarchy::Children,
@@ -19,6 +19,7 @@ use inventory_item::{
     combat::{MeleeCombat, ProjectileCombat},
     item::{CombatStandardAnimation, InventoryItem},
 };
+use math::grid::world_to_cell_id;
 use networking::messages::{InputToggleCombatMode, NetUnloadEntity};
 use pawn::pawn::{
     facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
@@ -939,3 +940,5 @@ pub(crate) fn humanoid_core(
         }
     }
 }
+pub const HUMAN_DUMMY_ENTITY_NAME: &str = "humanDummy";
+pub const HUMAN_MALE_ENTITY_NAME: &str = "humanMale";

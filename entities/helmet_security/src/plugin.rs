@@ -4,7 +4,7 @@ use combat::{
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
 use entity::{
-    entity_data::{initialize_entity_data, HELMET_SECURITY_ENTITY_NAME},
+    entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
@@ -12,7 +12,7 @@ use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
 use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
-use crate::helmet::Helmet;
+use crate::helmet::{Helmet, HELMET_SECURITY_ENTITY_NAME};
 
 use super::spawn::{
     default_summon_helmet_security, summon_helmet, summon_raw_helmet, HelmetSummoner,

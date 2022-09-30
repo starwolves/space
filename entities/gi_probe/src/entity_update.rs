@@ -1,8 +1,7 @@
-use api::{
-    data::GIProbe,
-    entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates},
-};
+use api::entity_updates::{get_entity_update_difference, EntityUpdateData, EntityUpdates};
 use bevy::prelude::{Changed, Query};
+
+use crate::core::GIProbe;
 
 /// GI Probe entity update.
 pub(crate) fn gi_probe_update(

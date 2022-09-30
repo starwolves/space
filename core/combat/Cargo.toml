@@ -31,3 +31,4 @@ chat = { path = "../chat" }
 examinable = { path = "../examinable" }
 senser = { path = "../senser" }
 server = { path = "../server" }
+math = { path = "../math" }
