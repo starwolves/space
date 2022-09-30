@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use api::rigid_body::RigidBodyLinkTransform;
 use bevy::prelude::{warn, Entity, Query, Transform, Without};
+use physics::physics::RigidBodyLinkTransform;
 use showcase::core::Showcase;
 
 /// Manage and link rigid body transform.

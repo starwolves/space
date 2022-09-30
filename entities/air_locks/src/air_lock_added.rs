@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
-use api::chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
+use chat_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 use entity::{
     entity_data::{DefaultMapEntity, EntityData},
     examine::{Examinable, RichName},

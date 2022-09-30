@@ -1,7 +1,7 @@
-use api::player_controller::SoftPlayer;
 use bevy::prelude::{Commands, EventWriter, Res, ResMut};
 use chat::chat::get_talk_spaces_setupui;
 use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
+use entity::meta::SoftPlayer;
 use gridmap::grid::GridmapData;
 use humanoid::user_name::UsedNames;
 use map::map_input::MapData;

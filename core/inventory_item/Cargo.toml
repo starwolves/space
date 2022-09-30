@@ -16,8 +16,12 @@ default-features = false
 [dependencies]
 entity = { path = "../entity" }
 console_commands = { path = "../console_commands" }
-api = { path = "../api" }
+
+
 actions = { path = "../actions" }
 networking = { path = "../networking" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }
+inventory_api = { path = "../inventory_api" }
+chat_api = { path = "../chat_api" }
+physics = { path = "../physics" }

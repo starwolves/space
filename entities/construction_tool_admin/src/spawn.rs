@@ -1,4 +1,3 @@
-use api::inventory::SlotType;
 use bevy::math::{Mat4, Quat, Vec3};
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
@@ -10,6 +9,7 @@ use entity::health::DamageFlag;
 use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
 };
+use inventory_api::core::SlotType;
 use inventory_item::combat::{DamageModel, MeleeCombat};
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};

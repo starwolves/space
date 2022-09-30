@@ -1,8 +1,8 @@
-use api::chat::ASTRIX;
 use bevy::{
     math::{Vec2, Vec3},
     prelude::{info, warn, Entity, EventReader, EventWriter, Quat, Res, ResMut},
 };
+use chat_api::core::ASTRIX;
 use math::grid::Vec3Int;
 use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};

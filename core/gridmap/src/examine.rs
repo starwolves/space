@@ -1,9 +1,9 @@
 use actions::core::{BuildingActions, ListActionDataRequests};
-use api::chat::{
+use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
+use chat_api::core::{
     get_empty_cell_message, get_space_message, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
     HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
-use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
 use entity::{
     examine::{Examinable, GridmapExamineMessages},
     health::HealthContainer,

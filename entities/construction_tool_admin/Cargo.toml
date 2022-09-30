@@ -26,10 +26,11 @@ pawn = { path = "../../core/pawn" }
 combat = { path = "../../core/combat" }
 atmospherics = { path = "../../core/atmospherics" }
 inventory_item = { path = "../../core/inventory_item" }
+inventory_api = { path = "../../core/inventory_api" }
 rigid_body = { path = "../../core/rigid_body" }
 sfx = { path = "../../core/sfx" }
 sounds = { path = "../sounds" }
-api = { path = "../../core/api" }
+chat_api = { path = "../../core/chat_api" }
 physics = { path = "../../core/physics" }
 actions = { path = "../../core/actions" }
 

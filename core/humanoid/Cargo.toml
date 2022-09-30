@@ -21,12 +21,10 @@ networking_macros = { path = "../networking_macros" }
 sounds = { path = "../../entities/sounds" }
 pawn = { path = "../pawn" }
 inventory_item = { path = "../inventory_item" }
+inventory_api = { path = "../inventory_api" }
 combat = { path = "../combat" }
-
 sfx = { path = "../sfx" }
 rigid_body = { path = "../rigid_body" }
-api = { path = "../api" }
-
 console_commands = { path = "../console_commands" }
 entity = { path = "../entity" }
 gridmap = { path = "../gridmap" }
@@ -34,3 +32,4 @@ server = { path = "../server" }
 showcase = { path = "../showcase" }
 atmospherics = { path = "../atmospherics" }
 math = { path = "../math" }
+chat_api = { path = "../chat_api" }

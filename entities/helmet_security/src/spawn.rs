@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use api::inventory::SlotType;
 use bevy::math::Mat4;
 use bevy::math::Quat;
 use bevy::math::Vec3;
@@ -21,6 +20,7 @@ use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::NoData;
 use entity::spawn::SpawnData;
 use entity::spawn::SpawnEvent;
+use inventory_api::core::SlotType;
 use inventory_item::combat::DamageModel;
 use inventory_item::combat::MeleeCombat;
 use inventory_item::item::InventoryItem;

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use bevy::prelude::Component;
 use gridmap_meta::core::GridItemData;
 
 /// Resource that contains entity meta data.
@@ -35,3 +36,6 @@ pub struct EntityDataProperties {
     pub id: usize,
     pub grid_item: Option<GridItemData>,
 }
+/// The component for players that haven't yet boarded.
+#[derive(Component)]
+pub struct SoftPlayer;

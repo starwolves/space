@@ -19,9 +19,8 @@ bevy_rapier3d = "0.16.0"
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
-
 pawn = { path = "../pawn" }
-api = { path = "../api" }
+chat_api = { path = "../chat_api" }
 map = { path = "../map" }
 physics = { path = "../physics" }
 rigid_body = { path = "../rigid_body" }

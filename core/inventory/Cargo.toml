@@ -21,11 +21,12 @@ networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
 sounds = { path = "../../entities/sounds" }
 inventory_item = { path = "../inventory_item" }
+inventory_api = { path = "../inventory_api" }
 pawn = { path = "../pawn" }
 physics = { path = "../physics" }
 humanoid = { path = "../humanoid" }
 sfx = { path = "../sfx" }
-api = { path = "../api" }
+
 gridmap = { path = "../gridmap" }
 actions = { path = "../actions" }
 entity = { path = "../entity" }

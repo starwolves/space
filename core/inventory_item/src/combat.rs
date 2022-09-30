@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use api::chat::Color;
 use bevy::prelude::Component;
+use chat_api::core::Color;
 use entity::{actions::MELEE_FISTS_REACH, health::DamageFlag};
 /// The component for items that can be used to perform melee attacks with. Should be used in combination with handlers.
 #[derive(Component)]

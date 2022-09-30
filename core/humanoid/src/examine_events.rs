@@ -1,11 +1,12 @@
 use crate::humanoid::Humanoid;
-use api::{chat::FURTHER_NORMAL_FONT, inventory::Inventory};
 use bevy::prelude::{Query, ResMut};
+use chat_api::core::FURTHER_NORMAL_FONT;
 use entity::examine::Examinable;
 use entity::examine::ExamineEntityMessages;
 use entity::health::HealthComponent;
 use entity::sensable::Sensable;
 use entity::senser::Senser;
+use inventory_api::core::Inventory;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::ReliableServerMessage;

@@ -1,4 +1,4 @@
-use api::chat::{COMMUNITY_HREF_COLOR, NEARBY_SHOUT_FONT};
+use chat_api::core::{COMMUNITY_HREF_COLOR, NEARBY_SHOUT_FONT};
 
 impl MOTD {
     pub fn new_default(version: String) -> Self {

@@ -1,10 +1,15 @@
+use crate::health::HealthComponent;
+use crate::health::HealthContainer;
+use crate::sensable::Sensable;
+use crate::senser::Senser;
 use std::collections::BTreeMap;
 
-use api::chat::END_ASTRIX;
-use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
-
-use api::chat::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 use bevy::prelude::{warn, Query, Res};
+use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
+use chat_api::core::FURTHER_ITALIC_FONT;
+use chat_api::core::HEALTHY_COLOR;
+use chat_api::core::UNHEALTHY_COLOR;
+use chat_api::core::{ASTRIX, END_ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 use networking::messages::InputExamineEntity;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
@@ -178,12 +183,6 @@ pub fn finalize_entity_examine_input(
         examine_messages.messages.push(input_event.clone());
     }
 }
-use api::chat::{FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR};
-
-use crate::health::HealthComponent;
-use crate::health::HealthContainer;
-use crate::sensable::Sensable;
-use crate::senser::Senser;
 
 #[derive(NetMessage)]
 pub(crate) struct ExamineEntityPawn {
