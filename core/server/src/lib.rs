@@ -1,3 +1,5 @@
+//! Crate containing providing widely used global resources.
+
 /// Core server resources.
 pub mod core;
 

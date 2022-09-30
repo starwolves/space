@@ -2,7 +2,7 @@
 //! A storage component for inventory items.
 //! Not all inventory holding entities are humanoids or pawns.
 //! Currently used by Humanoids.
-//! Also manages actions related to the inventory system.
+//! Includes actions related to the inventory system.
 
 /// Manage actions related to inventory.
 mod actions;

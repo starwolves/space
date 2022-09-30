@@ -1,6 +1,9 @@
 //! Entity base.
 //! Contains logic and resources that interacts with most if not all entities.
 //! Includes the entity spawning base and entity spawn commands through the console.
+//! Includes field of view checking for both senser and sensable entities.
+//! Includes health systems and resource.
+//! Includes the base examine action.
 
 /// Perform base entity actions such as examining.
 pub mod actions;
