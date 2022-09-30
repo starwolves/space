@@ -1,8 +1,9 @@
-use api::{humanoid::UsedNames, player_controller::SoftPlayer};
+use api::player_controller::SoftPlayer;
 use bevy::prelude::{Commands, EventWriter, Res, ResMut};
 use chat::chat::get_talk_spaces_setupui;
 use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use gridmap::grid::GridmapData;
+use humanoid::user_name::UsedNames;
 use map::map_input::MapData;
 use networking::messages::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
 use pawn::pawn::{ControllerInput, PersistentPlayerData};

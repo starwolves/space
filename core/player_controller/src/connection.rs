@@ -1,4 +1,3 @@
-use api::humanoid::UsedNames;
 use bevy::{
     math::Vec2,
     prelude::{info, Commands, Component, EventReader, EventWriter, Query, Res, ResMut},
@@ -6,7 +5,10 @@ use bevy::{
 use bevy_renet::renet::ServerEvent;
 use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use gridmap::grid::GridmapData;
-use humanoid::humanoid::{CharacterAnimationState, Humanoid};
+use humanoid::{
+    humanoid::{CharacterAnimationState, Humanoid},
+    user_name::UsedNames,
+};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PawnDesignation, PersistentPlayerData};

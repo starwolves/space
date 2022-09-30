@@ -1,4 +1,3 @@
-use api::humanoid::UsedNames;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use networking::messages::net_system;
@@ -7,7 +6,7 @@ use server::labels::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLabels
 use crate::{
     examine_events::{examine_entity, ExamineEntityPawn},
     humanoid::{toggle_combat_mode, Humanoid},
-    user_name::{user_name, NetPawn},
+    user_name::{user_name, NetPawn, UsedNames},
 };
 use bevy::app::CoreStage::PostUpdate;
 

@@ -21,16 +21,12 @@ serde_json = {version= "1.0.81"}
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
-
 data_converters = { path = "../data_converters" }
 entity = { path = "../entity" }
 physics = { path = "../physics" }
 api = { path = "../api" }
-
 actions = { path = "../actions" }
-
 pawn = { path = "../pawn" }
-console_commands = { path = "../console_commands" }
 data_link = { path = "../data_link" }
 server = { path = "../server" }
 math = { path = "../math" }
