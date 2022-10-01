@@ -6,7 +6,7 @@ pub mod boarding;
 /// Broadcast unreliable transforms to clients.
 mod broadcast_interpolation_transforms;
 /// Functions for connection events.
-mod connection;
+pub mod connection;
 /// Manage connection events.
 mod connection_events;
 /// Manage console commands like rcon authorization.
@@ -20,7 +20,7 @@ mod input;
 /// Generate names.
 mod name_generator;
 /// Manage netcode.
-mod net;
+pub mod net;
 /// Select players with special text character-based queries.
 pub mod player_selectors;
 /// The Bevy plugin of this crate.

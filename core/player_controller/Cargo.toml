@@ -28,7 +28,6 @@ humanoid = { path = "../humanoid" }
 inventory_item = { path = "../inventory_item" }
 inventory_api = { path = "../inventory_api" }
 pawn = { path = "../pawn" }
-rigid_body = { path = "../rigid_body" }
 physics = { path = "../physics" }
 console_commands = { path = "../console_commands" }
 chat_api = { path = "../chat_api" }
@@ -37,13 +36,8 @@ motd = { path = "../motd" }
 chat = { path = "../chat" }
 gridmap = { path = "../gridmap" }
 world_environment = { path = "../world_environment" }
-data_link = { path = "../data_link" }
 server = { path = "../server" }
 showcase = { path = "../showcase" }
 math = { path = "../math" }
 gi_probe = { path = "../../entities/gi_probe" }
 reflection_probe = { path = "../../entities/reflection_probe" }
-pistol_l1 = { path = "../../entities/pistol_l1" }
-jumpsuit_security = { path = "../../entities/jumpsuit_security" }
-helmet_security = { path = "../../entities/helmet_security" }
-construction_tool_admin = { path = "../../entities/construction_tool_admin" }
