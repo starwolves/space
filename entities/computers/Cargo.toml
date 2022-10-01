@@ -10,13 +10,13 @@ license-file="LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.8.0"
+version = "0.8.1"
 default-features = false
 
 
 [dependencies]
-bevy_rapier3d = "0.16.0"
-serde_json = "1.0.81"
+bevy_rapier3d = "0.16.2"
+serde_json = "1.0.85"
 
 entity = { path = "../../core/entity" }
 rigid_body = { path = "../../core/rigid_body" }

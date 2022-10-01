@@ -10,15 +10,16 @@ license-file="LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.8.0"
+version = "0.8.1"
 default-features = false
 
 [dependencies]
 bevy_renet = "0.0.5"
+serde = {version= "1.0.145"}
+
 bincode = "1.3.3"
-serde = {version= "1.0.137"}
-doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
-bevy_rapier3d = "0.16.0"
+doryen_fov = { path = "../doryen_fov" }
+bevy_rapier3d = "0.16.2"
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
