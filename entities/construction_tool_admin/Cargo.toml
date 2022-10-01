@@ -10,13 +10,13 @@ license-file="LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.8.0"
+version = "0.8.1"
 default-features = false
 
 [dependencies]
-doryen-fov = { git = "https://github.com/starwolfy/doryen-fov" }
+doryen_fov = { path = "../../core/doryen_fov" }
 rand = "0.8.5"
-bevy_rapier3d = "0.16.0"
+bevy_rapier3d = "0.16.2"
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }

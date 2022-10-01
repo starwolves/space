@@ -10,12 +10,12 @@ license-file="LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.8.0"
+version = "0.8.1"
 default-features = false
 
 [dependencies]
-serde = {version= "1.0.137"}
-serde_json = {version= "1.0.81"}
+serde = {version= "1.0.145"}
+serde_json = {version= "1.0.85"}
 
 entity = { path = "../../core/entity" }
 data_converters = { path = "../../core/data_converters" }

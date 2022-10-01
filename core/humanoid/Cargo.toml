@@ -10,11 +10,11 @@ license-file="LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.8.0"
+version = "0.8.1"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.16.0"
+bevy_rapier3d = "0.16.2"
 vector2math = "0.13.0"
 
 networking = { path = "../networking" }
