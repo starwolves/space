@@ -2,17 +2,16 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::meta::SoftPlayer;
-use humanoid::user_name::UsedNames;
 use motd::motd::MOTD;
 use networking::messages::{
     EntityUpdateData, EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction,
     UIInputNodeClass,
 };
+use pawn::{name_generator::get_full_name, pawn::UsedNames};
 use server::core::{ConnectedPlayer, HandleToEntity, ServerId};
 
 use super::{
     connection::{Boarding, SetupPhase},
-    name_generator::get_full_name,
     net::NetOnSetupUI,
 };
 

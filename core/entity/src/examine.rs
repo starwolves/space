@@ -40,7 +40,7 @@ pub(crate) fn finalize_examine_map(
     examine_map_events.messages.clear();
 }
 #[derive(NetMessage)]
-pub struct NetConnExamine {
+pub(crate) struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -97,7 +97,7 @@ pub fn examine_entity(
 }
 
 /// Finalize examining an entity.
-pub fn finalize_examine_entity(
+pub(crate) fn finalize_examine_entity(
     mut examine_map_events: ResMut<ExamineEntityMessages>,
     mut net: EventWriter<NetConnExamine>,
 ) {

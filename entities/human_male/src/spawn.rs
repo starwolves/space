@@ -18,7 +18,7 @@ use entity::{
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
 use humanoid::{
     humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME},
-    user_name::{get_dummy_name, UsedNames},
+    user_name::get_dummy_name,
 };
 use inventory_api::core::{Inventory, Slot, SlotType};
 use inventory_item::{
@@ -30,7 +30,7 @@ use map::map::Map;
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::{
     ControllerInput, Pawn, PawnDesignation, PersistentPlayerData, ShipAuthorization,
-    ShipAuthorizationEnum, ShipJobsEnum,
+    ShipAuthorizationEnum, ShipJobsEnum, UsedNames,
 };
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use player_controller::connection::SpawnPawnData;

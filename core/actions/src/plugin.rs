@@ -1,12 +1,13 @@
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
-use server::labels::ActionsLabels;
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use networking::messages::net_system;
+use server::labels::{ActionsLabels, PostUpdateLabels};
 
 use crate::core::{
     clear_action_building, init_action_data_listing, init_action_request_building,
     list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
-    ActionRequests, BuildingActions, ListActionDataRequests,
+    ActionRequests, BuildingActions, ListActionDataRequests, NetActionDataFinalizer,
 };
-
+use bevy::app::CoreStage::PostUpdate;
 pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
@@ -26,6 +27,14 @@ impl Plugin for ActionsPlugin {
                 clear_action_building
                     .label(ActionsLabels::Clear)
                     .before(ActionsLabels::Init),
+            )
+            .add_event::<NetActionDataFinalizer>()
+            .add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net)
+                    .with_system(net_system::<NetActionDataFinalizer>),
             )
             .init_resource::<ActionRequests>();
     }

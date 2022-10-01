@@ -1,4 +1,4 @@
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
+use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
@@ -6,11 +6,12 @@ use entity::{
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
+use networking::messages::net_system;
 use rigid_body::spawn::summon_rigid_body;
 use server::labels::{CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use crate::{
-    boarding::on_spawning,
+    boarding::{on_spawning, NetOnSpawning},
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
     spawn::{default_human_dummy, summon_base_human_male, summon_human_male, HumanMaleSummoner},
@@ -44,7 +45,15 @@ impl Plugin for HumanMalePlugin {
                     .label(CombatLabels::WeaponHandler)
                     .after(CombatLabels::CacheAttack),
             )
-            .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon));
+            .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon))
+            .add_event::<NetOnSpawning>()
+            .add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .after(PostUpdateLabels::VisibleChecker)
+                    .label(PostUpdateLabels::Net)
+                    .with_system(net_system::<NetOnSpawning>),
+            );
     }
 }
 

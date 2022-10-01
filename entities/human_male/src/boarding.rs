@@ -1,16 +1,18 @@
+use crate::spawn::HumanMaleSummoner;
 use bevy::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
 use construction_tool_admin::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
 use entity::spawn::{SpawnData, SpawnEvent};
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
-use humanoid::{humanoid::HUMAN_MALE_ENTITY_NAME, user_name::UsedNames};
+use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
 use networking::messages::{ReliableServerMessage, ServerConfigMessage};
-use pawn::pawn::{PawnDesignation, PersistentPlayerData, Spawning};
+use networking_macros::NetMessage;
+use pawn::pawn::{PawnDesignation, PersistentPlayerData, Spawning, UsedNames};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
-use player_controller::{connection::SpawnPawnData, net::NetOnSpawning};
+use player_controller::connection::SpawnPawnData;
 use server::core::{ConnectedPlayer, HandleToEntity};
-
-use crate::spawn::HumanMaleSummoner;
 
 /// Spawn player as human male with preset inventory.
 pub(crate) fn on_spawning(
@@ -87,4 +89,10 @@ pub(crate) fn on_spawning(
             )),
         });
     }
+}
+
+#[derive(NetMessage)]
+pub(crate) struct NetOnSpawning {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
 }

@@ -15,6 +15,7 @@ default-features = false
 
 [dependencies]
 bevy_rapier3d = "0.16.0"
+vector2math = "0.13.0"
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }

@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
 use math::grid::Vec3Int;
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
 use networking::messages::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
-use networking::{
-    messages::{InputListActionsEntity, InputListActionsMap},
-    plugin::NetActionData,
-};
+use networking::messages::{InputListActionsEntity, InputListActionsMap};
+use networking_macros::NetMessage;
 use server::core::HandleToEntity;
 
 /// Resource with a list of actions being built this frame.
@@ -89,11 +89,17 @@ impl ActionData {
     }
 }
 
+#[derive(NetMessage)]
+pub struct NetActionDataFinalizer {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+
 /// Send lists of approved actions back to player.
 pub(crate) fn list_action_data_finalizer(
     building_actions: Res<BuildingActions>,
     handle_to_entity: Res<HandleToEntity>,
-    mut net: EventWriter<NetActionData>,
+    mut net: EventWriter<NetActionDataFinalizer>,
     action_data_requests: Res<ListActionDataRequests>,
 ) {
     for action_data in building_actions.list.iter() {
@@ -140,7 +146,7 @@ pub(crate) fn list_action_data_finalizer(
 
         match handle {
             Some(h) => {
-                net.send(NetActionData {
+                net.send(NetActionDataFinalizer {
                     handle: h,
                     message: ReliableServerMessage::TabData(net_action_datas),
                 });

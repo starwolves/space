@@ -3,10 +3,9 @@ use chat::chat::get_talk_spaces_setupui;
 use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use entity::meta::SoftPlayer;
 use gridmap::grid::GridmapData;
-use humanoid::user_name::UsedNames;
 use map::map_input::MapData;
 use networking::messages::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
-use pawn::pawn::{ControllerInput, PersistentPlayerData};
+use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
 use server::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 
 use crate::connection::AuthidI;

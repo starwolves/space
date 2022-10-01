@@ -1,7 +1,7 @@
 use bevy::prelude::{Entity, EventWriter, ResMut};
 use console_commands::commands::NetEntityConsole;
-use humanoid::user_name::UsedNames;
 use networking::messages::ReliableServerMessage;
+use pawn::pawn::UsedNames;
 
 /// Player selector to entities.
 pub fn player_selector_to_entities(
