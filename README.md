@@ -108,4 +108,4 @@ This repository is licensed under a [restrictive proprietary license](https://gi
 
 ### AGPLv3 Milestone
 
-In the further future when a yet to be-decided amount of copies have been sold: the entire codebase will go Free Open Source (FOSS) under The GNU Affero General Public License version 3.
+In the further future when a yet to be-decided amount of copies have been sold: the entire codebase will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International.
