@@ -104,7 +104,7 @@ Contributors of this project have to agree to our [Collaberative License Agreeme
 
 ## License
 
-This repository is licensed under a [restrictive proprietary license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE) that we intend to support with good faith and integrity to both grant and support western freedoms for individual communities and thus without elements of modern day cancel culture 👑.
+The code of this repository is licensed under [the proprietary code license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE). The assets of this repository are licensed under the [the proprietary assets license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE_ASSETS). Both licenses we intend to support with good faith and integrity to value authenticity, community freedoms and western freedoms for individual communities without elements of modern day cancel culture 👑.
 
 ### AGPLv3 Milestone
 
