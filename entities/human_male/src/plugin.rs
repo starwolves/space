@@ -5,13 +5,17 @@ use entity::{
     spawn::SpawnEvent,
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
-use player_controller::humanoid::{summon_base_human_male, summon_human_male, HumanMaleSummoner};
 
 use rigid_body::spawn::summon_rigid_body;
-use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
+use server::labels::{CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 
-use crate::hands_attack_handler::hands_attack_handler;
-
+use crate::{
+    boarding::on_spawning,
+    hands_attack_handler::hands_attack_handler,
+    setup_ui_showcase::human_male_setup_ui,
+    spawn::{default_human_dummy, summon_base_human_male, summon_human_male, HumanMaleSummoner},
+};
+use bevy::app::CoreStage::PostUpdate;
 pub struct HumanMalePlugin;
 
 impl Plugin for HumanMalePlugin {
@@ -22,8 +26,14 @@ impl Plugin for HumanMalePlugin {
                     .before(SummoningLabels::TriggerSummon)
                     .label(SummoningLabels::NormalSummon),
             )
+            .add_system_to_stage(PostUpdate, on_spawning.after(PostUpdateLabels::Net))
             .add_system(
                 (summon_base_human_male::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
+            )
+            .add_system(
+                (default_human_dummy)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
             )
             .add_event::<SpawnEvent<HumanMaleSummoner>>()
             .add_system(
@@ -33,7 +43,8 @@ impl Plugin for HumanMalePlugin {
                 hands_attack_handler
                     .label(CombatLabels::WeaponHandler)
                     .after(CombatLabels::CacheAttack),
-            );
+            )
+            .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon));
     }
 }
 

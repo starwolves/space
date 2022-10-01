@@ -1,23 +1,14 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
-use entity::{
-    meta::SoftPlayer,
-    spawn::{SpawnData, SpawnEvent},
-};
-use humanoid::{humanoid::HUMAN_MALE_ENTITY_NAME, user_name::UsedNames};
-use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
+use entity::meta::SoftPlayer;
+use humanoid::user_name::UsedNames;
 use motd::motd::MOTD;
 use networking::messages::{
     EntityUpdateData, EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction,
     UIInputNodeClass,
 };
-use pawn::pawn::{PawnDesignation, PersistentPlayerData};
-use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use server::core::{ConnectedPlayer, HandleToEntity, ServerId};
-use showcase::core::ShowcaseData;
-
-use crate::{connection::SpawnPawnData, humanoid::HumanMaleSummoner};
 
 use super::{
     connection::{Boarding, SetupPhase},
@@ -61,17 +52,15 @@ pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxConta
 /// Godot NodePath.
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 
-/// Initialize the setup UI by spawning in UI entities etc.
+/// Initialize the setup UI by spawning in showcase entities etc.
 pub(crate) fn initialize_setupui(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,
-    query: Query<(&ConnectedPlayer, &PersistentPlayerData), Added<SetupPhase>>,
+    query: Query<&ConnectedPlayer, Added<SetupPhase>>,
     mut net_on_setupui: EventWriter<NetOnSetupUI>,
-    mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
-    mut commands: Commands,
     motd: Res<MOTD>,
 ) {
-    for (connected_player_component, persistent_player_data_component) in query.iter() {
+    for connected_player_component in query.iter() {
         let suggested_name = get_full_name(true, true, &used_names);
 
         let mut hash_map_data = HashMap::new();
@@ -98,37 +87,6 @@ pub(crate) fn initialize_setupui(
         net_on_setupui.send(NetOnSetupUI {
             handle: connected_player_component.handle,
             message: ReliableServerMessage::ChatMessage(motd.message.clone()),
-        });
-
-        let passed_inventory_setup = vec![
-            (
-                "jumpsuit".to_string(),
-                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
-            ),
-            ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
-        ];
-
-        let human_male_entity = commands.spawn().id();
-
-        summon_human_male.send(SpawnEvent {
-            spawn_data: SpawnData {
-                entity: human_male_entity,
-                showcase_data_option: Some(ShowcaseData {
-                    handle: connected_player_component.handle,
-                }),
-                entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
-                ..Default::default()
-            },
-            summoner: HumanMaleSummoner {
-                character_name: persistent_player_data_component.character_name.clone(),
-                user_name: persistent_player_data_component.user_name.clone(),
-                spawn_pawn_data: SpawnPawnData {
-                    persistent_player_data: persistent_player_data_component.clone(),
-                    connected_player_option: Some(connected_player_component.clone()),
-                    inventory_setup: passed_inventory_setup,
-                    designation: PawnDesignation::Showcase,
-                },
-            },
         });
     }
 }

@@ -53,12 +53,12 @@ pub(crate) struct NetOnBoarding {
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
-pub(crate) struct NetOnSetupUI {
+pub struct NetOnSetupUI {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
-pub(crate) struct NetOnSpawning {
+pub struct NetOnSpawning {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

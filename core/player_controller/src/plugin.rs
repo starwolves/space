@@ -1,6 +1,5 @@
 use crate::boarding::NetUIInputTransmitData;
 use crate::console_commands::rcon_console_commands;
-use crate::humanoid::default_human_dummy;
 use bevy::app::CoreStage::PostUpdate;
 use bevy::{
     prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
@@ -26,7 +25,7 @@ use super::{
     setup_ui::register_ui_input_boarding,
 };
 use crate::{
-    boarding::{on_spawning, BoardingAnnouncements},
+    boarding::BoardingAnnouncements,
     broadcast_interpolation_transforms::broadcast_interpolation_transforms,
     connection::{connections, AuthidI},
     console_commands::{entity_console_commands, inventory_item_console_commands},
@@ -58,11 +57,6 @@ impl Plugin for ConnectedPlayerPlugin {
                     .with_run_criteria(FixedTimestep::step(10.))
                     .with_system(update_player_count),
             )
-            .add_system(
-                (default_human_dummy)
-                    .label(SummoningLabels::DefaultSummon)
-                    .after(SummoningLabels::NormalSummon),
-            )
             .add_system_set(
                 SystemSet::new()
                     .with_run_criteria(FixedTimestep::step(2.))
@@ -75,7 +69,6 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_system(scene_ready_event)
             .add_event::<NetSendServerTime>()
             .add_system(initialize_setupui.label(SummoningLabels::TriggerSummon))
-            .add_system_to_stage(PostUpdate, on_spawning.after(PostUpdateLabels::Net))
             .add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()
