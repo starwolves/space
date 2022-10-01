@@ -7,11 +7,10 @@ use entity::spawn::spawn_entity;
 use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
 use gridmap::get_spawn_position::entity_spawn_position_for_player;
 use gridmap::grid::GridmapMain;
-use humanoid::user_name::UsedNames;
 use inventory_api::core::Inventory;
 use inventory_item::spawn::spawn_held_entity;
 use networking::messages::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
-use pawn::pawn::Pawn;
+use pawn::pawn::{Pawn, UsedNames};
 use server::core::{ConnectedPlayer, HandleToEntity};
 use std::collections::HashMap;
 

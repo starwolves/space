@@ -1,15 +1,13 @@
 use crate::boarding::NetUIInputTransmitData;
 use crate::console_commands::rcon_console_commands;
+use crate::health_ui::NetHealthUpdate;
 use bevy::app::CoreStage::PostUpdate;
 use bevy::{
     prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
     time::FixedTimestep,
 };
 
-use networking::{
-    messages::{net_system, InputListActionsEntity},
-    plugin::NetActionData,
-};
+use networking::messages::{net_system, InputListActionsEntity};
 use server::core::{HandleToEntity, ServerId};
 use server::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
 
@@ -19,8 +17,8 @@ use super::{
     net::{
         build_graphics, mouse_direction_update, scene_ready_event, send_server_time,
         update_player_count, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
-        NetOnNewPlayerConnection, NetOnSetupUI, NetOnSpawning, NetSendServerTime,
-        NetSendWorldEnvironment, NetUpdatePlayerCount, NetUserName,
+        NetOnNewPlayerConnection, NetOnSetupUI, NetSendServerTime, NetSendWorldEnvironment,
+        NetUpdatePlayerCount, NetUserName,
     },
     setup_ui::register_ui_input_boarding,
 };
@@ -29,9 +27,8 @@ use crate::{
     broadcast_interpolation_transforms::broadcast_interpolation_transforms,
     connection::{connections, AuthidI},
     console_commands::{entity_console_commands, inventory_item_console_commands},
+    finalize_entity_updates::finalize_entity_updates,
     health_ui::{health_ui_update, ClientHealthUICache},
-    humanoid::humanoid_core_entity_updates,
-    send_entity_update::finalize_entity_updates,
     send_net::process_finalize_net,
     setup_ui::initialize_setupui,
 };
@@ -76,7 +73,6 @@ impl Plugin for ConnectedPlayerPlugin {
                     .with_system(health_ui_update),
             )
             .add_event::<NetUIInputTransmitData>()
-            .add_event::<NetOnSpawning>()
             .add_event::<NetSendWorldEnvironment>()
             .add_event::<NetOnBoarding>()
             .add_event::<NetOnNewPlayerConnection>()
@@ -84,13 +80,8 @@ impl Plugin for ConnectedPlayerPlugin {
             .add_event::<NetDoneBoarding>()
             .add_event::<NetOnSetupUI>()
             .init_resource::<AuthidI>()
+            .add_event::<NetHealthUpdate>()
             .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms)
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .label(PostUpdateLabels::EntityUpdate)
-                    .with_system(humanoid_core_entity_updates),
-            )
             .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
             .add_system_set_to_stage(
                 PostUpdate,
@@ -102,12 +93,11 @@ impl Plugin for ConnectedPlayerPlugin {
                     .with_system(net_system::<NetOnSetupUI>)
                     .with_system(net_system::<NetDoneBoarding>)
                     .with_system(net_system::<NetSendWorldEnvironment>)
-                    .with_system(net_system::<NetOnSpawning>)
                     .with_system(net_system::<NetUserName>)
                     .with_system(net_system::<NetUIInputTransmitData>)
                     .with_system(net_system::<NetExamineEntity>)
-                    .with_system(net_system::<NetActionData>)
                     .with_system(net_system::<NetSendServerTime>)
+                    .with_system(net_system::<NetHealthUpdate>)
                     .with_system(net_system::<NetUpdatePlayerCount>),
             )
             .add_system_to_stage(

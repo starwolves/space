@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
 use entity::health::{HealthComponent, HealthContainer};
-use networking::messages::{
-    EntityUpdateData, EntityWorldType, NetHealthUpdate, ReliableServerMessage,
-};
+use networking::messages::PendingMessage;
+use networking::messages::PendingNetworkMessage;
+use networking::messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
+use networking_macros::NetMessage;
 use server::core::ConnectedPlayer;
-
 const UI_ALPHA: f32 = 146.;
 const NONE_UI_RED: f32 = 102.;
 const NONE_UI_GREEN: f32 = 165.;
@@ -528,4 +528,10 @@ pub(crate) fn health_ui_update(
             _ => (),
         }
     }
+}
+
+#[derive(NetMessage)]
+pub(crate) struct NetHealthUpdate {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
 }

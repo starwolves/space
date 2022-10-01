@@ -15,8 +15,8 @@ use crate::messages::{
     InputSceneReady, InputSelectBodyPart, InputSprinting, InputSwitchHands, InputTakeOffItem,
     InputThrowItem, InputToggleAutoMove, InputToggleCombatMode, InputUIInput,
     InputUIInputTransmitText, InputUseWorldItem, InputUserName, InputWearItem, NetHealth,
-    NetHealthUpdate, NetLoadEntity, NetPlayerConn, NetSendEntityUpdates, NetUnloadEntity,
-    PendingNetworkMessage, ReliableServerMessage, TextTreeInputSelection,
+    NetLoadEntity, NetPlayerConn, NetSendEntityUpdates, NetUnloadEntity, PendingNetworkMessage,
+    ReliableServerMessage, TextTreeInputSelection,
 };
 use bevy::app::CoreStage::PostUpdate;
 use bevy::app::CoreStage::PreUpdate;
@@ -69,7 +69,6 @@ impl Plugin for NetworkingPlugin {
         .add_event::<InputSelectBodyPart>()
         .add_event::<InputMouseDirectionUpdate>()
         .add_event::<InputSceneReady>()
-        .add_event::<NetActionData>()
         .add_event::<InputUIInputTransmitText>()
         .add_event::<InputUIInput>()
         .add_event::<InputExamineEntity>()
@@ -79,14 +78,12 @@ impl Plugin for NetworkingPlugin {
             SystemSet::new()
                 .after(PostUpdateLabels::VisibleChecker)
                 .label(PostUpdateLabels::Net)
-                .with_system(net_system::<NetHealthUpdate>)
                 .with_system(net_system::<NetHealth>)
                 .with_system(net_system::<NetPlayerConn>)
                 .with_system(net_system::<NetLoadEntity>)
                 .with_system(net_system::<NetUnloadEntity>)
                 .with_system(net_system::<NetSendEntityUpdates>),
         )
-        .add_event::<NetHealthUpdate>()
         .add_event::<NetHealth>()
         .add_event::<NetSendEntityUpdates>()
         .add_event::<NetUnloadEntity>()
@@ -97,11 +94,6 @@ impl Plugin for NetworkingPlugin {
 pub const RENET_RELIABLE_CHANNEL_ID: u8 = 0;
 pub const RENET_UNRELIABLE_CHANNEL_ID: u8 = 1;
 pub const RENET_BLOCKING_CHANNEL_ID: u8 = 2;
-#[derive(NetMessage)]
-pub struct NetActionData {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 #[derive(NetMessage)]
 pub struct NetEvent {
     pub handle: u64,

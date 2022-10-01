@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy::{
     math::Vec2,
     prelude::{Component, Entity},
@@ -201,3 +203,14 @@ pub struct SpawnPoints {
 }
 /// How far an entity can reach ie with picking up items.
 pub const REACH_DISTANCE: f32 = 3.;
+
+/// Resource keeping track of which in-game character names are taken.
+#[derive(Default, Clone)]
+pub struct UsedNames {
+    /// Character names.
+    pub names: HashMap<String, Entity>,
+    /// Global user names.
+    pub user_names: HashMap<String, Entity>,
+    pub player_i: u32,
+    pub dummy_i: u32,
+}

@@ -4,6 +4,8 @@
 mod actions;
 /// Manage examine events.
 mod examine_events;
+/// Generate names.
+pub mod name_generator;
 /// Pawn resources.
 pub mod pawn;
 /// The Bevy plugin of this crate.

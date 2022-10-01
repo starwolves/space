@@ -16,11 +16,11 @@ use inventory_item::{
     item::CombatStandardAnimation,
 };
 
-use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use inventory_item::item::InventoryItem;
 use pawn::pawn::{ControllerInput, Pawn, PersistentPlayerData};
-
 use vector2math::{FloatingVector2, Vector2};
+
+use crate::humanoid::{CharacterAnimationState, Humanoid};
 
 /// All the core humanoid entity updates for the Godot client.
 pub(crate) fn humanoid_core_entity_updates(

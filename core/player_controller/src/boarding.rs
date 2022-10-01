@@ -10,12 +10,11 @@ use bevy::{
 use chat_api::core::{escape_bb, get_talk_spaces};
 use console_commands::commands::CONSOLE_ERROR_COLOR;
 use entity::meta::SoftPlayer;
-use humanoid::user_name::UsedNames;
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
-use pawn::pawn::{PersistentPlayerData, SpawnPoints, Spawning};
+use pawn::pawn::{PersistentPlayerData, SpawnPoints, Spawning, UsedNames};
 use server::core::{ConnectedPlayer, HandleToEntity};
 
 /// Component with boarding data.
@@ -196,7 +195,7 @@ pub(crate) fn on_boarding(
     }
 }
 #[derive(NetMessage)]
-pub struct NetUIInputTransmitData {
+pub(crate) struct NetUIInputTransmitData {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

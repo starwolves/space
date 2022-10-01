@@ -15,5 +15,6 @@ default-features = false
 
 [dependencies]
 networking = { path = "../networking" }
+networking_macros = { path = "../networking_macros" }
 server = { path = "../server" }
 math = { path = "../math" }

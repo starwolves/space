@@ -1,6 +1,7 @@
 use bevy::prelude::Res;
-use humanoid::user_name::UsedNames;
 use rand::seq::SliceRandom;
+
+use crate::pawn::UsedNames;
 
 /// Array containing male first names.
 const MALE_FIRST_NAMES: &[&str] = &[

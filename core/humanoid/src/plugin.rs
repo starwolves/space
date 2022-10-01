@@ -1,12 +1,14 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use networking::messages::net_system;
+use pawn::pawn::UsedNames;
 use server::labels::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLabels};
 
 use crate::{
+    entity_update::humanoid_core_entity_updates,
     examine_events::{examine_entity, ExamineEntityPawn},
     humanoid::{toggle_combat_mode, Humanoid},
-    user_name::{user_name, NetPawn, UsedNames},
+    user_name::{user_name, NetHumanoid},
 };
 use bevy::app::CoreStage::PostUpdate;
 
@@ -20,6 +22,12 @@ impl Plugin for HumanoidPlugin {
                 .label(UpdateLabels::StandardCharacters)
                 .label(CombatLabels::RegisterAttacks)
                 .after(UpdateLabels::ProcessMovementInput),
+        )
+        .add_system_set_to_stage(
+            PostUpdate,
+            SystemSet::new()
+                .label(PostUpdateLabels::EntityUpdate)
+                .with_system(humanoid_core_entity_updates),
         )
         .add_system(toggle_combat_mode)
         .add_system(examine_entity.after(ActionsLabels::Action))
@@ -37,13 +45,13 @@ impl Plugin for HumanoidPlugin {
         )
         .add_system(attacked_by_chat::<Humanoid>.after(CombatLabels::Query))
         .add_system(user_name)
-        .add_event::<NetPawn>()
+        .add_event::<NetHumanoid>()
         .add_system_set_to_stage(
             PostUpdate,
             SystemSet::new()
                 .after(PostUpdateLabels::VisibleChecker)
                 .label(PostUpdateLabels::Net)
-                .with_system(net_system::<NetPawn>),
+                .with_system(net_system::<NetHumanoid>),
         );
     }
 }

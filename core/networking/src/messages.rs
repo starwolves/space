@@ -1161,12 +1161,7 @@ pub struct NetSendEntityUpdates {
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
-pub struct NetHealthUpdate {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-#[derive(NetMessage)]
-pub struct NetHealth {
+pub(crate) struct NetHealth {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

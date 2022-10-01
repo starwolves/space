@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-
-use bevy::prelude::Entity;
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
 use chat_api::core::escape_bb;
 use console_commands::commands::CONSOLE_ERROR_COLOR;
@@ -8,7 +5,7 @@ use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUserName, ReliableServerMessage};
 use networking_macros::NetMessage;
-use pawn::pawn::PersistentPlayerData;
+use pawn::pawn::{PersistentPlayerData, UsedNames};
 use server::core::HandleToEntity;
 
 /// Set character user name that also isn't already taken.
@@ -16,7 +13,7 @@ pub(crate) fn user_name(
     mut input_user_name_events: EventReader<InputUserName>,
     mut persistent_player_data_query: Query<&mut PersistentPlayerData>,
     mut used_names: ResMut<UsedNames>,
-    mut net_user_name_event: EventWriter<NetPawn>,
+    mut net_user_name_event: EventWriter<NetHumanoid>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
     for event in input_user_name_events.iter() {
@@ -48,7 +45,7 @@ pub(crate) fn user_name(
 
                     match handle_option {
                         Some(handle) => {
-                            net_user_name_event.send(NetPawn{
+                            net_user_name_event.send(NetHumanoid{
                                 handle: *handle,
                                 message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is already in-use, please change the name in the file and restart your game.[/color]"),
                             });
@@ -62,7 +59,7 @@ pub(crate) fn user_name(
                 if user_name.len() < 3 {
                     match handle_option {
                         Some(handle) => {
-                            net_user_name_event.send(NetPawn {
+                            net_user_name_event.send(NetHumanoid {
                                 handle: *handle,
                                 message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters and whitespaces are not registered.[/color]"),
                             });
@@ -85,7 +82,7 @@ pub(crate) fn user_name(
     }
 }
 #[derive(NetMessage)]
-pub(crate) struct NetPawn {
+pub(crate) struct NetHumanoid {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -97,15 +94,4 @@ pub fn get_dummy_name(used_names: &mut UsedNames) -> String {
     used_names.dummy_i += 1;
 
     return_name
-}
-
-/// Resource keeping track of which in-game character names are taken.
-#[derive(Default, Clone)]
-pub struct UsedNames {
-    /// Character names.
-    pub names: HashMap<String, Entity>,
-    /// Global user names.
-    pub user_names: HashMap<String, Entity>,
-    pub player_i: u32,
-    pub dummy_i: u32,
 }

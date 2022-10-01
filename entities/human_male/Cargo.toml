@@ -18,6 +18,7 @@ bevy_rapier3d = "0.16.0"
 
 entity = { path = "../../core/entity" }
 physics = { path = "../../core/physics" }
+networking_macros = { path = "../../core/networking_macros" }
 chat = { path = "../../core/chat" }
 data_link = { path = "../../core/data_link" }
 inventory_item = { path = "../../core/inventory_item" }

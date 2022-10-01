@@ -17,18 +17,12 @@ use gridmap::{
 };
 use inventory_item::combat::{MeleeCombat, ProjectileCombat};
 use math::grid::Vec3Int;
-use networking::messages::ReliableServerMessage;
 use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::{
     active_attacks::ActiveAttacks,
     attack::{Attack, CellHitSimple, CombatType, EntityHitSimple, QueryCombatHitResult},
 };
-
-pub struct NetAttack {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
 /// When a melee attack hit nothing as an event.
 pub struct MeleeBlank {
