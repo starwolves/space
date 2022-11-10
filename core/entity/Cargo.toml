@@ -15,7 +15,7 @@ default-features = false
 
 [dependencies]
 bevy_renet = "0.0.5"
-serde = {version= "1.0.145"}
+serde = "1.0.147"
 
 bincode = "1.3.3"
 doryen_fov = { path = "../doryen_fov" }

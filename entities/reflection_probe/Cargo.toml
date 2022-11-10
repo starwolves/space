@@ -14,8 +14,8 @@ version = "0.8.1"
 default-features = false
 
 [dependencies]
-serde = {version= "1.0.145"}
-serde_json = {version= "1.0.85"}
+serde = "1.0.147"
+serde_json = "1.0.87"
 
 entity = { path = "../../core/entity" }
 data_converters = { path = "../../core/data_converters" }
