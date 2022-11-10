@@ -14,7 +14,7 @@ version = "0.8.1"
 default-features = false
 
 [dependencies]
-voca_rs = "1.14.0"
+voca_rs = "1.15.1"
 
 networking = { path = "../networking" }
 networking_macros = { path = "../networking_macros" }
