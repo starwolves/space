@@ -4,7 +4,7 @@ use bevy::{
     prelude::{warn, Commands, Entity, GlobalTransform, ResMut, Transform},
 };
 use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
+    CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, RigidBody,
 };
 use data_converters::converters::string_vec3_to_vec3;
 use entity::{
@@ -41,7 +41,10 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
                 .spawn()
                 .insert(Collider::cuboid(500., 1., 500.))
                 .insert(friction_component)
-                .insert(CollisionGroups::new(masks.0, masks.1))
+                .insert(CollisionGroups::new(
+                    Group::from_bits(masks.0).unwrap(),
+                    Group::from_bits(masks.1).unwrap(),
+                ))
                 .insert(Transform::default())
                 .insert(GlobalTransform::default());
         });
@@ -61,7 +64,10 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
                 .spawn()
                 .insert(Collider::cuboid(500., 1., 500.))
                 .insert(friction_component)
-                .insert(CollisionGroups::new(masks.0, masks.1))
+                .insert(CollisionGroups::new(
+                    Group::from_bits(masks.0).unwrap(),
+                    Group::from_bits(masks.1).unwrap(),
+                ))
                 .insert(Transform::default())
                 .insert(GlobalTransform::default());
         });
@@ -228,7 +234,10 @@ pub fn spawn_main_cell(
             .insert(cell_properties.collider.clone())
             .insert(Transform::identity())
             .insert(friction_component)
-            .insert(CollisionGroups::new(masks.0, masks.1));
+            .insert(CollisionGroups::new(
+                Group::from_bits(masks.0).unwrap(),
+                Group::from_bits(masks.1).unwrap(),
+            ));
     });
 
     entity_id

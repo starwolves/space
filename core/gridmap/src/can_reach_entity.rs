@@ -18,6 +18,8 @@ use crate::{
     grid::{GridmapData, GridmapMain},
 };
 
+use bevy_rapier3d::rapier::geometry::Group;
+
 /// Check if entity can be reached by another entity with nothing in between to block it as a function.
 pub fn can_reach_entity(
     query_pipeline: &bevy::prelude::Res<RapierContext>,
@@ -42,11 +44,10 @@ pub fn can_reach_entity(
     let solid = true;
 
     let collider_groups = get_bit_masks(ColliderGroup::Standard);
-    let mut query_filter = QueryFilter::new();
-    query_filter.groups = Some(InteractionGroups {
-        memberships: collider_groups.0,
-        filter: collider_groups.1,
-    });
+    let query_filter = QueryFilter::new().groups(InteractionGroups::new(
+        Group::from_bits(collider_groups.0).unwrap(),
+        Group::from_bits(collider_groups.1).unwrap(),
+    ));
     let mut collided_entities = vec![];
 
     query_pipeline.intersections_with_ray(

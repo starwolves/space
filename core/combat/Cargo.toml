@@ -14,7 +14,7 @@ version = "0.8.1"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.16.2"
+bevy_rapier3d = "0.18.0"
 rand = "0.8.5"
 
 

@@ -16,7 +16,7 @@ default-features = false
 [dependencies]
 doryen_fov = { path = "../../core/doryen_fov" }
 rand = "0.8.5"
-bevy_rapier3d = "0.16.2"
+bevy_rapier3d = "0.18.0"
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }

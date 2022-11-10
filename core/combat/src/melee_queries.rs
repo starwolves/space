@@ -9,6 +9,7 @@ use bevy_rapier3d::{
     pipeline::QueryFilter,
     plugin::RapierContext,
     prelude::{Collider, InteractionGroups},
+    rapier::prelude::Group,
 };
 use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::{
@@ -100,9 +101,11 @@ pub(crate) fn melee_direct(
             }
         }
         let collider_groups = get_bit_masks(ColliderGroup::Standard);
-        let interaction_groups = InteractionGroups::new(collider_groups.0, collider_groups.1);
 
-        let query_filter = QueryFilter::new().groups(interaction_groups);
+        let query_filter = QueryFilter::new().groups(InteractionGroups::new(
+            Group::from_bits(collider_groups.0).unwrap(),
+            Group::from_bits(collider_groups.1).unwrap(),
+        ));
 
         let additive = direction_additive * attack_event.range;
 

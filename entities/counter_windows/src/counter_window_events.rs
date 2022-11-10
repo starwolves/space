@@ -8,7 +8,7 @@ use bevy::{
     },
     time::Timer,
 };
-use bevy_rapier3d::prelude::{Collider, CollisionGroups};
+use bevy_rapier3d::prelude::{Collider, CollisionGroups, Group};
 use chat_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use math::grid::{world_to_cell_id, Vec2Int};
@@ -285,8 +285,8 @@ pub(crate) fn counter_window_events(
 
                     let masks = get_bit_masks(ColliderGroup::Standard);
 
-                    collision_groups.memberships = masks.0;
-                    collision_groups.filters = masks.1;
+                    collision_groups.memberships = Group::from_bits(masks.0).unwrap();
+                    collision_groups.filters = Group::from_bits(masks.1).unwrap();
 
                     counter_window_component.access_lights =
                         CounterWindowAccessLightsStatus::Neutral;
@@ -552,8 +552,8 @@ pub(crate) fn counter_window_events(
 
             let masks = get_bit_masks(ColliderGroup::NoCollision);
 
-            collision_groups.memberships = masks.0;
-            collision_groups.filters = masks.1;
+            collision_groups.memberships = Group::from_bits(masks.0).unwrap();
+            collision_groups.filters = Group::from_bits(masks.1).unwrap();
 
             counter_window_component.open_timer = Some(open_timer())
         } else {
