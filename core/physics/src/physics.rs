@@ -1,5 +1,5 @@
 use bevy::prelude::{Commands, Component, Entity};
-use bevy_rapier3d::prelude::{CollisionGroups, Damping, GravityScale, Sleeping};
+use bevy_rapier3d::prelude::{CollisionGroups, Damping, GravityScale, Group, Sleeping};
 use math::grid::Vec3Int;
 
 /// Get a desired bit mask as a function.
@@ -30,7 +30,6 @@ pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
 /// Component, an entity has this when its physics is disabled.
 #[derive(Component)]
 pub struct RigidBodyDisabled;
-
 /// Disable a rigidbody as a function.
 pub fn disable_rigidbody(
     rigidbody_activation: &mut Sleeping,
@@ -41,9 +40,8 @@ pub fn disable_rigidbody(
     damping: &mut Damping,
 ) {
     let masks = get_bit_masks(ColliderGroup::NoCollision);
-
-    collider_flags.memberships = masks.0;
-    collider_flags.filters = masks.1;
+    collider_flags.memberships = Group::from_bits(masks.0).unwrap();
+    collider_flags.filters = Group::from_bits(masks.1).unwrap();
 
     gravity.0 = 0.;
 
@@ -66,8 +64,8 @@ pub fn enable_rigidbody(
 ) {
     let masks = get_bit_masks(ColliderGroup::Standard);
 
-    collider_flags.memberships = masks.0;
-    collider_flags.filters = masks.1;
+    collider_flags.memberships = Group::from_bits(masks.0).unwrap();
+    collider_flags.filters = Group::from_bits(masks.1).unwrap();
 
     gravity.0 = 1.;
 

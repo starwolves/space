@@ -3,7 +3,7 @@ use bevy::{
     hierarchy::Children,
     prelude::{warn, Commands, Entity, EventReader, EventWriter, Query, ResMut, Transform},
 };
-use bevy_rapier3d::prelude::CollisionGroups;
+use bevy_rapier3d::prelude::{CollisionGroups, Group};
 use chat_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use math::grid::{world_to_cell_id, Vec2Int};
@@ -235,8 +235,8 @@ pub(crate) fn air_lock_events(
                             let mut r = collision_groups.get_mut(e).unwrap();
                             let masks = get_bit_masks(ColliderGroup::Standard);
 
-                            r.memberships = masks.0;
-                            r.filters = masks.1;
+                            r.memberships = Group::from_bits(masks.0).unwrap();
+                            r.filters = Group::from_bits(masks.1).unwrap();
                         }
                         None => {
                             warn!("Couldnt find collider child");
@@ -432,8 +432,8 @@ pub(crate) fn air_lock_events(
 
                     let masks = get_bit_masks(ColliderGroup::NoCollision);
 
-                    r.memberships = masks.0;
-                    r.filters = masks.1;
+                    r.memberships = Group::from_bits(masks.0).unwrap();
+                    r.filters = Group::from_bits(masks.1).unwrap();
                 }
                 None => {
                     warn!("Couldnt find collider child..");

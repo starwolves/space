@@ -5,7 +5,7 @@ use bevy::{
     math::Vec3,
     prelude::{warn, Commands, EventReader, EventWriter, GlobalTransform, Transform},
 };
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction, Group};
 use chat_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 use data_converters::converters::string_transform_to_transform;
 use entity::{
@@ -148,7 +148,10 @@ pub fn summon_counter_window<T: Send + Sync + 'static>(
                             .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
                             .insert(GlobalTransform::default())
                             .insert(friction)
-                            .insert(CollisionGroups::new(masks.0, masks.1))
+                            .insert(CollisionGroups::new(
+                                Group::from_bits(masks.0).unwrap(),
+                                Group::from_bits(masks.1).unwrap(),
+                            ))
                             .insert(ActiveEvents::COLLISION_EVENTS)
                             .insert(sensor);
                     });
