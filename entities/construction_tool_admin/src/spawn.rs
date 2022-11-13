@@ -21,10 +21,12 @@ use crate::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
 
 use super::construction_tool::ConstructionTool;
 
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<NoData> for ConstructionToolSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
@@ -51,6 +53,7 @@ impl BaseEntitySummonable<NoData> for ConstructionToolSummoner {
 }
 use std::collections::HashMap;
 
+#[cfg(feature = "server")]
 impl InventoryItemSummonable for ConstructionToolSummoner {
     fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
@@ -103,6 +106,7 @@ impl InventoryItemSummonable for ConstructionToolSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 impl RigidBodySummonable<NoData> for ConstructionToolSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -117,8 +121,10 @@ impl RigidBodySummonable<NoData> for ConstructionToolSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub struct ConstructionToolSummoner;
 
+#[cfg(feature = "server")]
 pub fn summon_construction_tool<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -130,6 +136,7 @@ pub fn summon_construction_tool<T: Send + Sync + 'static>(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn summon_raw_construction_tool(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<ConstructionToolSummoner>>,
@@ -156,6 +163,7 @@ pub fn summon_raw_construction_tool(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn default_summon_construction_tool(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<ConstructionToolSummoner>>,

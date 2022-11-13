@@ -33,6 +33,7 @@ use rigid_body::spawn::RigidBodyBundle;
 use rigid_body::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
 
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -41,6 +42,7 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<NoData> for PistolL1Summoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
@@ -68,8 +70,10 @@ impl BaseEntitySummonable<NoData> for PistolL1Summoner {
 }
 use std::collections::HashMap;
 
+#[cfg(feature = "server")]
 pub const PISTOL_L1_PROJECTILE_RANGE: f32 = 50.;
 
+#[cfg(feature = "server")]
 impl InventoryItemSummonable for PistolL1Summoner {
     fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
@@ -146,6 +150,7 @@ impl InventoryItemSummonable for PistolL1Summoner {
     }
 }
 
+#[cfg(feature = "server")]
 impl RigidBodySummonable<NoData> for PistolL1Summoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -165,8 +170,10 @@ use crate::pistol_l1::PISTOL_L1_ENTITY_NAME;
 
 use super::pistol_l1::PistolL1;
 
+#[cfg(feature = "server")]
 pub struct PistolL1Summoner;
 
+#[cfg(feature = "server")]
 pub fn summon_pistol_l1<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -178,6 +185,7 @@ pub fn summon_pistol_l1<T: Send + Sync + 'static>(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn summon_raw_pistol_l1(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<PistolL1Summoner>>,
@@ -204,6 +212,7 @@ pub fn summon_raw_pistol_l1(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn default_summon_pistol_l1(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<PistolL1Summoner>>,

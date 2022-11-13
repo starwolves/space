@@ -9,19 +9,23 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
 
 [dependencies]
-entity = { path = "../entity" }
-console_commands = { path = "../console_commands" }
+entity = { path = "../entity",  features=["server"] }
+console_commands = { path = "../console_commands" ,  features=["server"]}
 
 
-actions = { path = "../actions" }
-networking = { path = "../networking" }
-server = { path = "../server" }
-showcase = { path = "../showcase" }
-inventory_api = { path = "../inventory_api" }
-chat_api = { path = "../chat_api" }
-physics = { path = "../physics" }
+actions = { path = "../actions",  features=["server"] }
+networking = { path = "../networking" ,  features=["server"]}
+server_instance = { path = "../server_instance" ,  features=["server"]}
+showcase = { path = "../showcase" ,  features=["server"]}
+inventory_api = { path = "../inventory_api",  features=["server"] }
+chat_api = { path = "../chat_api",  features=["server"] }
+physics = { path = "../physics" ,  features=["server"]}

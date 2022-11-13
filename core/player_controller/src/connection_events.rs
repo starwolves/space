@@ -6,11 +6,12 @@ use gridmap::grid::GridmapData;
 use map::map_input::MapData;
 use networking::messages::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
-use server::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
+use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 
 use crate::connection::AuthidI;
 
 /// Send server configuration to new clients.
+#[cfg(feature = "server")]
 pub(crate) fn send_server_configuration(
     net_on_new_player_connection: &mut EventWriter<NetPlayerConn>,
     handle: &u64,

@@ -1,6 +1,6 @@
 [workspace]
-members = ["core/*","entities/*", "project"]
-default-members = ["core/*","entities/*", "project"]
+members = ["core/*","entities/*", "server", "client"]
+default-members = ["core/*","entities/*", "server", "client"]
 resolver = "2"
 
 # Compile dependencies

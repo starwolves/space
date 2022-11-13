@@ -9,14 +9,18 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
 
 [dependencies]
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-data_link = { path = "../data_link" }
-server = { path = "../server" }
-math = { path = "../math" }
-entity = { path = "../entity" }
+networking = { path = "../networking" ,  features=["server"]}
+networking_macros = { path = "../networking_macros",  features=["server"] }
+data_link = { path = "../data_link",  features=["server"] }
+server_instance = { path = "../server_instance" ,  features=["server"]}
+math = { path = "../math" ,  features=["server"]}
+entity = { path = "../entity" ,  features=["server"]}

@@ -5,6 +5,7 @@ use networking::messages::EntityUpdateData;
 use crate::core::GIProbe;
 
 /// GI Probe entity update.
+#[cfg(feature = "server")]
 pub(crate) fn gi_probe_update(
     mut updated_gi_probes: Query<(&GIProbe, &mut EntityUpdates), Changed<GIProbe>>,
 ) {

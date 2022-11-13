@@ -1,6 +1,7 @@
 use bevy::prelude::{Component, Entity};
 
 #[derive(PartialEq, Copy, Clone, Debug)]
+#[cfg(feature = "server")]
 pub enum SlotType {
     Generic,
     Helmet,
@@ -9,6 +10,7 @@ pub enum SlotType {
 }
 
 /// An inventory slot, an inventory can contain many of these.
+#[cfg(feature = "server")]
 pub struct Slot {
     pub slot_type: SlotType,
     pub slot_name: String,
@@ -18,11 +20,13 @@ pub struct Slot {
 }
 /// The inventory component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Inventory {
     pub slots: Vec<Slot>,
     pub active_slot: String,
 }
 
+#[cfg(feature = "server")]
 impl Default for Inventory {
     fn default() -> Self {
         Self {
@@ -32,6 +36,7 @@ impl Default for Inventory {
     }
 }
 
+#[cfg(feature = "server")]
 impl Inventory {
     pub fn has_item(&self, entity_id: Entity) -> bool {
         let mut has = false;

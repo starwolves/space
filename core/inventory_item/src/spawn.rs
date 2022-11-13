@@ -11,6 +11,7 @@ use crate::combat::{MeleeCombat, ProjectileCombat};
 use super::item::InventoryItem;
 
 /// Inventory item bundle.
+#[cfg(feature = "server")]
 pub struct InventoryItemBundle {
     pub inventory_item: InventoryItem,
     pub melee_combat: MeleeCombat,
@@ -18,6 +19,7 @@ pub struct InventoryItemBundle {
 }
 
 /// Inventory item builder data.
+#[cfg(feature = "server")]
 pub struct InventoryBuilderData {
     pub inventory_item: InventoryItem,
     pub holder_entity_option: Option<Entity>,
@@ -26,6 +28,7 @@ pub struct InventoryBuilderData {
 }
 
 /// Build inventory item at summon stage.
+#[cfg(feature = "server")]
 pub(crate) fn inventory_item_builder(
     commands: &mut Commands,
     entity: Entity,
@@ -50,11 +53,13 @@ pub(crate) fn inventory_item_builder(
     }
 }
 /// Inventory item summonable.
+#[cfg(feature = "server")]
 pub trait InventoryItemSummonable {
     fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle;
 }
 
 /// Inventory item spawn handler.
+#[cfg(feature = "server")]
 pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
@@ -76,6 +81,7 @@ pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>
 }
 
 /// Function to spawn an entity that is held in someone's hands.
+#[cfg(feature = "server")]
 pub fn spawn_held_entity(
     entity_name: String,
     commands: &mut Commands,

@@ -8,7 +8,7 @@ use entity::{
     spawn::{SpawnData, SpawnEvent},
 };
 use networking::messages::{GodotVariantValues, InputConsoleCommand, NetUnloadEntity};
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 use super::{
     line_arrow::PointArrow,
@@ -16,6 +16,7 @@ use super::{
 };
 
 /// Perform "pointArrow" command.
+#[cfg(feature = "server")]
 pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
@@ -131,6 +132,7 @@ pub(crate) fn entity_console_commands(
 }
 
 /// Despawn point arrows after duration.
+#[cfg(feature = "server")]
 pub(crate) fn expire_point_arrow(
     mut point_arrows: Query<(Entity, &mut PointArrow, &mut Sensable)>,
     time: Res<Time>,

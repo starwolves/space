@@ -6,6 +6,7 @@ use math::grid::Vec3Int;
 use pawn::pawn::REACH_DISTANCE;
 
 /// Inventory item action prerequisite check for pickup action.
+#[cfg(feature = "server")]
 pub(crate) fn pickup_prerequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,

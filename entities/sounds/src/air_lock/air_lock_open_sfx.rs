@@ -1,10 +1,13 @@
 use bevy::prelude::{Commands, Entity};
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
+#[cfg(feature = "server")]
 pub struct AirLockOpenSfxBundle;
 
+#[cfg(feature = "server")]
 pub const PLAY_BACK_DURATION: f32 = 4.5 + 1.;
 
+#[cfg(feature = "server")]
 impl AirLockOpenSfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands

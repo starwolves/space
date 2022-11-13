@@ -33,6 +33,7 @@ use crate::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 
 use super::jumpsuit::Jumpsuit;
 
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -41,6 +42,7 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<NoData> for JumpsuitSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
@@ -67,6 +69,7 @@ impl BaseEntitySummonable<NoData> for JumpsuitSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 impl InventoryItemSummonable for JumpsuitSummoner {
     fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
@@ -121,6 +124,7 @@ impl InventoryItemSummonable for JumpsuitSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 impl RigidBodySummonable<NoData> for JumpsuitSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -136,8 +140,10 @@ impl RigidBodySummonable<NoData> for JumpsuitSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub struct JumpsuitSummoner;
 
+#[cfg(feature = "server")]
 pub fn summon_jumpsuit<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -149,6 +155,7 @@ pub fn summon_jumpsuit<T: Send + Sync + 'static>(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn summon_raw_jumpsuit(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<JumpsuitSummoner>>,
@@ -175,6 +182,7 @@ pub fn summon_raw_jumpsuit(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn default_summon_jumpsuit(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<JumpsuitSummoner>>,

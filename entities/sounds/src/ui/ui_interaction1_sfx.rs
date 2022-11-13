@@ -1,10 +1,13 @@
 use bevy::prelude::{Commands, Entity};
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
+#[cfg(feature = "server")]
 pub struct UIInteraction1SfxBundle;
 
+#[cfg(feature = "server")]
 pub const UI_INTERACTION1_PLAY_BACK_DURATION: f32 = 1.3 + 1.;
 
+#[cfg(feature = "server")]
 impl UIInteraction1SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands

@@ -8,6 +8,7 @@ use math::grid::world_to_cell_id;
 use rigid_body::rigid_body::RigidBodyData;
 
 /// Manage zero gravity for rigid bodies.
+#[cfg(feature = "server")]
 pub(crate) fn zero_gravity(
     mut rigid_bodies: Query<(
         Entity,
@@ -78,4 +79,5 @@ pub(crate) fn zero_gravity(
 
 /// Component for entities with zero gravity.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct ZeroGravity;

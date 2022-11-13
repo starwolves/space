@@ -10,13 +10,16 @@ use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
+
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetAtmosphericsMapExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 /// Examine text with data for cells with atmospherics.
+#[cfg(feature = "server")]
 pub(crate) fn examine_map_atmos(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     senser_entities: Query<&Senser>,

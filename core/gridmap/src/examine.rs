@@ -17,6 +17,7 @@ use crate::{
 };
 
 /// Manage examining the gridmap.
+#[cfg(feature = "server")]
 pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     gridmap_main: Res<GridmapMain>,
@@ -87,6 +88,7 @@ pub(crate) fn examine_map(
 }
 
 /// Set examine action header name.
+#[cfg(feature = "server")]
 pub(crate) fn set_action_header_name(
     mut building_action_data: ResMut<BuildingActions>,
     examinables: Query<&Examinable>,
@@ -152,6 +154,7 @@ pub(crate) fn set_action_header_name(
 }
 
 /// Examine a ship cell's health.
+#[cfg(feature = "server")]
 pub(crate) fn examine_map_health(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     gridmap_main: Res<GridmapMain>,
@@ -279,6 +282,7 @@ pub(crate) fn examine_map_health(
 }
 
 /// Examine gridmap.
+#[cfg(feature = "server")]
 pub(crate) fn examine_map_abilities(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     senser_entities: Query<&Senser>,
@@ -324,6 +328,7 @@ pub(crate) fn examine_map_abilities(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn finalize_grid_examine_input(
     mut gridmap_messages: ResMut<GridmapExamineMessages>,
     mut gridmap_examine_input: EventReader<InputExamineMap>,

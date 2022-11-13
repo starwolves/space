@@ -1,10 +1,13 @@
 use bevy::prelude::{Commands, Entity};
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
+#[cfg(feature = "server")]
 pub struct Deconstruct1SfxBundle;
 
+#[cfg(feature = "server")]
 pub const DECONSTRUCT1_PLAY_BACK_DURATION: f32 = 2. + 1.;
 
+#[cfg(feature = "server")]
 impl Deconstruct1SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands

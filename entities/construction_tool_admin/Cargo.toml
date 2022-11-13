@@ -9,6 +9,11 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -18,23 +23,23 @@ doryen_fov = { path = "../../core/doryen_fov" }
 rand = "0.8.5"
 bevy_rapier3d = "0.18.0"
 
-entity = { path = "../../core/entity" }
-gridmap = { path = "../../core/gridmap" }
-networking = { path = "../../core/networking" }
-networking_macros = { path = "../../core/networking_macros" }
-pawn = { path = "../../core/pawn" }
-combat = { path = "../../core/combat" }
-atmospherics = { path = "../../core/atmospherics" }
-inventory_item = { path = "../../core/inventory_item" }
-inventory_api = { path = "../../core/inventory_api" }
-rigid_body = { path = "../../core/rigid_body" }
-sfx = { path = "../../core/sfx" }
-sounds = { path = "../sounds" }
-chat_api = { path = "../../core/chat_api" }
-physics = { path = "../../core/physics" }
-actions = { path = "../../core/actions" }
+entity = { path = "../../core/entity",  features=["server"] }
+gridmap = { path = "../../core/gridmap",  features=["server"] }
+networking = { path = "../../core/networking" ,  features=["server"]}
+networking_macros = { path = "../../core/networking_macros",  features=["server"] }
+pawn = { path = "../../core/pawn",  features=["server"] }
+combat = { path = "../../core/combat" ,  features=["server"]}
+atmospherics = { path = "../../core/atmospherics" ,  features=["server"]}
+inventory_item = { path = "../../core/inventory_item" ,  features=["server"]}
+inventory_api = { path = "../../core/inventory_api",  features=["server"] }
+rigid_body = { path = "../../core/rigid_body" ,  features=["server"]}
+sfx = { path = "../../core/sfx",  features=["server"] }
+sounds = { path = "../sounds",  features=["server"] }
+chat_api = { path = "../../core/chat_api",  features=["server"] }
+physics = { path = "../../core/physics" ,  features=["server"]}
+actions = { path = "../../core/actions",  features=["server"] }
 
 
-data_converters = { path = "../../core/data_converters" }
-server = { path = "../../core/server" }
-math = { path = "../../core/math" }
+data_converters = { path = "../../core/data_converters",  features=["server"] }
+server_instance = { path = "../../core/server_instance",  features=["server"] }
+math = { path = "../../core/math" ,  features=["server"]}

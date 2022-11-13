@@ -13,7 +13,7 @@ use networking::messages::{
 };
 use networking_macros::NetMessage;
 use reflection_probe::core::ReflectionProbe;
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, f32::consts::PI};
@@ -22,53 +22,63 @@ use super::connection::{Boarding, SetupPhase};
 use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetSendServerTime {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetSendWorldEnvironment {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetUpdatePlayerCount {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetDoneBoarding {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetExamineEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetOnBoarding {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetOnSetupUI {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetOnNewPlayerConnection {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetUserName {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 /// Build graphics for Godot client.
+#[cfg(feature = "server")]
 pub(crate) fn build_graphics(
     mut build_graphics_events: EventReader<InputBuildGraphics>,
     mut net_load_entity: EventWriter<NetLoadEntity>,
@@ -136,6 +146,7 @@ pub(crate) fn build_graphics(
 }
 
 /// Manage when client has finished loading in a scene.
+#[cfg(feature = "server")]
 pub fn scene_ready_event(
     mut event: EventReader<InputSceneReady>,
     handle_to_entity: Res<HandleToEntity>,
@@ -161,6 +172,7 @@ pub fn scene_ready_event(
 }
 
 /// Send server time to clients for ping update.
+#[cfg(feature = "server")]
 pub(crate) fn send_server_time(
     mut event_writer: EventWriter<NetSendServerTime>,
     connected_players: Query<&ConnectedPlayer>,
@@ -178,6 +190,7 @@ pub(crate) fn send_server_time(
 }
 
 /// Update player count info for clients.
+#[cfg(feature = "server")]
 pub(crate) fn update_player_count(
     connected_players: Query<&ConnectedPlayer>,
     mut events: EventWriter<NetUpdatePlayerCount>,
@@ -206,11 +219,13 @@ pub(crate) fn update_player_count(
 
 /// Used to calculate ping for client.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub(crate) struct TimeStampPerEntity {
     pub data: HashMap<Entity, u64>,
 }
 
 /// Manage mouse direction updates.
+#[cfg(feature = "server")]
 pub(crate) fn mouse_direction_update(
     mut update_events: EventReader<InputMouseDirectionUpdate>,
     mut standard_characters: Query<&mut Humanoid>,

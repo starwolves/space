@@ -15,15 +15,17 @@ use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputExamineMap, ReliableServerMessage};
 use networking_macros::NetMessage;
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 /// Finalize examining the ship gridmap.
+#[cfg(feature = "server")]
 pub(crate) fn finalize_examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     mut net: EventWriter<NetExamine>,
@@ -40,12 +42,14 @@ pub(crate) fn finalize_examine_map(
     examine_map_events.messages.clear();
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 /// Manage examining an entity.
+#[cfg(feature = "server")]
 pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
@@ -97,6 +101,7 @@ pub fn examine_entity(
 }
 
 /// Finalize examining an entity.
+#[cfg(feature = "server")]
 pub(crate) fn finalize_examine_entity(
     mut examine_map_events: ResMut<ExamineEntityMessages>,
     mut net: EventWriter<NetConnExamine>,
@@ -115,6 +120,7 @@ pub(crate) fn finalize_examine_entity(
 
 /// Component for entities that can be examined.
 #[derive(Component, Default)]
+#[cfg(feature = "server")]
 pub struct Examinable {
     pub assigned_texts: BTreeMap<u32, String>,
     pub name: RichName,
@@ -122,12 +128,14 @@ pub struct Examinable {
 
 /// A rich examinable name for an entity.
 #[derive(Clone, Debug)]
+#[cfg(feature = "server")]
 pub struct RichName {
     pub name: String,
     pub n: bool,
     pub the: bool,
 }
 
+#[cfg(feature = "server")]
 impl RichName {
     pub fn get_name(&self) -> &str {
         &self.name
@@ -147,6 +155,7 @@ impl RichName {
     }
 }
 
+#[cfg(feature = "server")]
 impl Default for RichName {
     fn default() -> Self {
         Self {
@@ -159,6 +168,7 @@ impl Default for RichName {
 
 /// System label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum ExamineLabels {
     Start,
     Default,
@@ -166,15 +176,18 @@ pub enum ExamineLabels {
 
 /// Stores examine messages being built this frame for gridmap examination.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct GridmapExamineMessages {
     pub messages: Vec<InputExamineMap>,
 }
 /// Resource with client inputs of examining entity messages.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct ExamineEntityMessages {
     pub messages: Vec<InputExamineEntity>,
 }
 
+#[cfg(feature = "server")]
 pub fn finalize_entity_examine_input(
     mut examine_messages: ResMut<ExamineEntityMessages>,
     mut entity_examine_input: EventReader<InputExamineEntity>,
@@ -185,11 +198,13 @@ pub fn finalize_entity_examine_input(
 }
 
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct ExamineEntityPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 /// Examine an entity's health.
+#[cfg(feature = "server")]
 pub(crate) fn examine_entity_health(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,

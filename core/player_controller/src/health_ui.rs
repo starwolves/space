@@ -6,7 +6,7 @@ use networking::messages::PendingMessage;
 use networking::messages::PendingNetworkMessage;
 use networking::messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
 use networking_macros::NetMessage;
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 const UI_ALPHA: f32 = 146.;
 const NONE_UI_RED: f32 = 102.;
 const NONE_UI_GREEN: f32 = 165.;
@@ -26,10 +26,12 @@ const HEAVY_UI_BLUE: f32 = 60.;
 
 /// Resource with all client health UI caches.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct ClientHealthUICache {
     pub cache: HashMap<Entity, ClientHealthUI>,
 }
 /// Client health UI cache.
+#[cfg(feature = "server")]
 pub struct ClientHealthUI {
     pub head_damage: UIDamageType,
     pub torso_damage: UIDamageType,
@@ -39,6 +41,7 @@ pub struct ClientHealthUI {
     pub right_leg_damage: UIDamageType,
 }
 /// All UI damage types.
+#[cfg(feature = "server")]
 pub enum UIDamageType {
     None,
     Light,
@@ -47,6 +50,7 @@ pub enum UIDamageType {
 }
 
 /// Manage sending UI health updates to Godot client.
+#[cfg(feature = "server")]
 pub(crate) fn health_ui_update(
     mut updated_player_health_entities: Query<
         (Entity, &ConnectedPlayer, &HealthComponent),
@@ -531,6 +535,7 @@ pub(crate) fn health_ui_update(
 }
 
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetHealthUpdate {
     pub handle: u64,
     pub message: ReliableServerMessage,

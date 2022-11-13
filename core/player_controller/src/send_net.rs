@@ -5,9 +5,10 @@ use networking::{
     messages::{PendingNetworkMessage, ReliableServerMessage},
     plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID},
 };
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 
 /// Finalize sending netcode messages to clients as a function.
+#[cfg(feature = "server")]
 pub(crate) fn finalize_send_net(
     net: &mut ResMut<RenetServer>,
     connected_players: &Query<&ConnectedPlayer>,
@@ -43,6 +44,7 @@ pub(crate) fn finalize_send_net(
 }
 
 /// Finalize netcode messages system.
+#[cfg(feature = "server")]
 pub(crate) fn process_finalize_net(
     mut pending_network_message: EventReader<PendingNetworkMessage>,
     connected_players: Query<&ConnectedPlayer>,

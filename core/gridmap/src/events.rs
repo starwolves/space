@@ -16,7 +16,7 @@ use entity::{
 use math::grid::Vec3Int;
 use networking::messages::{GridMapLayer, ReliableServerMessage};
 use serde::Deserialize;
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 
 use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMain, RemoveCell};
 
@@ -26,6 +26,7 @@ use super::{
 };
 
 /// Manage gridmap update events such as adding and removing cells.
+#[cfg(feature = "server")]
 pub(crate) fn gridmap_updates_manager(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
@@ -105,6 +106,7 @@ pub(crate) fn gridmap_updates_manager(
 }
 
 /// Examine a ship/gridmap cell and add the text as a function.
+#[cfg(feature = "server")]
 pub fn examine_ship_cell(
     ship_cell: &CellData,
     gridmap_type: &GridMapLayer,
@@ -149,6 +151,7 @@ pub fn examine_ship_cell(
 }
 
 /// Remove a ship/gridmap cell.
+#[cfg(feature = "server")]
 pub(crate) fn remove_cell(
     mut deconstruct_cell_events: EventReader<RemoveCell>,
     mut gridmap_main: ResMut<GridmapMain>,
@@ -255,10 +258,12 @@ pub(crate) fn remove_cell(
 
 /// Component that represents a cell.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Cell {
     pub id: Vec3Int,
 }
 
+#[cfg(feature = "server")]
 impl Default for Cell {
     fn default() -> Self {
         Self {
@@ -269,6 +274,7 @@ impl Default for Cell {
 
 /// Represents a cell with some additional data.
 #[derive(Deserialize)]
+#[cfg(feature = "server")]
 pub(crate) struct CellDataWID {
     pub id: String,
     pub item: String,

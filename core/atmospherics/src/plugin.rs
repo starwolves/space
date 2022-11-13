@@ -1,6 +1,8 @@
 use bevy::time::FixedTimestep;
 use networking::messages::net_system;
-use server::labels::{ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
+use server_instance::labels::{
+    ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels,
+};
 
 use crate::diffusion::AtmosphericsResource;
 use crate::examine_events::{examine_map_atmos, NetAtmosphericsMapExamine};
@@ -30,54 +32,57 @@ pub struct AtmosphericsPlugin;
 
 impl Plugin for AtmosphericsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<AtmosphericsResource>()
-            .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
-            .add_system(atmospherics_sensing_ability)
-            .add_system(remove_cell_atmos_event.label(UpdateLabels::DeconstructCell))
-            .add_system_to_stage(CoreStage::Update, rigidbody_forces_physics)
-            .add_system_to_stage(CoreStage::Update, zero_gravity)
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))
-                    .with_system(atmospherics_notices)
-                    .with_system(atmospherics_map.after(MapLabels::ChangeMode)),
-            )
-            .add_event::<NetMapDisplayAtmospherics>()
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(
-                        FixedTimestep::step(1. / DIFFUSION_STEP).with_label(ATMOS_DIFFUSION_LABEL),
-                    )
-                    .with_system(atmos_diffusion.label(AtmosphericsLabels::Diffusion))
-                    .with_system(
-                        atmos_effects
-                            .after(AtmosphericsLabels::Diffusion)
-                            .label(AtmosphericsLabels::Effects),
-                    )
-                    .with_system(
-                        rigidbody_pawn_forces_accumulation.after(AtmosphericsLabels::Effects),
-                    ),
-            )
-            .init_resource::<RigidBodyForcesAccumulation>()
-            .add_event::<NetMapHoverAtmospherics>()
-            .add_startup_system(
-                startup_atmospherics
-                    .label(StartupLabels::InitAtmospherics)
-                    .after(StartupLabels::BuildGridmap),
-            )
-            .add_event::<NetAtmosphericsNotices>()
-            .add_event::<NetAtmosphericsMapExamine>()
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .after(PostUpdateLabels::VisibleChecker)
-                    .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<NetMapDisplayAtmospherics>)
-                    .with_system(net_system::<NetMapHoverAtmospherics>)
-                    .with_system(net_system::<NetAtmosphericsNotices>)
-                    .with_system(net_system::<NetAtmosphericsMapExamine>),
-            )
-            .add_system(examine_map_atmos.after(ActionsLabels::Action));
+        if cfg!(feature = "server") {
+            app.init_resource::<AtmosphericsResource>()
+                .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
+                .add_system(atmospherics_sensing_ability)
+                .add_system(remove_cell_atmos_event.label(UpdateLabels::DeconstructCell))
+                .add_system_to_stage(CoreStage::Update, rigidbody_forces_physics)
+                .add_system_to_stage(CoreStage::Update, zero_gravity)
+                .add_system_set(
+                    SystemSet::new()
+                        .with_run_criteria(FixedTimestep::step(1. / 4.).with_label(ATMOS_LABEL))
+                        .with_system(atmospherics_notices)
+                        .with_system(atmospherics_map.after(MapLabels::ChangeMode)),
+                )
+                .add_event::<NetMapDisplayAtmospherics>()
+                .add_system_set(
+                    SystemSet::new()
+                        .with_run_criteria(
+                            FixedTimestep::step(1. / DIFFUSION_STEP)
+                                .with_label(ATMOS_DIFFUSION_LABEL),
+                        )
+                        .with_system(atmos_diffusion.label(AtmosphericsLabels::Diffusion))
+                        .with_system(
+                            atmos_effects
+                                .after(AtmosphericsLabels::Diffusion)
+                                .label(AtmosphericsLabels::Effects),
+                        )
+                        .with_system(
+                            rigidbody_pawn_forces_accumulation.after(AtmosphericsLabels::Effects),
+                        ),
+                )
+                .init_resource::<RigidBodyForcesAccumulation>()
+                .add_event::<NetMapHoverAtmospherics>()
+                .add_startup_system(
+                    startup_atmospherics
+                        .label(StartupLabels::InitAtmospherics)
+                        .after(StartupLabels::BuildGridmap),
+                )
+                .add_event::<NetAtmosphericsNotices>()
+                .add_event::<NetAtmosphericsMapExamine>()
+                .add_system_set_to_stage(
+                    PostUpdate,
+                    SystemSet::new()
+                        .after(PostUpdateLabels::VisibleChecker)
+                        .label(PostUpdateLabels::Net)
+                        .with_system(net_system::<NetMapDisplayAtmospherics>)
+                        .with_system(net_system::<NetMapHoverAtmospherics>)
+                        .with_system(net_system::<NetAtmosphericsNotices>)
+                        .with_system(net_system::<NetAtmosphericsMapExamine>),
+                )
+                .add_system(examine_map_atmos.after(ActionsLabels::Action));
+        }
     }
 }
 

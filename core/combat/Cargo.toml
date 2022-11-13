@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -18,16 +22,14 @@ bevy_rapier3d = "0.18.0"
 rand = "0.8.5"
 
 
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-
-sounds = { path = "../../entities/sounds" }
-physics = { path = "../physics" }
-gridmap = { path = "../gridmap" }
-sfx = { path = "../sfx" }
-inventory_item = { path = "../inventory_item" }
-chat = { path = "../chat" }
-
-entity = { path = "../entity" }
-server = { path = "../server" }
-math = { path = "../math" }
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros",  features=["server"] }
+sounds = { path = "../../entities/sounds",  features=["server"] }
+physics = { path = "../physics",  features=["server"] }
+gridmap = { path = "../gridmap",  features=["server"] }
+sfx = { path = "../sfx",  features=["server"] }
+inventory_item = { path = "../inventory_item",  features=["server"] }
+chat = { path = "../chat",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }
+server_instance = { path = "../server_instance",  features=["server"] }
+math = { path = "../math",  features=["server"] }

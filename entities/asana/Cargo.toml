@@ -9,12 +9,17 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
 
 [dependencies]
-player_controller = { path = "../../core/player_controller" }
-pawn = { path = "../../core/pawn" }
-chat = { path = "../../core/chat" }
-server = { path = "../../core/server" }
+player_controller = { path = "../../core/player_controller" ,  features=["server"]}
+pawn = { path = "../../core/pawn" ,  features=["server"]}
+chat = { path = "../../core/chat",  features=["server"] }
+server_instance = { path = "../../core/server_instance",  features=["server"] }

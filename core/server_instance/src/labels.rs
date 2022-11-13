@@ -1,6 +1,7 @@
 use bevy::prelude::SystemLabel;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum StartupLabels {
     ConsoleCommands,
     MiscResources,
@@ -13,12 +14,14 @@ pub enum StartupLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum MapLabels {
     ChangeMode,
     MapInput,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum ActionsLabels {
     Clear,
     Init,
@@ -28,12 +31,14 @@ pub enum ActionsLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum PreUpdateLabels {
     NetEvents,
     ProcessInput,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum CombatLabels {
     RegisterAttacks,
     CacheAttack,
@@ -45,6 +50,7 @@ pub enum CombatLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum UpdateLabels {
     ProcessMovementInput,
     DropCurrentItem,
@@ -54,6 +60,7 @@ pub enum UpdateLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum PostUpdateLabels {
     EntityUpdate,
     SendEntityUpdates,
@@ -62,6 +69,7 @@ pub enum PostUpdateLabels {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum SummoningLabels {
     TriggerSummon,
     DefaultSummon,

@@ -62,11 +62,12 @@ use networking::messages::{EntityWorldType, InputChatMessage, PendingNetworkMess
 use networking::messages::{NetSendEntityUpdates, ReliableServerMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 
 /// Radio component for entities that can hear or speak through radios.
+#[cfg(feature = "server")]
 #[derive(Component)]
 pub struct Radio {
     pub listen_access: Vec<RadioChannel>,
@@ -74,6 +75,7 @@ pub struct Radio {
 }
 
 /// All available chat channels.
+#[cfg(feature = "server")]
 #[derive(PartialEq, Debug, Clone)]
 pub enum RadioChannel {
     Proximity,
@@ -84,11 +86,13 @@ pub enum RadioChannel {
     SpecialOps,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub struct NetChatMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 /// Handle chat message input.
+#[cfg(feature = "server")]
 pub(crate) fn chat_message_input_event(
     mut chat_message_input_events: EventReader<InputChatMessage>,
     handle_to_entity: Res<HandleToEntity>,
@@ -176,6 +180,7 @@ pub(crate) fn chat_message_input_event(
 }
 
 /// Chat distance. Impacts font size.
+#[cfg(feature = "server")]
 enum Distance {
     Nearby,
     Further,
@@ -183,6 +188,7 @@ enum Distance {
 }
 
 /// Chat talk style variant.
+#[cfg(feature = "server")]
 enum TalkStyleVariant {
     Standard,
     Shouts,
@@ -191,12 +197,14 @@ enum TalkStyleVariant {
 }
 
 /// The kind of communicator.
+#[cfg(feature = "server")]
 pub enum Communicator {
     Standard,
     Machine,
 }
 
 /// Check if a message has a shouting intend as a function.
+#[cfg(feature = "server")]
 fn is_shouting(message: &str) -> bool {
     message.ends_with("!!!")
         || message.ends_with("!!?")
@@ -210,11 +218,13 @@ fn is_shouting(message: &str) -> bool {
 }
 
 /// Check if a message has a questioning intend as a function.
+#[cfg(feature = "server")]
 fn is_asking(message: &str) -> bool {
     message.ends_with("?") || message.ends_with("??") || message.ends_with("?!")
 }
 
 /// Sets radio channel list for clients in setup UI to only show global chat availability as a function.
+#[cfg(feature = "server")]
 pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     vec![(
         "Global".to_string(),
@@ -223,6 +233,7 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
 }
 
 /// Process chat prefixes which act as flags as a function.
+#[cfg(feature = "server")]
 fn get_talk_space(message: String) -> (RadioChannel, String, bool, bool) {
     let radio_channel;
     let content;
@@ -258,6 +269,7 @@ fn get_talk_space(message: String) -> (RadioChannel, String, bool, bool) {
 }
 
 /// Manage global messages.
+#[cfg(feature = "server")]
 pub(crate) fn new_global_message(
     persistent_player_data_component: &PersistentPlayerData,
     global_listeners: &Query<(&ConnectedPlayer, &PersistentPlayerData)>,
@@ -281,12 +293,14 @@ pub(crate) fn new_global_message(
 }
 
 /// Parts of the chat and radio channels can and can't they access depend on it.
+#[cfg(feature = "server")]
 pub enum MessagingPlayerState {
     SoftConnected,
     Alive,
 }
 
 /// Function. It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
+#[cfg(feature = "server")]
 pub fn new_chat_message(
     net_new_chat_message_event: &mut EventWriter<NetChatMessage>,
     handle_to_entity: &Res<HandleToEntity>,
@@ -1231,22 +1245,26 @@ pub fn new_chat_message(
 }
 
 /// Requested proximity message event.
+#[cfg(feature = "server")]
 pub struct EntityProximityMessage {
     pub entities: Vec<Entity>,
     pub message: String,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetProximityMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 /// Requested entity proximity messages systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum EntityProximityMessages {
     Send,
 }
 
 /// Send entity proximity messages to receivers.
+#[cfg(feature = "server")]
 pub(crate) fn send_entity_proximity_messages(
     mut entity_proximity_messages: EventReader<EntityProximityMessage>,
     sensers: Query<(Entity, &Senser)>,

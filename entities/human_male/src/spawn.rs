@@ -37,15 +37,18 @@ use player_controller::connection::SpawnPawnData;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
 /// Get default transform.
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
 /// Human male spawn data.
+#[cfg(feature = "server")]
 pub struct HumanMaleSummonData {
     pub used_names: UsedNames,
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
     fn get_bundle(
         &self,
@@ -93,6 +96,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
 }
 
 /// Human male spawner.
+#[cfg(feature = "server")]
 pub fn summon_base_human_male<
     T: BaseEntitySummonable<HumanMaleSummonData> + Send + Sync + 'static,
 >(
@@ -145,13 +149,16 @@ pub fn summon_base_human_male<
 }
 
 /// Human male spawner.
+#[cfg(feature = "server")]
 pub struct HumanMaleSummoner {
     pub character_name: String,
     pub user_name: String,
     pub spawn_pawn_data: SpawnPawnData,
 }
+#[cfg(feature = "server")]
 pub const R: f32 = 0.5;
 
+#[cfg(feature = "server")]
 impl RigidBodySummonable<NoData> for HumanMaleSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(CHARACTER_FLOOR_FRICTION);
@@ -171,6 +178,7 @@ impl RigidBodySummonable<NoData> for HumanMaleSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 impl HumanMaleSummonable for HumanMaleSummoner {
     fn get_character_name(&self) -> String {
         self.character_name.clone()
@@ -183,12 +191,14 @@ impl HumanMaleSummonable for HumanMaleSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub trait HumanMaleSummonable {
     fn get_character_name(&self) -> String;
     fn get_user_name(&self) -> String;
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
 /// human-male specific spawn components and bundles.
+#[cfg(feature = "server")]
 pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -407,6 +417,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
 }
 
 /// Manage spawning human dummy.
+#[cfg(feature = "server")]
 pub(crate) fn default_human_dummy(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,

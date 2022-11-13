@@ -6,11 +6,13 @@ use crate::attack::{Attack, QueryCombatHitResult};
 
 /// Resource storing current incremented attack id.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct ActiveAttackIncrement {
     /// Attack id.
     incremented_id: u64,
 }
 
+#[cfg(feature = "server")]
 impl ActiveAttackIncrement {
     /// Get a unique attack ID and increment the resource so the next call will also be unique.
     pub fn get_id_inc(&mut self) -> u64 {
@@ -22,11 +24,13 @@ impl ActiveAttackIncrement {
 
 /// Resource with an active attack cache.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct ActiveAttacks {
     pub map: HashMap<u64, ActiveAttack>,
 }
 
 /// An data struct for the [ActiveAttacks] cache.
+#[cfg(feature = "server")]
 pub struct ActiveAttack {
     pub attack: Attack,
     /// Physics hit result.
@@ -36,6 +40,7 @@ pub struct ActiveAttack {
 }
 
 /// Cache attacks with [ActiveAttacks].
+#[cfg(feature = "server")]
 pub fn cache_attacks(
     mut attack_events: EventReader<Attack>,
     mut cached_attacks: ResMut<ActiveAttacks>,

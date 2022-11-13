@@ -38,7 +38,7 @@ use physics::physics::RigidBodyDisabled;
 use inventory_item::item::InventoryItem;
 use pawn::pawn::Pawn;
 use rand::Rng;
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     construction::{
@@ -54,6 +54,7 @@ use sounds::{
 };
 
 /// Core construction tool system.
+#[cfg(feature = "server")]
 pub(crate) fn construction_tool(
     event_readers: (
         EventReader<InputConstruct>,
@@ -1200,12 +1201,14 @@ pub(crate) fn construction_tool(
 
 /// The component.
 #[derive(Component, Default)]
+#[cfg(feature = "server")]
 pub struct ConstructionTool {
     /// Currently selected construction cell option.
     pub construction_option: Option<String>,
 }
 
 /// Player requested input event.
+#[cfg(feature = "server")]
 pub struct InputConstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -1215,6 +1218,7 @@ pub struct InputConstruct {
     pub belonging_entity: Entity,
 }
 /// Player requested input event.
+#[cfg(feature = "server")]
 pub struct InputConstructionOptions {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -1222,6 +1226,7 @@ pub struct InputConstructionOptions {
     pub belonging_entity: Entity,
 }
 /// Player requested input event.
+#[cfg(feature = "server")]
 pub struct InputDeconstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -1230,4 +1235,5 @@ pub struct InputDeconstruct {
     /// Entity that requested to deconstruct.
     pub belonging_entity: Entity,
 }
+#[cfg(feature = "server")]
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";

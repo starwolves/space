@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies]
 rand = "0.8.5"
 const_format = "0.2.30"

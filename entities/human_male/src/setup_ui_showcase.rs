@@ -5,12 +5,13 @@ use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pawn::pawn::{PawnDesignation, PersistentPlayerData};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use player_controller::connection::{SetupPhase, SpawnPawnData};
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 use showcase::core::ShowcaseData;
 
 use crate::spawn::HumanMaleSummoner;
 
 /// Initialize the setup UI by spawning in showcase entities etc.
+#[cfg(feature = "server")]
 pub(crate) fn human_male_setup_ui(
     query: Query<(&ConnectedPlayer, &PersistentPlayerData), Added<SetupPhase>>,
     mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,

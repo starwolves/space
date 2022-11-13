@@ -3,7 +3,7 @@ use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
 use data_link::core::{DataLink, DataLinkType};
 use gridmap::grid::cell_id_to_world;
 use math::grid::Vec3Int;
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 use crate::counter_window_events::CounterWindow;
 
@@ -12,6 +12,7 @@ use super::counter_window_events::{
     InputCounterWindowToggleOpen,
 };
 
+#[cfg(feature = "server")]
 pub(crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
@@ -76,6 +77,7 @@ pub(crate) fn toggle_open_action_prequisite_check(
     }
 }
 
+#[cfg(feature = "server")]
 pub(crate) fn counter_window_actions(
     building_action_data: Res<BuildingActions>,
     mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
@@ -173,6 +175,7 @@ pub(crate) fn counter_window_actions(
     }
 }
 
+#[cfg(feature = "server")]
 pub(crate) fn lock_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     examiner: Query<(&Transform, &DataLink)>,
@@ -244,6 +247,7 @@ pub(crate) fn lock_open_action_prequisite_check(
     }
 }
 
+#[cfg(feature = "server")]
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     counter_windows: Query<&CounterWindow>,

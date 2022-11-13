@@ -8,6 +8,7 @@ use entity::entity_data::{EntityData, EntityGroup};
 use crate::counter_window_events::CounterWindowSensorCollision;
 
 /// Handle physics events also with sensors.
+#[cfg(feature = "server")]
 pub(crate) fn physics_events(
     mut collision_events: EventReader<CollisionEvent>,
     interesting_entities_query: Query<(Entity, &EntityData, &Transform)>,
@@ -60,6 +61,7 @@ pub(crate) fn physics_events(
 }
 
 /// Process generalized physics events as a function.
+#[cfg(feature = "server")]
 fn process_physics_event(
     collider1_entity: Entity,
     collider2_entity: Entity,

@@ -5,6 +5,7 @@ use bevy::{
 
 use super::counter_window_events::CounterWindow;
 
+#[cfg(feature = "server")]
 pub(crate) fn counter_window_tick_timers(
     mut counter_windows: Query<&mut CounterWindow>,
     time: Res<Time>,

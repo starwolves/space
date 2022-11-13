@@ -1,8 +1,5 @@
 //! Sound effect storage.
 
-use ambience::ambience_sfx::startup_ambience;
-use bevy::prelude::{App, Plugin};
-
 /// Sound library.
 pub mod actions;
 /// Sound library.
@@ -15,15 +12,9 @@ mod combat;
 pub mod construction;
 /// Sound library.
 pub mod counter_window;
+/// The Bevy plugin of this crate.
+pub mod plugin;
 /// Sound library.
 pub mod shared;
 /// Sound library.
 pub mod ui;
-
-pub struct SoundsPlugin;
-
-impl Plugin for SoundsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_startup_system(startup_ambience);
-    }
-}

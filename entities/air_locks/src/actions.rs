@@ -3,7 +3,7 @@ use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
 use data_link::core::{DataLink, DataLinkType};
 use gridmap::grid::cell_id_to_world;
 use math::grid::Vec3Int;
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 use crate::{
     air_lock_events::{AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen},
@@ -11,6 +11,7 @@ use crate::{
 };
 
 /// Action prerequite check.
+#[cfg(feature = "server")]
 pub(crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
@@ -76,6 +77,7 @@ pub(crate) fn toggle_open_action_prequisite_check(
 }
 
 /// Manage air lock actions.
+#[cfg(feature = "server")]
 pub(crate) fn air_lock_actions(
     building_action: Res<BuildingActions>,
     mut air_lock_lock_open_event: EventWriter<AirLockLockOpen>,
@@ -177,6 +179,7 @@ pub(crate) fn air_lock_actions(
 }
 
 /// Prerequisite check of locking an airlock.
+#[cfg(feature = "server")]
 pub(crate) fn lock_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     examiner: Query<(&Transform, &DataLink)>,
@@ -249,6 +252,7 @@ pub(crate) fn lock_action_prequisite_check(
 }
 
 /// Build air lock actions.
+#[cfg(feature = "server")]
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     air_locks: Query<&AirLock>,

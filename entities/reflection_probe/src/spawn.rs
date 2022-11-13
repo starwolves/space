@@ -9,16 +9,20 @@ use crate::core::ReflectionProbe;
 
 use super::process_content::{ExportData, ExportDataRaw};
 
+#[cfg(feature = "server")]
 pub struct ReflectionProbeSummoner {
     pub probe: ReflectionProbe,
 }
 
+#[cfg(feature = "server")]
 pub trait ReflectionProbeSummonable {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
 }
 
+#[cfg(feature = "server")]
 pub const REFLECTION_PROBE_ENTITY_NAME: &str = "reflection_probe";
 
+#[cfg(feature = "server")]
 impl ReflectionProbeSummonable for ReflectionProbeSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
         commands.spawn_bundle((
@@ -33,6 +37,7 @@ impl ReflectionProbeSummonable for ReflectionProbeSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub fn summon_reflection_probe<T: ReflectionProbeSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
@@ -44,6 +49,7 @@ pub fn summon_reflection_probe<T: ReflectionProbeSummonable + Send + Sync + 'sta
     }
 }
 
+#[cfg(feature = "server")]
 pub fn spawn_raw_reflection_probe(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_reflection_probe: EventWriter<SpawnEvent<ReflectionProbeSummoner>>,

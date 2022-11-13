@@ -1,10 +1,13 @@
 use bevy::prelude::{Commands, Entity};
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
+#[cfg(feature = "server")]
 pub struct Swing1SfxBundle;
 
+#[cfg(feature = "server")]
 pub const SWING1_PLAY_BACK_DURATION: f32 = 0.5 + 1.;
 
+#[cfg(feature = "server")]
 impl Swing1SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands

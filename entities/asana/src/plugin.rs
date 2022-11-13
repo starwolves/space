@@ -6,6 +6,8 @@ pub struct AsanaPlugin;
 
 impl Plugin for AsanaPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(tick_asana_boarding_announcements);
+        if cfg!(feature = "server") {
+            app.add_system(tick_asana_boarding_announcements);
+        }
     }
 }

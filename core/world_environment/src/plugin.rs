@@ -6,7 +6,9 @@ pub struct WorldEnvironmentPlugin;
 
 impl Plugin for WorldEnvironmentPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<WorldEnvironment>()
-            .add_startup_system(startup_environment);
+        if cfg!(feature = "server") {
+            app.init_resource::<WorldEnvironment>()
+                .add_startup_system(startup_environment);
+        }
     }
 }

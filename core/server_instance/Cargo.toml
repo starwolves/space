@@ -1,16 +1,18 @@
 [package]
-name = "server"
+name = "server_instance"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Server crate."
+description="Server instance crate."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
-
-[dependencies]

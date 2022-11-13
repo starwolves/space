@@ -13,10 +13,12 @@ use entity::{
     },
 };
 
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<NoData> for LineArrowSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text =
@@ -41,20 +43,24 @@ impl BaseEntitySummonable<NoData> for LineArrowSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub struct LineArrowSummoner {
     pub duration: f32,
 }
 
+#[cfg(feature = "server")]
 impl LinerArrowSummonable for LineArrowSummoner {
     fn get_duration(&self) -> f32 {
         self.duration
     }
 }
 
+#[cfg(feature = "server")]
 pub trait LinerArrowSummonable {
     fn get_duration(&self) -> f32;
 }
 
+#[cfg(feature = "server")]
 pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -75,8 +81,10 @@ pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
     }
 }
 
+#[cfg(feature = "server")]
 pub const LINE_ARROW_ENTITY_NAME: &str = "lineArrow";
 
+#[cfg(feature = "server")]
 pub fn default_line_arrow(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<LineArrowSummoner>>,

@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -16,11 +20,11 @@ default-features = false
 [dependencies]
 voca_rs = "1.15.1"
 
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-sfx = { path = "../sfx" }
-pawn = { path = "../pawn" }
-entity = { path = "../entity" }
-server = { path = "../server" }
-math = { path = "../math" }
-chat_api = { path = "../chat_api" }
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros",  features=["server"] }
+sfx = { path = "../sfx",  features=["server"] }
+pawn = { path = "../pawn",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }
+server_instance = { path = "../server_instance",  features=["server"] }
+math = { path = "../math",  features=["server"] }
+chat_api = { path = "../chat_api",  features=["server"] }

@@ -20,18 +20,20 @@ use networking::messages::PendingNetworkMessage;
 use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,
     projectile_queries::ProjectileBlank,
 };
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub struct NetHitQueryChat {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 /// Chat hooks for entities that got hit by something.
+#[cfg(feature = "server")]
 pub fn attacked_by_chat<T: Component>(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -423,6 +425,7 @@ pub fn attacked_by_chat<T: Component>(
 }
 
 /// Chat hooks for when ship cells are hit.
+#[cfg(feature = "server")]
 pub fn hit_query_chat_cells(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -628,6 +631,7 @@ pub fn hit_query_chat_cells(
 }
 
 /// Chat hooks for blanks, when nothing was hit.
+#[cfg(feature = "server")]
 pub(crate) fn blanks_chat(
     mut projectile_blanks: EventReader<ProjectileBlank>,
     active_attacks: Res<ActiveAttacks>,

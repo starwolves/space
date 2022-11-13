@@ -3,6 +3,7 @@ use std::{fs, path::Path};
 use bevy::prelude::ResMut;
 
 /// Initialize graphics environment from json.
+#[cfg(feature = "server")]
 pub(crate) fn startup_environment(mut map_environment: ResMut<WorldEnvironment>) {
     let environment_json_location = Path::new("data")
         .join("maps")
@@ -24,6 +25,7 @@ use serde::{Deserialize, Serialize};
 
 // The resource we send to each client on connection to initialize the Godot 3D WorldEnvironment for graphics and post-processing.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[cfg(feature = "server")]
 pub struct WorldEnvironment {
     pub adjustment_brightness: f32,
     pub adjustment_contrast: f32,
@@ -102,6 +104,7 @@ pub struct WorldEnvironment {
 }
 
 #[derive(Deserialize)]
+#[cfg(feature = "server")]
 pub struct WorldEnvironmentRaw {
     adjustment_brightness: f32,
     adjustment_contrast: f32,
@@ -179,6 +182,7 @@ pub struct WorldEnvironmentRaw {
     glow_high_quality: bool,
 }
 
+#[cfg(feature = "server")]
 impl Default for WorldEnvironment {
     fn default() -> Self {
         WorldEnvironment {
@@ -260,6 +264,7 @@ impl Default for WorldEnvironment {
     }
 }
 
+#[cfg(feature = "server")]
 impl WorldEnvironment {
     pub fn adjust(self, map_environment: &mut ResMut<WorldEnvironment>) {
         map_environment.adjustment_brightness = self.adjustment_brightness;

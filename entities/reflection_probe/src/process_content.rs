@@ -7,6 +7,7 @@ use crate::core::ReflectionProbe;
 /// Raw json data.
 #[allow(dead_code)]
 #[derive(Deserialize)]
+#[cfg(feature = "server")]
 pub struct ExportDataRaw {
     projection_enabled: bool,
     cull_mask: i64,
@@ -23,6 +24,7 @@ pub struct ExportDataRaw {
 }
 
 /// Json data.
+#[cfg(feature = "server")]
 pub struct ExportData {
     projection_enabled: bool,
     cull_mask: i64,
@@ -38,6 +40,7 @@ pub struct ExportData {
     update_mode: u8,
 }
 
+#[cfg(feature = "server")]
 impl ExportData {
     pub fn new(raw: ExportDataRaw) -> ExportData {
         ExportData {

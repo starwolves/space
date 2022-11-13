@@ -22,10 +22,12 @@ use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
 use super::counter_window_events::{CounterWindow, CounterWindowSensor};
 
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<NoData> for CounterWindowSummoner {
     fn get_bundle(&self, spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let entity_name = spawn_data.entity_name.clone();
@@ -77,6 +79,7 @@ impl BaseEntitySummonable<NoData> for CounterWindowSummoner {
         }
     }
 }
+#[cfg(feature = "server")]
 impl RigidBodySummonable<NoData> for CounterWindowSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
@@ -98,10 +101,13 @@ impl RigidBodySummonable<NoData> for CounterWindowSummoner {
 
 use bevy_rapier3d::prelude::{ActiveEvents, CollisionGroups, RigidBody, Sensor};
 
+#[cfg(feature = "server")]
 pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
+#[cfg(feature = "server")]
 pub struct CounterWindowSummoner;
 
+#[cfg(feature = "server")]
 pub fn summon_counter_window<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -162,6 +168,7 @@ pub fn summon_counter_window<T: Send + Sync + 'static>(
 pub const SECURITY_COUNTER_WINDOW_ENTITY_NAME: &str = "securityCounterWindow";
 pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str = "bridgeCounterWindow";
 
+#[cfg(feature = "server")]
 pub fn summon_raw_counter_window(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<CounterWindowSummoner>>,
@@ -190,6 +197,7 @@ pub fn summon_raw_counter_window(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn default_summon_counter_window(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<CounterWindowSummoner>>,

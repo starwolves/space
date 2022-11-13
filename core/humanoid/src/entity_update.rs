@@ -8,7 +8,7 @@ use entity::entity_data::{get_entity_update_difference, EntityUpdates};
 use inventory_api::core::Inventory;
 use networking::messages::EntityUpdateData;
 use pawn::pawn::FacingDirection;
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 use showcase::core::Showcase;
 
 use inventory_item::{
@@ -23,6 +23,7 @@ use vector2math::{FloatingVector2, Vector2};
 use crate::humanoid::{CharacterAnimationState, Humanoid};
 
 /// All the core humanoid entity updates for the Godot client.
+#[cfg(feature = "server")]
 pub(crate) fn humanoid_core_entity_updates(
     mut updated_humans: Query<
         (

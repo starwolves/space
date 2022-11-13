@@ -1,6 +1,7 @@
 use bevy::prelude::Transform;
 
 /// For entities that are also registered with the gridmap.
+#[cfg(feature = "server")]
 pub struct GridItemData {
     pub transform_offset: Transform,
     /// So this entity can be built on a cell when another item is already present on that cell.

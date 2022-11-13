@@ -14,6 +14,7 @@ use physics::physics::{get_bit_masks, ColliderGroup, RigidBodyDisabled};
 
 use crate::rigid_body::RigidBodyData;
 
+#[cfg(feature = "server")]
 pub struct RigidBodyBundle {
     pub collider: Collider,
     pub collider_transform: Transform,
@@ -22,6 +23,7 @@ pub struct RigidBodyBundle {
     pub collision_events: bool,
 }
 
+#[cfg(feature = "server")]
 impl Default for RigidBodyBundle {
     fn default() -> Self {
         Self {
@@ -34,6 +36,7 @@ impl Default for RigidBodyBundle {
     }
 }
 
+#[cfg(feature = "server")]
 pub struct RigidBodySpawnData {
     pub rigidbody_dynamic: bool,
     pub rigid_transform: Transform,
@@ -50,6 +53,7 @@ pub struct RigidBodySpawnData {
     pub collision_events: bool,
 }
 
+#[cfg(feature = "server")]
 impl Default for RigidBodySpawnData {
     fn default() -> Self {
         let masks = get_bit_masks(ColliderGroup::Standard);
@@ -74,6 +78,7 @@ impl Default for RigidBodySpawnData {
     }
 }
 
+#[cfg(feature = "server")]
 pub fn rigidbody_builder(
     commands: &mut Commands,
     rigidbody_spawn_data: RigidBodySpawnData,
@@ -187,11 +192,13 @@ pub fn rigidbody_builder(
     }
 }
 
+#[cfg(feature = "server")]
 pub trait RigidBodySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> RigidBodyBundle;
 }
 
 /// Rigid body spawning.
+#[cfg(feature = "server")]
 pub fn summon_rigid_body<T: RigidBodySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,

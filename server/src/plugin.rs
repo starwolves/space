@@ -42,28 +42,28 @@ use pistol_l1::plugin::PistolL1Plugin;
 use player_controller::plugin::ConnectedPlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
 use rigid_body::plugin::RigidBodyPlugin;
-use server::core::TickRate;
+use server_instance::core::TickRate;
 use sfx::plugin::SfxPlugin;
-use sounds::SoundsPlugin;
+use sounds::plugin::SoundsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;
 
-/// The main plugin to add to execute the project.
-pub struct SpacePlugin {
+/// The main plugin to add to execute the server.
+pub struct ServerPlugin {
     pub custom_motd: Option<String>,
     pub physics_rate: Option<u8>,
     pub bevy_rate: Option<u8>,
     pub threads_amount: Option<u8>,
     pub give_all_rcon: bool,
     pub custom_net_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
-    pub server_version: String,
+    pub version: String,
 }
-impl Default for SpacePlugin {
+impl Default for ServerPlugin {
     fn default() -> Self {
         Self {
             custom_motd: None,
             physics_rate: None,
             bevy_rate: None,
-            server_version: "0.0.0".to_string(),
+            version: "0.0.0".to_string(),
             custom_net_encryption_key: None,
             // Dev values.
             threads_amount: Some(2),
@@ -72,7 +72,7 @@ impl Default for SpacePlugin {
     }
 }
 
-impl Plugin for SpacePlugin {
+impl Plugin for ServerPlugin {
     fn build(&self, app: &mut App) {
         let mut wgpu_settings = WgpuSettings::default();
         wgpu_settings.backends = None;
@@ -158,7 +158,7 @@ impl Plugin for SpacePlugin {
                 app.insert_resource(MOTD::new_motd(motd.clone()));
             }
             None => {
-                app.insert_resource(MOTD::new_default(self.server_version.clone()));
+                app.insert_resource(MOTD::new_default(self.version.clone()));
             }
         }
     }

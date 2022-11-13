@@ -7,24 +7,28 @@ use bevy::{
 
 /// Ship authorizations for pawns.
 #[derive(PartialEq)]
+#[cfg(feature = "server")]
 pub enum ShipAuthorizationEnum {
     Security,
     Common,
 }
 /// Crew jobs for pawns.
 #[derive(Copy, Clone)]
+#[cfg(feature = "server")]
 pub enum ShipJobsEnum {
     Security,
     Control,
 }
 /// The component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Pawn {
     pub name: String,
     pub job: ShipJobsEnum,
     pub facing_direction: FacingDirection,
 }
 
+#[cfg(feature = "server")]
 impl Default for Pawn {
     fn default() -> Self {
         Self {
@@ -37,12 +41,14 @@ impl Default for Pawn {
 
 /// Ship authorization component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct ShipAuthorization {
     pub access: Vec<ShipAuthorizationEnum>,
 }
 
 /// Controller input component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct ControllerInput {
     pub movement_vector: Vec2,
     pub sprinting: bool,
@@ -74,11 +80,13 @@ impl Default for ControllerInput {
 
 /// Persistent player data component.
 #[derive(Clone, Component)]
+#[cfg(feature = "server")]
 pub struct PersistentPlayerData {
     pub user_name_is_set: bool,
     pub character_name: String,
     pub user_name: String,
 }
+#[cfg(feature = "server")]
 impl Default for PersistentPlayerData {
     fn default() -> Self {
         Self {
@@ -90,6 +98,7 @@ impl Default for PersistentPlayerData {
 }
 
 #[derive(Debug, Clone)]
+#[cfg(feature = "server")]
 pub enum FacingDirection {
     UpLeft,
     Up,
@@ -102,6 +111,7 @@ pub enum FacingDirection {
 }
 
 /// Facing direction to Vec2 as a function.
+#[cfg(feature = "server")]
 pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
     match direction {
         FacingDirection::UpLeft => Vec2::new(-1., 1.),
@@ -120,8 +130,10 @@ use data_converters::converters::string_transform_to_transform;
 use math::grid::Vec3Int;
 use serde::Deserialize;
 
+#[cfg(feature = "server")]
 pub struct PawnYAxisRotations;
 
+#[cfg(feature = "server")]
 impl PawnYAxisRotations {
     pub fn new() -> Vec<Quaternion<f32>> {
         vec![
@@ -156,6 +168,7 @@ impl PawnYAxisRotations {
 }
 
 #[derive(Clone)]
+#[cfg(feature = "server")]
 pub enum PawnDesignation {
     Showcase,
     Player,
@@ -164,16 +177,19 @@ pub enum PawnDesignation {
 }
 /// Component that contains the spawn data of a to-be-spawned entity.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Spawning {
     pub transform: Transform,
 }
 
 /// A spawn point in which players will spawn.
+#[cfg(feature = "server")]
 pub struct SpawnPoint {
     pub point_type: String,
     pub transform: Transform,
 }
 
+#[cfg(feature = "server")]
 impl SpawnPoint {
     pub fn new(raw: &SpawnPointRaw) -> SpawnPoint {
         let mut this_transform = string_transform_to_transform(&raw.transform);
@@ -191,21 +207,25 @@ impl SpawnPoint {
 
 /// Raw json.
 #[derive(Deserialize)]
+#[cfg(feature = "server")]
 pub struct SpawnPointRaw {
     pub point_type: String,
     pub transform: String,
 }
 /// Resource containing all available spawn points for players.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct SpawnPoints {
     pub list: Vec<SpawnPoint>,
     pub i: usize,
 }
 /// How far an entity can reach ie with picking up items.
+#[cfg(feature = "server")]
 pub const REACH_DISTANCE: f32 = 3.;
 
 /// Resource keeping track of which in-game character names are taken.
 #[derive(Default, Clone)]
+#[cfg(feature = "server")]
 pub struct UsedNames {
     /// Character names.
     pub names: HashMap<String, Entity>,

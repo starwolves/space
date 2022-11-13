@@ -35,7 +35,7 @@ use networking::messages::{
     InputUseWorldItem, InputWearItem, ReliableServerMessage,
 };
 use rand::Rng;
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
@@ -49,6 +49,7 @@ use sounds::{
 };
 
 /// Perform drop current item action.
+#[cfg(feature = "server")]
 pub(crate) fn drop_current_item(
     mut drop_current_item_events: EventReader<InputDropCurrentItem>,
     mut rigidbody_positions: Query<&mut Transform>,
@@ -328,6 +329,7 @@ pub(crate) fn drop_current_item(
 }
 
 /// Register approved pickup action and fire as new event.
+#[cfg(feature = "server")]
 pub(crate) fn pickup_world_item_action(
     building_action_data: Res<BuildingActions>,
     mut use_world_item_events: EventWriter<InputUseWorldItem>,
@@ -359,6 +361,7 @@ pub(crate) fn pickup_world_item_action(
 }
 
 /// Perform items picking up action.
+#[cfg(feature = "server")]
 pub(crate) fn pickup_world_item(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -549,6 +552,7 @@ pub(crate) fn pickup_world_item(
 }
 
 /// Perform taking off/unequiping action.
+#[cfg(feature = "server")]
 pub(crate) fn take_off_item(
     mut take_off_item_events: EventReader<InputTakeOffItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -639,6 +643,7 @@ pub(crate) fn take_off_item(
 }
 
 /// Perform throwing item action.
+#[cfg(feature = "server")]
 pub(crate) fn throw_item(
     mut throw_item_events: EventReader<InputThrowItem>,
     mut rigidbody_positions: Query<&mut Transform>,
@@ -942,6 +947,7 @@ pub(crate) fn throw_item(
 }
 
 /// Perform wearing item action.
+#[cfg(feature = "server")]
 pub(crate) fn wear_item(
     mut wear_item_events: EventReader<InputWearItem>,
     mut inventory_entities: Query<&mut Inventory>,

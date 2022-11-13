@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -17,19 +21,19 @@ default-features = false
 bevy_rapier3d = "0.18.0"
 rand = "0.8.5"
 
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-sounds = { path = "../../entities/sounds" }
-inventory_item = { path = "../inventory_item" }
-inventory_api = { path = "../inventory_api" }
-pawn = { path = "../pawn" }
-physics = { path = "../physics" }
-humanoid = { path = "../humanoid" }
-sfx = { path = "../sfx" }
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros",  features=["server"] }
+sounds = { path = "../../entities/sounds",  features=["server"] }
+inventory_item = { path = "../inventory_item",  features=["server"] }
+inventory_api = { path = "../inventory_api",  features=["server"] }
+pawn = { path = "../pawn",  features=["server"] }
+physics = { path = "../physics",  features=["server"] }
+humanoid = { path = "../humanoid",  features=["server"] }
+sfx = { path = "../sfx",  features=["server"] }
 
-gridmap = { path = "../gridmap" }
-actions = { path = "../actions" }
-entity = { path = "../entity" }
-server = { path = "../server" }
-atmospherics = { path = "../atmospherics" }
-math = { path = "../math" }
+gridmap = { path = "../gridmap",  features=["server"] }
+actions = { path = "../actions",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }
+server_instance = { path = "../server_instance",  features=["server"] }
+atmospherics = { path = "../atmospherics",  features=["server"] }
+math = { path = "../math",  features=["server"] }

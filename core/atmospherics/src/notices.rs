@@ -4,7 +4,7 @@ use bevy::prelude::{Entity, EventWriter, Local, Query, Res, Transform};
 use math::grid::{world_to_cell_id, Vec2Int};
 use networking::messages::ReliableServerMessage;
 use pawn::pawn::Pawn;
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 
 use crate::{
     diffusion::{get_atmos_index, AtmosphericsResource},
@@ -21,11 +21,13 @@ use super::{
 
 /// Resource with atmospherics notices that warn players when they are under certain atmospherics conditions like unlivable atmospherics conditions.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct AtmosphericsNotices {
     cache: HashMap<Entity, Vec<String>>,
 }
 
 /// Manage visible atmospherics notices for clients.
+#[cfg(feature = "server")]
 pub(crate) fn atmospherics_notices(
     mut net: EventWriter<NetAtmosphericsNotices>,
     atmospherics_resource: Res<AtmosphericsResource>,

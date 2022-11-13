@@ -7,6 +7,7 @@ use crate::entity_update::SfxAutoDestroyTimers;
 use super::builder::{AmbienceSfxTimer, Sfx};
 
 /// Tick ambience timers.
+#[cfg(feature = "server")]
 pub(crate) fn tick_timers_slowed(
     mut query_ambience_sfx_timer: Query<(&mut AmbienceSfxTimer, &mut Sfx)>,
 ) {
@@ -29,6 +30,7 @@ pub(crate) fn tick_timers_slowed(
 }
 
 /// Despawn sfx.
+#[cfg(feature = "server")]
 pub(crate) fn free_sfx(
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,

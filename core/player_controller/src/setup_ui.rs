@@ -8,7 +8,7 @@ use networking::messages::{
     UIInputNodeClass,
 };
 use pawn::{name_generator::get_full_name, pawn::UsedNames};
-use server::core::{ConnectedPlayer, HandleToEntity, ServerId};
+use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId};
 
 use super::{
     connection::{Boarding, SetupPhase},
@@ -16,6 +16,7 @@ use super::{
 };
 
 /// Process player requesting board.
+#[cfg(feature = "server")]
 pub(crate) fn register_ui_input_boarding(
     mut event: EventReader<InputUIInput>,
     handle_to_entity: Res<HandleToEntity>,
@@ -52,6 +53,7 @@ pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxConta
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 
 /// Initialize the setup UI by spawning in showcase entities etc.
+#[cfg(feature = "server")]
 pub(crate) fn initialize_setupui(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,

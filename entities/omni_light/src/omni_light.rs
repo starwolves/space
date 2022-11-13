@@ -2,6 +2,7 @@ use bevy::prelude::Component;
 
 /// The component with Godot OmniLight properties.
 #[derive(Component, Clone)]
+#[cfg(feature = "server")]
 pub struct OmniLight {
     pub omni_attenuation: f32,
     pub omni_range: f32,

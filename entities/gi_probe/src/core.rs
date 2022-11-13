@@ -2,6 +2,7 @@ use bevy::prelude::{Component, Vec3};
 
 /// Component holding Godot GIProbe properties.
 #[derive(Component, Clone)]
+#[cfg(feature = "server")]
 pub struct GIProbe {
     pub bias: f32,
     pub compressed: bool,

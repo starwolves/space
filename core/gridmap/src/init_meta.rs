@@ -11,7 +11,7 @@ use entity::{
     examine::RichName,
 };
 use pawn::pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints};
-use server::core::{ServerId, TickRate};
+use server_instance::core::{ServerId, TickRate};
 
 use crate::{
     build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},
@@ -25,11 +25,14 @@ use crate::{
 };
 
 /// Physics friction on placeable item surfaces.
+#[cfg(feature = "server")]
 pub const PLACEABLE_SURFACE_FRICTION: f32 = 0.2;
 /// Physics coefficient combiner of placeable item surfaces.
+#[cfg(feature = "server")]
 pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
 /// Initiate map resource meta-data.
+#[cfg(feature = "server")]
 pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
     gridmap_data.blackcell_blocking_id = *gridmap_data
         .main_name_id_map
@@ -762,6 +765,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
 }
 
 /// Initiate other gridmap meta-datas from json.
+#[cfg(feature = "server")]
 pub(crate) fn startup_misc_resources(
     mut server_id: ResMut<ServerId>,
     mut gridmap_data: ResMut<GridmapData>,
@@ -846,6 +850,7 @@ pub(crate) fn startup_misc_resources(
 }
 
 /// Build the gridmaps in their own resources from json.
+#[cfg(feature = "server")]
 pub(crate) fn startup_build_map(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,

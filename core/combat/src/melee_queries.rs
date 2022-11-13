@@ -35,6 +35,7 @@ pub const ATTACK_HEIGHT: f32 = 1.6;
 
 /// The physics query attack result.
 #[derive(Debug)]
+#[cfg(feature = "server")]
 pub struct AttackResult {
     /// The entity id of the hit entity.
     pub entity_option: Option<Entity>,
@@ -53,6 +54,7 @@ pub struct AttackResult {
 }
 
 /// The melee physics query event.
+#[cfg(feature = "server")]
 pub struct MeleeDirectQuery {
     /// The entity id of the attacker.
     pub attacker_entity: Entity,
@@ -73,6 +75,7 @@ pub struct MeleeDirectQuery {
 }
 
 /// Perform a melee physics query with event [MeleeDirectQuery].
+#[cfg(feature = "server")]
 pub(crate) fn melee_direct(
     mut melee_direct_events: EventReader<MeleeDirectQuery>,
     attacker_entities: Query<&Transform>,
@@ -362,6 +365,7 @@ pub(crate) fn melee_direct(
 }
 
 /// Perform the attack handler logic for items. The combat logic and behaviour of items being used as weapons is defined here.
+#[cfg(feature = "server")]
 pub fn melee_attack_handler<T: Component>(
     weapon_entities: Query<(&MeleeCombat, Option<&ProjectileCombat>), With<T>>,
     mut attacks: EventReader<Attack>,

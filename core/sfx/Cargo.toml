@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -16,6 +20,6 @@ default-features = false
 [dependencies]
 rand = "0.8.5"
 
-entity = { path = "../entity" }
-networking = { path = "../networking" }
-server = { path = "../server" }
+entity = { path = "../entity" ,  features=["server"]}
+networking = { path = "../networking",  features=["server"] }
+server_instance = { path = "../server_instance",  features=["server"] }

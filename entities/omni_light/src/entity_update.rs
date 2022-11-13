@@ -5,6 +5,7 @@ use networking::messages::EntityUpdateData;
 use super::omni_light::OmniLight;
 
 /// Omnni light entity update.
+#[cfg(feature = "server")]
 pub(crate) fn omni_light_update(
     mut updated_omni_lights: Query<(&OmniLight, &mut EntityUpdates), Changed<OmniLight>>,
 ) {

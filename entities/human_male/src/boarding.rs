@@ -12,9 +12,10 @@ use networking_macros::NetMessage;
 use pawn::pawn::{PawnDesignation, PersistentPlayerData, Spawning, UsedNames};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use player_controller::connection::SpawnPawnData;
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 
 /// Spawn player as human male with preset inventory.
+#[cfg(feature = "server")]
 pub(crate) fn on_spawning(
     mut net_on_new_player_connection: EventWriter<NetOnSpawning>,
     query: Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData), Added<Spawning>>,
@@ -92,6 +93,7 @@ pub(crate) fn on_spawning(
 }
 
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetOnSpawning {
     pub handle: u64,
     pub message: ReliableServerMessage,

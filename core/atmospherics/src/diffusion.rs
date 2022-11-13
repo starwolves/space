@@ -11,20 +11,25 @@ use math::grid::Vec2Int;
 use super::plugin::ATMOS_DIFFUSION_LABEL;
 
 /// Resource with accumulated rigid body forces of the atmospherics tick per entity, could be building for multiple frames.
+#[cfg(feature = "server")]
 #[derive(Default)]
 pub(crate) struct RigidBodyForcesAccumulation {
     pub data: HashMap<Entity, Vec<Vec3>>,
 }
 
 /// Between 0 and 1.
+#[cfg(feature = "server")]
 const TEMPERATURE_DIFFUSIVITY: f32 = 1.;
 /// Between 0 and 1.
+#[cfg(feature = "server")]
 const AMOUNT_DIFFUSIVITY: f32 = 1.;
 
 /// The higher this is the more CPU intensive and the faster diffusion will take place.
+#[cfg(feature = "server")]
 pub const DIFFUSION_STEP: f64 = 28.;
 
 /// Diffuse atmospherics.
+#[cfg(feature = "server")]
 pub(crate) fn atmos_diffusion(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
@@ -147,11 +152,12 @@ pub(crate) fn atmos_diffusion(
 }
 
 /// The resource with the  atmospherics states and data of each tile.
+#[cfg(feature = "server")]
 pub struct AtmosphericsResource {
     /// Get a tile from this list with [get_atmos_index].
     pub atmospherics: Vec<Atmospherics>,
 }
-
+#[cfg(feature = "server")]
 impl Default for AtmosphericsResource {
     fn default() -> Self {
         AtmosphericsResource {
@@ -159,7 +165,7 @@ impl Default for AtmosphericsResource {
         }
     }
 }
-
+#[cfg(feature = "server")]
 impl AtmosphericsResource {
     /// Check if cell id is out of atmospherics range.
     pub fn is_id_out_of_range(id: Vec2Int) -> bool {
@@ -171,6 +177,7 @@ impl AtmosphericsResource {
 }
 
 /// This struct gets repeated [FOV_MAP_WIDTH]*[FOV_MAP_WIDTH] times in [AtmosphericsResource].
+#[cfg(feature = "server")]
 #[derive(Clone)]
 pub struct Atmospherics {
     /// If blocked by world ie wall.
@@ -186,7 +193,7 @@ pub struct Atmospherics {
     /// If physics should push up on this tile.
     pub forces_push_up: bool,
 }
-
+#[cfg(feature = "server")]
 impl Default for Atmospherics {
     fn default() -> Self {
         let mut effects = HashMap::new();
@@ -203,10 +210,13 @@ impl Default for Atmospherics {
 }
 
 /// 273.15
+#[cfg(feature = "server")]
 pub const CELCIUS_KELVIN_OFFSET: f32 = 273.15;
 /// 84.58
+#[cfg(feature = "server")]
 pub const DEFAULT_INTERNAL_AMOUNT: f32 = 84.58;
 
+#[cfg(feature = "server")]
 impl Atmospherics {
     /// Create default atmospherics for internal tiles.
     pub fn new_internal(blocked: bool, forces_push_up: bool) -> Self {
@@ -226,6 +236,7 @@ impl Atmospherics {
 }
 
 /// The default atmospherics effect for vacuum.
+#[cfg(feature = "server")]
 pub const VACUUM_ATMOSEFFECT: AtmosEffect = AtmosEffect {
     target_temperature: -270.45 + CELCIUS_KELVIN_OFFSET,
     temperature_speed: 500.,
@@ -237,6 +248,7 @@ pub const VACUUM_ATMOSEFFECT: AtmosEffect = AtmosEffect {
 };
 
 /// An atmospheric effect type.
+#[cfg(feature = "server")]
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub enum EffectType {
     Floorless,
@@ -244,6 +256,7 @@ pub enum EffectType {
 }
 
 /// An atmospheric effect.
+#[cfg(feature = "server")]
 #[derive(Clone, Debug)]
 pub struct AtmosEffect {
     /// The temperature this effect tries to bring the tile to.
@@ -260,6 +273,7 @@ pub struct AtmosEffect {
     pub remover: bool,
 }
 
+#[cfg(feature = "server")]
 pub fn get_atmos_index(id: Vec2Int) -> usize {
     let idx: u32 = (id.x + (FOV_MAP_WIDTH / 2) as i16) as u32;
     let idy: u32 = (id.y + (FOV_MAP_WIDTH / 2) as i16) as u32;
@@ -267,6 +281,7 @@ pub fn get_atmos_index(id: Vec2Int) -> usize {
     (idx + (idy * FOV_MAP_WIDTH as u32)) as usize
 }
 
+#[cfg(feature = "server")]
 pub fn get_atmos_id(i: usize) -> Vec2Int {
     let y = (i as f32 / FOV_MAP_WIDTH as f32).floor() as usize;
     let x = i - (y * FOV_MAP_WIDTH);

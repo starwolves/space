@@ -1,5 +1,6 @@
 use chat_api::core::{COMMUNITY_HREF_COLOR, NEARBY_SHOUT_FONT};
 
+#[cfg(feature = "server")]
 impl MOTD {
     pub fn new_default(version: String) -> Self {
         Self {
@@ -18,6 +19,7 @@ impl MOTD {
 }
 
 /// Resource message of the day visible to players upon connecting.
+#[cfg(feature = "server")]
 pub struct MOTD {
     pub message: String,
 }

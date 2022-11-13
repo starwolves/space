@@ -1,10 +1,13 @@
 use bevy::prelude::{Commands, Entity};
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
+#[cfg(feature = "server")]
 pub struct LaserLightHit1Bundle;
 
+#[cfg(feature = "server")]
 pub const LASER_LIGHT_HIT1_PLAY_BACK_DURATION: f32 = 1. + 1.;
 
+#[cfg(feature = "server")]
 impl LaserLightHit1Bundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands

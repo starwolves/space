@@ -4,6 +4,7 @@ use networking::messages::ReliableServerMessage;
 use pawn::pawn::UsedNames;
 
 /// Player selector to entities.
+#[cfg(feature = "server")]
 pub fn player_selector_to_entities(
     command_executor_entity: Entity,
     command_executor_handle_option: Option<u64>,

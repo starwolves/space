@@ -1,10 +1,13 @@
 use bevy::prelude::{Commands, Entity};
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
+#[cfg(feature = "server")]
 pub struct Construct2SfxBundle;
 
+#[cfg(feature = "server")]
 pub const CONSTRUCT2_PLAY_BACK_DURATION: f32 = 0.7 + 1.;
 
+#[cfg(feature = "server")]
 impl Construct2SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
