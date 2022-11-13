@@ -5,6 +5,7 @@ use crate::core::GIProbe;
 
 /// Json data.
 #[derive(Deserialize)]
+#[cfg(feature = "server")]
 pub struct ExportData {
     bias: f32,
     compressed: bool,
@@ -17,6 +18,7 @@ pub struct ExportData {
     extents: String,
 }
 
+#[cfg(feature = "server")]
 impl ExportData {
     pub fn to_component(self) -> GIProbe {
         GIProbe {

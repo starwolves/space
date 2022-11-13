@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -17,4 +21,4 @@ default-features = false
 serde_json = "1.0.85"
 serde = "1.0.137"
 
-data_converters = { path = "../data_converters" }
+data_converters = { path = "../data_converters",  features=["server"] }

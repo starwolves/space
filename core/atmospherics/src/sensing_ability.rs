@@ -3,6 +3,7 @@ use data_link::core::{DataLink, DataLinkType};
 use entity::senser::{Senser, SensingAbility};
 
 /// Sensing ability allows players to obtain atmospherics data of a tile by examining it.
+#[cfg(feature = "server")]
 pub(crate) fn atmospherics_sensing_ability(
     mut data_linked: Query<(&DataLink, &mut Senser), Changed<DataLink>>,
 ) {

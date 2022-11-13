@@ -9,5 +9,9 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies]
-chat_api = { path = "../chat_api" }
+chat_api = { path = "../chat_api",  features=["server"]}

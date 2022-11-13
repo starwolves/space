@@ -4,6 +4,7 @@ use math::grid::Vec2Int;
 
 /// Used to check if entities are authorized to examine and obtain certain additional data.
 #[derive(PartialEq)]
+#[cfg(feature = "server")]
 pub enum SensingAbility {
     AtmosphericsSensor,
     ShipEngineerKnowledge,
@@ -11,6 +12,7 @@ pub enum SensingAbility {
 
 /// The component of entities that can sense other entities.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Senser {
     pub cell_id: Vec2Int,
     pub fov: FovRecursiveShadowCasting,
@@ -19,6 +21,7 @@ pub struct Senser {
     pub sensing_abilities: Vec<SensingAbility>,
 }
 
+#[cfg(feature = "server")]
 impl Default for Senser {
     fn default() -> Self {
         Self {
@@ -36,9 +39,11 @@ impl Default for Senser {
 /// FOV calculation time will take 10x-15x slower, up to 2-3ms for just a single player calculation.
 /// For bigger maps than 500x500 gridmaps we need a new and better FOV algorithm.
 /// Dividible by 2.
+#[cfg(feature = "server")]
 pub const FOV_MAP_WIDTH: usize = 500;
 
 /// Use this to use the Doryen FOV algorithm.
+#[cfg(feature = "server")]
 pub fn to_doryen_coordinates(x: i16, y: i16) -> (usize, usize) {
     let mut n_x = x + FOV_MAP_WIDTH as i16 / 2;
     let mut n_y = y + FOV_MAP_WIDTH as i16 / 2;
@@ -51,6 +56,7 @@ pub fn to_doryen_coordinates(x: i16, y: i16) -> (usize, usize) {
     (n_x as usize, n_y as usize)
 }
 /// Check if supplied doryen coordinates are out of range as a function.
+#[cfg(feature = "server")]
 pub fn doryen_coordinates_out_of_range(x: usize, y: usize) -> bool {
     x > FOV_MAP_WIDTH || y > FOV_MAP_WIDTH
 }

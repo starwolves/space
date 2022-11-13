@@ -8,8 +8,8 @@ use bevy::{
 };
 
 use networking::messages::{net_system, InputListActionsEntity};
-use server::core::{HandleToEntity, ServerId};
-use server::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
+use server_instance::core::{HandleToEntity, ServerId};
+use server_instance::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
 
 use super::{
     boarding::{done_boarding, on_boarding, ui_input_boarding, BoardingPlayer},
@@ -40,85 +40,89 @@ pub struct ConnectedPlayerPlugin {
 
 impl Plugin for ConnectedPlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<HandleToEntity>()
-            .add_event::<NetUserName>()
-            .add_event::<InputListActionsEntity>()
-            .add_system(apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput))
-            .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
-            .add_system(humanoid_controller_input.before(UpdateLabels::StandardCharacters))
-            .add_event::<BoardingPlayer>()
-            .add_system(done_boarding)
-            .add_system(register_ui_input_boarding)
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(10.))
-                    .with_system(update_player_count),
-            )
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(2.))
-                    .with_system(send_server_time),
-            )
-            .add_system(ui_input_boarding)
-            .add_system(on_boarding)
-            .add_event::<NetUpdatePlayerCount>()
-            .add_system(build_graphics)
-            .add_system(scene_ready_event)
-            .add_event::<NetSendServerTime>()
-            .add_system(initialize_setupui.label(SummoningLabels::TriggerSummon))
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .label(PostUpdateLabels::EntityUpdate)
-                    .with_system(health_ui_update),
-            )
-            .add_event::<NetUIInputTransmitData>()
-            .add_event::<NetSendWorldEnvironment>()
-            .add_event::<NetOnBoarding>()
-            .add_event::<NetOnNewPlayerConnection>()
-            .add_event::<NetExamineEntity>()
-            .add_event::<NetDoneBoarding>()
-            .add_event::<NetOnSetupUI>()
-            .init_resource::<AuthidI>()
-            .add_event::<NetHealthUpdate>()
-            .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms)
-            .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .after(PostUpdateLabels::VisibleChecker)
-                    .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<NetOnBoarding>)
-                    .with_system(net_system::<NetOnNewPlayerConnection>)
-                    .with_system(net_system::<NetOnSetupUI>)
-                    .with_system(net_system::<NetDoneBoarding>)
-                    .with_system(net_system::<NetSendWorldEnvironment>)
-                    .with_system(net_system::<NetUserName>)
-                    .with_system(net_system::<NetUIInputTransmitData>)
-                    .with_system(net_system::<NetExamineEntity>)
-                    .with_system(net_system::<NetSendServerTime>)
-                    .with_system(net_system::<NetHealthUpdate>)
-                    .with_system(net_system::<NetUpdatePlayerCount>),
-            )
-            .add_system_to_stage(
-                PostUpdate,
-                finalize_entity_updates
-                    .after(PostUpdateLabels::EntityUpdate)
-                    .label(PostUpdateLabels::SendEntityUpdates),
-            )
-            .add_system(rcon_console_commands)
-            .add_system(
-                inventory_item_console_commands
-                    .before(SummoningLabels::TriggerSummon)
-                    .label(SummoningLabels::NormalSummon),
-            )
-            .add_system(entity_console_commands.after(SummoningLabels::DefaultSummon))
-            .add_system_to_stage(
-                PostUpdate,
-                process_finalize_net.after(PostUpdateLabels::Net),
-            )
-            .init_resource::<ClientHealthUICache>()
-            .init_resource::<BoardingAnnouncements>()
-            .init_resource::<ServerId>();
+        if cfg!(feature = "server") {
+            app.init_resource::<HandleToEntity>()
+                .add_event::<NetUserName>()
+                .add_event::<InputListActionsEntity>()
+                .add_system(
+                    apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput),
+                )
+                .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
+                .add_system(humanoid_controller_input.before(UpdateLabels::StandardCharacters))
+                .add_event::<BoardingPlayer>()
+                .add_system(done_boarding)
+                .add_system(register_ui_input_boarding)
+                .add_system_set(
+                    SystemSet::new()
+                        .with_run_criteria(FixedTimestep::step(10.))
+                        .with_system(update_player_count),
+                )
+                .add_system_set(
+                    SystemSet::new()
+                        .with_run_criteria(FixedTimestep::step(2.))
+                        .with_system(send_server_time),
+                )
+                .add_system(ui_input_boarding)
+                .add_system(on_boarding)
+                .add_event::<NetUpdatePlayerCount>()
+                .add_system(build_graphics)
+                .add_system(scene_ready_event)
+                .add_event::<NetSendServerTime>()
+                .add_system(initialize_setupui.label(SummoningLabels::TriggerSummon))
+                .add_system_set_to_stage(
+                    PostUpdate,
+                    SystemSet::new()
+                        .label(PostUpdateLabels::EntityUpdate)
+                        .with_system(health_ui_update),
+                )
+                .add_event::<NetUIInputTransmitData>()
+                .add_event::<NetSendWorldEnvironment>()
+                .add_event::<NetOnBoarding>()
+                .add_event::<NetOnNewPlayerConnection>()
+                .add_event::<NetExamineEntity>()
+                .add_event::<NetDoneBoarding>()
+                .add_event::<NetOnSetupUI>()
+                .init_resource::<AuthidI>()
+                .add_event::<NetHealthUpdate>()
+                .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms)
+                .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
+                .add_system_set_to_stage(
+                    PostUpdate,
+                    SystemSet::new()
+                        .after(PostUpdateLabels::VisibleChecker)
+                        .label(PostUpdateLabels::Net)
+                        .with_system(net_system::<NetOnBoarding>)
+                        .with_system(net_system::<NetOnNewPlayerConnection>)
+                        .with_system(net_system::<NetOnSetupUI>)
+                        .with_system(net_system::<NetDoneBoarding>)
+                        .with_system(net_system::<NetSendWorldEnvironment>)
+                        .with_system(net_system::<NetUserName>)
+                        .with_system(net_system::<NetUIInputTransmitData>)
+                        .with_system(net_system::<NetExamineEntity>)
+                        .with_system(net_system::<NetSendServerTime>)
+                        .with_system(net_system::<NetHealthUpdate>)
+                        .with_system(net_system::<NetUpdatePlayerCount>),
+                )
+                .add_system_to_stage(
+                    PostUpdate,
+                    finalize_entity_updates
+                        .after(PostUpdateLabels::EntityUpdate)
+                        .label(PostUpdateLabels::SendEntityUpdates),
+                )
+                .add_system(rcon_console_commands)
+                .add_system(
+                    inventory_item_console_commands
+                        .before(SummoningLabels::TriggerSummon)
+                        .label(SummoningLabels::NormalSummon),
+                )
+                .add_system(entity_console_commands.after(SummoningLabels::DefaultSummon))
+                .add_system_to_stage(
+                    PostUpdate,
+                    process_finalize_net.after(PostUpdateLabels::Net),
+                )
+                .init_resource::<ClientHealthUICache>()
+                .init_resource::<BoardingAnnouncements>()
+                .init_resource::<ServerId>();
+        }
     }
 }

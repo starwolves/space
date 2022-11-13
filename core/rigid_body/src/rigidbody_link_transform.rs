@@ -5,6 +5,7 @@ use physics::physics::RigidBodyLinkTransform;
 use showcase::core::Showcase;
 
 /// Manage and link rigid body transform.
+#[cfg(feature = "server")]
 pub(crate) fn rigidbody_link_transform(
     mut linked_rigidbodies: Query<(Entity, &RigidBodyLinkTransform), Without<Showcase>>,
     mut transforms: Query<&mut Transform>,

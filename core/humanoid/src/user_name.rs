@@ -6,9 +6,10 @@ use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUserName, ReliableServerMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PersistentPlayerData, UsedNames};
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 /// Set character user name that also isn't already taken.
+#[cfg(feature = "server")]
 pub(crate) fn user_name(
     mut input_user_name_events: EventReader<InputUserName>,
     mut persistent_player_data_query: Query<&mut PersistentPlayerData>,
@@ -82,12 +83,14 @@ pub(crate) fn user_name(
     }
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetHumanoid {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 /// Get a dummy character name as a function.
+#[cfg(feature = "server")]
 pub fn get_dummy_name(used_names: &mut UsedNames) -> String {
     let return_name = format!("Dummy {}", used_names.dummy_i);
 

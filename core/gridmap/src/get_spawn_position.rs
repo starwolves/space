@@ -10,6 +10,7 @@ use pawn::pawn::FacingDirection;
 use crate::grid::GridmapMain;
 
 /// Get a position to spawn an entity on around a player.
+#[cfg(feature = "server")]
 pub fn entity_spawn_position_for_player(
     player_transform: Transform,
     player_facing_direction_option: Option<&FacingDirection>,
@@ -126,6 +127,7 @@ pub fn entity_spawn_position_for_player(
 }
 
 /// Get facing direction offset as a function.
+#[cfg(feature = "server")]
 fn get_offset(player_facing_direction: &FacingDirection, offset: f32) -> Vec3 {
     match player_facing_direction {
         FacingDirection::UpLeft => Vec3::new(offset, 0., offset),
@@ -139,5 +141,7 @@ fn get_offset(player_facing_direction: &FacingDirection, offset: f32) -> Vec3 {
     }
 }
 
+#[cfg(feature = "server")]
 const OFFSET_FROM_PLAYER: f32 = 1.;
+#[cfg(feature = "server")]
 const OFFSET_CHECK: f32 = 1.80;

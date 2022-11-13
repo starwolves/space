@@ -5,10 +5,11 @@ use entity::{
     sensable::Sensable,
 };
 use networking::messages::{EntityWorldType, NetSendEntityUpdates, ReliableServerMessage};
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 use showcase::core::Showcase;
 
 /// Finalize entity updates of this frame and send them to Godot clients.
+#[cfg(feature = "server")]
 pub(crate) fn finalize_entity_updates(
     mut updated_entity_updates: Query<
         (

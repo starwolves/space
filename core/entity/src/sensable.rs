@@ -1,12 +1,13 @@
 use bevy::ecs::entity::Entity;
 use bevy::prelude::{Component, EventWriter, Res};
 use networking::messages::NetUnloadEntity;
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 use crate::entity_data::unload_entity;
 
 /// The component for entities that can be sensed.
 #[derive(Component, Default)]
+#[cfg(feature = "server")]
 pub struct Sensable {
     pub is_light: bool,
     pub is_audible: bool,
@@ -15,6 +16,7 @@ pub struct Sensable {
     pub always_sensed: bool,
 }
 
+#[cfg(feature = "server")]
 impl Sensable {
     pub fn despawn(
         &mut self,

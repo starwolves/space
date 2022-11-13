@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -17,20 +21,20 @@ default-features = false
 bevy_rapier3d = "0.18.0"
 vector2math = "0.13.0"
 
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-sounds = { path = "../../entities/sounds" }
-pawn = { path = "../pawn" }
-inventory_item = { path = "../inventory_item" }
-inventory_api = { path = "../inventory_api" }
-combat = { path = "../combat" }
-sfx = { path = "../sfx" }
-rigid_body = { path = "../rigid_body" }
-console_commands = { path = "../console_commands" }
-entity = { path = "../entity" }
-gridmap = { path = "../gridmap" }
-server = { path = "../server" }
-showcase = { path = "../showcase" }
-atmospherics = { path = "../atmospherics" }
-math = { path = "../math" }
-chat_api = { path = "../chat_api" }
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros",  features=["server"] }
+sounds = { path = "../../entities/sounds",  features=["server"] }
+pawn = { path = "../pawn",  features=["server"] }
+inventory_item = { path = "../inventory_item",  features=["server"] }
+inventory_api = { path = "../inventory_api",  features=["server"] }
+combat = { path = "../combat",  features=["server"] }
+sfx = { path = "../sfx",  features=["server"] }
+rigid_body = { path = "../rigid_body",  features=["server"] }
+console_commands = { path = "../console_commands",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }
+gridmap = { path = "../gridmap",  features=["server"] }
+server_instance = { path = "../server_instance",  features=["server"] }
+showcase = { path = "../showcase",  features=["server"] }
+atmospherics = { path = "../atmospherics",  features=["server"] }
+math = { path = "../math",  features=["server"] }
+chat_api = { path = "../chat_api",  features=["server"] }

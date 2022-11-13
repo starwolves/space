@@ -4,6 +4,7 @@ use bevy::prelude::{Query, ResMut};
 use crate::examine::Examinable;
 
 /// Build examine action.
+#[cfg(feature = "server")]
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     examinable_items: Query<&Examinable>,
@@ -31,4 +32,5 @@ pub(crate) fn build_actions(
     }
 }
 /// How far melee fists attacks can reach.
+#[cfg(feature = "server")]
 pub const MELEE_FISTS_REACH: f32 = 1.2;

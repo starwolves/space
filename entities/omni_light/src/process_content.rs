@@ -6,6 +6,7 @@ use super::omni_light::OmniLight;
 /// Json raw data.
 #[allow(dead_code)]
 #[derive(Deserialize)]
+#[cfg(feature = "server")]
 pub struct ExportDataRaw {
     omni_attenuation: f32,
     omni_range: f32,
@@ -25,6 +26,7 @@ pub struct ExportDataRaw {
     shadow_reverse_cull_face: bool,
 }
 
+#[cfg(feature = "server")]
 impl ExportData {
     pub fn new(raw: ExportDataRaw) -> ExportData {
         ExportData {
@@ -70,6 +72,7 @@ impl ExportData {
 }
 
 /// Json data.
+#[cfg(feature = "server")]
 pub struct ExportData {
     omni_attenuation: f32,
     omni_range: f32,

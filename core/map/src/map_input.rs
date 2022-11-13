@@ -12,6 +12,7 @@ use networking::messages::PendingNetworkMessage;
 use networking_macros::NetMessage;
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.
+#[cfg(feature = "server")]
 pub(crate) fn map_input(
     mut input_view_range_change_events: EventReader<InputMap>,
     mut map_holders: Query<&mut Map>,
@@ -40,6 +41,7 @@ pub(crate) fn map_input(
 }
 
 /// Request available map overlays.
+#[cfg(feature = "server")]
 pub(crate) fn request_map_overlay(
     mut events: EventReader<InputMapRequestOverlay>,
     map_holders: Query<&Map>,
@@ -67,6 +69,7 @@ pub(crate) fn request_map_overlay(
 }
 
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetRequestOverlay {
     pub handle: u64,
     pub message: ReliableServerMessage,
@@ -74,9 +77,11 @@ pub(crate) struct NetRequestOverlay {
 
 /// Mini-map data resource.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct MapData {
     pub data: HashMap<Vec2Int, i16>,
 }
+#[cfg(feature = "server")]
 impl MapData {
     pub fn to_net(&self) -> Vec<(i16, i16, i16)> {
         let mut net_data = vec![];

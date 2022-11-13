@@ -11,10 +11,13 @@ use super::{
     process_content::{ExportData, ExportDataRaw},
 };
 
+#[cfg(feature = "server")]
 pub struct OmniLightBundle;
 
+#[cfg(feature = "server")]
 pub const OMNI_LIGHT_ENTITY_NAME: &str = "omni_light";
 
+#[cfg(feature = "server")]
 impl OmniLightBundle {
     pub fn spawn(
         entity_transform: Transform,
@@ -43,10 +46,12 @@ impl OmniLightBundle {
     }
 }
 
+#[cfg(feature = "server")]
 pub struct OmniLightSummoner {
     pub light: OmniLight,
 }
 
+#[cfg(feature = "server")]
 pub fn summon_omni_light<T: OmniLightSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
@@ -58,10 +63,12 @@ pub fn summon_omni_light<T: OmniLightSummonable + Send + Sync + 'static>(
     }
 }
 
+#[cfg(feature = "server")]
 pub trait OmniLightSummonable {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
 }
 
+#[cfg(feature = "server")]
 impl OmniLightSummonable for OmniLightSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
         commands.spawn_bundle((
@@ -83,6 +90,7 @@ impl OmniLightSummonable for OmniLightSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub fn summon_raw_omni_light(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_gi_probe: EventWriter<SpawnEvent<OmniLightSummoner>>,

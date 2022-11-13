@@ -6,7 +6,7 @@ use bevy_rapier3d::prelude::RigidBody;
 
 use math::grid::world_to_cell_id;
 use networking::messages::{NetLoadEntity, NetUnloadEntity};
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 
 use crate::{
     entity_data::{load_entity, unload_entity, EntityData, EntityUpdates, WorldMode, WorldModes},
@@ -15,6 +15,7 @@ use crate::{
 };
 
 /// Perform FOV checks to see what is and what isn't visible.
+#[cfg(feature = "server")]
 pub(crate) fn visible_checker(
     mut query_visible_entities: Query<(
         Entity,
@@ -155,11 +156,15 @@ pub(crate) fn visible_checker(
     }
 }
 
+#[cfg(feature = "server")]
 const VIEW_DISTANCE: f32 = 90.;
+#[cfg(feature = "server")]
 const HEAR_DISTANCE: f32 = 60.;
+#[cfg(feature = "server")]
 const LIGHT_DISTANCE: f32 = 60.;
 
 /// Check if entity is visible to other entity as a function.
+#[cfg(feature = "server")]
 fn visible_check(
     sensable_component: &mut Mut<Sensable>,
     senser_component: &mut Mut<Senser>,

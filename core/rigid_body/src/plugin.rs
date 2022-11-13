@@ -8,7 +8,9 @@ use super::{
 pub struct RigidBodyPlugin;
 impl Plugin for RigidBodyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(out_of_bounds_tp)
-            .add_system(rigidbody_link_transform);
+        if cfg!(feature = "server") {
+            app.add_system(out_of_bounds_tp)
+                .add_system(rigidbody_link_transform);
+        }
     }
 }

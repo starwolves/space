@@ -7,6 +7,7 @@ use inventory_item::item::InventoryItem;
 use networking::messages::EntityUpdateData;
 
 /// Attach items to slots or wear items with 3d models and textures for clients.
+#[cfg(feature = "server")]
 pub(crate) fn inventory_update(
     mut updated_entities: Query<(&Inventory, &mut EntityUpdates), Changed<Inventory>>,
     pickupables: Query<(&InventoryItem, &EntityData)>,

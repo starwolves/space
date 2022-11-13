@@ -10,6 +10,7 @@ use entity::{
 use super::spawn::BRIDGE_COMPUTER_ENTITY_NAME;
 
 /// On a computer spawn.
+#[cfg(feature = "server")]
 pub(crate) fn computer_added(
     mut computers: Query<(&EntityData, &mut Examinable), Added<Computer>>,
 ) {
@@ -37,6 +38,7 @@ pub(crate) fn computer_added(
 
 /// The computer component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Computer {
     pub computer_type: String,
 }

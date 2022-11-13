@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -17,6 +21,6 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.18.0"
 
-entity = { path = "../entity" }
-physics = { path = "../physics" }
-showcase = { path = "../showcase" }
+entity = { path = "../entity",  features=["server"] }
+physics = { path = "../physics",  features=["server"] }
+showcase = { path = "../showcase",  features=["server"] }

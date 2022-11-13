@@ -5,6 +5,7 @@ use gridmap_meta::core::GridItemData;
 
 /// Resource that contains entity meta data.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct EntityDataResource {
     pub data: Vec<EntityDataProperties>,
     pub incremented_id: usize,
@@ -12,6 +13,7 @@ pub struct EntityDataResource {
     pub name_to_id: HashMap<String, usize>,
 }
 
+#[cfg(feature = "server")]
 impl EntityDataResource {
     pub fn get_id_inc(&mut self) -> usize {
         let return_val = self.incremented_id.clone();
@@ -20,6 +22,7 @@ impl EntityDataResource {
     }
 }
 
+#[cfg(feature = "server")]
 impl Default for EntityDataProperties {
     fn default() -> Self {
         Self {
@@ -31,6 +34,7 @@ impl Default for EntityDataProperties {
 }
 
 /// Meta data for an entity.
+#[cfg(feature = "server")]
 pub struct EntityDataProperties {
     pub name: String,
     pub id: usize,
@@ -38,4 +42,5 @@ pub struct EntityDataProperties {
 }
 /// The component for players that haven't yet boarded.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct SoftPlayer;

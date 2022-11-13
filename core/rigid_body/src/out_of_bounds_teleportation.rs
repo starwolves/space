@@ -3,6 +3,7 @@ use entity::{entity_data::EntityData, senser::FOV_MAP_WIDTH};
 use physics::physics::RigidBodyDisabled;
 
 /// Check if rigidbody is out of bounds if so teleport on the mirrored side.
+#[cfg(feature = "server")]
 pub(crate) fn out_of_bounds_tp(
     mut rigid_bodies: Query<(Entity, &EntityData, &mut Transform), (Without<RigidBodyDisabled>,)>,
 ) {

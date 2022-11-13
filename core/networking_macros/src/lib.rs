@@ -6,6 +6,7 @@ use syn::{parse_macro_input, DeriveInput};
 
 /// The derivation for netcode messages.
 #[proc_macro_derive(NetMessage)]
+#[cfg(feature = "server")]
 pub fn derive_net_message(item: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(item as DeriveInput);
     let struct_name = &ast.ident;

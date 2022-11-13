@@ -9,6 +9,10 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -18,10 +22,10 @@ bevy_rapier3d = "0.18.0"
 serde = "1.0.137"
 rand = "0.8.5"
 
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-actions = { path = "../actions" }
-data_converters = { path = "../data_converters" }
-server = { path = "../server" }
-math = { path = "../math" }
-entity = { path = "../entity" }
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros" ,  features=["server"]}
+actions = { path = "../actions",  features=["server"] }
+data_converters = { path = "../data_converters" ,  features=["server"]}
+server_instance = { path = "../server_instance",  features=["server"] }
+math = { path = "../math",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }

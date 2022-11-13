@@ -27,12 +27,14 @@ use super::{
 };
 
 /// Air lock open request event.
+#[cfg(feature = "server")]
 pub struct AirLockOpenRequest {
     pub opener_option: Option<Entity>,
     pub opened: Entity,
 }
 
 /// Manage air lock events.
+#[cfg(feature = "server")]
 pub(crate) fn air_lock_events(
     mut air_lock_collisions: EventReader<AirLockCollision>,
     mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
@@ -548,6 +550,7 @@ pub(crate) fn air_lock_events(
 }
 
 /// Air lock collision event.
+#[cfg(feature = "server")]
 pub struct AirLockCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
@@ -560,6 +563,7 @@ pub struct AirLockCollision {
 }
 
 /// Air lock toggle open event.
+#[cfg(feature = "server")]
 pub struct InputAirLockToggleOpen {
     pub handle_option: Option<u64>,
 
@@ -567,6 +571,7 @@ pub struct InputAirLockToggleOpen {
     pub opened: Entity,
 }
 /// Air lock , lock the door to open event.
+#[cfg(feature = "server")]
 pub struct AirLockLockOpen {
     pub handle_option: Option<u64>,
 
@@ -574,6 +579,7 @@ pub struct AirLockLockOpen {
     pub locker: Entity,
 }
 /// Air lock , lock the door to closed event.
+#[cfg(feature = "server")]
 pub struct AirLockLockClosed {
     pub handle_option: Option<u64>,
 
@@ -581,17 +587,20 @@ pub struct AirLockLockClosed {
     pub locker: Entity,
 }
 /// Unlock the air lock event.
+#[cfg(feature = "server")]
 pub struct AirLockUnlock {
     pub handle_option: Option<u64>,
     pub locked: Entity,
     pub locker: Entity,
 }
+#[cfg(feature = "server")]
 pub enum LockedStatus {
     Open,
     Closed,
     None,
 }
 /// Air lock open request event.
+#[cfg(feature = "server")]
 pub struct AirLockCloseRequest {
     pub interacter_option: Option<Entity>,
     pub interacted: Entity,

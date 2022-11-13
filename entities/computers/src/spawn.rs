@@ -19,6 +19,7 @@ use rigid_body::{
 };
 use std::collections::BTreeMap;
 
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -27,6 +28,7 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<NoData> for ComputerSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text = "A computer used by bridge personnel.".to_string();
@@ -55,6 +57,7 @@ impl BaseEntitySummonable<NoData> for ComputerSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 impl RigidBodySummonable<NoData> for ComputerSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -70,20 +73,24 @@ impl RigidBodySummonable<NoData> for ComputerSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub struct ComputerSummoner {
     pub computer_type: String,
 }
 
+#[cfg(feature = "server")]
 impl ComputerSummonable for ComputerSummoner {
     fn get_computer_type(&self) -> String {
         self.computer_type.clone()
     }
 }
 
+#[cfg(feature = "server")]
 pub trait ComputerSummonable {
     fn get_computer_type(&self) -> String;
 }
 
+#[cfg(feature = "server")]
 pub fn summon_computer<T: ComputerSummonable + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -97,8 +104,10 @@ pub fn summon_computer<T: ComputerSummonable + Send + Sync + 'static>(
     }
 }
 
+#[cfg(feature = "server")]
 pub const BRIDGE_COMPUTER_ENTITY_NAME: &str = "bridgeComputer";
 
+#[cfg(feature = "server")]
 pub fn summon_raw_computer(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<ComputerSummoner>>,
@@ -154,6 +163,7 @@ pub fn summon_raw_computer(
 
 use super::computer::Computer;
 
+#[cfg(feature = "server")]
 pub fn default_summon_computer(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<ComputerSummoner>>,

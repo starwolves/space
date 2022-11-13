@@ -10,6 +10,7 @@ use crate::{
 };
 
 /// Get the right sounds to spawn for combat.
+#[cfg(feature = "server")]
 pub fn health_combat_hit_result_sfx<T: Component>(
     mut combat_hit_results: EventReader<HealthCombatHitResult>,
     cached_attacks: Res<ActiveAttacks>,
@@ -109,6 +110,7 @@ pub fn health_combat_hit_result_sfx<T: Component>(
 }
 
 /// Spawns sound effects.
+#[cfg(feature = "server")]
 pub(crate) fn health_combat_hit_result_sfx_cells(
     mut combat_hit_results: EventReader<HealthCombatHitResult>,
     cached_attacks: Res<ActiveAttacks>,
@@ -190,6 +192,7 @@ pub(crate) fn health_combat_hit_result_sfx_cells(
 }
 
 /// The attack sfx handler for items used to attack. This decides the sound effects that will play during combat on a per entity basis.
+#[cfg(feature = "server")]
 pub fn attack_sfx<T: Component>(
     mut attack_events: EventReader<Attack>,
     transforms: Query<&Transform>,

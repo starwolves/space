@@ -19,10 +19,12 @@ use entity::{
 use pawn::pawn::ShipAuthorizationEnum;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
+#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::identity()
 }
 
+#[cfg(feature = "server")]
 impl BaseEntitySummonable<NoData> for AirlockSummoner {
     fn get_bundle(&self, spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let description;
@@ -89,8 +91,10 @@ impl BaseEntitySummonable<NoData> for AirlockSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
 
+#[cfg(feature = "server")]
 impl RigidBodySummonable<NoData> for AirlockSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
@@ -106,8 +110,10 @@ impl RigidBodySummonable<NoData> for AirlockSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub struct AirlockSummoner;
 
+#[cfg(feature = "server")]
 pub fn summon_air_lock<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut airlock_spawns: EventReader<SpawnEvent<T>>,
@@ -127,6 +133,7 @@ pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = "bridgeAirLock";
 pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = "governmentAirLock";
 pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = "vacuumAirLock";
 
+#[cfg(feature = "server")]
 pub fn default_summon_air_lock(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<AirlockSummoner>>,
@@ -147,6 +154,7 @@ pub fn default_summon_air_lock(
     }
 }
 
+#[cfg(feature = "server")]
 pub fn summon_raw_air_lock(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_air_lock: EventWriter<SpawnEvent<AirlockSummoner>>,

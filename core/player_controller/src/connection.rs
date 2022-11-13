@@ -9,24 +9,28 @@ use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::messages::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PawnDesignation, PersistentPlayerData, UsedNames};
-use server::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
+use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 
 use crate::{connection_events::send_server_configuration, health_ui::ClientHealthUICache};
 
 /// The component for players that are requesting boarding.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Boarding;
 
 /// The component for entities int he boarding phase.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct SetupPhase;
 
 /// The component for entities that are done boarding and about to spawn in on the ship. A stage after [Boarding].
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct OnBoard;
 
 /// Data for spawning.
 #[derive(Clone)]
+#[cfg(feature = "server")]
 pub struct SpawnPawnData {
     pub persistent_player_data: PersistentPlayerData,
     pub connected_player_option: Option<ConnectedPlayer>,
@@ -35,6 +39,7 @@ pub struct SpawnPawnData {
 }
 
 /// Manage client connection events.
+#[cfg(feature = "server")]
 pub(crate) fn connections(
     tick_rate: Res<TickRate>,
     mut auth_id_i: ResMut<AuthidI>,
@@ -90,6 +95,7 @@ pub(crate) fn connections(
 }
 
 /// On player disconnect as a function.
+#[cfg(feature = "server")]
 pub fn on_player_disconnect(
     handle: u64,
     handle_to_entity: &mut ResMut<HandleToEntity>,
@@ -149,6 +155,7 @@ pub fn on_player_disconnect(
 
 /// Resource with the current incremented authentication ID.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub(crate) struct AuthidI {
     pub i: u16,
 }

@@ -15,9 +15,10 @@ use networking::messages::PendingNetworkMessage;
 use networking::messages::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PersistentPlayerData, SpawnPoints, Spawning, UsedNames};
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 
 /// Component with boarding data.
+#[cfg(feature = "server")]
 pub(crate) struct BoardingPlayer {
     pub player_handle: u64,
     pub player_character_name: String,
@@ -25,10 +26,12 @@ pub(crate) struct BoardingPlayer {
 }
 /// Resource for slightly delayed boarding announcements.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
 /// Perform initialization of spawning player.
+#[cfg(feature = "server")]
 pub(crate) fn done_boarding(
     mut spawn_points: ResMut<SpawnPoints>,
     mut net_done_boarding: EventWriter<NetDoneBoarding>,
@@ -91,6 +94,7 @@ pub(crate) fn done_boarding(
 }
 
 /// Recieve boarding UI input.
+#[cfg(feature = "server")]
 pub(crate) fn ui_input_boarding(
     mut event: EventReader<InputUIInputTransmitText>,
     mut boarding_player_event: EventWriter<BoardingPlayer>,
@@ -180,6 +184,7 @@ pub(crate) fn ui_input_boarding(
 }
 
 /// Manage client boarding.
+#[cfg(feature = "server")]
 pub(crate) fn on_boarding(
     query: Query<&ConnectedPlayer, Added<Boarding>>,
     mut net_on_boarding: EventWriter<NetOnBoarding>,
@@ -195,6 +200,7 @@ pub(crate) fn on_boarding(
     }
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct NetUIInputTransmitData {
     pub handle: u64,
     pub message: ReliableServerMessage,

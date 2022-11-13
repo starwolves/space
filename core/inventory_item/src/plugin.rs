@@ -1,7 +1,7 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use networking::messages::GodotVariant;
-use server::labels::{ActionsLabels, PostUpdateLabels};
+use server_instance::labels::{ActionsLabels, PostUpdateLabels};
 
 use crate::actions::build_actions;
 
@@ -12,27 +12,30 @@ pub struct InventoryItemPlugin;
 
 impl Plugin for InventoryItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set_to_stage(
-            PostUpdate,
-            SystemSet::new()
-                .label(PostUpdateLabels::EntityUpdate)
-                .with_system(inventory_item_update),
-        )
-        .add_system_set_to_stage(
-            PostUpdate,
-            SystemSet::new()
-                .label(PostUpdateLabels::EntityUpdate)
-                .with_system(inventory_item_update),
-        )
-        .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
-        .add_system(
-            build_actions
-                .label(ActionsLabels::Build)
-                .after(ActionsLabels::Init),
-        );
+        if cfg!(feature = "server") {
+            app.add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .label(PostUpdateLabels::EntityUpdate)
+                    .with_system(inventory_item_update),
+            )
+            .add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .label(PostUpdateLabels::EntityUpdate)
+                    .with_system(inventory_item_update),
+            )
+            .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
+            .add_system(
+                build_actions
+                    .label(ActionsLabels::Build)
+                    .after(ActionsLabels::Init),
+            );
+        }
     }
 }
 
+#[cfg(feature = "server")]
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "spawnHeld".to_string(),

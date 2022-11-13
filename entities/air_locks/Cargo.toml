@@ -9,6 +9,9 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
 
 [dependencies.bevy]
 version = "0.8.1"
@@ -18,22 +21,22 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.18.0"
 
-entity = { path = "../../core/entity" }
-networking = { path = "../../core/networking" }
-networking_macros = { path = "../../core/networking_macros" }
-atmospherics = { path = "../../core/atmospherics" }
-map = { path = "../../core/map" }
-pawn = { path = "../../core/pawn" }
-physics = { path = "../../core/physics" }
-sfx = { path = "../../core/sfx" }
-sounds = { path = "../sounds" }
-rigid_body = { path = "../../core/rigid_body" }
-chat_api = { path = "../../core/chat_api" }
-combat = { path = "../../core/combat" }
-actions = { path = "../../core/actions" }
-gridmap = { path = "../../core/gridmap" }
-data_converters = { path = "../../core/data_converters" }
-data_link = { path = "../../core/data_link" }
-server = { path = "../../core/server" }
-math = { path = "../../core/math" }
-gridmap_meta = { path = "../../core/gridmap_meta" }
+entity = { path = "../../core/entity",  features=["server"] }
+networking = { path = "../../core/networking",  features=["server"] }
+networking_macros = { path = "../../core/networking_macros",  features=["server"] }
+atmospherics = { path = "../../core/atmospherics",  features=["server"] }
+map = { path = "../../core/map",  features=["server"] }
+pawn = { path = "../../core/pawn",  features=["server"] }
+physics = { path = "../../core/physics",  features=["server"] }
+sfx = { path = "../../core/sfx",  features=["server"] }
+sounds = { path = "../sounds",  features=["server"] }
+rigid_body = { path = "../../core/rigid_body",  features=["server"] }
+chat_api = { path = "../../core/chat_api",  features=["server"] }
+combat = { path = "../../core/combat",  features=["server"] }
+actions = { path = "../../core/actions",  features=["server"] }
+gridmap = { path = "../../core/gridmap",  features=["server"] }
+data_converters = { path = "../../core/data_converters",  features=["server"] }
+data_link = { path = "../../core/data_link",  features=["server"] }
+server_instance = { path = "../../core/server_instance" ,  features=["server"]}
+math = { path = "../../core/math",  features=["server"] }
+gridmap_meta = { path = "../../core/gridmap_meta",  features=["server"] }

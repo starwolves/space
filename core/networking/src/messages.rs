@@ -6,7 +6,7 @@ use chat_api::core::ASTRIX;
 use math::grid::Vec3Int;
 use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
@@ -17,6 +17,8 @@ use bevy_renet::renet::{
 };
 
 use super::plugin::{RENET_RELIABLE_CHANNEL_ID, RENET_UNRELIABLE_CHANNEL_ID};
+
+#[cfg(feature = "server")]
 #[derive(NetMessage)]
 pub struct NetPlayerConn {
     pub handle: u64,
@@ -24,12 +26,15 @@ pub struct NetPlayerConn {
 }
 
 /// The network port the server will listen use for connections.
+#[cfg(feature = "server")]
 pub const SERVER_PORT: u16 = 57713;
 
 /// Network protocol ID.
+#[cfg(feature = "server")]
 const PROTOCOL_ID: u64 = 7;
 
 /// Start server and open and listen to port.
+#[cfg(feature = "server")]
 pub(crate) fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]) -> RenetServer {
     let server_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
         .parse()
@@ -72,6 +77,7 @@ pub(crate) fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]
 }
 
 /// Client attack cell input event.
+#[cfg(feature = "server")]
 pub struct InputAttackCell {
     pub entity: Entity,
     pub id: Vec3Int,
@@ -79,6 +85,7 @@ pub struct InputAttackCell {
 
 /// Client input list actions map event.
 #[derive(Debug, Clone)]
+#[cfg(feature = "server")]
 pub struct InputListActionsMap {
     pub requested_by_entity: Entity,
     pub gridmap_type: GridMapLayer,
@@ -88,6 +95,7 @@ pub struct InputListActionsMap {
 }
 
 /// Client input change display mode mini-map event.
+#[cfg(feature = "server")]
 pub struct InputMapChangeDisplayMode {
     pub handle: u64,
     pub entity: Entity,
@@ -95,6 +103,7 @@ pub struct InputMapChangeDisplayMode {
 }
 
 /// Client map input.
+#[cfg(feature = "server")]
 pub enum MapInput {
     Range(f32),
     Position(Vec2),
@@ -102,18 +111,21 @@ pub enum MapInput {
 }
 
 /// Client map input event.
+#[cfg(feature = "server")]
 pub struct InputMap {
     pub handle: u64,
     pub entity: Entity,
     pub input: MapInput,
 }
 /// Client map request display modes event.
+#[cfg(feature = "server")]
 pub struct InputMapRequestOverlay {
     pub handle: u64,
     pub entity: Entity,
 }
 
 /// Manage incoming network messages from clients.
+#[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
     tuple0: (
         ResMut<RenetServer>,
@@ -715,6 +727,7 @@ pub(crate) fn incoming_messages(
 }
 
 /// Net message handler.
+#[cfg(feature = "server")]
 pub fn net_system<T: std::marker::Send + std::marker::Sync + PendingMessage + 'static>(
     mut net1: EventReader<T>,
     mut pending_net: EventWriter<PendingNetworkMessage>,
@@ -729,6 +742,7 @@ pub fn net_system<T: std::marker::Send + std::marker::Sync + PendingMessage + 's
     }
 }
 /// Client input console command message event.
+#[cfg(feature = "server")]
 pub struct InputConsoleCommand {
     /// The connection handle tied to the entity performing the command.
     pub handle_option: Option<u64>,
@@ -741,11 +755,13 @@ pub struct InputConsoleCommand {
 }
 
 /// Client input toggle combat mode event.
+#[cfg(feature = "server")]
 pub struct InputToggleCombatMode {
     pub entity: Entity,
 }
 
 /// Client input drop current item event.
+#[cfg(feature = "server")]
 pub struct InputDropCurrentItem {
     pub pickuper_entity: Entity,
     /// Drop item on position, for placeable item surfaces.
@@ -753,6 +769,7 @@ pub struct InputDropCurrentItem {
 }
 
 /// Client input throw item event.
+#[cfg(feature = "server")]
 pub struct InputThrowItem {
     pub entity: Entity,
     pub position: Vec3,
@@ -760,35 +777,41 @@ pub struct InputThrowItem {
 }
 
 /// Client input switch hands event.
+#[cfg(feature = "server")]
 pub struct InputSwitchHands {
     pub entity: Entity,
 }
 
 /// Client input take off item event.
+#[cfg(feature = "server")]
 pub struct InputTakeOffItem {
     pub entity: Entity,
     pub slot_name: String,
 }
 
 /// Client input use world item event.
+#[cfg(feature = "server")]
 pub struct InputUseWorldItem {
     pub using_entity: Entity,
     pub used_entity: Entity,
 }
 
 /// Client input wear item event.
+#[cfg(feature = "server")]
 pub struct InputWearItem {
     pub wearer_entity: Entity,
     pub worn_entity_bits: u64,
     pub wear_slot: String,
 }
 /// Client input user name event.
+#[cfg(feature = "server")]
 pub struct InputUserName {
     pub entity: Entity,
     pub input_name: String,
 }
 /// Client input list actions entity event.
 #[derive(Clone)]
+#[cfg(feature = "server")]
 pub struct InputListActionsEntity {
     pub requested_by_entity: Entity,
     /// Targetted entity.
@@ -798,6 +821,7 @@ pub struct InputListActionsEntity {
 }
 
 /// Client initiates execution of an action event.
+#[cfg(feature = "server")]
 pub struct InputAction {
     /// Action ID.
     pub fired_action_id: String,
@@ -807,38 +831,45 @@ pub struct InputAction {
 }
 
 /// Client input toggle auto move event.
+#[cfg(feature = "server")]
 pub struct InputToggleAutoMove {
     pub entity: Entity,
 }
 
 /// Client input attack entity event.
+#[cfg(feature = "server")]
 pub struct InputAttackEntity {
     pub entity: Entity,
     pub target_entity_bits: u64,
 }
 
 /// Client input alt item attack event.
+#[cfg(feature = "server")]
 pub struct InputAltItemAttack {
     pub entity: Entity,
 }
 
 /// Client input mouse action event.
+#[cfg(feature = "server")]
 pub struct InputMouseAction {
     pub entity: Entity,
     pub pressed: bool,
 }
 /// Client input select body part event.
+#[cfg(feature = "server")]
 pub struct InputSelectBodyPart {
     pub entity: Entity,
     pub body_part: String,
 }
 /// Client input movement event.
+#[cfg(feature = "server")]
 pub struct InputMovementInput {
     pub player_entity: Entity,
     pub vector: Vec2,
 }
 
 /// Client text tree input selection event.
+#[cfg(feature = "server")]
 pub struct TextTreeInputSelection {
     /// Handle of the submitter of the selection.
     pub handle: u64,
@@ -853,27 +884,32 @@ pub struct TextTreeInputSelection {
 }
 
 /// Client input sprinting event.
+#[cfg(feature = "server")]
 pub struct InputSprinting {
     pub entity: Entity,
     pub is_sprinting: bool,
 }
 /// Client input scene ready event.
+#[cfg(feature = "server")]
 pub struct InputSceneReady {
     pub handle: u64,
     pub scene_id: String,
 }
 /// Client input build graphics event.
+#[cfg(feature = "server")]
 pub struct InputBuildGraphics {
     pub handle: u64,
 }
 
 /// Client input mouse direction update event.
+#[cfg(feature = "server")]
 pub struct InputMouseDirectionUpdate {
     pub entity: Entity,
     pub direction: f32,
     pub time_stamp: u64,
 }
 /// Client input construction options selection event.
+#[cfg(feature = "server")]
 pub struct InputConstructionOptionsSelection {
     pub handle_option: Option<u64>,
     pub menu_selection: String,
@@ -882,6 +918,7 @@ pub struct InputConstructionOptionsSelection {
 }
 /// Input examine entity event.
 #[derive(Clone)]
+#[cfg(feature = "server")]
 pub struct InputExamineEntity {
     pub handle: u64,
     pub examine_entity: Entity,
@@ -889,6 +926,7 @@ pub struct InputExamineEntity {
     /// Examine message that is being built and returned to the client.
     pub message: String,
 }
+#[cfg(feature = "server")]
 impl Default for InputExamineEntity {
     fn default() -> Self {
         Self {
@@ -901,6 +939,7 @@ impl Default for InputExamineEntity {
 }
 
 /// Event as client input , interaction with UI.
+#[cfg(feature = "server")]
 pub struct InputUIInput {
     /// Handle of the connection that input this.
     pub handle: u64,
@@ -915,6 +954,7 @@ pub struct InputUIInput {
 }
 
 /// Client input submitting text event.
+#[cfg(feature = "server")]
 pub struct InputUIInputTransmitText {
     /// Handle of the connection that input this.
     pub handle: u64,
@@ -927,6 +967,7 @@ pub struct InputUIInputTransmitText {
 }
 /// Examine map message event.
 #[derive(Clone)]
+#[cfg(feature = "server")]
 pub struct InputExamineMap {
     pub handle: u64,
     pub entity: Entity,
@@ -935,6 +976,7 @@ pub struct InputExamineMap {
     /// Map examine message being built and sent back to the player.
     pub message: String,
 }
+#[cfg(feature = "server")]
 impl Default for InputExamineMap {
     fn default() -> Self {
         Self {
@@ -947,12 +989,14 @@ impl Default for InputExamineMap {
     }
 }
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[cfg(feature = "server")]
 pub enum GridMapLayer {
     Main,
     Details1,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(feature = "server")]
 pub struct NetAction {
     pub id: String,
     pub text: String,
@@ -965,6 +1009,7 @@ pub struct NetAction {
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum ReliableClientMessage {
     Awoo,
     HeartBeat,
@@ -1007,6 +1052,7 @@ pub enum ReliableClientMessage {
 }
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum ReliableServerMessage {
     EntityUpdate(
         u64,
@@ -1054,6 +1100,7 @@ pub enum ReliableServerMessage {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum ServerConfigMessage {
     Awoo,
     WorldEnvironment(WorldEnvironment),
@@ -1076,12 +1123,14 @@ pub enum ServerConfigMessage {
 
 /// This message gets sent at high intervals.
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum UnreliableServerMessage {
     TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
     PositionUpdate(u64, Vec3, u64),
 }
 /// This message gets sent at high intervals.
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum UnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
     MapViewRange(f32),
@@ -1090,6 +1139,7 @@ pub enum UnreliableClientMessage {
 
 /// Variants for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum GodotVariantValues {
     Int(i64),
     String(String),
@@ -1098,6 +1148,7 @@ pub enum GodotVariantValues {
 }
 /// Variant types for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum GodotVariant {
     Int,
     String,
@@ -1106,11 +1157,13 @@ pub enum GodotVariant {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum UIInputNodeClass {
     Button,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum UIInputAction {
     Pressed,
 }
@@ -1118,65 +1171,77 @@ pub enum UIInputAction {
 /// Contains information about the projectile and its visual graphics.
 #[allow(dead_code)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum ProjectileData {
     Laser((f32, f32, f32, f32), f32, f32, Vec3, Vec3),
     Ballistic,
 }
 
+#[cfg(any(feature = "server", feature = "client"))]
 pub trait PendingMessage {
     fn get_message(&self) -> PendingNetworkMessage;
 }
 #[derive(NetMessage)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct PendingNetworkMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum NetMessageType {
     Reliable(ReliableServerMessage),
     Unreliable(UnreliableServerMessage),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum EntityWorldType {
     Main,
     HealthUI,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum TextTreeBit {
     Final(Vec<String>),
     Bit(HashMap<String, TextTreeBit>),
 }
 
 /// Input chat message event.
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct InputChatMessage {
     pub entity: Entity,
     pub message: String,
 }
 
 #[derive(NetMessage)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct NetSendEntityUpdates {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub(crate) struct NetHealth {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub struct NetUnloadEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub struct NetLoadEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
 pub enum EntityUpdateData {
     Int(i64),
     UInt8(u8),

@@ -12,6 +12,10 @@ edition = "2021"
 version = "0.8.1"
 default-features = false
 
+[features]
+server = []
+client = []
+
 [dependencies]
 bevy_renet = "0.0.5"
 bevy_rapier3d = "0.18.0"
@@ -19,23 +23,23 @@ bincode = "1.3.3"
 
 
 
-networking = { path = "../networking" }
-networking_macros = { path = "../networking_macros" }
-entity = { path = "../entity" }
-humanoid = { path = "../humanoid" }
-inventory_item = { path = "../inventory_item" }
-inventory_api = { path = "../inventory_api" }
-pawn = { path = "../pawn" }
-physics = { path = "../physics" }
-console_commands = { path = "../console_commands" }
-chat_api = { path = "../chat_api" }
-map = { path = "../map" }
-motd = { path = "../motd" }
-chat = { path = "../chat" }
-gridmap = { path = "../gridmap" }
-world_environment = { path = "../world_environment" }
-server = { path = "../server" }
-showcase = { path = "../showcase" }
-math = { path = "../math" }
-gi_probe = { path = "../../entities/gi_probe" }
-reflection_probe = { path = "../../entities/reflection_probe" }
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }
+humanoid = { path = "../humanoid",  features=["server"] }
+inventory_item = { path = "../inventory_item",  features=["server"] }
+inventory_api = { path = "../inventory_api",  features=["server"] }
+pawn = { path = "../pawn",  features=["server"] }
+physics = { path = "../physics",  features=["server"] }
+console_commands = { path = "../console_commands",  features=["server"] }
+chat_api = { path = "../chat_api",  features=["server"] }
+map = { path = "../map",  features=["server"] }
+motd = { path = "../motd",  features=["server"] }
+chat = { path = "../chat",  features=["server"] }
+gridmap = { path = "../gridmap",  features=["server"] }
+world_environment = { path = "../world_environment",  features=["server"] }
+server_instance = { path = "../server_instance",  features=["server"] }
+showcase = { path = "../showcase",  features=["server"] }
+math = { path = "../math",  features=["server"] }
+gi_probe = { path = "../../entities/gi_probe",  features=["server"] }
+reflection_probe = { path = "../../entities/reflection_probe",  features=["server"] }

@@ -9,6 +9,11 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -16,23 +21,23 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.18.0"
 
-entity = { path = "../../core/entity" }
-physics = { path = "../../core/physics" }
-networking_macros = { path = "../../core/networking_macros" }
-chat = { path = "../../core/chat" }
-data_link = { path = "../../core/data_link" }
-inventory_item = { path = "../../core/inventory_item" }
-inventory_api = { path = "../../core/inventory_api" }
-map = { path = "../../core/map" }
-rigid_body = { path = "../../core/rigid_body" }
-player_controller = { path = "../../core/player_controller" }
-combat = { path = "../../core/combat" }
-networking = { path = "../../core/networking" }
-server = { path = "../../core/server" }
-humanoid = { path = "../../core/humanoid" }
-pawn = { path = "../../core/pawn" }
-showcase = { path = "../../core/showcase" }
-jumpsuit_security = { path = "../jumpsuit_security" }
-helmet_security = { path = "../helmet_security" }
-pistol_l1 = { path = "../pistol_l1" }
-construction_tool_admin = { path = "../construction_tool_admin" }
+entity = { path = "../../core/entity" ,  features=["server"]}
+physics = { path = "../../core/physics" ,  features=["server"]}
+networking_macros = { path = "../../core/networking_macros" ,  features=["server"]}
+chat = { path = "../../core/chat" ,  features=["server"]}
+data_link = { path = "../../core/data_link",  features=["server"] }
+inventory_item = { path = "../../core/inventory_item" ,  features=["server"]}
+inventory_api = { path = "../../core/inventory_api" ,  features=["server"]}
+map = { path = "../../core/map",  features=["server"] }
+rigid_body = { path = "../../core/rigid_body" ,  features=["server"]}
+player_controller = { path = "../../core/player_controller" ,  features=["server"]}
+combat = { path = "../../core/combat",  features=["server"] }
+networking = { path = "../../core/networking",  features=["server"] }
+server_instance = { path = "../../core/server_instance" ,  features=["server"]}
+humanoid = { path = "../../core/humanoid",  features=["server"] }
+pawn = { path = "../../core/pawn" ,  features=["server"]}
+showcase = { path = "../../core/showcase",  features=["server"] }
+jumpsuit_security = { path = "../jumpsuit_security",  features=["server"] }
+helmet_security = { path = "../helmet_security",  features=["server"] }
+pistol_l1 = { path = "../pistol_l1" ,  features=["server"]}
+construction_tool_admin = { path = "../construction_tool_admin" ,  features=["server"]}

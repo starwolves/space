@@ -12,12 +12,14 @@ use networking::messages::PendingNetworkMessage;
 use networking::messages::ReliableServerMessage;
 use networking_macros::NetMessage;
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub(crate) struct ExamineEntityPawn {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 
 /// Examine a humanoid entity.
+#[cfg(feature = "server")]
 pub(crate) fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     criteria_query: Query<&Senser>,

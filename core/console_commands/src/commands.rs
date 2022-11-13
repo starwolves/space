@@ -6,11 +6,13 @@ use networking::messages::{GodotVariant, ReliableServerMessage};
 use networking_macros::NetMessage;
 
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub struct NetConsoleCommands {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
+#[cfg(feature = "server")]
 pub struct NetEntityConsole {
     pub handle: u64,
     pub message: ReliableServerMessage,
@@ -18,10 +20,12 @@ pub struct NetEntityConsole {
 
 /// Resource containing all registered custom console commands.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct AllConsoleCommands {
     pub list: Vec<(String, String, Vec<(String, GodotVariant)>)>,
 }
 /// Initialize console commands.
+#[cfg(feature = "server")]
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "rcon".to_string(),
@@ -41,14 +45,18 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 }
 /// Resource with the configuration whether new players should be given RCON upon connection.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub struct GiveAllRCON {
     pub give: bool,
 }
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "server")]
 pub enum ConsoleCommandsLabels {
     Finalize,
 }
 
+#[cfg(feature = "server")]
 pub const CONSOLE_SUCCESS_COLOR: &str = "#3cff00";
+#[cfg(feature = "server")]
 pub const CONSOLE_ERROR_COLOR: &str = "#ff6600";

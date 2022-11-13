@@ -3,6 +3,7 @@ use combat::{attack::Attack, melee_queries::MeleeDirectQuery};
 use entity::actions::MELEE_FISTS_REACH;
 
 /// Handles attacks with bare hands.
+#[cfg(feature = "server")]
 pub(crate) fn hands_attack_handler(
     mut attacks: EventReader<Attack>,
     mut melee_attack: EventWriter<MeleeDirectQuery>,

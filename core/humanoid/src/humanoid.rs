@@ -24,7 +24,7 @@ use pawn::pawn::{
     facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
 };
 use rigid_body::rigid_body::RigidBodyData;
-use server::core::{HandleToEntity, TickRate};
+use server_instance::core::{HandleToEntity, TickRate};
 use sfx::builder::repeating_sfx_builder;
 use showcase::core::Showcase;
 use sounds::actions::{
@@ -41,17 +41,20 @@ use std::time::Duration;
 
 /// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub(crate) struct LinkedFootstepsSprinting {
     pub entity: Entity,
 }
 
 /// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub(crate) struct LinkedFootstepsWalking {
     pub entity: Entity,
 }
 
 /// Humanoid character animation state.
+#[cfg(feature = "server")]
 pub enum CharacterAnimationState {
     Idle,
     Jogging,
@@ -62,6 +65,7 @@ const FIRST_MELEE_TIME: u64 = 433;
 
 /// The humanoid component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct Humanoid {
     /// Lower body blended animation state of humanoid.
     pub current_lower_animation_state: CharacterAnimationState,
@@ -77,6 +81,7 @@ pub struct Humanoid {
     pub next_attack_timer: Timer,
 }
 
+#[cfg(feature = "server")]
 impl Default for Humanoid {
     fn default() -> Self {
         let mut t = Timer::new(Duration::from_millis(FIRST_MELEE_TIME), false);
@@ -95,6 +100,7 @@ impl Default for Humanoid {
 }
 
 /// Toggle combat mode. Ie from melee to projectile.
+#[cfg(feature = "server")]
 pub(crate) fn toggle_combat_mode(
     mut toggle_combat_mode_events: EventReader<InputToggleCombatMode>,
     mut standard_character_query: Query<&mut Humanoid>,
@@ -109,16 +115,23 @@ pub(crate) fn toggle_combat_mode(
     }
 }
 
+#[cfg(feature = "server")]
 const JOG_SPEED: f32 = 3031.44;
+#[cfg(feature = "server")]
 const RUN_SPEED: f32 = 3031.44;
 
+#[cfg(feature = "server")]
 const MAX_JOG_SPEED: f32 = 10.;
+#[cfg(feature = "server")]
 const MAX_RUN_SPEED: f32 = 14.;
 
+#[cfg(feature = "server")]
 const COMBAT_ROTATION_SPEED: f32 = 18.;
+#[cfg(feature = "server")]
 const DOWN_FORCE: f32 = -1.0;
 
 /// Animation movement state.
+#[cfg(feature = "server")]
 enum CharacterMovementState {
     None,
     Jogging,
@@ -126,6 +139,7 @@ enum CharacterMovementState {
 }
 
 /// Core humanoid logic.
+#[cfg(feature = "server")]
 pub(crate) fn humanoid_core(
     mut humanoids_query: Query<
         (
@@ -938,5 +952,7 @@ pub(crate) fn humanoid_core(
         }
     }
 }
+#[cfg(feature = "server")]
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = "humanDummy";
+#[cfg(feature = "server")]
 pub const HUMAN_MALE_ENTITY_NAME: &str = "humanMale";

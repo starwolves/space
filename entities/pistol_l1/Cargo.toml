@@ -9,6 +9,11 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -16,11 +21,11 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.18.0"
 
-entity = { path = "../../core/entity" }
-inventory_item = { path = "../../core/inventory_item" }
-inventory_api = { path = "../../core/inventory_api" }
-rigid_body = { path = "../../core/rigid_body" }
-chat_api = { path = "../../core/chat_api" }
-combat = { path = "../../core/combat" }
-data_converters = { path = "../../core/data_converters" }
-server = { path = "../../core/server" }
+entity = { path = "../../core/entity" ,  features=["server"]}
+inventory_item = { path = "../../core/inventory_item" ,  features=["server"]}
+inventory_api = { path = "../../core/inventory_api",  features=["server"] }
+rigid_body = { path = "../../core/rigid_body",  features=["server"] }
+chat_api = { path = "../../core/chat_api",  features=["server"] }
+combat = { path = "../../core/combat",  features=["server"] }
+data_converters = { path = "../../core/data_converters" ,  features=["server"]}
+server_instance = { path = "../../core/server_instance" ,  features=["server"]}

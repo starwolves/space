@@ -11,12 +11,13 @@ use inventory_api::core::Inventory;
 use inventory_item::spawn::spawn_held_entity;
 use networking::messages::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
 use pawn::pawn::{Pawn, UsedNames};
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 use std::collections::HashMap;
 
 use crate::player_selectors::player_selector_to_entities;
 
 /// Perform RCON console commands.
+#[cfg(feature = "server")]
 pub(crate) fn rcon_console_commands(
     mut console_commands_events: EventReader<InputConsoleCommand>,
     mut rcon_bruteforce_protection: Local<BruteforceProtection>,
@@ -54,6 +55,7 @@ pub(crate) fn rcon_console_commands(
 }
 
 /// Perform entity console commands.
+#[cfg(feature = "server")]
 pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
 
@@ -160,6 +162,7 @@ pub(crate) struct BruteforceProtection {
 }
 
 /// Perform RCON authorization.
+#[cfg(feature = "server")]
 pub(crate) fn rcon_authorization(
     bruteforce_protection: &mut Local<BruteforceProtection>,
     connected_players: &mut Query<&mut ConnectedPlayer>,
@@ -223,6 +226,7 @@ pub(crate) fn rcon_authorization(
 }
 
 /// Manage requests for RCON permission status.
+#[cfg(feature = "server")]
 pub(crate) fn rcon_status(
     connected_players: &mut Query<&mut ConnectedPlayer>,
     client_handle: u64,
@@ -258,6 +262,7 @@ pub(crate) fn rcon_status(
 }
 
 /// Manage inventory item console commands.
+#[cfg(feature = "server")]
 pub(crate) fn inventory_item_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
@@ -342,6 +347,7 @@ pub(crate) fn inventory_item_console_commands(
 }
 
 /// Process spawning entities via RCON command as a function. Such as commands for spawning entities.
+#[cfg(feature = "server")]
 pub fn rcon_spawn_entity(
     entity_name: String,
     target_selector: String,
@@ -480,6 +486,7 @@ pub fn rcon_spawn_entity(
 }
 
 /// Function to spawn an entity in another entity's inventory through an RCON command.
+#[cfg(feature = "server")]
 pub fn rcon_spawn_held_entity(
     entity_name: String,
     target_selector: String,

@@ -10,7 +10,7 @@ use map::map::{
 };
 use math::grid::{world_to_cell_id, Vec2Int};
 use networking::messages::ReliableServerMessage;
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 
 use crate::diffusion::{
     get_atmos_id, get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET,
@@ -19,6 +19,7 @@ use crate::diffusion::{
 use super::net::{NetMapDisplayAtmospherics, NetMapHoverAtmospherics};
 
 /// Get data of atmospherics on tile when hovered in map by player.
+#[cfg(feature = "server")]
 pub(crate) fn atmospherics_map_hover(
     map_holders: Query<(Entity, &Map, &ConnectedPlayer)>,
     atmospherics: Res<AtmosphericsResource>,
@@ -74,9 +75,11 @@ pub(crate) fn atmospherics_map_hover(
 }
 
 /// How many populated cells we transmit data of per batch. Throttled by batch amount due to network concerns.
+#[cfg(feature = "server")]
 const MAX_VALIDS_PER_BATCH: u16 = 750;
 
 /// All atmospherics map display modes.
+#[cfg(feature = "server")]
 enum SelectedDisplayMode {
     Temperature,
     Pressure,
@@ -84,6 +87,7 @@ enum SelectedDisplayMode {
 }
 
 /// Transmit atmospherics mini-map data to player.
+#[cfg(feature = "server")]
 pub(crate) fn atmospherics_map(
     map_holders: Query<(Entity, &Map, &ConnectedPlayer)>,
     atmospherics: Res<AtmosphericsResource>,
@@ -421,11 +425,14 @@ pub(crate) fn atmospherics_map(
 }
 
 /// -22 degrees celcius
+#[cfg(feature = "server")]
 pub const MINIMUM_LIVABLE_TEMPERATURE: f32 = -22. + CELCIUS_KELVIN_OFFSET;
 /// -39.3 degrees celcius
+#[cfg(feature = "server")]
 pub const MAXIMUM_LIVABLE_TEMPERATURE: f32 = 39.3 + CELCIUS_KELVIN_OFFSET;
 
 /// Temperature to tile color for mini-map overlay as a function.
+#[cfg(feature = "server")]
 fn temperature_to_tile_color(temperature: f32) -> OverlayTile {
     if temperature < -40. + CELCIUS_KELVIN_OFFSET {
         OverlayTile::Red
@@ -445,11 +452,14 @@ fn temperature_to_tile_color(temperature: f32) -> OverlayTile {
 }
 
 /// 90 kpa
+#[cfg(feature = "server")]
 pub const MINIMUM_LIVABLE_PRESSURE: f32 = 90.;
 /// 180 kpa
+#[cfg(feature = "server")]
 pub const MAXIMUM_LIVABLE_PRESSURE: f32 = 180.;
 
 /// Pressure to tile color for mini-map overlay as a function.
+#[cfg(feature = "server")]
 fn pressure_to_tile_color(pressure_kpa: f32) -> OverlayTile {
     if pressure_kpa < 47.62275 {
         OverlayTile::Red

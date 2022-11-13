@@ -8,20 +8,23 @@ use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::messages::{ProjectileData, ReliableServerMessage};
-use server::core::ConnectedPlayer;
+use server_instance::core::ConnectedPlayer;
 
 use crate::grid::{GridmapData, GridmapMain};
 
 use super::net::NetProjectileFOV;
 
+#[cfg(feature = "server")]
 pub const FOV_DISTANCE: usize = 23;
 
 /// An event for a projectile that exists for a frame so the FOV for its projectile path can be calculated and the projectile will be displayed on the appropiate client's screens.
+#[cfg(feature = "server")]
 pub struct ProjectileFOV {
     pub laser_projectile: ProjectileData,
 }
 
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
+#[cfg(feature = "server")]
 pub(crate) fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
@@ -183,10 +186,12 @@ pub(crate) fn projectile_fov(
 }
 
 /// The resource with FOV data.
+#[cfg(feature = "server")]
 pub struct DoryenMap {
     pub map: MapData,
 }
 
+#[cfg(feature = "server")]
 impl Default for DoryenMap {
     fn default() -> Self {
         DoryenMap {
@@ -196,6 +201,7 @@ impl Default for DoryenMap {
 }
 
 /// Update FOV of a senser.
+#[cfg(feature = "server")]
 pub(crate) fn senser_update_fov(
     mut senser_entities: Query<(&mut Senser, &Transform)>,
     mut map: ResMut<DoryenMap>,

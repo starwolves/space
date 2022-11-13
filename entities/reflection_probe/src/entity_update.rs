@@ -5,6 +5,7 @@ use networking::messages::EntityUpdateData;
 use crate::core::ReflectionProbe;
 
 /// Reflection probe entity update.
+#[cfg(feature = "server")]
 pub(crate) fn reflection_probe_update(
     mut updated_reflection_probes: Query<
         (&ReflectionProbe, &mut EntityUpdates),

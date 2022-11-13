@@ -28,12 +28,14 @@ use sounds::{
 use super::net::NetCounterWindow;
 
 /// Open counter window request event.
+#[cfg(feature = "server")]
 pub struct CounterWindowOpenRequest {
     pub opener_option: Option<Entity>,
     pub opened: Entity,
 }
 
 /// Process counter windows events.
+#[cfg(feature = "server")]
 pub(crate) fn counter_window_events(
     mut counter_window_sensor_collisions: EventReader<CounterWindowSensorCollision>,
     mut counter_window_toggle_open_action: EventReader<InputCounterWindowToggleOpen>,
@@ -652,10 +654,12 @@ pub(crate) fn counter_window_events(
 
 /// The component for the physics sensor.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct CounterWindowSensor {
     pub parent: Entity,
 }
 
+#[cfg(feature = "server")]
 impl Default for CounterWindowSensor {
     fn default() -> Self {
         Self {
@@ -666,6 +670,7 @@ impl Default for CounterWindowSensor {
 
 /// The component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct CounterWindow {
     /// State.
     pub status: CounterWindowStatus,
@@ -681,17 +686,20 @@ pub struct CounterWindow {
     pub(crate) closed_timer: Option<Timer>,
 }
 
+#[cfg(feature = "server")]
 pub enum CounterWindowStatus {
     Open,
     Closed,
 }
 
+#[cfg(feature = "server")]
 pub enum CounterWindowAccessLightsStatus {
     Neutral,
     Granted,
     Denied,
 }
 
+#[cfg(feature = "server")]
 impl Default for CounterWindow {
     fn default() -> Self {
         Self {
@@ -707,19 +715,23 @@ impl Default for CounterWindow {
 }
 
 /// Create a timer.
+#[cfg(feature = "server")]
 pub fn open_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
 /// Create a timer.
+#[cfg(feature = "server")]
 pub fn close_timer() -> Timer {
     Timer::from_seconds(1.1, false)
 }
 /// Create a timer.
+#[cfg(feature = "server")]
 pub fn denied_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
 
 /// Counter window sensor collision event.
+#[cfg(feature = "server")]
 pub struct CounterWindowSensorCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
@@ -731,6 +743,7 @@ pub struct CounterWindowSensorCollision {
 }
 
 /// Counter window toggle open event.
+#[cfg(feature = "server")]
 pub struct InputCounterWindowToggleOpen {
     pub handle_option: Option<u64>,
 
@@ -738,6 +751,7 @@ pub struct InputCounterWindowToggleOpen {
     pub opened: Entity,
 }
 /// Counter window lock open event.
+#[cfg(feature = "server")]
 pub struct CounterWindowLockOpen {
     pub handle_option: Option<u64>,
 
@@ -746,6 +760,7 @@ pub struct CounterWindowLockOpen {
 }
 
 /// Counter window lock closed event.
+#[cfg(feature = "server")]
 pub struct CounterWindowLockClosed {
     pub handle_option: Option<u64>,
 
@@ -754,6 +769,7 @@ pub struct CounterWindowLockClosed {
 }
 
 /// Counter window unlock event.
+#[cfg(feature = "server")]
 pub struct CounterWindowUnlock {
     pub handle_option: Option<u64>,
 

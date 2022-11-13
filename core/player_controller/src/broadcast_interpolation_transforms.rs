@@ -9,11 +9,12 @@ use bincode::serialize;
 use entity::{entity_data::CachedBroadcastTransform, sensable::Sensable};
 use networking::{messages::UnreliableServerMessage, plugin::RENET_UNRELIABLE_CHANNEL_ID};
 use physics::physics::RigidBodyDisabled;
-use server::core::{ConnectedPlayer, HandleToEntity};
+use server_instance::core::{ConnectedPlayer, HandleToEntity};
 
 /// All transform interpolation rates.
 #[derive(Debug)]
 #[allow(dead_code)]
+#[cfg(feature = "server")]
 enum InterpolationPriorityRates {
     T4,
     T8,
@@ -23,11 +24,13 @@ enum InterpolationPriorityRates {
 
 /// Resource with interpolation frame.
 #[derive(Default)]
+#[cfg(feature = "server")]
 pub(crate) struct InterpolationFrame {
     pub i: u8,
 }
 
 /// Broadcast transforms.
+#[cfg(feature = "server")]
 pub(crate) fn broadcast_interpolation_transforms(
     time: Res<Time>,
 
@@ -161,6 +164,7 @@ pub(crate) fn broadcast_interpolation_transforms(
 }
 
 /// Check if this is the frame for interpolation as a function.
+#[cfg(feature = "server")]
 fn is_interpolation_frame(
     entity_tick_rate: &InterpolationPriorityRates,
     current_frame: u8,

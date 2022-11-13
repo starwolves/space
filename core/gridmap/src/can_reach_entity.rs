@@ -21,6 +21,7 @@ use crate::{
 use bevy_rapier3d::rapier::geometry::Group;
 
 /// Check if entity can be reached by another entity with nothing in between to block it as a function.
+#[cfg(feature = "server")]
 pub fn can_reach_entity(
     query_pipeline: &bevy::prelude::Res<RapierContext>,
 

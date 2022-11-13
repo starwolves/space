@@ -1,12 +1,15 @@
 //! For fast (but we will need faster) gridmap based FOV calculation.
 
+#[cfg(any(feature = "server", feature = "client"))]
 mod fov_recursive_shadowcasting;
+#[cfg(any(feature = "server", feature = "client"))]
 mod fov_restrictive;
 
 pub use fov_recursive_shadowcasting::*;
 pub use fov_restrictive::*;
 
 /// Some basic structure to store map cells' transparency and fov computation result
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct MapData {
     /// width of the map in cells
     pub width: usize,
@@ -16,6 +19,7 @@ pub struct MapData {
     pub transparent: Vec<bool>,
 }
 
+#[cfg(any(feature = "server", feature = "client"))]
 impl MapData {
     /// create a new empty map : no walls and empty field of view
     pub fn new(width: usize, height: usize) -> Self {
@@ -37,6 +41,7 @@ impl MapData {
 /// x,y : observer position on the map
 /// max_radius : max distance in cells where the observer can see. 0 = infinite
 /// light_walls : are walls limiting the field of view inside the field of view ?
+#[cfg(any(feature = "server", feature = "client"))]
 pub trait FovAlgorithm {
     fn compute_fov(
         &mut self,

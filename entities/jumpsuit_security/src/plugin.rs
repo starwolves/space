@@ -10,7 +10,7 @@ use entity::{
 };
 use inventory_item::spawn::summon_inventory_item;
 use rigid_body::spawn::summon_rigid_body;
-use server::labels::{CombatLabels, StartupLabels, SummoningLabels};
+use server_instance::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::jumpsuit::{Jumpsuit, JUMPSUIT_SECURITY_ENTITY_NAME};
 
@@ -22,37 +22,43 @@ pub struct JumpsuitsPlugin;
 
 impl Plugin for JumpsuitsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system(summon_jumpsuit::<JumpsuitSummoner>.after(SummoningLabels::TriggerSummon))
-            .add_system(
-                (summon_base_entity::<JumpsuitSummoner>).after(SummoningLabels::TriggerSummon),
-            )
-            .add_system(
-                (summon_rigid_body::<JumpsuitSummoner>).after(SummoningLabels::TriggerSummon),
-            )
-            .add_system((summon_raw_jumpsuit).after(SummoningLabels::TriggerSummon))
-            .add_system(
-                (summon_inventory_item::<JumpsuitSummoner>).after(SummoningLabels::TriggerSummon),
-            )
-            .add_event::<SpawnEvent<JumpsuitSummoner>>()
-            .add_system(
-                (default_summon_jumpsuit)
-                    .label(SummoningLabels::DefaultSummon)
-                    .after(SummoningLabels::NormalSummon),
-            )
-            .add_system(
-                melee_attack_handler::<Jumpsuit>
-                    .label(CombatLabels::WeaponHandler)
-                    .after(CombatLabels::CacheAttack),
-            )
-            .add_system(
-                attack_sfx::<Jumpsuit>
-                    .after(CombatLabels::WeaponHandler)
-                    .after(CombatLabels::Query),
-            )
-            .add_system(
-                health_combat_hit_result_sfx::<Jumpsuit>.after(CombatLabels::FinalizeApplyDamage),
-            );
+        if cfg!(feature = "server") {
+            app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
+                .add_system(
+                    summon_jumpsuit::<JumpsuitSummoner>.after(SummoningLabels::TriggerSummon),
+                )
+                .add_system(
+                    (summon_base_entity::<JumpsuitSummoner>).after(SummoningLabels::TriggerSummon),
+                )
+                .add_system(
+                    (summon_rigid_body::<JumpsuitSummoner>).after(SummoningLabels::TriggerSummon),
+                )
+                .add_system((summon_raw_jumpsuit).after(SummoningLabels::TriggerSummon))
+                .add_system(
+                    (summon_inventory_item::<JumpsuitSummoner>)
+                        .after(SummoningLabels::TriggerSummon),
+                )
+                .add_event::<SpawnEvent<JumpsuitSummoner>>()
+                .add_system(
+                    (default_summon_jumpsuit)
+                        .label(SummoningLabels::DefaultSummon)
+                        .after(SummoningLabels::NormalSummon),
+                )
+                .add_system(
+                    melee_attack_handler::<Jumpsuit>
+                        .label(CombatLabels::WeaponHandler)
+                        .after(CombatLabels::CacheAttack),
+                )
+                .add_system(
+                    attack_sfx::<Jumpsuit>
+                        .after(CombatLabels::WeaponHandler)
+                        .after(CombatLabels::Query),
+                )
+                .add_system(
+                    health_combat_hit_result_sfx::<Jumpsuit>
+                        .after(CombatLabels::FinalizeApplyDamage),
+                );
+        }
     }
 }
 

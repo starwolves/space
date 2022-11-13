@@ -5,6 +5,7 @@ use crate::air_lock_events::LockedStatus;
 
 /// Air lock component.
 #[derive(Component)]
+#[cfg(feature = "server")]
 pub struct AirLock {
     /// Air lock state.
     pub status: AirLockStatus,
@@ -21,18 +22,21 @@ pub struct AirLock {
 }
 
 /// Air lock open or closed status.
+#[cfg(feature = "server")]
 pub enum AirLockStatus {
     Open,
     Closed,
 }
 
 /// Access lights state.
+#[cfg(feature = "server")]
 pub enum AccessLightsStatus {
     Neutral,
     Granted,
     Denied,
 }
 
+#[cfg(feature = "server")]
 impl Default for AirLock {
     fn default() -> Self {
         Self {
@@ -48,14 +52,17 @@ impl Default for AirLock {
 }
 
 /// Create a timer.
+#[cfg(feature = "server")]
 pub fn open_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
 /// Create a timer.
+#[cfg(feature = "server")]
 pub fn denied_timer() -> Timer {
     Timer::from_seconds(5.0, false)
 }
 /// Create a timer.
+#[cfg(feature = "server")]
 pub fn closed_timer() -> Timer {
     Timer::from_seconds(1.1, false)
 }

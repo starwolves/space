@@ -23,6 +23,7 @@ use crate::{
 
 use super::fov::DoryenMap;
 /// Build gridmap floor and roof physics bodies.
+#[cfg(feature = "server")]
 pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
     let masks = get_bit_masks(ColliderGroup::Standard);
 
@@ -74,6 +75,7 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
 }
 
 /// Build main gridmap from scratch from exported (json) data.
+#[cfg(feature = "server")]
 pub(crate) fn build_main_gridmap(
     current_map_main_data: &Vec<CellDataWID>,
     mut commands: &mut Commands,
@@ -159,6 +161,7 @@ pub(crate) fn build_main_gridmap(
 }
 
 /// Build details 1 from scratch from exported (json) data.
+#[cfg(feature = "server")]
 pub(crate) fn build_details1_gridmap(
     current_map_details1_data: &Vec<CellDataWID>,
     gridmap_details1: &mut ResMut<GridmapDetails1>,
@@ -192,6 +195,7 @@ pub(crate) fn build_details1_gridmap(
 }
 
 /// Spawn a main gridmap cell as a function.
+#[cfg(feature = "server")]
 pub fn spawn_main_cell(
     commands: &mut Commands,
     cell_id: Vec3Int,

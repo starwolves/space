@@ -2,9 +2,10 @@ use actions::core::{ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Res, ResMut};
 use entity::examine::{ExamineEntityMessages, GridmapExamineMessages};
 use networking::messages::{InputExamineEntity, InputExamineMap};
-use server::core::HandleToEntity;
+use server_instance::core::HandleToEntity;
 
 /// Pawn examine action prerequisite check.
+#[cfg(feature = "server")]
 pub(crate) fn examine_prerequisite_check(mut building_action_data: ResMut<BuildingActions>) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
@@ -16,6 +17,7 @@ pub(crate) fn examine_prerequisite_check(mut building_action_data: ResMut<Buildi
 }
 
 /// Examine pawn.
+#[cfg(feature = "server")]
 pub(crate) fn examine(
     building_action_data: Res<BuildingActions>,
     mut examine_entity_messages: ResMut<ExamineEntityMessages>,

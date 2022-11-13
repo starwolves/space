@@ -2,6 +2,7 @@ use bevy::prelude::{Component, Vec3};
 
 /// Component holding Godot ReflectionProbe properties.
 #[derive(Component, Clone)]
+#[cfg(feature = "server")]
 pub struct ReflectionProbe {
     pub projection_enabled: bool,
     pub cull_mask: i64,

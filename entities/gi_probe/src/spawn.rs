@@ -8,14 +8,17 @@ use entity::{
 
 use super::process_content::ExportData;
 
+#[cfg(feature = "server")]
 pub struct GIProbeSummoner {
     pub probe: GIProbe,
 }
 
+#[cfg(feature = "server")]
 pub trait GIProbeSummonable {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
 }
 
+#[cfg(feature = "server")]
 impl GIProbeSummonable for GIProbeSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
         commands.spawn_bundle((
@@ -30,6 +33,7 @@ impl GIProbeSummonable for GIProbeSummoner {
     }
 }
 
+#[cfg(feature = "server")]
 pub fn summon_gi_probe<T: GIProbeSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
@@ -41,8 +45,10 @@ pub fn summon_gi_probe<T: GIProbeSummonable + Send + Sync + 'static>(
     }
 }
 
+#[cfg(feature = "server")]
 pub const GI_PROBE_ENTITY_NAME: &str = "GIProbe";
 
+#[cfg(feature = "server")]
 pub fn summon_raw_gi_probe(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_gi_probe: EventWriter<SpawnEvent<GIProbeSummoner>>,
