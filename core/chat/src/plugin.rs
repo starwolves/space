@@ -1,5 +1,5 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
-use networking::messages::net_system;
+use networking::server::net_system;
 use server_instance::labels::PostUpdateLabels;
 
 use crate::chat::{

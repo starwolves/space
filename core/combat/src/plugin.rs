@@ -1,7 +1,7 @@
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use chat::chat::EntityProximityMessages;
-use networking::messages::net_system;
+use networking::server::net_system;
 use server_instance::labels::{CombatLabels, PostUpdateLabels};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};

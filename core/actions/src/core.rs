@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
 use math::grid::Vec3Int;
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
-use networking::messages::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
-use networking::messages::{InputListActionsEntity, InputListActionsMap};
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
+use networking::server::{InputListActionsEntity, InputListActionsMap};
 use networking_macros::NetMessage;
 use server_instance::core::HandleToEntity;
 

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::meta::SoftPlayer;
 use motd::motd::MOTD;
-use networking::messages::{
+use networking::server::{
     EntityUpdateData, EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction,
     UIInputNodeClass,
 };

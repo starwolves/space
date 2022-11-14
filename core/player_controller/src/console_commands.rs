@@ -9,7 +9,7 @@ use gridmap::get_spawn_position::entity_spawn_position_for_player;
 use gridmap::grid::GridmapMain;
 use inventory_api::core::Inventory;
 use inventory_item::spawn::spawn_held_entity;
-use networking::messages::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
+use networking::server::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
 use pawn::pawn::{Pawn, UsedNames};
 use server_instance::core::{ConnectedPlayer, HandleToEntity};
 use std::collections::HashMap;

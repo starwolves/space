@@ -30,7 +30,7 @@ use gridmap::{
 };
 use inventory_api::core::Inventory;
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
-use networking::messages::{
+use networking::server::{
     GridMapLayer, InputConstructionOptionsSelection, ReliableServerMessage, TextTreeBit,
 };
 use physics::physics::RigidBodyDisabled;

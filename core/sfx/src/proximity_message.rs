@@ -1,5 +1,5 @@
 use bevy::math::Vec3;
-use networking::messages::ReliableServerMessage;
+use networking::server::ReliableServerMessage;
 use rand::Rng;
 
 use crate::builder::get_random_pitch_scale;

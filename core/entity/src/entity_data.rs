@@ -5,19 +5,19 @@ use bevy::{
     time::{FixedTimesteps, Time},
 };
 use networking::{
-    messages::{
+    plugin::RENET_UNRELIABLE_CHANNEL_ID,
+    server::{
         EntityUpdateData, NetLoadEntity, NetUnloadEntity, ReliableServerMessage,
         UnreliableServerMessage,
     },
-    plugin::RENET_UNRELIABLE_CHANNEL_ID,
 };
 use networking_macros::NetMessage;
 use serde::Deserialize;
 
 use bevy_renet::renet::RenetServer;
 use bincode::serialize;
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
 use server_instance::core::HandleToEntity;
 
 use crate::{

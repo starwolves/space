@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
 use entity::health::{HealthComponent, HealthContainer};
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
-use networking::messages::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
 use networking_macros::NetMessage;
 use server_instance::core::ConnectedPlayer;
 const UI_ALPHA: f32 = 146.;

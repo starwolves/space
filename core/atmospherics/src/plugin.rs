@@ -1,5 +1,5 @@
 use bevy::time::FixedTimestep;
-use networking::messages::net_system;
+use networking::server::net_system;
 use server_instance::labels::{
     ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels,
 };

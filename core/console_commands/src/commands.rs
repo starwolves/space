@@ -1,8 +1,8 @@
 use bevy::prelude::SystemLabel;
 use bevy::prelude::{info, ResMut};
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
-use networking::messages::{GodotVariant, ReliableServerMessage};
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::{GodotVariant, ReliableServerMessage};
 use networking_macros::NetMessage;
 
 #[derive(NetMessage)]

@@ -9,7 +9,7 @@ use entity::{
     health::HealthContainer,
     senser::{to_doryen_coordinates, Senser, SensingAbility},
 };
-use networking::messages::{GridMapLayer, InputExamineMap};
+use networking::server::{GridMapLayer, InputExamineMap};
 
 use crate::{
     events::examine_ship_cell,

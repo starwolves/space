@@ -5,9 +5,9 @@ use bevy_renet::RenetServerPlugin;
 use networking_macros::NetMessage;
 use server_instance::labels::{PostUpdateLabels, PreUpdateLabels};
 
-use super::messages::{incoming_messages, startup_listen_connections};
-use crate::messages::PendingMessage;
-use crate::messages::{
+use super::server::{incoming_messages, startup_server_listen_connections};
+use crate::server::PendingMessage;
+use crate::server::{
     net_system, InputAction, InputAltItemAttack, InputAttackCell, InputAttackEntity,
     InputBuildGraphics, InputChatMessage, InputConsoleCommand, InputDropCurrentItem,
     InputExamineEntity, InputExamineMap, InputListActionsMap, InputMap, InputMapChangeDisplayMode,
@@ -24,7 +24,8 @@ pub struct NetworkingPlugin {
     pub custom_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
 }
 
-const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"lFNpVdFi5LhL8xlDFtnobx5onFR30afX";
+#[cfg(any(feature = "server", feature = "client"))]
+pub(crate) const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"lFNpVdFi5LhL8xlDFtnobx5onFR30afX";
 
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
@@ -32,8 +33,8 @@ impl Plugin for NetworkingPlugin {
             app.add_plugin(RenetServerPlugin);
 
             match self.custom_encryption_key {
-                Some(x) => app.insert_resource(startup_listen_connections(x)),
-                None => app.insert_resource(startup_listen_connections(*PRIVATE_KEY)),
+                Some(x) => app.insert_resource(startup_server_listen_connections(x)),
+                None => app.insert_resource(startup_server_listen_connections(*PRIVATE_KEY)),
             }
             .add_system_to_stage(
                 PreUpdate,

@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
-use networking::messages::GodotVariant;
+use networking::server::GodotVariant;
 use server_instance::labels::{ActionsLabels, PostUpdateLabels};
 
 use crate::actions::build_actions;

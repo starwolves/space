@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
 use entity::entity_data::{get_entity_update_difference, EntityUpdates};
-use networking::messages::EntityUpdateData;
+use networking::server::EntityUpdateData;
 
 use crate::item::InventoryItem;
 

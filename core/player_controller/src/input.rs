@@ -1,6 +1,6 @@
 use bevy::prelude::{warn, Entity, EventReader, Query};
 use humanoid::humanoid::Humanoid;
-use networking::messages::{
+use networking::server::{
     InputAltItemAttack, InputAttackCell, InputAttackEntity, InputMouseAction, InputMovementInput,
     InputSelectBodyPart, InputSprinting, InputToggleAutoMove,
 };

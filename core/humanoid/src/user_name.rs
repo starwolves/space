@@ -1,9 +1,9 @@
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut};
 use chat_api::core::escape_bb;
 use console_commands::commands::CONSOLE_ERROR_COLOR;
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
-use networking::messages::{InputUserName, ReliableServerMessage};
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::{InputUserName, ReliableServerMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PersistentPlayerData, UsedNames};
 use server_instance::core::HandleToEntity;

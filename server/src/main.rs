@@ -2,9 +2,7 @@
 
 use bevy::prelude::info;
 use bevy::prelude::App;
-use bevy::prelude::ParallelSystemDescriptorCoercion;
 use plugin::ServerPlugin;
-use server_instance::labels::StartupLabels;
 
 /// The function that launches the server on application start.
 fn main() {
@@ -26,11 +24,6 @@ const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 /// If you want to configure the server at start up do so here by modifying [SpacePlugin].
 pub(crate) fn configure_and_start_server() {
     App::new()
-        .add_startup_system(
-            server_is_live
-                .label(StartupLabels::ServerIsLive)
-                .after(StartupLabels::InitAtmospherics),
-        )
         .add_plugin(ServerPlugin {
             version: APP_VERSION.to_owned(),
             ..Default::default()

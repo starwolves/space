@@ -2,8 +2,8 @@ use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
 use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 use networking::{
-    messages::{PendingNetworkMessage, ReliableServerMessage},
     plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID},
+    server::{PendingNetworkMessage, ReliableServerMessage},
 };
 use server_instance::core::{ConnectedPlayer, HandleToEntity};
 

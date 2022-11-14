@@ -8,7 +8,7 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use gridmap_meta::core::GridItemData;
-use networking::messages::net_system;
+use networking::server::net_system;
 use rigid_body::spawn::summon_rigid_body;
 use server_instance::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,

@@ -10,10 +10,10 @@ use chat_api::core::FURTHER_ITALIC_FONT;
 use chat_api::core::HEALTHY_COLOR;
 use chat_api::core::UNHEALTHY_COLOR;
 use chat_api::core::{ASTRIX, END_ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
-use networking::messages::InputExamineEntity;
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
-use networking::messages::{InputExamineMap, ReliableServerMessage};
+use networking::server::InputExamineEntity;
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::{InputExamineMap, ReliableServerMessage};
 use networking_macros::NetMessage;
 use server_instance::core::HandleToEntity;
 

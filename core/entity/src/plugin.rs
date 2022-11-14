@@ -1,7 +1,7 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
-use networking::messages::net_system;
+use networking::server::net_system;
 use server_instance::labels::{
     ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels,
 };

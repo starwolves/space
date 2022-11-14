@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Query};
 use entity::entity_data::{get_entity_update_difference, EntityUpdates};
-use networking::messages::EntityUpdateData;
+use networking::server::EntityUpdateData;
 
 use super::counter_window_events::{
     CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus,

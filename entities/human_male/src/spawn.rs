@@ -27,7 +27,7 @@ use inventory_item::{
 };
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;
-use networking::messages::ReliableServerMessage;
+use networking::server::ReliableServerMessage;
 use pawn::pawn::{
     ControllerInput, Pawn, PawnDesignation, PersistentPlayerData, ShipAuthorization,
     ShipAuthorizationEnum, ShipJobsEnum, UsedNames,

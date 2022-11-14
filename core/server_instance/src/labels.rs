@@ -1,7 +1,7 @@
 use bevy::prelude::SystemLabel;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(any(feature = "server", feature = "client"))]
+#[cfg(feature = "server")]
 pub enum StartupLabels {
     ConsoleCommands,
     MiscResources,
