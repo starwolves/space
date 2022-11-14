@@ -7,7 +7,7 @@ use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use gridmap::grid::GridmapData;
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
-use networking::messages::NetPlayerConn;
+use networking::server::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PawnDesignation, PersistentPlayerData, UsedNames};
 use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 

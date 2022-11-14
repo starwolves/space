@@ -2,7 +2,9 @@
 //! Contains most client-side Input events.
 //! Where the server starts and the listener gets configured.
 
-/// General client input manager.
-pub mod messages;
+/// General client-side server input manager.
+pub mod client;
 /// The Bevy plugin of this crate.
 pub mod plugin;
+/// General server-side client input manager.
+pub mod server;

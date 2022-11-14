@@ -10,9 +10,9 @@ use bevy::{
 use chat_api::core::{escape_bb, get_talk_spaces};
 use console_commands::commands::CONSOLE_ERROR_COLOR;
 use entity::meta::SoftPlayer;
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
-use networking::messages::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PersistentPlayerData, SpawnPoints, Spawning, UsedNames};
 use server_instance::core::{ConnectedPlayer, HandleToEntity};

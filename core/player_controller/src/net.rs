@@ -7,7 +7,7 @@ use entity::entity_data::EntityUpdates;
 use entity::meta::SoftPlayer;
 use gi_probe::core::GIProbe;
 use humanoid::humanoid::Humanoid;
-use networking::messages::{
+use networking::server::{
     InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady, NetLoadEntity,
     ReliableServerMessage, ServerConfigMessage,
 };
@@ -19,8 +19,8 @@ use world_environment::environment::WorldEnvironment;
 use std::{collections::HashMap, f32::consts::PI};
 
 use super::connection::{Boarding, SetupPhase};
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
 pub(crate) struct NetSendServerTime {

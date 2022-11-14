@@ -12,7 +12,7 @@ use bevy_rapier3d::prelude::{Collider, CollisionGroups, Group};
 use chat_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use math::grid::{world_to_cell_id, Vec2Int};
-use networking::messages::ReliableServerMessage;
+use networking::server::ReliableServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
 use physics::physics::{get_bit_masks, ColliderGroup};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};

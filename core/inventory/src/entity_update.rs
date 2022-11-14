@@ -4,7 +4,7 @@ use bevy::prelude::{warn, Changed, Query};
 use entity::entity_data::{get_entity_update_difference, EntityData, EntityUpdates};
 use inventory_api::core::Inventory;
 use inventory_item::item::InventoryItem;
-use networking::messages::EntityUpdateData;
+use networking::server::EntityUpdateData;
 
 /// Attach items to slots or wear items with 3d models and textures for clients.
 #[cfg(feature = "server")]

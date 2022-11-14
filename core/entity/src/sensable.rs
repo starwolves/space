@@ -1,6 +1,6 @@
 use bevy::ecs::entity::Entity;
 use bevy::prelude::{Component, EventWriter, Res};
-use networking::messages::NetUnloadEntity;
+use networking::server::NetUnloadEntity;
 use server_instance::core::HandleToEntity;
 
 use crate::entity_data::unload_entity;

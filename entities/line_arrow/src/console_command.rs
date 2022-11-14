@@ -7,7 +7,7 @@ use entity::{
     sensable::Sensable,
     spawn::{SpawnData, SpawnEvent},
 };
-use networking::messages::{GodotVariantValues, InputConsoleCommand, NetUnloadEntity};
+use networking::server::{GodotVariantValues, InputConsoleCommand, NetUnloadEntity};
 use server_instance::core::HandleToEntity;
 
 use super::{

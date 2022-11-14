@@ -4,7 +4,7 @@ use entity::{
     entity_data::{personalise, EntityUpdates},
     sensable::Sensable,
 };
-use networking::messages::{EntityWorldType, NetSendEntityUpdates, ReliableServerMessage};
+use networking::server::{EntityWorldType, NetSendEntityUpdates, ReliableServerMessage};
 use server_instance::core::{ConnectedPlayer, HandleToEntity};
 use showcase::core::Showcase;
 

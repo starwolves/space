@@ -7,7 +7,7 @@ use bevy::{
     time::FixedTimestep,
 };
 
-use networking::messages::{net_system, InputListActionsEntity};
+use networking::server::{net_system, InputListActionsEntity};
 use server_instance::core::{HandleToEntity, ServerId};
 use server_instance::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
 

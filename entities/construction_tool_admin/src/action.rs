@@ -2,7 +2,7 @@ use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
 use gridmap::grid::{cell_id_to_world, GridmapMain};
 use inventory_api::core::Inventory;
-use networking::messages::{InputConstructionOptionsSelection, TextTreeInputSelection};
+use networking::server::{InputConstructionOptionsSelection, TextTreeInputSelection};
 use pawn::pawn::REACH_DISTANCE;
 use server_instance::core::HandleToEntity;
 

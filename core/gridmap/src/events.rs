@@ -14,7 +14,7 @@ use entity::{
     senser::{to_doryen_coordinates, Senser},
 };
 use math::grid::Vec3Int;
-use networking::messages::{GridMapLayer, ReliableServerMessage};
+use networking::server::{GridMapLayer, ReliableServerMessage};
 use serde::Deserialize;
 use server_instance::core::ConnectedPlayer;
 

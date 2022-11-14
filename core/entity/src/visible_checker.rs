@@ -5,7 +5,7 @@ use bevy::{
 use bevy_rapier3d::prelude::RigidBody;
 
 use math::grid::world_to_cell_id;
-use networking::messages::{NetLoadEntity, NetUnloadEntity};
+use networking::server::{NetLoadEntity, NetUnloadEntity};
 use server_instance::core::ConnectedPlayer;
 
 use crate::{

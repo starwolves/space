@@ -6,9 +6,9 @@ use entity::examine::GridmapExamineMessages;
 use entity::senser::Senser;
 use entity::senser::SensingAbility;
 use math::grid::Vec2Int;
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
-use networking::messages::ReliableServerMessage;
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
 
 #[derive(NetMessage)]

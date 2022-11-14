@@ -1,6 +1,6 @@
 use bevy::prelude::{Entity, EventWriter, ResMut};
 use console_commands::commands::NetEntityConsole;
-use networking::messages::ReliableServerMessage;
+use networking::server::ReliableServerMessage;
 use pawn::pawn::UsedNames;
 
 /// Player selector to entities.

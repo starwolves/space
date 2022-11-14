@@ -4,7 +4,7 @@ use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use entity::meta::SoftPlayer;
 use gridmap::grid::GridmapData;
 use map::map_input::MapData;
-use networking::messages::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
+use networking::server::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
 use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 

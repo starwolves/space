@@ -11,7 +11,7 @@ edition = "2021"
 
 [dependencies.bevy]
 version = "0.8.1"
-default-features = false
 
 [dependencies]
-server_instance = { path = "../core/server_instance",  features=["client"] }
+networking = { path = "../core/networking",  features=["client"] }
+menu_main = { path = "../core/menu_main",  features=["client"] }

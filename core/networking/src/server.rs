@@ -30,12 +30,14 @@ pub struct NetPlayerConn {
 pub const SERVER_PORT: u16 = 57713;
 
 /// Network protocol ID.
-#[cfg(feature = "server")]
-const PROTOCOL_ID: u64 = 7;
+#[cfg(any(feature = "server", feature = "client"))]
+pub(crate) const PROTOCOL_ID: u64 = 7;
 
 /// Start server and open and listen to port.
 #[cfg(feature = "server")]
-pub(crate) fn startup_listen_connections(encryption_key: [u8; NETCODE_KEY_BYTES]) -> RenetServer {
+pub(crate) fn startup_server_listen_connections(
+    encryption_key: [u8; NETCODE_KEY_BYTES],
+) -> RenetServer {
     let server_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
         .parse()
         .unwrap();
@@ -1177,12 +1179,12 @@ pub enum ProjectileData {
     Ballistic,
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
+#[cfg(feature = "server")]
 pub trait PendingMessage {
     fn get_message(&self) -> PendingNetworkMessage;
 }
 #[derive(NetMessage)]
-#[cfg(any(feature = "server", feature = "client"))]
+#[cfg(feature = "server")]
 pub struct PendingNetworkMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
@@ -1209,20 +1211,20 @@ pub enum TextTreeBit {
 }
 
 /// Input chat message event.
-#[cfg(any(feature = "server", feature = "client"))]
+#[cfg(feature = "server")]
 pub struct InputChatMessage {
     pub entity: Entity,
     pub message: String,
 }
 
 #[derive(NetMessage)]
-#[cfg(any(feature = "server", feature = "client"))]
+#[cfg(feature = "server")]
 pub struct NetSendEntityUpdates {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
-#[cfg(any(feature = "server", feature = "client"))]
+#[cfg(feature = "server")]
 pub(crate) struct NetHealth {
     pub handle: u64,
     pub message: ReliableServerMessage,

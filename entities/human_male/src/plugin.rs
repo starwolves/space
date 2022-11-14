@@ -6,7 +6,7 @@ use entity::{
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
-use networking::messages::net_system;
+use networking::server::net_system;
 use rigid_body::spawn::summon_rigid_body;
 use server_instance::labels::{CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 

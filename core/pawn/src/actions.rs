@@ -1,7 +1,7 @@
 use actions::core::{ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Res, ResMut};
 use entity::examine::{ExamineEntityMessages, GridmapExamineMessages};
-use networking::messages::{InputExamineEntity, InputExamineMap};
+use networking::server::{InputExamineEntity, InputExamineMap};
 use server_instance::core::HandleToEntity;
 
 /// Pawn examine action prerequisite check.

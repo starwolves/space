@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
-use networking::messages::net_system;
+use networking::server::net_system;
 use pawn::pawn::UsedNames;
 use server_instance::labels::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLabels};
 

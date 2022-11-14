@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
-use networking::messages::{GodotVariantValues, ReliableServerMessage};
+use networking::server::{GodotVariantValues, ReliableServerMessage};
 use serde::Deserialize;
 use showcase::core::{Showcase, ShowcaseData};
 

@@ -5,10 +5,10 @@ use bevy::{
 };
 use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
-use networking::messages::{InputMap, InputMapRequestOverlay, MapInput, ReliableServerMessage};
+use networking::server::{InputMap, InputMapRequestOverlay, MapInput, ReliableServerMessage};
 
-use networking::messages::PendingMessage;
-use networking::messages::PendingNetworkMessage;
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
 use networking_macros::NetMessage;
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.

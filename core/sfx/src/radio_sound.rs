@@ -1,4 +1,4 @@
-use networking::messages::ReliableServerMessage;
+use networking::server::ReliableServerMessage;
 
 use crate::builder::get_random_pitch_scale;
 

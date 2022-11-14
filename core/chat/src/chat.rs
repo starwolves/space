@@ -57,9 +57,9 @@ use entity::{
     senser::{to_doryen_coordinates, Senser},
 };
 use math::grid::world_to_cell_id;
-use networking::messages::{EntityUpdateData, PendingMessage};
-use networking::messages::{EntityWorldType, InputChatMessage, PendingNetworkMessage};
-use networking::messages::{NetSendEntityUpdates, ReliableServerMessage};
+use networking::server::{EntityUpdateData, PendingMessage};
+use networking::server::{EntityWorldType, InputChatMessage, PendingNetworkMessage};
+use networking::server::{NetSendEntityUpdates, ReliableServerMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use server_instance::core::{ConnectedPlayer, HandleToEntity};

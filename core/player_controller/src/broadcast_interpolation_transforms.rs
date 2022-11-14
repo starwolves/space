@@ -7,7 +7,7 @@ use bevy_rapier3d::prelude::{RigidBody, Velocity};
 use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 use entity::{entity_data::CachedBroadcastTransform, sensable::Sensable};
-use networking::{messages::UnreliableServerMessage, plugin::RENET_UNRELIABLE_CHANNEL_ID};
+use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableServerMessage};
 use physics::physics::RigidBodyDisabled;
 use server_instance::core::{ConnectedPlayer, HandleToEntity};
 

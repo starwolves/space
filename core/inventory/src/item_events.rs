@@ -30,7 +30,7 @@ use gridmap::{
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use inventory_api::core::Inventory;
 use inventory_item::item::InventoryItem;
-use networking::messages::{
+use networking::server::{
     EntityUpdateData, EntityWorldType, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
     InputUseWorldItem, InputWearItem, ReliableServerMessage,
 };

@@ -9,7 +9,7 @@ use bevy::{
     asset::AssetPlugin,
     core::{CorePlugin, DefaultTaskPoolOptions},
     log::LogPlugin,
-    prelude::{App, Plugin},
+    prelude::{App, ParallelSystemDescriptorCoercion, Plugin},
     render::{settings::WgpuSettings, RenderPlugin},
     scene::ScenePlugin,
     time::TimePlugin,
@@ -42,10 +42,12 @@ use pistol_l1::plugin::PistolL1Plugin;
 use player_controller::plugin::ConnectedPlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
 use rigid_body::plugin::RigidBodyPlugin;
-use server_instance::core::TickRate;
+use server_instance::{core::TickRate, labels::StartupLabels};
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;
+
+use crate::server_is_live;
 
 /// The main plugin to add to execute the server.
 pub struct ServerPlugin {
@@ -129,7 +131,12 @@ impl Plugin for ServerPlugin {
             .add_plugin(LineArrowPlugin)
             .add_plugin(PointArrowPlugin)
             .add_plugin(SoundsPlugin)
-            .add_plugin(ChatPlugin);
+            .add_plugin(ChatPlugin)
+            .add_startup_system(
+                server_is_live
+                    .label(StartupLabels::ServerIsLive)
+                    .after(StartupLabels::InitAtmospherics),
+            );
         match self.threads_amount {
             Some(amn) => {
                 app.insert_resource(DefaultTaskPoolOptions::with_num_threads(amn.into()));

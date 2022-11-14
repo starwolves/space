@@ -19,7 +19,7 @@ use inventory_item::{
     item::{CombatStandardAnimation, InventoryItem},
 };
 use math::grid::world_to_cell_id;
-use networking::messages::{InputToggleCombatMode, NetUnloadEntity};
+use networking::server::{InputToggleCombatMode, NetUnloadEntity};
 use pawn::pawn::{
     facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
 };

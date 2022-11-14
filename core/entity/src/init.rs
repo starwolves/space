@@ -1,6 +1,6 @@
 use bevy::prelude::{info, Res, ResMut};
 use console_commands::commands::AllConsoleCommands;
-use networking::messages::GodotVariant;
+use networking::server::GodotVariant;
 
 use crate::meta::EntityDataResource;
 
