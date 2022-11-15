@@ -14,6 +14,6 @@ version = "0.8.1"
 
 [dependencies]
 networking = { path = "../core/networking",  features=["client"] }
-menu_main = { path = "../core/menu_main",  features=["client"] }
+main_menu = { path = "../core/main_menu",  features=["client"] }
 winit_windows = { path = "../core/winit_windows",  features=["client"] }
 resources = { path = "../core/resources",  features=["client"] }

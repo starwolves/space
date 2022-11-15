@@ -1,5 +1,5 @@
 [package]
-name = "menu_main"
+name = "main_menu"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="The main menu displayed on the client at launch."
