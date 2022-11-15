@@ -29,9 +29,11 @@ Socials:
 * [Matrix](https://matrix.to/#/#space-frontiers:comms.starwolves.io)
 
 #### Community description:
-**Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
 We are by no means ordinary and revolutionary would be a better word.
 There is community sovereignty, integrity, values and strong personalities together with honest beings and experienced leaders that operate in truth and good faith.
+
+**Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
+
 
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own server. 👑
