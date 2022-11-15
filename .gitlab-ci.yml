@@ -4,6 +4,7 @@ test:cargo:
   tags:
     - space
   script:
+    - apt update
     - apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
     - rustc --version && cargo --version
     - cargo check
