@@ -15,8 +15,8 @@ use entity::{
 };
 use math::grid::Vec3Int;
 use networking::server::{GridMapLayer, ReliableServerMessage};
+use resources::core::ConnectedPlayer;
 use serde::Deserialize;
-use server_instance::core::ConnectedPlayer;
 
 use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMain, RemoveCell};
 

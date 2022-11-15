@@ -8,8 +8,7 @@ use bevy::{
 };
 
 use networking::server::{net_system, InputListActionsEntity};
-use server_instance::core::{HandleToEntity, ServerId};
-use server_instance::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
+use resources::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
 
 use super::{
     boarding::{done_boarding, on_boarding, ui_input_boarding, BoardingPlayer},
@@ -41,8 +40,7 @@ pub struct ConnectedPlayerPlugin {
 impl Plugin for ConnectedPlayerPlugin {
     fn build(&self, app: &mut App) {
         if cfg!(feature = "server") {
-            app.init_resource::<HandleToEntity>()
-                .add_event::<NetUserName>()
+            app.add_event::<NetUserName>()
                 .add_event::<InputListActionsEntity>()
                 .add_system(
                     apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput),
@@ -121,8 +119,7 @@ impl Plugin for ConnectedPlayerPlugin {
                     process_finalize_net.after(PostUpdateLabels::Net),
                 )
                 .init_resource::<ClientHealthUICache>()
-                .init_resource::<BoardingAnnouncements>()
-                .init_resource::<ServerId>();
+                .init_resource::<BoardingAnnouncements>();
         }
     }
 }

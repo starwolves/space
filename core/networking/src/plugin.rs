@@ -3,7 +3,7 @@ use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
 use networking_macros::NetMessage;
-use server_instance::labels::{PostUpdateLabels, PreUpdateLabels};
+use resources::labels::{PostUpdateLabels, PreUpdateLabels};
 
 use super::server::{incoming_messages, startup_server_listen_connections};
 use crate::server::PendingMessage;

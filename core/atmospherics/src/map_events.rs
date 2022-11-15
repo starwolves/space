@@ -10,7 +10,7 @@ use map::map::{
 };
 use math::grid::{world_to_cell_id, Vec2Int};
 use networking::server::ReliableServerMessage;
-use server_instance::core::ConnectedPlayer;
+use resources::core::ConnectedPlayer;
 
 use crate::diffusion::{
     get_atmos_id, get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET,

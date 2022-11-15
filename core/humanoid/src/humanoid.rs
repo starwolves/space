@@ -23,8 +23,8 @@ use networking::server::{InputToggleCombatMode, NetUnloadEntity};
 use pawn::pawn::{
     facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
 };
+use resources::core::{HandleToEntity, TickRate};
 use rigid_body::rigid_body::RigidBodyData;
-use server_instance::core::{HandleToEntity, TickRate};
 use sfx::builder::repeating_sfx_builder;
 use showcase::core::Showcase;
 use sounds::actions::{

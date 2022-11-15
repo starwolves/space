@@ -6,7 +6,7 @@ use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
 use networking_macros::NetMessage;
-use server_instance::core::ConnectedPlayer;
+use resources::core::ConnectedPlayer;
 const UI_ALPHA: f32 = 146.;
 const NONE_UI_RED: f32 = 102.;
 const NONE_UI_GREEN: f32 = 165.;

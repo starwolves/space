@@ -6,7 +6,7 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use networking::server::GodotVariant;
-use server_instance::labels::{StartupLabels, SummoningLabels};
+use resources::labels::{StartupLabels, SummoningLabels};
 
 use crate::console_command::entity_console_commands;
 

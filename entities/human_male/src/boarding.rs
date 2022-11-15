@@ -12,7 +12,7 @@ use networking_macros::NetMessage;
 use pawn::pawn::{PawnDesignation, PersistentPlayerData, Spawning, UsedNames};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use player_controller::connection::SpawnPawnData;
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 
 /// Spawn player as human male with preset inventory.
 #[cfg(feature = "server")]

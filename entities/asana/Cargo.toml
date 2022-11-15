@@ -22,4 +22,5 @@ default-features = false
 player_controller = { path = "../../core/player_controller" ,  features=["server"]}
 pawn = { path = "../../core/pawn" ,  features=["server"]}
 chat = { path = "../../core/chat",  features=["server"] }
-server_instance = { path = "../../core/server_instance",  features=["server"] }
+resources = { path = "../../core/resources",  features=["server"] }
+

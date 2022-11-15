@@ -9,10 +9,10 @@ use entity::{
 };
 use gridmap_meta::core::GridItemData;
 use networking::server::net_system;
-use rigid_body::spawn::summon_rigid_body;
-use server_instance::labels::{
+use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
 };
+use rigid_body::spawn::summon_rigid_body;
 
 use crate::{
     actions::{

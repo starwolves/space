@@ -8,10 +8,10 @@ use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{summon_base_entity, SpawnEvent};
 use inventory_item::spawn::summon_inventory_item;
 use networking::server::{net_system, InputConstructionOptionsSelection};
-use rigid_body::spawn::summon_rigid_body;
-use server_instance::labels::{
+use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
+use rigid_body::spawn::summon_rigid_body;
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,

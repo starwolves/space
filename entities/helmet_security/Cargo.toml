@@ -27,4 +27,4 @@ inventory_api = { path = "../../core/inventory_api",  features=["server"] }
 rigid_body = { path = "../../core/rigid_body" ,  features=["server"]}
 combat = { path = "../../core/combat" ,  features=["server"]}
 data_converters = { path = "../../core/data_converters",  features=["server"] }
-server_instance = { path = "../../core/server_instance" ,  features=["server"]}
+resources = { path = "../../core/resources" ,  features=["server"]}

@@ -1,8 +1,6 @@
 use bevy::time::FixedTimestep;
 use networking::server::net_system;
-use server_instance::labels::{
-    ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels,
-};
+use resources::labels::{ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
 
 use crate::diffusion::AtmosphericsResource;
 use crate::examine_events::{examine_map_atmos, NetAtmosphericsMapExamine};

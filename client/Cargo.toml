@@ -16,3 +16,4 @@ version = "0.8.1"
 networking = { path = "../core/networking",  features=["client"] }
 menu_main = { path = "../core/menu_main",  features=["client"] }
 winit_windows = { path = "../core/winit_windows",  features=["client"] }
+resources = { path = "../core/resources",  features=["client"] }

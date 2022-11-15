@@ -5,7 +5,7 @@ use entity::{
     sensable::Sensable,
 };
 use networking::server::{EntityWorldType, NetSendEntityUpdates, ReliableServerMessage};
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 use showcase::core::Showcase;
 
 /// Finalize entity updates of this frame and send them to Godot clients.

@@ -8,7 +8,7 @@ use entity::{
     spawn::{SpawnData, SpawnEvent},
 };
 use networking::server::{GodotVariantValues, InputConsoleCommand, NetUnloadEntity};
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 use super::{
     line_arrow::PointArrow,

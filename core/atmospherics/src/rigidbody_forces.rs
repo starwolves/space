@@ -8,7 +8,7 @@ use gridmap::grid::{AdjacentTileDirection, GridmapMain};
 use math::grid::{world_to_cell_id, Vec2Int};
 use pawn::pawn::Pawn;
 use physics::physics::RigidBodyDisabled;
-use server_instance::core::TickRate;
+use resources::core::TickRate;
 
 use std::collections::HashMap;
 

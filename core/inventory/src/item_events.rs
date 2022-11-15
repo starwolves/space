@@ -35,7 +35,7 @@ use networking::server::{
     InputUseWorldItem, InputWearItem, ReliableServerMessage,
 };
 use rand::Rng;
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,

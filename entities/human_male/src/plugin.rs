@@ -7,8 +7,8 @@ use entity::{
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
 use networking::server::net_system;
+use resources::labels::{CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 use rigid_body::spawn::summon_rigid_body;
-use server_instance::labels::{CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use crate::{
     boarding::{on_spawning, NetOnSpawning},

@@ -8,6 +8,7 @@ use bevy::{
     DefaultPlugins,
 };
 use menu_main::plugin::MainMenuPlugin;
+use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use winit_windows::plugin::WinitWindowsPlugin;
 
 use crate::client_is_live;
@@ -35,6 +36,7 @@ impl Plugin for ClientPlugin {
             },
             encryption_key_string,
         ))*/
+
         app.insert_resource(WindowDescriptor {
             title: "Space Frontiers ".to_string() + &self.version,
             width: 1280.,
@@ -49,6 +51,10 @@ impl Plugin for ClientPlugin {
         .insert_resource(WinitSettings::game())
         .add_plugin(MainMenuPlugin)
         .add_plugin(WinitWindowsPlugin)
+        .add_plugin(ResourcesPlugin)
+        .insert_resource(ClientInformation {
+            version: self.version.clone(),
+        })
         .add_startup_system(client_is_live)
         .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {

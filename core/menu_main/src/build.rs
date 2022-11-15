@@ -1,13 +1,14 @@
 use bevy::{
     prelude::{
-        AssetServer, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, Entity,
-        EventReader, EventWriter, NodeBundle, Res, ResMut, TextBundle,
+        AssetServer, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, Component,
+        Entity, EventReader, EventWriter, NodeBundle, Res, ResMut, TextBundle,
     },
     text::TextStyle,
     ui::{
         AlignContent, AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val,
     },
 };
+use resources::core::ClientInformation;
 
 /// Event.
 #[cfg(feature = "client")]
@@ -34,6 +35,13 @@ pub const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
 
+#[derive(Component)]
+pub(crate) struct MainMenuPlayButton;
+#[derive(Component)]
+pub(crate) struct MainMenuSettingsButton;
+#[derive(Component)]
+pub(crate) struct MainMenuExitButton;
+
 /// System that toggles the visiblity of the main menu based on an event.
 #[cfg(feature = "client")]
 pub(crate) fn show_main_menu(
@@ -41,6 +49,7 @@ pub(crate) fn show_main_menu(
     mut state: ResMut<MainMenuState>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    client_information: Res<ClientInformation>,
 ) {
     if state.enabled {
         return;
@@ -61,13 +70,6 @@ pub(crate) fn show_main_menu(
         let mut builder = commands.spawn();
 
         let entity = builder.id();
-
-        let button_padding = UiRect::new(
-            Val::Undefined,
-            Val::Undefined,
-            Val::Undefined,
-            Val::Percent(2.),
-        );
 
         let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
 
@@ -106,6 +108,7 @@ pub(crate) fn show_main_menu(
                             .spawn()
                             .insert_bundle(NodeBundle {
                                 style: Style {
+                                    size: Size::new(Val::Percent(100.0), Val::Undefined),
                                     align_items: AlignItems::Center,
                                     flex_wrap: FlexWrap::Wrap,
                                     flex_direction: FlexDirection::Column,
@@ -119,12 +122,9 @@ pub(crate) fn show_main_menu(
                                     .spawn()
                                     .insert_bundle(ButtonBundle {
                                         color: NORMAL_BUTTON.into(),
-                                        style: Style {
-                                            padding: button_padding,
-                                            ..Default::default()
-                                        },
                                         ..Default::default()
                                     })
+                                    .insert(MainMenuExitButton)
                                     .with_children(|parent| {
                                         parent.spawn().insert_bundle(TextBundle::from_section(
                                             "Exit",
@@ -139,12 +139,9 @@ pub(crate) fn show_main_menu(
                                     .spawn()
                                     .insert_bundle(ButtonBundle {
                                         color: NORMAL_BUTTON.into(),
-                                        style: Style {
-                                            padding: button_padding,
-                                            ..Default::default()
-                                        },
                                         ..Default::default()
                                     })
+                                    .insert(MainMenuSettingsButton)
                                     .with_children(|parent| {
                                         parent.spawn().insert_bundle(TextBundle::from_section(
                                             "Settings",
@@ -159,12 +156,9 @@ pub(crate) fn show_main_menu(
                                     .spawn()
                                     .insert_bundle(ButtonBundle {
                                         color: NORMAL_BUTTON.into(),
-                                        style: Style {
-                                            padding: button_padding,
-                                            ..Default::default()
-                                        },
                                         ..Default::default()
                                     })
+                                    .insert(MainMenuPlayButton)
                                     .with_children(|parent| {
                                         parent.spawn().insert_bundle(TextBundle::from_section(
                                             "Play",
@@ -206,6 +200,25 @@ pub(crate) fn show_main_menu(
                                             .load("fonts/FontAwesome6Free-Solid-900.otf"),
                                     },
                                 ));
+                                parent.spawn().insert_bundle(
+                                    TextBundle::from_section(
+                                        client_information.version.clone(),
+                                        TextStyle {
+                                            font_size: 11.0,
+                                            color: TEXT_COLOR,
+                                            font: arizone_font.clone(),
+                                        },
+                                    )
+                                    .with_style(Style {
+                                        margin: UiRect::new(
+                                            Val::Undefined,
+                                            Val::Undefined,
+                                            Val::Undefined,
+                                            Val::Percent(3.),
+                                        ),
+                                        ..Default::default()
+                                    }),
+                                );
                                 parent.spawn().insert_bundle(
                                     TextBundle::from_section(
                                         "SpaceFrontiers",

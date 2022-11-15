@@ -9,7 +9,7 @@ use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
 use networking::server::NetPlayerConn;
 use pawn::pawn::{ControllerInput, PawnDesignation, PersistentPlayerData, UsedNames};
-use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
+use resources::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 
 use crate::{connection_events::send_server_configuration, health_ui::ClientHealthUICache};
 

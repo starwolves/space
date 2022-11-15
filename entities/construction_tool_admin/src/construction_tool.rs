@@ -38,7 +38,7 @@ use physics::physics::RigidBodyDisabled;
 use inventory_item::item::InventoryItem;
 use pawn::pawn::Pawn;
 use rand::Rng;
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     construction::{

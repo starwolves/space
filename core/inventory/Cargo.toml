@@ -34,6 +34,6 @@ sfx = { path = "../sfx",  features=["server"] }
 gridmap = { path = "../gridmap",  features=["server"] }
 actions = { path = "../actions",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }
-server_instance = { path = "../server_instance",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
 atmospherics = { path = "../atmospherics",  features=["server"] }
 math = { path = "../math",  features=["server"] }

@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use entity::spawn::SpawnEvent;
-use server_instance::labels::{PostUpdateLabels, SummoningLabels};
+use resources::labels::{PostUpdateLabels, SummoningLabels};
 
 use super::entity_update::omni_light_update;
 use super::spawn::{summon_omni_light, summon_raw_omni_light, OmniLightSummoner};

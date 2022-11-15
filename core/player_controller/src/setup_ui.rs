@@ -8,7 +8,7 @@ use networking::server::{
     UIInputNodeClass,
 };
 use pawn::{name_generator::get_full_name, pawn::UsedNames};
-use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId};
+use resources::core::{ConnectedPlayer, HandleToEntity, ServerId};
 
 use super::{
     connection::{Boarding, SetupPhase},

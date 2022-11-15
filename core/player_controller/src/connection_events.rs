@@ -6,7 +6,7 @@ use gridmap::grid::GridmapData;
 use map::map_input::MapData;
 use networking::server::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
-use server_instance::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
+use resources::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 
 use crate::connection::AuthidI;
 

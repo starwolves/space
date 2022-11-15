@@ -7,7 +7,7 @@ use networking::server::PendingNetworkMessage;
 use networking::server::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
 use networking::server::{InputListActionsEntity, InputListActionsMap};
 use networking_macros::NetMessage;
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 /// Resource with a list of actions being built this frame.
 #[cfg(feature = "server")]

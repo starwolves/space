@@ -62,7 +62,7 @@ use networking::server::{EntityWorldType, InputChatMessage, PendingNetworkMessag
 use networking::server::{NetSendEntityUpdates, ReliableServerMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 

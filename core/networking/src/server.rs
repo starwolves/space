@@ -5,8 +5,8 @@ use bevy::{
 use chat_api::core::ASTRIX;
 use math::grid::Vec3Int;
 use networking_macros::NetMessage;
+use resources::core::HandleToEntity;
 use serde::{Deserialize, Serialize};
-use server_instance::core::HandleToEntity;
 use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};

@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
-use server_instance::labels::{MapLabels, PostUpdateLabels};
+use resources::labels::{MapLabels, PostUpdateLabels};
 
 use crate::{map::MapHolders, map_input::MapData};
 

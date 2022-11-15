@@ -31,5 +31,5 @@ sfx = { path = "../sfx",  features=["server"] }
 inventory_item = { path = "../inventory_item",  features=["server"] }
 chat = { path = "../chat",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }
-server_instance = { path = "../server_instance",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
 math = { path = "../math",  features=["server"] }

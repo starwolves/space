@@ -5,7 +5,7 @@ use bevy::{
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
 use networking::server::net_system;
 use pawn::pawn::SpawnPoints;
-use server_instance::labels::{
+use resources::labels::{
     ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
 

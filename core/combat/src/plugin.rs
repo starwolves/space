@@ -2,7 +2,7 @@ use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use chat::chat::EntityProximityMessages;
 use networking::server::net_system;
-use server_instance::labels::{CombatLabels, PostUpdateLabels};
+use resources::labels::{CombatLabels, PostUpdateLabels};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
 use crate::chat::{blanks_chat, hit_query_chat_cells};

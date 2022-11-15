@@ -6,7 +6,7 @@ use bevy::{
 use chat::chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMessage, Radio};
 use pawn::pawn::{PersistentPlayerData, ShipJobsEnum};
 use player_controller::boarding::BoardingAnnouncements;
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 
 /// Manage asana boarding announcements.
 #[cfg(feature = "server")]

@@ -41,8 +41,8 @@ use pawn::plugin::PawnPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
 use player_controller::plugin::ConnectedPlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
+use resources::{core::TickRate, labels::StartupLabels, plugin::ResourcesPlugin};
 use rigid_body::plugin::RigidBodyPlugin;
-use server_instance::{core::TickRate, labels::StartupLabels};
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;
@@ -101,6 +101,7 @@ impl Plugin for ServerPlugin {
             .add_plugin(AsanaPlugin)
             .add_plugin(WorldEnvironmentPlugin)
             .add_plugin(GridmapPlugin)
+            .add_plugin(ResourcesPlugin)
             .add_plugin(PawnPlugin)
             .add_plugin(HumanMalePlugin)
             .add_plugin(SfxPlugin)

@@ -13,7 +13,7 @@ use networking::server::{
 };
 use networking_macros::NetMessage;
 use reflection_probe::core::ReflectionProbe;
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, f32::consts::PI};
