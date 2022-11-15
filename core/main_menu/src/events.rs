@@ -1,5 +1,5 @@
 use crate::build::MainMenuPlayButton;
-use crate::build::NORMAL_BUTTON;
+use crate::build::SIDEBAR_COLOR;
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
 use bevy::prelude::warn;
 use bevy::prelude::Entity;
@@ -11,6 +11,9 @@ use bevy::{
     ui::Interaction,
 };
 
+use bevy::prelude::EventWriter;
+
+use crate::build::EnablePlayMenu;
 pub const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 pub const PRESSED_BUTTON: Color = Color::rgb(0.49, 0.73, 0.91);
 
@@ -67,7 +70,7 @@ pub(crate) fn hover_visuals(
             Interaction::None => {
                 match color_query.get_mut(parent.get()) {
                     Ok(mut c) => {
-                        *c = NORMAL_BUTTON.into();
+                        *c = SIDEBAR_COLOR.into();
                     }
                     Err(_rr) => {
                         warn!("Couldnt find button parent.");
@@ -76,7 +79,7 @@ pub(crate) fn hover_visuals(
                 }
                 match color_query.get_mut(entity) {
                     Ok(mut c) => {
-                        *c = NORMAL_BUTTON.into();
+                        *c = SIDEBAR_COLOR.into();
                     }
                     Err(_rr) => {
                         warn!("Couldnt find button.");
@@ -102,10 +105,13 @@ pub(crate) fn button_presses(
         (&Interaction, &MainMenuExitButton),
         (Changed<Interaction>, With<Button>),
     >,
+    mut play_events: EventWriter<EnablePlayMenu>,
 ) {
     for (interaction, _) in &play_button_query {
         match *interaction {
-            Interaction::Clicked => {}
+            Interaction::Clicked => {
+                play_events.send(EnablePlayMenu { enable: true });
+            }
             _ => (),
         }
     }
