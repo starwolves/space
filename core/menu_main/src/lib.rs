@@ -1,6 +1,10 @@
 //! The main menu displayed on the client at launch.
 
-/// Toggles the main menu visibility with events.
-pub mod build_menu;
+/// Builds the main menu.
+pub mod build;
+/// Hides the main menu.
+pub mod hide;
 /// The Bevy ECS plugin of this crate.
 pub mod plugin;
+/// Main menu UI events.
+pub mod ui_events;
