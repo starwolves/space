@@ -10,7 +10,6 @@ license-file="LICENSE"
 edition = "2021"
 
 [features]
-server = []
 client = []
 
 [dependencies.bevy]

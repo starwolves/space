@@ -1,7 +1,10 @@
-use bevy::prelude::{App, Plugin, SystemLabel};
+use bevy::prelude::{App, ClearColor, Plugin, SystemLabel};
 
 use crate::{
-    build::{show_main_menu, startup_show_menu, EnableMainMenu, MainMenuState},
+    build::{
+        show_main_menu, show_play_menu, startup_show_menu, EnableMainMenu, EnablePlayMenu,
+        MainMenuState, PlayMenuState, MAIN_BG_COLOR,
+    },
     events::{button_presses, hover_visuals},
     hide::hide_main_menu,
 };
@@ -23,7 +26,11 @@ impl Plugin for MainMenuPlugin {
                 .init_resource::<MainMenuState>()
                 .add_startup_system(startup_show_menu)
                 .add_system(hover_visuals)
-                .add_system(button_presses);
+                .insert_resource(ClearColor(MAIN_BG_COLOR))
+                .add_system(button_presses)
+                .add_event::<EnablePlayMenu>()
+                .add_system(show_play_menu)
+                .init_resource::<PlayMenuState>();
         }
     }
 }

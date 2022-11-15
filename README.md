@@ -19,18 +19,19 @@
 
 *Space frontiers seeks to deliver an experience that offers very high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
-The repository of a modular and moddable multi-threaded sci-fi headless community game server written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client it communicates with is made with Godot as the official closed-source prototype Space Frontiers client. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
+The repository of the modular and moddable multi-threaded sci-fi community game server Space Frontiers, written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client is made with Godot. The new client is being built with Bevy. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
 
-You can see gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).
+There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).
 
 ### Community & Organization
 Socials:
 * [Discord](https://discord.gg/yYpMun9CTT)
 * [Matrix](https://matrix.to/#/#space-frontiers:comms.starwolves.io)
 
-We are by no means ordinary, revolutionary would be a better word.
-At the top there is integrity, values and strong personalities together with honest beings and leaders that operate in truth and good faith.
-
+#### Community description:
+**Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
+We are by no means ordinary and revolutionary would be a better word.
+There is community sovereignty, integrity, values and strong personalities together with honest beings and experienced leaders that operate in truth and good faith.
 
 ### Features (All Moddable & Modular)
 * Decentralized gameplay, each community can host their own server. 👑
@@ -67,21 +68,27 @@ There is also a [(currently outdated) guide](https://guide.docs.sf.starwolves.io
 * [Bevy ECS dependencies](https://bevyengine.org/learn/book/getting-started/setup/#install-os-dependencies)
   
 
-### Executing game server
+### Executing Space Frontiers
 
   
 
-To compile and run the game server:
+To compile and run Space Frontiers:
 * Select latest versioned branch (not master) from this repository and clone it.
 * In your terminal navigate to the project folder you have just obtained and run:
 
+To start the server run:
 ```
-cargo run
+cargo run --bin server
 ```
 
-To run the game server, but optimized:
+To start the client run:
 ```
-cargo run --release
+cargo run --bin client
+```
+
+To run Space Frontiers at maximum performance you should add the following flag to the run command:
+```
+--release
 ```
 
 ### Prototype Godot Client
@@ -91,7 +98,7 @@ Ensure your server has the right git branch with the same version as the obtaine
 The prototype client is built on top of a Godot 3.4 release.
 
 ### The new Bevy client
-Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are literally just getting started so it is being made from scratch and it will be a while before it is of any use. The client is going to be integrated in this same repository. 
+Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are just getting started and it will be a while before it is of any use. The new Bevy client is integrated in the same repository.
 
 ## Contributing
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for some years to come.
@@ -106,8 +113,8 @@ Contributors of this project have to agree to our [Collaberative License Agreeme
 
 ## License
 
-The code of this repository is licensed under [the proprietary code license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE). The assets of this repository are licensed under the [the proprietary assets license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE_ASSETS). Both licenses we intend to support with good faith and integrity to value authenticity, community freedoms and western freedoms for individual communities without elements of modern day cancel culture 👑.
+The code of this repository is licensed under [the proprietary code license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE). The assets of this repository are licensed under the [the proprietary assets license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE_ASSETS). Both licenses we intend to support with value to authenticity and community freedoms without elements of modern day cancel culture 👑.
 
-### AGPLv3 Milestone
+### AGPLv3 & CC BY-SA 4.0 Milestone 
 
-In the further future when a yet to be-decided amount of copies have been sold: the codebase for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International.
+In the further future when a yet to be-decided amount of copies have been sold: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International.
