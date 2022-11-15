@@ -5,7 +5,7 @@ use networking::{
     plugin::{NetEvent, RENET_RELIABLE_CHANNEL_ID},
     server::{PendingNetworkMessage, ReliableServerMessage},
 };
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 
 /// Finalize sending netcode messages to clients as a function.
 #[cfg(feature = "server")]

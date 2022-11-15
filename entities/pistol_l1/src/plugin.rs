@@ -11,8 +11,8 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use inventory_item::spawn::summon_inventory_item;
+use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
 use rigid_body::spawn::summon_rigid_body;
-use server_instance::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::pistol_l1::{PistolL1, PISTOL_L1_ENTITY_NAME};
 

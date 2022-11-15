@@ -30,7 +30,7 @@ networking_macros = { path = "../networking_macros",  features=["server"] }
 math = { path = "../math",  features=["server"] }
 console_commands = { path = "../console_commands",  features=["server"] }
 actions = { path = "../actions",  features=["server"] }
-server_instance = { path = "../server_instance",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
 showcase = { path = "../showcase",  features=["server"] }
 gridmap_meta = { path = "../gridmap_meta",  features=["server"] }
 chat_api = { path = "../chat_api",  features=["server"] }

@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
-use server_instance::labels::{ActionsLabels, PostUpdateLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels};
 
 use crate::core::{
     clear_action_building, init_action_data_listing, init_action_request_building,

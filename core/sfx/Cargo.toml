@@ -22,4 +22,4 @@ rand = "0.8.5"
 
 entity = { path = "../entity" ,  features=["server"]}
 networking = { path = "../networking",  features=["server"] }
-server_instance = { path = "../server_instance",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }

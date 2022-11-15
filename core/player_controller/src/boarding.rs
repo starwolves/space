@@ -15,7 +15,7 @@ use networking::server::PendingNetworkMessage;
 use networking::server::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PersistentPlayerData, SpawnPoints, Spawning, UsedNames};
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 
 /// Component with boarding data.
 #[cfg(feature = "server")]

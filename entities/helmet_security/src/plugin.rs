@@ -9,8 +9,8 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use inventory_item::spawn::summon_inventory_item;
+use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
 use rigid_body::spawn::summon_rigid_body;
-use server_instance::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::helmet::{Helmet, HELMET_SECURITY_ENTITY_NAME};
 

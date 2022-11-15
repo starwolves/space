@@ -20,5 +20,5 @@ default-features = false
 [dependencies]
 networking = { path = "../networking",  features=["server"] }
 networking_macros = { path = "../networking_macros",  features=["server"] }
-server_instance = { path = "../server_instance",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
 math = { path = "../math",  features=["server"] }

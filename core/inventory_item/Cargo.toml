@@ -24,7 +24,7 @@ console_commands = { path = "../console_commands" ,  features=["server"]}
 
 actions = { path = "../actions",  features=["server"] }
 networking = { path = "../networking" ,  features=["server"]}
-server_instance = { path = "../server_instance" ,  features=["server"]}
+resources = { path = "../resources" ,  features=["server"]}
 showcase = { path = "../showcase" ,  features=["server"]}
 inventory_api = { path = "../inventory_api",  features=["server"] }
 chat_api = { path = "../chat_api",  features=["server"] }

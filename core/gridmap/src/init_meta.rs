@@ -11,7 +11,7 @@ use entity::{
     examine::RichName,
 };
 use pawn::pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints};
-use server_instance::core::{ServerId, TickRate};
+use resources::core::{ServerId, TickRate};
 
 use crate::{
     build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},

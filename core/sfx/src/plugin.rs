@@ -3,7 +3,7 @@ use bevy::{
     time::FixedTimestep,
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
-use server_instance::labels::PostUpdateLabels;
+use resources::labels::PostUpdateLabels;
 
 use crate::{entity_update::SfxAutoDestroyTimers, timers::free_sfx};
 

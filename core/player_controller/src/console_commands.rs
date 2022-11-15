@@ -11,7 +11,7 @@ use inventory_api::core::Inventory;
 use inventory_item::spawn::spawn_held_entity;
 use networking::server::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
 use pawn::pawn::{Pawn, UsedNames};
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 use std::collections::HashMap;
 
 use crate::player_selectors::player_selector_to_entities;

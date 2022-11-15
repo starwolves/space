@@ -35,7 +35,7 @@ inventory = { path = "../core/inventory",  features=["server"] }
 rigid_body = { path = "../core/rigid_body",  features=["server"] }
 chat = { path = "../core/chat",  features=["server"] }
 motd = { path = "../core/motd",  features=["server"] }
-server_instance = { path = "../core/server_instance",  features=["server"] }
+resources = { path = "../core/resources",  features=["server"] }
 
 sounds = { path = "../entities/sounds",  features=["server"] }
 air_locks = { path = "../entities/air_locks",  features=["server"] }

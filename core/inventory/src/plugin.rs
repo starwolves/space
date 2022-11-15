@@ -1,6 +1,6 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
-use server_instance::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
 
 use crate::{actions::pickup_prerequisite_check, item_events::pickup_world_item_action};
 

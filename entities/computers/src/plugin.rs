@@ -5,8 +5,8 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
+use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
 use rigid_body::spawn::summon_rigid_body;
-use server_instance::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::computer::Computer;
 

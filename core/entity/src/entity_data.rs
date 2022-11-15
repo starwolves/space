@@ -18,7 +18,7 @@ use bevy_renet::renet::RenetServer;
 use bincode::serialize;
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 use crate::{
     meta::{EntityDataProperties, EntityDataResource},

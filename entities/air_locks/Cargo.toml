@@ -37,6 +37,6 @@ actions = { path = "../../core/actions",  features=["server"] }
 gridmap = { path = "../../core/gridmap",  features=["server"] }
 data_converters = { path = "../../core/data_converters",  features=["server"] }
 data_link = { path = "../../core/data_link",  features=["server"] }
-server_instance = { path = "../../core/server_instance" ,  features=["server"]}
+resources = { path = "../../core/resources" ,  features=["server"]}
 math = { path = "../../core/math",  features=["server"] }
 gridmap_meta = { path = "../../core/gridmap_meta",  features=["server"] }

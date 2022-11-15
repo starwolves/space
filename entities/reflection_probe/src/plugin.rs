@@ -1,7 +1,7 @@
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use entity::spawn::SpawnEvent;
-use server_instance::labels::{PostUpdateLabels, SummoningLabels};
+use resources::labels::{PostUpdateLabels, SummoningLabels};
 
 use super::entity_update::reflection_probe_update;
 use super::spawn::{spawn_raw_reflection_probe, summon_reflection_probe, ReflectionProbeSummoner};

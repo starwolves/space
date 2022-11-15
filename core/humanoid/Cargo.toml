@@ -33,7 +33,7 @@ rigid_body = { path = "../rigid_body",  features=["server"] }
 console_commands = { path = "../console_commands",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }
 gridmap = { path = "../gridmap",  features=["server"] }
-server_instance = { path = "../server_instance",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
 showcase = { path = "../showcase",  features=["server"] }
 atmospherics = { path = "../atmospherics",  features=["server"] }
 math = { path = "../math",  features=["server"] }

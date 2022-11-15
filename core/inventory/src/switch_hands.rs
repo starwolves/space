@@ -1,7 +1,7 @@
 use bevy::prelude::{EventReader, EventWriter, Query, Res};
 use inventory_api::core::Inventory;
 use networking::server::{InputSwitchHands, ReliableServerMessage};
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 use super::net::NetSwitchHands;
 

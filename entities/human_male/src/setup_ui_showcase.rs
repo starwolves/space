@@ -5,7 +5,7 @@ use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pawn::pawn::{PawnDesignation, PersistentPlayerData};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use player_controller::connection::{SetupPhase, SpawnPawnData};
-use server_instance::core::ConnectedPlayer;
+use resources::core::ConnectedPlayer;
 use showcase::core::ShowcaseData;
 
 use crate::spawn::HumanMaleSummoner;

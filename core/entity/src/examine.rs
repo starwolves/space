@@ -15,7 +15,7 @@ use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::{InputExamineMap, ReliableServerMessage};
 use networking_macros::NetMessage;
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 #[derive(NetMessage)]
 #[cfg(feature = "server")]

@@ -64,3 +64,9 @@ impl Default for ServerId {
         }
     }
 }
+
+/// Resource that stores information of client.
+#[cfg(feature = "client")]
+pub struct ClientInformation {
+    pub version: String,
+}

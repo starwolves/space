@@ -38,7 +38,7 @@ motd = { path = "../motd",  features=["server"] }
 chat = { path = "../chat",  features=["server"] }
 gridmap = { path = "../gridmap",  features=["server"] }
 world_environment = { path = "../world_environment",  features=["server"] }
-server_instance = { path = "../server_instance",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
 showcase = { path = "../showcase",  features=["server"] }
 math = { path = "../math",  features=["server"] }
 gi_probe = { path = "../../entities/gi_probe",  features=["server"] }

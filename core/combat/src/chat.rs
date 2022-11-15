@@ -20,7 +20,7 @@ use networking::server::PendingNetworkMessage;
 use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,

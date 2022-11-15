@@ -2,7 +2,7 @@ use actions::core::{ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Res, ResMut};
 use entity::examine::{ExamineEntityMessages, GridmapExamineMessages};
 use networking::server::{InputExamineEntity, InputExamineMap};
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 /// Pawn examine action prerequisite check.
 #[cfg(feature = "server")]

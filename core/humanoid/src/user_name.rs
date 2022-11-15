@@ -6,7 +6,7 @@ use networking::server::PendingNetworkMessage;
 use networking::server::{InputUserName, ReliableServerMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PersistentPlayerData, UsedNames};
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 /// Set character user name that also isn't already taken.
 #[cfg(feature = "server")]

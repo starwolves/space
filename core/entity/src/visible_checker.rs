@@ -6,7 +6,7 @@ use bevy_rapier3d::prelude::RigidBody;
 
 use math::grid::world_to_cell_id;
 use networking::server::{NetLoadEntity, NetUnloadEntity};
-use server_instance::core::ConnectedPlayer;
+use resources::core::ConnectedPlayer;
 
 use crate::{
     entity_data::{load_entity, unload_entity, EntityData, EntityUpdates, WorldMode, WorldModes},

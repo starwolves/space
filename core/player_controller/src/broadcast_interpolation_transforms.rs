@@ -9,7 +9,7 @@ use bincode::serialize;
 use entity::{entity_data::CachedBroadcastTransform, sensable::Sensable};
 use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableServerMessage};
 use physics::physics::RigidBodyDisabled;
-use server_instance::core::{ConnectedPlayer, HandleToEntity};
+use resources::core::{ConnectedPlayer, HandleToEntity};
 
 /// All transform interpolation rates.
 #[derive(Debug)]

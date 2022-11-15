@@ -4,7 +4,7 @@ use gridmap::grid::{cell_id_to_world, GridmapMain};
 use inventory_api::core::Inventory;
 use networking::server::{InputConstructionOptionsSelection, TextTreeInputSelection};
 use pawn::pawn::REACH_DISTANCE;
-use server_instance::core::HandleToEntity;
+use resources::core::HandleToEntity;
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
 

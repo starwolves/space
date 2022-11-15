@@ -3,7 +3,7 @@ use bevy::prelude::{App, Plugin, SystemLabel};
 use crate::{
     build::{show_main_menu, startup_show_menu, EnableMainMenu, MainMenuState},
     hide::hide_main_menu,
-    ui_events::hover_system,
+    ui_events::{button_presses, hover_visuals},
 };
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -22,7 +22,8 @@ impl Plugin for MainMenuPlugin {
                 .add_event::<EnableMainMenu>()
                 .init_resource::<MainMenuState>()
                 .add_startup_system(startup_show_menu)
-                .add_system(hover_system);
+                .add_system(hover_visuals)
+                .add_system(button_presses);
         }
     }
 }
