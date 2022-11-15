@@ -3,8 +3,7 @@ image: "rust:latest"
 test:cargo:
   tags:
     - space
-  before-script:
-    - apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
   script:
+    - apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
     - rustc --version && cargo --version
     - cargo check
