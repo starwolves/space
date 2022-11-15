@@ -2,8 +2,8 @@ use bevy::prelude::{App, Plugin, SystemLabel};
 
 use crate::{
     build::{show_main_menu, startup_show_menu, EnableMainMenu, MainMenuState},
+    events::{button_presses, hover_visuals},
     hide::hide_main_menu,
-    ui_events::{button_presses, hover_visuals},
 };
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]

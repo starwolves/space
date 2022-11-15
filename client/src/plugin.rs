@@ -7,7 +7,7 @@ use bevy::{
     winit::WinitSettings,
     DefaultPlugins,
 };
-use menu_main::plugin::MainMenuPlugin;
+use main_menu::plugin::MainMenuPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use winit_windows::plugin::WinitWindowsPlugin;
 
