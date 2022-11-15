@@ -1,18 +1,22 @@
 [package]
-name = "client"
+name = "winit_windows"
 version = "0.0.3-snap7-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Space Frontiers, the client."
+description="WinitWindows settings."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
+[features]
+server = []
+client = []
+
 [dependencies.bevy]
 version = "0.8.1"
 
 [dependencies]
-networking = { path = "../core/networking",  features=["client"] }
-menu_main = { path = "../core/menu_main",  features=["client"] }
-winit_windows = { path = "../core/winit_windows",  features=["client"] }
+image = "0.24.5"
+# Must match Bevy winit version.
+winit = "0.26.1"

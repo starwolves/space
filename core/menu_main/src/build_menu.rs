@@ -4,16 +4,21 @@ use bevy::{
         EventReader, EventWriter, NodeBundle, Res, ResMut, TextBundle,
     },
     text::{TextAlignment, TextStyle},
-    ui::{AlignContent, AlignItems, AlignSelf, FlexWrap, JustifyContent, Size, Style, UiRect, Val, FlexDirection},
+    ui::{
+        AlignContent, AlignItems, AlignSelf, FlexDirection, FlexWrap, JustifyContent, Size, Style,
+        UiRect, Val,
+    },
 };
 
 /// Event.
+#[cfg(feature = "client")]
 pub struct EnableMainMenu {
     pub enable: bool,
 }
 
 /// Resource containing the main menu state.
 #[derive(Default)]
+#[cfg(feature = "client")]
 pub struct MainMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
@@ -21,11 +26,13 @@ pub struct MainMenuState {
 }
 
 /// Shows main menu when the client starts.
+#[cfg(feature = "client")]
 pub(crate) fn startup_show_menu(mut enable_events: EventWriter<EnableMainMenu>) {
     enable_events.send(EnableMainMenu { enable: true });
 }
 
 /// System that toggles the visiblity of the main menu based on an event.
+#[cfg(feature = "client")]
 pub(crate) fn show_main_menu(
     mut enable_events: EventReader<EnableMainMenu>,
     mut state: ResMut<MainMenuState>,
@@ -71,6 +78,12 @@ pub(crate) fn show_main_menu(
                             flex_wrap: FlexWrap::Wrap,
                             // Vertically align children.
                             align_content: AlignContent::FlexEnd,
+                            padding: UiRect::new(
+                                Val::Undefined,
+                                Val::Undefined,
+                                Val::Percent(1.),
+                                Val::Undefined,
+                            ),
                             ..Default::default()
                         },
                         color: Color::rgb(0.15, 0.15, 0.15).into(),
@@ -130,20 +143,32 @@ pub(crate) fn show_main_menu(
                                 parent.spawn().insert_bundle(TextBundle::from_section(
                                     "",
                                     TextStyle {
-                                        font_size: 20.0,
+                                        font_size: 18.0,
                                         color: Color::WHITE,
                                         font: asset_server
                                             .load("fonts/FontAwesome6Free-Solid-900.otf"),
                                     },
                                 ));
-                                parent.spawn().insert_bundle(TextBundle::from_section(
-                                    "SpaceFrontiers",
-                                    TextStyle {
-                                        font_size: 24.0,
-                                        color: Color::WHITE,
-                                        font: asset_server.load("fonts/ArizoneUnicaseRegular.ttf"),
-                                    },
-                                ));
+                                parent.spawn().insert_bundle(
+                                    TextBundle::from_section(
+                                        "SpaceFrontiers",
+                                        TextStyle {
+                                            font_size: 26.0,
+                                            color: Color::WHITE,
+                                            font: asset_server
+                                                .load("fonts/ArizoneUnicaseRegular.ttf"),
+                                        },
+                                    )
+                                    .with_style(Style {
+                                        margin: UiRect::new(
+                                            Val::Undefined,
+                                            Val::Undefined,
+                                            Val::Undefined,
+                                            Val::Percent(3.),
+                                        ),
+                                        ..Default::default()
+                                    }),
+                                );
                             });
                     });
             });
@@ -153,6 +178,7 @@ pub(crate) fn show_main_menu(
     }
 }
 /// System that toggles the visiblity of the main menu based on an event.
+#[cfg(feature = "client")]
 pub(crate) fn hide_main_menu(
     mut enable_events: EventReader<EnableMainMenu>,
     mut state: ResMut<MainMenuState>,
