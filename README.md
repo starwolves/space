@@ -19,7 +19,7 @@
 
 *Space frontiers seeks to deliver an experience that offers very high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
-The repository of the modular and moddable multi-threaded sci-fi community game server Space Frontiers, written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client is made with Godot. The new client is being built with Bevy. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
+The repository of the modular and moddable multi-threaded sci-fi community game Space Frontiers, written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client is made with Godot. The new client is being built with Bevy. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!
 
 There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).
 
