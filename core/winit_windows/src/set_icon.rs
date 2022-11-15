@@ -8,7 +8,7 @@ pub(crate) fn set_window_icon(
     windows: NonSend<WinitWindows>,
 ) {
     let primary = windows.get_window(WindowId::primary()).unwrap();
-    
+
     let path = Path::new("././data/project/sflogo.png");
 
     let (icon_rgba, icon_width, icon_height) = {

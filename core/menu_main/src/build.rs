@@ -3,10 +3,9 @@ use bevy::{
         AssetServer, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, Entity,
         EventReader, EventWriter, NodeBundle, Res, ResMut, TextBundle,
     },
-    text::{TextAlignment, TextStyle},
+    text::TextStyle,
     ui::{
-        AlignContent, AlignItems, AlignSelf, FlexDirection, FlexWrap, JustifyContent, Size, Style,
-        UiRect, Val,
+        AlignContent, AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val,
     },
 };
 
@@ -30,6 +29,10 @@ pub struct MainMenuState {
 pub(crate) fn startup_show_menu(mut enable_events: EventWriter<EnableMainMenu>) {
     enable_events.send(EnableMainMenu { enable: true });
 }
+
+pub const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+
+const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
 
 /// System that toggles the visiblity of the main menu based on an event.
 #[cfg(feature = "client")]
@@ -59,11 +62,19 @@ pub(crate) fn show_main_menu(
 
         let entity = builder.id();
 
+        let button_padding = UiRect::new(
+            Val::Undefined,
+            Val::Undefined,
+            Val::Undefined,
+            Val::Percent(2.),
+        );
+
+        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
+
         builder
             .insert_bundle(NodeBundle {
                 style: Style {
                     size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                    justify_content: JustifyContent::SpaceBetween,
                     ..Default::default()
                 },
                 color: Color::GRAY.into(),
@@ -78,53 +89,99 @@ pub(crate) fn show_main_menu(
                             flex_wrap: FlexWrap::Wrap,
                             // Vertically align children.
                             align_content: AlignContent::FlexEnd,
+                            justify_content: JustifyContent::Center,
                             padding: UiRect::new(
                                 Val::Undefined,
                                 Val::Undefined,
-                                Val::Percent(1.),
+                                Val::Percent(2.5),
                                 Val::Undefined,
                             ),
                             ..Default::default()
                         },
-                        color: Color::rgb(0.15, 0.15, 0.15).into(),
+                        color: NORMAL_BUTTON.into(),
                         ..Default::default()
                     })
                     .with_children(|parent| {
                         parent
                             .spawn()
-                            .insert_bundle(ButtonBundle {
-                                color: Color::rgb(0.15, 0.15, 0.15).into(),
+                            .insert_bundle(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Undefined),
-                                    margin: UiRect::new(
-                                        Val::Percent(15.),
-                                        Val::Undefined,
-                                        Val::Undefined,
-                                        Val::Undefined,
-                                    ),
+                                    align_items: AlignItems::Center,
+                                    flex_wrap: FlexWrap::Wrap,
+                                    flex_direction: FlexDirection::Column,
                                     ..Default::default()
                                 },
+                                color: NORMAL_BUTTON.into(),
                                 ..Default::default()
                             })
                             .with_children(|parent| {
-                                parent.spawn().insert_bundle(TextBundle::from_section(
-                                    "Play",
-                                    TextStyle {
-                                        font: asset_server.load("fonts/ArizoneUnicaseRegular.ttf"),
-                                        font_size: 20.0,
-                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                    },
-                                ));
+                                parent
+                                    .spawn()
+                                    .insert_bundle(ButtonBundle {
+                                        color: NORMAL_BUTTON.into(),
+                                        style: Style {
+                                            padding: button_padding,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn().insert_bundle(TextBundle::from_section(
+                                            "Exit",
+                                            TextStyle {
+                                                font: arizone_font.clone(),
+                                                font_size: 20.0,
+                                                color: TEXT_COLOR,
+                                            },
+                                        ));
+                                    });
+                                parent
+                                    .spawn()
+                                    .insert_bundle(ButtonBundle {
+                                        color: NORMAL_BUTTON.into(),
+                                        style: Style {
+                                            padding: button_padding,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn().insert_bundle(TextBundle::from_section(
+                                            "Settings",
+                                            TextStyle {
+                                                font: arizone_font.clone(),
+                                                font_size: 20.0,
+                                                color: TEXT_COLOR,
+                                            },
+                                        ));
+                                    });
+                                parent
+                                    .spawn()
+                                    .insert_bundle(ButtonBundle {
+                                        color: NORMAL_BUTTON.into(),
+                                        style: Style {
+                                            padding: button_padding,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn().insert_bundle(TextBundle::from_section(
+                                            "Play",
+                                            TextStyle {
+                                                font: arizone_font.clone(),
+                                                font_size: 20.0,
+                                                color: TEXT_COLOR,
+                                            },
+                                        ));
+                                    });
                             });
+
                         parent
                             .spawn()
                             .insert_bundle(NodeBundle {
                                 style: Style {
                                     size: Size::new(Val::Percent(100.0), Val::Undefined),
-                                    // Vertically align children.
-                                    align_content: AlignContent::FlexEnd,
-                                    // Horizontally align children.
-                                    justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
                                     flex_wrap: FlexWrap::Wrap,
                                     margin: UiRect::new(
@@ -136,15 +193,15 @@ pub(crate) fn show_main_menu(
                                     flex_direction: FlexDirection::Column,
                                     ..Default::default()
                                 },
-                                color: Color::rgba(0.15, 0.15, 0.15, 0.).into(),
+                                color: NORMAL_BUTTON.into(),
                                 ..Default::default()
                             })
                             .with_children(|parent| {
                                 parent.spawn().insert_bundle(TextBundle::from_section(
-                                    "",
+                                    "    ",
                                     TextStyle {
                                         font_size: 18.0,
-                                        color: Color::WHITE,
+                                        color: TEXT_COLOR,
                                         font: asset_server
                                             .load("fonts/FontAwesome6Free-Solid-900.otf"),
                                     },
@@ -154,9 +211,8 @@ pub(crate) fn show_main_menu(
                                         "SpaceFrontiers",
                                         TextStyle {
                                             font_size: 26.0,
-                                            color: Color::WHITE,
-                                            font: asset_server
-                                                .load("fonts/ArizoneUnicaseRegular.ttf"),
+                                            color: TEXT_COLOR,
+                                            font: arizone_font.clone(),
                                         },
                                     )
                                     .with_style(Style {
@@ -175,16 +231,5 @@ pub(crate) fn show_main_menu(
 
         state.enabled = true;
         state.root = Some(entity);
-    }
-}
-/// System that toggles the visiblity of the main menu based on an event.
-#[cfg(feature = "client")]
-pub(crate) fn hide_main_menu(
-    mut enable_events: EventReader<EnableMainMenu>,
-    mut state: ResMut<MainMenuState>,
-    mut commands: Commands,
-) {
-    if !state.enabled {
-        return;
     }
 }
