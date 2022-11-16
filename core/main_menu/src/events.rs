@@ -1,4 +1,5 @@
 use crate::build::MainMenuPlayButton;
+use crate::build::INPUT_TEXT_BG;
 use crate::build::SIDEBAR_COLOR;
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
 use bevy::prelude::warn;
@@ -14,7 +15,7 @@ use bevy::{
 use bevy::prelude::EventWriter;
 
 use crate::build::EnablePlayMenu;
-pub const HOVERED_BUTTON: Color = Color::rgb(0.35, 0.35, 0.45);
+pub const HOVERED_BUTTON: Color = INPUT_TEXT_BG;
 pub const PRESSED_BUTTON: Color = Color::rgb(0.49, 0.73, 0.91);
 use crate::build::MainMenuStarWolvesLink;
 
@@ -22,7 +23,10 @@ use crate::build::SpaceFrontiersHeader;
 use crate::build::STARWOLVES_TEXT_COLOR;
 use bevy::text::Text;
 
-pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR: Color = Color::rgb(0.00,0.84,1.00);
+pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR: Color = Color::rgb(0.46 * 1.6, 0.5 * 1.6, 0.69 * 1.6);
+
+pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR_HOVERED: Color =
+    Color::rgb(0.46 * 1.9, 0.5 * 1.9, 0.69 * 1.9);
 
 #[cfg(feature = "client")]
 pub(crate) fn space_frontiers_link(
@@ -46,7 +50,7 @@ pub(crate) fn space_frontiers_link(
 
         match *interaction {
             Interaction::Clicked => {
-                starwolves_text.style.color = Color::MIDNIGHT_BLUE.into();
+                starwolves_text.style.color = Color::BLUE.into();
                 match open::that("http://github.com/starwolves/space") {
                     Ok(_) => {}
                     Err(_rr) => {
@@ -55,7 +59,7 @@ pub(crate) fn space_frontiers_link(
                 }
             }
             Interaction::Hovered => {
-                starwolves_text.style.color = Color::BLUE.into();
+                starwolves_text.style.color = SPACE_FRONTIERS_HEADER_TEXT_COLOR_HOVERED.into();
             }
             Interaction::None => {
                 starwolves_text.style.color = SPACE_FRONTIERS_HEADER_TEXT_COLOR.into();
@@ -178,6 +182,7 @@ pub(crate) fn button_hover_visuals(
     }
 }
 use crate::build::TextInputNode;
+use crate::build::{INPUT_TEXT_BG_HOVER, INPUT_TEXT_BG_PRESSED};
 
 /// Manages text input UI nodes.
 #[cfg(feature = "client")]
@@ -187,8 +192,6 @@ pub(crate) fn text_input_node_events(
         Changed<Interaction>,
     >,
 ) {
-    use crate::build::{INPUT_TEXT_BG, INPUT_TEXT_BG_HOVER, INPUT_TEXT_BG_PRESSED};
-
     for (interaction, mut color, text_input) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {

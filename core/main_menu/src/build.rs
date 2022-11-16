@@ -236,7 +236,7 @@ pub(crate) fn show_main_menu(
                                                 client_information.version.clone(),
                                                 TextStyle {
                                                     font_size: 11.0,
-                                                    color: TEXT_COLOR,
+                                                    color: SPACE_FRONTIERS_HEADER_TEXT_COLOR,
                                                     font: arizone_font.clone(),
                                                 },
                                             )
