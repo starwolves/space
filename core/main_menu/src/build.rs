@@ -1,7 +1,8 @@
+use bevy::text::TextSection;
 use bevy::{
     prelude::{
         AssetServer, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, Component,
-        Entity, EventReader, EventWriter, NodeBundle, Res, ResMut, TextBundle,
+        Entity, EventReader, EventWriter, NodeBundle, Res, ResMut, SystemLabel, TextBundle,
     },
     text::TextStyle,
     ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val},
@@ -21,6 +22,13 @@ pub struct MainMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
     pub camera: Option<Entity>,
+}
+
+/// Labels for system ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[cfg(feature = "client")]
+pub enum MainMenuLabel {
+    BuildMainMenu,
 }
 
 /// Shows main menu when the client starts.
@@ -53,9 +61,8 @@ pub(crate) fn show_main_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     client_information: Res<ClientInformation>,
+    mut show_play_menu: EventWriter<EnablePlayMenu>,
 ) {
-    use bevy::text::TextSection;
-
     if state.enabled {
         return;
     }
@@ -69,6 +76,9 @@ pub(crate) fn show_main_menu(
         }
 
         state.enabled = true;
+
+        // Open play menu by default.
+        show_play_menu.send(EnablePlayMenu { enable: true });
 
         let camera_entity = commands
             .spawn()
@@ -424,8 +434,12 @@ pub struct PlayMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
 }
+use bevy::prelude::warn;
 use bevy::prelude::Query;
 use bevy::prelude::With;
+use bevy::ui::AlignContent;
+
+const INPUT_TEXT_BG: Color = Color::GRAY;
 
 /// Displays play menu
 #[cfg(feature = "client")]
@@ -436,8 +450,6 @@ pub(crate) fn show_play_menu(
     asset_server: Res<AssetServer>,
     root_node_query: Query<Entity, With<MainMainMenuRoot>>,
 ) {
-    use bevy::{prelude::warn, ui::AlignContent};
-
     for event in show_events.iter() {
         let mut root_node_option = None;
         for root in root_node_query.iter() {
@@ -467,7 +479,7 @@ pub(crate) fn show_play_menu(
 
         commands.entity(root_node).add_child(entity);
         let mut builder = commands.entity(entity);
-        //let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
+        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
 
         builder
             .insert_bundle(NodeBundle {
@@ -480,15 +492,217 @@ pub(crate) fn show_play_menu(
                 color: MAIN_BG_COLOR.into(),
                 ..Default::default()
             })
+            // Menu.
             .with_children(|parent| {
-                parent.spawn().insert_bundle(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(60.), Val::Percent(60.)),
+                parent
+                    .spawn()
+                    .insert_bundle(NodeBundle {
+                        style: Style {
+                            size: Size::new(Val::Percent(60.), Val::Percent(60.)),
+                            flex_wrap: FlexWrap::Wrap,
+                            flex_direction: FlexDirection::Column,
+                            ..Default::default()
+                        },
+                        color: SIDEBAR_COLOR.into(),
                         ..Default::default()
-                    },
-                    color: SIDEBAR_COLOR.into(),
-                    ..Default::default()
-                });
+                    })
+                    // Play Body.
+                    .with_children(|parent| {
+                        parent
+                            .spawn()
+                            .insert_bundle(NodeBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(100.), Val::Percent(90.)),
+                                    ..Default::default()
+                                },
+                                color: SIDEBAR_COLOR.into(),
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                // Play Body container.
+                                parent
+                                    .spawn()
+                                    .insert_bundle(NodeBundle {
+                                        style: Style {
+                                            align_items: AlignItems::FlexEnd,
+                                            align_content: AlignContent::FlexEnd,
+                                            padding: UiRect::new(
+                                                Val::Undefined,
+                                                Val::Undefined,
+                                                Val::Percent(5.),
+                                                Val::Undefined,
+                                            ),
+                                            flex_wrap: FlexWrap::Wrap,
+                                            justify_content: JustifyContent::Center,
+                                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                            ..Default::default()
+                                        },
+                                        color: SIDEBAR_COLOR.into(),
+                                        ..Default::default()
+                                    })
+                                    // Menu elements.
+                                    .with_children(|parent| {
+                                        // Input server IP.
+                                        parent
+                                            .spawn()
+                                            .insert_bundle(NodeBundle {
+                                                style: Style {
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(5.),
+                                                    ),
+                                                    justify_content: JustifyContent::Center,
+                                                    /*position: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(45.),
+                                                    ),*/
+                                                    ..Default::default()
+                                                },
+                                                color: SIDEBAR_COLOR.into(),
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                parent.spawn().insert_bundle(NodeBundle {
+                                                    style: Style {
+                                                        size: Size::new(
+                                                            Val::Percent(25.),
+                                                            Val::Percent(100.),
+                                                        ),
+                                                        ..Default::default()
+                                                    },
+                                                    color: INPUT_TEXT_BG.into(),
+                                                    ..Default::default()
+                                                });
+                                            });
+                                        // Input server IP label.
+                                        parent
+                                            .spawn()
+                                            .insert_bundle(NodeBundle {
+                                                style: Style {
+                                                    margin: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(3.),
+                                                        Val::Percent(1.),
+                                                    ),
+                                                    ..Default::default()
+                                                },
+                                                color: SIDEBAR_COLOR.into(),
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                parent.spawn().insert_bundle(
+                                                    TextBundle::from_section(
+                                                        "IP address:",
+                                                        TextStyle {
+                                                            font: arizone_font.clone(),
+                                                            font_size: 12.0,
+                                                            color: TEXT_COLOR,
+                                                        },
+                                                    ),
+                                                );
+                                            });
+                                        // Input account name.
+                                        parent
+                                            .spawn()
+                                            .insert_bundle(NodeBundle {
+                                                style: Style {
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(5.),
+                                                    ),
+                                                    justify_content: JustifyContent::Center,
+                                                    /*position: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(45.),
+                                                    ),*/
+                                                    ..Default::default()
+                                                },
+                                                color: SIDEBAR_COLOR.into(),
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                parent.spawn().insert_bundle(NodeBundle {
+                                                    style: Style {
+                                                        size: Size::new(
+                                                            Val::Percent(25.),
+                                                            Val::Percent(100.),
+                                                        ),
+                                                        ..Default::default()
+                                                    },
+                                                    color: INPUT_TEXT_BG.into(),
+                                                    ..Default::default()
+                                                });
+                                            });
+                                        // Label account name.
+                                        parent
+                                            .spawn()
+                                            .insert_bundle(NodeBundle {
+                                                style: Style {
+                                                    margin: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(1.),
+                                                    ),
+                                                    ..Default::default()
+                                                },
+                                                color: SIDEBAR_COLOR.into(),
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                parent.spawn().insert_bundle(
+                                                    TextBundle::from_section(
+                                                        "Account name:",
+                                                        TextStyle {
+                                                            font: arizone_font.clone(),
+                                                            font_size: 12.0,
+                                                            color: TEXT_COLOR,
+                                                        },
+                                                    ),
+                                                );
+                                            });
+                                    });
+                            });
+                        // Header.
+                        parent
+                            .spawn()
+                            .insert_bundle(NodeBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                                    justify_content: JustifyContent::Center,
+                                    ..Default::default()
+                                },
+                                color: SIDEBAR_COLOR.into(),
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn()
+                                    .insert_bundle(NodeBundle {
+                                        style: Style {
+                                            align_items: AlignItems::Center,
+                                            ..Default::default()
+                                        },
+                                        color: SIDEBAR_COLOR.into(),
+                                        ..Default::default()
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn().insert_bundle(TextBundle::from_section(
+                                            "Connect to server",
+                                            TextStyle {
+                                                font: arizone_font.clone(),
+                                                font_size: 12.0,
+                                                color: TEXT_COLOR,
+                                            },
+                                        ));
+                                    });
+                            });
+                    });
             });
     }
 }
