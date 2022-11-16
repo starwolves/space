@@ -39,7 +39,8 @@ pub(crate) fn startup_show_menu(mut enable_events: EventWriter<EnableMainMenu>) 
 
 pub const SIDEBAR_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 
-const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const STARWOLVES_TEXT_COLOR: Color = Color::VIOLET;
 pub const TEXT_INPUT_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
 
 pub const MAIN_BG_COLOR: Color = Color::DARK_GRAY;
@@ -54,6 +55,10 @@ pub(crate) struct MainMenuSettingsButton;
 #[cfg(feature = "client")]
 pub(crate) struct MainMenuExitButton;
 
+#[derive(Component)]
+#[cfg(feature = "client")]
+pub(crate) struct SpaceFrontiersHeader;
+
 /// System that toggles the base visiblity of the main menu.
 #[cfg(feature = "client")]
 pub(crate) fn show_main_menu(
@@ -64,6 +69,8 @@ pub(crate) fn show_main_menu(
     client_information: Res<ClientInformation>,
     mut show_play_menu: EventWriter<EnablePlayMenu>,
 ) {
+    use crate::events::SPACE_FRONTIERS_HEADER_TEXT_COLOR;
+
     if state.enabled {
         return;
     }
@@ -125,7 +132,7 @@ pub(crate) fn show_main_menu(
                             .spawn()
                             .insert_bundle(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Percent(20.0)),
+                                    size: Size::new(Val::Percent(100.0), Val::Undefined),
                                     justify_content: JustifyContent::Center,
                                     padding: UiRect::new(
                                         Val::Undefined,
@@ -149,24 +156,30 @@ pub(crate) fn show_main_menu(
                                         ..Default::default()
                                     })
                                     .with_children(|parent| {
-                                        parent.spawn().insert_bundle(TextBundle::from_sections([
-                                            TextSection::new(
-                                                "© ",
-                                                TextStyle {
-                                                    font: nesathoberyl_font,
-                                                    font_size: 12.0,
-                                                    color: TEXT_COLOR,
-                                                },
-                                            ),
-                                            TextSection::new(
-                                                "StarWolves",
-                                                TextStyle {
-                                                    font: empire_font.clone(),
-                                                    font_size: 12.0,
-                                                    color: TEXT_COLOR,
-                                                },
-                                            ),
-                                        ]));
+                                        parent
+                                            .spawn()
+                                            .insert_bundle(TextBundle::from_sections([
+                                                TextSection::new(
+                                                    "© ",
+                                                    TextStyle {
+                                                        font: nesathoberyl_font,
+                                                        font_size: 12.0,
+                                                        color: TEXT_COLOR,
+                                                    },
+                                                ),
+                                                TextSection::new(
+                                                    "StarWolves",
+                                                    TextStyle {
+                                                        font: empire_font.clone(),
+                                                        font_size: 12.0,
+                                                        color: STARWOLVES_TEXT_COLOR,
+                                                    },
+                                                ),
+                                            ]))
+                                            .insert_bundle((
+                                                Interaction::default(),
+                                                MainMenuStarWolvesLink,
+                                            ));
                                     });
                             });
                         //Body (contains header node)
@@ -179,7 +192,7 @@ pub(crate) fn show_main_menu(
                                     padding: UiRect::new(
                                         Val::Undefined,
                                         Val::Undefined,
-                                        Val::Percent(13.),
+                                        Val::Percent(10.),
                                         Val::Undefined,
                                     ),
                                     ..Default::default()
@@ -237,25 +250,31 @@ pub(crate) fn show_main_menu(
                                                 ..Default::default()
                                             }),
                                         );
-                                        parent.spawn().insert_bundle(
-                                            TextBundle::from_section(
-                                                "SpaceFrontiers",
-                                                TextStyle {
-                                                    font_size: 26.0,
-                                                    color: TEXT_COLOR,
-                                                    font: arizone_font.clone(),
-                                                },
+                                        parent
+                                            .spawn()
+                                            .insert_bundle(
+                                                TextBundle::from_section(
+                                                    "SpaceFrontiers",
+                                                    TextStyle {
+                                                        font_size: 26.0,
+                                                        color: SPACE_FRONTIERS_HEADER_TEXT_COLOR,
+                                                        font: arizone_font.clone(),
+                                                    },
+                                                )
+                                                .with_style(Style {
+                                                    margin: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(3.),
+                                                    ),
+                                                    ..Default::default()
+                                                }),
                                             )
-                                            .with_style(Style {
-                                                margin: UiRect::new(
-                                                    Val::Undefined,
-                                                    Val::Undefined,
-                                                    Val::Undefined,
-                                                    Val::Percent(3.),
-                                                ),
-                                                ..Default::default()
-                                            }),
-                                        );
+                                            .insert_bundle((
+                                                Interaction::default(),
+                                                SpaceFrontiersHeader,
+                                            ));
                                     });
                                 // Sidebar buttons.
                                 parent
@@ -417,6 +436,10 @@ pub(crate) fn show_main_menu(
         state.root = Some(entity);
     }
 }
+
+#[derive(Component)]
+#[cfg(feature = "client")]
+pub struct MainMenuStarWolvesLink;
 
 #[derive(Component)]
 #[cfg(feature = "client")]

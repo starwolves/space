@@ -16,4 +16,6 @@ client = []
 version = "0.8.1"
 
 [dependencies]
+open = "3.0.3"
+
 resources = { path = "../resources" ,  features=["client"]}
