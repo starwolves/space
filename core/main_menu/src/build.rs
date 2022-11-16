@@ -40,6 +40,7 @@ pub(crate) fn startup_show_menu(mut enable_events: EventWriter<EnableMainMenu>) 
 pub const SIDEBAR_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const TEXT_INPUT_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
 
 pub const MAIN_BG_COLOR: Color = Color::DARK_GRAY;
 
@@ -438,8 +439,11 @@ use bevy::prelude::warn;
 use bevy::prelude::Query;
 use bevy::prelude::With;
 use bevy::ui::AlignContent;
+use bevy::ui::Interaction;
 
-const INPUT_TEXT_BG: Color = Color::GRAY;
+pub const INPUT_TEXT_BG: Color = Color::rgb(0.46, 0.5, 0.69);
+pub const INPUT_TEXT_BG_HOVER: Color = Color::rgb(0.56, 0.6, 0.79);
+pub const INPUT_TEXT_BG_PRESSED: Color = INPUT_TEXT_BG;
 
 /// Displays play menu
 #[cfg(feature = "client")]
@@ -526,13 +530,13 @@ pub(crate) fn show_play_menu(
                                         style: Style {
                                             align_items: AlignItems::FlexEnd,
                                             align_content: AlignContent::FlexEnd,
+                                            flex_wrap: FlexWrap::Wrap,
                                             padding: UiRect::new(
                                                 Val::Undefined,
                                                 Val::Undefined,
                                                 Val::Percent(5.),
                                                 Val::Undefined,
                                             ),
-                                            flex_wrap: FlexWrap::Wrap,
                                             justify_content: JustifyContent::Center,
                                             size: Size::new(Val::Percent(100.), Val::Percent(100.)),
                                             ..Default::default()
@@ -552,31 +556,47 @@ pub(crate) fn show_play_menu(
                                                         Val::Percent(5.),
                                                     ),
                                                     justify_content: JustifyContent::Center,
-                                                    /*position: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Percent(45.),
-                                                    ),*/
                                                     ..Default::default()
                                                 },
                                                 color: SIDEBAR_COLOR.into(),
                                                 ..Default::default()
                                             })
                                             .with_children(|parent| {
-                                                parent.spawn().insert_bundle(NodeBundle {
-                                                    style: Style {
-                                                        size: Size::new(
-                                                            Val::Percent(25.),
-                                                            Val::Percent(100.),
-                                                        ),
+                                                parent
+                                                    .spawn()
+                                                    .insert_bundle(NodeBundle {
+                                                        style: Style {
+                                                            size: Size::new(
+                                                                Val::Percent(25.),
+                                                                Val::Percent(100.),
+                                                            ),
+                                                            justify_content: JustifyContent::Center,
+                                                            align_items: AlignItems::Center,
+                                                            flex_wrap: FlexWrap::Wrap,
+                                                            ..Default::default()
+                                                        },
+                                                        color: INPUT_TEXT_BG.into(),
                                                         ..Default::default()
-                                                    },
-                                                    color: INPUT_TEXT_BG.into(),
-                                                    ..Default::default()
-                                                });
+                                                    })
+                                                    .insert_bundle((
+                                                        TextInputNode::default(),
+                                                        AccountNameInput,
+                                                        Interaction::default(),
+                                                    ))
+                                                    .with_children(|parent| {
+                                                        parent.spawn().insert_bundle(
+                                                            TextBundle::from_section(
+                                                                "Enter address..",
+                                                                TextStyle {
+                                                                    font: arizone_font.clone(),
+                                                                    font_size: 10.0,
+                                                                    color: TEXT_INPUT_COLOR,
+                                                                },
+                                                            ),
+                                                        );
+                                                    });
                                             });
-                                        // Input server IP label.
+                                        // Server IP label.
                                         parent
                                             .spawn()
                                             .insert_bundle(NodeBundle {
@@ -587,6 +607,7 @@ pub(crate) fn show_play_menu(
                                                         Val::Percent(3.),
                                                         Val::Percent(1.),
                                                     ),
+                                                    justify_content: JustifyContent::Center,
                                                     ..Default::default()
                                                 },
                                                 color: SIDEBAR_COLOR.into(),
@@ -614,29 +635,45 @@ pub(crate) fn show_play_menu(
                                                         Val::Percent(5.),
                                                     ),
                                                     justify_content: JustifyContent::Center,
-                                                    /*position: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Percent(45.),
-                                                    ),*/
                                                     ..Default::default()
                                                 },
                                                 color: SIDEBAR_COLOR.into(),
                                                 ..Default::default()
                                             })
                                             .with_children(|parent| {
-                                                parent.spawn().insert_bundle(NodeBundle {
-                                                    style: Style {
-                                                        size: Size::new(
-                                                            Val::Percent(25.),
-                                                            Val::Percent(100.),
-                                                        ),
+                                                parent
+                                                    .spawn()
+                                                    .insert_bundle(NodeBundle {
+                                                        style: Style {
+                                                            size: Size::new(
+                                                                Val::Percent(25.),
+                                                                Val::Percent(100.),
+                                                            ),
+                                                            justify_content: JustifyContent::Center,
+                                                            align_items: AlignItems::Center,
+                                                            flex_wrap: FlexWrap::Wrap,
+                                                            ..Default::default()
+                                                        },
+                                                        color: INPUT_TEXT_BG.into(),
                                                         ..Default::default()
-                                                    },
-                                                    color: INPUT_TEXT_BG.into(),
-                                                    ..Default::default()
-                                                });
+                                                    })
+                                                    .insert_bundle((
+                                                        TextInputNode::default(),
+                                                        AccountNameInput,
+                                                        Interaction::default(),
+                                                    ))
+                                                    .with_children(|parent| {
+                                                        parent.spawn().insert_bundle(
+                                                            TextBundle::from_section(
+                                                                "Enter username..",
+                                                                TextStyle {
+                                                                    font: arizone_font.clone(),
+                                                                    font_size: 10.0,
+                                                                    color: TEXT_INPUT_COLOR,
+                                                                },
+                                                            ),
+                                                        );
+                                                    });
                                             });
                                         // Label account name.
                                         parent
@@ -706,3 +743,15 @@ pub(crate) fn show_play_menu(
             });
     }
 }
+/// The component for text input UI nodes.
+#[cfg(feature = "client")]
+#[derive(Component, Default)]
+pub struct TextInputNode {
+    pub input: String,
+}
+#[cfg(feature = "client")]
+#[derive(Component)]
+pub struct AccountNameInput;
+#[cfg(feature = "client")]
+#[derive(Component)]
+pub struct IpAddressInput;
