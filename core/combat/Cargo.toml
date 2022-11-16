@@ -1,6 +1,6 @@
 [package]
 name = "combat"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="For combat and damage applications."
 homepage="https://starwolves.io"

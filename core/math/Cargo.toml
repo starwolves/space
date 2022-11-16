@@ -1,6 +1,6 @@
 [package]
 name = "math"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Resources related to math, 3d or 2d space etc."
 homepage="https://starwolves.io"

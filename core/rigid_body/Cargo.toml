@@ -1,6 +1,6 @@
 [package]
 name = "rigid_body"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Bevy Rapier 3D rigid body integration."
 homepage="https://starwolves.io"

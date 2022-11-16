@@ -1,6 +1,6 @@
 [package]
 name = "map"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="The 2D mini-map that can display various data."
 homepage="https://starwolves.io"

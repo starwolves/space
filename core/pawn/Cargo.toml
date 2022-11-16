@@ -1,6 +1,6 @@
 [package]
 name = "pawn"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Pawns are controllable entities by either players or AI."
 homepage="https://starwolves.io"

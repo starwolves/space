@@ -1,6 +1,6 @@
 [package]
 name = "reflection_probe"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Manages client-side reflection graphics."
 homepage="https://starwolves.io"
