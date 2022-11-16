@@ -589,7 +589,7 @@ pub(crate) fn show_play_menu(
                                                                 "Enter address..",
                                                                 TextStyle {
                                                                     font: arizone_font.clone(),
-                                                                    font_size: 10.0,
+                                                                    font_size: 9.,
                                                                     color: TEXT_INPUT_COLOR,
                                                                 },
                                                             ),
@@ -668,7 +668,7 @@ pub(crate) fn show_play_menu(
                                                                 "Enter username..",
                                                                 TextStyle {
                                                                     font: arizone_font.clone(),
-                                                                    font_size: 10.0,
+                                                                    font_size: 9.,
                                                                     color: TEXT_INPUT_COLOR,
                                                                 },
                                                             ),
