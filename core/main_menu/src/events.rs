@@ -18,7 +18,7 @@ pub const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 pub const PRESSED_BUTTON: Color = Color::rgb(0.49, 0.73, 0.91);
 
 #[cfg(feature = "client")]
-pub(crate) fn hover_visuals(
+pub(crate) fn button_hover_visuals(
     mut interaction_query: Query<
         (Entity, &Interaction, &Parent),
         (Changed<Interaction>, With<Button>),
@@ -86,6 +86,32 @@ pub(crate) fn hover_visuals(
                         continue;
                     }
                 }
+            }
+        }
+    }
+}
+use crate::build::TextInputNode;
+
+/// Manages text input UI nodes.
+#[cfg(feature = "client")]
+pub(crate) fn text_input_node_events(
+    mut interaction_query: Query<
+        (&Interaction, &mut UiColor, &mut TextInputNode),
+        Changed<Interaction>,
+    >,
+) {
+    use crate::build::{INPUT_TEXT_BG, INPUT_TEXT_BG_HOVER, INPUT_TEXT_BG_PRESSED};
+
+    for (interaction, mut color, text_input) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => {
+                *color = INPUT_TEXT_BG_PRESSED.into();
+            }
+            Interaction::Hovered => {
+                *color = INPUT_TEXT_BG_HOVER.into();
+            }
+            Interaction::None => {
+                *color = INPUT_TEXT_BG.into();
             }
         }
     }
