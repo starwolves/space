@@ -5,7 +5,10 @@ use crate::{
         show_main_menu, show_play_menu, startup_show_menu, EnableMainMenu, EnablePlayMenu,
         MainMenuLabel, MainMenuState, PlayMenuState, MAIN_BG_COLOR,
     },
-    events::{button_hover_visuals, button_presses, text_input_node_events},
+    events::{
+        button_hover_visuals, button_presses, space_frontiers_link, starwolves_link,
+        text_input_node_events,
+    },
     hide::hide_main_menu,
 };
 
@@ -31,7 +34,9 @@ impl Plugin for MainMenuPlugin {
                 .add_event::<EnablePlayMenu>()
                 .add_system(show_play_menu.before(MainMenuLabel::BuildMainMenu))
                 .init_resource::<PlayMenuState>()
-                .add_system(text_input_node_events);
+                .add_system(text_input_node_events)
+                .add_system(starwolves_link)
+                .add_system(space_frontiers_link);
         }
     }
 }
