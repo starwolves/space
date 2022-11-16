@@ -1,6 +1,6 @@
 [package]
 name = "entity"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Entity base."
 homepage="https://starwolves.io"

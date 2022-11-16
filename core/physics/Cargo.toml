@@ -1,6 +1,6 @@
 [package]
 name = "physics"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="The Bevy Rapier 3D physics integration."
 homepage="https://starwolves.io"

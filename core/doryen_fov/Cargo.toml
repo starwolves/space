@@ -2,7 +2,7 @@
 name = "doryen_fov"
 authors = ["jice <jice.nospam@gmail.com>", "Ramses <ramses@starwolves.io>"]
 description = "A pure rust library containing 2D field of view algorithms for roguelikes. Modified by Ramses."
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"

@@ -1,6 +1,6 @@
 [package]
 name = "omni_light"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="The main source of light."
 homepage="https://starwolves.io"

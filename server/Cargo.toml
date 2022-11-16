@@ -1,6 +1,6 @@
 [package]
 name = "server"
-version = "0.0.3-snap7-dev"
+version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description="Space Frontiers, the server."
 homepage="https://starwolves.io"
