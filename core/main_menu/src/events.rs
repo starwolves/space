@@ -1,5 +1,4 @@
 use crate::build::MainMenuPlayButton;
-use crate::build::INPUT_TEXT_BG;
 use crate::build::SIDEBAR_COLOR;
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
 use bevy::prelude::warn;
@@ -13,6 +12,7 @@ use bevy::{
 };
 
 use bevy::prelude::EventWriter;
+use ui::text_input::INPUT_TEXT_BG;
 
 use crate::build::EnablePlayMenu;
 pub const HOVERED_BUTTON: Color = INPUT_TEXT_BG;
@@ -181,31 +181,8 @@ pub(crate) fn button_hover_visuals(
         }
     }
 }
-use crate::build::TextInputNode;
-use crate::build::{INPUT_TEXT_BG_HOVER, INPUT_TEXT_BG_PRESSED};
 
 /// Manages text input UI nodes.
-#[cfg(feature = "client")]
-pub(crate) fn text_input_node_events(
-    mut interaction_query: Query<
-        (&Interaction, &mut UiColor, &mut TextInputNode),
-        Changed<Interaction>,
-    >,
-) {
-    for (interaction, mut color, text_input) in interaction_query.iter_mut() {
-        match *interaction {
-            Interaction::Clicked => {
-                *color = INPUT_TEXT_BG_PRESSED.into();
-            }
-            Interaction::Hovered => {
-                *color = INPUT_TEXT_BG_HOVER.into();
-            }
-            Interaction::None => {
-                *color = INPUT_TEXT_BG.into();
-            }
-        }
-    }
-}
 use bevy::app::AppExit;
 
 #[cfg(feature = "client")]

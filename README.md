@@ -19,7 +19,7 @@
 
 *Space frontiers seeks to deliver an experience that offers very high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
-**The repository of the modular and moddable multi-threaded sci-fi community game Space Frontiers, written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client is made with Godot. The new client is being built with Bevy. Credits to [Godot Engine](https://godotengine.org/) and [godot-rust](https://github.com/godot-rust/godot-rust)!**
+**The repository of the the sci-fi community game Space Frontiers, written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client is made with Godot. The new client is being built with Bevy.**
 
 **There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
 
@@ -48,7 +48,6 @@ There is community sovereignty, integrity, values and strong personalities toget
 * Actions and tab menu's to easily interact with the world while also offering protection against cheaters.
 * Configurable console commands, including rcon admin commands.
 * Clients can load in custom content on a per server basis thanks to a traditional automatically shared and downloaded content folder approach.
-* Godot Addressable references are used for efficient and dynamic netcode that works well with custom content.
 * Cell based map support with a graphical user interface map, world and entities editor with support for sizes up to 1km by 1km with 100,000+ dynamic (de)constructable ship cells.
 * Atmospherics simulation including temperature, pressure, diffusion, gravity and the vacuum of space.
 
@@ -83,7 +82,7 @@ To start the server run:
 cargo run --bin server
 ```
 
-To start the client run:
+To start the new client run:
 ```
 cargo run --bin client
 ```
@@ -94,8 +93,8 @@ To run Space Frontiers at maximum performance you should add the following flag 
 ```
 
 ### Prototype Godot Client
-You can obtain the prototype client on [Discord](https://discord.gg/yYpMun9CTT).
-Ensure your server has the right git branch with the same version as the obtained client and not the master branch!
+You can obtain the feature-rich 0.0.3-snap7 prototype client on [Discord](https://discord.gg/yYpMun9CTT).
+Ensure your server has the right git branch with the same version as the obtained Godot client and not the master branch!
 
 The prototype client is built on top of a Godot 3.4 release.
 

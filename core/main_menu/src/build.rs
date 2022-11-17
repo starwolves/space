@@ -464,10 +464,6 @@ use bevy::prelude::With;
 use bevy::ui::AlignContent;
 use bevy::ui::Interaction;
 
-pub const INPUT_TEXT_BG: Color = Color::rgb(0.46, 0.5, 0.69);
-pub const INPUT_TEXT_BG_HOVER: Color = Color::rgb(0.56, 0.6, 0.79);
-pub const INPUT_TEXT_BG_PRESSED: Color = INPUT_TEXT_BG;
-
 /// Displays play menu
 #[cfg(feature = "client")]
 pub(crate) fn show_play_menu(
@@ -477,6 +473,8 @@ pub(crate) fn show_play_menu(
     asset_server: Res<AssetServer>,
     root_node_query: Query<Entity, With<MainMainMenuRoot>>,
 ) {
+    use ui::text_input::{CharacterFilter, TextInputNode, INPUT_TEXT_BG};
+
     for event in show_events.iter() {
         let mut root_node_option = None;
         for root in root_node_query.iter() {
@@ -602,7 +600,13 @@ pub(crate) fn show_play_menu(
                                                         ..Default::default()
                                                     })
                                                     .insert_bundle((
-                                                        TextInputNode::default(),
+                                                        TextInputNode {
+                                                            placeholder_active: true,
+                                                            character_filter_option: Some(
+                                                                CharacterFilter::ServerAddress,
+                                                            ),
+                                                            ..Default::default()
+                                                        },
                                                         AccountNameInput,
                                                         Interaction::default(),
                                                     ))
@@ -612,7 +616,7 @@ pub(crate) fn show_play_menu(
                                                                 "Enter address..",
                                                                 TextStyle {
                                                                     font: arizone_font.clone(),
-                                                                    font_size: 9.,
+                                                                    font_size: 10.,
                                                                     color: TEXT_INPUT_COLOR,
                                                                 },
                                                             ),
@@ -681,7 +685,13 @@ pub(crate) fn show_play_menu(
                                                         ..Default::default()
                                                     })
                                                     .insert_bundle((
-                                                        TextInputNode::default(),
+                                                        TextInputNode {
+                                                            placeholder_active: true,
+                                                            character_filter_option: Some(
+                                                                CharacterFilter::AccountName,
+                                                            ),
+                                                            ..Default::default()
+                                                        },
                                                         AccountNameInput,
                                                         Interaction::default(),
                                                     ))
@@ -691,7 +701,7 @@ pub(crate) fn show_play_menu(
                                                                 "Enter username..",
                                                                 TextStyle {
                                                                     font: arizone_font.clone(),
-                                                                    font_size: 9.,
+                                                                    font_size: 10.,
                                                                     color: TEXT_INPUT_COLOR,
                                                                 },
                                                             ),
@@ -766,12 +776,7 @@ pub(crate) fn show_play_menu(
             });
     }
 }
-/// The component for text input UI nodes.
-#[cfg(feature = "client")]
-#[derive(Component, Default)]
-pub struct TextInputNode {
-    pub input: String,
-}
+
 #[cfg(feature = "client")]
 #[derive(Component)]
 pub struct AccountNameInput;
