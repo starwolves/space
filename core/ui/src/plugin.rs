@@ -1,8 +1,11 @@
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
 
-use crate::text_input::{
-    focus_events, input_characters, input_mouse_press_unfocus, ui_events, FocusTextInput,
-    TextInput, TextInputLabel, UnfocusTextInput,
+use crate::{
+    button::button_hover_visuals,
+    text_input::{
+        focus_events, input_characters, input_mouse_press_unfocus, ui_events, FocusTextInput,
+        TextInput, TextInputLabel, UnfocusTextInput,
+    },
 };
 
 pub struct UiPlugin;
@@ -19,7 +22,8 @@ impl Plugin for UiPlugin {
                 .init_resource::<TextInput>()
                 .add_system(input_characters)
                 .add_event::<UnfocusTextInput>()
-                .add_event::<FocusTextInput>();
+                .add_event::<FocusTextInput>()
+                .add_system(button_hover_visuals);
         }
     }
 }

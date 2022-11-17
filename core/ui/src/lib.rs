@@ -5,3 +5,6 @@ pub mod plugin;
 
 /// Text input UI node.
 pub mod text_input;
+
+/// Button UI node.
+pub mod button;
