@@ -676,7 +676,9 @@ pub(crate) fn show_play_menu(
                                                             character_filter_option: Some(
                                                                 CharacterFilter::ServerAddress,
                                                             ),
-                                                            placeholder_text: Some(text.to_owned()),
+                                                            placeholder_text_option: Some(
+                                                                text.to_owned(),
+                                                            ),
                                                             ..Default::default()
                                                         },
                                                         AccountNameInput,
@@ -763,7 +765,9 @@ pub(crate) fn show_play_menu(
                                                             character_filter_option: Some(
                                                                 CharacterFilter::AccountName,
                                                             ),
-                                                            placeholder_text: Some(text.to_owned()),
+                                                            placeholder_text_option: Some(
+                                                                text.to_owned(),
+                                                            ),
                                                             ..Default::default()
                                                         },
                                                         AccountNameInput,
