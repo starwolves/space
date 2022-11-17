@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
 use resources::labels::{MapLabels, PostUpdateLabels};
@@ -14,7 +16,7 @@ pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.init_resource::<MapData>()
                 .add_event::<NetRequestOverlay>()
                 .add_system(change_map_overlay.label(MapLabels::ChangeMode))

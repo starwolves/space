@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, Plugin};
 
 use super::{
@@ -8,7 +10,7 @@ use super::{
 pub struct RigidBodyPlugin;
 impl Plugin for RigidBodyPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system(out_of_bounds_tp)
                 .add_system(rigidbody_link_transform);
         }

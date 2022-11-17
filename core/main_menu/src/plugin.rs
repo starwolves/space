@@ -5,7 +5,7 @@ use crate::{
         show_main_menu, show_play_menu, startup_show_menu, EnableMainMenu, EnablePlayMenu,
         MainMenuLabel, MainMenuState, PlayMenuState, MAIN_BG_COLOR,
     },
-    events::{button_presses, space_frontiers_link, starwolves_link},
+    events::{button_presses, connect_to_server_button, space_frontiers_link, starwolves_link},
     hide::hide_main_menu,
 };
 
@@ -31,7 +31,8 @@ impl Plugin for MainMenuPlugin {
                 .add_system(show_play_menu.before(MainMenuLabel::BuildMainMenu))
                 .init_resource::<PlayMenuState>()
                 .add_system(starwolves_link)
-                .add_system(space_frontiers_link);
+                .add_system(space_frontiers_link)
+                .add_system(connect_to_server_button);
         }
     }
 }

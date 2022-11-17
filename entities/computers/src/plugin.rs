@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
@@ -24,7 +26,7 @@ pub struct ComputersPlugin;
 #[cfg(feature = "server")]
 impl Plugin for ComputersPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system(computer_added)
                 .add_event::<SpawnEvent<ComputerSummoner>>()
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))

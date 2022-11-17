@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
 use resources::labels::{PostUpdateLabels, StartupLabels};
@@ -17,7 +19,7 @@ pub struct ConsoleCommandsPlugin {
 
 impl Plugin for ConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.init_resource::<AllConsoleCommands>()
                 .add_event::<NetConsoleCommands>()
                 .add_event::<NetEntityConsole>()

@@ -447,7 +447,7 @@ pub(crate) fn show_main_menu(
     }
 }
 
-pub const SUB_MENU_HEADER_COLOR : Color = INPUT_TEXT_BG;
+pub const SUB_MENU_HEADER_COLOR: Color = INPUT_TEXT_BG;
 
 #[derive(Component)]
 #[cfg(feature = "client")]
@@ -612,14 +612,19 @@ pub(crate) fn show_play_menu(
                                                         },
                                                         ..Default::default()
                                                     })
-                                                    .insert(ButtonVisuals {
-                                                        pressed_color: Color::BLUE,
-                                                        default_color_option: Some(HOVERED_BUTTON),
-                                                        default_parent_color: HOVERED_BUTTON,
-                                                        hovered_color: INPUT_TEXT_BG_HOVER,
-                                                        color_parent: false,
-                                                        ..Default::default()
-                                                    })
+                                                    .insert_bundle((
+                                                        ButtonVisuals {
+                                                            pressed_color: Color::BLUE,
+                                                            default_color_option: Some(
+                                                                HOVERED_BUTTON,
+                                                            ),
+                                                            default_parent_color: HOVERED_BUTTON,
+                                                            hovered_color: INPUT_TEXT_BG_HOVER,
+                                                            color_parent: false,
+                                                            ..Default::default()
+                                                        },
+                                                        ConnectToServerButton,
+                                                    ))
                                                     .with_children(|parent| {
                                                         parent.spawn().insert_bundle(
                                                             TextBundle::from_section(
@@ -863,3 +868,6 @@ pub struct AccountNameInput;
 #[cfg(feature = "client")]
 #[derive(Component)]
 pub struct IpAddressInput;
+#[cfg(feature = "client")]
+#[derive(Component)]
+pub struct ConnectToServerButton;

@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use networking::server::GodotVariant;
@@ -12,7 +14,7 @@ pub struct InventoryItemPlugin;
 
 impl Plugin for InventoryItemPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()

@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use entity::spawn::SpawnEvent;
@@ -11,7 +13,7 @@ pub struct ReflectionProbePlugin;
 #[cfg(feature = "server")]
 impl Plugin for ReflectionProbePlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()

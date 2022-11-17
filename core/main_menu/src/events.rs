@@ -144,3 +144,80 @@ pub(crate) fn button_presses(
         }
     }
 }
+use crate::build::AccountNameInput;
+use crate::build::ConnectToServerButton;
+use bevy::prelude::Entity;
+use networking::client::ConnectToServer;
+use ui::text_input::TextInputNode;
+
+/// Client connection preferences.
+use bevy::prelude::ResMut;
+use networking::client::ConnectionPreferences;
+
+#[cfg(feature = "client")]
+pub(crate) fn connect_to_server_button(
+    button_query: Query<(&ConnectToServerButton, &Interaction), Changed<Interaction>>,
+    mut connect: EventWriter<ConnectToServer>,
+    account_name_input_query: Query<(Entity, &AccountNameInput, &TextInputNode)>,
+    server_address_input_query: Query<(Entity, &AccountNameInput, &TextInputNode)>,
+    mut preferences: ResMut<ConnectionPreferences>,
+) {
+    for (_, interaction) in button_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                let mut account_name_input_entity_option = None;
+
+                for (entity, _, _) in account_name_input_query.iter() {
+                    account_name_input_entity_option = Some(entity);
+                    break;
+                }
+
+                let mut server_address_input_entity_option = None;
+
+                for (entity, _, _) in server_address_input_query.iter() {
+                    server_address_input_entity_option = Some(entity);
+                    break;
+                }
+
+                let account_name_input_entity;
+
+                match account_name_input_entity_option {
+                    Some(name) => {
+                        account_name_input_entity = name;
+                    }
+                    None => {
+                        warn!("Couldnt find account name input.");
+                        continue;
+                    }
+                }
+
+                let server_address_input_entity;
+
+                match server_address_input_entity_option {
+                    Some(address) => {
+                        server_address_input_entity = address;
+                    }
+                    None => {
+                        warn!("Couldnt find server address input.");
+                        continue;
+                    }
+                }
+
+                let account_name_node = account_name_input_query
+                    .get_component::<TextInputNode>(account_name_input_entity)
+                    .unwrap();
+                let server_address_node = server_address_input_query
+                    .get_component::<TextInputNode>(server_address_input_entity)
+                    .unwrap();
+
+                let account_name = account_name_node.input.clone();
+                let server_address = server_address_node.input.clone();
+                preferences.account_name = account_name;
+                preferences.server_address = server_address;
+                connect.send(ConnectToServer);
+            }
+            Interaction::Hovered => {}
+            Interaction::None => {}
+        }
+    }
+}

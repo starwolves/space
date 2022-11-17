@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 
 use bevy::app::CoreStage::PostUpdate;
@@ -13,7 +15,7 @@ pub struct GIProbePlugin;
 
 impl Plugin for GIProbePlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()

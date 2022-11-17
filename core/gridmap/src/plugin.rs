@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::{
     prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
     time::FixedTimestep,
@@ -48,7 +50,7 @@ pub struct GridmapPlugin;
 
 impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.init_resource::<GridmapDetails1>()
                 .init_resource::<GridmapData>()
                 .init_resource::<DoryenMap>()

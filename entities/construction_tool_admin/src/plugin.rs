@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::app::CoreStage::PostUpdate;
 
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
@@ -36,7 +38,7 @@ pub struct ConstructionToolAdminPlugin;
 
 impl Plugin for ConstructionToolAdminPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<InputConstruct>()
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()

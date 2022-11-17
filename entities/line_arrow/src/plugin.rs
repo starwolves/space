@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
@@ -21,7 +23,7 @@ pub struct LineArrowPlugin;
 #[cfg(feature = "server")]
 impl Plugin for LineArrowPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_startup_system(
                 initialize_console_commands
                     .before(ConsoleCommandsLabels::Finalize)

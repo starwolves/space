@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{
     App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemLabel, SystemSet, Transform,
 };
@@ -48,7 +50,7 @@ pub struct AirLocksPlugin;
 
 impl Plugin for AirLocksPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<AirLockCollision>()
                 .add_event::<InputAirLockToggleOpen>()
                 .add_event::<AirLockLockOpen>()

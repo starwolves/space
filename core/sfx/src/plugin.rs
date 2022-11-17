@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::{
     prelude::{App, Plugin, SystemSet},
     time::FixedTimestep,
@@ -17,7 +19,7 @@ pub struct SfxPlugin;
 
 impl Plugin for SfxPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system_set(
                 SystemSet::new()
                     .with_run_criteria(
