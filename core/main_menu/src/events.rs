@@ -1,22 +1,15 @@
 use crate::build::MainMenuPlayButton;
-use crate::build::SIDEBAR_COLOR;
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
 use bevy::prelude::warn;
-use bevy::prelude::Entity;
-use bevy::prelude::Parent;
 use bevy::prelude::{Changed, Color};
-use bevy::ui::UiColor;
 use bevy::{
     prelude::{Button, Query, With},
     ui::Interaction,
 };
 
 use bevy::prelude::EventWriter;
-use ui::text_input::INPUT_TEXT_BG;
 
 use crate::build::EnablePlayMenu;
-pub const HOVERED_BUTTON: Color = INPUT_TEXT_BG;
-pub const PRESSED_BUTTON: Color = Color::rgb(0.49, 0.73, 0.91);
 use crate::build::MainMenuStarWolvesLink;
 
 use crate::build::SpaceFrontiersHeader;
@@ -103,80 +96,6 @@ pub(crate) fn starwolves_link(
             }
             Interaction::None => {
                 starwolves_text.style.color = STARWOLVES_TEXT_COLOR.into();
-            }
-        }
-    }
-}
-
-#[cfg(feature = "client")]
-pub(crate) fn button_hover_visuals(
-    mut interaction_query: Query<
-        (Entity, &Interaction, &Parent),
-        (Changed<Interaction>, With<Button>),
-    >,
-    mut color_query: Query<&mut UiColor>,
-) {
-    for (entity, interaction, parent) in &mut interaction_query {
-        match *interaction {
-            Interaction::Clicked => {
-                match color_query.get_mut(parent.get()) {
-                    Ok(mut c) => {
-                        *c = PRESSED_BUTTON.into();
-                    }
-                    Err(_rr) => {
-                        warn!("Couldnt find button parent.");
-                        continue;
-                    }
-                }
-                match color_query.get_mut(entity) {
-                    Ok(mut c) => {
-                        *c = PRESSED_BUTTON.into();
-                    }
-                    Err(_rr) => {
-                        warn!("Couldnt find button.");
-                        continue;
-                    }
-                }
-            }
-            Interaction::Hovered => {
-                match color_query.get_mut(parent.get()) {
-                    Ok(mut c) => {
-                        *c = HOVERED_BUTTON.into();
-                    }
-                    Err(_rr) => {
-                        warn!("Couldnt find button parent.");
-                        continue;
-                    }
-                }
-                match color_query.get_mut(entity) {
-                    Ok(mut c) => {
-                        *c = HOVERED_BUTTON.into();
-                    }
-                    Err(_rr) => {
-                        warn!("Couldnt find button.");
-                        continue;
-                    }
-                }
-            }
-            Interaction::None => {
-                match color_query.get_mut(parent.get()) {
-                    Ok(mut c) => {
-                        *c = SIDEBAR_COLOR.into();
-                    }
-                    Err(_rr) => {
-                        warn!("Couldnt find button parent.");
-                        continue;
-                    }
-                }
-                match color_query.get_mut(entity) {
-                    Ok(mut c) => {
-                        *c = SIDEBAR_COLOR.into();
-                    }
-                    Err(_rr) => {
-                        warn!("Couldnt find button.");
-                        continue;
-                    }
-                }
             }
         }
     }

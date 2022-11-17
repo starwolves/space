@@ -14,6 +14,7 @@ pub const INPUT_TEXT_BG_FOCUSED: Color = Color::rgb(0.46, 0.5, 0.79);
 #[derive(Component, Default)]
 pub struct TextInputNode {
     pub input: String,
+    pub placeholder_text: Option<String>,
     pub placeholder_active: bool,
     pub character_filter_option: Option<CharacterFilter>,
 }

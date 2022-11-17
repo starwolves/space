@@ -58,6 +58,7 @@ pub(crate) struct MainMenuExitButton;
 #[derive(Component)]
 #[cfg(feature = "client")]
 pub(crate) struct SpaceFrontiersHeader;
+use crate::events::SPACE_FRONTIERS_HEADER_TEXT_COLOR;
 
 /// System that toggles the base visiblity of the main menu.
 #[cfg(feature = "client")]
@@ -69,7 +70,7 @@ pub(crate) fn show_main_menu(
     client_information: Res<ClientInformation>,
     mut show_play_menu: EventWriter<EnablePlayMenu>,
 ) {
-    use crate::events::SPACE_FRONTIERS_HEADER_TEXT_COLOR;
+    use ui::button::ButtonVisuals;
 
     if state.enabled {
         return;
@@ -314,7 +315,10 @@ pub(crate) fn show_main_menu(
                                                         color: SIDEBAR_COLOR.into(),
                                                         ..Default::default()
                                                     })
-                                                    .insert(MainMenuExitButton)
+                                                    .insert_bundle((
+                                                        MainMenuExitButton,
+                                                        ButtonVisuals::default(),
+                                                    ))
                                                     .with_children(|parent| {
                                                         parent.spawn().insert_bundle(
                                                             TextBundle::from_section(
@@ -351,7 +355,10 @@ pub(crate) fn show_main_menu(
                                                         color: SIDEBAR_COLOR.into(),
                                                         ..Default::default()
                                                     })
-                                                    .insert(MainMenuSettingsButton)
+                                                    .insert_bundle((
+                                                        MainMenuSettingsButton,
+                                                        ButtonVisuals::default(),
+                                                    ))
                                                     .with_children(|parent| {
                                                         parent.spawn().insert_bundle(
                                                             TextBundle::from_section(
@@ -388,7 +395,10 @@ pub(crate) fn show_main_menu(
                                                         color: SIDEBAR_COLOR.into(),
                                                         ..Default::default()
                                                     })
-                                                    .insert(MainMenuPlayButton)
+                                                    .insert_bundle((
+                                                        MainMenuPlayButton,
+                                                        ButtonVisuals::default(),
+                                                    ))
                                                     .with_children(|parent| {
                                                         parent.spawn().insert_bundle(
                                                             TextBundle::from_section(
@@ -464,6 +474,8 @@ use bevy::prelude::With;
 use bevy::ui::AlignContent;
 use bevy::ui::Interaction;
 
+use ui::text_input::{CharacterFilter, TextInputNode, INPUT_TEXT_BG, INPUT_TEXT_BG_HOVER};
+
 /// Displays play menu
 #[cfg(feature = "client")]
 pub(crate) fn show_play_menu(
@@ -473,7 +485,7 @@ pub(crate) fn show_play_menu(
     asset_server: Res<AssetServer>,
     root_node_query: Query<Entity, With<MainMainMenuRoot>>,
 ) {
-    use ui::text_input::{CharacterFilter, TextInputNode, INPUT_TEXT_BG};
+    use ui::button::{ButtonVisuals, HOVERED_BUTTON};
 
     for event in show_events.iter() {
         let mut root_node_option = None;
@@ -567,7 +579,7 @@ pub(crate) fn show_play_menu(
                                     })
                                     // Menu elements.
                                     .with_children(|parent| {
-                                        // Input server IP.
+                                        // Play button.
                                         parent
                                             .spawn()
                                             .insert_bundle(NodeBundle {
@@ -583,6 +595,65 @@ pub(crate) fn show_play_menu(
                                                 ..Default::default()
                                             })
                                             .with_children(|parent| {
+                                                parent
+                                                    .spawn()
+                                                    .insert_bundle(ButtonBundle {
+                                                        style: Style {
+                                                            size: Size::new(
+                                                                Val::Percent(100.),
+                                                                Val::Percent(100.),
+                                                            ),
+                                                            justify_content: JustifyContent::Center,
+                                                            align_items: AlignItems::Center,
+                                                            flex_wrap: FlexWrap::Wrap,
+                                                            ..Default::default()
+                                                        },
+                                                        ..Default::default()
+                                                    })
+                                                    .insert(ButtonVisuals {
+                                                        pressed_color: Color::BLUE,
+                                                        default_color_option: Some(HOVERED_BUTTON),
+                                                        default_parent_color: HOVERED_BUTTON,
+                                                        hovered_color: INPUT_TEXT_BG_HOVER,
+                                                        color_parent: false,
+                                                        ..Default::default()
+                                                    })
+                                                    .with_children(|parent| {
+                                                        parent.spawn().insert_bundle(
+                                                            TextBundle::from_section(
+                                                                "Connect",
+                                                                TextStyle {
+                                                                    font: arizone_font.clone(),
+                                                                    font_size: 10.,
+                                                                    color: TEXT_INPUT_COLOR,
+                                                                },
+                                                            ),
+                                                        );
+                                                    });
+                                            });
+                                        // Input server IP.
+                                        parent
+                                            .spawn()
+                                            .insert_bundle(NodeBundle {
+                                                style: Style {
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(5.),
+                                                    ),
+                                                    justify_content: JustifyContent::Center,
+                                                    margin: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(7.),
+                                                    ),
+                                                    ..Default::default()
+                                                },
+                                                color: SIDEBAR_COLOR.into(),
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                let text = "Enter address..";
                                                 parent
                                                     .spawn()
                                                     .insert_bundle(NodeBundle {
@@ -605,6 +676,7 @@ pub(crate) fn show_play_menu(
                                                             character_filter_option: Some(
                                                                 CharacterFilter::ServerAddress,
                                                             ),
+                                                            placeholder_text: Some(text.to_owned()),
                                                             ..Default::default()
                                                         },
                                                         AccountNameInput,
@@ -613,7 +685,7 @@ pub(crate) fn show_play_menu(
                                                     .with_children(|parent| {
                                                         parent.spawn().insert_bundle(
                                                             TextBundle::from_section(
-                                                                "Enter address..",
+                                                                text,
                                                                 TextStyle {
                                                                     font: arizone_font.clone(),
                                                                     font_size: 10.,
@@ -623,7 +695,7 @@ pub(crate) fn show_play_menu(
                                                         );
                                                     });
                                             });
-                                        // Server IP label.
+                                        // Label server ip.
                                         parent
                                             .spawn()
                                             .insert_bundle(NodeBundle {
@@ -668,6 +740,7 @@ pub(crate) fn show_play_menu(
                                                 ..Default::default()
                                             })
                                             .with_children(|parent| {
+                                                let text = "Enter username..";
                                                 parent
                                                     .spawn()
                                                     .insert_bundle(NodeBundle {
@@ -690,6 +763,7 @@ pub(crate) fn show_play_menu(
                                                             character_filter_option: Some(
                                                                 CharacterFilter::AccountName,
                                                             ),
+                                                            placeholder_text: Some(text.to_owned()),
                                                             ..Default::default()
                                                         },
                                                         AccountNameInput,
@@ -698,7 +772,7 @@ pub(crate) fn show_play_menu(
                                                     .with_children(|parent| {
                                                         parent.spawn().insert_bundle(
                                                             TextBundle::from_section(
-                                                                "Enter username..",
+                                                                text,
                                                                 TextStyle {
                                                                     font: arizone_font.clone(),
                                                                     font_size: 10.,
