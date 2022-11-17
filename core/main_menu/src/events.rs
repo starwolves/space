@@ -154,12 +154,13 @@ use ui::text_input::TextInputNode;
 use bevy::prelude::ResMut;
 use networking::client::ConnectionPreferences;
 
+use crate::build::IpAddressInput;
 #[cfg(feature = "client")]
 pub(crate) fn connect_to_server_button(
     button_query: Query<(&ConnectToServerButton, &Interaction), Changed<Interaction>>,
     mut connect: EventWriter<ConnectToServer>,
     account_name_input_query: Query<(Entity, &AccountNameInput, &TextInputNode)>,
-    server_address_input_query: Query<(Entity, &AccountNameInput, &TextInputNode)>,
+    server_address_input_query: Query<(Entity, &IpAddressInput, &TextInputNode)>,
     mut preferences: ResMut<ConnectionPreferences>,
 ) {
     for (_, interaction) in button_query.iter() {
@@ -212,6 +213,12 @@ pub(crate) fn connect_to_server_button(
 
                 let account_name = account_name_node.input.clone();
                 let server_address = server_address_node.input.clone();
+
+                if account_name.len() < 3 {
+                    warn!("Account name is too short.");
+                    continue;
+                }
+
                 preferences.account_name = account_name;
                 preferences.server_address = server_address;
                 connect.send(ConnectToServer);

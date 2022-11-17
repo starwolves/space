@@ -65,7 +65,7 @@ pub(crate) fn connect_to_server(
                                 port = p;
                             }
                             Err(_rr) => {
-                                warn!("Couldnt parse provided port.");
+                                warn!("Couldn't connect: couldn't parse port.");
                                 continue;
                             }
                         };
@@ -84,7 +84,7 @@ pub(crate) fn connect_to_server(
                         ip_address = add;
                     }
                     Err(_) => {
-                        warn!("Invalid server_ip.");
+                        warn!("Couldn't connect: invalid server address.");
                         continue;
                     }
                 }
@@ -126,7 +126,7 @@ pub(crate) fn connect_to_server(
                     &encryption_key,
                 )
                 .unwrap();
-                info!("Connecting to {}", socket_address);
+                info!("Establishing connection with [{}]", socket_address);
 
                 commands.insert_resource(
                     RenetClient::new(

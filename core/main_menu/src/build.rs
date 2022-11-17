@@ -688,7 +688,7 @@ pub(crate) fn show_play_menu(
                                                             ),
                                                             ..Default::default()
                                                         },
-                                                        AccountNameInput,
+                                                        IpAddressInput,
                                                         Interaction::default(),
                                                     ))
                                                     .with_children(|parent| {
