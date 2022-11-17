@@ -17,3 +17,4 @@ networking = { path = "../core/networking",  features=["client"] }
 main_menu = { path = "../core/main_menu",  features=["client"] }
 winit_windows = { path = "../core/winit_windows",  features=["client"] }
 resources = { path = "../core/resources",  features=["client"] }
+ui = { path = "../core/ui",  features=["client"] }

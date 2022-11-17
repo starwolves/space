@@ -9,6 +9,7 @@ use bevy::{
 };
 use main_menu::plugin::MainMenuPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
+use ui::plugin::UiPlugin;
 use winit_windows::plugin::WinitWindowsPlugin;
 
 use crate::client_is_live;
@@ -55,6 +56,7 @@ impl Plugin for ClientPlugin {
         .insert_resource(ClientInformation {
             version: self.version.clone(),
         })
+        .add_plugin(UiPlugin)
         .add_startup_system(client_is_live)
         .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {

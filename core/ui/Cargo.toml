@@ -1,8 +1,8 @@
 [package]
-name = "main_menu"
+name = "ui"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="The main menu displayed on the client at launch."
+description="UI elements."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"
@@ -14,9 +14,4 @@ client = []
 
 [dependencies.bevy]
 version = "0.8.1"
-
-[dependencies]
-open = "3.0.3"
-
-resources = { path = "../resources" ,  features=["client"]}
-ui = { path = "../ui" ,  features=["client"]}
+default-features = false
