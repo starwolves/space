@@ -14,7 +14,7 @@ pub const INPUT_TEXT_BG_FOCUSED: Color = Color::rgb(0.46, 0.5, 0.79);
 #[derive(Component, Default)]
 pub struct TextInputNode {
     pub input: String,
-    pub placeholder_text: Option<String>,
+    pub placeholder_text_option: Option<String>,
     pub placeholder_active: bool,
     pub character_filter_option: Option<CharacterFilter>,
 }
@@ -101,18 +101,19 @@ pub(crate) fn focus_events(
     mut focus_events: EventReader<FocusTextInput>,
     mut unfocus_events: EventReader<UnfocusTextInput>,
     mut text_input: ResMut<TextInput>,
-    mut input_query: Query<&mut UiColor, With<TextInputNode>>,
+    mut input_query: Query<(&mut UiColor, &TextInputNode, &Children)>,
+    mut text_query: Query<&mut Text>,
 ) {
     for focus in focus_events.iter() {
         match text_input.focused_input {
             Some(entity) => {
                 if entity != focus.entity {
                     match input_query.get_mut(entity) {
-                        Ok(mut old_color) => {
+                        Ok((mut old_color, _, _)) => {
                             *old_color = INPUT_TEXT_BG.into();
                         }
                         Err(_) => {
-                            warn!("Couldnt find node of old text input focus.");
+                            warn!("Couldnt find node of old text input focus. 1");
                         }
                     }
                 }
@@ -121,11 +122,11 @@ pub(crate) fn focus_events(
         }
 
         match input_query.get_mut(focus.entity) {
-            Ok(mut new_color) => {
+            Ok((mut new_color, _, _)) => {
                 *new_color = INPUT_TEXT_BG_FOCUSED.into();
             }
             Err(_) => {
-                warn!("Couldnt find node of new text input focus.");
+                warn!("Couldnt find node of new text input focus. 0");
             }
         }
 
@@ -148,8 +149,46 @@ pub(crate) fn focus_events(
                 }
                 if should_unfocus {
                     match input_query.get_mut(entity) {
-                        Ok(mut old_color) => {
+                        Ok((mut old_color, input_node, children)) => {
                             *old_color = INPUT_TEXT_BG.into();
+
+                            let mut text_entity_option = None;
+
+                            for child in children.iter() {
+                                match text_query.get(*child) {
+                                    Ok(_) => {
+                                        text_entity_option = Some(child);
+                                        break;
+                                    }
+                                    Err(_) => {}
+                                }
+                            }
+
+                            let mut text;
+
+                            match text_entity_option {
+                                Some(ent) => {
+                                    text = text_query.get_mut(*ent).unwrap();
+                                }
+                                None => {
+                                    warn!("Unfocus couldnt find text child node");
+                                    continue;
+                                }
+                            }
+
+                            match &input_node.placeholder_text_option {
+                                Some(place_holder_text) => match text.sections.get_mut(0) {
+                                    Some(t) => {
+                                        if t.value.is_empty() {
+                                            t.value = place_holder_text.to_string();
+                                        }
+                                    }
+                                    None => {
+                                        warn!("Unfocus couldnt find text section!");
+                                    }
+                                },
+                                None => {}
+                            }
                         }
                         Err(_) => {}
                     }
