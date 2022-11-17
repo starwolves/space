@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
@@ -25,7 +27,7 @@ use bevy::app::CoreStage::PreUpdate;
 pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<NetShowcase>()
                 .init_resource::<EntityDataResource>()
                 .add_event::<RawSpawnEvent>()

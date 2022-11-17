@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
 use resources::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
@@ -19,7 +21,7 @@ pub struct InventoryPlugin;
 
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<NetPickupWorldItem>()
                 .add_event::<NetDropCurrentItem>()
                 .add_event::<NetSwitchHands>()

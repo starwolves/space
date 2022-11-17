@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
 use resources::labels::PostUpdateLabels;
@@ -12,7 +14,7 @@ pub struct ChatPlugin;
 
 impl Plugin for ChatPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<EntityProximityMessage>()
                 .add_event::<NetProximityMessage>()
                 .add_system(send_entity_proximity_messages.label(EntityProximityMessages::Send))

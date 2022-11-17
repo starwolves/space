@@ -1,3 +1,5 @@
+use std::env;
+
 use crate::boarding::NetUIInputTransmitData;
 use crate::console_commands::rcon_console_commands;
 use crate::health_ui::NetHealthUpdate;
@@ -39,7 +41,7 @@ pub struct ConnectedPlayerPlugin {
 
 impl Plugin for ConnectedPlayerPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<NetUserName>()
                 .add_event::<InputListActionsEntity>()
                 .add_system(

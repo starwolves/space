@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::{
     math::Quat,
     prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet, Transform},
@@ -45,7 +47,7 @@ pub struct CounterWindowsPlugin;
 
 impl Plugin for CounterWindowsPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<CounterWindowSensorCollision>()
                 .add_system(counter_window_tick_timers)
                 .add_system(counter_window_events)

@@ -20,3 +20,4 @@ open = "3.0.3"
 
 resources = { path = "../resources" ,  features=["client"]}
 ui = { path = "../ui" ,  features=["client"]}
+networking = { path = "../networking" ,  features=["client"]}

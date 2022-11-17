@@ -17,7 +17,6 @@ use bevy::{
     window::{WindowPlugin, WindowSettings},
 };
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
-use bevy_renet::renet::NETCODE_KEY_BYTES;
 use chat::plugin::ChatPlugin;
 use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
@@ -56,7 +55,6 @@ pub struct ServerPlugin {
     pub bevy_rate: Option<u8>,
     pub threads_amount: Option<u8>,
     pub give_all_rcon: bool,
-    pub custom_net_encryption_key: Option<[u8; NETCODE_KEY_BYTES]>,
     pub version: String,
 }
 impl Default for ServerPlugin {
@@ -66,7 +64,6 @@ impl Default for ServerPlugin {
             physics_rate: None,
             bevy_rate: None,
             version: "0.0.0".to_string(),
-            custom_net_encryption_key: None,
             // Dev values.
             threads_amount: Some(2),
             give_all_rcon: true,
@@ -116,9 +113,7 @@ impl Plugin for ServerPlugin {
             .add_plugin(AirLocksPlugin)
             .add_plugin(CounterWindowsPlugin)
             .add_plugin(InventoryPlugin)
-            .add_plugin(NetworkingPlugin {
-                custom_encryption_key: self.custom_net_encryption_key,
-            })
+            .add_plugin(NetworkingPlugin)
             .add_plugin(HumanoidPlugin)
             .add_plugin(RigidBodyPlugin)
             .add_plugin(ComputersPlugin)

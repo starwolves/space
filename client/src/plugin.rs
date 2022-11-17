@@ -9,6 +9,7 @@ use bevy::{
 };
 use bevy_egui::EguiPlugin;
 use main_menu::plugin::MainMenuPlugin;
+use networking::plugin::NetworkingPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use ui::plugin::UiPlugin;
 use winit_windows::plugin::WinitWindowsPlugin;
@@ -32,13 +33,6 @@ impl Default for ClientPlugin {
 
 impl Plugin for ClientPlugin {
     fn build(&self, app: &mut App) {
-        /*.insert_resource(startup_client_listen_connections(
-            ServerAddress {
-                address: socket_address,
-            },
-            encryption_key_string,
-        ))*/
-
         app.insert_resource(WindowDescriptor {
             title: "Space Frontiers ".to_string() + &self.version,
             width: 1280.,
@@ -59,6 +53,7 @@ impl Plugin for ClientPlugin {
             version: self.version.clone(),
         })
         .add_plugin(UiPlugin)
+        .add_plugin(NetworkingPlugin)
         .add_startup_system(client_is_live)
         .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {

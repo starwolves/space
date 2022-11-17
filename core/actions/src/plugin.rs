@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
 use resources::labels::{ActionsLabels, PostUpdateLabels};
@@ -12,7 +14,7 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system(init_action_data_listing.label(ActionsLabels::Init))
                 .add_system(
                     list_action_data_from_actions_component

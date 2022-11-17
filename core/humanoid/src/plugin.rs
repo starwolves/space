@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use networking::server::net_system;
@@ -17,7 +19,7 @@ pub struct HumanoidPlugin;
 
 impl Plugin for HumanoidPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system(
                 humanoid_core
                     .label(UpdateLabels::StandardCharacters)

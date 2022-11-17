@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::{
     laser_visuals::projectile_laser_visuals,
@@ -26,7 +28,7 @@ pub struct PistolL1Plugin;
 #[cfg(feature = "server")]
 impl Plugin for PistolL1Plugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
                     (summon_base_entity::<PistolL1Summoner>).after(SummoningLabels::TriggerSummon),

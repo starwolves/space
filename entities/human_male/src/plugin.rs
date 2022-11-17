@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
 use entity::{
     entity_data::initialize_entity_data,
@@ -21,7 +23,7 @@ pub struct HumanMalePlugin;
 
 impl Plugin for HumanMalePlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
                     summon_human_male::<HumanMaleSummoner>

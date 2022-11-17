@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
 use combat::{
     melee_queries::melee_attack_handler,
@@ -22,7 +24,7 @@ pub struct JumpsuitsPlugin;
 
 impl Plugin for JumpsuitsPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
                     summon_jumpsuit::<JumpsuitSummoner>.after(SummoningLabels::TriggerSummon),

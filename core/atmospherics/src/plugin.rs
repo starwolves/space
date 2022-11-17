@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::time::FixedTimestep;
 use networking::server::net_system;
 use resources::labels::{ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
@@ -30,7 +32,7 @@ pub struct AtmosphericsPlugin;
 
 impl Plugin for AtmosphericsPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.init_resource::<AtmosphericsResource>()
                 .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
                 .add_system(atmospherics_sensing_ability)

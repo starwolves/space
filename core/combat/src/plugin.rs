@@ -1,3 +1,5 @@
+use std::env;
+
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use chat::chat::EntityProximityMessages;
@@ -22,7 +24,7 @@ pub struct CombatPlugin;
 
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "server") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_system(
                 melee_direct
                     .after(CombatLabels::WeaponHandler)
