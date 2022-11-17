@@ -180,16 +180,31 @@ pub(crate) fn input_mouse_press_unfocus(
         }
     }
 }
+use bevy::time::Time;
+use bevy::{prelude::Local, time::Timer};
+use bevy_egui::EguiClipboard;
+use std::time::Duration;
 
-/// Register characters input and output as displayed text inside input node.
+/// Register characters input and output as displayed text inside input node. Also manages ctrl+v paste.
 #[cfg(feature = "client")]
 pub(crate) fn input_characters(
     text_input: Res<TextInput>,
+    mut backspace_timer: Local<Timer>,
+    mut backspace_timer_not_first: Local<bool>,
+    mut backspace_init_timer: Local<Timer>,
     mut char_evr: EventReader<ReceivedCharacter>,
     mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
     keys: Res<Input<KeyCode>>,
+    time: Res<Time>,
+    clipboard: Res<EguiClipboard>,
+    mut pasting: Local<bool>,
 ) {
+    if !*backspace_timer_not_first {
+        backspace_timer.pause();
+        *backspace_timer_not_first = true;
+    }
+
     let focused_input_node;
 
     match text_input.focused_input {
@@ -218,40 +233,110 @@ pub(crate) fn input_characters(
                             }
                         }
 
-                        for ev in char_evr.iter() {
-                            if input_node.placeholder_active {
-                                input_node.placeholder_active = false;
-                                text.value = "".to_string();
+                        let mut is_pasting = false;
+
+                        if (keys.pressed(KeyCode::LControl) || keys.pressed(KeyCode::RControl))
+                            && keys.pressed(KeyCode::V)
+                        {
+                            if !*pasting {
+                                *pasting = true;
+                                is_pasting = true;
                             }
+                        } else {
+                            *pasting = false;
+                        }
 
-                            let mut valid_char = false;
+                        if is_pasting {
+                            match clipboard.get_contents() {
+                                Some(clipboard_content) => {
+                                    let mut validated_clipboard_text = "".to_string();
 
-                            match &input_node.character_filter_option {
-                                Some(char_filter) => match char_filter {
-                                    CharacterFilter::AccountName => {
-                                        if ev.char.is_ascii_alphanumeric() {
-                                            valid_char = true;
+                                    for char in clipboard_content.chars() {
+                                        let mut valid_char = false;
+
+                                        match &input_node.character_filter_option {
+                                            Some(char_filter) => match char_filter {
+                                                CharacterFilter::AccountName => {
+                                                    if char.is_ascii_alphanumeric() {
+                                                        valid_char = true;
+                                                    }
+                                                }
+                                                CharacterFilter::ServerAddress => {
+                                                    if char.is_ascii_alphanumeric()
+                                                        || char.is_ascii_graphic()
+                                                    {
+                                                        valid_char = true;
+                                                    }
+                                                }
+                                            },
+                                            None => {
+                                                valid_char = true;
+                                            }
+                                        }
+
+                                        if valid_char {
+                                            validated_clipboard_text.push(char);
                                         }
                                     }
-                                    CharacterFilter::ServerAddress => {
-                                        if ev.char.is_ascii_alphanumeric()
-                                            || ev.char.is_ascii_graphic()
-                                        {
-                                            valid_char = true;
-                                        }
-                                    }
-                                },
-                                None => {
-                                    valid_char = true;
+
+                                    input_node.input =
+                                        input_node.input.clone() + &validated_clipboard_text;
                                 }
+                                None => {}
                             }
-                            if valid_char {
-                                input_node.input.push(ev.char);
+                        } else {
+                            for ev in char_evr.iter() {
+                                if input_node.placeholder_active {
+                                    input_node.placeholder_active = false;
+                                    text.value = "".to_string();
+                                }
+
+                                let mut valid_char = false;
+
+                                match &input_node.character_filter_option {
+                                    Some(char_filter) => match char_filter {
+                                        CharacterFilter::AccountName => {
+                                            if ev.char.is_ascii_alphanumeric() {
+                                                valid_char = true;
+                                            }
+                                        }
+                                        CharacterFilter::ServerAddress => {
+                                            if ev.char.is_ascii_alphanumeric()
+                                                || ev.char.is_ascii_graphic()
+                                            {
+                                                valid_char = true;
+                                            }
+                                        }
+                                    },
+                                    None => {
+                                        valid_char = true;
+                                    }
+                                }
+                                if valid_char {
+                                    input_node.input.push(ev.char);
+                                }
                             }
                         }
 
                         if keys.just_pressed(KeyCode::Back) {
                             input_node.input.pop();
+                            *backspace_init_timer = Timer::new(Duration::from_millis(300), false);
+                        } else if keys.pressed(KeyCode::Back) {
+                            let delta_time = time.delta();
+                            backspace_timer.tick(delta_time);
+                            backspace_init_timer.tick(delta_time);
+
+                            if backspace_init_timer.finished() {
+                                if backspace_timer.paused() {
+                                    *backspace_timer = Timer::new(Duration::from_millis(150), true);
+                                }
+
+                                if backspace_timer.just_finished() {
+                                    input_node.input.pop();
+                                }
+                            }
+                        } else if keys.just_released(KeyCode::Back) {
+                            backspace_timer.pause();
                         }
                         text.value = input_node.input.clone();
                     }

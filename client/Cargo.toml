@@ -13,6 +13,8 @@ edition = "2021"
 version = "0.8.1"
 
 [dependencies]
+bevy_egui = {version = "0.16.1",default-features=false, features=["manage_clipboard"]}
+
 networking = { path = "../core/networking",  features=["client"] }
 main_menu = { path = "../core/main_menu",  features=["client"] }
 winit_windows = { path = "../core/winit_windows",  features=["client"] }

@@ -23,7 +23,7 @@
 
 **There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
 
-### Community & Organization
+### Community
 Socials:
 * [Discord](https://discord.gg/yYpMun9CTT)
 * [Matrix](https://matrix.to/#/#space-frontiers:comms.starwolves.io)

@@ -12,6 +12,9 @@ edition = "2021"
 [features]
 client = []
 
+[dependencies]
+bevy_egui = {version = "0.16.1",default-features=false, features=["manage_clipboard"]}
+
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
