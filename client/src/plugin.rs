@@ -7,6 +7,7 @@ use bevy::{
     winit::WinitSettings,
     DefaultPlugins,
 };
+use bevy_egui::EguiPlugin;
 use main_menu::plugin::MainMenuPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use ui::plugin::UiPlugin;
@@ -53,6 +54,7 @@ impl Plugin for ClientPlugin {
         .add_plugin(MainMenuPlugin)
         .add_plugin(WinitWindowsPlugin)
         .add_plugin(ResourcesPlugin)
+        .add_plugin(EguiPlugin)
         .insert_resource(ClientInformation {
             version: self.version.clone(),
         })
