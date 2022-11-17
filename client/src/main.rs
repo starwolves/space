@@ -11,7 +11,7 @@ fn main() {
 
 /// Prints "Live." from main module for fancy text output.
 fn client_is_live() {
-    info!("Space Frontiers is live.");
+    info!("Live.");
 }
 
 /// The main plugin where all other plugins come together.
