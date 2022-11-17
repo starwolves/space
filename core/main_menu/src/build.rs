@@ -447,6 +447,8 @@ pub(crate) fn show_main_menu(
     }
 }
 
+pub const SUB_MENU_HEADER_COLOR : Color = INPUT_TEXT_BG;
+
 #[derive(Component)]
 #[cfg(feature = "client")]
 pub struct MainMenuStarWolvesLink;
@@ -825,7 +827,7 @@ pub(crate) fn show_play_menu(
                                     justify_content: JustifyContent::Center,
                                     ..Default::default()
                                 },
-                                color: SIDEBAR_COLOR.into(),
+                                color: SUB_MENU_HEADER_COLOR.into(),
                                 ..Default::default()
                             })
                             .with_children(|parent| {
@@ -836,7 +838,7 @@ pub(crate) fn show_play_menu(
                                             align_items: AlignItems::Center,
                                             ..Default::default()
                                         },
-                                        color: SIDEBAR_COLOR.into(),
+                                        color: SUB_MENU_HEADER_COLOR.into(),
                                         ..Default::default()
                                     })
                                     .with_children(|parent| {
