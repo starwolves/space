@@ -5,5 +5,7 @@
 
 /// Manage chat, radio chat and global chat.
 pub mod chat;
+/// The networking module of this crate.
+pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;

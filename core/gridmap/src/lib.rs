@@ -25,6 +25,8 @@ pub mod grid;
 mod init_meta;
 /// Manage gridmap netcode.
 mod net;
+/// The networking module of this crate.
+pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Manage sensing authorization for gridmap examining.

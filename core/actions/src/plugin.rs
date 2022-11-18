@@ -2,14 +2,19 @@ use std::env;
 
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::{ActionsLabels, PostUpdateLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels};
 
-use crate::core::{
-    clear_action_building, init_action_data_listing, init_action_request_building,
-    list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
-    ActionRequests, BuildingActions, ListActionDataRequests, NetActionDataFinalizer,
+use crate::{
+    core::{
+        clear_action_building, init_action_data_listing, init_action_request_building,
+        list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
+        ActionRequests, BuildingActions, InputListActionsMap, ListActionDataRequests,
+        NetActionDataFinalizer,
+    },
+    networking::incoming_messages,
 };
 use bevy::app::CoreStage::PostUpdate;
+use bevy::app::CoreStage::PreUpdate;
 pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
@@ -39,7 +44,14 @@ impl Plugin for ActionsPlugin {
                         .label(PostUpdateLabels::Net)
                         .with_system(net_system::<NetActionDataFinalizer>),
                 )
-                .init_resource::<ActionRequests>();
+                .init_resource::<ActionRequests>()
+                .add_system_to_stage(
+                    PreUpdate,
+                    incoming_messages
+                        .after(PreUpdateLabels::NetEvents)
+                        .label(PreUpdateLabels::ProcessInput),
+                )
+                .add_event::<InputListActionsMap>();
         }
     }
 }

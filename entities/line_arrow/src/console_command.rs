@@ -7,13 +7,14 @@ use entity::{
     sensable::Sensable,
     spawn::{SpawnData, SpawnEvent},
 };
-use networking::server::{GodotVariantValues, InputConsoleCommand, NetUnloadEntity};
+use networking::server::{GodotVariantValues, NetUnloadEntity};
 use resources::core::HandleToEntity;
 
 use super::{
     line_arrow::PointArrow,
     spawn::{LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
 };
+use console_commands::commands::InputConsoleCommand;
 
 /// Perform "pointArrow" command.
 #[cfg(feature = "server")]

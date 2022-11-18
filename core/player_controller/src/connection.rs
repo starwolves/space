@@ -1,3 +1,4 @@
+use crate::{connection_events::send_server_configuration, health_ui::ClientHealthUICache};
 use bevy::{
     math::Vec2,
     prelude::{info, Commands, Component, EventReader, EventWriter, Query, Res, ResMut},
@@ -7,11 +8,19 @@ use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use gridmap::grid::GridmapData;
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use map::map_input::MapData;
-use networking::server::NetPlayerConn;
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::ReliableServerMessage;
+use networking_macros::NetMessage;
 use pawn::pawn::{ControllerInput, PawnDesignation, PersistentPlayerData, UsedNames};
 use resources::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 
-use crate::{connection_events::send_server_configuration, health_ui::ClientHealthUICache};
+#[cfg(feature = "server")]
+#[derive(NetMessage)]
+pub struct NetPlayerConn {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
 
 /// The component for players that are requesting boarding.
 #[derive(Component)]
@@ -132,9 +141,9 @@ pub fn on_player_disconnect(
 
                     // When reconnecting into the old pawn works remove this.
                     used_names
-                        .user_names
-                        .remove(&persistent_player_data.user_name);
-                    persistent_player_data.user_name = "disconnectedUser".to_string();
+                        .account_name
+                        .remove(&persistent_player_data.account_name);
+                    persistent_player_data.account_name = "disconnectedUser".to_string();
                 }
                 Err(_rr) => {}
             }

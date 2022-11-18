@@ -58,7 +58,7 @@ pub(crate) fn on_spawning(
             },
             summoner: HumanMaleSummoner {
                 character_name: persistent_player_data_component.character_name.clone(),
-                user_name: persistent_player_data_component.user_name.clone(),
+                user_name: persistent_player_data_component.account_name.clone(),
                 spawn_pawn_data: SpawnPawnData {
                     persistent_player_data: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),

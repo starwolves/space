@@ -1,17 +1,28 @@
+use std::env;
+
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
+use resources::labels::PreUpdateLabels;
 
 use crate::{
     button::button_hover_visuals,
+    networking::incoming_messages,
     text_input::{
         focus_events, input_characters, input_mouse_press_unfocus, ui_events, FocusTextInput,
         TextInput, TextInputLabel, UnfocusTextInput,
     },
 };
-
+use bevy::app::CoreStage::PreUpdate;
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        if cfg!(feature = "client") {
+        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+            app.add_system_to_stage(
+                PreUpdate,
+                incoming_messages
+                    .after(PreUpdateLabels::NetEvents)
+                    .label(PreUpdateLabels::ProcessInput),
+            );
+        } else {
             app.add_system(ui_events.label(TextInputLabel::UiEvents))
                 .add_system(
                     focus_events

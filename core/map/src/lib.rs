@@ -6,5 +6,7 @@ mod change_overlay;
 pub mod map;
 /// Manage player input.
 pub mod map_input;
+/// The networking module of this crate.
+pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;

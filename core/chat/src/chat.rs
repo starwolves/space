@@ -163,7 +163,7 @@ pub(crate) fn chat_message_input_event(
                     &vec![],
                     &vec![],
                     Vec3::ZERO,
-                    persistent_player_data_component.user_name.clone(),
+                    persistent_player_data_component.account_name.clone(),
                     ShipJobsEnum::Security,
                     chat_message_input_event.message.clone(),
                     Communicator::Standard,
@@ -276,7 +276,7 @@ pub(crate) fn new_global_message(
     net_new_chat_message_event: &mut EventWriter<NetChatMessage>,
     send_message: String,
 ) {
-    let message = persistent_player_data_component.user_name.clone()
+    let message = persistent_player_data_component.account_name.clone()
         + "[b][color=#322bff](Global)[/color][/b]: "
         + &send_message;
 

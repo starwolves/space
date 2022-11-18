@@ -9,12 +9,13 @@ use gridmap::get_spawn_position::entity_spawn_position_for_player;
 use gridmap::grid::GridmapMain;
 use inventory_api::core::Inventory;
 use inventory_item::spawn::spawn_held_entity;
-use networking::server::{GodotVariantValues, InputConsoleCommand, ReliableServerMessage};
+use networking::server::{GodotVariantValues, ReliableServerMessage};
 use pawn::pawn::{Pawn, UsedNames};
 use resources::core::{ConnectedPlayer, HandleToEntity};
 use std::collections::HashMap;
 
 use crate::player_selectors::player_selector_to_entities;
+use console_commands::commands::InputConsoleCommand;
 
 /// Perform RCON console commands.
 #[cfg(feature = "server")]

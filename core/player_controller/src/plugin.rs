@@ -1,8 +1,11 @@
 use std::env;
 
 use crate::boarding::NetUIInputTransmitData;
+use crate::connection::NetPlayerConn;
 use crate::console_commands::rcon_console_commands;
 use crate::health_ui::NetHealthUpdate;
+use crate::input::InputAttackCell;
+use crate::networking::incoming_messages;
 use bevy::app::CoreStage::PostUpdate;
 use bevy::{
     prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
@@ -101,6 +104,7 @@ impl Plugin for ConnectedPlayerPlugin {
                         .with_system(net_system::<NetExamineEntity>)
                         .with_system(net_system::<NetSendServerTime>)
                         .with_system(net_system::<NetHealthUpdate>)
+                        .with_system(net_system::<NetPlayerConn>)
                         .with_system(net_system::<NetUpdatePlayerCount>),
                 )
                 .add_system_to_stage(
@@ -121,7 +125,15 @@ impl Plugin for ConnectedPlayerPlugin {
                     process_finalize_net.after(PostUpdateLabels::Net),
                 )
                 .init_resource::<ClientHealthUICache>()
-                .init_resource::<BoardingAnnouncements>();
+                .init_resource::<BoardingAnnouncements>()
+                .add_system_to_stage(
+                    PreUpdate,
+                    incoming_messages
+                        .after(PreUpdateLabels::NetEvents)
+                        .label(PreUpdateLabels::ProcessInput),
+                )
+                .add_event::<NetPlayerConn>()
+                .add_event::<InputAttackCell>();
         }
     }
 }

@@ -2,16 +2,19 @@ use std::env;
 
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::{PostUpdateLabels, StartupLabels};
+use resources::labels::{PostUpdateLabels, PreUpdateLabels, StartupLabels};
 
-use crate::commands::{
-    initialize_console_commands, AllConsoleCommands, ConsoleCommandsLabels, GiveAllRCON,
-    NetEntityConsole,
+use crate::{
+    commands::{
+        initialize_console_commands, AllConsoleCommands, ConsoleCommandsLabels, GiveAllRCON,
+        InputConsoleCommand, NetEntityConsole,
+    },
+    networking::incoming_messages,
 };
 use bevy::app::CoreStage::PostUpdate;
 
 use super::commands::NetConsoleCommands;
-
+use bevy::app::CoreStage::PreUpdate;
 #[derive(Default)]
 pub struct ConsoleCommandsPlugin {
     pub give_all_rcon: bool,
@@ -38,7 +41,14 @@ impl Plugin for ConsoleCommandsPlugin {
                 )
                 .insert_resource::<GiveAllRCON>(GiveAllRCON {
                     give: self.give_all_rcon,
-                });
+                })
+                .add_system_to_stage(
+                    PreUpdate,
+                    incoming_messages
+                        .after(PreUpdateLabels::NetEvents)
+                        .label(PreUpdateLabels::ProcessInput),
+                )
+                .add_event::<InputConsoleCommand>();
         }
     }
 }

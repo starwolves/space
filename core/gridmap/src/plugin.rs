@@ -19,6 +19,7 @@ use crate::{
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
     init_meta::{startup_build_map, startup_map_cells, startup_misc_resources},
+    networking::incoming_messages,
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
@@ -104,6 +105,12 @@ impl Plugin for GridmapPlugin {
                 .add_system_to_stage(
                     PreUpdate,
                     finalize_grid_examine_input.after(PreUpdateLabels::ProcessInput),
+                )
+                .add_system_to_stage(
+                    PreUpdate,
+                    incoming_messages
+                        .after(PreUpdateLabels::NetEvents)
+                        .label(PreUpdateLabels::ProcessInput),
                 );
         }
     }

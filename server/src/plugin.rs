@@ -44,6 +44,7 @@ use resources::{core::TickRate, labels::StartupLabels, plugin::ResourcesPlugin};
 use rigid_body::plugin::RigidBodyPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
+use ui::plugin::UiPlugin;
 use world_environment::plugin::WorldEnvironmentPlugin;
 
 use crate::server_is_live;
@@ -128,6 +129,7 @@ impl Plugin for ServerPlugin {
             .add_plugin(PointArrowPlugin)
             .add_plugin(SoundsPlugin)
             .add_plugin(ChatPlugin)
+            .add_plugin(UiPlugin)
             .add_startup_system(
                 server_is_live
                     .label(StartupLabels::ServerIsLive)
