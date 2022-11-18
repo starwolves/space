@@ -16,7 +16,7 @@ mod finalize_entity_updates;
 /// Manage health UI and its entity updates.
 pub mod health_ui;
 /// Manage client input.
-mod input;
+pub mod input;
 /// Manage netcode.
 pub mod net;
 /// The networking module of this crate.
