@@ -12,6 +12,8 @@ mod entity_update;
 mod item_events;
 /// Manage netcode.
 mod net;
+/// The networking module of this crate.
+pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Switch actively selected hand for inventory holder.

@@ -279,7 +279,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
             },
             PersistentPlayerData {
                 character_name: spawn_event.summoner.get_character_name().clone(),
-                user_name: spawn_event.summoner.get_user_name().clone(),
+                account_name: spawn_event.summoner.get_user_name().clone(),
                 ..Default::default()
             },
             WorldMode {

@@ -4,5 +4,7 @@
 
 /// The core action module.
 pub mod core;
+/// The networking module of this crate.
+pub mod networking;
 /// The Bevy plugin.
 pub mod plugin;

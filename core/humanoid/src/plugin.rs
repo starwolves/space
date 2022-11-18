@@ -10,7 +10,6 @@ use crate::{
     entity_update::humanoid_core_entity_updates,
     examine_events::{examine_entity, ExamineEntityPawn},
     humanoid::{toggle_combat_mode, Humanoid},
-    user_name::{user_name, NetHumanoid},
 };
 use bevy::app::CoreStage::PostUpdate;
 
@@ -46,16 +45,7 @@ impl Plugin for HumanoidPlugin {
             .add_system(
                 health_combat_hit_result_sfx::<Humanoid>.after(CombatLabels::FinalizeApplyDamage),
             )
-            .add_system(attacked_by_chat::<Humanoid>.after(CombatLabels::Query))
-            .add_system(user_name)
-            .add_event::<NetHumanoid>()
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .after(PostUpdateLabels::VisibleChecker)
-                    .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<NetHumanoid>),
-            );
+            .add_system(attacked_by_chat::<Humanoid>.after(CombatLabels::Query));
         }
     }
 }

@@ -1,8 +1,8 @@
 use bevy::prelude::{EventReader, Query, ResMut};
 use data_link::core::{DataLink, DataLinkType};
-use networking::server::InputMapChangeDisplayMode;
 
 use crate::map::{Map, MapHolders};
+use crate::map_input::InputMapChangeDisplayMode;
 
 /// Change map overlay.
 #[cfg(feature = "server")]

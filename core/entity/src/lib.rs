@@ -17,6 +17,8 @@ pub mod health;
 mod init;
 /// Meta resources for entities.
 pub mod meta;
+/// The networking module of this crate.
+pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Entity that can be sensed, heard or seen by other sensers.

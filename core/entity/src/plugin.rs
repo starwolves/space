@@ -17,6 +17,7 @@ use crate::examine::{
 };
 use crate::init::{initialize_console_commands, startup_entities};
 use crate::meta::EntityDataResource;
+use crate::networking::incoming_messages;
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
 
@@ -98,7 +99,13 @@ impl Plugin for EntityPlugin {
                     PreUpdate,
                     finalize_entity_examine_input.after(PreUpdateLabels::ProcessInput),
                 )
-                .add_system(examine_entity.after(ActionsLabels::Action));
+                .add_system(examine_entity.after(ActionsLabels::Action))
+                .add_system_to_stage(
+                    PreUpdate,
+                    incoming_messages
+                        .after(PreUpdateLabels::NetEvents)
+                        .label(PreUpdateLabels::ProcessInput),
+                );
         }
     }
 }

@@ -19,6 +19,8 @@ pub mod health_ui;
 mod input;
 /// Manage netcode.
 pub mod net;
+/// The networking module of this crate.
+pub mod networking;
 /// Select players with special text character-based queries.
 pub mod player_selectors;
 /// The Bevy plugin of this crate.

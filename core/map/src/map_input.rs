@@ -1,11 +1,11 @@
 use crate::map::Map;
 use bevy::{
     math::Vec2,
-    prelude::{EventReader, EventWriter, Query},
+    prelude::{Entity, EventReader, EventWriter, Query},
 };
 use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
-use networking::server::{InputMap, InputMapRequestOverlay, MapInput, ReliableServerMessage};
+use networking::server::ReliableServerMessage;
 
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
@@ -92,4 +92,35 @@ impl MapData {
 
         net_data
     }
+}
+
+/// Client input change display mode mini-map event.
+#[cfg(feature = "server")]
+pub struct InputMapChangeDisplayMode {
+    pub handle: u64,
+    pub entity: Entity,
+    pub display_mode: String,
+}
+
+/// Client map input.
+#[cfg(feature = "server")]
+pub enum MapInput {
+    Range(f32),
+    Position(Vec2),
+    MouseCell(i16, i16),
+}
+
+/// Client map input event.
+#[cfg(feature = "server")]
+pub struct InputMap {
+    pub handle: u64,
+    pub entity: Entity,
+    pub input: MapInput,
+}
+
+/// Client map request display modes event.
+#[cfg(feature = "server")]
+pub struct InputMapRequestOverlay {
+    pub handle: u64,
+    pub entity: Entity,
 }

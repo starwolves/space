@@ -2,9 +2,12 @@ use std::env;
 
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels, UpdateLabels};
 
-use crate::{actions::pickup_prerequisite_check, item_events::pickup_world_item_action};
+use crate::{
+    actions::pickup_prerequisite_check, item_events::pickup_world_item_action,
+    networking::incoming_messages,
+};
 
 use super::{
     entity_update::inventory_update,
@@ -15,8 +18,8 @@ use super::{
     },
     switch_hands::switch_hands,
 };
-
 use bevy::app::CoreStage::PostUpdate;
+use bevy::app::CoreStage::PreUpdate;
 pub struct InventoryPlugin;
 
 impl Plugin for InventoryPlugin {
@@ -61,6 +64,12 @@ impl Plugin for InventoryPlugin {
                     pickup_world_item_action
                         .label(ActionsLabels::Action)
                         .after(ActionsLabels::Approve),
+                )
+                .add_system_to_stage(
+                    PreUpdate,
+                    incoming_messages
+                        .after(PreUpdateLabels::NetEvents)
+                        .label(PreUpdateLabels::ProcessInput),
                 );
         }
     }

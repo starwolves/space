@@ -19,7 +19,7 @@ use inventory_item::{
     item::{CombatStandardAnimation, InventoryItem},
 };
 use math::grid::world_to_cell_id;
-use networking::server::{InputToggleCombatMode, NetUnloadEntity};
+use networking::server::NetUnloadEntity;
 use pawn::pawn::{
     facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
 };
@@ -98,6 +98,7 @@ impl Default for Humanoid {
         }
     }
 }
+use networking::server::InputToggleCombatMode;
 
 /// Toggle combat mode. Ie from melee to projectile.
 #[cfg(feature = "server")]

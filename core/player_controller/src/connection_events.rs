@@ -4,11 +4,12 @@ use console_commands::commands::{AllConsoleCommands, GiveAllRCON};
 use entity::meta::SoftPlayer;
 use gridmap::grid::GridmapData;
 use map::map_input::MapData;
-use networking::server::{NetPlayerConn, ReliableServerMessage, ServerConfigMessage};
+use networking::server::{ReliableServerMessage, ServerConfigMessage};
 use pawn::pawn::{ControllerInput, PersistentPlayerData, UsedNames};
 use resources::core::{ConnectedPlayer, HandleToEntity, ServerId, TickRate};
 
 use crate::connection::AuthidI;
+use crate::connection::NetPlayerConn;
 
 /// Send server configuration to new clients.
 #[cfg(feature = "server")]
@@ -120,14 +121,14 @@ pub(crate) fn send_server_configuration(
 
     used_names.player_i += 1;
 
-    while used_names.user_names.contains_key(&default_name) {
+    while used_names.account_name.contains_key(&default_name) {
         used_names.player_i += 1;
         default_name = "Wolf".to_string() + &used_names.player_i.to_string();
     }
 
     let persistent_player_data = PersistentPlayerData {
         character_name: "".to_string(),
-        user_name: default_name.clone(),
+        account_name: default_name.clone(),
         ..Default::default()
     };
 
@@ -145,7 +146,9 @@ pub(crate) fn send_server_configuration(
         ))
         .id();
 
-    used_names.user_names.insert(default_name, player_entity_id);
+    used_names
+        .account_name
+        .insert(default_name, player_entity_id);
 
     handle_to_entity.map.insert(*handle, player_entity_id);
     handle_to_entity.inv_map.insert(player_entity_id, *handle);

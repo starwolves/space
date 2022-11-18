@@ -82,17 +82,17 @@ impl Default for ControllerInput {
 #[derive(Clone, Component)]
 #[cfg(feature = "server")]
 pub struct PersistentPlayerData {
-    pub user_name_is_set: bool,
+    pub account_name_is_set: bool,
     pub character_name: String,
-    pub user_name: String,
+    pub account_name: String,
 }
 #[cfg(feature = "server")]
 impl Default for PersistentPlayerData {
     fn default() -> Self {
         Self {
-            user_name_is_set: false,
+            account_name_is_set: false,
             character_name: "".to_string(),
-            user_name: "".to_string(),
+            account_name: "".to_string(),
         }
     }
 }
@@ -223,6 +223,92 @@ pub struct SpawnPoints {
 #[cfg(feature = "server")]
 pub const REACH_DISTANCE: f32 = 3.;
 
+use crate::examine_events::NetPawn;
+use bevy::prelude::ResMut;
+use bevy::prelude::{EventReader, EventWriter, Query, Res};
+use chat_api::core::escape_bb;
+use networking::server::InputAccountName;
+use networking::server::ReliableServerMessage;
+use resources::core::HandleToEntity;
+
+use bevy::prelude::warn;
+use console_commands::commands::CONSOLE_ERROR_COLOR;
+
+/// Set player connection account name that also isn't already taken.
+#[cfg(feature = "server")]
+pub(crate) fn account_name(
+    mut input_user_name_events: EventReader<InputAccountName>,
+    mut persistent_player_data_query: Query<&mut PersistentPlayerData>,
+    mut used_names: ResMut<UsedNames>,
+    mut net_user_name_event: EventWriter<NetPawn>,
+    handle_to_entity: Res<HandleToEntity>,
+) {
+    for event in input_user_name_events.iter() {
+        match persistent_player_data_query.get_mut(event.entity) {
+            Ok(mut persistent_player_data_component) => {
+                if persistent_player_data_component.account_name_is_set {
+                    continue;
+                }
+
+                let handle_option;
+
+                match handle_to_entity.inv_map.get(&event.entity) {
+                    Some(x) => {
+                        handle_option = Some(x);
+                    }
+                    None => {
+                        handle_option = None;
+                    }
+                }
+
+                let mut user_name = escape_bb((&event.input_name).to_string(), true, true);
+
+                if user_name.len() > 16 {
+                    user_name = user_name[..16].to_string();
+                }
+
+                if used_names.account_name.contains_key(&user_name) {
+                    //Already exists.
+
+                    match handle_option {
+                        Some(handle) => {
+                            net_user_name_event.send(NetPawn{
+                                handle: *handle,
+                                message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided account name is already in-use and you were assigned a default one. To change this please change the name and restart your game.[/color]"),
+                            });
+                        }
+                        None => {}
+                    }
+
+                    continue;
+                }
+
+                if user_name.len() < 3 {
+                    match handle_option {
+                        Some(handle) => {
+                            net_user_name_event.send(NetPawn {
+                                handle: *handle,
+                                message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters and whitespaces are not registered.[/color]"),
+                            });
+                        }
+                        None => {}
+                    }
+                    continue;
+                }
+
+                persistent_player_data_component.account_name = user_name.to_string();
+
+                used_names.account_name.insert(user_name, event.entity);
+
+                persistent_player_data_component.account_name_is_set = true;
+            }
+            Err(_rr) => {
+                warn!("Couldnt find persistent_player_data_component in query.");
+            }
+        }
+    }
+}
+
 /// Resource keeping track of which in-game character names are taken.
 #[derive(Default, Clone)]
 #[cfg(feature = "server")]
@@ -230,7 +316,7 @@ pub struct UsedNames {
     /// Character names.
     pub names: HashMap<String, Entity>,
     /// Global user names.
-    pub user_names: HashMap<String, Entity>,
+    pub account_name: HashMap<String, Entity>,
     pub player_i: u32,
     pub dummy_i: u32,
 }

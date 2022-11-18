@@ -1,7 +1,8 @@
 use bevy::prelude::{warn, Entity, EventReader, Query};
 use humanoid::humanoid::Humanoid;
+use math::grid::Vec3Int;
 use networking::server::{
-    InputAltItemAttack, InputAttackCell, InputAttackEntity, InputMouseAction, InputMovementInput,
+    InputAltItemAttack, InputAttackEntity, InputMouseAction, InputMovementInput,
     InputSelectBodyPart, InputSprinting, InputToggleAutoMove,
 };
 use pawn::pawn::ControllerInput;
@@ -128,4 +129,11 @@ pub(crate) fn apply_movement_input_controller(
             }
         }
     }
+}
+
+/// Client attack cell input event.
+#[cfg(feature = "server")]
+pub struct InputAttackCell {
+    pub entity: Entity,
+    pub id: Vec3Int,
 }

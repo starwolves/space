@@ -2,13 +2,17 @@ use std::env;
 
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::PostUpdateLabels;
+use resources::labels::{PostUpdateLabels, PreUpdateLabels};
 
-use crate::chat::{
-    chat_message_input_event, send_entity_proximity_messages, EntityProximityMessage,
-    EntityProximityMessages, NetChatMessage, NetProximityMessage,
+use crate::{
+    chat::{
+        chat_message_input_event, send_entity_proximity_messages, EntityProximityMessage,
+        EntityProximityMessages, NetChatMessage, NetProximityMessage,
+    },
+    networking::incoming_messages,
 };
 use bevy::app::CoreStage::PostUpdate;
+use bevy::app::CoreStage::PreUpdate;
 
 pub struct ChatPlugin;
 
@@ -27,7 +31,13 @@ impl Plugin for ChatPlugin {
                         .with_system(net_system::<NetProximityMessage>)
                         .with_system(net_system::<NetChatMessage>),
                 )
-                .add_event::<NetChatMessage>();
+                .add_event::<NetChatMessage>()
+                .add_system_to_stage(
+                    PreUpdate,
+                    incoming_messages
+                        .after(PreUpdateLabels::NetEvents)
+                        .label(PreUpdateLabels::ProcessInput),
+                );
         }
     }
 }
