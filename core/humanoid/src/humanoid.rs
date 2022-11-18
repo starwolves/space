@@ -953,7 +953,173 @@ pub(crate) fn humanoid_core(
         }
     }
 }
+
 #[cfg(feature = "server")]
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = "humanDummy";
 #[cfg(feature = "server")]
 pub const HUMAN_MALE_ENTITY_NAME: &str = "humanMale";
+use networking::server::{
+    InputAltItemAttack, InputAttackEntity, InputMouseAction, InputSelectBodyPart,
+    InputToggleAutoMove,
+};
+use player_controller::input::InputAttackCell;
+
+/// Manage controller input for humanoid. The controller can be controlled by a player or AI.
+#[cfg(feature = "server")]
+pub(crate) fn humanoid_controller_input(
+    mut alternative_item_attack_events: EventReader<InputAltItemAttack>,
+    mut input_attack_entity: EventReader<InputAttackEntity>,
+    mut input_attack_cell: EventReader<InputAttackCell>,
+    mut input_mouse_action_events: EventReader<InputMouseAction>,
+    mut input_select_body_part: EventReader<InputSelectBodyPart>,
+    mut input_toggle_auto_move: EventReader<InputToggleAutoMove>,
+    mut humanoids_query: Query<(&Humanoid, &mut ControllerInput)>,
+) {
+    for event in alternative_item_attack_events.iter() {
+        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
+            Ok(mut controller_input_component) => {
+                controller_input_component.alt_attack_mode =
+                    !controller_input_component.alt_attack_mode;
+            }
+            Err(_rr) => {
+                warn!("Couldn't find standard_character_component belonging to entity of InputAltItemAttack.");
+            }
+        }
+    }
+
+    for event in input_attack_cell.iter() {
+        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
+            Ok(mut controller_input_component) => {
+                controller_input_component.combat_targetted_cell = Some(event.id);
+            }
+            Err(_rr) => {
+                warn!("Couldn't find standard_character_component belonging to entity of input_attack_cell.");
+            }
+        }
+    }
+
+    for event in input_attack_entity.iter() {
+        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
+            Ok(mut played_input_component) => {
+                played_input_component.combat_targetted_entity =
+                    Some(Entity::from_bits(event.target_entity_bits));
+            }
+            Err(_rr) => {
+                warn!("Couldn't find standard_character_component belonging to entity of InputAttackEntity.");
+            }
+        }
+    }
+
+    for event in input_mouse_action_events.iter() {
+        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
+            Ok(mut played_input_component) => {
+                played_input_component.is_mouse_action_pressed = event.pressed;
+
+                if !event.pressed {
+                    played_input_component.combat_targetted_entity = None;
+                    played_input_component.combat_targetted_cell = None;
+                }
+            }
+            Err(_rr) => {
+                warn!("Couldn't find standard_character_component belonging to entity of InputMouseAction.");
+            }
+        }
+    }
+
+    for event in input_select_body_part.iter() {
+        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
+            Ok(mut player_input_component) => {
+                player_input_component.targetted_limb = event.body_part.clone();
+            }
+            Err(_rr) => {
+                warn!("Couldnt find PlayerInput entity for input_select_body_part");
+            }
+        }
+    }
+
+    for event in input_toggle_auto_move.iter() {
+        match humanoids_query.get_component_mut::<ControllerInput>(event.entity) {
+            Ok(mut player_input_component) => {
+                player_input_component.auto_move_enabled =
+                    !player_input_component.auto_move_enabled;
+            }
+            Err(_rr) => {
+                warn!("Couldnt find PlayerInput entity for input_toggle_auto_move");
+            }
+        }
+    }
+}
+use bevy_renet::renet::ServerEvent;
+
+/// On player disconnect as a function.
+#[cfg(feature = "server")]
+pub fn on_player_disconnect(
+    mut humanoids: Query<&mut Humanoid>,
+    handle_to_entity: ResMut<HandleToEntity>,
+    mut reader: EventReader<ServerEvent>,
+) {
+    for event in reader.iter() {
+        match event {
+            ServerEvent::ClientDisconnected(handle) => match handle_to_entity.map.get(handle) {
+                Some(ent) => match humanoids.get_mut(*ent) {
+                    Ok(mut humanoid_component) => {
+                        humanoid_component.current_lower_animation_state =
+                            CharacterAnimationState::Idle;
+                    }
+                    Err(_rr) => {
+                        warn!("on_player_disconnect couldnt find humanoid_component.");
+                    }
+                },
+                None => {
+                    warn!("on_player_disconnect couldnt find entity of handle.");
+                }
+            },
+            _ => (),
+        }
+    }
+}
+use bevy::prelude::Local;
+use networking::server::InputMouseDirectionUpdate;
+
+/// Used to calculate ping for client.
+#[derive(Default)]
+#[cfg(feature = "server")]
+pub(crate) struct TimeStampPerEntity {
+    pub data: HashMap<Entity, u64>,
+}
+
+/// Manage mouse direction updates.
+#[cfg(feature = "server")]
+pub(crate) fn mouse_direction_update(
+    mut update_events: EventReader<InputMouseDirectionUpdate>,
+    mut standard_characters: Query<&mut Humanoid>,
+    mut time_stamp_per_entity: Local<TimeStampPerEntity>,
+) {
+    for event in update_events.iter() {
+        match time_stamp_per_entity.data.get(&event.entity) {
+            Some(time_stamp) => {
+                if time_stamp > &event.time_stamp {
+                    continue;
+                }
+            }
+            None => {}
+        }
+
+        time_stamp_per_entity
+            .data
+            .insert(event.entity, event.time_stamp);
+
+        match standard_characters.get_mut(event.entity) {
+            Ok(mut standard_character_component) => {
+                if standard_character_component.combat_mode == false {
+                    continue;
+                }
+
+                let direction = event.direction.clamp(-PI, PI);
+
+                standard_character_component.facing_direction = direction;
+            }
+            Err(_rr) => {}
+        }
+    }
+}

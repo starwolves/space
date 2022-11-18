@@ -1,22 +1,16 @@
-use bevy::prelude::{
-    Commands, Entity, EventReader, EventWriter, Local, Query, Res, Transform, Without,
-};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform, Without};
 use entity::entity_data::load_entity;
 use entity::entity_data::EntityData;
 use entity::entity_data::EntityUpdates;
 use entity::meta::SoftPlayer;
 use gi_probe::core::GIProbe;
-use humanoid::humanoid::Humanoid;
 use networking::server::{
-    InputBuildGraphics, InputMouseDirectionUpdate, InputSceneReady, NetLoadEntity,
-    ReliableServerMessage, ServerConfigMessage,
+    InputBuildGraphics, InputSceneReady, NetLoadEntity, ReliableServerMessage, ServerConfigMessage,
 };
 use networking_macros::NetMessage;
 use reflection_probe::core::ReflectionProbe;
 use resources::core::{ConnectedPlayer, HandleToEntity};
 use world_environment::environment::WorldEnvironment;
-
-use std::{collections::HashMap, f32::consts::PI};
 
 use super::connection::{Boarding, SetupPhase};
 use networking::server::PendingMessage;
@@ -214,48 +208,5 @@ pub(crate) fn update_player_count(
                 connected_players_amount,
             )),
         });
-    }
-}
-
-/// Used to calculate ping for client.
-#[derive(Default)]
-#[cfg(feature = "server")]
-pub(crate) struct TimeStampPerEntity {
-    pub data: HashMap<Entity, u64>,
-}
-
-/// Manage mouse direction updates.
-#[cfg(feature = "server")]
-pub(crate) fn mouse_direction_update(
-    mut update_events: EventReader<InputMouseDirectionUpdate>,
-    mut standard_characters: Query<&mut Humanoid>,
-    mut time_stamp_per_entity: Local<TimeStampPerEntity>,
-) {
-    for event in update_events.iter() {
-        match time_stamp_per_entity.data.get(&event.entity) {
-            Some(time_stamp) => {
-                if time_stamp > &event.time_stamp {
-                    continue;
-                }
-            }
-            None => {}
-        }
-
-        time_stamp_per_entity
-            .data
-            .insert(event.entity, event.time_stamp);
-
-        match standard_characters.get_mut(event.entity) {
-            Ok(mut standard_character_component) => {
-                if standard_character_component.combat_mode == false {
-                    continue;
-                }
-
-                let direction = event.direction.clamp(-PI, PI);
-
-                standard_character_component.facing_direction = direction;
-            }
-            Err(_rr) => {}
-        }
     }
 }

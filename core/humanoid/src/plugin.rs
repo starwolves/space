@@ -9,7 +9,7 @@ use resources::labels::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLab
 use crate::{
     entity_update::humanoid_core_entity_updates,
     examine_events::{examine_entity, ExamineEntityPawn},
-    humanoid::{toggle_combat_mode, Humanoid},
+    humanoid::{humanoid_controller_input, mouse_direction_update, toggle_combat_mode, Humanoid},
 };
 use bevy::app::CoreStage::PostUpdate;
 
@@ -45,7 +45,9 @@ impl Plugin for HumanoidPlugin {
             .add_system(
                 health_combat_hit_result_sfx::<Humanoid>.after(CombatLabels::FinalizeApplyDamage),
             )
-            .add_system(attacked_by_chat::<Humanoid>.after(CombatLabels::Query));
+            .add_system(attacked_by_chat::<Humanoid>.after(CombatLabels::Query))
+            .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
+            .add_system(humanoid_controller_input.before(UpdateLabels::StandardCharacters));
         }
     }
 }

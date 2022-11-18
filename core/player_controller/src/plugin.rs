@@ -17,12 +17,11 @@ use resources::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, Upda
 
 use super::{
     boarding::{done_boarding, on_boarding, ui_input_boarding, BoardingPlayer},
-    input::{apply_movement_input_controller, humanoid_controller_input},
+    input::apply_movement_input_controller,
     net::{
-        build_graphics, mouse_direction_update, scene_ready_event, send_server_time,
-        update_player_count, NetDoneBoarding, NetExamineEntity, NetOnBoarding,
-        NetOnNewPlayerConnection, NetOnSetupUI, NetSendServerTime, NetSendWorldEnvironment,
-        NetUpdatePlayerCount, NetUserName,
+        build_graphics, scene_ready_event, send_server_time, update_player_count, NetDoneBoarding,
+        NetExamineEntity, NetOnBoarding, NetOnNewPlayerConnection, NetOnSetupUI, NetSendServerTime,
+        NetSendWorldEnvironment, NetUpdatePlayerCount, NetUserName,
     },
     setup_ui::register_ui_input_boarding,
 };
@@ -50,8 +49,6 @@ impl Plugin for ConnectedPlayerPlugin {
                 .add_system(
                     apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput),
                 )
-                .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
-                .add_system(humanoid_controller_input.before(UpdateLabels::StandardCharacters))
                 .add_event::<BoardingPlayer>()
                 .add_system(done_boarding)
                 .add_system(register_ui_input_boarding)
