@@ -1,10 +1,11 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
+use chat::chat::NetSendEntityUpdates;
 use entity::{
     entity_data::{personalise, EntityUpdates},
     sensable::Sensable,
 };
-use networking::server::{EntityWorldType, NetSendEntityUpdates, ReliableServerMessage};
+use networking::server::{EntityWorldType, ReliableServerMessage};
 use resources::core::{ConnectedPlayer, HandleToEntity};
 use showcase::core::Showcase;
 

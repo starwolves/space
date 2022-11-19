@@ -8,8 +8,8 @@ use crate::{
     core::{
         clear_action_building, init_action_data_listing, init_action_request_building,
         list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
-        ActionRequests, BuildingActions, InputListActionsMap, ListActionDataRequests,
-        NetActionDataFinalizer,
+        ActionRequests, BuildingActions, InputAction, InputListActionsEntity, InputListActionsMap,
+        ListActionDataRequests, NetActionDataFinalizer,
     },
     networking::incoming_messages,
 };
@@ -51,7 +51,9 @@ impl Plugin for ActionsPlugin {
                         .after(PreUpdateLabels::NetEvents)
                         .label(PreUpdateLabels::ProcessInput),
                 )
-                .add_event::<InputListActionsMap>();
+                .add_event::<InputListActionsMap>()
+                .add_event::<InputListActionsEntity>()
+                .add_event::<InputAction>();
         }
     }
 }

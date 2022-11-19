@@ -27,4 +27,3 @@ networking_macros = { path = "../networking_macros",  features=["server"] }
 world_environment = { path = "../world_environment",  features=["server"] }
 resources = { path = "../resources",  features=["server"] }
 math = { path = "../math" ,  features=["server"]}
-chat_api = { path = "../chat_api",  features=["server"] }

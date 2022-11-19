@@ -227,7 +227,6 @@ use crate::examine_events::NetPawn;
 use bevy::prelude::ResMut;
 use bevy::prelude::{EventReader, EventWriter, Query, Res};
 use chat_api::core::escape_bb;
-use networking::server::InputAccountName;
 use networking::server::ReliableServerMessage;
 use resources::core::HandleToEntity;
 
@@ -319,4 +318,11 @@ pub struct UsedNames {
     pub account_name: HashMap<String, Entity>,
     pub player_i: u32,
     pub dummy_i: u32,
+}
+
+/// Client input user name event.
+#[cfg(feature = "server")]
+pub struct InputAccountName {
+    pub entity: Entity,
+    pub input_name: String,
 }

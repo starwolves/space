@@ -6,10 +6,7 @@ use bevy::{
 };
 use networking::{
     plugin::RENET_UNRELIABLE_CHANNEL_ID,
-    server::{
-        EntityUpdateData, NetLoadEntity, NetUnloadEntity, ReliableServerMessage,
-        UnreliableServerMessage,
-    },
+    server::{EntityUpdateData, ReliableServerMessage, UnreliableServerMessage},
 };
 use networking_macros::NetMessage;
 use serde::Deserialize;
@@ -432,6 +429,7 @@ pub fn get_entity_update_difference(
 
     difference_data
 }
+use crate::networking::NetLoadEntity;
 
 /// Load an entity in for the client as a function.
 #[cfg(feature = "server")]
@@ -500,6 +498,7 @@ pub fn load_entity(
         ),
     });
 }
+use crate::networking::NetUnloadEntity;
 
 /// Unload an entity in for the client as a function.
 #[cfg(feature = "server")]

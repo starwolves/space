@@ -4,8 +4,7 @@ use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
 use entity::meta::SoftPlayer;
 use motd::motd::MOTD;
 use networking::server::{
-    EntityUpdateData, EntityWorldType, InputUIInput, ReliableServerMessage, UIInputAction,
-    UIInputNodeClass,
+    EntityUpdateData, EntityWorldType, ReliableServerMessage, UIInputAction, UIInputNodeClass,
 };
 use pawn::{name_generator::get_full_name, pawn::UsedNames};
 use resources::core::{ConnectedPlayer, HandleToEntity, ServerId};
@@ -14,6 +13,7 @@ use super::{
     connection::{Boarding, SetupPhase},
     net::NetOnSetupUI,
 };
+use crate::input::InputUIInput;
 
 /// Process player requesting board.
 #[cfg(feature = "server")]

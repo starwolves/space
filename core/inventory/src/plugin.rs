@@ -5,8 +5,13 @@ use networking::server::net_system;
 use resources::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels, UpdateLabels};
 
 use crate::{
-    actions::pickup_prerequisite_check, item_events::pickup_world_item_action,
+    actions::pickup_prerequisite_check,
+    item_events::{
+        pickup_world_item_action, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
+        InputUseWorldItem, InputWearItem,
+    },
     networking::incoming_messages,
+    switch_hands::InputSwitchHands,
 };
 
 use super::{
@@ -70,7 +75,13 @@ impl Plugin for InventoryPlugin {
                     incoming_messages
                         .after(PreUpdateLabels::NetEvents)
                         .label(PreUpdateLabels::ProcessInput),
-                );
+                )
+                .add_event::<InputDropCurrentItem>()
+                .add_event::<InputThrowItem>()
+                .add_event::<InputSwitchHands>()
+                .add_event::<InputTakeOffItem>()
+                .add_event::<InputUseWorldItem>()
+                .add_event::<InputWearItem>();
         }
     }
 }

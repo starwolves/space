@@ -4,7 +4,7 @@ use crate::{
     actions::{examine, examine_prerequisite_check},
     examine_events::NetPawn,
     networking::incoming_messages,
-    pawn::account_name,
+    pawn::{account_name, InputAccountName},
 };
 use bevy::app::CoreStage::PostUpdate;
 use bevy::app::CoreStage::PreUpdate;
@@ -40,7 +40,8 @@ impl Plugin for PawnPlugin {
                 incoming_messages
                     .after(PreUpdateLabels::NetEvents)
                     .label(PreUpdateLabels::ProcessInput),
-            );
+            )
+            .add_event::<InputAccountName>();
         }
     }
 }

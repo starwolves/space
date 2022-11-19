@@ -5,10 +5,10 @@ use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::ReliableClientMessage;
 
+use crate::examine::InputExamineMap;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
 use math::grid::Vec3Int;
-use networking::server::InputExamineMap;
 use resources::core::HandleToEntity;
 
 /// Manage incoming network messages from clients.

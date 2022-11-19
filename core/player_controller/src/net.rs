@@ -4,9 +4,7 @@ use entity::entity_data::EntityData;
 use entity::entity_data::EntityUpdates;
 use entity::meta::SoftPlayer;
 use gi_probe::core::GIProbe;
-use networking::server::{
-    InputBuildGraphics, InputSceneReady, NetLoadEntity, ReliableServerMessage, ServerConfigMessage,
-};
+use networking::server::{ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use reflection_probe::core::ReflectionProbe;
 use resources::core::{ConnectedPlayer, HandleToEntity};
@@ -70,6 +68,8 @@ pub(crate) struct NetUserName {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
+use crate::input::InputBuildGraphics;
+use entity::networking::NetLoadEntity;
 
 /// Build graphics for Godot client.
 #[cfg(feature = "server")]
@@ -138,6 +138,7 @@ pub(crate) fn build_graphics(
         }
     }
 }
+use crate::input::InputSceneReady;
 
 /// Manage when client has finished loading in a scene.
 #[cfg(feature = "server")]

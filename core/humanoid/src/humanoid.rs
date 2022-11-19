@@ -19,7 +19,6 @@ use inventory_item::{
     item::{CombatStandardAnimation, InventoryItem},
 };
 use math::grid::world_to_cell_id;
-use networking::server::NetUnloadEntity;
 use pawn::pawn::{
     facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
 };
@@ -98,7 +97,7 @@ impl Default for Humanoid {
         }
     }
 }
-use networking::server::InputToggleCombatMode;
+use player_controller::input::InputToggleCombatMode;
 
 /// Toggle combat mode. Ie from melee to projectile.
 #[cfg(feature = "server")]
@@ -138,6 +137,7 @@ enum CharacterMovementState {
     Jogging,
     Sprinting,
 }
+use entity::networking::NetUnloadEntity;
 
 /// Core humanoid logic.
 #[cfg(feature = "server")]
@@ -958,11 +958,12 @@ pub(crate) fn humanoid_core(
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = "humanDummy";
 #[cfg(feature = "server")]
 pub const HUMAN_MALE_ENTITY_NAME: &str = "humanMale";
-use networking::server::{
-    InputAltItemAttack, InputAttackEntity, InputMouseAction, InputSelectBodyPart,
-    InputToggleAutoMove,
-};
+use player_controller::input::InputAltItemAttack;
 use player_controller::input::InputAttackCell;
+use player_controller::input::InputAttackEntity;
+use player_controller::input::InputMouseAction;
+use player_controller::input::InputSelectBodyPart;
+use player_controller::input::InputToggleAutoMove;
 
 /// Manage controller input for humanoid. The controller can be controlled by a player or AI.
 #[cfg(feature = "server")]
@@ -1079,7 +1080,6 @@ pub fn on_player_disconnect(
     }
 }
 use bevy::prelude::Local;
-use networking::server::InputMouseDirectionUpdate;
 
 /// Used to calculate ping for client.
 #[derive(Default)]
@@ -1087,6 +1087,7 @@ use networking::server::InputMouseDirectionUpdate;
 pub(crate) struct TimeStampPerEntity {
     pub data: HashMap<Entity, u64>,
 }
+use player_controller::input::InputMouseDirectionUpdate;
 
 /// Manage mouse direction updates.
 #[cfg(feature = "server")]

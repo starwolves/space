@@ -38,6 +38,7 @@ sounds = { path = "../sounds",  features=["server"] }
 chat_api = { path = "../../core/chat_api",  features=["server"] }
 physics = { path = "../../core/physics" ,  features=["server"]}
 actions = { path = "../../core/actions",  features=["server"] }
+ui = { path = "../../core/ui",  features=["server"] }
 
 
 data_converters = { path = "../../core/data_converters",  features=["server"] }

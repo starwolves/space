@@ -57,9 +57,9 @@ use entity::{
     senser::{to_doryen_coordinates, Senser},
 };
 use math::grid::world_to_cell_id;
+use networking::server::ReliableServerMessage;
 use networking::server::{EntityUpdateData, PendingMessage};
-use networking::server::{EntityWorldType, InputChatMessage, PendingNetworkMessage};
-use networking::server::{NetSendEntityUpdates, ReliableServerMessage};
+use networking::server::{EntityWorldType, PendingNetworkMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
 use resources::core::{ConnectedPlayer, HandleToEntity};
@@ -1310,4 +1310,17 @@ pub(crate) fn send_entity_proximity_messages(
             }
         }
     }
+}
+/// Input chat message event.
+#[cfg(feature = "server")]
+pub struct InputChatMessage {
+    pub entity: Entity,
+    pub message: String,
+}
+
+#[derive(NetMessage)]
+#[cfg(feature = "server")]
+pub struct NetSendEntityUpdates {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
 }

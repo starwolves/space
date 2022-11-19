@@ -2,7 +2,6 @@ use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
 use gridmap::grid::{cell_id_to_world, GridmapMain};
 use inventory_api::core::Inventory;
-use networking::server::{InputConstructionOptionsSelection, TextTreeInputSelection};
 use pawn::pawn::REACH_DISTANCE;
 use resources::core::HandleToEntity;
 
@@ -285,6 +284,9 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
         }
     }
 }
+use crate::construction_tool::InputConstructionOptionsSelection;
+use ui::input::TextTreeInputSelection;
+
 #[cfg(feature = "server")]
 pub(crate) fn text_tree_input_selection(
     mut input_events: EventReader<TextTreeInputSelection>,

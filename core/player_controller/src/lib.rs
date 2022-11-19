@@ -25,7 +25,5 @@ pub mod networking;
 pub mod player_selectors;
 /// The Bevy plugin of this crate.
 pub mod plugin;
-/// Finalize sending netcode messages to a player controller.
-mod send_net;
 /// Manage the welcome character and role setup UI.
 mod setup_ui;

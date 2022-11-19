@@ -12,7 +12,7 @@ use console_commands::commands::CONSOLE_ERROR_COLOR;
 use entity::meta::SoftPlayer;
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
-use networking::server::{InputUIInputTransmitText, ReliableServerMessage, ServerConfigMessage};
+use networking::server::{ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use pawn::pawn::{PersistentPlayerData, SpawnPoints, Spawning, UsedNames};
 use resources::core::{ConnectedPlayer, HandleToEntity};
@@ -92,6 +92,7 @@ pub(crate) fn done_boarding(
         ));
     }
 }
+use crate::input::InputUIInputTransmitText;
 
 /// Recieve boarding UI input.
 #[cfg(feature = "server")]

@@ -13,8 +13,9 @@ use resources::labels::{
 
 use crate::{
     examine::{
-        examine_map, examine_map_abilities, examine_map_health, finalize_grid_examine_input,
-        set_action_header_name,
+        examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
+        finalize_grid_examine_input, set_action_header_name, GridmapExamineMessages,
+        InputExamineMap, NetExamineGrid,
     },
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
@@ -61,6 +62,7 @@ impl Plugin for GridmapPlugin {
                 .add_system(projectile_fov)
                 .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
                 .add_event::<NetProjectileFOV>()
+                .add_event::<NetExamineGrid>()
                 .add_event::<RemoveCell>()
                 .add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
                 .add_startup_system(
@@ -89,7 +91,8 @@ impl Plugin for GridmapPlugin {
                         .after(PostUpdateLabels::VisibleChecker)
                         .label(PostUpdateLabels::Net)
                         .with_system(net_system::<NetProjectileFOV>)
-                        .with_system(net_system::<NetGridmapUpdates>),
+                        .with_system(net_system::<NetGridmapUpdates>)
+                        .with_system(net_system::<NetExamineGrid>),
                 )
                 .add_system(gridmap_sensing_ability)
                 .add_system(examine_map.after(ActionsLabels::Action))
@@ -111,7 +114,14 @@ impl Plugin for GridmapPlugin {
                     incoming_messages
                         .after(PreUpdateLabels::NetEvents)
                         .label(PreUpdateLabels::ProcessInput),
-                );
+                )
+                .add_event::<InputExamineMap>()
+                .init_resource::<GridmapExamineMessages>()
+                .add_system_to_stage(
+                    PostUpdate,
+                    finalize_examine_map.before(PostUpdateLabels::EntityUpdate),
+                )
+                .add_system(examine_grid.after(ActionsLabels::Action));
         }
     }
 }

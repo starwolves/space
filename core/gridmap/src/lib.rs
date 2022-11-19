@@ -14,7 +14,7 @@ pub mod can_reach_entity;
 /// Manage gridmap events.
 pub mod events;
 /// Manage gridmap exmination.
-mod examine;
+pub mod examine;
 /// Manage gridmap FOV.
 pub mod fov;
 /// Get a spawn position for an item that is free.

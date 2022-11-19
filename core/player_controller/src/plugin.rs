@@ -4,7 +4,12 @@ use crate::boarding::NetUIInputTransmitData;
 use crate::connection::NetPlayerConn;
 use crate::console_commands::rcon_console_commands;
 use crate::health_ui::NetHealthUpdate;
-use crate::input::InputAttackCell;
+use crate::input::{
+    InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
+    InputMouseDirectionUpdate, InputMovementInput, InputSceneReady, InputSelectBodyPart,
+    InputSprinting, InputToggleAutoMove, InputToggleCombatMode, InputUIInput,
+    InputUIInputTransmitText,
+};
 use crate::networking::incoming_messages;
 use bevy::app::CoreStage::PostUpdate;
 use bevy::{
@@ -12,7 +17,7 @@ use bevy::{
     time::FixedTimestep,
 };
 
-use networking::server::{net_system, InputListActionsEntity};
+use networking::server::net_system;
 use resources::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels, UpdateLabels};
 
 use super::{
@@ -32,7 +37,6 @@ use crate::{
     console_commands::{entity_console_commands, inventory_item_console_commands},
     finalize_entity_updates::finalize_entity_updates,
     health_ui::{health_ui_update, ClientHealthUICache},
-    send_net::process_finalize_net,
     setup_ui::initialize_setupui,
 };
 use bevy::app::CoreStage::PreUpdate;
@@ -45,7 +49,6 @@ impl Plugin for ConnectedPlayerPlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_event::<NetUserName>()
-                .add_event::<InputListActionsEntity>()
                 .add_system(
                     apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput),
                 )
@@ -117,10 +120,6 @@ impl Plugin for ConnectedPlayerPlugin {
                         .label(SummoningLabels::NormalSummon),
                 )
                 .add_system(entity_console_commands.after(SummoningLabels::DefaultSummon))
-                .add_system_to_stage(
-                    PostUpdate,
-                    process_finalize_net.after(PostUpdateLabels::Net),
-                )
                 .init_resource::<ClientHealthUICache>()
                 .init_resource::<BoardingAnnouncements>()
                 .add_system_to_stage(
@@ -130,7 +129,20 @@ impl Plugin for ConnectedPlayerPlugin {
                         .label(PreUpdateLabels::ProcessInput),
                 )
                 .add_event::<NetPlayerConn>()
-                .add_event::<InputAttackCell>();
+                .add_event::<InputAttackCell>()
+                .add_event::<InputToggleCombatMode>()
+                .add_event::<InputToggleAutoMove>()
+                .add_event::<InputAttackEntity>()
+                .add_event::<InputAltItemAttack>()
+                .add_event::<InputMouseAction>()
+                .add_event::<InputSelectBodyPart>()
+                .add_event::<InputMovementInput>()
+                .add_event::<InputSprinting>()
+                .add_event::<InputSceneReady>()
+                .add_event::<InputBuildGraphics>()
+                .add_event::<InputMouseDirectionUpdate>()
+                .add_event::<InputUIInput>()
+                .add_event::<InputUIInputTransmitText>();
         }
     }
 }
