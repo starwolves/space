@@ -19,8 +19,7 @@ version = "0.8.1"
 default-features = false
 
 [dependencies]
-player_controller = { path = "../../core/player_controller" ,  features=["server"]}
 pawn = { path = "../../core/pawn" ,  features=["server"]}
 chat = { path = "../../core/chat",  features=["server"] }
-resources = { path = "../../core/resources",  features=["server"] }
-
+networking = { path = "../../core/networking",  features=["server"] }
+player = { path = "../../core/player",  features=["server"] }

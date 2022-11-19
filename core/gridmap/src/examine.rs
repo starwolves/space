@@ -1,9 +1,5 @@
 use actions::core::{BuildingActions, ListActionDataRequests};
 use bevy::prelude::{warn, Entity, EventReader, Query, Res, ResMut};
-use chat_api::core::{
-    get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
-    HEALTHY_COLOR, UNHEALTHY_COLOR,
-};
 use entity::{
     examine::Examinable,
     health::HealthContainer,
@@ -12,6 +8,10 @@ use entity::{
 use math::grid::Vec3Int;
 use networking::server::GridMapLayer;
 use networking_macros::NetMessage;
+use text_api::core::{
+    get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
+    HEALTHY_COLOR, UNHEALTHY_COLOR,
+};
 
 use crate::{
     events::examine_ship_cell,
@@ -371,10 +371,10 @@ pub struct GridmapExamineMessages {
 }
 use bevy::prelude::EventWriter;
 
-use chat_api::core::END_ASTRIX;
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::ReliableServerMessage;
+use text_api::core::END_ASTRIX;
 
 #[derive(NetMessage)]
 pub(crate) struct NetExamineGrid {
@@ -401,7 +401,7 @@ pub(crate) fn finalize_examine_map(
 }
 
 use actions::core::ActionRequests;
-use resources::core::HandleToEntity;
+use networking::server::HandleToEntity;
 
 /// Examine.
 #[cfg(feature = "server")]

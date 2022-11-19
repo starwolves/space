@@ -1,8 +1,8 @@
 [package]
-name = "chat_api"
+name = "text_api"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Chat API to prevent cyclic dependencies."
+description="Text API containing text resources."
 homepage="https://starwolves.io"
 repository="https://gitlab.starwolves.io/starwolves/space"
 documentation="https://docs.sf.starwolves.io"

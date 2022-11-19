@@ -8,7 +8,6 @@ use entity::entity_data::{get_entity_update_difference, EntityUpdates};
 use inventory_api::core::Inventory;
 use networking::server::EntityUpdateData;
 use pawn::pawn::FacingDirection;
-use resources::core::ConnectedPlayer;
 use showcase::core::Showcase;
 
 use inventory_item::{
@@ -17,10 +16,13 @@ use inventory_item::{
 };
 
 use inventory_item::item::InventoryItem;
-use pawn::pawn::{ControllerInput, Pawn, PersistentPlayerData};
+use pawn::pawn::Pawn;
 use vector2math::{FloatingVector2, Vector2};
 
 use crate::humanoid::{CharacterAnimationState, Humanoid};
+use controller::controller::ControllerInput;
+use networking::server::ConnectedPlayer;
+use player::boarding::PersistentPlayerData;
 
 /// All the core humanoid entity updates for the Godot client.
 #[cfg(feature = "server")]

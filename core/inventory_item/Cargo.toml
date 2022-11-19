@@ -27,5 +27,5 @@ networking = { path = "../networking" ,  features=["server"]}
 resources = { path = "../resources" ,  features=["server"]}
 showcase = { path = "../showcase" ,  features=["server"]}
 inventory_api = { path = "../inventory_api",  features=["server"] }
-chat_api = { path = "../chat_api",  features=["server"] }
+text_api = { path = "../text_api",  features=["server"] }
 physics = { path = "../physics" ,  features=["server"]}

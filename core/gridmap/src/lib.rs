@@ -11,6 +11,8 @@
 pub mod build;
 /// Check if an entity can reach another entity.
 pub mod can_reach_entity;
+/// Configuration to send to newly connected clients.
+pub mod connections;
 /// Manage gridmap events.
 pub mod events;
 /// Manage gridmap exmination.

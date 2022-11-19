@@ -2,6 +2,8 @@
 
 /// Manage overlay changes.
 mod change_overlay;
+/// Manage connection events.
+pub mod connections;
 /// Resources.
 pub mod map;
 /// Manage player input.

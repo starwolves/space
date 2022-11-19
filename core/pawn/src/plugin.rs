@@ -4,12 +4,13 @@ use crate::{
     actions::{examine, examine_prerequisite_check},
     examine_events::NetPawn,
     networking::incoming_messages,
-    pawn::{account_name, InputAccountName},
+    pawn::account_name,
 };
 use bevy::app::CoreStage::PostUpdate;
 use bevy::app::CoreStage::PreUpdate;
 use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
 use networking::server::net_system;
+use player::names::InputAccountName;
 use resources::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels};
 pub struct PawnPlugin;
 

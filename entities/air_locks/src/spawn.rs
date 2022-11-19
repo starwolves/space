@@ -6,7 +6,6 @@ use bevy::{
     prelude::{warn, Commands, EventReader, EventWriter, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use chat_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::{EntityGroup, RawSpawnEvent},
@@ -18,6 +17,7 @@ use entity::{
 };
 use pawn::pawn::ShipAuthorizationEnum;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
+use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 #[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {

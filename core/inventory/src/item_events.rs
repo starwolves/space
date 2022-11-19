@@ -32,12 +32,12 @@ use inventory_api::core::Inventory;
 use inventory_item::item::InventoryItem;
 use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
 use rand::Rng;
-use resources::core::HandleToEntity;
 
 use super::net::{
     NetDropCurrentItem, NetPickupWorldItem, NetTakeOffItem, NetThrowItem, NetWearItem,
 };
-use pawn::pawn::{ControllerInput, Pawn, REACH_DISTANCE};
+use networking::server::HandleToEntity;
+use pawn::pawn::{Pawn, REACH_DISTANCE};
 use physics::physics::{disable_rigidbody, enable_rigidbody, RigidBodyLinkTransform};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
@@ -638,6 +638,7 @@ pub(crate) fn take_off_item(
         }
     }
 }
+use controller::controller::ControllerInput;
 
 /// Perform throwing item action.
 #[cfg(feature = "server")]

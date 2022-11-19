@@ -8,6 +8,7 @@ use resources::labels::{CombatLabels, PostUpdateLabels};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
 use crate::chat::{blanks_chat, hit_query_chat_cells};
+use crate::health_ui::{health_ui_update, ClientHealthUICache, NetHealthUpdate};
 use crate::melee_queries::MeleeBlank;
 use crate::projectile_queries::ProjectileBlank;
 use crate::sfx::health_combat_hit_result_sfx_cells;
@@ -68,7 +69,8 @@ impl Plugin for CombatPlugin {
                 SystemSet::new()
                     .after(PostUpdateLabels::VisibleChecker)
                     .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<NetHitQueryChat>),
+                    .with_system(net_system::<NetHitQueryChat>)
+                    .with_system(net_system::<NetHealthUpdate>),
             )
             .add_system(
                 cache_attacks
@@ -77,7 +79,15 @@ impl Plugin for CombatPlugin {
                     .label(CombatLabels::CacheAttack),
             )
             .add_system(health_combat_hit_result_sfx_cells.after(CombatLabels::FinalizeApplyDamage))
-            .init_resource::<ActiveApplyDamage>();
+            .init_resource::<ActiveApplyDamage>()
+            .add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .label(PostUpdateLabels::EntityUpdate)
+                    .with_system(health_ui_update),
+            )
+            .add_event::<NetHealthUpdate>()
+            .init_resource::<ClientHealthUICache>();
         }
     }
 }

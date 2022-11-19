@@ -1,8 +1,6 @@
 use bevy::prelude::Res;
 use rand::seq::SliceRandom;
 
-use crate::pawn::UsedNames;
-
 /// Array containing male first names.
 #[cfg(feature = "server")]
 const MALE_FIRST_NAMES: &[&str] = &[
@@ -139,6 +137,8 @@ const LAST_NAMES: &[&str] = &[
     "Odonnell",
     "Lombardi",
 ];
+use crate::names::UsedNames;
+
 /// Generate a full name.
 #[cfg(feature = "server")]
 pub fn get_full_name(gender: bool, unique: bool, used_names: &Res<UsedNames>) -> String {

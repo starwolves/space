@@ -7,7 +7,7 @@ use networking::server::ReliableClientMessage;
 
 use crate::commands::InputConsoleCommand;
 use bevy::prelude::{EventWriter, Res};
-use resources::core::HandleToEntity;
+use networking::server::HandleToEntity;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

@@ -14,4 +14,4 @@ server = []
 client = []
 
 [dependencies]
-chat_api = { path = "../chat_api",  features=["server"]}
+text_api = { path = "../text_api",  features=["server"]}

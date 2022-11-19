@@ -1,0 +1,29 @@
+[package]
+name = "player"
+version = "0.0.3-snap8-dev"
+authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
+description="Player resources."
+homepage="https://starwolves.io"
+repository="https://gitlab.starwolves.io/starwolves/space"
+documentation="https://docs.sf.starwolves.io"
+license-file="LICENSE"
+edition = "2021"
+
+[features]
+server = []
+client = []
+
+[dependencies.bevy]
+version = "0.8.1"
+default-features = false
+
+[dependencies]
+serde = "1.0.147"
+rand = "0.8.5"
+
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros",  features=["server"] }
+text_api = { path = "../text_api",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
+data_converters = { path = "../data_converters",  features=["server"] }
+motd = { path = "../motd",  features=["server"] }

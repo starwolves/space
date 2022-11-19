@@ -32,10 +32,10 @@ pawn = { path = "../pawn",  features=["server"] }
 physics = { path = "../physics",  features=["server"] }
 humanoid = { path = "../humanoid",  features=["server"] }
 sfx = { path = "../sfx",  features=["server"] }
-
 gridmap = { path = "../gridmap",  features=["server"] }
 actions = { path = "../actions",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }
 resources = { path = "../resources",  features=["server"] }
 atmospherics = { path = "../atmospherics",  features=["server"] }
 math = { path = "../math",  features=["server"] }
+controller = { path = "../controller",  features=["server"] }

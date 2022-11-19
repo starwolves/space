@@ -4,6 +4,7 @@ use actions::plugin::ActionsPlugin;
 use air_locks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
+use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::{
     app::{RunMode, ScheduleRunnerPlugin, ScheduleRunnerSettings},
     asset::AssetPlugin,
@@ -22,6 +23,7 @@ use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
 use console_commands::plugins::ConsoleCommandsPlugin;
 use construction_tool_admin::plugin::ConstructionToolAdminPlugin;
+use controller::plugin::ControllerPlugin;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
 use gridmap::plugin::GridmapPlugin;
@@ -38,7 +40,7 @@ use networking::plugin::NetworkingPlugin;
 use omni_light::plugin::OmniLightPlugin;
 use pawn::plugin::PawnPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
-use player_controller::plugin::ConnectedPlayerPlugin;
+use player::plugin::PlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
 use resources::{core::TickRate, labels::StartupLabels, plugin::ResourcesPlugin};
 use rigid_body::plugin::RigidBodyPlugin;
@@ -93,7 +95,7 @@ impl Plugin for ServerPlugin {
             .add_plugin(ScenePlugin)
             .add_plugin(RenderPlugin)
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-            .add_plugin(ConnectedPlayerPlugin {
+            .add_plugin(ControllerPlugin {
                 custom_motd: self.custom_motd.clone(),
             })
             .add_plugin(AsanaPlugin)
@@ -105,9 +107,7 @@ impl Plugin for ServerPlugin {
             .add_plugin(SfxPlugin)
             .add_plugin(EntityPlugin)
             .add_plugin(AtmosphericsPlugin)
-            .add_plugin(ConsoleCommandsPlugin {
-                give_all_rcon: self.give_all_rcon,
-            })
+            .add_plugin(ConsoleCommandsPlugin)
             .add_plugin(ConstructionToolAdminPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(MapPlugin)
@@ -130,6 +130,10 @@ impl Plugin for ServerPlugin {
             .add_plugin(SoundsPlugin)
             .add_plugin(ChatPlugin)
             .add_plugin(UiPlugin)
+            .add_plugin(PlayerPlugin)
+            .add_plugin(BasicConsoleCommandsPlugin {
+                give_all_rcon: self.give_all_rcon,
+            })
             .add_startup_system(
                 server_is_live
                     .label(StartupLabels::ServerIsLive)

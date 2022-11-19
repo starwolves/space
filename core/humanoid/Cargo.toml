@@ -37,5 +37,6 @@ resources = { path = "../resources",  features=["server"] }
 showcase = { path = "../showcase",  features=["server"] }
 atmospherics = { path = "../atmospherics",  features=["server"] }
 math = { path = "../math",  features=["server"] }
-chat_api = { path = "../chat_api",  features=["server"] }
-player_controller = { path = "../player_controller",  features=["server"] }
+text_api = { path = "../text_api",  features=["server"] }
+controller = { path = "../controller",  features=["server"] }
+player = { path = "../player",  features=["server"] }

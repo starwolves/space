@@ -7,17 +7,10 @@ use networking_macros::NetMessage;
 
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
-pub struct NetConsoleCommands {
+pub(crate) struct NetConsoleCommands {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub struct NetEntityConsole {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
 /// Resource containing all registered custom console commands.
 #[derive(Default)]
 #[cfg(feature = "server")]
@@ -43,23 +36,13 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 
     info!("Loaded {} different console commands.", commands.list.len());
 }
-/// Resource with the configuration whether new players should be given RCON upon connection.
-#[derive(Default)]
-#[cfg(feature = "server")]
-pub struct GiveAllRCON {
-    pub give: bool,
-}
+
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 #[cfg(feature = "server")]
 pub enum ConsoleCommandsLabels {
     Finalize,
 }
-
-#[cfg(feature = "server")]
-pub const CONSOLE_SUCCESS_COLOR: &str = "#3cff00";
-#[cfg(feature = "server")]
-pub const CONSOLE_ERROR_COLOR: &str = "#ff6600";
 
 /// Client input console command message event.
 #[cfg(feature = "server")]

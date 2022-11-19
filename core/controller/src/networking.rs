@@ -4,7 +4,6 @@ use bevy::prelude::{EventWriter, ResMut};
 use bevy_renet::renet::RenetServer;
 use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::ReliableClientMessage};
 use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableClientMessage};
-use resources::core::HandleToEntity;
 
 use crate::input::InputAltItemAttack;
 use crate::input::InputAttackCell;
@@ -16,11 +15,12 @@ use crate::input::InputSelectBodyPart;
 use crate::input::InputSprinting;
 use crate::input::InputToggleAutoMove;
 use crate::input::InputToggleCombatMode;
-use crate::input::InputUIInput;
-use crate::input::InputUIInputTransmitText;
 use crate::input::{InputBuildGraphics, InputMouseDirectionUpdate};
 use math::grid::Vec3Int;
+use player::setup_ui::InputUIInput;
 
+use networking::server::HandleToEntity;
+use player::boarding::InputUIInputTransmitText;
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(

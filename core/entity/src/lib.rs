@@ -7,6 +7,8 @@
 
 /// Perform base entity actions such as examining.
 pub mod actions;
+/// Broadcast unreliable transforms to clients.
+mod broadcast_interpolation_transforms;
 /// Manage base entity data.
 pub mod entity_data;
 /// Resources for the ability to examine entities as an action.
@@ -29,3 +31,6 @@ pub mod senser;
 pub mod spawn;
 /// Crate that performs FOV logic for sensing and sensable entities.
 pub mod visible_checker;
+
+/// Finalize sending entity updates to a player controller.
+mod finalize_entity_updates;

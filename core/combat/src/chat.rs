@@ -20,7 +20,6 @@ use networking::server::PendingNetworkMessage;
 use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
-use resources::core::HandleToEntity;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,
@@ -32,6 +31,8 @@ pub struct NetHitQueryChat {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
+use networking::server::HandleToEntity;
+
 /// Chat hooks for entities that got hit by something.
 #[cfg(feature = "server")]
 pub fn attacked_by_chat<T: Component>(

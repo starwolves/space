@@ -1,12 +1,10 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
-use entity::health::{HealthComponent, HealthContainer};
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
 use networking_macros::NetMessage;
-use resources::core::ConnectedPlayer;
 const UI_ALPHA: f32 = 146.;
 const NONE_UI_RED: f32 = 102.;
 const NONE_UI_GREEN: f32 = 165.;
@@ -48,6 +46,16 @@ pub enum UIDamageType {
     Moderate,
     Heavy,
 }
+use networking::server::ConnectedPlayer;
+
+#[derive(NetMessage)]
+#[cfg(feature = "server")]
+pub(crate) struct NetHealthUpdate {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+use entity::health::HealthComponent;
+use entity::health::HealthContainer;
 
 /// Manage sending UI health updates to Godot client.
 #[cfg(feature = "server")]
@@ -532,11 +540,4 @@ pub(crate) fn health_ui_update(
             _ => (),
         }
     }
-}
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetHealthUpdate {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
 }

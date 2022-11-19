@@ -1,13 +1,29 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
-use chat::chat::NetSendEntityUpdates;
-use entity::{
-    entity_data::{personalise, EntityUpdates},
-    sensable::Sensable,
-};
 use networking::server::{EntityWorldType, ReliableServerMessage};
-use resources::core::{ConnectedPlayer, HandleToEntity};
+use networking_macros::NetMessage;
 use showcase::core::Showcase;
+
+use networking::server::{ConnectedPlayer, HandleToEntity};
+
+use crate::{entity_data::EntityUpdates, sensable::Sensable};
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+
+#[derive(NetMessage)]
+#[cfg(feature = "server")]
+pub(crate) struct NetFinalizeEntityUpdates {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+#[derive(NetMessage)]
+#[cfg(feature = "server")]
+pub(crate) struct NetEntityUpdate {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+
+use crate::entity_data::personalise;
 
 /// Finalize entity updates of this frame and send them to Godot clients.
 #[cfg(feature = "server")]
@@ -22,7 +38,7 @@ pub(crate) fn finalize_entity_updates(
         ),
         Changed<EntityUpdates>,
     >,
-    mut net_send_entity_updates: EventWriter<NetSendEntityUpdates>,
+    mut net_send_entity_updates: EventWriter<NetFinalizeEntityUpdates>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
     for (
@@ -65,7 +81,7 @@ pub(crate) fn finalize_entity_updates(
 
                         match handle_to_entity.inv_map.get(&sensed_by_entity) {
                             Some(handle) => {
-                                net_send_entity_updates.send(NetSendEntityUpdates {
+                                net_send_entity_updates.send(NetFinalizeEntityUpdates {
                                     handle: *handle,
                                     message: ReliableServerMessage::EntityUpdate(
                                         visible_entity.to_bits(),
@@ -104,7 +120,7 @@ pub(crate) fn finalize_entity_updates(
                     continue;
                 }
 
-                net_send_entity_updates.send(NetSendEntityUpdates {
+                net_send_entity_updates.send(NetFinalizeEntityUpdates {
                     handle: showcase_component.handle,
                     message: ReliableServerMessage::EntityUpdate(
                         visible_entity.to_bits(),

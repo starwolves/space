@@ -1,4 +1,4 @@
-use pawn::pawn::UsedNames;
+use player::names::UsedNames;
 
 /// Get a dummy character name as a function.
 #[cfg(feature = "server")]

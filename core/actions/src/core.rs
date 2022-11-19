@@ -6,7 +6,6 @@ use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::{GridMapLayer, NetAction, ReliableServerMessage};
 use networking_macros::NetMessage;
-use resources::core::HandleToEntity;
 
 /// Resource with a list of actions being built this frame.
 #[cfg(feature = "server")]
@@ -92,10 +91,12 @@ impl ActionData {
 }
 #[cfg(feature = "server")]
 #[derive(NetMessage)]
-pub struct NetActionDataFinalizer {
+pub(crate) struct NetActionDataFinalizer {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
+use networking::server::HandleToEntity;
+
 #[cfg(feature = "server")]
 /// Send lists of approved actions back to player.
 pub(crate) fn list_action_data_finalizer(

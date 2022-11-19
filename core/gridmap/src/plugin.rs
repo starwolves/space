@@ -6,12 +6,13 @@ use bevy::{
 };
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
 use networking::server::net_system;
-use pawn::pawn::SpawnPoints;
+use player::spawn_points::SpawnPoints;
 use resources::labels::{
     ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
 
 use crate::{
+    connections::{configure, NetConfig},
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
         finalize_grid_examine_input, set_action_header_name, GridmapExamineMessages,
@@ -92,7 +93,8 @@ impl Plugin for GridmapPlugin {
                         .label(PostUpdateLabels::Net)
                         .with_system(net_system::<NetProjectileFOV>)
                         .with_system(net_system::<NetGridmapUpdates>)
-                        .with_system(net_system::<NetExamineGrid>),
+                        .with_system(net_system::<NetExamineGrid>)
+                        .with_system(net_system::<NetConfig>),
                 )
                 .add_system(gridmap_sensing_ability)
                 .add_system(examine_map.after(ActionsLabels::Action))
@@ -121,7 +123,9 @@ impl Plugin for GridmapPlugin {
                     PostUpdate,
                     finalize_examine_map.before(PostUpdateLabels::EntityUpdate),
                 )
-                .add_system(examine_grid.after(ActionsLabels::Action));
+                .add_system(examine_grid.after(ActionsLabels::Action))
+                .add_event::<NetConfig>()
+                .add_system_to_stage(PreUpdate, configure.label(PreUpdateLabels::NetEvents));
         }
     }
 }

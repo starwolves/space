@@ -5,14 +5,14 @@ use bevy::{
 use bevy_rapier3d::prelude::RigidBody;
 
 use math::grid::world_to_cell_id;
-use resources::core::ConnectedPlayer;
 
 use crate::networking::{NetLoadEntity, NetUnloadEntity};
 use crate::{
-    entity_data::{load_entity, unload_entity, EntityData, EntityUpdates, WorldMode, WorldModes},
+    entity_data::{EntityData, EntityUpdates, WorldMode, WorldModes},
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
 };
+use networking::server::ConnectedPlayer;
 
 /// Perform FOV checks to see what is and what isn't visible.
 #[cfg(feature = "server")]
@@ -35,6 +35,8 @@ pub(crate) fn visible_checker(
     mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_unload_entity: EventWriter<NetUnloadEntity>,
 ) {
+    use crate::networking::unload_entity;
+
     for (
         entity,
         mut visible_checker_component,
@@ -179,6 +181,8 @@ fn visible_check(
     interpolated_transform: bool,
     visible_entity_updates_component: &EntityUpdates,
 ) {
+    use crate::networking::{load_entity, unload_entity};
+
     let distance = visible_checker_translation.distance(visible_entity_transform.translation);
     let is_cached = distance < VIEW_DISTANCE;
     let can_cache;

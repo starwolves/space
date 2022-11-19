@@ -9,11 +9,11 @@ use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::{ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
-use pawn::pawn::{PawnDesignation, PersistentPlayerData, Spawning, UsedNames};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
-use player_controller::connection::SpawnPawnData;
-use resources::core::{ConnectedPlayer, HandleToEntity};
+use player::spawn_points::{PawnDesignation, SpawnPawnData};
 
+use networking::server::{ConnectedPlayer, HandleToEntity};
+use player::{boarding::PersistentPlayerData, names::UsedNames, spawn_points::Spawning};
 /// Spawn player as human male with preset inventory.
 #[cfg(feature = "server")]
 pub(crate) fn on_spawning(

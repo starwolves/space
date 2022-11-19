@@ -27,3 +27,4 @@ data_link = { path = "../data_link",  features=["server"] }
 resources = { path = "../resources" ,  features=["server"]}
 math = { path = "../math" ,  features=["server"]}
 entity = { path = "../entity" ,  features=["server"]}
+player = { path = "../player" ,  features=["server"]}

@@ -18,7 +18,7 @@ bevy_rapier3d = "0.18.0"
 
 atmospherics = { path = "../core/atmospherics" ,  features=["server"] }
 combat = { path = "../core/combat",  features=["server"] }
-player_controller = { path = "../core/player_controller",  features=["server"] }
+controller = { path = "../core/controller",  features=["server"] }
 console_commands = { path = "../core/console_commands",  features=["server"] }
 gridmap = { path = "../core/gridmap",  features=["server"] }
 humanoid = { path = "../core/humanoid",  features=["server"] }
@@ -36,6 +36,8 @@ chat = { path = "../core/chat",  features=["server"] }
 motd = { path = "../core/motd",  features=["server"] }
 resources = { path = "../core/resources",  features=["server"] }
 ui = { path = "../core/ui",  features=["server"] }
+player = { path = "../core/player",  features=["server"] }
+basic_console_commands = { path = "../core/basic_console_commands",  features=["server"] }
 
 sounds = { path = "../entities/sounds",  features=["server"] }
 air_locks = { path = "../entities/air_locks",  features=["server"] }

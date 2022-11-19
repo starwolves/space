@@ -1,6 +1,5 @@
 use crate::humanoid::Humanoid;
 use bevy::prelude::{Query, ResMut};
-use chat_api::core::FURTHER_NORMAL_FONT;
 use entity::examine::Examinable;
 use entity::examine::ExamineEntityMessages;
 use entity::health::HealthComponent;
@@ -11,6 +10,7 @@ use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
+use text_api::core::FURTHER_NORMAL_FONT;
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
 pub(crate) struct ExamineEntityPawn {

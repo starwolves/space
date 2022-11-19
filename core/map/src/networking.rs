@@ -11,7 +11,7 @@ use crate::map_input::InputMap;
 use crate::map_input::InputMapChangeDisplayMode;
 use crate::map_input::MapInput;
 use bevy::prelude::Res;
-use resources::core::HandleToEntity;
+use networking::server::HandleToEntity;
 
 use crate::map_input::InputMapRequestOverlay;
 use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableClientMessage};

@@ -5,6 +5,7 @@ use networking::server::net_system;
 use resources::labels::{MapLabels, PostUpdateLabels, PreUpdateLabels};
 
 use crate::{
+    connections::{configure, NetConfig},
     map::MapHolders,
     map_input::{InputMap, InputMapChangeDisplayMode, InputMapRequestOverlay, MapData},
     networking::incoming_messages,
@@ -31,7 +32,8 @@ impl Plugin for MapPlugin {
                     SystemSet::new()
                         .after(PostUpdateLabels::VisibleChecker)
                         .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetRequestOverlay>),
+                        .with_system(net_system::<NetRequestOverlay>)
+                        .with_system(net_system::<NetConfig>),
                 )
                 .init_resource::<MapHolders>()
                 .add_system_to_stage(
@@ -42,7 +44,9 @@ impl Plugin for MapPlugin {
                 )
                 .add_event::<InputMapChangeDisplayMode>()
                 .add_event::<InputMap>()
-                .add_event::<InputMapRequestOverlay>();
+                .add_event::<InputMapRequestOverlay>()
+                .add_event::<NetConfig>()
+                .add_system_to_stage(PreUpdate, configure.label(PreUpdateLabels::NetEvents));
         }
     }
 }

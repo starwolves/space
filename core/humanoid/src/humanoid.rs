@@ -19,10 +19,8 @@ use inventory_item::{
     item::{CombatStandardAnimation, InventoryItem},
 };
 use math::grid::world_to_cell_id;
-use pawn::pawn::{
-    facing_direction_to_direction, ControllerInput, FacingDirection, Pawn, PawnYAxisRotations,
-};
-use resources::core::{HandleToEntity, TickRate};
+use pawn::pawn::{facing_direction_to_direction, FacingDirection, Pawn, PawnYAxisRotations};
+use resources::core::TickRate;
 use rigid_body::rigid_body::RigidBodyData;
 use sfx::builder::repeating_sfx_builder;
 use showcase::core::Showcase;
@@ -97,7 +95,7 @@ impl Default for Humanoid {
         }
     }
 }
-use player_controller::input::InputToggleCombatMode;
+use controller::input::InputToggleCombatMode;
 
 /// Toggle combat mode. Ie from melee to projectile.
 #[cfg(feature = "server")]
@@ -137,7 +135,9 @@ enum CharacterMovementState {
     Jogging,
     Sprinting,
 }
+use controller::controller::ControllerInput;
 use entity::networking::NetUnloadEntity;
+use networking::server::HandleToEntity;
 
 /// Core humanoid logic.
 #[cfg(feature = "server")]
@@ -958,12 +958,12 @@ pub(crate) fn humanoid_core(
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = "humanDummy";
 #[cfg(feature = "server")]
 pub const HUMAN_MALE_ENTITY_NAME: &str = "humanMale";
-use player_controller::input::InputAltItemAttack;
-use player_controller::input::InputAttackCell;
-use player_controller::input::InputAttackEntity;
-use player_controller::input::InputMouseAction;
-use player_controller::input::InputSelectBodyPart;
-use player_controller::input::InputToggleAutoMove;
+use controller::input::InputAltItemAttack;
+use controller::input::InputAttackCell;
+use controller::input::InputAttackEntity;
+use controller::input::InputMouseAction;
+use controller::input::InputSelectBodyPart;
+use controller::input::InputToggleAutoMove;
 
 /// Manage controller input for humanoid. The controller can be controlled by a player or AI.
 #[cfg(feature = "server")]
@@ -1087,7 +1087,7 @@ use bevy::prelude::Local;
 pub(crate) struct TimeStampPerEntity {
     pub data: HashMap<Entity, u64>,
 }
-use player_controller::input::InputMouseDirectionUpdate;
+use controller::input::InputMouseDirectionUpdate;
 
 /// Manage mouse direction updates.
 #[cfg(feature = "server")]

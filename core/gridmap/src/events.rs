@@ -6,8 +6,8 @@ use bevy::{
 };
 
 use bevy_rapier3d::prelude::RigidBody;
-use chat_api::core::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT};
 use doryen_fov::FovAlgorithm;
+use text_api::core::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT};
 
 use entity::{
     health::{Health, HealthContainer, StructureHealth},
@@ -15,7 +15,6 @@ use entity::{
 };
 use math::grid::Vec3Int;
 use networking::server::{GridMapLayer, ReliableServerMessage};
-use resources::core::ConnectedPlayer;
 use serde::Deserialize;
 
 use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMain, RemoveCell};
@@ -24,6 +23,7 @@ use super::{
     fov::{DoryenMap, FOV_DISTANCE},
     net::NetGridmapUpdates,
 };
+use networking::server::ConnectedPlayer;
 
 /// Manage gridmap update events such as adding and removing cells.
 #[cfg(feature = "server")]

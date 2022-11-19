@@ -1,16 +1,27 @@
 use bevy::prelude::{Entity, EventWriter, ResMut};
-use console_commands::commands::NetEntityConsole;
 use networking::server::ReliableServerMessage;
-use pawn::pawn::UsedNames;
+
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking_macros::NetMessage;
+use player::names::UsedNames;
+
+#[cfg(feature = "server")]
+#[derive(NetMessage)]
+pub(crate) struct NetPlayerSelector {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+use crate::commands::NetBasicConsoleCommands;
 
 /// Player selector to entities.
 #[cfg(feature = "server")]
-pub fn player_selector_to_entities(
+pub(crate) fn player_selector_to_entities(
     command_executor_entity: Entity,
     command_executor_handle_option: Option<u64>,
     mut player_selector: &str,
     used_names: &mut ResMut<UsedNames>,
-    net_console_commands: &mut EventWriter<NetEntityConsole>,
+    net_console_commands: &mut EventWriter<NetBasicConsoleCommands>,
 ) -> Vec<Entity> {
     if player_selector == "*" {
         return used_names.names.values().copied().collect();
@@ -64,7 +75,7 @@ pub fn player_selector_to_entities(
         }
     };
     if let Some(handle) = command_executor_handle_option {
-        net_console_commands.send(NetEntityConsole {
+        net_console_commands.send(NetBasicConsoleCommands {
             handle,
             message: ReliableServerMessage::ConsoleWriteLine(format!(
                 "[color=#ff6600]{message}[/color]"

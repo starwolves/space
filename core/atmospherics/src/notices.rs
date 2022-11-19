@@ -4,7 +4,6 @@ use bevy::prelude::{Entity, EventWriter, Local, Query, Res, Transform};
 use math::grid::{world_to_cell_id, Vec2Int};
 use networking::server::ReliableServerMessage;
 use pawn::pawn::Pawn;
-use resources::core::ConnectedPlayer;
 
 use crate::{
     diffusion::{get_atmos_index, AtmosphericsResource},
@@ -25,6 +24,7 @@ use super::{
 pub struct AtmosphericsNotices {
     cache: HashMap<Entity, Vec<String>>,
 }
+use networking::server::ConnectedPlayer;
 
 /// Manage visible atmospherics notices for clients.
 #[cfg(feature = "server")]

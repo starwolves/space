@@ -1,16 +1,12 @@
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform, Without};
-use entity::entity_data::load_entity;
 use entity::entity_data::EntityData;
 use entity::entity_data::EntityUpdates;
-use entity::meta::SoftPlayer;
 use gi_probe::core::GIProbe;
 use networking::server::{ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
 use reflection_probe::core::ReflectionProbe;
-use resources::core::{ConnectedPlayer, HandleToEntity};
 use world_environment::environment::WorldEnvironment;
 
-use super::connection::{Boarding, SetupPhase};
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 #[derive(NetMessage)]
@@ -32,27 +28,10 @@ pub(crate) struct NetUpdatePlayerCount {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetDoneBoarding {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
+
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
 pub(crate) struct NetExamineEntity {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetOnBoarding {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetOnSetupUI {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -87,6 +66,8 @@ pub(crate) fn build_graphics(
     )>,
     gi_probe_query: Query<(Entity, &GIProbe, &Transform, &EntityData, &EntityUpdates)>,
 ) {
+    use entity::networking::load_entity;
+
     for build_graphics_event in build_graphics_events.iter() {
         net_send_world_environment.send(NetSendWorldEnvironment {
             handle: build_graphics_event.handle,
@@ -140,6 +121,8 @@ pub(crate) fn build_graphics(
 }
 use crate::input::InputSceneReady;
 
+use networking::server::HandleToEntity;
+use player::{boarding::SoftPlayer, connection::Boarding};
 /// Manage when client has finished loading in a scene.
 #[cfg(feature = "server")]
 pub fn scene_ready_event(
@@ -148,6 +131,8 @@ pub fn scene_ready_event(
     criteria_query: Query<&SoftPlayer, Without<Boarding>>,
     mut commands: Commands,
 ) {
+    use player::connection::SetupPhase;
+
     for new_event in event.iter() {
         let player_entity = handle_to_entity.map.get(&new_event.handle)
         .expect("scene_ready_event.rs could not find components for player that just got done boarding.");
@@ -165,6 +150,7 @@ pub fn scene_ready_event(
         }
     }
 }
+use networking::server::ConnectedPlayer;
 
 /// Send server time to clients for ping update.
 #[cfg(feature = "server")]

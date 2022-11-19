@@ -9,7 +9,6 @@ use bevy::{
     time::Timer,
 };
 use bevy_rapier3d::prelude::{Collider, CollisionGroups, Group};
-use chat_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use math::grid::{world_to_cell_id, Vec2Int};
 use networking::server::ReliableServerMessage;
@@ -24,6 +23,7 @@ use sounds::{
     },
     shared::sfx_auto_destroy,
 };
+use text_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 
 use super::net::NetCounterWindow;
 

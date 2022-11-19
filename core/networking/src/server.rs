@@ -1,6 +1,6 @@
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, warn, EventReader, EventWriter, Quat, ResMut},
+    prelude::{info, warn, Component, Entity, EventReader, EventWriter, Quat, ResMut},
 };
 use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
@@ -185,7 +185,7 @@ pub enum ReliableServerMessage {
         EntityWorldType,
     ),
     ConfigMessage(ServerConfigMessage),
-    UIRequestInput(String, String),
+    UIRequestInput(String),
     LoadEntity(
         String,
         String,
@@ -305,6 +305,7 @@ pub enum ProjectileData {
 pub trait PendingMessage {
     fn get_message(&self) -> PendingNetworkMessage;
 }
+/// Only NetMessage that shouldnt be pub(crate)
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
 pub struct PendingNetworkMessage {
@@ -351,7 +352,6 @@ pub enum EntityUpdateData {
 }
 
 use bevy::prelude::{Query, Res};
-use resources::core::{ConnectedPlayer, HandleToEntity};
 /// Finalize netcode messages system.
 #[cfg(feature = "server")]
 pub(crate) fn process_finalize_net(
@@ -373,7 +373,7 @@ pub(crate) fn process_finalize_net(
     }
 }
 #[derive(NetMessage)]
-pub struct NetEvent {
+pub(crate) struct NetEvent {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -414,4 +414,32 @@ pub(crate) fn finalize_send_net(
         RENET_RELIABLE_CHANNEL_ID,
         serialize::<ReliableServerMessage>(&new_event.message).unwrap(),
     );
+}
+/// A resource that links entities to their appropiate connection handles for connected players.
+#[derive(Default)]
+#[cfg(feature = "server")]
+pub struct HandleToEntity {
+    pub map: HashMap<u64, Entity>,
+    pub inv_map: HashMap<Entity, u64>,
+}
+
+/// The component for an entity controlled by a connected player.
+#[derive(Component, Clone)]
+#[cfg(feature = "server")]
+pub struct ConnectedPlayer {
+    pub handle: u64,
+    pub authid: u16,
+    pub rcon: bool,
+    pub connected: bool,
+}
+#[cfg(feature = "server")]
+impl Default for ConnectedPlayer {
+    fn default() -> Self {
+        Self {
+            handle: 0,
+            authid: 0,
+            rcon: false,
+            connected: true,
+        }
+    }
 }
