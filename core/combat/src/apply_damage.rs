@@ -1,4 +1,4 @@
-use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, ResMut};
+use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Resource};
 use entity::health::{HealthComponent, HealthContainer};
 use gridmap::grid::GridmapMain;
 use inventory_item::combat::{DamageModel, MeleeCombat, ProjectileCombat};
@@ -32,7 +32,7 @@ pub struct HealthCombatHitResult {
 }
 
 /// Resource with active damage applyers for health processing.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct ActiveApplyDamage {
     pub list: Vec<DamageApplyer>,

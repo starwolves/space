@@ -139,7 +139,7 @@ pub fn rigidbody_builder(
         });
 
     match rigidbody_spawn_data.entity_is_stored_item {
-        true => builder.insert_bundle((
+        true => builder.insert((
             GravityScale(0.),
             Sleeping {
                 sleeping: true,
@@ -157,7 +157,7 @@ pub fn rigidbody_builder(
             .insert(Damping::default()),
     }
     .with_children(|children| {
-        let mut child_builder = children.spawn();
+        let mut child_builder = children.spawn(());
         child_builder
             .insert(rigidbody_spawn_data.collider)
             .insert(rigidbody_spawn_data.collider_transform)
@@ -174,7 +174,7 @@ pub fn rigidbody_builder(
 
     match rigidbody_spawn_data.entity_is_stored_item {
         true => {
-            builder.insert_bundle((
+            builder.insert((
                 RigidBodyDisabled,
                 WorldMode {
                     mode: WorldModes::Worn,

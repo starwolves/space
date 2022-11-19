@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     math::Vec2,
-    prelude::{Component, Entity},
+    prelude::{Component, Entity, Resource},
 };
 use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
@@ -66,7 +66,7 @@ pub struct MapHolderData {
 }
 
 /// Resource containing all mini-map states of entities.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct MapHolders {
     pub holders: HashMap<Entity, MapHolderData>,

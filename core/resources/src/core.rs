@@ -1,7 +1,8 @@
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Resource};
 
 /// Resource containing the tickrate of the server loop.
 #[cfg(feature = "server")]
+#[derive(Resource)]
 pub struct TickRate {
     pub physics_rate: u8,
     pub bevy_rate: u8,
@@ -21,6 +22,7 @@ impl Default for TickRate {
 /// to a specific entity and it should be customly assigned to something such as UIs and other stuff which
 /// are not real server entities but just client GUI instances.
 #[cfg(feature = "server")]
+#[derive(Resource)]
 pub struct ServerId {
     pub id: Entity,
 }
@@ -36,6 +38,7 @@ impl Default for ServerId {
 
 /// Resource that stores information of client.
 #[cfg(feature = "client")]
+#[derive(Resource)]
 pub struct ClientInformation {
     pub version: String,
 }

@@ -2,7 +2,7 @@ use std::env;
 
 use bevy::{
     math::Quat,
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet, Transform},
+    prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet, Transform},
 };
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
@@ -121,7 +121,7 @@ impl Plugin for CounterWindowsPlugin {
 }
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let mut transform = Transform::identity();
+    let mut transform = Transform::IDENTITY;
     transform.translation.y = 0.86;
     transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
 
@@ -136,7 +136,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
 
     initialize_entity_data(&mut entity_data, entity_properties);
 
-    let mut transform = Transform::identity();
+    let mut transform = Transform::IDENTITY;
     transform.translation.y = 0.86;
     transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
 

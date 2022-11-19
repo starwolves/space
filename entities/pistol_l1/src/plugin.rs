@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::{
     laser_visuals::projectile_laser_visuals,
     melee_queries::melee_attack_handler,

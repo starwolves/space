@@ -1,7 +1,7 @@
 use std::env;
 
 use bevy::app::CoreStage::PostUpdate;
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use chat::chat::EntityProximityMessages;
 use networking::server::net_system;
 use resources::labels::{CombatLabels, PostUpdateLabels};

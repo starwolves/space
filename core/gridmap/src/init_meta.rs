@@ -41,7 +41,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
 
     let mut main_cells_data = vec![];
 
-    let mut default_isometry = Transform::identity();
+    let mut default_isometry = Transform::IDENTITY;
 
     default_isometry.translation.y = -0.5;
 
@@ -66,7 +66,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         combine_rule: PLACEABLE_FRICTION,
         ..Default::default()
     });
-    let mut default_isometry = Transform::identity();
+    let mut default_isometry = Transform::IDENTITY;
 
     default_isometry.translation.y = -0.5;
 
@@ -91,7 +91,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         combine_rule: PLACEABLE_FRICTION,
         ..Default::default()
     });
-    let mut default_isometry = Transform::identity();
+    let mut default_isometry = Transform::IDENTITY;
 
     default_isometry.translation.y = -0.5;
 
@@ -132,7 +132,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         ..Default::default()
     });
 
-    let mut default_isometry = Transform::identity();
+    let mut default_isometry = Transform::IDENTITY;
     default_isometry.translation.y = -0.5;
 
     let mut rotations = HashMap::new();
@@ -168,7 +168,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         ..Default::default()
     });
 
-    let mut default_isometry = Transform::identity();
+    let mut default_isometry = Transform::IDENTITY;
     default_isometry.translation.y = -0.5;
 
     let mut rotations = HashMap::new();
@@ -847,7 +847,7 @@ pub(crate) fn startup_misc_resources(
     // So we have one reserved Id that isnt an entity for sure
     let server_component = Server;
 
-    server_id.id = commands.spawn().insert(server_component).id();
+    server_id.id = commands.spawn(()).insert(server_component).id();
 
     info!("Loaded misc map data.");
 }

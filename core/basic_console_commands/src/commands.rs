@@ -1,4 +1,4 @@
-use bevy::prelude::EventReader;
+use bevy::prelude::{EventReader, Resource};
 use console_commands::commands::InputConsoleCommand;
 
 use bevy::prelude::{Commands, EventWriter, Res};
@@ -644,7 +644,7 @@ pub(crate) fn rcon_status(
     }
 }
 /// Resource with the configuration whether new players should be given RCON upon connection.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct GiveAllRCON {
     pub give: bool,

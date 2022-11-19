@@ -1,6 +1,8 @@
 use crate::connection::{Boarding, OnBoard, SetupPhase};
 use bevy::{
-    prelude::{info, Added, Commands, Component, Entity, EventReader, EventWriter, Query, ResMut},
+    prelude::{
+        info, Added, Commands, Component, Entity, EventReader, EventWriter, Query, ResMut, Resource,
+    },
     time::Timer,
 };
 use networking::server::ReliableServerMessage;
@@ -14,7 +16,7 @@ pub struct BoardingPlayer {
     pub entity: Entity,
 }
 /// Resource for slightly delayed boarding announcements.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
@@ -34,6 +36,7 @@ pub(crate) fn done_boarding(
 
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,
 ) {
+    use bevy::time::TimerMode;
     use text_api::core::get_talk_spaces;
 
     for boarding_player in boarding_player_event.iter() {
@@ -50,13 +53,13 @@ pub(crate) fn done_boarding(
 
         commands
             .entity(entity_id)
-            .insert_bundle((
+            .insert((
                 OnBoard,
                 Spawning {
                     transform: assigned_spawn_transform,
                 },
             ))
-            .remove_bundle::<(SetupPhase, SoftPlayer)>();
+            .remove::<(SetupPhase, SoftPlayer)>();
 
         spawn_points.i += 1;
 
@@ -84,7 +87,7 @@ pub(crate) fn done_boarding(
 
         asana_boarding_announcements.announcements.push((
             ";Security Officer ".to_owned() + &player_character_name + " is now on board.",
-            Timer::from_seconds(2., false),
+            Timer::from_seconds(2., TimerMode::Once),
         ));
     }
 }

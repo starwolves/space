@@ -15,7 +15,7 @@ use entity::{
 
 #[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
-    Transform::identity()
+    Transform::IDENTITY
 }
 
 #[cfg(feature = "server")]
@@ -59,6 +59,7 @@ impl LinerArrowSummonable for LineArrowSummoner {
 pub trait LinerArrowSummonable {
     fn get_duration(&self) -> f32;
 }
+use bevy::time::TimerMode;
 
 #[cfg(feature = "server")]
 pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
@@ -66,18 +67,16 @@ pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
-        commands
-            .entity(spawn_event.spawn_data.entity)
-            .insert_bundle((
-                spawn_event.spawn_data.entity_transform,
-                LineArrow,
-                PointArrow {
-                    timer: Timer::from_seconds(spawn_event.summoner.get_duration(), false),
-                },
-                WorldMode {
-                    mode: WorldModes::Static,
-                },
-            ));
+        commands.entity(spawn_event.spawn_data.entity).insert((
+            spawn_event.spawn_data.entity_transform,
+            LineArrow,
+            PointArrow {
+                timer: Timer::from_seconds(spawn_event.summoner.get_duration(), TimerMode::Once),
+            },
+            WorldMode {
+                mode: WorldModes::Static,
+            },
+        ));
     }
 }
 

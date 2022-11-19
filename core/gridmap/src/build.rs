@@ -33,13 +33,13 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
     friction_component.combine_rule = CoefficientCombineRule::Average;
 
     commands
-        .spawn()
+        .spawn(())
         .insert(RigidBody::Fixed)
         .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
         .insert(GlobalTransform::default())
         .with_children(|children| {
             children
-                .spawn()
+                .spawn(())
                 .insert(Collider::cuboid(500., 1., 500.))
                 .insert(friction_component)
                 .insert(CollisionGroups::new(
@@ -56,13 +56,13 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
     friction_component.combine_rule = CoefficientCombineRule::Min;
 
     commands
-        .spawn()
+        .spawn(())
         .insert(RigidBody::Fixed)
         .insert(Transform::from_translation(Vec3::new(0., 3., 0.)))
         .insert(GlobalTransform::default())
         .with_children(|children| {
             children
-                .spawn()
+                .spawn(())
                 .insert(Collider::cuboid(500., 1., 500.))
                 .insert(friction_component)
                 .insert(CollisionGroups::new(
@@ -218,7 +218,7 @@ pub fn spawn_main_cell(
     world_position.translation += cell_properties.collider_position.translation;
     world_position.rotation *= cell_properties.collider_position.rotation;
 
-    let mut entity_builder = commands.spawn();
+    let mut entity_builder = commands.spawn(());
     entity_builder
         .insert(RigidBody::Fixed)
         .insert(GlobalTransform::default())
@@ -234,9 +234,9 @@ pub fn spawn_main_cell(
 
     entity_builder.with_children(|children| {
         children
-            .spawn()
+            .spawn(())
             .insert(cell_properties.collider.clone())
-            .insert(Transform::identity())
+            .insert(Transform::IDENTITY)
             .insert(friction_component)
             .insert(CollisionGroups::new(
                 Group::from_bits(masks.0).unwrap(),

@@ -39,7 +39,7 @@ use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 /// Get default transform.
 #[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
-    Transform::identity()
+    Transform::IDENTITY
 }
 
 /// Human male spawn data.
@@ -225,7 +225,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
             new_transform.translation.y = 0.9 - R;
             spawner.insert(new_transform);
 
-            spawner.insert_bundle((
+            spawner.insert((
                 Senser::default(),
                 Radio {
                     listen_access: vec![RadioChannel::Common, RadioChannel::Security],
@@ -240,7 +240,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
 
             match spawn_pawn_data.designation {
                 PawnDesignation::Player => {
-                    spawner.insert_bundle((
+                    spawner.insert((
                         spawn_pawn_data.connected_player_option.unwrap(),
                         DataLink {
                             links: vec![
@@ -275,7 +275,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
 
         let mut first_damage_flags = HashMap::new();
         first_damage_flags.insert(0, DamageFlag::SoftDamage);
-        spawner.insert_bundle((
+        spawner.insert((
             Humanoid {
                 character_name: spawn_event.summoner.get_character_name().clone(),
                 ..Default::default()

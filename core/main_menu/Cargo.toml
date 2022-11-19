@@ -13,7 +13,7 @@ edition = "2021"
 client = []
 
 [dependencies.bevy]
-version = "0.8.1"
+version = "0.9.0"
 
 [dependencies]
 open = "3.0.3"

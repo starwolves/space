@@ -11,7 +11,7 @@ pub const CONSTRUCTLIGHT2_PLAY_BACK_DURATION: f32 = 1.9 + 1.;
 impl ConstructLight2SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((Sfx {
+            .spawn((Sfx {
                 unit_db: 15.,
                 unit_size: 1.,
                 stream_id: "/content/audio/construction/construct_light2.sample".to_string(),

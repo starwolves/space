@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ClearColor, ParallelSystemDescriptorCoercion, Plugin, SystemLabel};
+use bevy::prelude::{App, ClearColor, IntoSystemDescriptor, Plugin, SystemLabel};
 
 use crate::{
     build::{

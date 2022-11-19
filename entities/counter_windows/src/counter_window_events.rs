@@ -713,21 +713,22 @@ impl Default for CounterWindow {
         }
     }
 }
+use bevy::time::TimerMode;
 
 /// Create a timer.
 #[cfg(feature = "server")]
 pub fn open_timer() -> Timer {
-    Timer::from_seconds(5.0, false)
+    Timer::from_seconds(5.0, TimerMode::Once)
 }
 /// Create a timer.
 #[cfg(feature = "server")]
 pub fn close_timer() -> Timer {
-    Timer::from_seconds(1.1, false)
+    Timer::from_seconds(1.1, TimerMode::Once)
 }
 /// Create a timer.
 #[cfg(feature = "server")]
 pub fn denied_timer() -> Timer {
-    Timer::from_seconds(5.0, false)
+    Timer::from_seconds(5.0, TimerMode::Once)
 }
 
 /// Counter window sensor collision event.

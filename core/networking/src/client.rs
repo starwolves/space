@@ -3,7 +3,7 @@ use std::{
     time::SystemTime,
 };
 
-use bevy::prelude::info;
+use bevy::prelude::{info, Resource};
 use bevy_renet::renet::{
     ChannelConfig, ClientAuthentication, ConnectToken, ReliableChannelConfig, RenetClient,
     RenetConnectionConfig,
@@ -16,7 +16,7 @@ pub const CLIENT_PORT: u16 = 56613;
 
 /// Resource containing needed for the server.
 #[cfg(feature = "client")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct ConnectionPreferences {
     pub account_name: String,
     pub server_address: String,
@@ -102,12 +102,13 @@ pub(crate) fn connect_to_server(
                         ..Default::default()
                     }),
                     ChannelConfig::Unreliable(Default::default()),
-                    ChannelConfig::Block(Default::default()),
+                    ChannelConfig::Chunk(Default::default()),
                 ];
 
                 let connection_config = RenetConnectionConfig {
                     send_channels_config: channels_config.clone(),
                     receive_channels_config: channels_config,
+
                     ..Default::default()
                 };
                 let current_time = SystemTime::now()
@@ -132,7 +133,6 @@ pub(crate) fn connect_to_server(
                     RenetClient::new(
                         current_time,
                         socket,
-                        client_id,
                         connection_config,
                         ClientAuthentication::Secure {
                             connect_token: token,
@@ -158,7 +158,7 @@ pub enum ConnectionStatus {
 }
 
 #[cfg(feature = "client")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct Connection {
     pub status: ConnectionStatus,
 }

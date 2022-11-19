@@ -80,7 +80,7 @@ impl Default for BaseEntityData {
 #[cfg(feature = "server")]
 pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity: Entity) {
     let mut builder = commands.entity(entity);
-    builder.insert_bundle((
+    builder.insert((
         EntityData {
             entity_class: "entity".to_string(),
             entity_name: data.entity_type.to_string(),
@@ -97,7 +97,7 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
             });
         }
         None => {
-            builder.insert_bundle((
+            builder.insert((
                 data.sensable,
                 data.examinable,
                 HealthComponent {
@@ -236,7 +236,7 @@ pub struct SpawnData {
 impl Default for SpawnData {
     fn default() -> Self {
         Self {
-            entity_transform: Transform::identity(),
+            entity_transform: Transform::IDENTITY,
             correct_transform: true,
             held_entity_option: None,
             holder_entity_option: None,
@@ -287,7 +287,7 @@ pub fn spawn_entity(
                     held = None;
                 }
             }
-            return_entity = Some(commands.spawn().id());
+            return_entity = Some(commands.spawn(()).id());
 
             default_spawner.send(DefaultSpawnEvent {
                 spawn_data: SpawnData {

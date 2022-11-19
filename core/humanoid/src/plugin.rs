@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use networking::server::net_system;
 use player::names::UsedNames;

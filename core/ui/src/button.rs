@@ -29,7 +29,7 @@ impl Default for ButtonVisuals {
 }
 use bevy::prelude::warn;
 use bevy::prelude::{Button, Parent, Query, With};
-use bevy::ui::UiColor;
+use bevy::ui::BackgroundColor;
 use bevy::{
     prelude::{Changed, Entity},
     ui::Interaction,
@@ -41,7 +41,7 @@ pub(crate) fn button_hover_visuals(
         (Entity, &Interaction, &Parent, &ButtonVisuals),
         (Changed<Interaction>, With<Button>),
     >,
-    mut color_query: Query<&mut UiColor>,
+    mut color_query: Query<&mut BackgroundColor>,
 ) {
     for (entity, interaction, parent, button_visuals) in &mut interaction_query {
         match *interaction {

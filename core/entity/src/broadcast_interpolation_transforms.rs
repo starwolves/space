@@ -60,7 +60,7 @@ pub(crate) fn broadcast_interpolation_transforms(
         interpolation_frame.i = 1;
     }
 
-    let current_time_stamp = time.time_since_startup().as_millis();
+    let current_time_stamp = time.elapsed().as_millis();
 
     for (
         interpolated_entity,

@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use bevy::{
     app::{RunMode, ScheduleRunnerSettings},
-    prelude::{App, DefaultTaskPoolOptions, Plugin},
-    window::{MonitorSelection, PresentMode, WindowDescriptor, WindowMode, WindowPosition},
+    prelude::{App, CorePlugin, Plugin, PluginGroup, TaskPoolOptions},
+    window::{PresentMode, WindowDescriptor, WindowMode, WindowPlugin, WindowPosition},
     winit::WinitSettings,
     DefaultPlugins,
 };
@@ -33,17 +33,33 @@ impl Default for ClientPlugin {
 
 impl Plugin for ClientPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(WindowDescriptor {
-            title: "Space Frontiers ".to_string() + &self.version,
-            width: 1280.,
-            height: 720.,
-            present_mode: PresentMode::AutoNoVsync,
-            position: WindowPosition::Centered(MonitorSelection::Primary),
-            mode: WindowMode::Windowed,
-            transparent: true,
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins)
+        let task_pool;
+        match self.threads_amount {
+            Some(amn) => {
+                task_pool = TaskPoolOptions::with_num_threads(amn.into());
+            }
+            None => task_pool = TaskPoolOptions::default(),
+        }
+
+        app.add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    window: WindowDescriptor {
+                        title: "Space Frontiers ".to_string() + &self.version,
+                        width: 1280.,
+                        height: 720.,
+                        present_mode: PresentMode::AutoNoVsync,
+                        position: WindowPosition::Centered,
+                        mode: WindowMode::Windowed,
+                        transparent: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .set(CorePlugin {
+                    task_pool_options: task_pool,
+                }),
+        )
         .insert_resource(WinitSettings::game())
         .add_plugin(MainMenuPlugin)
         .add_plugin(WinitWindowsPlugin)
@@ -60,11 +76,5 @@ impl Plugin for ClientPlugin {
                 wait: Some(Duration::from_secs_f64(1. / (64. as f64))),
             },
         });
-        match self.threads_amount {
-            Some(amn) => {
-                app.insert_resource(DefaultTaskPoolOptions::with_num_threads(amn.into()));
-            }
-            None => {}
-        }
     }
 }

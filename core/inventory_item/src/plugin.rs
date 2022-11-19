@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use networking::server::GodotVariant;
 use resources::labels::{ActionsLabels, PostUpdateLabels};

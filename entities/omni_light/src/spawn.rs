@@ -27,7 +27,7 @@ impl OmniLightBundle {
     ) {
         let static_transform_component = entity_transform;
 
-        commands.spawn_bundle((
+        commands.spawn((
             omni_light_component,
             Sensable {
                 is_light: true,
@@ -71,7 +71,7 @@ pub trait OmniLightSummonable {
 #[cfg(feature = "server")]
 impl OmniLightSummonable for OmniLightSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
-        commands.spawn_bundle((
+        commands.spawn((
             self.light.clone(),
             Sensable {
                 is_light: true,
@@ -109,7 +109,7 @@ pub fn summon_raw_omni_light(
                     entity_transform: entity_transform,
                     default_map_spawn: true,
                     entity_name: event.raw_entity.entity_type.clone(),
-                    entity: commands.spawn().id(),
+                    entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
                 summoner: OmniLightSummoner {

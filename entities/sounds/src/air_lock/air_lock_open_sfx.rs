@@ -11,7 +11,7 @@ pub const PLAY_BACK_DURATION: f32 = 4.5 + 1.;
 impl AirLockOpenSfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((Sfx {
+            .spawn((Sfx {
                 unit_db: 13.,
                 stream_id: "/content/audio/airLock/doorOpen.sample".to_string(),
                 play_back_duration: PLAY_BACK_DURATION,

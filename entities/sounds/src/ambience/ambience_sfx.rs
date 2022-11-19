@@ -10,7 +10,7 @@ pub const AMBIENCE_SFX_PLAY_BACK_DURATION: f32 = 424. + 1.;
 impl AmbienceSfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((
+            .spawn((
                 Sfx {
                     unit_db: 21.,
                     stream_id: "/content/audio/ambience/spaceshipAmbientSound.sample".to_string(),
@@ -20,7 +20,7 @@ impl AmbienceSfxBundle {
                     ..Default::default()
                 },
                 AmbienceSfxTimer {
-                    timer: Timer::from_seconds(AMBIENCE_SFX_PLAY_BACK_DURATION, false),
+                    timer: Timer::from_seconds(AMBIENCE_SFX_PLAY_BACK_DURATION, TimerMode::Once),
                 },
             ))
             .id()
@@ -28,14 +28,14 @@ impl AmbienceSfxBundle {
 }
 
 use bevy::prelude::Transform;
-use bevy::time::Timer;
+use bevy::time::{Timer, TimerMode};
 use sfx::builder::{spawn_ambience_sfx, AmbienceSfxTimer, Sfx};
 
 #[cfg(feature = "server")]
 pub fn startup_ambience(mut commands: Commands) {
     spawn_ambience_sfx(
         &mut commands,
-        Transform::identity(),
+        Transform::IDENTITY,
         Box::new(AmbienceSfxBundle::new),
     );
 }

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use bevy::prelude::Resource;
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
 use math::grid::Vec3Int;
 use networking::server::PendingMessage;
@@ -9,13 +10,13 @@ use networking_macros::NetMessage;
 
 /// Resource with a list of actions being built this frame.
 #[cfg(feature = "server")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct BuildingActions {
     pub list: Vec<BuildingAction>,
 }
 /// Resource with requests to execute actions which will go through prerequisite checking this frame.
 #[cfg(feature = "server")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct ActionRequests {
     pub list: HashMap<u64, ActionRequest>,
 }
@@ -181,7 +182,7 @@ pub(crate) fn list_action_data_from_actions_component(
 
 /// A resource storing the current uniquely iterated identifier of action requests.
 #[cfg(feature = "server")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub(crate) struct ActionIncremented {
     i: u64,
 }
@@ -204,7 +205,7 @@ impl ActionIncremented {
 
 /// Resource with a request list of available actions for entity with prerequisite checking of this frame.
 #[cfg(feature = "server")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct ListActionDataRequests {
     pub list: HashMap<u64, ActionRequest>,
 }

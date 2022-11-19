@@ -1085,7 +1085,7 @@ pub(crate) fn construction_tool(
                     }
                 }
 
-                let mut spawn_transform = Transform::identity();
+                let mut spawn_transform = Transform::IDENTITY;
                 spawn_transform.translation =
                     corrected_world_position + constructable_data.transform_offset.translation;
                 spawn_transform.rotation = constructable_data
@@ -1093,7 +1093,7 @@ pub(crate) fn construction_tool(
                     .rotation
                     .mul_quat(spawn_rotation);
 
-                let new_entity = commands.spawn().id();
+                let new_entity = commands.spawn(()).id();
 
                 default_spawner.send(DefaultSpawnEvent {
                     spawn_data: SpawnData {

@@ -8,8 +8,9 @@ use crate::input::{
 };
 use crate::networking::incoming_messages;
 use bevy::app::CoreStage::PostUpdate;
+use bevy::prelude::IntoSystemDescriptor;
 use bevy::{
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
+    prelude::{App, Plugin, SystemSet},
     time::FixedTimestep,
 };
 

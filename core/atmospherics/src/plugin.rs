@@ -21,9 +21,7 @@ use super::{
 };
 
 use bevy::app::CoreStage::PostUpdate;
-use bevy::prelude::{
-    App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemLabel, SystemSet,
-};
+use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemLabel, SystemSet};
 
 pub const ATMOS_LABEL: &str = "fixed_timestep_map_atmos";
 pub const ATMOS_DIFFUSION_LABEL: &str = "fixed_timestep_atmos";

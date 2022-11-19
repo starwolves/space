@@ -10,10 +10,10 @@ license-file="LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.8.1"
+version = "0.9.0"
 
 [dependencies]
-bevy_egui = {version = "0.16.1",default-features=false, features=["manage_clipboard"]}
+bevy_egui = {version = "0.17.1",default-features=false, features=["manage_clipboard"]}
 
 networking = { path = "../core/networking",  features=["client"] }
 main_menu = { path = "../core/main_menu",  features=["client"] }

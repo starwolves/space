@@ -13,9 +13,9 @@ use crate::{
         NetOnSetupUI, NetUIInputTransmitData,
     },
 };
-use bevy::app::CoreStage::PostUpdate;
 use bevy::app::CoreStage::PreUpdate;
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use bevy::prelude::{App, Plugin, SystemSet};
+use bevy::{app::CoreStage::PostUpdate, prelude::IntoSystemDescriptor};
 use networking::server::{net_system, HandleToEntity};
 use resources::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels};
 pub struct PlayerPlugin;

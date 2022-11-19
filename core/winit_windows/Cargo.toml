@@ -14,9 +14,9 @@ server = []
 client = []
 
 [dependencies.bevy]
-version = "0.8.1"
+version = "0.9.0"
 
 [dependencies]
 image = "0.24.5"
 # Must match Bevy winit version.
-winit = "0.26.1"
+winit = { version = "0.27", default-features = false }

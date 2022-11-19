@@ -18,7 +18,7 @@ pub(crate) fn atmos_effects(
     fixed_timesteps: Res<FixedTimesteps>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
-    let current_time_stamp = time.time_since_startup().as_millis();
+    let current_time_stamp = time.elapsed().as_millis();
 
     let overstep_percentage = fixed_timesteps
         .get(ATMOS_DIFFUSION_LABEL)

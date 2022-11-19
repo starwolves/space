@@ -35,7 +35,7 @@ pub(crate) fn inventory_item_builder(
     data: InventoryBuilderData,
 ) {
     let mut builder = commands.entity(entity);
-    builder.insert_bundle((data.inventory_item, data.melee_combat));
+    builder.insert((data.inventory_item, data.melee_combat));
     match data.holder_entity_option {
         Some(holder_entity) => {
             builder.insert(RigidBodyLinkTransform {
@@ -94,11 +94,11 @@ pub fn spawn_held_entity(
 
     match entity_data.name_to_id.get(&entity_name) {
         Some(_id) => {
-            return_entity = Some(commands.spawn().id());
+            return_entity = Some(commands.spawn(()).id());
 
             default_spawner.send(DefaultSpawnEvent {
                 spawn_data: SpawnData {
-                    entity_transform: Transform::identity(),
+                    entity_transform: Transform::IDENTITY,
                     correct_transform: false,
                     holder_entity_option: Some(holder_entity),
                     default_map_spawn: false,

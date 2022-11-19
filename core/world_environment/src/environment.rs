@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::ResMut;
+use bevy::prelude::{ResMut, Resource};
 
 /// Initialize graphics environment from json.
 #[cfg(feature = "server")]
@@ -24,7 +24,7 @@ use data_converters::converters::{string_color_to_color, string_quat_to_quat};
 use serde::{Deserialize, Serialize};
 
 // The resource we send to each client on connection to initialize the Godot 3D WorldEnvironment for graphics and post-processing.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Resource)]
 #[cfg(feature = "server")]
 pub struct WorldEnvironment {
     pub adjustment_brightness: f32,

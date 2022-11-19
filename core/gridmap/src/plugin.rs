@@ -1,7 +1,7 @@
 use std::env;
 
 use bevy::{
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet},
+    prelude::{App, IntoSystemDescriptor, Plugin, SystemSet},
     time::FixedTimestep,
 };
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};

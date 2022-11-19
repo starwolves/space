@@ -1,7 +1,7 @@
 use std::env;
 
-use bevy::prelude::SystemSet;
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
+use bevy::prelude::{App, Plugin};
+use bevy::prelude::{IntoSystemDescriptor, SystemSet};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
 use resources::labels::{PostUpdateLabels, PreUpdateLabels};
@@ -20,8 +20,8 @@ pub(crate) const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"lFNpVdFi5LhL8xlDFtnob
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
-            app.add_plugin(RenetServerPlugin);
-            app.insert_resource(startup_server_listen_connections(*PRIVATE_KEY))
+            app.add_plugin(RenetServerPlugin::default())
+                .insert_resource(startup_server_listen_connections(*PRIVATE_KEY))
                 .add_system_to_stage(
                     PreUpdate,
                     souls

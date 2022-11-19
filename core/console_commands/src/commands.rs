@@ -1,4 +1,4 @@
-use bevy::prelude::{info, ResMut};
+use bevy::prelude::{info, ResMut, Resource};
 use bevy::prelude::{Entity, SystemLabel};
 use networking::server::PendingNetworkMessage;
 use networking::server::{GodotVariant, ReliableServerMessage};
@@ -12,7 +12,7 @@ pub(crate) struct NetConsoleCommands {
     pub message: ReliableServerMessage,
 }
 /// Resource containing all registered custom console commands.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct AllConsoleCommands {
     pub list: Vec<(String, String, Vec<(String, GodotVariant)>)>,

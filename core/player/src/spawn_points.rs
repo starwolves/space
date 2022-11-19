@@ -1,4 +1,4 @@
-use bevy::prelude::{Component, Quat, Transform};
+use bevy::prelude::{Component, Quat, Resource, Transform};
 use data_converters::converters::string_transform_to_transform;
 use networking::server::ConnectedPlayer;
 use serde::Deserialize;
@@ -13,7 +13,7 @@ pub struct SpawnPointRaw {
     pub transform: String,
 }
 /// Resource containing all available spawn points for players.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct SpawnPoints {
     pub list: Vec<SpawnPoint>,

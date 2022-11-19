@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use entity::spawn::SpawnEvent;
 use resources::labels::{PostUpdateLabels, SummoningLabels};
 
