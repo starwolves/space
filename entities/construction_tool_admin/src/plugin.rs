@@ -9,7 +9,7 @@ use entity::entity_data::initialize_entity_data;
 use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{summon_base_entity, SpawnEvent};
 use inventory_item::spawn::summon_inventory_item;
-use networking::server::{net_system, InputConstructionOptionsSelection};
+use networking::server::net_system;
 use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
@@ -21,7 +21,9 @@ use crate::action::{
     construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
     text_tree_input_selection,
 };
-use crate::construction_tool::{ConstructionTool, CONSTRUCTION_TOOL_ENTITY_NAME};
+use crate::construction_tool::{
+    ConstructionTool, InputConstructionOptionsSelection, CONSTRUCTION_TOOL_ENTITY_NAME,
+};
 
 use super::{
     construction_tool::{

@@ -3,11 +3,12 @@ use bevy::prelude::ResMut;
 use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-use networking::server::InputAccountName;
 use networking::server::ReliableClientMessage;
 
+use crate::pawn::InputAccountName;
 use bevy::prelude::{EventWriter, Res};
 use resources::core::HandleToEntity;
+
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(

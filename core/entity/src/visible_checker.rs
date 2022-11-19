@@ -5,9 +5,9 @@ use bevy::{
 use bevy_rapier3d::prelude::RigidBody;
 
 use math::grid::world_to_cell_id;
-use networking::server::{NetLoadEntity, NetUnloadEntity};
 use resources::core::ConnectedPlayer;
 
+use crate::networking::{NetLoadEntity, NetUnloadEntity};
 use crate::{
     entity_data::{load_entity, unload_entity, EntityData, EntityUpdates, WorldMode, WorldModes},
     sensable::Sensable,

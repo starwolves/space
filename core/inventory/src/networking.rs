@@ -7,15 +7,15 @@ use networking::server::ReliableClientMessage;
 
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
-use networking::server::InputDropCurrentItem;
-use networking::server::InputSwitchHands;
 use resources::core::HandleToEntity;
 
+use crate::item_events::InputDropCurrentItem;
+use crate::item_events::InputTakeOffItem;
+use crate::item_events::InputThrowItem;
+use crate::item_events::InputUseWorldItem;
+use crate::item_events::InputWearItem;
+use crate::switch_hands::InputSwitchHands;
 use bevy::prelude::Entity;
-use networking::server::InputTakeOffItem;
-use networking::server::InputThrowItem;
-use networking::server::InputUseWorldItem;
-use networking::server::InputWearItem;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

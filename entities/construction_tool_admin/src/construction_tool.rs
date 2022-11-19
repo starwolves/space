@@ -30,9 +30,7 @@ use gridmap::{
 };
 use inventory_api::core::Inventory;
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
-use networking::server::{
-    GridMapLayer, InputConstructionOptionsSelection, ReliableServerMessage, TextTreeBit,
-};
+use networking::server::{GridMapLayer, ReliableServerMessage, TextTreeBit};
 use physics::physics::RigidBodyDisabled;
 
 use inventory_item::item::InventoryItem;
@@ -1237,3 +1235,12 @@ pub struct InputDeconstruct {
 }
 #[cfg(feature = "server")]
 pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
+
+/// Client input construction options selection event.
+#[cfg(feature = "server")]
+pub struct InputConstructionOptionsSelection {
+    pub handle_option: Option<u64>,
+    pub menu_selection: String,
+    // Entity has been validated.
+    pub entity: Entity,
+}

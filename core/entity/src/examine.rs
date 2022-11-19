@@ -4,16 +4,16 @@ use crate::sensable::Sensable;
 use crate::senser::Senser;
 use std::collections::BTreeMap;
 
+use bevy::prelude::Entity;
 use bevy::prelude::{warn, Query, Res};
 use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
 use chat_api::core::FURTHER_ITALIC_FONT;
 use chat_api::core::HEALTHY_COLOR;
 use chat_api::core::UNHEALTHY_COLOR;
-use chat_api::core::{ASTRIX, END_ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
-use networking::server::InputExamineEntity;
+use chat_api::core::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
-use networking::server::{InputExamineMap, ReliableServerMessage};
+use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
 use resources::core::HandleToEntity;
 
@@ -24,23 +24,6 @@ pub(crate) struct NetExamine {
     pub message: ReliableServerMessage,
 }
 
-/// Finalize examining the ship gridmap.
-#[cfg(feature = "server")]
-pub(crate) fn finalize_examine_map(
-    mut examine_map_events: ResMut<GridmapExamineMessages>,
-    mut net: EventWriter<NetExamine>,
-) {
-    for event in examine_map_events.messages.iter_mut() {
-        event.message = event.message.to_string() + END_ASTRIX;
-
-        net.send(NetExamine {
-            handle: event.handle,
-            message: ReliableServerMessage::ChatMessage(event.message.clone()),
-        });
-    }
-
-    examine_map_events.messages.clear();
-}
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
 pub(crate) struct NetConnExamine {
@@ -174,12 +157,6 @@ pub enum ExamineLabels {
     Default,
 }
 
-/// Stores examine messages being built this frame for gridmap examination.
-#[derive(Default)]
-#[cfg(feature = "server")]
-pub struct GridmapExamineMessages {
-    pub messages: Vec<InputExamineMap>,
-}
 /// Resource with client inputs of examining entity messages.
 #[derive(Default)]
 #[cfg(feature = "server")]
@@ -625,6 +602,29 @@ pub(crate) fn examine_entity_health(
             Err(_rr) => {
                 warn!("Couldn't find user input requested examinable entity.");
             }
+        }
+    }
+}
+
+/// Input examine entity event.
+#[derive(Clone)]
+#[cfg(feature = "server")]
+pub struct InputExamineEntity {
+    pub handle: u64,
+    pub examine_entity: Entity,
+    pub entity: Entity,
+    /// Examine message that is being built and returned to the client.
+    pub message: String,
+}
+
+#[cfg(feature = "server")]
+impl Default for InputExamineEntity {
+    fn default() -> Self {
+        Self {
+            handle: 0,
+            examine_entity: Entity::from_bits(0),
+            entity: Entity::from_bits(0),
+            message: ASTRIX.to_string(),
         }
     }
 }

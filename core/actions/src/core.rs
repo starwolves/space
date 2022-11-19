@@ -2,10 +2,9 @@ use std::collections::HashMap;
 
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
 use math::grid::Vec3Int;
-use networking::server::InputListActionsEntity;
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
-use networking::server::{GridMapLayer, InputAction, NetAction, ReliableServerMessage};
+use networking::server::{GridMapLayer, NetAction, ReliableServerMessage};
 use networking_macros::NetMessage;
 use resources::core::HandleToEntity;
 
@@ -345,4 +344,25 @@ pub struct InputListActionsMap {
     pub gridmap_cell_id: Vec3Int,
     /// Show UI to entity that we check for.
     pub with_ui: bool,
+}
+
+/// Client input list actions entity event.
+#[derive(Clone)]
+#[cfg(feature = "server")]
+pub struct InputListActionsEntity {
+    pub requested_by_entity: Entity,
+    /// Targetted entity.
+    pub targetted_entity: Entity,
+    /// Whether UI should be displayed to the requested by entity.
+    pub with_ui: bool,
+}
+
+/// Client initiates execution of an action event.
+#[cfg(feature = "server")]
+pub struct InputAction {
+    /// Action ID.
+    pub fired_action_id: String,
+    pub action_taker: Entity,
+    pub target_entity_option: Option<Entity>,
+    pub target_cell_option: Option<(GridMapLayer, Vec3Int)>,
 }

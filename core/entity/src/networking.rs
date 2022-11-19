@@ -4,11 +4,13 @@ use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::ReliableClientMessage;
+use networking::server::ReliableServerMessage;
+use networking_macros::NetMessage;
 
+use crate::examine::InputExamineEntity;
 use bevy::prelude::Entity;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
-use networking::server::InputExamineEntity;
 use resources::core::HandleToEntity;
 
 /// Manage incoming network messages from clients.
@@ -53,4 +55,19 @@ pub(crate) fn incoming_messages(
             }
         }
     }
+}
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+
+#[derive(NetMessage)]
+#[cfg(feature = "server")]
+pub struct NetUnloadEntity {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+#[derive(NetMessage)]
+#[cfg(feature = "server")]
+pub struct NetLoadEntity {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
 }

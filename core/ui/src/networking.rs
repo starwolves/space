@@ -1,12 +1,12 @@
 use bevy::prelude::ResMut;
 
+use crate::input::TextTreeInputSelection;
 use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::ReliableClientMessage;
 
 use bevy::prelude::EventWriter;
-use networking::server::TextTreeInputSelection;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

@@ -2,24 +2,23 @@ use bevy::prelude::warn;
 use bevy::prelude::Res;
 use bevy::prelude::{EventWriter, ResMut};
 use bevy_renet::renet::RenetServer;
-use networking::server::InputAltItemAttack;
-use networking::server::InputAttackEntity;
-use networking::server::InputBuildGraphics;
-use networking::server::InputMouseAction;
-use networking::server::InputMouseDirectionUpdate;
-use networking::server::InputMovementInput;
-use networking::server::InputSceneReady;
-use networking::server::InputSelectBodyPart;
-use networking::server::InputSprinting;
-use networking::server::InputToggleAutoMove;
-use networking::server::InputToggleCombatMode;
-use networking::server::InputUIInput;
-use networking::server::InputUIInputTransmitText;
 use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::ReliableClientMessage};
 use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableClientMessage};
 use resources::core::HandleToEntity;
 
+use crate::input::InputAltItemAttack;
 use crate::input::InputAttackCell;
+use crate::input::InputAttackEntity;
+use crate::input::InputMouseAction;
+use crate::input::InputMovementInput;
+use crate::input::InputSceneReady;
+use crate::input::InputSelectBodyPart;
+use crate::input::InputSprinting;
+use crate::input::InputToggleAutoMove;
+use crate::input::InputToggleCombatMode;
+use crate::input::InputUIInput;
+use crate::input::InputUIInputTransmitText;
+use crate::input::{InputBuildGraphics, InputMouseDirectionUpdate};
 use math::grid::Vec3Int;
 
 /// Manage incoming network messages from clients.

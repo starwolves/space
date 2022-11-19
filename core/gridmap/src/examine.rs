@@ -1,15 +1,17 @@
 use actions::core::{BuildingActions, ListActionDataRequests};
-use bevy::prelude::{warn, EventReader, Query, Res, ResMut};
+use bevy::prelude::{warn, Entity, EventReader, Query, Res, ResMut};
 use chat_api::core::{
-    get_empty_cell_message, get_space_message, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
+    get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
     HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 use entity::{
-    examine::{Examinable, GridmapExamineMessages},
+    examine::Examinable,
     health::HealthContainer,
     senser::{to_doryen_coordinates, Senser, SensingAbility},
 };
-use networking::server::{GridMapLayer, InputExamineMap};
+use math::grid::Vec3Int;
+use networking::server::GridMapLayer;
+use networking_macros::NetMessage;
 
 use crate::{
     events::examine_ship_cell,
@@ -335,5 +337,112 @@ pub fn finalize_grid_examine_input(
 ) {
     for input_event in gridmap_examine_input.iter() {
         gridmap_messages.messages.push(input_event.clone());
+    }
+}
+/// Examine map message event.
+#[derive(Clone)]
+#[cfg(feature = "server")]
+pub struct InputExamineMap {
+    pub handle: u64,
+    pub entity: Entity,
+    pub gridmap_type: GridMapLayer,
+    pub gridmap_cell_id: Vec3Int,
+    /// Map examine message being built and sent back to the player.
+    pub message: String,
+}
+#[cfg(feature = "server")]
+impl Default for InputExamineMap {
+    fn default() -> Self {
+        Self {
+            handle: 0,
+            entity: Entity::from_bits(0),
+            gridmap_type: GridMapLayer::Main,
+            gridmap_cell_id: Vec3Int::default(),
+            message: ASTRIX.to_string(),
+        }
+    }
+}
+
+/// Stores examine messages being built this frame for gridmap examination.
+#[derive(Default)]
+#[cfg(feature = "server")]
+pub struct GridmapExamineMessages {
+    pub messages: Vec<InputExamineMap>,
+}
+use bevy::prelude::EventWriter;
+
+use chat_api::core::END_ASTRIX;
+use networking::server::PendingMessage;
+use networking::server::PendingNetworkMessage;
+use networking::server::ReliableServerMessage;
+
+#[derive(NetMessage)]
+pub(crate) struct NetExamineGrid {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+
+/// Finalize examining the ship gridmap.
+#[cfg(feature = "server")]
+pub(crate) fn finalize_examine_map(
+    mut examine_map_events: ResMut<GridmapExamineMessages>,
+    mut net: EventWriter<NetExamineGrid>,
+) {
+    for event in examine_map_events.messages.iter_mut() {
+        event.message = event.message.to_string() + END_ASTRIX;
+
+        net.send(NetExamineGrid {
+            handle: event.handle,
+            message: ReliableServerMessage::ChatMessage(event.message.clone()),
+        });
+    }
+
+    examine_map_events.messages.clear();
+}
+
+use actions::core::ActionRequests;
+use resources::core::HandleToEntity;
+
+/// Examine.
+#[cfg(feature = "server")]
+pub(crate) fn examine_grid(
+    building_action_data: Res<BuildingActions>,
+    mut examine_map_messages: ResMut<GridmapExamineMessages>,
+    handle_to_entity: Res<HandleToEntity>,
+    action_requests: Res<ActionRequests>,
+) {
+    for building in building_action_data.list.iter() {
+        let building_action_id;
+        match action_requests.list.get(&building.incremented_i) {
+            Some(action_request) => {
+                building_action_id = action_request.get_id().clone();
+            }
+            None => {
+                continue;
+            }
+        }
+        for action in building.actions.iter() {
+            if action.is_approved()
+                && action.data.id == "actions::pawn/examine"
+                && action.data.id == building_action_id
+            {
+                match handle_to_entity.inv_map.get(&building.action_taker) {
+                    Some(handle) => {
+                        let c = building.target_cell_option.clone().unwrap();
+
+                        examine_map_messages.messages.push(InputExamineMap {
+                            handle: *handle,
+                            entity: building.action_taker,
+                            gridmap_type: c.1,
+                            gridmap_cell_id: c.0,
+                            ..Default::default()
+                        });
+                    }
+                    None => {
+                        warn!("Couldnt find examiner in handletoentity.");
+                    }
+                }
+            }
+        }
     }
 }

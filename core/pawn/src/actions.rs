@@ -1,7 +1,6 @@
 use actions::core::{ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Res, ResMut};
-use entity::examine::{ExamineEntityMessages, GridmapExamineMessages};
-use networking::server::{InputExamineEntity, InputExamineMap};
+use entity::examine::ExamineEntityMessages;
 use resources::core::HandleToEntity;
 
 /// Pawn examine action prerequisite check.
@@ -15,13 +14,13 @@ pub(crate) fn examine_prerequisite_check(mut building_action_data: ResMut<Buildi
         }
     }
 }
+use entity::examine::InputExamineEntity;
 
-/// Examine pawn.
+/// Examine.
 #[cfg(feature = "server")]
 pub(crate) fn examine(
     building_action_data: Res<BuildingActions>,
     mut examine_entity_messages: ResMut<ExamineEntityMessages>,
-    mut examine_map_messages: ResMut<GridmapExamineMessages>,
     handle_to_entity: Res<HandleToEntity>,
     action_requests: Res<ActionRequests>,
 ) {
@@ -50,17 +49,7 @@ pub(crate) fn examine(
                                 ..Default::default()
                             });
                         }
-                        None => {
-                            let c = building.target_cell_option.clone().unwrap();
-
-                            examine_map_messages.messages.push(InputExamineMap {
-                                handle: *handle,
-                                entity: building.action_taker,
-                                gridmap_type: c.1,
-                                gridmap_cell_id: c.0,
-                                ..Default::default()
-                            });
-                        }
+                        None => {}
                     },
                     None => {
                         warn!("Couldnt find examiner in handletoentity.");

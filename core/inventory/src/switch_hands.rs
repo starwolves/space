@@ -1,6 +1,6 @@
-use bevy::prelude::{EventReader, EventWriter, Query, Res};
+use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res};
 use inventory_api::core::Inventory;
-use networking::server::{InputSwitchHands, ReliableServerMessage};
+use networking::server::ReliableServerMessage;
 use resources::core::HandleToEntity;
 
 use super::net::NetSwitchHands;
@@ -44,4 +44,10 @@ pub(crate) fn switch_hands(
             None => {}
         }
     }
+}
+
+/// Client input switch hands event.
+#[cfg(feature = "server")]
+pub struct InputSwitchHands {
+    pub entity: Entity,
 }

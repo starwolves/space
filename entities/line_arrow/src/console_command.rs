@@ -7,7 +7,7 @@ use entity::{
     sensable::Sensable,
     spawn::{SpawnData, SpawnEvent},
 };
-use networking::server::{GodotVariantValues, NetUnloadEntity};
+use networking::server::GodotVariantValues;
 use resources::core::HandleToEntity;
 
 use super::{
@@ -131,6 +131,7 @@ pub(crate) fn entity_console_commands(
         }
     }
 }
+use entity::networking::NetUnloadEntity;
 
 /// Despawn point arrows after duration.
 #[cfg(feature = "server")]

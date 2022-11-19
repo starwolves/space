@@ -30,10 +30,7 @@ use gridmap::{
 use humanoid::humanoid::{CharacterAnimationState, Humanoid};
 use inventory_api::core::Inventory;
 use inventory_item::item::InventoryItem;
-use networking::server::{
-    EntityUpdateData, EntityWorldType, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
-    InputUseWorldItem, InputWearItem, ReliableServerMessage,
-};
+use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
 use rand::Rng;
 use resources::core::HandleToEntity;
 
@@ -1050,4 +1047,42 @@ pub(crate) fn wear_item(
             None => {}
         }
     }
+}
+
+/// Client input drop current item event.
+#[cfg(feature = "server")]
+pub struct InputDropCurrentItem {
+    pub pickuper_entity: Entity,
+    /// Drop item on position, for placeable item surfaces.
+    pub input_position_option: Option<Vec3>,
+}
+
+/// Client input throw item event.
+#[cfg(feature = "server")]
+pub struct InputThrowItem {
+    pub entity: Entity,
+    pub position: Vec3,
+    pub angle: f32,
+}
+
+/// Client input take off item event.
+#[cfg(feature = "server")]
+pub struct InputTakeOffItem {
+    pub entity: Entity,
+    pub slot_name: String,
+}
+
+/// Client input use world item event.
+#[cfg(feature = "server")]
+pub struct InputUseWorldItem {
+    pub using_entity: Entity,
+    pub used_entity: Entity,
+}
+
+/// Client input wear item event.
+#[cfg(feature = "server")]
+pub struct InputWearItem {
+    pub wearer_entity: Entity,
+    pub worn_entity_bits: u64,
+    pub wear_slot: String,
 }

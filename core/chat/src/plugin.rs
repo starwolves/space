@@ -7,7 +7,8 @@ use resources::labels::{PostUpdateLabels, PreUpdateLabels};
 use crate::{
     chat::{
         chat_message_input_event, send_entity_proximity_messages, EntityProximityMessage,
-        EntityProximityMessages, NetChatMessage, NetProximityMessage,
+        EntityProximityMessages, InputChatMessage, NetChatMessage, NetProximityMessage,
+        NetSendEntityUpdates,
     },
     networking::incoming_messages,
 };
@@ -29,7 +30,8 @@ impl Plugin for ChatPlugin {
                         .after(PostUpdateLabels::VisibleChecker)
                         .label(PostUpdateLabels::Net)
                         .with_system(net_system::<NetProximityMessage>)
-                        .with_system(net_system::<NetChatMessage>),
+                        .with_system(net_system::<NetChatMessage>)
+                        .with_system(net_system::<NetSendEntityUpdates>),
                 )
                 .add_event::<NetChatMessage>()
                 .add_system_to_stage(
@@ -37,7 +39,9 @@ impl Plugin for ChatPlugin {
                     incoming_messages
                         .after(PreUpdateLabels::NetEvents)
                         .label(PreUpdateLabels::ProcessInput),
-                );
+                )
+                .add_event::<InputChatMessage>()
+                .add_event::<NetSendEntityUpdates>();
         }
     }
 }

@@ -12,12 +12,11 @@ use crate::actions::build_actions;
 use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
-    finalize_examine_map, ExamineEntityMessages, GridmapExamineMessages, NetConnExamine,
-    NetExamine,
+    ExamineEntityMessages, InputExamineEntity, NetConnExamine, NetExamine,
 };
 use crate::init::{initialize_console_commands, startup_entities};
 use crate::meta::EntityDataResource;
-use crate::networking::incoming_messages;
+use crate::networking::{incoming_messages, NetLoadEntity, NetUnloadEntity};
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
 
@@ -74,10 +73,6 @@ impl Plugin for EntityPlugin {
                         .label(ActionsLabels::Build)
                         .after(ActionsLabels::Init),
                 )
-                .add_system_to_stage(
-                    PostUpdate,
-                    finalize_examine_map.before(PostUpdateLabels::EntityUpdate),
-                )
                 .add_event::<NetExamine>()
                 .add_system_set_to_stage(
                     PostUpdate,
@@ -85,7 +80,9 @@ impl Plugin for EntityPlugin {
                         .after(PostUpdateLabels::VisibleChecker)
                         .label(PostUpdateLabels::Net)
                         .with_system(net_system::<NetExamine>)
-                        .with_system(net_system::<NetConnExamine>),
+                        .with_system(net_system::<NetConnExamine>)
+                        .with_system(net_system::<NetLoadEntity>)
+                        .with_system(net_system::<NetUnloadEntity>),
                 )
                 .add_event::<NetConnExamine>()
                 .add_system_to_stage(
@@ -94,7 +91,6 @@ impl Plugin for EntityPlugin {
                 )
                 .add_system(examine_entity_health.after(ActionsLabels::Action))
                 .init_resource::<ExamineEntityMessages>()
-                .init_resource::<GridmapExamineMessages>()
                 .add_system_to_stage(
                     PreUpdate,
                     finalize_entity_examine_input.after(PreUpdateLabels::ProcessInput),
@@ -105,7 +101,10 @@ impl Plugin for EntityPlugin {
                     incoming_messages
                         .after(PreUpdateLabels::NetEvents)
                         .label(PreUpdateLabels::ProcessInput),
-                );
+                )
+                .add_event::<InputExamineEntity>()
+                .add_event::<NetUnloadEntity>()
+                .add_event::<NetLoadEntity>();
         }
     }
 }

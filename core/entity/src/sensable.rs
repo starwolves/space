@@ -1,9 +1,9 @@
 use bevy::ecs::entity::Entity;
 use bevy::prelude::{Component, EventWriter, Res};
-use networking::server::NetUnloadEntity;
 use resources::core::HandleToEntity;
 
 use crate::entity_data::unload_entity;
+use crate::networking::NetUnloadEntity;
 
 /// The component for entities that can be sensed.
 #[derive(Component, Default)]

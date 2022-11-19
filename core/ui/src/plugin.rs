@@ -5,6 +5,7 @@ use resources::labels::PreUpdateLabels;
 
 use crate::{
     button::button_hover_visuals,
+    input::TextTreeInputSelection,
     networking::incoming_messages,
     text_input::{
         focus_events, input_characters, input_mouse_press_unfocus, ui_events, FocusTextInput,
@@ -21,7 +22,8 @@ impl Plugin for UiPlugin {
                 incoming_messages
                     .after(PreUpdateLabels::NetEvents)
                     .label(PreUpdateLabels::ProcessInput),
-            );
+            )
+            .add_event::<TextTreeInputSelection>();
         } else {
             app.add_system(ui_events.label(TextInputLabel::UiEvents))
                 .add_system(
