@@ -31,7 +31,7 @@ sfx = { path = "../../core/sfx",  features=["server"] }
 sounds = { path = "../sounds" ,  features=["server"]}
 physics = { path = "../../core/physics" ,  features=["server"]}
 rigid_body = { path = "../../core/rigid_body" ,  features=["server"]}
-chat_api = { path = "../../core/chat_api" ,  features=["server"]}
+text_api = { path = "../../core/text_api" ,  features=["server"]}
 combat = { path = "../../core/combat" ,  features=["server"]}
 actions = { path = "../../core/actions" ,  features=["server"]}
 gridmap = { path = "../../core/gridmap",  features=["server"] }

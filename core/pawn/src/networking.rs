@@ -5,9 +5,10 @@ use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::ReliableClientMessage;
 
-use crate::pawn::InputAccountName;
 use bevy::prelude::{EventWriter, Res};
-use resources::core::HandleToEntity;
+
+use networking::server::HandleToEntity;
+use player::names::InputAccountName;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

@@ -335,3 +335,8 @@ pub fn escape_bb(string: String, partially: bool, escape_special_chars: bool) ->
 
 pub const ATMOSPHERICS_TEXT_COLOR: &str = "#1797ff";
 pub const ENGINEERING_TEXT_COLOR: &str = "#ff992b";
+
+#[cfg(feature = "server")]
+pub const CONSOLE_SUCCESS_COLOR: &str = "#3cff00";
+#[cfg(feature = "server")]
+pub const CONSOLE_ERROR_COLOR: &str = "#ff6600";

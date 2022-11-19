@@ -1,11 +1,11 @@
 use std::collections::BTreeMap;
 
 use bevy::prelude::{Added, Component, Query};
-use chat_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 use entity::{
     entity_data::EntityData,
     examine::{Examinable, RichName},
 };
+use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 use super::spawn::BRIDGE_COMPUTER_ENTITY_NAME;
 

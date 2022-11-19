@@ -8,7 +8,6 @@ use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::server::{ProjectileData, ReliableServerMessage};
-use resources::core::ConnectedPlayer;
 
 use crate::grid::{GridmapData, GridmapMain};
 
@@ -22,6 +21,7 @@ pub const FOV_DISTANCE: usize = 23;
 pub struct ProjectileFOV {
     pub laser_projectile: ProjectileData,
 }
+use networking::server::ConnectedPlayer;
 
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
 #[cfg(feature = "server")]

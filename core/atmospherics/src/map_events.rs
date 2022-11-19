@@ -10,13 +10,13 @@ use map::map::{
 };
 use math::grid::{world_to_cell_id, Vec2Int};
 use networking::server::ReliableServerMessage;
-use resources::core::ConnectedPlayer;
 
 use crate::diffusion::{
     get_atmos_id, get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET,
 };
 
 use super::net::{NetMapDisplayAtmospherics, NetMapHoverAtmospherics};
+use networking::server::ConnectedPlayer;
 
 /// Get data of atmospherics on tile when hovered in map by player.
 #[cfg(feature = "server")]

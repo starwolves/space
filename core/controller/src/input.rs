@@ -1,7 +1,6 @@
+use crate::controller::ControllerInput;
 use bevy::prelude::{warn, Entity, EventReader, Query, Vec2};
 use math::grid::Vec3Int;
-use networking::server::{UIInputAction, UIInputNodeClass};
-use pawn::pawn::ControllerInput;
 
 /// Manage player input and apply to controller.
 #[cfg(feature = "server")]
@@ -119,32 +118,4 @@ pub struct InputMouseDirectionUpdate {
     pub entity: Entity,
     pub direction: f32,
     pub time_stamp: u64,
-}
-
-/// Event as client input , interaction with UI.
-#[cfg(feature = "server")]
-pub struct InputUIInput {
-    /// Handle of the connection that input this.
-    pub handle: u64,
-    /// The Godot node class of the input element.
-    pub node_class: UIInputNodeClass,
-    /// The action ID.
-    pub action: UIInputAction,
-    /// The Godot node name of the input element.
-    pub node_name: String,
-    /// The UI this input was submitted from.
-    pub ui_type: String,
-}
-
-/// Client input submitting text event.
-#[cfg(feature = "server")]
-pub struct InputUIInputTransmitText {
-    /// Handle of the connection that input this.
-    pub handle: u64,
-    /// The UI this input was submitted from.
-    pub ui_type: String,
-    /// The Godot node path of the input element.
-    pub node_path: String,
-    /// The input text from the client.
-    pub input_text: String,
 }

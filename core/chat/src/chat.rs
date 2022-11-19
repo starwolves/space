@@ -6,7 +6,18 @@ use bevy::{
 };
 
 use bevy::prelude::SystemLabel;
-use chat_api::core::{
+use entity::{
+    sensable::Sensable,
+    senser::{to_doryen_coordinates, Senser},
+};
+use math::grid::world_to_cell_id;
+use networking::server::ReliableServerMessage;
+use networking::server::{EntityUpdateData, PendingMessage};
+use networking::server::{EntityWorldType, PendingNetworkMessage};
+use networking_macros::NetMessage;
+use pawn::pawn::{Pawn, ShipJobsEnum};
+use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
+use text_api::core::{
     escape_bb, BILLBOARD_DATA_SECURITY_END, BILLBOARD_DATA_SECURITY_START, BILLBOARD_SHOUT_FONT,
     BILLBOARD_SHOUT_ITALIC_FONT, FAR_BOLD_FONT, FAR_SHOUT_FONT, FURTHER_BOLD_FONT,
     FURTHER_SHOUT_FONT, JOB_CONTROL_WORD, JOB_SECURITY_WORD, NEARBY_BOLD_FONT, NEARBY_SHOUT_FONT,
@@ -51,19 +62,6 @@ use chat_api::core::{
     TALK_TYPE_MACHINE_NEARBY_END, TALK_TYPE_MACHINE_NEARBY_START, TALK_TYPE_STANDARD_NEARBY_END,
     TALK_TYPE_STANDARD_NEARBY_START,
 };
-use entity::{
-    meta::SoftPlayer,
-    sensable::Sensable,
-    senser::{to_doryen_coordinates, Senser},
-};
-use math::grid::world_to_cell_id;
-use networking::server::ReliableServerMessage;
-use networking::server::{EntityUpdateData, PendingMessage};
-use networking::server::{EntityWorldType, PendingNetworkMessage};
-use networking_macros::NetMessage;
-use pawn::pawn::{Pawn, PersistentPlayerData, ShipJobsEnum};
-use resources::core::{ConnectedPlayer, HandleToEntity};
-use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use voca_rs::*;
 
 /// Radio component for entities that can hear or speak through radios.
@@ -91,6 +89,10 @@ pub struct NetChatMessage {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
+use networking::server::HandleToEntity;
+
+use networking::server::ConnectedPlayer;
+use player::boarding::{PersistentPlayerData, SoftPlayer};
 /// Handle chat message input.
 #[cfg(feature = "server")]
 pub(crate) fn chat_message_input_event(
@@ -221,15 +223,6 @@ fn is_shouting(message: &str) -> bool {
 #[cfg(feature = "server")]
 fn is_asking(message: &str) -> bool {
     message.ends_with("?") || message.ends_with("??") || message.ends_with("?!")
-}
-
-/// Sets radio channel list for clients in setup UI to only show global chat availability as a function.
-#[cfg(feature = "server")]
-pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
-    vec![(
-        "Global".to_string(),
-        TALK_SPACE_GLOBAL_CHATPREFIX.to_string(),
-    )]
 }
 
 /// Process chat prefixes which act as flags as a function.

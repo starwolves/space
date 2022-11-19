@@ -4,10 +4,10 @@ use bevy::{
     time::Time,
 };
 use chat::chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMessage, Radio};
-use pawn::pawn::{PersistentPlayerData, ShipJobsEnum};
-use player_controller::boarding::BoardingAnnouncements;
-use resources::core::{ConnectedPlayer, HandleToEntity};
+use pawn::pawn::ShipJobsEnum;
 
+use networking::server::{ConnectedPlayer, HandleToEntity};
+use player::boarding::{BoardingAnnouncements, PersistentPlayerData};
 /// Manage asana boarding announcements.
 #[cfg(feature = "server")]
 pub(crate) fn tick_asana_boarding_announcements(

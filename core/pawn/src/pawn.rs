@@ -1,9 +1,4 @@
-use std::collections::HashMap;
-
-use bevy::{
-    math::Vec2,
-    prelude::{Component, Entity},
-};
+use bevy::{math::Vec2, prelude::Component};
 
 /// Ship authorizations for pawns.
 #[derive(PartialEq)]
@@ -46,57 +41,6 @@ pub struct ShipAuthorization {
     pub access: Vec<ShipAuthorizationEnum>,
 }
 
-/// Controller input component.
-#[derive(Component)]
-#[cfg(feature = "server")]
-pub struct ControllerInput {
-    pub movement_vector: Vec2,
-    pub sprinting: bool,
-    pub is_mouse_action_pressed: bool,
-    pub targetted_limb: String,
-    pub auto_move_enabled: bool,
-    pub auto_move_direction: Vec2,
-    pub combat_targetted_entity: Option<Entity>,
-    pub combat_targetted_cell: Option<Vec3Int>,
-    pub alt_attack_mode: bool,
-    pub pending_direction: Option<FacingDirection>,
-}
-impl Default for ControllerInput {
-    fn default() -> Self {
-        Self {
-            movement_vector: Vec2::ZERO,
-            sprinting: false,
-            is_mouse_action_pressed: false,
-            targetted_limb: "torso".to_string(),
-            auto_move_enabled: false,
-            auto_move_direction: Vec2::ZERO,
-            combat_targetted_entity: None,
-            combat_targetted_cell: None,
-            alt_attack_mode: false,
-            pending_direction: None,
-        }
-    }
-}
-
-/// Persistent player data component.
-#[derive(Clone, Component)]
-#[cfg(feature = "server")]
-pub struct PersistentPlayerData {
-    pub account_name_is_set: bool,
-    pub character_name: String,
-    pub account_name: String,
-}
-#[cfg(feature = "server")]
-impl Default for PersistentPlayerData {
-    fn default() -> Self {
-        Self {
-            account_name_is_set: false,
-            character_name: "".to_string(),
-            account_name: "".to_string(),
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 #[cfg(feature = "server")]
 pub enum FacingDirection {
@@ -124,11 +68,7 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
         FacingDirection::Left => Vec2::new(-1., 0.),
     }
 }
-use bevy::{math::Quat, prelude::Transform};
 use bevy_rapier3d::na::Quaternion;
-use data_converters::converters::string_transform_to_transform;
-use math::grid::Vec3Int;
-use serde::Deserialize;
 
 #[cfg(feature = "server")]
 pub struct PawnYAxisRotations;
@@ -167,58 +107,6 @@ impl PawnYAxisRotations {
     }
 }
 
-#[derive(Clone)]
-#[cfg(feature = "server")]
-pub enum PawnDesignation {
-    Showcase,
-    Player,
-    Dummy,
-    Ai,
-}
-/// Component that contains the spawn data of a to-be-spawned entity.
-#[derive(Component)]
-#[cfg(feature = "server")]
-pub struct Spawning {
-    pub transform: Transform,
-}
-
-/// A spawn point in which players will spawn.
-#[cfg(feature = "server")]
-pub struct SpawnPoint {
-    pub point_type: String,
-    pub transform: Transform,
-}
-
-#[cfg(feature = "server")]
-impl SpawnPoint {
-    pub fn new(raw: &SpawnPointRaw) -> SpawnPoint {
-        let mut this_transform = string_transform_to_transform(&raw.transform);
-
-        this_transform.translation.y = 0.05;
-
-        this_transform.rotation = Quat::IDENTITY;
-
-        SpawnPoint {
-            point_type: raw.point_type.clone(),
-            transform: this_transform,
-        }
-    }
-}
-
-/// Raw json.
-#[derive(Deserialize)]
-#[cfg(feature = "server")]
-pub struct SpawnPointRaw {
-    pub point_type: String,
-    pub transform: String,
-}
-/// Resource containing all available spawn points for players.
-#[derive(Default)]
-#[cfg(feature = "server")]
-pub struct SpawnPoints {
-    pub list: Vec<SpawnPoint>,
-    pub i: usize,
-}
 /// How far an entity can reach ie with picking up items.
 #[cfg(feature = "server")]
 pub const REACH_DISTANCE: f32 = 3.;
@@ -226,13 +114,17 @@ pub const REACH_DISTANCE: f32 = 3.;
 use crate::examine_events::NetPawn;
 use bevy::prelude::ResMut;
 use bevy::prelude::{EventReader, EventWriter, Query, Res};
-use chat_api::core::escape_bb;
 use networking::server::ReliableServerMessage;
-use resources::core::HandleToEntity;
+use text_api::core::escape_bb;
 
 use bevy::prelude::warn;
-use console_commands::commands::CONSOLE_ERROR_COLOR;
+use text_api::core::CONSOLE_ERROR_COLOR;
 
+use networking::server::HandleToEntity;
+use player::{
+    boarding::PersistentPlayerData,
+    names::{InputAccountName, UsedNames},
+};
 /// Set player connection account name that also isn't already taken.
 #[cfg(feature = "server")]
 pub(crate) fn account_name(
@@ -306,23 +198,4 @@ pub(crate) fn account_name(
             }
         }
     }
-}
-
-/// Resource keeping track of which in-game character names are taken.
-#[derive(Default, Clone)]
-#[cfg(feature = "server")]
-pub struct UsedNames {
-    /// Character names.
-    pub names: HashMap<String, Entity>,
-    /// Global user names.
-    pub account_name: HashMap<String, Entity>,
-    pub player_i: u32,
-    pub dummy_i: u32,
-}
-
-/// Client input user name event.
-#[cfg(feature = "server")]
-pub struct InputAccountName {
-    pub entity: Entity,
-    pub input_name: String,
 }

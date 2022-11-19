@@ -21,6 +21,7 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.18.0"
 
+player = { path = "../../core/player" ,  features=["server"]}
 entity = { path = "../../core/entity" ,  features=["server"]}
 physics = { path = "../../core/physics" ,  features=["server"]}
 networking_macros = { path = "../../core/networking_macros" ,  features=["server"]}
@@ -30,7 +31,7 @@ inventory_item = { path = "../../core/inventory_item" ,  features=["server"]}
 inventory_api = { path = "../../core/inventory_api" ,  features=["server"]}
 map = { path = "../../core/map",  features=["server"] }
 rigid_body = { path = "../../core/rigid_body" ,  features=["server"]}
-player_controller = { path = "../../core/player_controller" ,  features=["server"]}
+controller = { path = "../../core/controller" ,  features=["server"]}
 combat = { path = "../../core/combat",  features=["server"] }
 networking = { path = "../../core/networking",  features=["server"] }
 resources = { path = "../../core/resources" ,  features=["server"]}

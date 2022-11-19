@@ -28,12 +28,12 @@ use inventory_item::{
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;
 use networking::server::ReliableServerMessage;
-use pawn::pawn::{
-    ControllerInput, Pawn, PawnDesignation, PersistentPlayerData, ShipAuthorization,
-    ShipAuthorizationEnum, ShipJobsEnum, UsedNames,
-};
+use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
-use player_controller::connection::SpawnPawnData;
+use player::{
+    names::UsedNames,
+    spawn_points::{PawnDesignation, SpawnPawnData},
+};
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
 /// Get default transform.
@@ -205,6 +205,9 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     mut default_spawner: EventWriter<DefaultSpawnEvent>,
     entity_data: ResMut<EntityDataResource>,
 ) {
+    use controller::controller::ControllerInput;
+    use player::boarding::PersistentPlayerData;
+
     for spawn_event in spawn_events.iter() {
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
@@ -423,6 +426,8 @@ pub(crate) fn default_human_dummy(
     mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,
     mut used_names: ResMut<UsedNames>,
 ) {
+    use player::boarding::PersistentPlayerData;
+
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name == HUMAN_DUMMY_ENTITY_NAME {
             spawner.send(SpawnEvent {

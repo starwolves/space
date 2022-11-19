@@ -24,7 +24,7 @@ bevy_rapier3d = "0.18.0"
 networking = { path = "../networking",  features=["server"] }
 networking_macros = { path = "../networking_macros",  features=["server"] }
 pawn = { path = "../pawn",  features=["server"] }
-chat_api = { path = "../chat_api",  features=["server"] }
+text_api = { path = "../text_api",  features=["server"] }
 map = { path = "../map",  features=["server"] }
 physics = { path = "../physics",  features=["server"] }
 rigid_body = { path = "../rigid_body",  features=["server"] }

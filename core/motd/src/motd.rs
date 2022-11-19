@@ -1,4 +1,4 @@
-use chat_api::core::{COMMUNITY_HREF_COLOR, NEARBY_SHOUT_FONT};
+use text_api::core::{COMMUNITY_HREF_COLOR, NEARBY_SHOUT_FONT};
 
 #[cfg(feature = "server")]
 impl MOTD {

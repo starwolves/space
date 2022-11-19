@@ -5,8 +5,7 @@ use resources::labels::PreUpdateLabels;
 
 use crate::{
     button::button_hover_visuals,
-    input::TextTreeInputSelection,
-    networking::incoming_messages,
+    networking::{incoming_messages, TextTreeInputSelection},
     text_input::{
         focus_events, input_characters, input_mouse_press_unfocus, ui_events, FocusTextInput,
         TextInput, TextInputLabel, UnfocusTextInput,

@@ -7,15 +7,14 @@ use std::collections::BTreeMap;
 use bevy::prelude::Entity;
 use bevy::prelude::{warn, Query, Res};
 use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
-use chat_api::core::FURTHER_ITALIC_FONT;
-use chat_api::core::HEALTHY_COLOR;
-use chat_api::core::UNHEALTHY_COLOR;
-use chat_api::core::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
-use resources::core::HandleToEntity;
+use text_api::core::FURTHER_ITALIC_FONT;
+use text_api::core::HEALTHY_COLOR;
+use text_api::core::UNHEALTHY_COLOR;
+use text_api::core::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
@@ -30,6 +29,7 @@ pub(crate) struct NetConnExamine {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
+use networking::server::HandleToEntity;
 
 /// Manage examining an entity.
 #[cfg(feature = "server")]

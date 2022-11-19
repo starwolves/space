@@ -5,13 +5,12 @@ use bevy_rapier3d::{
     plugin::{RapierConfiguration, TimestepMode},
     prelude::{CoefficientCombineRule, Collider},
 };
-use chat_api::core::EXAMINATION_EMPTY;
 use entity::{
     entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server},
     examine::RichName,
 };
-use pawn::pawn::{SpawnPoint, SpawnPointRaw, SpawnPoints};
 use resources::core::{ServerId, TickRate};
+use text_api::core::EXAMINATION_EMPTY;
 
 use crate::{
     build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},
@@ -763,6 +762,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         main_cells_data.len() + details1_cells_data.len()
     );
 }
+use player::spawn_points::SpawnPoints;
 
 /// Initiate other gridmap meta-datas from json.
 #[cfg(feature = "server")]
@@ -775,6 +775,9 @@ pub(crate) fn startup_misc_resources(
     mut commands: Commands,
 ) {
     // Init Bevy Rapier physics.
+
+    use player::spawn_points::{SpawnPoint, SpawnPointRaw};
+
     rapier_configuration.timestep_mode = TimestepMode::Variable {
         max_dt: 1. / tick_rate.physics_rate as f32,
         time_scale: 1.,

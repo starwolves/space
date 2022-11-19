@@ -8,7 +8,6 @@ use entity::{
     spawn::{SpawnData, SpawnEvent},
 };
 use networking::server::GodotVariantValues;
-use resources::core::HandleToEntity;
 
 use super::{
     line_arrow::PointArrow,
@@ -132,6 +131,7 @@ pub(crate) fn entity_console_commands(
     }
 }
 use entity::networking::NetUnloadEntity;
+use networking::server::HandleToEntity;
 
 /// Despawn point arrows after duration.
 #[cfg(feature = "server")]

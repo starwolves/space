@@ -6,7 +6,6 @@ use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use chat_api::core::Color;
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use data_converters::converters::string_transform_to_transform;
 use entity::entity_data::RawSpawnEvent;
@@ -32,6 +31,7 @@ use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
 use rigid_body::spawn::RigidBodyBundle;
 use rigid_body::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
+use text_api::core::Color;
 
 #[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {

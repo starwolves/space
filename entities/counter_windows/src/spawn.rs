@@ -6,7 +6,6 @@ use bevy::{
     prelude::{warn, Commands, EventReader, EventWriter, GlobalTransform, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction, Group};
-use chat_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::{EntityData, EntityGroup, RawSpawnEvent},
@@ -19,6 +18,7 @@ use entity::{
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
+use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 use super::counter_window_events::{CounterWindow, CounterWindowSensor};
 

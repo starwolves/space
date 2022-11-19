@@ -3,7 +3,6 @@ use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
 use data_link::core::{DataLink, DataLinkType};
 use gridmap::grid::cell_id_to_world;
 use math::grid::Vec3Int;
-use resources::core::HandleToEntity;
 
 use crate::counter_window_events::CounterWindow;
 
@@ -76,6 +75,7 @@ pub(crate) fn toggle_open_action_prequisite_check(
         }
     }
 }
+use networking::server::HandleToEntity;
 
 #[cfg(feature = "server")]
 pub(crate) fn counter_window_actions(

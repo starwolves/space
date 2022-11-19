@@ -2,13 +2,13 @@ use bevy::prelude::{Added, Commands, EventWriter, Query};
 use entity::spawn::{SpawnData, SpawnEvent};
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
-use pawn::pawn::{PawnDesignation, PersistentPlayerData};
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
-use player_controller::connection::{SetupPhase, SpawnPawnData};
-use resources::core::ConnectedPlayer;
 use showcase::core::ShowcaseData;
 
 use crate::spawn::HumanMaleSummoner;
+use networking::server::ConnectedPlayer;
+use player::spawn_points::{PawnDesignation, SpawnPawnData};
+use player::{boarding::PersistentPlayerData, connection::SetupPhase};
 
 /// Initialize the setup UI by spawning in showcase entities etc.
 #[cfg(feature = "server")]

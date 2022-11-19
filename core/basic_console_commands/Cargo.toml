@@ -1,0 +1,31 @@
+[package]
+name = "basic_console_commands"
+version = "0.0.3-snap8-dev"
+authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
+description="Contains basic console commands."
+homepage="https://starwolves.io"
+repository="https://gitlab.starwolves.io/starwolves/space"
+documentation="https://docs.sf.starwolves.io"
+license-file="LICENSE"
+edition = "2021"
+
+[features]
+server = []
+client = []
+
+[dependencies.bevy]
+version = "0.8.1"
+default-features = false
+
+[dependencies]
+console_commands = { path = "../console_commands",  features=["server"] }
+gridmap = { path = "../gridmap",  features=["server"] }
+player = { path = "../player",  features=["server"] }
+pawn = { path = "../pawn",  features=["server"] }
+networking = { path = "../networking",  features=["server"] }
+networking_macros = { path = "../networking_macros",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }
+text_api = { path = "../text_api",  features=["server"] }
+resources = { path = "../resources",  features=["server"] }
+inventory_item = { path = "../inventory_item",  features=["server"] }
+inventory_api = { path = "../inventory_api",  features=["server"] }

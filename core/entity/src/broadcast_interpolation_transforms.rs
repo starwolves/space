@@ -3,13 +3,7 @@ use bevy::{
     prelude::{Entity, Local, Query, Res, ResMut, Transform, With, Without},
     time::Time,
 };
-use bevy_rapier3d::prelude::{RigidBody, Velocity};
-use bevy_renet::renet::RenetServer;
-use bincode::serialize;
-use entity::{entity_data::CachedBroadcastTransform, sensable::Sensable};
 use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableServerMessage};
-use physics::physics::RigidBodyDisabled;
-use resources::core::{ConnectedPlayer, HandleToEntity};
 
 /// All transform interpolation rates.
 #[derive(Debug)]
@@ -28,7 +22,16 @@ enum InterpolationPriorityRates {
 pub(crate) struct InterpolationFrame {
     pub i: u8,
 }
+use crate::sensable::Sensable;
+use bevy_rapier3d::prelude::Velocity;
+use bevy_renet::renet::RenetServer;
+use networking::server::HandleToEntity;
 
+use crate::entity_data::CachedBroadcastTransform;
+
+use bevy_rapier3d::prelude::RigidBody;
+use networking::server::ConnectedPlayer;
+use physics::physics::RigidBodyDisabled;
 /// Broadcast transforms.
 #[cfg(feature = "server")]
 pub(crate) fn broadcast_interpolation_transforms(
@@ -49,6 +52,8 @@ pub(crate) fn broadcast_interpolation_transforms(
     >,
     mut interpolation_frame: Local<InterpolationFrame>,
 ) {
+    use bincode::serialize;
+
     interpolation_frame.i += 1;
 
     if interpolation_frame.i > 24 {

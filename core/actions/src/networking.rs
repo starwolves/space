@@ -8,10 +8,10 @@ use bevy::prelude::Entity;
 use bevy_renet::renet::RenetServer;
 use math::grid::Vec3Int;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+use networking::server::HandleToEntity;
 use networking::server::ReliableClientMessage;
 
 use bevy::prelude::{EventWriter, Res};
-use resources::core::HandleToEntity;
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(

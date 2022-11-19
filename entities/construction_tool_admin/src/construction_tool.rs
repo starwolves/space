@@ -10,7 +10,6 @@ use bevy::{
         Transform, Without,
     },
 };
-use chat_api::core::FURTHER_ITALIC_FONT;
 use doryen_fov::FovAlgorithm;
 use entity::{
     entity_data::EntityData,
@@ -32,11 +31,12 @@ use inventory_api::core::Inventory;
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::server::{GridMapLayer, ReliableServerMessage, TextTreeBit};
 use physics::physics::RigidBodyDisabled;
+use text_api::core::FURTHER_ITALIC_FONT;
 
 use inventory_item::item::InventoryItem;
+use networking::server::{ConnectedPlayer, HandleToEntity};
 use pawn::pawn::Pawn;
 use rand::Rng;
-use resources::core::{ConnectedPlayer, HandleToEntity};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     construction::{

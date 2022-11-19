@@ -1,7 +1,5 @@
 use crate::diffusion::{get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET};
 use bevy::prelude::{warn, Query, Res, ResMut};
-use chat_api::core::ATMOSPHERICS_TEXT_COLOR;
-use chat_api::core::FURTHER_ITALIC_FONT;
 use entity::senser::Senser;
 use entity::senser::SensingAbility;
 use math::grid::Vec2Int;
@@ -9,6 +7,8 @@ use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
+use text_api::core::ATMOSPHERICS_TEXT_COLOR;
+use text_api::core::FURTHER_ITALIC_FONT;
 
 #[derive(NetMessage)]
 #[cfg(feature = "server")]

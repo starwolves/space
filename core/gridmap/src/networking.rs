@@ -9,7 +9,7 @@ use crate::examine::InputExamineMap;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
 use math::grid::Vec3Int;
-use resources::core::HandleToEntity;
+use networking::server::HandleToEntity;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

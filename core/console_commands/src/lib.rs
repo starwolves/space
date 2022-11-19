@@ -3,6 +3,8 @@
 
 /// Resources and initialization.
 pub mod commands;
+/// Send configuration to newly connected clients.
+pub mod connections;
 /// The networking module of this crate.
 pub mod networking;
 /// The Bevy plugin of this crate.

@@ -1,35 +1,4 @@
-use std::collections::HashMap;
-
-use bevy::prelude::{Component, Entity};
-
-/// A resource that links entities to their appropiate connection handles for connected players.
-#[derive(Default)]
-#[cfg(feature = "server")]
-pub struct HandleToEntity {
-    pub map: HashMap<u64, Entity>,
-    pub inv_map: HashMap<Entity, u64>,
-}
-
-/// The component for an entity controlled by a connected player.
-#[derive(Component, Clone)]
-#[cfg(feature = "server")]
-pub struct ConnectedPlayer {
-    pub handle: u64,
-    pub authid: u16,
-    pub rcon: bool,
-    pub connected: bool,
-}
-#[cfg(feature = "server")]
-impl Default for ConnectedPlayer {
-    fn default() -> Self {
-        Self {
-            handle: 0,
-            authid: 0,
-            rcon: false,
-            connected: true,
-        }
-    }
-}
+use bevy::prelude::Entity;
 
 /// Resource containing the tickrate of the server loop.
 #[cfg(feature = "server")]

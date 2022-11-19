@@ -18,4 +18,4 @@ version = "0.8.1"
 default-features = false
 
 [dependencies]
-serde = "1.0.137"
+serde = "1.0.147"

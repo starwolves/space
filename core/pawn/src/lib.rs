@@ -4,8 +4,6 @@
 mod actions;
 /// Manage examine events.
 mod examine_events;
-/// Generate names.
-pub mod name_generator;
 /// The networking module of this crate.
 pub mod networking;
 /// Pawn resources.
