@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     math::Vec3,
-    prelude::{warn, Entity, Res, ResMut},
+    prelude::{warn, Entity, Res, ResMut, Resource},
     time::{FixedTimesteps, Time},
 };
 use entity::senser::FOV_MAP_WIDTH;
@@ -12,7 +12,7 @@ use super::plugin::ATMOS_DIFFUSION_LABEL;
 
 /// Resource with accumulated rigid body forces of the atmospherics tick per entity, could be building for multiple frames.
 #[cfg(feature = "server")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub(crate) struct RigidBodyForcesAccumulation {
     pub data: HashMap<Entity, Vec<Vec3>>,
 }
@@ -35,7 +35,7 @@ pub(crate) fn atmos_diffusion(
     fixed_timesteps: Res<FixedTimesteps>,
     mut atmospherics: ResMut<AtmosphericsResource>,
 ) {
-    let current_time_stamp = time.time_since_startup().as_millis();
+    let current_time_stamp = time.elapsed().as_millis();
 
     let overstep_percentage = fixed_timesteps
         .get(ATMOS_DIFFUSION_LABEL)
@@ -153,6 +153,7 @@ pub(crate) fn atmos_diffusion(
 
 /// The resource with the  atmospherics states and data of each tile.
 #[cfg(feature = "server")]
+#[derive(Resource)]
 pub struct AtmosphericsResource {
     /// Get a tile from this list with [get_atmos_index].
     pub atmospherics: Vec<Atmospherics>,

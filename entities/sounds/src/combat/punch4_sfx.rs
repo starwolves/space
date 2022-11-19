@@ -11,7 +11,7 @@ pub const PUNCH4_PLAY_BACK_DURATION: f32 = 0.5 + 1.;
 impl Punch4SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((Sfx {
+            .spawn((Sfx {
                 unit_db: 12.,
                 unit_size: 1.,
                 stream_id: "/content/audio/combat/punch4.sample".to_string(),

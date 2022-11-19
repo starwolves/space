@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, CoreStage, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
 use networking::server::net_system;

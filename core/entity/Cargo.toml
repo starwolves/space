@@ -14,16 +14,16 @@ server = []
 client = []
 
 [dependencies.bevy]
-version = "0.8.1"
+version = "0.9.0"
 default-features = false
 
 [dependencies]
-bevy_renet = "0.0.5"
+bevy_renet = "0.0.6"
 serde = "1.0.147"
 
 bincode = "1.3.3"
 doryen_fov = { path = "../doryen_fov",  features=["server"] }
-bevy_rapier3d = "0.18.0"
+bevy_rapier3d = "0.19.0"
 
 networking = { path = "../networking",  features=["server"] }
 networking_macros = { path = "../networking_macros",  features=["server"] }

@@ -1,8 +1,6 @@
 use std::env;
 
-use bevy::prelude::{
-    App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemLabel, SystemSet, Transform,
-};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemLabel, SystemSet, Transform};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
     entity_data::initialize_entity_data,
@@ -125,7 +123,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
         name: SECURITY_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
-            transform_offset: Transform::identity(),
+            transform_offset: Transform::IDENTITY,
             can_be_built_with_grid_item: vec![],
         }),
     };
@@ -136,7 +134,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
         name: VACUUM_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
-            transform_offset: Transform::identity(),
+            transform_offset: Transform::IDENTITY,
             can_be_built_with_grid_item: vec![],
         }),
     };
@@ -147,7 +145,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
         name: GOVERNMENT_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
-            transform_offset: Transform::identity(),
+            transform_offset: Transform::IDENTITY,
             can_be_built_with_grid_item: vec![],
         }),
     };
@@ -158,7 +156,7 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
         name: BRIDGE_AIRLOCK_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
-            transform_offset: Transform::identity(),
+            transform_offset: Transform::IDENTITY,
             can_be_built_with_grid_item: vec![],
         }),
     };

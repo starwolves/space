@@ -47,7 +47,7 @@ pub(crate) fn on_spawning(
             ),
         ];
 
-        let new_entity = commands.spawn().id();
+        let new_entity = commands.spawn(()).id();
 
         summon_human_male.send(SpawnEvent {
             spawn_data: SpawnData {

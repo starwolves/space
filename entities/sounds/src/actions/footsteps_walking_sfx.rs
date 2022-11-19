@@ -8,7 +8,7 @@ pub struct FootstepsWalkingSfxBundle;
 impl FootstepsWalkingSfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((
+            .spawn((
                 RepeatingSfx {
                     unit_db: 12.0,
                     stream_id: "concrete_walking_footsteps".to_string(),

@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
     entity_data::initialize_entity_data,

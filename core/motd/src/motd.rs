@@ -1,3 +1,4 @@
+use bevy::prelude::Resource;
 use text_api::core::{COMMUNITY_HREF_COLOR, NEARBY_SHOUT_FONT};
 
 #[cfg(feature = "server")]
@@ -20,6 +21,7 @@ impl MOTD {
 
 /// Resource message of the day visible to players upon connecting.
 #[cfg(feature = "server")]
+#[derive(Resource)]
 pub struct MOTD {
     pub message: String,
 }

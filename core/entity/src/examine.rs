@@ -5,6 +5,7 @@ use crate::senser::Senser;
 use std::collections::BTreeMap;
 
 use bevy::prelude::Entity;
+use bevy::prelude::Resource;
 use bevy::prelude::{warn, Query, Res};
 use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
 use networking::server::PendingMessage;
@@ -158,7 +159,7 @@ pub enum ExamineLabels {
 }
 
 /// Resource with client inputs of examining entity messages.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct ExamineEntityMessages {
     pub messages: Vec<InputExamineEntity>,

@@ -1,5 +1,5 @@
 use actions::core::{BuildingActions, ListActionDataRequests};
-use bevy::prelude::{warn, Entity, EventReader, Query, Res, ResMut};
+use bevy::prelude::{warn, Entity, EventReader, Query, Res, ResMut, Resource};
 use entity::{
     examine::Examinable,
     health::HealthContainer,
@@ -364,7 +364,7 @@ impl Default for InputExamineMap {
 }
 
 /// Stores examine messages being built this frame for gridmap examination.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct GridmapExamineMessages {
     pub messages: Vec<InputExamineMap>,

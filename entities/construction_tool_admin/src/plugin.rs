@@ -2,7 +2,7 @@ use std::env;
 
 use bevy::app::CoreStage::PostUpdate;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_data::initialize_entity_data;

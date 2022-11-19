@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use bevy::prelude::Resource;
 use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
@@ -23,7 +24,7 @@ const HEAVY_UI_GREEN: f32 = 0.;
 const HEAVY_UI_BLUE: f32 = 60.;
 
 /// Resource with all client health UI caches.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct ClientHealthUICache {
     pub cache: HashMap<Entity, ClientHealthUI>,

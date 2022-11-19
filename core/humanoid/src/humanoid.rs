@@ -8,7 +8,7 @@ use bevy::{
         warn, Commands, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
         With, Without,
     },
-    time::{Time, Timer},
+    time::{Time, Timer, TimerMode},
 };
 use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
 use entity::{examine::Examinable, health::DamageFlag, sensable::Sensable};
@@ -81,7 +81,7 @@ pub struct Humanoid {
 #[cfg(feature = "server")]
 impl Default for Humanoid {
     fn default() -> Self {
-        let mut t = Timer::new(Duration::from_millis(FIRST_MELEE_TIME), false);
+        let mut t = Timer::new(Duration::from_millis(FIRST_MELEE_TIME), TimerMode::Once);
         let mut first_damage_flags = HashMap::new();
         first_damage_flags.insert(0, DamageFlag::SoftDamage);
         t.tick(Duration::from_millis(FIRST_MELEE_TIME));

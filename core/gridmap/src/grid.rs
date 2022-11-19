@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Entity, Res, Transform, Vec3};
+use bevy::prelude::{Entity, Res, Resource, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
 use entity::{examine::RichName, health::Health};
 use math::grid::{Vec3Int, CELL_SIZE};
 use networking::server::GridMapLayer;
 
 /// Gridmap meta-data resource.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
@@ -61,7 +61,7 @@ impl Default for MainCellProperties {
             placeable_item_surface: false,
             laser_combat_obstacle: true,
             collider: Collider::cuboid(1., 1., 1.),
-            collider_position: Transform::identity(),
+            collider_position: Transform::IDENTITY,
             constructable: false,
             floor_cell: false,
             atmospherics_blocker: true,
@@ -97,7 +97,7 @@ pub struct CellData {
 }
 
 /// Stores the details 1 gridmap layer, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct GridmapDetails1 {
     pub grid_data: HashMap<Vec3Int, CellData>,
@@ -105,7 +105,7 @@ pub struct GridmapDetails1 {
 }
 
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct GridmapMain {
     pub grid_data: HashMap<Vec3Int, CellData>,

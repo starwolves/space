@@ -24,7 +24,7 @@ use super::counter_window_events::{CounterWindow, CounterWindowSensor};
 
 #[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
-    Transform::identity()
+    Transform::IDENTITY
 }
 
 #[cfg(feature = "server")]
@@ -133,11 +133,11 @@ pub fn summon_counter_window<T: Send + Sync + 'static>(
             .entity(spawn_event.spawn_data.entity)
             .with_children(|children| {
                 children
-                    .spawn()
+                    .spawn(())
                     .insert(rigid_body)
-                    .insert(GlobalTransform::identity())
-                    .insert(Transform::identity())
-                    .insert_bundle((
+                    .insert(GlobalTransform::IDENTITY)
+                    .insert(Transform::IDENTITY)
+                    .insert((
                         CounterWindowSensor {
                             parent: spawn_event.spawn_data.entity,
                         },
@@ -149,7 +149,7 @@ pub fn summon_counter_window<T: Send + Sync + 'static>(
                     ))
                     .with_children(|children| {
                         children
-                            .spawn()
+                            .spawn(())
                             .insert(Collider::cuboid(1., 1., 1.))
                             .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
                             .insert(GlobalTransform::default())
@@ -188,7 +188,7 @@ pub fn summon_raw_counter_window(
                 entity_transform: entity_transform,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
-                entity: commands.spawn().id(),
+                entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },

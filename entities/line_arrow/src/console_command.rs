@@ -112,7 +112,7 @@ pub(crate) fn entity_console_commands(
 
             let translation = Vec3::new(x, y, z);
 
-            let mut passed_transform = Transform::identity();
+            let mut passed_transform = Transform::IDENTITY;
             passed_transform.translation = translation;
 
             spawn_event.send(SpawnEvent {
@@ -120,7 +120,7 @@ pub(crate) fn entity_console_commands(
                     entity_transform: passed_transform,
                     correct_transform: false,
                     entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
-                    entity: commands.spawn().id(),
+                    entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
                 summoner: LineArrowSummoner {

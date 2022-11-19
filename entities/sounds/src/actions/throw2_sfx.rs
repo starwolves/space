@@ -11,7 +11,7 @@ pub const THROW2_PLAY_BACK_DURATION: f32 = 0.5 + 1.;
 impl Throw2SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((Sfx {
+            .spawn((Sfx {
                 unit_db: 15.,
                 unit_size: 1.,
                 stream_id: "/content/audio/actions/throw2.sample".to_string(),

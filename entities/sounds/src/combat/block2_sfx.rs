@@ -10,7 +10,7 @@ pub const BLOCK2_PLAY_BACK_DURATION: f32 = 0.5 + 1.;
 impl Block2SfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((Sfx {
+            .spawn((Sfx {
                 unit_db: 15.,
                 unit_size: 1.,
                 stream_id: "/content/audio/combat/block2.sample".to_string(),

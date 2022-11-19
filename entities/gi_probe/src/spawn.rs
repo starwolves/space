@@ -21,7 +21,7 @@ pub trait GIProbeSummonable {
 #[cfg(feature = "server")]
 impl GIProbeSummonable for GIProbeSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
-        commands.spawn_bundle((
+        commands.spawn((
             self.probe.clone(),
             spawn_data.entity_transform,
             EntityData {
@@ -67,7 +67,7 @@ pub fn summon_raw_gi_probe(
                     entity_transform: entity_transform,
                     default_map_spawn: true,
                     entity_name: event.raw_entity.entity_type.clone(),
-                    entity: commands.spawn().id(),
+                    entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
                 summoner: GIProbeSummoner {

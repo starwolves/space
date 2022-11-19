@@ -1,6 +1,6 @@
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, warn, Component, Entity, EventReader, EventWriter, Quat, ResMut},
+    prelude::{info, warn, Component, Entity, EventReader, EventWriter, Quat, ResMut, Resource},
 };
 use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
@@ -40,7 +40,7 @@ pub(crate) fn startup_server_listen_connections(
             ..Default::default()
         }),
         ChannelConfig::Unreliable(Default::default()),
-        ChannelConfig::Block(Default::default()),
+        ChannelConfig::Chunk(Default::default()),
     ];
 
     let connection_config = RenetConnectionConfig {
@@ -416,7 +416,7 @@ pub(crate) fn finalize_send_net(
     );
 }
 /// A resource that links entities to their appropiate connection handles for connected players.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct HandleToEntity {
     pub map: HashMap<u64, Entity>,

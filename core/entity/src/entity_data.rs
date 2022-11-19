@@ -52,7 +52,7 @@ pub(crate) fn broadcast_position_updates(
         &mut CachedBroadcastTransform,
     )>,
 ) {
-    let current_time_stamp = time.time_since_startup().as_millis();
+    let current_time_stamp = time.elapsed().as_millis();
 
     let overstep_percentage = fixed_timesteps
         .get(INTERPOLATION_LABEL1)

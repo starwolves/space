@@ -1,7 +1,7 @@
 use crate::map::Map;
 use bevy::{
     math::Vec2,
-    prelude::{Entity, EventReader, EventWriter, Query},
+    prelude::{Entity, EventReader, EventWriter, Query, Resource},
 };
 use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
@@ -76,7 +76,7 @@ pub(crate) struct NetRequestOverlay {
 }
 
 /// Mini-map data resource.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct MapData {
     pub data: HashMap<Vec2Int, i16>,

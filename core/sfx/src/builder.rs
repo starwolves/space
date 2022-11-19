@@ -17,7 +17,7 @@ pub fn spawn_ambience_sfx(
 ) -> Entity {
     let entity = (builder)(commands);
 
-    commands.entity(entity).insert_bundle((
+    commands.entity(entity).insert((
         rigid_body_position,
         EntityData {
             entity_class: "SFX".to_string(),
@@ -182,7 +182,7 @@ pub fn repeating_sfx_builder(
     builder: Box<dyn Fn(&mut Commands) -> Entity + Sync + Send>,
 ) -> Entity {
     let entity = (builder)(commands);
-    commands.entity(entity).insert_bundle((
+    commands.entity(entity).insert((
         rigid_body_position,
         EntityData {
             entity_class: "RepeatingSFX".to_string(),
@@ -206,7 +206,7 @@ pub fn sfx_builder(
     builder: Box<dyn Fn(&mut Commands) -> Entity + Sync + Send>,
 ) -> Entity {
     let entity = (builder)(commands);
-    commands.entity(entity).insert_bundle((
+    commands.entity(entity).insert((
         rigid_body_position,
         EntityData {
             entity_class: "SFX".to_string(),

@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin};
+use bevy::prelude::{App, Plugin};
 use resources::labels::PreUpdateLabels;
 
 use crate::{
@@ -12,6 +12,7 @@ use crate::{
     },
 };
 use bevy::app::CoreStage::PreUpdate;
+use bevy::prelude::IntoSystemDescriptor;
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {

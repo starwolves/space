@@ -6,16 +6,12 @@ use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::{
-    app::{RunMode, ScheduleRunnerPlugin, ScheduleRunnerSettings},
-    asset::AssetPlugin,
-    core::{CorePlugin, DefaultTaskPoolOptions},
-    log::LogPlugin,
-    prelude::{App, ParallelSystemDescriptorCoercion, Plugin},
-    render::{settings::WgpuSettings, RenderPlugin},
-    scene::ScenePlugin,
-    time::TimePlugin,
-    transform::TransformPlugin,
-    window::{WindowPlugin, WindowSettings},
+    app::{RunMode, ScheduleRunnerSettings},
+    core::CorePlugin,
+    prelude::{App, IntoSystemDescriptor, Plugin, PluginGroup, TaskPoolOptions},
+    render::settings::WgpuSettings,
+    window::WindowPlugin,
+    DefaultPlugins,
 };
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use chat::plugin::ChatPlugin;
@@ -79,72 +75,74 @@ impl Plugin for ServerPlugin {
         let mut wgpu_settings = WgpuSettings::default();
         wgpu_settings.backends = None;
 
-        app.add_plugin(CorePlugin::default())
-            .add_plugin(TimePlugin::default())
-            .add_plugin(ScheduleRunnerPlugin::default())
-            .add_plugin(LogPlugin::default())
-            .add_plugin(TransformPlugin::default())
-            .insert_resource(wgpu_settings)
-            .insert_resource(WindowSettings {
-                add_primary_window: false,
-                exit_on_all_closed: false,
-                ..Default::default()
-            })
-            .add_plugin(WindowPlugin)
-            .add_plugin(AssetPlugin)
-            .add_plugin(ScenePlugin)
-            .add_plugin(RenderPlugin)
-            .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-            .add_plugin(ControllerPlugin {
-                custom_motd: self.custom_motd.clone(),
-            })
-            .add_plugin(AsanaPlugin)
-            .add_plugin(WorldEnvironmentPlugin)
-            .add_plugin(GridmapPlugin)
-            .add_plugin(ResourcesPlugin)
-            .add_plugin(PawnPlugin)
-            .add_plugin(HumanMalePlugin)
-            .add_plugin(SfxPlugin)
-            .add_plugin(EntityPlugin)
-            .add_plugin(AtmosphericsPlugin)
-            .add_plugin(ConsoleCommandsPlugin)
-            .add_plugin(ConstructionToolAdminPlugin)
-            .add_plugin(ActionsPlugin)
-            .add_plugin(MapPlugin)
-            .add_plugin(AirLocksPlugin)
-            .add_plugin(CounterWindowsPlugin)
-            .add_plugin(InventoryPlugin)
-            .add_plugin(NetworkingPlugin)
-            .add_plugin(HumanoidPlugin)
-            .add_plugin(RigidBodyPlugin)
-            .add_plugin(ComputersPlugin)
-            .add_plugin(CombatPlugin)
-            .add_plugin(OmniLightPlugin)
-            .add_plugin(ReflectionProbePlugin)
-            .add_plugin(InventoryItemPlugin)
-            .add_plugin(JumpsuitsPlugin)
-            .add_plugin(HelmetsPlugin)
-            .add_plugin(PistolL1Plugin)
-            .add_plugin(LineArrowPlugin)
-            .add_plugin(PointArrowPlugin)
-            .add_plugin(SoundsPlugin)
-            .add_plugin(ChatPlugin)
-            .add_plugin(UiPlugin)
-            .add_plugin(PlayerPlugin)
-            .add_plugin(BasicConsoleCommandsPlugin {
-                give_all_rcon: self.give_all_rcon,
-            })
-            .add_startup_system(
-                server_is_live
-                    .label(StartupLabels::ServerIsLive)
-                    .after(StartupLabels::InitAtmospherics),
-            );
+        let task_pool;
+
         match self.threads_amount {
             Some(amn) => {
-                app.insert_resource(DefaultTaskPoolOptions::with_num_threads(amn.into()));
+                task_pool = TaskPoolOptions::with_num_threads(amn.into());
             }
-            None => {}
+            None => {
+                task_pool = TaskPoolOptions::default();
+            }
         }
+
+        app.add_plugins(
+            DefaultPlugins
+                .set(CorePlugin {
+                    task_pool_options: task_pool,
+                    ..Default::default()
+                })
+                .set(WindowPlugin {
+                    add_primary_window: false,
+                    exit_on_all_closed: false,
+                    ..Default::default()
+                }),
+        )
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(ControllerPlugin {
+            custom_motd: self.custom_motd.clone(),
+        })
+        .add_plugin(AsanaPlugin)
+        .add_plugin(WorldEnvironmentPlugin)
+        .add_plugin(GridmapPlugin)
+        .add_plugin(ResourcesPlugin)
+        .add_plugin(PawnPlugin)
+        .add_plugin(HumanMalePlugin)
+        .add_plugin(SfxPlugin)
+        .add_plugin(EntityPlugin)
+        .add_plugin(AtmosphericsPlugin)
+        .add_plugin(ConsoleCommandsPlugin)
+        .add_plugin(ConstructionToolAdminPlugin)
+        .add_plugin(ActionsPlugin)
+        .add_plugin(MapPlugin)
+        .add_plugin(AirLocksPlugin)
+        .add_plugin(CounterWindowsPlugin)
+        .add_plugin(InventoryPlugin)
+        .add_plugin(NetworkingPlugin)
+        .add_plugin(HumanoidPlugin)
+        .add_plugin(RigidBodyPlugin)
+        .add_plugin(ComputersPlugin)
+        .add_plugin(CombatPlugin)
+        .add_plugin(OmniLightPlugin)
+        .add_plugin(ReflectionProbePlugin)
+        .add_plugin(InventoryItemPlugin)
+        .add_plugin(JumpsuitsPlugin)
+        .add_plugin(HelmetsPlugin)
+        .add_plugin(PistolL1Plugin)
+        .add_plugin(LineArrowPlugin)
+        .add_plugin(PointArrowPlugin)
+        .add_plugin(SoundsPlugin)
+        .add_plugin(ChatPlugin)
+        .add_plugin(UiPlugin)
+        .add_plugin(PlayerPlugin)
+        .add_plugin(BasicConsoleCommandsPlugin {
+            give_all_rcon: self.give_all_rcon,
+        })
+        .add_startup_system(
+            server_is_live
+                .label(StartupLabels::ServerIsLive)
+                .after(StartupLabels::InitAtmospherics),
+        );
 
         let mut tick_rate = TickRate::default();
         if self.physics_rate.is_some() {

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     math::Vec3,
-    prelude::{EventReader, EventWriter, Query, Res, ResMut, Transform},
+    prelude::{EventReader, EventWriter, Query, Res, ResMut, Resource, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
@@ -187,6 +187,7 @@ pub(crate) fn projectile_fov(
 
 /// The resource with FOV data.
 #[cfg(feature = "server")]
+#[derive(Resource)]
 pub struct DoryenMap {
     pub map: MapData,
 }

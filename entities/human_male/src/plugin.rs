@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet};
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},

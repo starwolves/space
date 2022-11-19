@@ -109,8 +109,7 @@ pub(crate) fn configure(
         auth_id_i.i += 1;
 
         let player_entity_id = commands
-            .spawn()
-            .insert_bundle((
+            .spawn((
                 connected_player_component,
                 soft_connected_component,
                 persistent_player_data,

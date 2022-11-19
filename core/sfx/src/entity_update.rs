@@ -1,4 +1,4 @@
-use bevy::prelude::{Changed, Entity, Query};
+use bevy::prelude::{Changed, Entity, Query, Resource};
 use entity::entity_data::{
     entity_update_changed_detection, get_entity_update_difference, EntityUpdates,
 };
@@ -293,7 +293,7 @@ pub(crate) fn sfx_update(mut updated_sfx: Query<(&mut Sfx, &mut EntityUpdates), 
 }
 
 /// Resource containing data on when sfx should be automatically destroyed.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct SfxAutoDestroyTimers {
     pub timers: Vec<(Entity, u8)>,

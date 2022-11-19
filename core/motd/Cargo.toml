@@ -13,5 +13,9 @@ edition = "2021"
 server = []
 client = []
 
+[dependencies.bevy]
+version = "0.9.0"
+default-features = false
+
 [dependencies]
 text_api = { path = "../text_api",  features=["server"]}

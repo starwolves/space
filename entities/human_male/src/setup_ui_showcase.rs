@@ -26,7 +26,7 @@ pub(crate) fn human_male_setup_ui(
             ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
         ];
 
-        let human_male_entity = commands.spawn().id();
+        let human_male_entity = commands.spawn(()).id();
 
         summon_human_male.send(SpawnEvent {
             spawn_data: SpawnData {

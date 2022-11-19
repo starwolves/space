@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{EventReader, ResMut};
+use bevy::prelude::{EventReader, ResMut, Resource};
 
 use crate::attack::{Attack, QueryCombatHitResult};
 
 /// Resource storing current incremented attack id.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct ActiveAttackIncrement {
     /// Attack id.
@@ -23,7 +23,7 @@ impl ActiveAttackIncrement {
 }
 
 /// Resource with an active attack cache.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct ActiveAttacks {
     pub map: HashMap<u64, ActiveAttack>,

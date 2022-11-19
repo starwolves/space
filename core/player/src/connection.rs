@@ -1,4 +1,5 @@
 use bevy::prelude::Component;
+use bevy::prelude::Resource;
 use networking::server::PendingMessage;
 use networking::server::PendingNetworkMessage;
 use networking::server::ReliableServerMessage;
@@ -32,7 +33,7 @@ pub struct SendServerConfiguration {
     pub handle: u64,
 }
 /// Resource with the current incremented authentication ID.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub(crate) struct AuthidI {
     pub i: u16,

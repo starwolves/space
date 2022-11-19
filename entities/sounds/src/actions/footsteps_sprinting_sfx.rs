@@ -8,7 +8,7 @@ pub struct FootstepsSprintingSfxBundle;
 impl FootstepsSprintingSfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands
-            .spawn_bundle((
+            .spawn((
                 RepeatingSfx {
                     unit_db: 12.0,
                     unit_size: 1.,

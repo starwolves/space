@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
+use bevy::prelude::Resource;
 use gridmap_meta::core::GridItemData;
 
 /// Resource that contains entity meta data.
-#[derive(Default)]
+#[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct EntityDataResource {
     pub data: Vec<EntityDataProperties>,

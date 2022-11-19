@@ -1,7 +1,7 @@
-use bevy::prelude::{Color, Component, Entity, SystemLabel};
+use bevy::prelude::{Color, Component, Entity, Resource, SystemLabel};
 use bevy::{
     prelude::{Changed, Query},
-    ui::{Interaction, UiColor},
+    ui::Interaction,
 };
 
 pub const INPUT_TEXT_BG_PRESSED: Color = INPUT_TEXT_BG;
@@ -31,18 +31,19 @@ pub enum TextInputLabel {
 }
 
 #[cfg(feature = "client")]
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct TextInput {
     pub focused_input: Option<Entity>,
 }
 use bevy::prelude::ResMut;
 use bevy::prelude::With;
+use bevy::ui::BackgroundColor;
 
 /// UI event visuals.
 #[cfg(feature = "client")]
 pub(crate) fn ui_events(
     mut interaction_query: Query<
-        (Entity, &Interaction, &mut UiColor),
+        (Entity, &Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<TextInputNode>),
     >,
     text_input: Res<TextInput>,
@@ -101,7 +102,7 @@ pub(crate) fn focus_events(
     mut focus_events: EventReader<FocusTextInput>,
     mut unfocus_events: EventReader<UnfocusTextInput>,
     mut text_input: ResMut<TextInput>,
-    mut input_query: Query<(&mut UiColor, &TextInputNode, &Children)>,
+    mut input_query: Query<(&mut BackgroundColor, &TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
 ) {
     for focus in focus_events.iter() {
@@ -240,6 +241,8 @@ pub(crate) fn input_characters(
     clipboard: Res<EguiClipboard>,
     mut pasting: Local<bool>,
 ) {
+    use bevy::time::TimerMode;
+
     if !*backspace_timer_not_first {
         backspace_timer.pause();
         *backspace_timer_not_first = true;
@@ -360,7 +363,8 @@ pub(crate) fn input_characters(
 
                         if keys.just_pressed(KeyCode::Back) {
                             input_node.input.pop();
-                            *backspace_init_timer = Timer::new(Duration::from_millis(300), false);
+                            *backspace_init_timer =
+                                Timer::new(Duration::from_millis(300), TimerMode::Once);
                         } else if keys.pressed(KeyCode::Back) {
                             let delta_time = time.delta();
                             backspace_timer.tick(delta_time);
@@ -368,7 +372,10 @@ pub(crate) fn input_characters(
 
                             if backspace_init_timer.finished() {
                                 if backspace_timer.paused() {
-                                    *backspace_timer = Timer::new(Duration::from_millis(150), true);
+                                    *backspace_timer = Timer::new(
+                                        Duration::from_millis(150),
+                                        TimerMode::Repeating,
+                                    );
                                 }
 
                                 if backspace_timer.just_finished() {

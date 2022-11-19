@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use networking::server::net_system;
 use resources::labels::{MapLabels, PostUpdateLabels, PreUpdateLabels};
 

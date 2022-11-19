@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, ParallelSystemDescriptorCoercion, Plugin, ResMut};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},

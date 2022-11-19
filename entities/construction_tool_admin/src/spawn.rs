@@ -23,7 +23,7 @@ use super::construction_tool::ConstructionTool;
 
 #[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
-    Transform::identity()
+    Transform::IDENTITY
 }
 
 #[cfg(feature = "server")]
@@ -154,7 +154,7 @@ pub fn summon_raw_construction_tool(
                 entity_transform: entity_transform,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
-                entity: commands.spawn().id(),
+                entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
