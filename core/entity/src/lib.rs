@@ -31,6 +31,8 @@ pub mod plugin;
 pub mod sensable;
 /// Entity that can sense entities that are sensable.
 pub mod senser;
+/// Showcase resources.
+pub mod showcase;
 /// Base spawner for entities.
 pub mod spawn;
 /// Crate that performs FOV logic for sensing and sensable entities.

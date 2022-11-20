@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
+use crate::showcase::{Showcase, ShowcaseData};
 use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
 use networking::server::{GodotVariantValues, ReliableServerMessage};
 use serde::Deserialize;
-use showcase::core::{Showcase, ShowcaseData};
 
 use crate::{
     entity_data::{
