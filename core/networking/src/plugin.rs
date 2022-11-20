@@ -2,8 +2,7 @@ use std::env;
 
 use bevy::prelude::{App, Plugin};
 use bevy::prelude::{IntoSystemDescriptor, SystemSet};
-use bevy_renet::renet::NETCODE_KEY_BYTES;
-use bevy_renet::RenetServerPlugin;
+use bevy_renet::{RenetClientPlugin, RenetServerPlugin};
 use resources::labels::PostUpdateLabels;
 
 use super::server::{souls, startup_server_listen_connections};
@@ -14,14 +13,11 @@ use bevy::app::CoreStage::PostUpdate;
 use bevy::app::CoreStage::PreUpdate;
 pub struct NetworkingPlugin;
 
-#[cfg(any(feature = "server", feature = "client"))]
-pub(crate) const PRIVATE_KEY: &[u8; NETCODE_KEY_BYTES] = b"lFNpVdFi5LhL8xlDFtnobx5onFR30afX";
-
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_plugin(RenetServerPlugin::default())
-                .insert_resource(startup_server_listen_connections(*PRIVATE_KEY))
+                .insert_resource(startup_server_listen_connections())
                 .add_system_to_stage(PreUpdate, souls)
                 .add_event::<PendingNetworkMessage>()
                 .add_system_set_to_stage(
@@ -35,7 +31,8 @@ impl Plugin for NetworkingPlugin {
                     process_finalize_net.after(PostUpdateLabels::Net),
                 );
         } else {
-            app.add_system(connect_to_server)
+            app.add_plugin(RenetClientPlugin::default())
+                .add_system(connect_to_server)
                 .add_event::<ConnectToServer>()
                 .init_resource::<ConnectionPreferences>()
                 .init_resource::<Connection>();

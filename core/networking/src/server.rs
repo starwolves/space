@@ -10,7 +10,7 @@ use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
 use bevy_renet::renet::{
     ChannelConfig, ReliableChannelConfig, RenetConnectionConfig, RenetServer, ServerAuthentication,
-    ServerConfig, NETCODE_KEY_BYTES,
+    ServerConfig,
 };
 
 use super::plugin::RENET_RELIABLE_CHANNEL_ID;
@@ -25,9 +25,7 @@ pub(crate) const PROTOCOL_ID: u64 = 7;
 
 /// Start server and open and listen to port.
 #[cfg(feature = "server")]
-pub(crate) fn startup_server_listen_connections(
-    encryption_key: [u8; NETCODE_KEY_BYTES],
-) -> RenetServer {
+pub(crate) fn startup_server_listen_connections() -> RenetServer {
     let server_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
         .parse()
         .unwrap();
@@ -49,14 +47,8 @@ pub(crate) fn startup_server_listen_connections(
         ..Default::default()
     };
 
-    let server_config = ServerConfig::new(
-        64,
-        PROTOCOL_ID,
-        server_addr,
-        ServerAuthentication::Secure {
-            private_key: encryption_key,
-        },
-    );
+    let server_config =
+        ServerConfig::new(64, PROTOCOL_ID, server_addr, ServerAuthentication::Unsecure);
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();

@@ -5,11 +5,10 @@ use std::{
 
 use bevy::prelude::{info, Resource};
 use bevy_renet::renet::{
-    ChannelConfig, ClientAuthentication, ConnectToken, ReliableChannelConfig, RenetClient,
-    RenetConnectionConfig,
+    ChannelConfig, ClientAuthentication, ReliableChannelConfig, RenetClient, RenetConnectionConfig,
 };
 
-use crate::{plugin::PRIVATE_KEY, server::PROTOCOL_ID};
+use crate::server::PROTOCOL_ID;
 
 #[cfg(feature = "client")]
 pub const CLIENT_PORT: u16 = 56613;
@@ -41,6 +40,11 @@ pub(crate) fn connect_to_server(
     preferences: Res<ConnectionPreferences>,
     mut connection: ResMut<Connection>,
 ) {
+    use crate::{
+        plugin::RENET_RELIABLE_CHANNEL_ID,
+        server::{ReliableServerMessage, ServerConfigMessage},
+    };
+
     for _ in event.iter() {
         match connection.status {
             ConnectionStatus::None => (),
@@ -76,7 +80,6 @@ pub(crate) fn connect_to_server(
                     }
                 }
 
-                let encryption_key = *PRIVATE_KEY;
                 let ip_address;
 
                 match address.parse::<IpAddr>() {
@@ -116,30 +119,27 @@ pub(crate) fn connect_to_server(
                     .unwrap();
                 let client_id = current_time.as_millis() as u64;
 
-                let token = ConnectToken::generate(
-                    current_time,
-                    PROTOCOL_ID,
-                    300,
-                    client_id,
-                    7,
-                    vec![socket_address],
-                    None,
-                    &encryption_key,
-                )
-                .unwrap();
                 info!("Establishing connection with [{}]", socket_address);
 
-                commands.insert_resource(
-                    RenetClient::new(
-                        current_time,
-                        socket,
-                        connection_config,
-                        ClientAuthentication::Secure {
-                            connect_token: token,
-                        },
-                    )
-                    .unwrap(),
-                );
+                let mut client = RenetClient::new(
+                    current_time,
+                    socket,
+                    connection_config,
+                    ClientAuthentication::Unsecure {
+                        protocol_id: PROTOCOL_ID,
+                        client_id: client_id,
+                        server_addr: socket_address,
+                        user_data: None,
+                    },
+                )
+                .unwrap();
+                let message = bincode::serialize(&ReliableServerMessage::ConfigMessage(
+                    ServerConfigMessage::Awoo,
+                ))
+                .unwrap();
+                client.send_message(RENET_RELIABLE_CHANNEL_ID, message);
+
+                commands.insert_resource(client);
 
                 connection.status = ConnectionStatus::Connecting;
             }
