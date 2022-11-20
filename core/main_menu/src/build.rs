@@ -579,13 +579,12 @@ pub(crate) fn show_play_menu(
                                                         Val::Percent(100.),
                                                         Val::Percent(5.),
                                                     ),
-
-                                            margin: UiRect::new(
-                                                Val::Undefined,
-                                                Val::Undefined,
-                                                Val::Percent(15.),
-                                                Val::Percent(10.),
-                                            ),
+                                                    margin: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(15.),
+                                                        Val::Percent(10.),
+                                                    ),
                                                     justify_content: JustifyContent::Center,
                                                     ..Default::default()
                                                 },
