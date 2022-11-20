@@ -305,7 +305,6 @@ pub enum ProjectileData {
 pub trait PendingMessage {
     fn get_message(&self) -> PendingNetworkMessage;
 }
-/// Only NetMessage that shouldnt be pub(crate)
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
 pub struct PendingNetworkMessage {

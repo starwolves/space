@@ -3,10 +3,7 @@ use bevy::{
     prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform},
     time::Time,
 };
-use entity::{
-    sensable::Sensable,
-    spawn::{SpawnData, SpawnEvent},
-};
+use entity::spawn::{SpawnData, SpawnEvent};
 use networking::server::GodotVariantValues;
 
 use super::{
@@ -130,26 +127,22 @@ pub(crate) fn entity_console_commands(
         }
     }
 }
-use entity::networking::NetUnloadEntity;
-use networking::server::HandleToEntity;
+use entity::sensable::DespawnEntity;
 
 /// Despawn point arrows after duration.
 #[cfg(feature = "server")]
 pub(crate) fn expire_point_arrow(
-    mut point_arrows: Query<(Entity, &mut PointArrow, &mut Sensable)>,
+    mut point_arrows: Query<(Entity, &mut PointArrow)>,
     time: Res<Time>,
-    mut net_unload_entity: EventWriter<NetUnloadEntity>,
-    handle_to_entity: Res<HandleToEntity>,
-    mut commands: Commands,
+    mut net_unload_entity: EventWriter<DespawnEntity>,
 ) {
-    for (entity, mut point_arrow_component, mut sensable_component) in point_arrows.iter_mut() {
+    for (entity, mut point_arrow_component) in point_arrows.iter_mut() {
         if point_arrow_component
             .timer
             .tick(time.delta())
             .just_finished()
         {
-            sensable_component.despawn(entity, &mut net_unload_entity, &handle_to_entity);
-            commands.entity(entity).despawn();
+            net_unload_entity.send(DespawnEntity { entity });
         }
     }
 }

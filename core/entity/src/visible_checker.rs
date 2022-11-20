@@ -1,42 +1,32 @@
 use bevy::{
     math::Vec3,
-    prelude::{warn, Entity, EventWriter, Mut, Query, Transform},
+    prelude::{Entity, EventWriter, Mut, Query, Transform},
 };
-use bevy_rapier3d::prelude::RigidBody;
 
 use math::grid::world_to_cell_id;
 
-use crate::networking::{NetLoadEntity, NetUnloadEntity};
+use crate::networking::LoadEntity;
+use crate::networking::NetUnloadEntity;
 use crate::{
-    entity_data::{EntityData, EntityUpdates, WorldMode, WorldModes},
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
 };
 use networking::server::ConnectedPlayer;
+use networking::server::ReliableServerMessage;
 
 /// Perform FOV checks to see what is and what isn't visible.
 #[cfg(feature = "server")]
 pub(crate) fn visible_checker(
-    mut query_visible_entities: Query<(
-        Entity,
-        &mut Sensable,
-        &Transform,
-        Option<&RigidBody>,
-        &EntityData,
-        &EntityUpdates,
-        Option<&WorldMode>,
-    )>,
+    mut query_visible_entities: Query<(Entity, &mut Sensable, &Transform)>,
     mut query_visible_checker_entities_rigid: Query<(
         Entity,
         &mut Senser,
         &Transform,
         Option<&ConnectedPlayer>,
     )>,
-    mut net_load_entity: EventWriter<NetLoadEntity>,
-    mut net_unload_entity: EventWriter<NetUnloadEntity>,
+    mut net_despawn_entity: EventWriter<NetUnloadEntity>,
+    mut load_entity: EventWriter<LoadEntity>,
 ) {
-    use crate::networking::unload_entity;
-
     for (
         entity,
         mut visible_checker_component,
@@ -52,45 +42,12 @@ pub(crate) fn visible_checker(
             visible_checker_translation.z,
         );
 
-        for (
-            visible_entity_id,
-            mut visible_component,
-            transform_component,
-            rigid_body_component_option,
-            entity_data_component,
-            entity_updates_component,
-            entity_world_mode_option,
-        ) in query_visible_entities.iter_mut()
+        for (visible_entity_id, mut visible_component, transform_component) in
+            query_visible_entities.iter_mut()
         {
             let visible_entity_transform;
 
-            let mut is_interpolated = false;
             visible_entity_transform = transform_component;
-
-            match rigid_body_component_option {
-                Some(rigid_body_component) => match rigid_body_component {
-                    RigidBody::Dynamic => match entity_world_mode_option {
-                        Some(entity_world_mode) => {
-                            if matches!(entity_world_mode.mode, WorldModes::Held)
-                                || matches!(entity_world_mode.mode, WorldModes::Worn)
-                            {
-                                is_interpolated = false;
-                            } else {
-                                is_interpolated = true;
-                            }
-                        }
-                        None => {
-                            is_interpolated = false;
-                        }
-                    },
-                    RigidBody::Fixed => {}
-                    _ => {
-                        warn!("Unexpected rigidbody type.");
-                        continue;
-                    }
-                },
-                None => {}
-            }
 
             visible_check(
                 &mut visible_component,
@@ -98,13 +55,10 @@ pub(crate) fn visible_checker(
                 *visible_entity_transform,
                 visible_checker_translation_vec,
                 entity,
-                &mut net_load_entity,
-                &mut net_unload_entity,
+                &mut net_despawn_entity,
                 visible_checker_connected_player_component_option,
-                entity_data_component,
                 visible_entity_id,
-                is_interpolated,
-                &entity_updates_component,
+                &mut load_entity,
             );
         }
 
@@ -120,12 +74,13 @@ pub(crate) fn visible_checker(
                     if !visible_checker_component.sfx.contains(entity) {
                         match visible_checker_connected_player_component_option {
                             Some(connected_component) => {
-                                unload_entity(
-                                    connected_component.handle,
-                                    *entity,
-                                    &mut net_unload_entity,
-                                    true,
-                                );
+                                net_despawn_entity.send(NetUnloadEntity {
+                                    handle: connected_component.handle,
+                                    message: ReliableServerMessage::UnloadEntity(
+                                        entity.to_bits(),
+                                        true,
+                                    ),
+                                });
                             }
                             None => {}
                         }
@@ -173,16 +128,11 @@ fn visible_check(
     visible_entity_transform: Transform,
     visible_checker_translation: Vec3,
     visible_checker_entity_id: Entity,
-    net_load_entity: &mut EventWriter<NetLoadEntity>,
     net_unload_entity: &mut EventWriter<NetUnloadEntity>,
     visible_checker_component_option: Option<&ConnectedPlayer>,
-    visible_entity_data: &EntityData,
     visible_entity_id: Entity,
-    interpolated_transform: bool,
-    visible_entity_updates_component: &EntityUpdates,
+    load_entity_event: &mut EventWriter<LoadEntity>,
 ) {
-    use crate::networking::{load_entity, unload_entity};
-
     let distance = visible_checker_translation.distance(visible_entity_transform.translation);
     let is_cached = distance < VIEW_DISTANCE;
     let can_cache;
@@ -238,12 +188,13 @@ fn visible_check(
             match visible_checker_component_option {
                 Some(visible_checker_component) => {
                     if visible_checker_component.connected {
-                        unload_entity(
-                            visible_checker_component.handle,
-                            visible_entity_id,
-                            net_unload_entity,
-                            unload_entirely,
-                        );
+                        net_unload_entity.send(NetUnloadEntity {
+                            handle: visible_checker_component.handle,
+                            message: ReliableServerMessage::UnloadEntity(
+                                visible_entity_id.to_bits(),
+                                unload_entirely,
+                            ),
+                        });
                     }
                 }
                 None => {}
@@ -278,12 +229,13 @@ fn visible_check(
             match visible_checker_component_option {
                 Some(visible_checker_component) => {
                     if visible_checker_component.connected {
-                        unload_entity(
-                            visible_checker_component.handle,
-                            visible_entity_id,
-                            net_unload_entity,
-                            unload_entirely,
-                        );
+                        net_unload_entity.send(NetUnloadEntity {
+                            handle: visible_checker_component.handle,
+                            message: ReliableServerMessage::UnloadEntity(
+                                visible_entity_id.to_bits(),
+                                unload_entirely,
+                            ),
+                        });
                     }
                 }
                 None => {}
@@ -311,12 +263,13 @@ fn visible_check(
                 match visible_checker_component_option {
                     Some(visible_checker_component) => {
                         if visible_checker_component.connected {
-                            unload_entity(
-                                visible_checker_component.handle,
-                                visible_entity_id,
-                                net_unload_entity,
-                                unload_entirely,
-                            );
+                            net_unload_entity.send(NetUnloadEntity {
+                                handle: visible_checker_component.handle,
+                                message: ReliableServerMessage::UnloadEntity(
+                                    visible_entity_id.to_bits(),
+                                    unload_entirely,
+                                ),
+                            });
                         }
                     }
                     None => {}
@@ -341,17 +294,11 @@ fn visible_check(
             match visible_checker_component_option {
                 Some(visible_checker_component) => {
                     if visible_checker_component.connected {
-                        load_entity(
-                            &visible_entity_updates_component.updates,
-                            visible_entity_transform,
-                            interpolated_transform,
-                            net_load_entity,
-                            visible_checker_component.handle,
-                            visible_entity_data,
-                            visible_entity_updates_component,
-                            visible_entity_id,
-                            true,
-                        );
+                        load_entity_event.send(LoadEntity {
+                            entity: visible_entity_id,
+                            loader_handle: visible_checker_component.handle,
+                            load_entirely: true,
+                        });
                     }
                 }
                 None => {}

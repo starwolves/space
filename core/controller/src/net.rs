@@ -1,6 +1,4 @@
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform, Without};
-use entity::entity_data::EntityData;
-use entity::entity_data::EntityUpdates;
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Without};
 use gi_probe::core::GIProbe;
 use networking::server::{ReliableServerMessage, ServerConfigMessage};
 use networking_macros::NetMessage;
@@ -48,26 +46,19 @@ pub(crate) struct NetUserName {
     pub message: ReliableServerMessage,
 }
 use crate::input::InputBuildGraphics;
-use entity::networking::NetLoadEntity;
+use bevy::prelude::With;
+use entity::networking::LoadEntity;
 
 /// Build graphics for Godot client.
 #[cfg(feature = "server")]
 pub(crate) fn build_graphics(
     mut build_graphics_events: EventReader<InputBuildGraphics>,
-    mut net_load_entity: EventWriter<NetLoadEntity>,
     mut net_send_world_environment: EventWriter<NetSendWorldEnvironment>,
     world_environment: Res<WorldEnvironment>,
-    reflection_probe_query: Query<(
-        Entity,
-        &ReflectionProbe,
-        &Transform,
-        &EntityData,
-        &EntityUpdates,
-    )>,
-    gi_probe_query: Query<(Entity, &GIProbe, &Transform, &EntityData, &EntityUpdates)>,
+    reflection_probe_query: Query<Entity, With<ReflectionProbe>>,
+    gi_probe_query: Query<Entity, With<GIProbe>>,
+    mut load_entity_event: EventWriter<LoadEntity>,
 ) {
-    use entity::networking::load_entity;
-
     for build_graphics_event in build_graphics_events.iter() {
         net_send_world_environment.send(NetSendWorldEnvironment {
             handle: build_graphics_event.handle,
@@ -76,46 +67,20 @@ pub(crate) fn build_graphics(
             )),
         });
 
-        for (
-            entity,
-            _gi_probe_component,
-            static_transform_component,
-            entity_data_component,
-            entity_updates_component,
-        ) in gi_probe_query.iter()
-        {
-            load_entity(
-                &entity_updates_component.updates,
-                *static_transform_component,
-                false,
-                &mut net_load_entity,
-                build_graphics_event.handle,
-                entity_data_component,
-                entity_updates_component,
-                entity,
-                true,
-            );
+        for entity in gi_probe_query.iter() {
+            load_entity_event.send(LoadEntity {
+                entity: entity,
+                loader_handle: build_graphics_event.handle,
+                load_entirely: true,
+            });
         }
 
-        for (
-            entity,
-            _reflection_probe_component,
-            static_transform_component,
-            entity_data_component,
-            entity_updates_component,
-        ) in reflection_probe_query.iter()
-        {
-            load_entity(
-                &entity_updates_component.updates,
-                *static_transform_component,
-                false,
-                &mut net_load_entity,
-                build_graphics_event.handle,
-                entity_data_component,
-                entity_updates_component,
-                entity,
-                true,
-            );
+        for entity in reflection_probe_query.iter() {
+            load_entity_event.send(LoadEntity {
+                entity: entity,
+                loader_handle: build_graphics_event.handle,
+                load_entirely: true,
+            });
         }
     }
 }

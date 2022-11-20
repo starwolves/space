@@ -11,7 +11,7 @@ use bevy::{
     time::{Time, Timer, TimerMode},
 };
 use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
-use entity::{examine::Examinable, health::DamageFlag, sensable::Sensable};
+use entity::{examine::Examinable, health::DamageFlag};
 use gridmap::grid::GridmapMain;
 use inventory_api::core::Inventory;
 use inventory_item::{
@@ -136,7 +136,7 @@ enum CharacterMovementState {
     Sprinting,
 }
 use controller::controller::ControllerInput;
-use entity::networking::NetUnloadEntity;
+use entity::sensable::DespawnEntity;
 use networking::server::HandleToEntity;
 
 /// Core humanoid logic.
@@ -168,18 +168,14 @@ pub(crate) fn humanoid_core(
         &MeleeCombat,
         Option<&ProjectileCombat>,
     )>,
-    mut sensable_entities: Query<&mut Sensable>,
     time: Res<Time>,
-    handle_to_entity: Res<HandleToEntity>,
     mut commands: Commands,
     tick_rate: Res<TickRate>,
     mut attack_event_writer: EventWriter<Attack>,
-    tuple0: (EventWriter<NetUnloadEntity>,),
+    mut net_unload_entity: EventWriter<DespawnEntity>,
     gridmap_main: Res<GridmapMain>,
     mut attack_events: ResMut<ActiveAttackIncrement>,
 ) {
-    let (mut net_unload_entity,) = tuple0;
-
     for (
         standard_character_entity,
         mut player_input_component,
@@ -556,15 +552,9 @@ pub(crate) fn humanoid_core(
 
                     match linked_footsteps_walking_option {
                         Some(linked_footsteps_walking_component) => {
-                            let mut sensable_component = sensable_entities
-                                .get_mut(linked_footsteps_walking_component.entity)
-                                .unwrap();
-
-                            sensable_component.despawn(
-                                linked_footsteps_walking_component.entity,
-                                &mut net_unload_entity,
-                                &handle_to_entity,
-                            );
+                            net_unload_entity.send(DespawnEntity {
+                                entity: linked_footsteps_walking_component.entity,
+                            });
 
                             commands
                                 .entity(standard_character_entity)
@@ -588,15 +578,9 @@ pub(crate) fn humanoid_core(
 
                     match linked_footsteps_sprinting_option {
                         Some(linked_footsteps_sprinting_component) => {
-                            let mut sensable_component = sensable_entities
-                                .get_mut(linked_footsteps_sprinting_component.entity)
-                                .unwrap();
-
-                            sensable_component.despawn(
-                                linked_footsteps_sprinting_component.entity,
-                                &mut net_unload_entity,
-                                &handle_to_entity,
-                            );
+                            net_unload_entity.send(DespawnEntity {
+                                entity: linked_footsteps_sprinting_component.entity,
+                            });
 
                             commands
                                 .entity(standard_character_entity)
@@ -641,15 +625,9 @@ pub(crate) fn humanoid_core(
                     ) {
                         match linked_footsteps_sprinting_option {
                             Some(linked_footsteps_sprinting_component) => {
-                                let mut sensable_component = sensable_entities
-                                    .get_mut(linked_footsteps_sprinting_component.entity)
-                                    .unwrap();
-
-                                sensable_component.despawn(
-                                    linked_footsteps_sprinting_component.entity,
-                                    &mut net_unload_entity,
-                                    &handle_to_entity,
-                                );
+                                net_unload_entity.send(DespawnEntity {
+                                    entity: linked_footsteps_sprinting_component.entity,
+                                });
 
                                 commands
                                     .entity(standard_character_entity)
@@ -720,15 +698,9 @@ pub(crate) fn humanoid_core(
                     ) {
                         match linked_footsteps_walking_option {
                             Some(linked_footsteps_walking_component) => {
-                                let mut sensable_component = sensable_entities
-                                    .get_mut(linked_footsteps_walking_component.entity)
-                                    .unwrap();
-
-                                sensable_component.despawn(
-                                    linked_footsteps_walking_component.entity,
-                                    &mut net_unload_entity,
-                                    &handle_to_entity,
-                                );
+                                net_unload_entity.send(DespawnEntity {
+                                    entity: linked_footsteps_walking_component.entity,
+                                });
 
                                 commands
                                     .entity(standard_character_entity)
@@ -908,15 +880,9 @@ pub(crate) fn humanoid_core(
         if zero_gravity_component_option.is_some() {
             match linked_footsteps_walking_option {
                 Some(linked_footsteps_walking_component) => {
-                    let mut sensable_component = sensable_entities
-                        .get_mut(linked_footsteps_walking_component.entity)
-                        .unwrap();
-
-                    sensable_component.despawn(
-                        linked_footsteps_walking_component.entity,
-                        &mut net_unload_entity,
-                        &handle_to_entity,
-                    );
+                    net_unload_entity.send(DespawnEntity {
+                        entity: linked_footsteps_walking_component.entity,
+                    });
 
                     commands
                         .entity(standard_character_entity)
@@ -930,15 +896,9 @@ pub(crate) fn humanoid_core(
             }
             match linked_footsteps_sprinting_option {
                 Some(linked_footsteps_sprinting_component) => {
-                    let mut sensable_component = sensable_entities
-                        .get_mut(linked_footsteps_sprinting_component.entity)
-                        .unwrap();
-
-                    sensable_component.despawn(
-                        linked_footsteps_sprinting_component.entity,
-                        &mut net_unload_entity,
-                        &handle_to_entity,
-                    );
+                    net_unload_entity.send(DespawnEntity {
+                        entity: linked_footsteps_sprinting_component.entity,
+                    });
 
                     commands
                         .entity(standard_character_entity)
