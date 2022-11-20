@@ -20,7 +20,9 @@ use crate::finalize_entity_updates::{
 };
 use crate::init::{initialize_console_commands, startup_entities};
 use crate::meta::EntityDataResource;
-use crate::networking::{incoming_messages, load_entity, NetLoadEntity, NetUnloadEntity, LoadEntity};
+use crate::networking::{
+    incoming_messages, load_entity, LoadEntity, NetLoadEntity, NetUnloadEntity,
+};
 use crate::sensable::{despawn_entity, DespawnEntity, NetDespawnEntity};
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
