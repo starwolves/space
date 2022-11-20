@@ -14,7 +14,5 @@ pub mod names;
 pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;
-/// Manage the welcome character and role setup UI.
-pub mod setup_ui;
 /// Map spawn points.
 pub mod spawn_points;

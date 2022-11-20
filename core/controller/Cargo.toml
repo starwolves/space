@@ -27,6 +27,7 @@ networking_macros = { path = "../networking_macros",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }
 pawn = { path = "../pawn",  features=["server"] }
 combat = { path = "../combat",  features=["server"] }
+setup_ui = { path = "../setup_ui",  features=["server"] }
 
 world_environment = { path = "../world_environment",  features=["server"] }
 resources = { path = "../resources",  features=["server"] }

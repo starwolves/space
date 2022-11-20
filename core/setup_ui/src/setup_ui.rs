@@ -22,8 +22,8 @@ pub struct InputUIInput {
     /// The UI this input was submitted from.
     pub ui_type: String,
 }
-use crate::boarding::SoftPlayer;
-use crate::connection::Boarding;
+use player::boarding::SoftPlayer;
+use player::connection::Boarding;
 
 /// Process player requesting board.
 #[cfg(feature = "server")]
@@ -69,9 +69,9 @@ pub(crate) struct NetOnSetupUI {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-use crate::name_generator::get_full_name;
-use crate::{connection::SetupPhase, names::UsedNames};
 use motd::motd::MOTD;
+use player::name_generator::get_full_name;
+use player::{connection::SetupPhase, names::UsedNames};
 
 use networking::server::ConnectedPlayer;
 /// Initialize the setup UI by spawning in showcase entities etc.
@@ -119,8 +119,8 @@ pub(crate) struct NetUIInputTransmitData {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
-use crate::boarding::{BoardingPlayer, InputUIInputTransmitText, PersistentPlayerData};
 use bevy::prelude::warn;
+use player::boarding::{BoardingPlayer, InputUIInputTransmitText, PersistentPlayerData};
 use text_api::core::CONSOLE_ERROR_COLOR;
 
 use bevy::prelude::ResMut;
@@ -226,18 +226,25 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     )]
 }
 
-use crate::connection::{NetPlayerConn, SendServerConfiguration};
 use networking::server::ServerConfigMessage;
+use player::connection::SendServerConfiguration;
+
+#[cfg(feature = "server")]
+#[derive(NetMessage)]
+pub(crate) struct NetConfigure {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
 
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut net_on_new_player_connection: EventWriter<NetPlayerConn>,
+    mut net_on_new_player_connection: EventWriter<NetConfigure>,
 ) {
     for event in config_events.iter() {
         let talk_spaces = get_talk_spaces_setupui();
 
-        net_on_new_player_connection.send(NetPlayerConn {
+        net_on_new_player_connection.send(NetConfigure {
             handle: event.handle,
             message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::TalkSpaces(
                 talk_spaces,

@@ -40,6 +40,7 @@ use player::plugin::PlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
 use resources::{core::TickRate, labels::StartupLabels, plugin::ResourcesPlugin};
 use rigid_body::plugin::RigidBodyPlugin;
+use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use ui::plugin::UiPlugin;
@@ -135,6 +136,7 @@ impl Plugin for ServerPlugin {
         .add_plugin(ChatPlugin)
         .add_plugin(UiPlugin)
         .add_plugin(PlayerPlugin)
+        .add_plugin(SetupUiPlugin)
         .add_plugin(BasicConsoleCommandsPlugin {
             give_all_rcon: self.give_all_rcon,
         })
