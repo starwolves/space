@@ -24,7 +24,7 @@ pub mod get_spawn_position;
 /// Core gridmap resources.
 pub mod grid;
 /// Initialize gridmap meta data.
-mod init_meta;
+mod init;
 /// Manage gridmap netcode.
 mod net;
 /// The networking module of this crate.
