@@ -11,6 +11,7 @@ use bevy::{
     time::{Time, Timer, TimerMode},
 };
 use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
+use entity::showcase::Showcase;
 use entity::{examine::Examinable, health::DamageFlag};
 use gridmap::grid::GridmapMain;
 use inventory_api::core::Inventory;
@@ -23,7 +24,6 @@ use pawn::pawn::{facing_direction_to_direction, FacingDirection, Pawn, PawnYAxis
 use resources::core::TickRate;
 use rigid_body::rigid_body::RigidBodyData;
 use sfx::builder::repeating_sfx_builder;
-use showcase::core::Showcase;
 use sounds::actions::{
     footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
     footsteps_walking_sfx::FootstepsWalkingSfxBundle,

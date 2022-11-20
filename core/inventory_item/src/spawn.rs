@@ -1,10 +1,10 @@
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform};
+use entity::showcase::ShowcaseData;
 use entity::{
     meta::EntityDataResource,
     spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
 };
 use physics::physics::RigidBodyLinkTransform;
-use showcase::core::ShowcaseData;
 
 use crate::combat::{MeleeCombat, ProjectileCombat};
 

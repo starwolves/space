@@ -1,8 +1,8 @@
 use bevy::prelude::{Changed, Entity, EventWriter, Query, Res};
 
+use crate::showcase::Showcase;
 use networking::server::{EntityWorldType, ReliableServerMessage};
 use networking_macros::NetMessage;
-use showcase::core::Showcase;
 
 use networking::server::{ConnectedPlayer, HandleToEntity};
 

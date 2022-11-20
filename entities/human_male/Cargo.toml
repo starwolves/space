@@ -37,7 +37,6 @@ networking = { path = "../../core/networking",  features=["server"] }
 resources = { path = "../../core/resources" ,  features=["server"]}
 humanoid = { path = "../../core/humanoid",  features=["server"] }
 pawn = { path = "../../core/pawn" ,  features=["server"]}
-showcase = { path = "../../core/showcase",  features=["server"] }
 jumpsuit_security = { path = "../jumpsuit_security",  features=["server"] }
 helmet_security = { path = "../helmet_security",  features=["server"] }
 pistol_l1 = { path = "../pistol_l1" ,  features=["server"]}

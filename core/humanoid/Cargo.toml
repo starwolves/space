@@ -34,7 +34,6 @@ rigid_body = { path = "../rigid_body",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }
 gridmap = { path = "../gridmap",  features=["server"] }
 resources = { path = "../resources",  features=["server"] }
-showcase = { path = "../showcase",  features=["server"] }
 atmospherics = { path = "../atmospherics",  features=["server"] }
 math = { path = "../math",  features=["server"] }
 text_api = { path = "../text_api",  features=["server"] }

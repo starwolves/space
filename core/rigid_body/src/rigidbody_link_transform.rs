@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{warn, Entity, Query, Transform, Without};
+use entity::showcase::Showcase;
 use physics::physics::RigidBodyLinkTransform;
-use showcase::core::Showcase;
 
 /// Manage and link rigid body transform.
 #[cfg(feature = "server")]

@@ -1,9 +1,9 @@
 use bevy::prelude::{Added, Commands, EventWriter, Query};
+use entity::showcase::ShowcaseData;
 use entity::spawn::{SpawnData, SpawnEvent};
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
-use showcase::core::ShowcaseData;
 
 use crate::spawn::HumanMaleSummoner;
 use networking::server::ConnectedPlayer;

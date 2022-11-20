@@ -5,10 +5,10 @@ use bevy::{
     prelude::{Changed, Entity, Query},
 };
 use entity::entity_data::{get_entity_update_difference, EntityUpdates};
+use entity::showcase::Showcase;
 use inventory_api::core::Inventory;
 use networking::server::EntityUpdateData;
 use pawn::pawn::FacingDirection;
-use showcase::core::Showcase;
 
 use inventory_item::{
     combat::{CombatAttackAnimation, MeleeCombat, ProjectileCombat},
