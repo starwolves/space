@@ -61,13 +61,13 @@ use networking::server::PendingNetworkMessage;
 
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
-pub struct NetUnloadEntity {
+pub(crate) struct NetUnloadEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
-pub struct NetLoadEntity {
+pub(crate) struct NetLoadEntity {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }
@@ -75,88 +75,137 @@ pub struct NetLoadEntity {
 use std::collections::HashMap;
 
 use crate::entity_data::personalise;
+use crate::entity_data::EntityUpdates;
+use bevy::prelude::Query;
 use bevy::prelude::Transform;
 use networking::server::EntityUpdateData;
 
-use crate::entity_data::{EntityData, EntityUpdates};
-/// Load an entity in for the client as a function.
+use crate::entity_data::EntityData;
+
+/// Event to load in entity for client.
+pub struct LoadEntity {
+    pub entity: Entity,
+    pub loader_handle: u64,
+    pub load_entirely: bool,
+}
+use crate::entity_data::WorldMode;
+use crate::entity_data::WorldModes;
+use bevy::prelude::EventReader;
+use bevy_rapier3d::prelude::RigidBody;
+
+/// Load an entity in for the client.
 #[cfg(feature = "server")]
-pub fn load_entity(
-    entity_updates: &HashMap<String, HashMap<String, EntityUpdateData>>,
-    entity_transform: Transform,
-    interpolated_transform: bool,
-    net_load_entity: &mut EventWriter<NetLoadEntity>,
-    player_handle: u64,
-    entity_data: &EntityData,
-    entity_updates_component: &EntityUpdates,
-    entity_id: Entity,
-    load_entirely: bool,
+pub(crate) fn load_entity(
+    entity_query: Query<(
+        &EntityData,
+        &EntityUpdates,
+        &Transform,
+        Option<&RigidBody>,
+        Option<&WorldMode>,
+    )>,
+    mut load_entity_events: EventReader<LoadEntity>,
+    mut net_load_entity: EventWriter<NetLoadEntity>,
 ) {
-    let mut hash_map;
+    for load_entity_event in load_entity_events.iter() {
+        match entity_query.get(load_entity_event.entity) {
+            Ok((
+                entity_data,
+                entity_update,
+                transform,
+                rigid_body_component_option,
+                entity_world_mode_option,
+            )) => {
+                let mut is_interpolated = false;
 
-    if load_entirely {
-        hash_map = entity_updates.clone();
-
-        personalise(&mut hash_map, player_handle, entity_updates_component);
-
-        let transform_entity_update = EntityUpdateData::Transform(
-            entity_transform.translation,
-            entity_transform.rotation,
-            entity_transform.scale,
-        );
-
-        match interpolated_transform {
-            true => {
-                let mut transform_hash_map = HashMap::new();
-                transform_hash_map.insert("transform".to_string(), transform_entity_update);
-
-                hash_map.insert("rawTransform".to_string(), transform_hash_map);
-            }
-            false => {
-                let root_map_option = hash_map.get_mut(&".".to_string());
-
-                match root_map_option {
-                    Some(root_map) => {
-                        root_map.insert("transform".to_string(), transform_entity_update);
-                    }
-                    None => {
-                        let mut transform_hash_map = HashMap::new();
-                        transform_hash_map.insert("transform".to_string(), transform_entity_update);
-
-                        hash_map.insert(".".to_string(), transform_hash_map);
-                    }
+                match rigid_body_component_option {
+                    Some(rigid_body_component) => match rigid_body_component {
+                        RigidBody::Dynamic => match entity_world_mode_option {
+                            Some(entity_world_mode) => {
+                                if matches!(entity_world_mode.mode, WorldModes::Held)
+                                    || matches!(entity_world_mode.mode, WorldModes::Worn)
+                                {
+                                    is_interpolated = false;
+                                } else {
+                                    is_interpolated = true;
+                                }
+                            }
+                            None => {
+                                is_interpolated = false;
+                            }
+                        },
+                        RigidBody::Fixed => {}
+                        _ => {
+                            warn!("Unexpected rigidbody type.");
+                            continue;
+                        }
+                    },
+                    None => {}
                 }
+
+                let mut hash_map;
+
+                if load_entity_event.load_entirely {
+                    hash_map = entity_update.updates.clone();
+
+                    personalise(
+                        &mut hash_map,
+                        load_entity_event.loader_handle,
+                        entity_update,
+                    );
+
+                    let transform_entity_update = EntityUpdateData::Transform(
+                        transform.translation,
+                        transform.rotation,
+                        transform.scale,
+                    );
+
+                    match is_interpolated {
+                        true => {
+                            let mut transform_hash_map = HashMap::new();
+                            transform_hash_map
+                                .insert("transform".to_string(), transform_entity_update);
+
+                            hash_map.insert("rawTransform".to_string(), transform_hash_map);
+                        }
+                        false => {
+                            let root_map_option = hash_map.get_mut(&".".to_string());
+
+                            match root_map_option {
+                                Some(root_map) => {
+                                    root_map
+                                        .insert("transform".to_string(), transform_entity_update);
+                                }
+                                None => {
+                                    let mut transform_hash_map = HashMap::new();
+                                    transform_hash_map
+                                        .insert("transform".to_string(), transform_entity_update);
+
+                                    hash_map.insert(".".to_string(), transform_hash_map);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    hash_map = HashMap::new();
+                }
+
+                net_load_entity.send(NetLoadEntity {
+                    handle: load_entity_event.loader_handle,
+                    message: ReliableServerMessage::LoadEntity(
+                        entity_data.entity_class.clone(),
+                        entity_data.entity_name.clone(),
+                        hash_map,
+                        load_entity_event.entity.to_bits(),
+                        load_entity_event.load_entirely,
+                        "main".to_string(),
+                        "".to_string(),
+                        false,
+                    ),
+                });
+            }
+            Err(_) => {
+                warn!("Couldnt find entity for load entity event.");
             }
         }
-    } else {
-        hash_map = HashMap::new();
     }
-
-    net_load_entity.send(NetLoadEntity {
-        handle: player_handle,
-        message: ReliableServerMessage::LoadEntity(
-            entity_data.entity_class.clone(),
-            entity_data.entity_name.clone(),
-            hash_map,
-            entity_id.to_bits(),
-            load_entirely,
-            "main".to_string(),
-            "".to_string(),
-            false,
-        ),
-    });
-}
-
-/// Unload an entity in for the client as a function.
-#[cfg(feature = "server")]
-pub fn unload_entity(
-    player_handle: u64,
-    entity_id: Entity,
-    net_unload_entity: &mut EventWriter<NetUnloadEntity>,
-    unload_entirely: bool,
-) {
-    net_unload_entity.send(NetUnloadEntity {
-        handle: player_handle,
-        message: ReliableServerMessage::UnloadEntity(entity_id.to_bits(), unload_entirely),
-    });
 }

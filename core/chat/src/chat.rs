@@ -185,7 +185,7 @@ pub struct NewChatMessage {
 use pawn::pawn::Communicator;
 use pawn::pawn::Pawn;
 
-/// Function. It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
+/// It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
 #[cfg(feature = "server")]
 pub(crate) fn chat_message(
     mut new_chat_messages: EventReader<NewChatMessage>,
@@ -1317,7 +1317,7 @@ pub(crate) fn send_entity_proximity_messages(
 }
 #[derive(NetMessage)]
 #[cfg(feature = "server")]
-pub (crate) struct NetSendEntityUpdates {
+pub(crate) struct NetSendEntityUpdates {
     pub handle: u64,
     pub message: ReliableServerMessage,
 }

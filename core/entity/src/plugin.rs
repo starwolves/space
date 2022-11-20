@@ -20,7 +20,8 @@ use crate::finalize_entity_updates::{
 };
 use crate::init::{initialize_console_commands, startup_entities};
 use crate::meta::EntityDataResource;
-use crate::networking::{incoming_messages, NetLoadEntity, NetUnloadEntity};
+use crate::networking::{incoming_messages, load_entity, NetLoadEntity, NetUnloadEntity, LoadEntity};
+use crate::sensable::{despawn_entity, DespawnEntity, NetDespawnEntity};
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
 
@@ -72,6 +73,10 @@ impl Plugin for EntityPlugin {
                         .after(PostUpdateLabels::SendEntityUpdates)
                         .label(PostUpdateLabels::VisibleChecker),
                 )
+                .add_system_to_stage(
+                    PostUpdate,
+                    despawn_entity.after(PostUpdateLabels::VisibleChecker),
+                )
                 .add_system(
                     build_actions
                         .label(ActionsLabels::Build)
@@ -88,7 +93,8 @@ impl Plugin for EntityPlugin {
                         .with_system(net_system::<NetLoadEntity>)
                         .with_system(net_system::<NetUnloadEntity>)
                         .with_system(net_system::<NetFinalizeEntityUpdates>)
-                        .with_system(net_system::<NetEntityUpdate>),
+                        .with_system(net_system::<NetEntityUpdate>)
+                        .with_system(net_system::<NetDespawnEntity>),
                 )
                 .add_event::<NetConnExamine>()
                 .add_system_to_stage(
@@ -119,7 +125,11 @@ impl Plugin for EntityPlugin {
                     finalize_entity_updates
                         .after(PostUpdateLabels::EntityUpdate)
                         .label(PostUpdateLabels::SendEntityUpdates),
-                );
+                )
+                .add_system(load_entity)
+                .add_event::<NetDespawnEntity>()
+                .add_event::<DespawnEntity>()
+                .add_event::<LoadEntity>();
         }
     }
 }
