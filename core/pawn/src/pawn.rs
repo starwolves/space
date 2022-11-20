@@ -20,7 +20,16 @@ pub enum ShipJobsEnum {
 pub struct Pawn {
     pub name: String,
     pub job: ShipJobsEnum,
+    pub communicator: Communicator,
     pub facing_direction: FacingDirection,
+}
+
+/// The kind of communicator.
+#[derive(Clone)]
+#[cfg(feature = "server")]
+pub enum Communicator {
+    Standard,
+    Machine,
 }
 
 #[cfg(feature = "server")]
@@ -30,6 +39,7 @@ impl Default for Pawn {
             name: "".to_string(),
             job: ShipJobsEnum::Security,
             facing_direction: FacingDirection::Up,
+            communicator: Communicator::Standard,
         }
     }
 }

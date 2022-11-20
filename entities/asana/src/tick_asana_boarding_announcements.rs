@@ -1,22 +1,16 @@
 use bevy::{
-    math::Vec3,
-    prelude::{Entity, EventWriter, Query, Res, ResMut, Transform},
+    prelude::{EventWriter, Res, ResMut},
     time::Time,
 };
-use chat::chat::{new_chat_message, Communicator, MessagingPlayerState, NetChatMessage, Radio};
-use pawn::pawn::ShipJobsEnum;
+use chat::chat::NewChatMessage;
 
-use networking::server::{ConnectedPlayer, HandleToEntity};
-use player::boarding::{BoardingAnnouncements, PersistentPlayerData};
+use player::boarding::BoardingAnnouncements;
 /// Manage asana boarding announcements.
 #[cfg(feature = "server")]
 pub(crate) fn tick_asana_boarding_announcements(
-    mut net_new_chat_message_event: EventWriter<NetChatMessage>,
-    handle_to_entity: Res<HandleToEntity>,
-    radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,
+    mut net_new_chat_message_event: EventWriter<NewChatMessage>,
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,
     time: Res<Time>,
-    global_listeners: Query<(&ConnectedPlayer, &PersistentPlayerData)>,
 ) {
     let mut done_messages: Vec<usize> = vec![];
 
@@ -26,25 +20,14 @@ pub(crate) fn tick_asana_boarding_announcements(
         &mut asana_boarding_announcements.announcements
     {
         if announcement_timer.tick(time.delta()).just_finished() {
-            let sensed_by_vec: Vec<Entity> = vec![];
-
-            new_chat_message(
-                &mut net_new_chat_message_event,
-                &handle_to_entity,
-                &sensed_by_vec,
-                &sensed_by_vec,
-                Vec3::ZERO,
-                "ASANA".to_string(),
-                ShipJobsEnum::Control,
-                announcement_message.to_string(),
-                Communicator::Machine,
-                true,
-                &radio_pawns,
-                &global_listeners,
-                None,
-                None,
-                &MessagingPlayerState::Alive,
-            );
+            net_new_chat_message_event.send(NewChatMessage {
+                messenger_entity_option: None,
+                messenger_name_option: Some("ASANA".to_string()),
+                raw_message: announcement_message.to_string(),
+                exclusive_radio: true,
+                position_option: None,
+                send_entity_update: false,
+            });
 
             done_messages.push(j);
         }
