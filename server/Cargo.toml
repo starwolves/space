@@ -38,6 +38,7 @@ resources = { path = "../core/resources",  features=["server"] }
 ui = { path = "../core/ui",  features=["server"] }
 player = { path = "../core/player",  features=["server"] }
 basic_console_commands = { path = "../core/basic_console_commands",  features=["server"] }
+setup_ui = { path = "../core/setup_ui",  features=["server"] }
 
 sounds = { path = "../entities/sounds",  features=["server"] }
 air_locks = { path = "../entities/air_locks",  features=["server"] }

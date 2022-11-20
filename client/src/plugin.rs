@@ -11,6 +11,7 @@ use bevy_egui::EguiPlugin;
 use main_menu::plugin::MainMenuPlugin;
 use networking::plugin::NetworkingPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
+use setup_ui::plugin::SetupUiPlugin;
 use ui::plugin::UiPlugin;
 use winit_windows::plugin::WinitWindowsPlugin;
 
@@ -70,6 +71,7 @@ impl Plugin for ClientPlugin {
         })
         .add_plugin(UiPlugin)
         .add_plugin(NetworkingPlugin)
+        .add_plugin(SetupUiPlugin)
         .add_startup_system(client_is_live)
         .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {
