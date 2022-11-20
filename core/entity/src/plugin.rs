@@ -10,6 +10,7 @@ use resources::labels::{
 
 use crate::actions::build_actions;
 use crate::broadcast_interpolation_transforms::broadcast_interpolation_transforms;
+use crate::despawn::{despawn_entity, DespawnEntity, NetDespawnEntity};
 use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
@@ -23,7 +24,6 @@ use crate::meta::EntityDataResource;
 use crate::networking::{
     incoming_messages, load_entity, LoadEntity, NetLoadEntity, NetUnloadEntity,
 };
-use crate::sensable::{despawn_entity, DespawnEntity, NetDespawnEntity};
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
 

@@ -1,7 +1,4 @@
-use bevy::{
-    math::Vec3,
-    prelude::{Entity, EventWriter, Mut, Query, Transform},
-};
+use bevy::prelude::{Entity, EventWriter, Query, Transform};
 
 use math::grid::world_to_cell_id;
 
@@ -24,57 +21,225 @@ pub(crate) fn visible_checker(
         &Transform,
         Option<&ConnectedPlayer>,
     )>,
-    mut net_despawn_entity: EventWriter<NetUnloadEntity>,
-    mut load_entity: EventWriter<LoadEntity>,
+    mut net_unload_entity: EventWriter<NetUnloadEntity>,
+    mut load_entity_event: EventWriter<LoadEntity>,
 ) {
     for (
-        entity,
-        mut visible_checker_component,
+        visible_entity_id,
+        mut senser_component,
         visible_checker_rigid_body_position_component,
-        visible_checker_connected_player_component_option,
+        visible_checker_component_option,
     ) in query_visible_checker_entities_rigid.iter_mut()
     {
         let visible_checker_translation = visible_checker_rigid_body_position_component.translation;
 
-        let visible_checker_translation_vec = Vec3::new(
-            visible_checker_translation.x,
-            visible_checker_translation.y,
-            visible_checker_translation.z,
-        );
-
-        for (visible_entity_id, mut visible_component, transform_component) in
+        for (visible_checker_entity_id, mut sensable_component, transform_component) in
             query_visible_entities.iter_mut()
         {
             let visible_entity_transform;
 
             visible_entity_transform = transform_component;
 
-            visible_check(
-                &mut visible_component,
-                &mut visible_checker_component,
-                *visible_entity_transform,
-                visible_checker_translation_vec,
-                entity,
-                &mut net_despawn_entity,
-                visible_checker_connected_player_component_option,
-                visible_entity_id,
-                &mut load_entity,
-            );
+            let distance =
+                visible_checker_translation.distance(visible_entity_transform.translation);
+            let is_cached = distance < VIEW_DISTANCE;
+            let can_cache;
+
+            if sensable_component.is_light
+                || sensable_component.is_audible
+                || sensable_component.always_sensed
+            {
+                can_cache = false;
+            } else {
+                can_cache = true;
+            }
+
+            let mut is_sensed = false;
+
+            if sensable_component.is_light == false
+                && sensable_component.is_audible == false
+                && sensable_component.always_sensed == false
+                && is_cached
+            {
+                let visible_entity_cell_id = world_to_cell_id(visible_entity_transform.translation);
+                let coords =
+                    to_doryen_coordinates(visible_entity_cell_id.x, visible_entity_cell_id.z);
+                is_sensed = senser_component.fov.is_in_fov(coords.0, coords.1);
+            }
+
+            if sensable_component.is_light {
+                is_sensed = distance < LIGHT_DISTANCE;
+            } else if sensable_component.is_audible {
+                is_sensed = distance < HEAR_DISTANCE;
+            }
+
+            if sensable_component.always_sensed == true
+                || visible_checker_entity_id == visible_entity_id
+            {
+                is_sensed = true;
+            }
+
+            let sensed_by_contains = sensable_component
+                .sensed_by
+                .contains(&visible_checker_entity_id);
+            let sensed_by_cached_contains = sensable_component
+                .sensed_by_cached
+                .contains(&visible_checker_entity_id);
+
+            if is_sensed == false {
+                let unload_entirely;
+
+                if can_cache {
+                    unload_entirely = !is_cached;
+                } else {
+                    unload_entirely = true;
+                }
+
+                if sensed_by_contains {
+                    match visible_checker_component_option {
+                        Some(visible_checker_component) => {
+                            if visible_checker_component.connected {
+                                net_unload_entity.send(NetUnloadEntity {
+                                    handle: visible_checker_component.handle,
+                                    message: ReliableServerMessage::UnloadEntity(
+                                        visible_entity_id.to_bits(),
+                                        unload_entirely,
+                                    ),
+                                });
+                            }
+                        }
+                        None => {}
+                    }
+
+                    let index1 = sensable_component
+                        .sensed_by
+                        .iter()
+                        .position(|x| x == &visible_checker_entity_id)
+                        .unwrap();
+                    sensable_component.sensed_by.remove(index1);
+
+                    match senser_component
+                        .sensing
+                        .iter()
+                        .position(|x| x == &visible_checker_entity_id)
+                    {
+                        Some(index) => {
+                            senser_component.sensing.remove(index);
+                        }
+                        None => {}
+                    }
+
+                    if can_cache && !unload_entirely {
+                        if !sensed_by_cached_contains {
+                            sensable_component
+                                .sensed_by_cached
+                                .push(visible_checker_entity_id);
+                        }
+                    }
+                } else if sensed_by_cached_contains && unload_entirely {
+                    match visible_checker_component_option {
+                        Some(visible_checker_component) => {
+                            if visible_checker_component.connected {
+                                net_unload_entity.send(NetUnloadEntity {
+                                    handle: visible_checker_component.handle,
+                                    message: ReliableServerMessage::UnloadEntity(
+                                        visible_entity_id.to_bits(),
+                                        unload_entirely,
+                                    ),
+                                });
+                            }
+                        }
+                        None => {}
+                    }
+
+                    let index = sensable_component
+                        .sensed_by_cached
+                        .iter()
+                        .position(|x| x == &visible_checker_entity_id)
+                        .unwrap();
+                    sensable_component.sensed_by_cached.remove(index);
+
+                    match senser_component
+                        .sensing
+                        .iter()
+                        .position(|x| x == &visible_checker_entity_id)
+                    {
+                        Some(index) => {
+                            senser_component.sensing.remove(index);
+                        }
+                        None => {}
+                    }
+                } else if !sensed_by_contains && !sensed_by_cached_contains {
+                    if can_cache && !unload_entirely {
+                        match visible_checker_component_option {
+                            Some(visible_checker_component) => {
+                                if visible_checker_component.connected {
+                                    net_unload_entity.send(NetUnloadEntity {
+                                        handle: visible_checker_component.handle,
+                                        message: ReliableServerMessage::UnloadEntity(
+                                            visible_entity_id.to_bits(),
+                                            unload_entirely,
+                                        ),
+                                    });
+                                }
+                            }
+                            None => {}
+                        }
+
+                        sensable_component
+                            .sensed_by_cached
+                            .push(visible_checker_entity_id);
+                    }
+                }
+            } else {
+                if !senser_component.sensing.contains(&visible_entity_id) {
+                    senser_component.sensing.push(visible_entity_id);
+                    if sensable_component.is_audible {
+                        senser_component.sfx.push(visible_entity_id);
+                    }
+                }
+
+                if !sensed_by_contains {
+                    sensable_component.sensed_by.push(visible_checker_entity_id);
+
+                    match visible_checker_component_option {
+                        Some(visible_checker_component) => {
+                            if visible_checker_component.connected {
+                                load_entity_event.send(LoadEntity {
+                                    entity: visible_entity_id,
+                                    loader_handle: visible_checker_component.handle,
+                                    load_entirely: true,
+                                });
+                            }
+                        }
+                        None => {}
+                    }
+                }
+
+                if sensed_by_cached_contains {
+                    let index = sensable_component
+                        .sensed_by_cached
+                        .iter()
+                        .position(|x| x == &visible_checker_entity_id)
+                        .unwrap();
+                    sensable_component.sensed_by_cached.remove(index);
+                }
+            }
         }
 
         let mut gone_entities = vec![];
         let mut gone_sfx_entities = vec![];
 
         let mut i = 0;
-        for entity in visible_checker_component.sensing.iter() {
+        for entity in senser_component.sensing.iter() {
             match query_visible_entities.get(*entity) {
                 Ok(_) => {}
                 Err(_) => {
                     // Entity has despawned.
-                    if !visible_checker_component.sfx.contains(entity) {
-                        match visible_checker_connected_player_component_option {
+                    if !senser_component.sfx.contains(entity) {
+                        match visible_checker_component_option {
                             Some(connected_component) => {
-                                net_despawn_entity.send(NetUnloadEntity {
+                                net_unload_entity.send(NetUnloadEntity {
                                     handle: connected_component.handle,
                                     message: ReliableServerMessage::UnloadEntity(
                                         entity.to_bits(),
@@ -85,7 +250,7 @@ pub(crate) fn visible_checker(
                             None => {}
                         }
                     } else {
-                        let index = visible_checker_component
+                        let index = senser_component
                             .sfx
                             .iter()
                             .position(|&r| r == *entity)
@@ -104,11 +269,11 @@ pub(crate) fn visible_checker(
         gone_sfx_entities.reverse();
 
         for i in gone_entities {
-            visible_checker_component.sensing.remove(i);
+            senser_component.sensing.remove(i);
         }
 
         for i in gone_sfx_entities {
-            visible_checker_component.sfx.remove(i);
+            senser_component.sfx.remove(i);
         }
     }
 }
@@ -119,199 +284,3 @@ const VIEW_DISTANCE: f32 = 90.;
 const HEAR_DISTANCE: f32 = 60.;
 #[cfg(feature = "server")]
 const LIGHT_DISTANCE: f32 = 60.;
-
-/// Check if entity is visible to other entity as a function.
-#[cfg(feature = "server")]
-fn visible_check(
-    sensable_component: &mut Mut<Sensable>,
-    senser_component: &mut Mut<Senser>,
-    visible_entity_transform: Transform,
-    visible_checker_translation: Vec3,
-    visible_checker_entity_id: Entity,
-    net_unload_entity: &mut EventWriter<NetUnloadEntity>,
-    visible_checker_component_option: Option<&ConnectedPlayer>,
-    visible_entity_id: Entity,
-    load_entity_event: &mut EventWriter<LoadEntity>,
-) {
-    let distance = visible_checker_translation.distance(visible_entity_transform.translation);
-    let is_cached = distance < VIEW_DISTANCE;
-    let can_cache;
-
-    if sensable_component.is_light
-        || sensable_component.is_audible
-        || sensable_component.always_sensed
-    {
-        can_cache = false;
-    } else {
-        can_cache = true;
-    }
-
-    let mut is_sensed = false;
-
-    if sensable_component.is_light == false
-        && sensable_component.is_audible == false
-        && sensable_component.always_sensed == false
-        && is_cached
-    {
-        let visible_entity_cell_id = world_to_cell_id(visible_entity_transform.translation);
-        let coords = to_doryen_coordinates(visible_entity_cell_id.x, visible_entity_cell_id.z);
-        is_sensed = senser_component.fov.is_in_fov(coords.0, coords.1);
-    }
-
-    if sensable_component.is_light {
-        is_sensed = distance < LIGHT_DISTANCE;
-    } else if sensable_component.is_audible {
-        is_sensed = distance < HEAR_DISTANCE;
-    }
-
-    if sensable_component.always_sensed == true || visible_checker_entity_id == visible_entity_id {
-        is_sensed = true;
-    }
-
-    let sensed_by_contains = sensable_component
-        .sensed_by
-        .contains(&visible_checker_entity_id);
-    let sensed_by_cached_contains = sensable_component
-        .sensed_by_cached
-        .contains(&visible_checker_entity_id);
-
-    if is_sensed == false {
-        let unload_entirely;
-
-        if can_cache {
-            unload_entirely = !is_cached;
-        } else {
-            unload_entirely = true;
-        }
-
-        if sensed_by_contains {
-            match visible_checker_component_option {
-                Some(visible_checker_component) => {
-                    if visible_checker_component.connected {
-                        net_unload_entity.send(NetUnloadEntity {
-                            handle: visible_checker_component.handle,
-                            message: ReliableServerMessage::UnloadEntity(
-                                visible_entity_id.to_bits(),
-                                unload_entirely,
-                            ),
-                        });
-                    }
-                }
-                None => {}
-            }
-
-            let index1 = sensable_component
-                .sensed_by
-                .iter()
-                .position(|x| x == &visible_checker_entity_id)
-                .unwrap();
-            sensable_component.sensed_by.remove(index1);
-
-            match senser_component
-                .sensing
-                .iter()
-                .position(|x| x == &visible_checker_entity_id)
-            {
-                Some(index) => {
-                    senser_component.sensing.remove(index);
-                }
-                None => {}
-            }
-
-            if can_cache && !unload_entirely {
-                if !sensed_by_cached_contains {
-                    sensable_component
-                        .sensed_by_cached
-                        .push(visible_checker_entity_id);
-                }
-            }
-        } else if sensed_by_cached_contains && unload_entirely {
-            match visible_checker_component_option {
-                Some(visible_checker_component) => {
-                    if visible_checker_component.connected {
-                        net_unload_entity.send(NetUnloadEntity {
-                            handle: visible_checker_component.handle,
-                            message: ReliableServerMessage::UnloadEntity(
-                                visible_entity_id.to_bits(),
-                                unload_entirely,
-                            ),
-                        });
-                    }
-                }
-                None => {}
-            }
-
-            let index = sensable_component
-                .sensed_by_cached
-                .iter()
-                .position(|x| x == &visible_checker_entity_id)
-                .unwrap();
-            sensable_component.sensed_by_cached.remove(index);
-
-            match senser_component
-                .sensing
-                .iter()
-                .position(|x| x == &visible_checker_entity_id)
-            {
-                Some(index) => {
-                    senser_component.sensing.remove(index);
-                }
-                None => {}
-            }
-        } else if !sensed_by_contains && !sensed_by_cached_contains {
-            if can_cache && !unload_entirely {
-                match visible_checker_component_option {
-                    Some(visible_checker_component) => {
-                        if visible_checker_component.connected {
-                            net_unload_entity.send(NetUnloadEntity {
-                                handle: visible_checker_component.handle,
-                                message: ReliableServerMessage::UnloadEntity(
-                                    visible_entity_id.to_bits(),
-                                    unload_entirely,
-                                ),
-                            });
-                        }
-                    }
-                    None => {}
-                }
-
-                sensable_component
-                    .sensed_by_cached
-                    .push(visible_checker_entity_id);
-            }
-        }
-    } else {
-        if !senser_component.sensing.contains(&visible_entity_id) {
-            senser_component.sensing.push(visible_entity_id);
-            if sensable_component.is_audible {
-                senser_component.sfx.push(visible_entity_id);
-            }
-        }
-
-        if !sensed_by_contains {
-            sensable_component.sensed_by.push(visible_checker_entity_id);
-
-            match visible_checker_component_option {
-                Some(visible_checker_component) => {
-                    if visible_checker_component.connected {
-                        load_entity_event.send(LoadEntity {
-                            entity: visible_entity_id,
-                            loader_handle: visible_checker_component.handle,
-                            load_entirely: true,
-                        });
-                    }
-                }
-                None => {}
-            }
-        }
-
-        if sensed_by_cached_contains {
-            let index = sensable_component
-                .sensed_by_cached
-                .iter()
-                .position(|x| x == &visible_checker_entity_id)
-                .unwrap();
-            sensable_component.sensed_by_cached.remove(index);
-        }
-    }
-}

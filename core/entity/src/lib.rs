@@ -9,10 +9,14 @@
 pub mod actions;
 /// Broadcast unreliable transforms to clients.
 mod broadcast_interpolation_transforms;
+/// Despawns entities.
+pub mod despawn;
 /// Manage base entity data.
 pub mod entity_data;
 /// Resources for the ability to examine entities as an action.
 pub mod examine;
+/// Finalize sending entity updates to a player controller.
+mod finalize_entity_updates;
 /// Base health resources for entities.
 pub mod health;
 /// Entity initialization.
@@ -31,6 +35,3 @@ pub mod senser;
 pub mod spawn;
 /// Crate that performs FOV logic for sensing and sensable entities.
 pub mod visible_checker;
-
-/// Finalize sending entity updates to a player controller.
-mod finalize_entity_updates;
