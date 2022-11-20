@@ -2,7 +2,7 @@ use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels, UpdateLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
 
 use crate::{
     actions::pickup_prerequisite_check,
@@ -70,12 +70,7 @@ impl Plugin for InventoryPlugin {
                         .label(ActionsLabels::Action)
                         .after(ActionsLabels::Approve),
                 )
-                .add_system_to_stage(
-                    PreUpdate,
-                    incoming_messages
-                        .after(PreUpdateLabels::NetEvents)
-                        .label(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<InputDropCurrentItem>()
                 .add_event::<InputThrowItem>()
                 .add_event::<InputSwitchHands>()

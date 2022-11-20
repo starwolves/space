@@ -4,7 +4,7 @@ use bevy::prelude::{App, Plugin};
 use bevy::prelude::{IntoSystemDescriptor, SystemSet};
 use bevy_renet::renet::NETCODE_KEY_BYTES;
 use bevy_renet::RenetServerPlugin;
-use resources::labels::{PostUpdateLabels, PreUpdateLabels};
+use resources::labels::PostUpdateLabels;
 
 use super::server::{souls, startup_server_listen_connections};
 use crate::client::{connect_to_server, ConnectToServer, Connection, ConnectionPreferences};
@@ -22,12 +22,7 @@ impl Plugin for NetworkingPlugin {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_plugin(RenetServerPlugin::default())
                 .insert_resource(startup_server_listen_connections(*PRIVATE_KEY))
-                .add_system_to_stage(
-                    PreUpdate,
-                    souls
-                        .after(PreUpdateLabels::NetEvents)
-                        .label(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, souls)
                 .add_event::<PendingNetworkMessage>()
                 .add_system_set_to_stage(
                     PostUpdate,

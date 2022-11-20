@@ -11,7 +11,7 @@ use bevy::prelude::{App, Plugin, SystemSet};
 use bevy::{app::CoreStage::PostUpdate, prelude::IntoSystemDescriptor};
 use networking::server::net_system;
 use player::names::InputAccountName;
-use resources::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels};
 pub struct PawnPlugin;
 
 impl Plugin for PawnPlugin {
@@ -36,12 +36,7 @@ impl Plugin for PawnPlugin {
                     .label(PostUpdateLabels::Net)
                     .with_system(net_system::<NetPawn>),
             )
-            .add_system_to_stage(
-                PreUpdate,
-                incoming_messages
-                    .after(PreUpdateLabels::NetEvents)
-                    .label(PreUpdateLabels::ProcessInput),
-            )
+            .add_system_to_stage(PreUpdate, incoming_messages)
             .add_event::<InputAccountName>();
         }
     }

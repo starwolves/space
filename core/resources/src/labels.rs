@@ -32,13 +32,6 @@ pub enum ActionsLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 #[cfg(feature = "server")]
-pub enum PreUpdateLabels {
-    NetEvents,
-    ProcessInput,
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(feature = "server")]
 pub enum CombatLabels {
     RegisterAttacks,
     CacheAttack,

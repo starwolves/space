@@ -133,7 +133,7 @@ pub(crate) fn configure(
         });
     }
 }
-
+#[cfg(feature = "server")]
 pub(crate) fn finished_configuration(
     mut config_events: EventReader<SendServerConfiguration>,
     mut net_on_new_player_connection: EventWriter<NetPlayerConn>,
@@ -145,5 +145,40 @@ pub(crate) fn finished_configuration(
                 ServerConfigMessage::FinishedInitialization,
             ),
         });
+    }
+}
+use bevy::prelude::info;
+use bevy::prelude::warn;
+use bevy_renet::renet::RenetServer;
+use bevy_renet::renet::ServerEvent;
+
+#[cfg(feature = "server")]
+pub(crate) fn server_events(
+    mut server_events: EventReader<ServerEvent>,
+    server: Res<RenetServer>,
+    mut configure: EventWriter<SendServerConfiguration>,
+) {
+    for event in server_events.iter() {
+        match event {
+            ServerEvent::ClientConnected(handle, _) => {
+                let client_address;
+
+                match server.client_addr(*handle) {
+                    Some(ip) => {
+                        client_address = ip;
+                    }
+                    None => {
+                        warn!("Couldn't get address from [{}]", handle);
+                        continue;
+                    }
+                };
+
+                info!("Incoming connection [{}] [{:?}]", handle, client_address);
+                configure.send(SendServerConfiguration { handle: *handle })
+            }
+            ServerEvent::ClientDisconnected(handle) => {
+                info!("[{}] disconnected", handle);
+            }
+        }
     }
 }

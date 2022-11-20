@@ -2,7 +2,7 @@ use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::{ActionsLabels, PostUpdateLabels, PreUpdateLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels};
 
 use crate::{
     core::{
@@ -45,12 +45,7 @@ impl Plugin for ActionsPlugin {
                         .with_system(net_system::<NetActionDataFinalizer>),
                 )
                 .init_resource::<ActionRequests>()
-                .add_system_to_stage(
-                    PreUpdate,
-                    incoming_messages
-                        .after(PreUpdateLabels::NetEvents)
-                        .label(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<InputListActionsMap>()
                 .add_event::<InputListActionsEntity>()
                 .add_event::<InputAction>();

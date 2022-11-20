@@ -16,7 +16,8 @@ use bevy::{
 
 use networking::server::net_system;
 use player::boarding::BoardingPlayer;
-use resources::labels::{PostUpdateLabels, PreUpdateLabels, UpdateLabels};
+use player::plugin::ConfigurationLabel;
+use resources::labels::{PostUpdateLabels, UpdateLabels};
 
 use super::{
     input::apply_movement_input_controller,
@@ -58,7 +59,7 @@ impl Plugin for ControllerPlugin {
                 .add_event::<NetSendWorldEnvironment>()
                 .add_event::<NetOnNewPlayerConnection>()
                 .add_event::<NetExamineEntity>()
-                .add_system_to_stage(PreUpdate, connections.label(PreUpdateLabels::NetEvents))
+                .add_system(connections)
                 .add_system_set_to_stage(
                     PostUpdate,
                     SystemSet::new()
@@ -72,12 +73,7 @@ impl Plugin for ControllerPlugin {
                         .with_system(net_system::<NetUpdatePlayerCount>)
                         .with_system(net_system::<NetConfigure>),
                 )
-                .add_system_to_stage(
-                    PreUpdate,
-                    incoming_messages
-                        .after(PreUpdateLabels::NetEvents)
-                        .label(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<InputAttackCell>()
                 .add_event::<InputToggleCombatMode>()
                 .add_event::<InputToggleAutoMove>()
@@ -91,7 +87,11 @@ impl Plugin for ControllerPlugin {
                 .add_event::<InputBuildGraphics>()
                 .add_event::<InputMouseDirectionUpdate>()
                 .add_event::<NetConfigure>()
-                .add_system_to_stage(PreUpdate, configure.label(PreUpdateLabels::NetEvents));
+                .add_system(
+                    configure
+                        .label(ConfigurationLabel::Main)
+                        .after(ConfigurationLabel::SpawnEntity),
+                );
         }
     }
 }
