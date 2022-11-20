@@ -119,7 +119,7 @@ pub(crate) fn show_main_menu(
                     .insert(NodeBundle {
                         style: Style {
                             size: Size::new(Val::Percent(25.0), Val::Percent(100.0)),
-                            flex_direction: FlexDirection::Column,
+                            flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
                         },
                         background_color: SIDEBAR_COLOR.into(),
@@ -187,7 +187,7 @@ pub(crate) fn show_main_menu(
                             .insert(NodeBundle {
                                 style: Style {
                                     size: Size::new(Val::Percent(100.0), Val::Percent(80.0)),
-                                    flex_direction: FlexDirection::ColumnReverse,
+                                    flex_direction: FlexDirection::Column,
                                     padding: UiRect::new(
                                         Val::Undefined,
                                         Val::Undefined,
@@ -214,7 +214,7 @@ pub(crate) fn show_main_menu(
                                                 Val::Undefined,
                                                 Val::Percent(25.),
                                             ),
-                                            flex_direction: FlexDirection::Column,
+                                            flex_direction: FlexDirection::ColumnReverse,
                                             ..Default::default()
                                         },
                                         background_color: SIDEBAR_COLOR.into(),
@@ -280,7 +280,7 @@ pub(crate) fn show_main_menu(
                                             size: Size::new(Val::Percent(100.0), Val::Undefined),
                                             align_items: AlignItems::Center,
                                             flex_wrap: FlexWrap::Wrap,
-                                            flex_direction: FlexDirection::Column,
+                                            flex_direction: FlexDirection::ColumnReverse,
                                             ..Default::default()
                                         },
                                         background_color: SIDEBAR_COLOR.into(),
@@ -297,7 +297,7 @@ pub(crate) fn show_main_menu(
                                                     ),
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
-                                                    flex_direction: FlexDirection::Column,
+                                                    flex_direction: FlexDirection::ColumnReverse,
                                                     ..Default::default()
                                                 },
                                                 background_color: SIDEBAR_COLOR.into(),
@@ -337,7 +337,7 @@ pub(crate) fn show_main_menu(
                                                     ),
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
-                                                    flex_direction: FlexDirection::Column,
+                                                    flex_direction: FlexDirection::ColumnReverse,
                                                     ..Default::default()
                                                 },
                                                 background_color: SIDEBAR_COLOR.into(),
@@ -377,7 +377,7 @@ pub(crate) fn show_main_menu(
                                                     ),
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
-                                                    flex_direction: FlexDirection::Column,
+                                                    flex_direction: FlexDirection::ColumnReverse,
                                                     ..Default::default()
                                                 },
                                                 background_color: SIDEBAR_COLOR.into(),
@@ -533,7 +533,7 @@ pub(crate) fn show_play_menu(
                         style: Style {
                             size: Size::new(Val::Percent(60.), Val::Percent(60.)),
                             flex_wrap: FlexWrap::Wrap,
-                            flex_direction: FlexDirection::Column,
+                            flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
                         },
                         background_color: SIDEBAR_COLOR.into(),
@@ -545,9 +545,11 @@ pub(crate) fn show_play_menu(
                             .spawn(NodeBundle {
                                 style: Style {
                                     size: Size::new(Val::Percent(100.), Val::Percent(90.)),
+
                                     ..Default::default()
                                 },
                                 background_color: SIDEBAR_COLOR.into(),
+
                                 ..Default::default()
                             })
                             .with_children(|parent| {
@@ -565,6 +567,8 @@ pub(crate) fn show_play_menu(
                                                 Val::Undefined,
                                             ),
                                             justify_content: JustifyContent::Center,
+
+                                            flex_direction: FlexDirection::ColumnReverse,
                                             size: Size::new(Val::Percent(100.), Val::Percent(100.)),
                                             ..Default::default()
                                         },
@@ -573,7 +577,7 @@ pub(crate) fn show_play_menu(
                                     })
                                     // Menu elements.
                                     .with_children(|parent| {
-                                        // Play button.
+                                        // Connect button.
                                         parent
                                             .spawn(NodeBundle {
                                                 style: Style {
@@ -698,6 +702,10 @@ pub(crate) fn show_play_menu(
                                                         Val::Percent(3.),
                                                         Val::Percent(1.),
                                                     ),
+                                                    size: Size::new(
+                                                        Val::Percent(88.),
+                                                        Val::Percent(5.),
+                                                    ),
                                                     justify_content: JustifyContent::Center,
                                                     ..Default::default()
                                                 },
@@ -780,6 +788,12 @@ pub(crate) fn show_play_menu(
                                                         Val::Undefined,
                                                         Val::Percent(1.),
                                                     ),
+
+                                                    size: Size::new(
+                                                        Val::Percent(88.),
+                                                        Val::Percent(5.),
+                                                    ),
+                                                    justify_content: JustifyContent::Center,
                                                     ..Default::default()
                                                 },
                                                 background_color: SIDEBAR_COLOR.into(),
