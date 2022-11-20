@@ -6,17 +6,15 @@ pub mod boarding;
 pub mod connection;
 /// The configuration send from the server to newly connected clients.
 pub mod connections;
+/// Generate human names.
+pub mod name_generator;
 /// Account and player names.
 pub mod names;
 /// The networking module of this crate.
 pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;
-/// Map spawn points.
-pub mod spawn_points;
-
 /// Manage the welcome character and role setup UI.
 pub mod setup_ui;
-
-/// Generate names.
-pub mod name_generator;
+/// Map spawn points.
+pub mod spawn_points;

@@ -136,7 +136,7 @@ enum CharacterMovementState {
     Sprinting,
 }
 use controller::controller::ControllerInput;
-use entity::sensable::DespawnEntity;
+use entity::despawn::DespawnEntity;
 use networking::server::HandleToEntity;
 
 /// Core humanoid logic.
