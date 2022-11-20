@@ -1,7 +1,6 @@
 use std::env;
 
 use bevy::prelude::{App, Plugin};
-use resources::labels::PreUpdateLabels;
 
 use crate::{
     button::button_hover_visuals,
@@ -17,13 +16,8 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
-            app.add_system_to_stage(
-                PreUpdate,
-                incoming_messages
-                    .after(PreUpdateLabels::NetEvents)
-                    .label(PreUpdateLabels::ProcessInput),
-            )
-            .add_event::<TextTreeInputSelection>();
+            app.add_system_to_stage(PreUpdate, incoming_messages)
+                .add_event::<TextTreeInputSelection>();
         } else {
             app.add_system(ui_events.label(TextInputLabel::UiEvents))
                 .add_system(

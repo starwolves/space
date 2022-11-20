@@ -4,9 +4,7 @@ use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
 use networking::server::net_system;
-use resources::labels::{
-    ActionsLabels, PostUpdateLabels, PreUpdateLabels, StartupLabels, SummoningLabels,
-};
+use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use crate::actions::build_actions;
 use crate::broadcast_interpolation_transforms::broadcast_interpolation_transforms;
@@ -105,17 +103,9 @@ impl Plugin for EntityPlugin {
                 )
                 .add_system(examine_entity_health.after(ActionsLabels::Action))
                 .init_resource::<ExamineEntityMessages>()
-                .add_system_to_stage(
-                    PreUpdate,
-                    finalize_entity_examine_input.after(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, finalize_entity_examine_input)
                 .add_system(examine_entity.after(ActionsLabels::Action))
-                .add_system_to_stage(
-                    PreUpdate,
-                    incoming_messages
-                        .after(PreUpdateLabels::NetEvents)
-                        .label(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<NetFinalizeEntityUpdates>()
                 .add_event::<InputExamineEntity>()
                 .add_event::<NetUnloadEntity>()

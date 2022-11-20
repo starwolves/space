@@ -2,7 +2,8 @@ use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::{MapLabels, PostUpdateLabels, PreUpdateLabels};
+use player::plugin::ConfigurationLabel;
+use resources::labels::{MapLabels, PostUpdateLabels};
 
 use crate::{
     connections::{configure, NetConfig},
@@ -36,17 +37,16 @@ impl Plugin for MapPlugin {
                         .with_system(net_system::<NetConfig>),
                 )
                 .init_resource::<MapHolders>()
-                .add_system_to_stage(
-                    PreUpdate,
-                    incoming_messages
-                        .after(PreUpdateLabels::NetEvents)
-                        .label(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<InputMapChangeDisplayMode>()
                 .add_event::<InputMap>()
                 .add_event::<InputMapRequestOverlay>()
                 .add_event::<NetConfig>()
-                .add_system_to_stage(PreUpdate, configure.label(PreUpdateLabels::NetEvents));
+                .add_system(
+                    configure
+                        .label(ConfigurationLabel::Main)
+                        .after(ConfigurationLabel::SpawnEntity),
+                );
         }
     }
 }

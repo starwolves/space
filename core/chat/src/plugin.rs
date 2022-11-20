@@ -2,7 +2,7 @@ use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use networking::server::net_system;
-use resources::labels::{PostUpdateLabels, PreUpdateLabels};
+use resources::labels::PostUpdateLabels;
 
 use crate::{
     chat::{
@@ -33,12 +33,7 @@ impl Plugin for ChatPlugin {
                         .with_system(net_system::<NetSendEntityUpdates>),
                 )
                 .add_event::<NetChatMessage>()
-                .add_system_to_stage(
-                    PreUpdate,
-                    incoming_messages
-                        .after(PreUpdateLabels::NetEvents)
-                        .label(PreUpdateLabels::ProcessInput),
-                )
+                .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<NetSendEntityUpdates>()
                 .add_event::<NewChatMessage>()
                 .add_system(chat_message);

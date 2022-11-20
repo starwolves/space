@@ -5,7 +5,7 @@ use crate::{
         done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText, NetOnBoarding,
     },
     connection::{AuthidI, NetPlayerConn, SendServerConfiguration},
-    connections::{configure, finished_configuration},
+    connections::{configure, finished_configuration, server_events},
     networking::NetDoneBoarding,
     setup_ui::configure as configureS,
     setup_ui::{
@@ -13,11 +13,18 @@ use crate::{
         NetOnSetupUI, NetUIInputTransmitData,
     },
 };
-use bevy::app::CoreStage::PreUpdate;
-use bevy::prelude::{App, Plugin, SystemSet};
+use bevy::prelude::{App, Plugin, SystemLabel, SystemSet};
 use bevy::{app::CoreStage::PostUpdate, prelude::IntoSystemDescriptor};
 use networking::server::{net_system, HandleToEntity};
-use resources::labels::{PostUpdateLabels, PreUpdateLabels, SummoningLabels};
+use resources::labels::{PostUpdateLabels, SummoningLabels};
+
+/// Atmospherics systems ordering label.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum ConfigurationLabel {
+    SpawnEntity,
+    Main,
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -50,13 +57,19 @@ impl Plugin for PlayerPlugin {
                 .add_event::<NetPlayerConn>()
                 .add_event::<InputUIInput>()
                 .add_event::<InputUIInputTransmitText>()
-                .add_system_to_stage(PreUpdate, configure.before(PreUpdateLabels::NetEvents))
+                .add_system(
+                    configure
+                        .label(ConfigurationLabel::SpawnEntity)
+                        .before(ConfigurationLabel::Main),
+                )
                 .add_event::<InputUIInputTransmitText>()
-                .add_system_to_stage(PreUpdate, configureS.label(PreUpdateLabels::NetEvents))
-                .add_system_to_stage(
-                    PreUpdate,
-                    finished_configuration.after(PreUpdateLabels::NetEvents),
-                );
+                .add_system(
+                    configureS
+                        .label(ConfigurationLabel::Main)
+                        .after(ConfigurationLabel::SpawnEntity),
+                )
+                .add_system(finished_configuration.after(ConfigurationLabel::Main))
+                .add_system(server_events.before(ConfigurationLabel::SpawnEntity));
         }
     }
 }

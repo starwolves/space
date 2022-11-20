@@ -20,6 +20,7 @@ default-features = false
 [dependencies]
 serde = "1.0.147"
 rand = "0.8.5"
+bevy_renet = "0.0.6"
 
 networking = { path = "../networking",  features=["server"] }
 networking_macros = { path = "../networking_macros",  features=["server"] }
