@@ -560,12 +560,6 @@ pub(crate) fn show_play_menu(
                                             align_items: AlignItems::FlexEnd,
                                             align_content: AlignContent::FlexEnd,
                                             flex_wrap: FlexWrap::Wrap,
-                                            padding: UiRect::new(
-                                                Val::Undefined,
-                                                Val::Undefined,
-                                                Val::Percent(5.),
-                                                Val::Undefined,
-                                            ),
                                             justify_content: JustifyContent::Center,
 
                                             flex_direction: FlexDirection::ColumnReverse,
@@ -585,6 +579,13 @@ pub(crate) fn show_play_menu(
                                                         Val::Percent(100.),
                                                         Val::Percent(5.),
                                                     ),
+
+                                            margin: UiRect::new(
+                                                Val::Undefined,
+                                                Val::Undefined,
+                                                Val::Percent(15.),
+                                                Val::Percent(10.),
+                                            ),
                                                     justify_content: JustifyContent::Center,
                                                     ..Default::default()
                                                 },
@@ -703,7 +704,7 @@ pub(crate) fn show_play_menu(
                                                         Val::Percent(1.),
                                                     ),
                                                     size: Size::new(
-                                                        Val::Percent(88.),
+                                                        Val::Percent(100.),
                                                         Val::Percent(5.),
                                                     ),
                                                     justify_content: JustifyContent::Center,
@@ -713,14 +714,25 @@ pub(crate) fn show_play_menu(
                                                 ..Default::default()
                                             })
                                             .with_children(|parent| {
-                                                parent.spawn(TextBundle::from_section(
-                                                    "IP address:",
-                                                    TextStyle {
-                                                        font: arizone_font.clone(),
-                                                        font_size: 12.0,
-                                                        color: TEXT_COLOR,
-                                                    },
-                                                ));
+                                                parent
+                                                    .spawn(NodeBundle {
+                                                        style: Style {
+                                                            justify_content: JustifyContent::Center,
+                                                            ..Default::default()
+                                                        },
+                                                        background_color: SIDEBAR_COLOR.into(),
+                                                        ..Default::default()
+                                                    })
+                                                    .with_children(|parent| {
+                                                        parent.spawn(TextBundle::from_section(
+                                                            "IP address:",
+                                                            TextStyle {
+                                                                font: arizone_font.clone(),
+                                                                font_size: 12.0,
+                                                                color: TEXT_COLOR,
+                                                            },
+                                                        ));
+                                                    });
                                             });
                                         // Input account name.
                                         parent
@@ -790,7 +802,7 @@ pub(crate) fn show_play_menu(
                                                     ),
 
                                                     size: Size::new(
-                                                        Val::Percent(88.),
+                                                        Val::Percent(100.),
                                                         Val::Percent(5.),
                                                     ),
                                                     justify_content: JustifyContent::Center,
@@ -800,14 +812,31 @@ pub(crate) fn show_play_menu(
                                                 ..Default::default()
                                             })
                                             .with_children(|parent| {
-                                                parent.spawn(TextBundle::from_section(
-                                                    "Account name:",
-                                                    TextStyle {
-                                                        font: arizone_font.clone(),
-                                                        font_size: 12.0,
-                                                        color: TEXT_COLOR,
-                                                    },
-                                                ));
+                                                parent
+                                                    .spawn(NodeBundle {
+                                                        style: Style {
+                                                            margin: UiRect::new(
+                                                                Val::Undefined,
+                                                                Val::Undefined,
+                                                                Val::Undefined,
+                                                                Val::Percent(1.),
+                                                            ),
+                                                            justify_content: JustifyContent::Center,
+                                                            ..Default::default()
+                                                        },
+                                                        background_color: SIDEBAR_COLOR.into(),
+                                                        ..Default::default()
+                                                    })
+                                                    .with_children(|parent| {
+                                                        parent.spawn(TextBundle::from_section(
+                                                            "Account name:",
+                                                            TextStyle {
+                                                                font: arizone_font.clone(),
+                                                                font_size: 12.0,
+                                                                color: TEXT_COLOR,
+                                                            },
+                                                        ));
+                                                    });
                                             });
                                     });
                             });
