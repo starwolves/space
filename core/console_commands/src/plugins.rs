@@ -5,10 +5,9 @@ use networking::server::net_system;
 use resources::labels::{PostUpdateLabels, PreUpdateLabels, StartupLabels};
 
 use crate::{
-    commands::{
-        initialize_console_commands, AllConsoleCommands, ConsoleCommandsLabels, InputConsoleCommand,
-    },
+    commands::{AllConsoleCommands, ConsoleCommandsLabels, InputConsoleCommand},
     connections::{configure, NetConfigure},
+    init::initialize_console_commands,
     networking::incoming_messages,
 };
 use bevy::app::CoreStage::PostUpdate;

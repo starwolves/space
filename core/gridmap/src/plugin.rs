@@ -20,7 +20,7 @@ use crate::{
     },
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
-    init_meta::{startup_build_map, startup_map_cells, startup_misc_resources},
+    init::{startup_build_map, startup_map_cells, startup_misc_resources},
     networking::incoming_messages,
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};

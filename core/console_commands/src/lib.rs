@@ -5,6 +5,8 @@
 pub mod commands;
 /// Send configuration to newly connected clients.
 pub mod connections;
+/// Initialize console commands.
+pub mod init;
 /// The networking module of this crate.
 pub mod networking;
 /// The Bevy plugin of this crate.
