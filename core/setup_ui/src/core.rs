@@ -242,7 +242,7 @@ pub(crate) fn configure(
 
 /// Setup ui state resource.
 #[cfg(feature = "server")]
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct SetupUiState {
     pub enabled: HashMap<u64, bool>,
 }
