@@ -8,6 +8,13 @@ use bevy::{
 use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
 
+#[derive(NetMessage)]
+#[cfg(feature = "server")]
+pub(crate) struct NetDoneBoarding {
+    pub handle: u64,
+    pub message: ReliableServerMessage,
+}
+
 /// Component with boarding data.
 #[cfg(feature = "server")]
 pub struct BoardingPlayer {
@@ -21,7 +28,6 @@ pub struct BoardingPlayer {
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
-use crate::networking::NetDoneBoarding;
 use crate::spawn_points::SpawnPoints;
 use crate::spawn_points::Spawning;
 use networking::server::ServerConfigMessage;

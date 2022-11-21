@@ -22,7 +22,7 @@ use networking::server::HandleToEntity;
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum InventoryMessage {
+pub enum InventoryClientMessage {
     UseWorldItem(u64),
     DropCurrentItem(Option<Vec3>),
     SwitchHands,
@@ -45,7 +45,8 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<InventoryMessage, _> = bincode::deserialize(&message);
+            let client_message_result: Result<InventoryClientMessage, _> =
+                bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -58,7 +59,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                InventoryMessage::UseWorldItem(entity_id) => {
+                InventoryClientMessage::UseWorldItem(entity_id) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             use_world_item.send(InputUseWorldItem {
@@ -72,7 +73,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                InventoryMessage::DropCurrentItem(position_option) => {
+                InventoryClientMessage::DropCurrentItem(position_option) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             drop_current_item.send(InputDropCurrentItem {
@@ -86,7 +87,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                InventoryMessage::SwitchHands => {
+                InventoryClientMessage::SwitchHands => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             switch_hands.send(InputSwitchHands {
@@ -99,7 +100,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                InventoryMessage::WearItem(item_id, wear_slot) => {
+                InventoryClientMessage::WearItem(item_id, wear_slot) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             wear_items.send(InputWearItem {
@@ -116,7 +117,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                InventoryMessage::TakeOffItem(slot_name) => {
+                InventoryClientMessage::TakeOffItem(slot_name) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             take_off_item.send(InputTakeOffItem {
@@ -130,7 +131,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                InventoryMessage::ThrowItem(position, angle) => {
+                InventoryClientMessage::ThrowItem(position, angle) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_throw_item.send(InputThrowItem {

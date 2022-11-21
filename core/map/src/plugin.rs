@@ -6,7 +6,7 @@ use player::plugin::ConfigurationLabel;
 use resources::labels::{MapLabels, PostUpdateLabels};
 
 use crate::{
-    connections::{configure, NetConfig},
+    connections::{configure, NetClientConfig},
     map::MapHolders,
     map_input::{InputMap, InputMapChangeDisplayMode, InputMapRequestOverlay, MapData},
     networking::incoming_messages,
@@ -34,14 +34,14 @@ impl Plugin for MapPlugin {
                         .after(PostUpdateLabels::VisibleChecker)
                         .label(PostUpdateLabels::Net)
                         .with_system(net_system::<NetRequestOverlay>)
-                        .with_system(net_system::<NetConfig>),
+                        .with_system(net_system::<NetClientConfig>),
                 )
                 .init_resource::<MapHolders>()
                 .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<InputMapChangeDisplayMode>()
                 .add_event::<InputMap>()
                 .add_event::<InputMapRequestOverlay>()
-                .add_event::<NetConfig>()
+                .add_event::<NetClientConfig>()
                 .add_system(
                     configure
                         .label(ConfigurationLabel::Main)

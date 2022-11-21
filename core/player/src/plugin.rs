@@ -2,11 +2,11 @@ use std::env;
 
 use crate::{
     boarding::{
-        done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText, NetOnBoarding,
+        done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText,
+        NetDoneBoarding, NetOnBoarding,
     },
     connection::{AuthidI, NetPlayerConn, SendServerConfiguration},
     connections::{configure, finished_configuration, server_events, PlayerAwaitingBoarding},
-    networking::NetDoneBoarding,
 };
 use bevy::prelude::{App, Plugin, SystemLabel, SystemSet};
 use bevy::{app::CoreStage::PostUpdate, prelude::IntoSystemDescriptor};

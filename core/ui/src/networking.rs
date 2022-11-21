@@ -10,7 +10,7 @@ use serde::Serialize;
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum UiMessage {
+pub enum UiClientMessage {
     TextTreeInput(Option<u64>, String, String, String),
 }
 
@@ -22,7 +22,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<UiMessage, _> = bincode::deserialize(&message);
+            let client_message_result: Result<UiClientMessage, _> = bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -35,7 +35,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                UiMessage::TextTreeInput(
+                UiClientMessage::TextTreeInput(
                     belonging_entity,
                     tab_action_id,
                     menu_id,
