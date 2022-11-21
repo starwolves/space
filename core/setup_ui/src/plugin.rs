@@ -1,21 +1,17 @@
 use std::env;
 
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemLabel, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use controller::networking::InputUIInput;
 use networking::server::net_system;
+use player::plugin::ConfigurationLabel;
 use resources::labels::{PostUpdateLabels, SummoningLabels};
 
 use crate::core::{
     configure, initialize_setupui, new_clients_enable_setupui, register_ui_input_boarding,
-    ui_input_boarding, NetConfigure, NetOnSetupUI, NetUIInputTransmitData,
+    ui_input_boarding, NetConfigure, NetOnSetupUI, NetUIInputTransmitData, SetupUiState,
 };
 use bevy::app::CoreStage::PostUpdate;
 /// Atmospherics systems ordering label.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-pub enum ConfigurationLabel {
-    SpawnEntity,
-    Main,
-}
 
 pub struct SetupUiPlugin;
 
@@ -43,7 +39,8 @@ impl Plugin for SetupUiPlugin {
                         .label(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
                 )
-                .add_system(new_clients_enable_setupui);
+                .add_system(new_clients_enable_setupui)
+                .init_resource::<SetupUiState>();
         }
     }
 }
