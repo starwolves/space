@@ -27,8 +27,13 @@ You may share this Work with others and You may modify this Work but you may not
 You may not use this Work for commercial purposes.
 You may not sell this Work.
 
-When modifying this Work please ensure only the official Space Frontiers client and/or the official Space Frontiers server can connect to it, do not support or create 3rd party clients directly or indirectly without explicit agreements.
-The act of redistributing, modifying and sharing this Work is only allowed when it is done with the intention to exclusively support official Space Frontier clients and servers for this copyrighted Work.
+You may not change the Space Frontiers and StarWolves branding and copyright notices in the server or client (such as in graphical user interfaces).
+
+StarWolves.io account verification processes integrated in the code may not be disabled or modified in such ways that they no longer fully operate as intended. Once more authorization functionality has been implemented this means that the accepted internet connections the Work manages must provide evidence of valid authorization with the main StarWolves.io server as a prerequisite to not terminate the connection.
+
+When modifying this Work please ensure to not support and to not create 3rd party clients without explicit agreements.
+
+The act of redistributing, modifying and sharing this Work is only allowed when it is done with the intention to exclusively support official Space Frontier client for this copyrighted Work.
 Do not repurpose this Work outside of the scope of wanting to Work with the official Space Frontiers client without explicit agreements.
 
 When You share this Work with other parties, ensure the other parties are aware of this particular LICENSE.
