@@ -17,7 +17,7 @@ use networking::server::HandleToEntity;
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum EntityMessage {
+pub enum EntityClientMessage {
     ExamineEntity(u64),
 }
 
@@ -30,7 +30,8 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<EntityMessage, _> = bincode::deserialize(&message);
+            let client_message_result: Result<EntityClientMessage, _> =
+                bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -43,7 +44,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                EntityMessage::ExamineEntity(entity_id) => {
+                EntityClientMessage::ExamineEntity(entity_id) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_examine_entity.send(InputExamineEntity {

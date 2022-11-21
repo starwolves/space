@@ -28,7 +28,7 @@ use player::boarding::InputUIInputTransmitText;
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum ControllerMessage {
+pub enum ControllerClientMessage {
     UIInput(UIInputNodeClass, UIInputAction, String, String),
     SceneReady(String),
     UIInputTransmitData(String, String, String),
@@ -94,7 +94,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ControllerMessage, _> =
+            let client_message_result: Result<ControllerClientMessage, _> =
                 bincode::deserialize(&message);
             let client_message;
             match client_message_result {
@@ -108,7 +108,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                ControllerMessage::UIInput(node_class, action, node_name, ui_type) => {
+                ControllerClientMessage::UIInput(node_class, action, node_name, ui_type) => {
                     input_ui_input.send(InputUIInput {
                         handle: handle,
                         node_class: node_class,
@@ -117,13 +117,13 @@ pub(crate) fn incoming_messages(
                         ui_type: ui_type,
                     });
                 }
-                ControllerMessage::SceneReady(scene_type) => {
+                ControllerClientMessage::SceneReady(scene_type) => {
                     scene_ready_event.send(InputSceneReady {
                         handle: handle,
                         scene_id: scene_type,
                     });
                 }
-                ControllerMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
+                ControllerClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
                     ui_input_transmit_text.send(InputUIInputTransmitText {
                         handle: handle,
                         ui_type: ui_type,
@@ -132,7 +132,7 @@ pub(crate) fn incoming_messages(
                     });
                 }
 
-                ControllerMessage::MovementInput(movement_input) => {
+                ControllerClientMessage::MovementInput(movement_input) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             movement_input_event.send(InputMovementInput {
@@ -146,11 +146,11 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ControllerMessage::BuildGraphics => {
+                ControllerClientMessage::BuildGraphics => {
                     build_graphics_event.send(InputBuildGraphics { handle: handle });
                 }
 
-                ControllerMessage::SprintInput(is_sprinting) => {
+                ControllerClientMessage::SprintInput(is_sprinting) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_sprinting_event.send(InputSprinting {
@@ -164,7 +164,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ControllerMessage::ToggleCombatModeInput => {
+                ControllerClientMessage::ToggleCombatModeInput => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_toggle_combat_mode.send(InputToggleCombatMode {
@@ -177,7 +177,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ControllerMessage::InputMouseAction(pressed) => {
+                ControllerClientMessage::InputMouseAction(pressed) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_mouse_action.send(InputMouseAction {
@@ -191,7 +191,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ControllerMessage::SelectBodyPart(body_part) => {
+                ControllerClientMessage::SelectBodyPart(body_part) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_select_body_part.send(InputSelectBodyPart {
@@ -204,17 +204,19 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                ControllerMessage::ToggleAutoMove => match handle_to_entity.map.get(&handle) {
-                    Some(player_entity) => {
-                        input_toggle_auto_move.send(InputToggleAutoMove {
-                            entity: *player_entity,
-                        });
+                ControllerClientMessage::ToggleAutoMove => {
+                    match handle_to_entity.map.get(&handle) {
+                        Some(player_entity) => {
+                            input_toggle_auto_move.send(InputToggleAutoMove {
+                                entity: *player_entity,
+                            });
+                        }
+                        None => {
+                            warn!("Couldn't find player_entity belonging to InputToggleAutoMove sender handle.");
+                        }
                     }
-                    None => {
-                        warn!("Couldn't find player_entity belonging to InputToggleAutoMove sender handle.");
-                    }
-                },
-                ControllerMessage::AttackEntity(entity_id) => {
+                }
+                ControllerClientMessage::AttackEntity(entity_id) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_attack_entity.send(InputAttackEntity {
@@ -228,7 +230,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ControllerMessage::AltItemAttack => {
+                ControllerClientMessage::AltItemAttack => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_alt_item_attack.send(InputAltItemAttack {
@@ -241,7 +243,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ControllerMessage::AttackCell(cell_x, cell_y, cell_z) => {
+                ControllerClientMessage::AttackCell(cell_x, cell_y, cell_z) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_attack_cell.send(InputAttackCell {

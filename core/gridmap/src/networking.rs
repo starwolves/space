@@ -16,7 +16,7 @@ use networking::server::HandleToEntity;
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum GridmapMessage {
+pub enum GridmapClientMessage {
     ExamineMap(GridMapLayer, i16, i16, i16),
 }
 
@@ -29,7 +29,8 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<GridmapMessage, _> = bincode::deserialize(&message);
+            let client_message_result: Result<GridmapClientMessage, _> =
+                bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -42,26 +43,29 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                GridmapMessage::ExamineMap(grid_map_type, cell_id_x, cell_id_y, cell_id_z) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_examine_map.send(InputExamineMap {
-                                handle: handle,
-                                entity: *player_entity,
-                                gridmap_type: grid_map_type,
-                                gridmap_cell_id: Vec3Int {
-                                    x: cell_id_x,
-                                    y: cell_id_y,
-                                    z: cell_id_z,
-                                },
-                                ..Default::default()
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
-                        }
+                GridmapClientMessage::ExamineMap(
+                    grid_map_type,
+                    cell_id_x,
+                    cell_id_y,
+                    cell_id_z,
+                ) => match handle_to_entity.map.get(&handle) {
+                    Some(player_entity) => {
+                        input_examine_map.send(InputExamineMap {
+                            handle: handle,
+                            entity: *player_entity,
+                            gridmap_type: grid_map_type,
+                            gridmap_cell_id: Vec3Int {
+                                x: cell_id_x,
+                                y: cell_id_y,
+                                z: cell_id_z,
+                            },
+                            ..Default::default()
+                        });
                     }
-                }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
+                    }
+                },
             }
         }
     }
