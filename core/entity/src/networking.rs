@@ -3,15 +3,23 @@ use bevy::prelude::ResMut;
 use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-use networking::server::ReliableClientMessage;
 use networking::server::ReliableServerMessage;
 use networking_macros::NetMessage;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::examine::InputExamineEntity;
 use bevy::prelude::Entity;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
 use networking::server::HandleToEntity;
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum EntityMessage {
+    ExamineEntity(u64),
+}
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
@@ -22,8 +30,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ReliableClientMessage, _> =
-                bincode::deserialize(&message);
+            let client_message_result: Result<EntityMessage, _> = bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -36,7 +43,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                ReliableClientMessage::ExamineEntity(entity_id) => {
+                EntityMessage::ExamineEntity(entity_id) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_examine_entity.send(InputExamineEntity {
@@ -51,7 +58,6 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                _ => (),
             }
         }
     }

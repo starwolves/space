@@ -3,11 +3,20 @@ use bevy::prelude::ResMut;
 use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-use networking::server::ReliableClientMessage;
+use networking::server::GodotVariantValues;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::commands::InputConsoleCommand;
 use bevy::prelude::{EventWriter, Res};
 use networking::server::HandleToEntity;
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum ConsoleCommandsMessage {
+    ConsoleCommand(String, Vec<GodotVariantValues>),
+}
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
@@ -18,7 +27,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ReliableClientMessage, _> =
+            let client_message_result: Result<ConsoleCommandsMessage, _> =
                 bincode::deserialize(&message);
             let client_message;
             match client_message_result {
@@ -32,7 +41,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                ReliableClientMessage::ConsoleCommand(command_name, variant_arguments) => {
+                ConsoleCommandsMessage::ConsoleCommand(command_name, variant_arguments) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             console_commands_queue.send(InputConsoleCommand {
@@ -47,7 +56,6 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                _ => (),
             }
         }
     }

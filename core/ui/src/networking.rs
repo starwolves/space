@@ -1,11 +1,18 @@
 use bevy::prelude::ResMut;
 
 use bevy::prelude::warn;
+use bevy::prelude::EventWriter;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-use networking::server::ReliableClientMessage;
+use serde::Deserialize;
+use serde::Serialize;
 
-use bevy::prelude::EventWriter;
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum UiMessage {
+    TextTreeInput(Option<u64>, String, String, String),
+}
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
@@ -15,8 +22,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ReliableClientMessage, _> =
-                bincode::deserialize(&message);
+            let client_message_result: Result<UiMessage, _> = bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -29,7 +35,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                ReliableClientMessage::TextTreeInput(
+                UiMessage::TextTreeInput(
                     belonging_entity,
                     tab_action_id,
                     menu_id,
@@ -43,7 +49,6 @@ pub(crate) fn incoming_messages(
                         action_id: tab_action_id,
                     });
                 }
-                _ => (),
             }
         }
     }
