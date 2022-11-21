@@ -25,3 +25,4 @@ resources = { path = "../resources",  features=["server"] }
 player = { path = "../player",  features=["server"] }
 motd = { path = "../motd",  features=["server"] }
 text_api = { path = "../text_api",  features=["server"] }
+controller = { path = "../controller",  features=["server"] }

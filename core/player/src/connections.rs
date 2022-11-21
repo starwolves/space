@@ -133,10 +133,16 @@ pub(crate) fn configure(
         });
     }
 }
+
+pub struct PlayerAwaitingBoarding {
+    pub handle: u64,
+}
+
 #[cfg(feature = "server")]
 pub(crate) fn finished_configuration(
     mut config_events: EventReader<SendServerConfiguration>,
     mut net_on_new_player_connection: EventWriter<NetPlayerConn>,
+    mut player_awaiting_event: EventWriter<PlayerAwaitingBoarding>,
 ) {
     for event in config_events.iter() {
         net_on_new_player_connection.send(NetPlayerConn {
@@ -144,6 +150,9 @@ pub(crate) fn finished_configuration(
             message: ReliableServerMessage::ConfigMessage(
                 ServerConfigMessage::FinishedInitialization,
             ),
+        });
+        player_awaiting_event.send(PlayerAwaitingBoarding {
+            handle: event.handle,
         });
     }
 }

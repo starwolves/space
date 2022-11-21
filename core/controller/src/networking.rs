@@ -1,9 +1,13 @@
 use bevy::prelude::warn;
 use bevy::prelude::Res;
+use bevy::prelude::Vec2;
 use bevy::prelude::{EventWriter, ResMut};
 use bevy_renet::renet::RenetServer;
-use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::ReliableClientMessage};
-use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableClientMessage};
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
+use networking::server::UIInputAction;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::input::InputAltItemAttack;
 use crate::input::InputAttackCell;
@@ -17,10 +21,57 @@ use crate::input::InputToggleAutoMove;
 use crate::input::InputToggleCombatMode;
 use crate::input::{InputBuildGraphics, InputMouseDirectionUpdate};
 use math::grid::Vec3Int;
-use setup_ui::setup_ui::InputUIInput;
 
 use networking::server::HandleToEntity;
 use player::boarding::InputUIInputTransmitText;
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum ControllerMessage {
+    UIInput(UIInputNodeClass, UIInputAction, String, String),
+    SceneReady(String),
+    UIInputTransmitData(String, String, String),
+    MovementInput(Vec2),
+    SprintInput(bool),
+    BuildGraphics,
+    ToggleCombatModeInput,
+    InputMouseAction(bool),
+    SelectBodyPart(String),
+    ToggleAutoMove,
+    AttackEntity(u64),
+    AltItemAttack,
+    AttackCell(i16, i16, i16),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum UIInputNodeClass {
+    Button,
+}
+
+/// Event as client input , interaction with UI.
+#[cfg(feature = "server")]
+pub struct InputUIInput {
+    /// Handle of the connection that input this.
+    pub handle: u64,
+    /// The Godot node class of the input element.
+    pub node_class: UIInputNodeClass,
+    /// The action ID.
+    pub action: UIInputAction,
+    /// The Godot node name of the input element.
+    pub node_name: String,
+    /// The UI this input was submitted from.
+    pub ui_type: String,
+}
+
+/// This message gets sent at high intervals.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum ControllerUnreliableMessage {
+    MouseDirectionUpdate(f32, u64),
+}
+
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
@@ -43,7 +94,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ReliableClientMessage, _> =
+            let client_message_result: Result<ControllerMessage, _> =
                 bincode::deserialize(&message);
             let client_message;
             match client_message_result {
@@ -57,7 +108,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                ReliableClientMessage::UIInput(node_class, action, node_name, ui_type) => {
+                ControllerMessage::UIInput(node_class, action, node_name, ui_type) => {
                     input_ui_input.send(InputUIInput {
                         handle: handle,
                         node_class: node_class,
@@ -66,13 +117,13 @@ pub(crate) fn incoming_messages(
                         ui_type: ui_type,
                     });
                 }
-                ReliableClientMessage::SceneReady(scene_type) => {
+                ControllerMessage::SceneReady(scene_type) => {
                     scene_ready_event.send(InputSceneReady {
                         handle: handle,
                         scene_id: scene_type,
                     });
                 }
-                ReliableClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
+                ControllerMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
                     ui_input_transmit_text.send(InputUIInputTransmitText {
                         handle: handle,
                         ui_type: ui_type,
@@ -81,7 +132,7 @@ pub(crate) fn incoming_messages(
                     });
                 }
 
-                ReliableClientMessage::MovementInput(movement_input) => {
+                ControllerMessage::MovementInput(movement_input) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             movement_input_event.send(InputMovementInput {
@@ -95,11 +146,11 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::BuildGraphics => {
+                ControllerMessage::BuildGraphics => {
                     build_graphics_event.send(InputBuildGraphics { handle: handle });
                 }
 
-                ReliableClientMessage::SprintInput(is_sprinting) => {
+                ControllerMessage::SprintInput(is_sprinting) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_sprinting_event.send(InputSprinting {
@@ -113,7 +164,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::ToggleCombatModeInput => {
+                ControllerMessage::ToggleCombatModeInput => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_toggle_combat_mode.send(InputToggleCombatMode {
@@ -126,7 +177,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::InputMouseAction(pressed) => {
+                ControllerMessage::InputMouseAction(pressed) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_mouse_action.send(InputMouseAction {
@@ -140,7 +191,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::SelectBodyPart(body_part) => {
+                ControllerMessage::SelectBodyPart(body_part) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_select_body_part.send(InputSelectBodyPart {
@@ -153,7 +204,7 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                ReliableClientMessage::ToggleAutoMove => match handle_to_entity.map.get(&handle) {
+                ControllerMessage::ToggleAutoMove => match handle_to_entity.map.get(&handle) {
                     Some(player_entity) => {
                         input_toggle_auto_move.send(InputToggleAutoMove {
                             entity: *player_entity,
@@ -163,7 +214,7 @@ pub(crate) fn incoming_messages(
                         warn!("Couldn't find player_entity belonging to InputToggleAutoMove sender handle.");
                     }
                 },
-                ReliableClientMessage::AttackEntity(entity_id) => {
+                ControllerMessage::AttackEntity(entity_id) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_attack_entity.send(InputAttackEntity {
@@ -177,7 +228,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::AltItemAttack => {
+                ControllerMessage::AltItemAttack => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_alt_item_attack.send(InputAltItemAttack {
@@ -190,7 +241,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::AttackCell(cell_x, cell_y, cell_z) => {
+                ControllerMessage::AttackCell(cell_x, cell_y, cell_z) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_attack_cell.send(InputAttackCell {
@@ -207,15 +258,15 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                _ => (),
             }
         }
 
         while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
-            let client_message: UnreliableClientMessage = bincode::deserialize(&message).unwrap();
+            let client_message: ControllerUnreliableMessage =
+                bincode::deserialize(&message).unwrap();
 
             match client_message {
-                UnreliableClientMessage::MouseDirectionUpdate(mouse_direction, time_stamp) => {
+                ControllerUnreliableMessage::MouseDirectionUpdate(mouse_direction, time_stamp) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             mouse_direction_update.send(InputMouseDirectionUpdate {
@@ -229,7 +280,6 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                _ => (),
             }
         }
     }

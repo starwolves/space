@@ -5,7 +5,7 @@ use crate::{
         done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText, NetOnBoarding,
     },
     connection::{AuthidI, NetPlayerConn, SendServerConfiguration},
-    connections::{configure, finished_configuration, server_events},
+    connections::{configure, finished_configuration, server_events, PlayerAwaitingBoarding},
     networking::NetDoneBoarding,
 };
 use bevy::prelude::{App, Plugin, SystemLabel, SystemSet};
@@ -44,6 +44,7 @@ impl Plugin for PlayerPlugin {
                 .init_resource::<BoardingAnnouncements>()
                 .add_event::<NetPlayerConn>()
                 .add_event::<InputUIInputTransmitText>()
+                .add_event::<PlayerAwaitingBoarding>()
                 .add_system(
                     configure
                         .label(ConfigurationLabel::SpawnEntity)

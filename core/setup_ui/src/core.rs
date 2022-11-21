@@ -1,27 +1,14 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res};
+use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res, Resource};
 use networking::server::HandleToEntity;
-use networking::server::{
-    EntityUpdateData, EntityWorldType, ReliableServerMessage, UIInputAction, UIInputNodeClass,
-};
+use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage, UIInputAction};
 use networking_macros::NetMessage;
+use player::connections::PlayerAwaitingBoarding;
 use resources::core::ServerId;
 
-/// Event as client input , interaction with UI.
-#[cfg(feature = "server")]
-pub struct InputUIInput {
-    /// Handle of the connection that input this.
-    pub handle: u64,
-    /// The Godot node class of the input element.
-    pub node_class: UIInputNodeClass,
-    /// The action ID.
-    pub action: UIInputAction,
-    /// The Godot node name of the input element.
-    pub node_name: String,
-    /// The UI this input was submitted from.
-    pub ui_type: String,
-}
+use controller::networking::InputUIInput;
+use controller::networking::UIInputNodeClass;
 use player::boarding::SoftPlayer;
 use player::connection::Boarding;
 
@@ -250,5 +237,26 @@ pub(crate) fn configure(
                 talk_spaces,
             )),
         });
+    }
+}
+
+/// Setup ui state resource.
+#[cfg(feature = "server")]
+#[derive(Resource)]
+pub struct SetupUiState {
+    pub enabled: HashMap<u64, bool>,
+}
+
+/// Show setup_ui to newly connected clients.
+#[cfg(feature = "server")]
+pub(crate) fn new_clients_enable_setupui(
+    mut player_awaiting_boarding: EventReader<PlayerAwaitingBoarding>,
+    mut state: ResMut<SetupUiState>,
+    //mut net : EventWriter<NetConfigure>,
+) {
+    for awaiting in player_awaiting_boarding.iter() {
+        if !state.enabled.contains_key(&awaiting.handle) {
+            state.enabled.insert(awaiting.handle, true);
+        }
     }
 }

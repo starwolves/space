@@ -1,12 +1,14 @@
 use bevy::prelude::ResMut;
 
 use bevy::prelude::warn;
+use bevy::prelude::Vec3;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-use networking::server::ReliableClientMessage;
 
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::item_events::InputDropCurrentItem;
 use crate::item_events::InputTakeOffItem;
@@ -16,6 +18,18 @@ use crate::item_events::InputWearItem;
 use crate::switch_hands::InputSwitchHands;
 use bevy::prelude::Entity;
 use networking::server::HandleToEntity;
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum InventoryMessage {
+    UseWorldItem(u64),
+    DropCurrentItem(Option<Vec3>),
+    SwitchHands,
+    WearItem(u64, String),
+    TakeOffItem(String),
+    ThrowItem(Vec3, f32),
+}
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
@@ -31,8 +45,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ReliableClientMessage, _> =
-                bincode::deserialize(&message);
+            let client_message_result: Result<InventoryMessage, _> = bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -45,7 +58,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                ReliableClientMessage::UseWorldItem(entity_id) => {
+                InventoryMessage::UseWorldItem(entity_id) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             use_world_item.send(InputUseWorldItem {
@@ -59,7 +72,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::DropCurrentItem(position_option) => {
+                InventoryMessage::DropCurrentItem(position_option) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             drop_current_item.send(InputDropCurrentItem {
@@ -73,7 +86,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::SwitchHands => {
+                InventoryMessage::SwitchHands => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             switch_hands.send(InputSwitchHands {
@@ -86,7 +99,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::WearItem(item_id, wear_slot) => {
+                InventoryMessage::WearItem(item_id, wear_slot) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             wear_items.send(InputWearItem {
@@ -103,7 +116,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::TakeOffItem(slot_name) => {
+                InventoryMessage::TakeOffItem(slot_name) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             take_off_item.send(InputTakeOffItem {
@@ -117,7 +130,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::ThrowItem(position, angle) => {
+                InventoryMessage::ThrowItem(position, angle) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_throw_item.send(InputThrowItem {
@@ -131,7 +144,6 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                _ => (),
             }
         }
     }

@@ -65,7 +65,7 @@ pub(crate) fn startup_server_listen_connections() -> RenetServer {
 pub(crate) fn souls(mut net: ResMut<RenetServer>) {
     for handle in net.clients_id().into_iter() {
         while let Some(message) = net.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ReliableClientMessage, _> =
+            let client_message_result: Result<NetworkingMessage, _> =
                 bincode::deserialize(&message);
             let client_message;
             match client_message_result {
@@ -81,8 +81,7 @@ pub(crate) fn souls(mut net: ResMut<RenetServer>) {
                 //                                        |
                 // Where the souls of the players are     |
                 //   while they're connected.             V
-                ReliableClientMessage::HeartBeat => { /* <3 */ }
-                _ => (),
+                NetworkingMessage::HeartBeat => { /* <3 */ }
             }
         }
     }
@@ -126,46 +125,10 @@ pub struct NetAction {
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum ReliableClientMessage {
-    Awoo,
+pub enum NetworkingMessage {
     HeartBeat,
-    UIInput(UIInputNodeClass, UIInputAction, String, String),
-    SceneReady(String),
-    UIInputTransmitData(String, String, String),
-    MovementInput(Vec2),
-    SprintInput(bool),
-    BuildGraphics,
-    InputChatMessage(String),
-    ExamineEntity(u64),
-    ExamineMap(GridMapLayer, i16, i16, i16),
-    TabDataEntity(u64),
-    TabDataMap(GridMapLayer, i16, i16, i16),
-    UseWorldItem(u64),
-    DropCurrentItem(Option<Vec3>),
-    SwitchHands,
-    WearItem(u64, String),
-    TakeOffItem(String),
-    ConsoleCommand(String, Vec<GodotVariantValues>),
-    ToggleCombatModeInput,
-    InputMouseAction(bool),
-    SelectBodyPart(String),
-    ToggleAutoMove,
-    AccountName(String),
-    AttackEntity(u64),
-    AltItemAttack,
-    ThrowItem(Vec3, f32),
-    AttackCell(i16, i16, i16),
-    TabPressed(
-        String,
-        Option<u64>,
-        Option<(GridMapLayer, i16, i16, i16)>,
-        Option<u64>,
-    ),
-    TextTreeInput(Option<u64>, String, String, String),
-    MapChangeDisplayMode(String),
-    MapRequestDisplayModes,
-    MapCameraPosition(Vec2),
 }
+
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
@@ -244,14 +207,6 @@ pub enum UnreliableServerMessage {
     TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
     PositionUpdate(u64, Vec3, u64),
 }
-/// This message gets sent at high intervals.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum UnreliableClientMessage {
-    MouseDirectionUpdate(f32, u64),
-    MapViewRange(f32),
-    MapOverlayMouseHoverCell(i16, i16),
-}
 
 /// Variants for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -270,12 +225,6 @@ pub enum GodotVariant {
     String,
     Float,
     Bool,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum UIInputNodeClass {
-    Button,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

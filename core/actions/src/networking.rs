@@ -1,4 +1,7 @@
 use bevy::prelude::ResMut;
+use networking::server::GridMapLayer;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::core::InputAction;
 use crate::core::InputListActionsEntity;
@@ -9,9 +12,23 @@ use bevy_renet::renet::RenetServer;
 use math::grid::Vec3Int;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::HandleToEntity;
-use networking::server::ReliableClientMessage;
 
 use bevy::prelude::{EventWriter, Res};
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum ActionsMessage {
+    TabDataEntity(u64),
+    TabDataMap(GridMapLayer, i16, i16, i16),
+    TabPressed(
+        String,
+        Option<u64>,
+        Option<(GridMapLayer, i16, i16, i16)>,
+        Option<u64>,
+    ),
+}
+
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
@@ -23,8 +40,7 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ReliableClientMessage, _> =
-                bincode::deserialize(&message);
+            let client_message_result: Result<ActionsMessage, _> = bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -37,7 +53,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                ReliableClientMessage::TabDataEntity(entity_id_bits) => {
+                ActionsMessage::TabDataEntity(entity_id_bits) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             action_data_entity.send(InputListActionsEntity {
@@ -52,7 +68,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::TabDataMap(gridmap_type, idx, idy, idz) => {
+                ActionsMessage::TabDataMap(gridmap_type, idx, idy, idz) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             action_data_map.send(InputListActionsMap {
@@ -72,12 +88,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                ReliableClientMessage::TabPressed(
-                    id,
-                    entity_option,
-                    cell_option,
-                    belonging_entity,
-                ) => {
+                ActionsMessage::TabPressed(id, entity_option, cell_option, belonging_entity) => {
                     let mut entity_p_op = None;
                     match entity_option {
                         Some(s) => {
@@ -119,7 +130,6 @@ pub(crate) fn incoming_messages(
                         action_taker: entity_b_op,
                     });
                 }
-                _ => (),
             }
         }
     }
