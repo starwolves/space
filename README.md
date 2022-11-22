@@ -25,6 +25,7 @@
 
 ### Community
 Socials:
+* [Forum Board](https://starwolves.io)
 * [Discord](https://discord.gg/yYpMun9CTT)
 * [Matrix](https://matrix.to/#/#space-frontiers:comms.starwolves.io)
 
