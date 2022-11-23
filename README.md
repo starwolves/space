@@ -119,4 +119,4 @@ The code of this repository is licensed under [the proprietary code license](htt
 
 ### AGPLv3 & CC BY-SA 4.0 Milestone 
 
-In the further future when a yet to be-decided amount of copies have been sold: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International.
+In the further future when a yet to be-decided amount of accounts have been sold: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International.
