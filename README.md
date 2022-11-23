@@ -106,6 +106,8 @@ Currently there is full focus on recreating the client in Bevy ECS. This is the 
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for some years to come.
 Feedback, bug reports, suggestions and critique are very much appreciated. [Gitlab](https://gitlab.starwolves.io/starwolves/space) issues and pull requests will be reviewed and considered.
 
+You can fund the project [here](https://github.com/sponsors/starwolfy/) and get in contact with us afterwards for special and lasting roles and titles!
+
 The hopes are to financially reward and/or hire the most suitable people for their contributions in the much further future.
 
 Contributors of this project have to agree to our [Collaberative License Agreement](https://gitlab.starwolves.io/starwolves/contributor-license-agreement). You may send your signed version to cla@starwolves.io so your associated [Gitlab](https://gitlab.starwolves.io/) account will get activated.
