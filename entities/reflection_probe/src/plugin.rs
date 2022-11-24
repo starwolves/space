@@ -8,9 +8,8 @@ use resources::labels::{PostUpdateLabels, SummoningLabels};
 use super::entity_update::reflection_probe_update;
 use super::spawn::{spawn_raw_reflection_probe, summon_reflection_probe, ReflectionProbeSummoner};
 
-#[cfg(feature = "server")]
 pub struct ReflectionProbePlugin;
-#[cfg(feature = "server")]
+
 impl Plugin for ReflectionProbePlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
