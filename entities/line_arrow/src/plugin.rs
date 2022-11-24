@@ -17,10 +17,8 @@ use super::{
     spawn::{default_line_arrow, summon_line_arrow, LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
 };
 
-#[cfg(feature = "server")]
 pub struct LineArrowPlugin;
 
-#[cfg(feature = "server")]
 impl Plugin for LineArrowPlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
@@ -47,10 +45,8 @@ impl Plugin for LineArrowPlugin {
     }
 }
 
-#[cfg(feature = "server")]
 pub struct PointArrowPlugin;
 
-#[cfg(feature = "server")]
 impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(expire_point_arrow).add_system(

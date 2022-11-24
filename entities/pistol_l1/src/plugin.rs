@@ -22,10 +22,8 @@ use super::spawn::{
     default_summon_pistol_l1, summon_pistol_l1, summon_raw_pistol_l1, PistolL1Summoner,
 };
 
-#[cfg(feature = "server")]
 pub struct PistolL1Plugin;
 
-#[cfg(feature = "server")]
 impl Plugin for PistolL1Plugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {

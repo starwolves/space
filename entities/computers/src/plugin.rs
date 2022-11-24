@@ -20,10 +20,8 @@ use super::{
     },
 };
 
-#[cfg(feature = "server")]
 pub struct ComputersPlugin;
 
-#[cfg(feature = "server")]
 impl Plugin for ComputersPlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
