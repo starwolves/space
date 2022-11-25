@@ -9,7 +9,6 @@ use bevy::{
     app::{RunMode, ScheduleRunnerSettings},
     core::CorePlugin,
     prelude::{App, IntoSystemDescriptor, Plugin, PluginGroup, TaskPoolOptions},
-    render::settings::WgpuSettings,
     window::WindowPlugin,
     DefaultPlugins,
 };
@@ -73,9 +72,6 @@ impl Default for ServerPlugin {
 
 impl Plugin for ServerPlugin {
     fn build(&self, app: &mut App) {
-        let mut wgpu_settings = WgpuSettings::default();
-        wgpu_settings.backends = None;
-
         let task_pool;
 
         match self.threads_amount {
