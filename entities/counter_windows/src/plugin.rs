@@ -11,7 +11,6 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use gridmap_meta::core::GridItemData;
-use networking::server::net_system;
 use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
 };
@@ -34,7 +33,6 @@ use super::{
     },
     counter_window_tick_timers::counter_window_tick_timers,
     entity_update::counter_window_update,
-    net::NetCounterWindow,
     spawn::{
         default_summon_counter_window, summon_counter_window, summon_raw_counter_window,
         CounterWindowSummoner, BRIDGE_COUNTER_WINDOW_ENTITY_NAME,
@@ -58,7 +56,6 @@ impl Plugin for CounterWindowsPlugin {
                 .add_event::<CounterWindowLockOpen>()
                 .add_event::<CounterWindowLockClosed>()
                 .add_event::<CounterWindowUnlock>()
-                .add_event::<NetCounterWindow>()
                 .add_system_set_to_stage(
                     PostUpdate,
                     SystemSet::new()
@@ -66,13 +63,6 @@ impl Plugin for CounterWindowsPlugin {
                         .with_system(counter_window_update),
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetCounterWindow>),
-                )
                 .add_system(
                     summon_counter_window::<CounterWindowSummoner>
                         .after(SummoningLabels::TriggerSummon),

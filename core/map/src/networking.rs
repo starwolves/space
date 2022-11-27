@@ -139,3 +139,13 @@ pub(crate) fn incoming_messages(
         }
     }
 }
+
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum MapServerMessage {
+    MapSendDisplayModes(Vec<(String, String)>),
+    MapOverlayUpdate(Vec<(i16, i16, i16)>),
+    MapOverlayHoverData(String),
+    MapDefaultAddition(i16, i16, i16),
+}

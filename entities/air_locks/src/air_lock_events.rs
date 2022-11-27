@@ -1,12 +1,11 @@
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::{
     hierarchy::Children,
-    prelude::{warn, Commands, Entity, EventReader, EventWriter, Query, ResMut, Transform},
+    prelude::{warn, Commands, Entity, EventReader, Query, ResMut, Transform},
 };
 use bevy_rapier3d::prelude::{CollisionGroups, Group};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use math::grid::{world_to_cell_id, Vec2Int};
-use networking::server::ReliableServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization};
 use physics::physics::{get_bit_masks, ColliderGroup};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
@@ -19,11 +18,8 @@ use sounds::{
 };
 use text_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 
-use super::{
-    net::NetAirLock,
-    resources::{
-        closed_timer, denied_timer, open_timer, AccessLightsStatus, AirLock, AirLockStatus,
-    },
+use super::resources::{
+    closed_timer, denied_timer, open_timer, AccessLightsStatus, AirLock, AirLockStatus,
 };
 
 /// Air lock open request event.
@@ -32,6 +28,7 @@ pub struct AirLockOpenRequest {
     pub opener_option: Option<Entity>,
     pub opened: Entity,
 }
+use bevy_renet::renet::RenetServer;
 
 /// Manage air lock events.
 #[cfg(feature = "server")]
@@ -47,9 +44,11 @@ pub(crate) fn air_lock_events(
     mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
     mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
     mut unlock_events: EventReader<AirLockUnlock>,
-    mut net_airlocks: EventWriter<NetAirLock>,
+    mut server: ResMut<RenetServer>,
     mut collision_groups: Query<&mut CollisionGroups>,
 ) {
+    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
+
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 
@@ -77,10 +76,14 @@ pub(crate) fn air_lock_events(
                     + ".[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        net_airlocks.send(NetAirLock {
-                            handle: t,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        server.send_message(
+                            t,
+                            RENET_RELIABLE_CHANNEL_ID,
+                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                personal_update_text,
+                            ))
+                            .unwrap(),
+                        );
                     }
                     None => {}
                 }
@@ -102,10 +105,14 @@ pub(crate) fn air_lock_events(
                     + ".[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        net_airlocks.send(NetAirLock {
-                            handle: t,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        server.send_message(
+                            t,
+                            RENET_RELIABLE_CHANNEL_ID,
+                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                personal_update_text,
+                            ))
+                            .unwrap(),
+                        );
                     }
                     None => {}
                 }
@@ -142,10 +149,14 @@ pub(crate) fn air_lock_events(
                     + ".[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        net_airlocks.send(NetAirLock {
-                            handle: t,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        server.send_message(
+                            t,
+                            RENET_RELIABLE_CHANNEL_ID,
+                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                personal_update_text,
+                            ))
+                            .unwrap(),
+                        );
                     }
                     None => {}
                 }

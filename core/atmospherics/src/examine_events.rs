@@ -3,19 +3,9 @@ use bevy::prelude::{warn, Query, Res, ResMut};
 use entity::senser::Senser;
 use entity::senser::SensingAbility;
 use math::grid::Vec2Int;
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::ReliableServerMessage;
-use networking_macros::NetMessage;
 use text_api::core::ATMOSPHERICS_TEXT_COLOR;
 use text_api::core::FURTHER_ITALIC_FONT;
 
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetAtmosphericsMapExamine {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 use gridmap::examine::GridmapExamineMessages;
 
 /// Examine text with data for cells with atmospherics.

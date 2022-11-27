@@ -3,8 +3,6 @@ use bevy::prelude::ResMut;
 use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-use networking::server::ReliableServerMessage;
-use networking_macros::NetMessage;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -63,21 +61,6 @@ pub(crate) fn incoming_messages(
         }
     }
 }
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetUnloadEntity {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetLoadEntity {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
 use std::collections::HashMap;
 
@@ -111,7 +94,7 @@ pub(crate) fn load_entity(
         Option<&WorldMode>,
     )>,
     mut load_entity_events: EventReader<LoadEntity>,
-    mut net_load_entity: EventWriter<NetLoadEntity>,
+    mut server: ResMut<RenetServer>,
 ) {
     for load_entity_event in load_entity_events.iter() {
         match entity_query.get(load_entity_event.entity) {
@@ -196,9 +179,10 @@ pub(crate) fn load_entity(
                     hash_map = HashMap::new();
                 }
 
-                net_load_entity.send(NetLoadEntity {
-                    handle: load_entity_event.loader_handle,
-                    message: ReliableServerMessage::LoadEntity(
+                server.send_message(
+                    load_entity_event.loader_handle,
+                    RENET_RELIABLE_CHANNEL_ID,
+                    bincode::serialize(&EntityServerMessage::LoadEntity(
                         entity_data.entity_class.clone(),
                         entity_data.entity_name.clone(),
                         hash_map,
@@ -207,12 +191,43 @@ pub(crate) fn load_entity(
                         "main".to_string(),
                         "".to_string(),
                         false,
-                    ),
-                });
+                    ))
+                    .unwrap(),
+                );
             }
             Err(_) => {
                 warn!("Couldnt find entity for load entity event.");
             }
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum EntityWorldType {
+    Main,
+    HealthUI,
+}
+
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum EntityServerMessage {
+    EntityUpdate(
+        u64,
+        HashMap<String, HashMap<String, EntityUpdateData>>,
+        bool,
+        EntityWorldType,
+    ),
+    LoadEntity(
+        String,
+        String,
+        HashMap<String, HashMap<String, EntityUpdateData>>,
+        u64,
+        bool,
+        String,
+        String,
+        bool,
+    ),
+    UnloadEntity(u64, bool),
 }

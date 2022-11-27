@@ -5,7 +5,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Fricti
 use chat::chat::{Radio, RadioChannel};
 use data_link::core::{DataLink, DataLinkType};
 use entity::{
-    entity_data::{NetShowcase, WorldMode, WorldModes, ENTITY_SPAWN_PARENT},
+    entity_data::{WorldMode, WorldModes, ENTITY_SPAWN_PARENT},
     examine::{Examinable, RichName},
     health::{DamageFlag, Health, HealthContainer, HumanoidHealth},
     meta::EntityDataResource,
@@ -27,7 +27,6 @@ use inventory_item::{
 };
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;
-use networking::server::ReliableServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use player::{
@@ -94,6 +93,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
         }
     }
 }
+use bevy_renet::renet::RenetServer;
 
 /// Human male spawner.
 #[cfg(feature = "server")]
@@ -103,8 +103,11 @@ pub fn summon_base_human_male<
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
     used_names: ResMut<UsedNames>,
-    mut net_showcase: EventWriter<NetShowcase>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use entity::networking::EntityServerMessage;
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event.summoner.get_bundle(
             &spawn_event.spawn_data,
@@ -129,9 +132,10 @@ pub fn summon_base_human_male<
 
         match &spawn_event.spawn_data.showcase_data_option {
             Some(showcase_data) => {
-                net_showcase.send(NetShowcase {
-                    handle: showcase_data.handle,
-                    message: ReliableServerMessage::LoadEntity(
+                server.send_message(
+                    showcase_data.handle,
+                    RENET_RELIABLE_CHANNEL_ID,
+                    bincode::serialize(&EntityServerMessage::LoadEntity(
                         "entity".to_string(),
                         base_entity_bundle.entity_name,
                         HashMap::new(),
@@ -140,8 +144,9 @@ pub fn summon_base_human_male<
                         "main".to_string(),
                         ENTITY_SPAWN_PARENT.to_string(),
                         false,
-                    ),
-                });
+                    ))
+                    .unwrap(),
+                );
             }
             None => {}
         }

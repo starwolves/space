@@ -17,8 +17,6 @@ mod examine_events;
 mod init;
 /// Manage UI input related to the mini-map with atmospherics overlays.
 mod map_events;
-/// Manage netcode.
-mod net;
 /// Manage visual warning indicators for clients with relevant atmospherics notices.
 mod notices;
 /// The Bevy plugin of the crate.

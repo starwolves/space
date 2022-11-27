@@ -3,6 +3,7 @@ use bevy::prelude::ResMut;
 use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+use networking::server::GodotVariant;
 use networking::server::GodotVariantValues;
 use serde::Deserialize;
 use serde::Serialize;
@@ -59,4 +60,11 @@ pub(crate) fn incoming_messages(
             }
         }
     }
+}
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum ConsoleCommandsServerMessage {
+    ConsoleWriteLine(String),
+    ConfigConsoleCommands(Vec<(String, String, Vec<(String, GodotVariant)>)>),
 }

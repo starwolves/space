@@ -1,10 +1,8 @@
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, warn, Component, Entity, EventReader, EventWriter, Quat, ResMut, Resource},
+    prelude::{info, warn, Component, Entity, Quat, ResMut, Resource},
 };
-use networking_macros::NetMessage;
 use serde::{Deserialize, Serialize};
-use world_environment::environment::WorldEnvironment;
 
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
@@ -87,22 +85,6 @@ pub(crate) fn souls(mut net: ResMut<RenetServer>) {
     }
 }
 
-/// Net message handler.
-#[cfg(feature = "server")]
-pub fn net_system<T: std::marker::Send + std::marker::Sync + PendingMessage + 'static>(
-    mut net1: EventReader<T>,
-    mut pending_net: EventWriter<PendingNetworkMessage>,
-) {
-    for new_event in net1.iter() {
-        let message = new_event.get_message();
-
-        pending_net.send(PendingNetworkMessage {
-            handle: message.handle,
-            message: message.message,
-        });
-    }
-}
-
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[cfg(feature = "server")]
 pub enum GridMapLayer {
@@ -110,94 +92,11 @@ pub enum GridMapLayer {
     Details1,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(feature = "server")]
-pub struct NetAction {
-    pub id: String,
-    pub text: String,
-    pub tab_list_priority: u8,
-    pub item_name: String,
-    pub entity_option: Option<u64>,
-    pub belonging_entity: Option<u64>,
-    pub cell_option: Option<(GridMapLayer, i16, i16, i16)>,
-}
-
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum NetworkingMessage {
     HeartBeat,
-}
-
-/// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ReliableServerMessage {
-    EntityUpdate(
-        u64,
-        HashMap<String, HashMap<String, EntityUpdateData>>,
-        bool,
-        EntityWorldType,
-    ),
-    ConfigMessage(ServerConfigMessage),
-    UIRequestInput(String),
-    LoadEntity(
-        String,
-        String,
-        HashMap<String, HashMap<String, EntityUpdateData>>,
-        u64,
-        bool,
-        String,
-        String,
-        bool,
-    ),
-    UnloadEntity(u64, bool),
-    ChatMessage(String),
-    PickedUpItem(String, u64, String),
-    DropItem(String),
-    SwitchHands,
-    EquippedWornItem(String, u64, String),
-    ConsoleWriteLine(String),
-    PlaySound(String, f32, f32, Option<Vec3>),
-    FireProjectile(ProjectileData),
-    TabData(Vec<NetAction>),
-    TextTreeSelection(
-        Option<u64>,
-        String,
-        String,
-        String,
-        HashMap<String, TextTreeBit>,
-    ),
-    RemoveCell(i16, i16, i16, GridMapLayer),
-    AddCell(i16, i16, i16, i64, i64, GridMapLayer),
-    MapSendDisplayModes(Vec<(String, String)>),
-    MapOverlayUpdate(Vec<(i16, i16, i16)>),
-    MapOverlayHoverData(String),
-    UIAddNotice(String),
-    UIRemoveNotice(String),
-    MapDefaultAddition(i16, i16, i16),
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ServerConfigMessage {
-    Awoo,
-    WorldEnvironment(WorldEnvironment),
-    ServerTime,
-    ConnectedPlayers(u16),
-    TickRate(u8),
-    EntityId(u64),
-    BlackCellID(i64, i64),
-    OrderedCellsMain(Vec<String>),
-    OrderedCellsDetails1(Vec<String>),
-    ChangeScene(bool, String),
-    ServerEntityId(u64),
-    RepeatingSFX(String, Vec<String>),
-    FinishedInitialization,
-    ConsoleCommands(Vec<(String, String, Vec<(String, GodotVariant)>)>),
-    TalkSpaces(Vec<(String, String)>),
-    PlaceableItemsSurfaces(Vec<i64>),
-    NonBlockingCells(Vec<i64>),
 }
 
 /// This message gets sent at high intervals.
@@ -233,39 +132,6 @@ pub enum UIInputAction {
     Pressed,
 }
 
-/// Contains information about the projectile and its visual graphics.
-#[allow(dead_code)]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ProjectileData {
-    Laser((f32, f32, f32, f32), f32, f32, Vec3, Vec3),
-    Ballistic,
-}
-
-#[cfg(feature = "server")]
-pub trait PendingMessage {
-    fn get_message(&self) -> PendingNetworkMessage;
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub struct PendingNetworkMessage {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum NetMessageType {
-    Reliable(ReliableServerMessage),
-    Unreliable(UnreliableServerMessage),
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum EntityWorldType {
-    Main,
-    HealthUI,
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum TextTreeBit {
@@ -291,70 +157,6 @@ pub enum EntityUpdateData {
     WornItemNotAttached(String, u64, String),
 }
 
-use bevy::prelude::{Query, Res};
-/// Finalize netcode messages system.
-#[cfg(feature = "server")]
-pub(crate) fn process_finalize_net(
-    mut pending_network_message: EventReader<PendingNetworkMessage>,
-    connected_players: Query<&ConnectedPlayer>,
-    mut net: ResMut<RenetServer>,
-    handle_to_entity: Res<HandleToEntity>,
-) {
-    for p in pending_network_message.iter() {
-        finalize_send_net(
-            &mut net,
-            &connected_players,
-            &handle_to_entity,
-            &NetEvent {
-                handle: p.handle,
-                message: p.message.clone(),
-            },
-        );
-    }
-}
-#[derive(NetMessage)]
-pub(crate) struct NetEvent {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
-/// Finalize sending netcode messages to clients as a function.
-#[cfg(feature = "server")]
-pub(crate) fn finalize_send_net(
-    net: &mut ResMut<RenetServer>,
-    connected_players: &Query<&ConnectedPlayer>,
-    handle_to_entity: &Res<HandleToEntity>,
-    new_event: &NetEvent,
-) {
-    use bincode::serialize;
-
-    let mut connected = false;
-
-    match handle_to_entity.map.get(&new_event.handle) {
-        Some(r) => match connected_players.get(*r) {
-            Ok(rr) => {
-                if rr.connected {
-                    connected = true;
-                }
-            }
-            Err(_rr) => {
-                connected = true;
-            }
-        },
-        None => {
-            warn!("Couldnt find handle entity!");
-            return;
-        }
-    }
-    if !connected {
-        return;
-    }
-    net.send_message(
-        new_event.handle,
-        RENET_RELIABLE_CHANNEL_ID,
-        serialize::<ReliableServerMessage>(&new_event.message).unwrap(),
-    );
-}
 /// A resource that links entities to their appropiate connection handles for connected players.
 #[derive(Default, Resource)]
 #[cfg(feature = "server")]
@@ -382,4 +184,19 @@ impl Default for ConnectedPlayer {
             connected: true,
         }
     }
+}
+
+/// Gets serialized and sent over the net, this is the server message.
+/// This should be inside core/chat/ but this causes cyclic dependency for the time being.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum NetworkingChatServerMessage {
+    ChatMessage(String),
+}
+
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum NetworkingClientServerMessage {
+    Awoo,
 }

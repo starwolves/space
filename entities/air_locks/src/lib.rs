@@ -12,8 +12,6 @@ pub mod air_lock_events;
 mod air_lock_tick_timers;
 /// Manage air lock entity updates.
 mod entity_update;
-/// Manage air lock net code.
-mod net;
 /// Manage physics events.
 mod physics_events;
 /// The Bevy plugin of this crate.

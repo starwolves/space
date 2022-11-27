@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use super::net::NetConstructionTool;
-
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource, EffectType};
 use bevy::{
     math::Quat,
@@ -29,12 +27,14 @@ use gridmap::{
 };
 use inventory_api::core::Inventory;
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
-use networking::server::{GridMapLayer, ReliableServerMessage, TextTreeBit};
+use networking::server::{GridMapLayer, TextTreeBit};
 use physics::physics::RigidBodyDisabled;
 use text_api::core::FURTHER_ITALIC_FONT;
 
+use bevy_renet::renet::RenetServer;
 use inventory_item::item::InventoryItem;
 use networking::server::{ConnectedPlayer, HandleToEntity};
+use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
 use pawn::pawn::Pawn;
 use rand::Rng;
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
@@ -61,10 +61,7 @@ pub(crate) fn construction_tool(
         EventReader<InputConstructionOptionsSelection>,
         EventWriter<RemoveCell>,
     ),
-    event_writers: (
-        EventWriter<DefaultSpawnEvent>,
-        EventWriter<NetConstructionTool>,
-    ),
+    event_writers: (EventWriter<DefaultSpawnEvent>, ResMut<RenetServer>),
     entity_data: Res<EntityDataResource>,
     gridmap_data: Res<GridmapData>,
     mut gridmap_main: ResMut<GridmapMain>,
@@ -86,6 +83,8 @@ pub(crate) fn construction_tool(
     rigid_bodies: Query<(&Transform, &EntityData), Without<RigidBodyDisabled>>,
     inventory_holders: Query<&Inventory>,
 ) {
+    use ui::networking::UiServerMessage;
+
     let (
         mut input_construct_event,
         mut input_deconstruct_event,
@@ -94,7 +93,7 @@ pub(crate) fn construction_tool(
         mut remove_cell_events,
     ) = event_readers;
 
-    let (mut default_spawner, mut net_construction_tool) = event_writers;
+    let (mut default_spawner, mut server) = event_writers;
 
     // Retreive all construction and complex constructions as a text list and make generic client GUI text list call.
     for event in input_construction_options_event.iter() {
@@ -176,12 +175,14 @@ pub(crate) fn construction_tool(
                     match handle_to_entity.inv_map.get(sensed_by_entity) {
                         Some(senser_handle) => {
                             if senser_handle != &t {
-                                net_construction_tool.send(NetConstructionTool {
-                                    handle: *senser_handle,
-                                    message: ReliableServerMessage::ChatMessage(
+                                server.send_message(
+                                    *senser_handle,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
                                         public_notification.clone(),
-                                    ),
-                                });
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                         }
                         None => {}
@@ -194,17 +195,19 @@ pub(crate) fn construction_tool(
         // Make a generic GUI netcode call now.
         match event.handle_option {
             Some(t) => {
-                net_construction_tool.send(NetConstructionTool {
-                    handle: t,
-                    message: ReliableServerMessage::TextTreeSelection(
+                server.send_message(
+                    t,
+                    RENET_RELIABLE_CHANNEL_ID,
+                    bincode::serialize(&UiServerMessage::TextTreeSelection(
                         Some(event.belonging_entity.to_bits()),
                         "action::construction_tool_admin/constructionoptions".to_string(),
                         "textselection::construction_tool_admin/constructionoptionslist"
                             .to_string(),
                         "Construction Options".to_string(),
                         text_tree_selection_map,
-                    ),
-                });
+                    ))
+                    .unwrap(),
+                );
             }
             None => {}
         }
@@ -262,10 +265,14 @@ pub(crate) fn construction_tool(
 
         match event.handle_option {
             Some(t) => {
-                net_construction_tool.send(NetConstructionTool {
-                    handle: t,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
+                server.send_message(
+                    t,
+                    RENET_RELIABLE_CHANNEL_ID,
+                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                        personal_update_text,
+                    ))
+                    .unwrap(),
+                );
             }
             None => {}
         }
@@ -301,12 +308,14 @@ pub(crate) fn construction_tool(
                     match handle_to_entity.inv_map.get(sensed_by_entity) {
                         Some(senser_handle) => {
                             if senser_handle != &t {
-                                net_construction_tool.send(NetConstructionTool {
-                                    handle: *senser_handle,
-                                    message: ReliableServerMessage::ChatMessage(
+                                server.send_message(
+                                    *senser_handle,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
                                         public_notification.clone(),
-                                    ),
-                                });
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                         }
                         None => {}
@@ -499,10 +508,14 @@ pub(crate) fn construction_tool(
             + ".[/font]";
         match event.handle_option {
             Some(t) => {
-                net_construction_tool.send(NetConstructionTool {
-                    handle: t,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
+                server.send_message(
+                    t,
+                    RENET_RELIABLE_CHANNEL_ID,
+                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                        personal_update_text,
+                    ))
+                    .unwrap(),
+                );
             }
             None => {}
         }
@@ -538,12 +551,14 @@ pub(crate) fn construction_tool(
                     match handle_to_entity.inv_map.get(sensed_by_entity) {
                         Some(senser_handle) => {
                             if senser_handle != &t {
-                                net_construction_tool.send(NetConstructionTool {
-                                    handle: *senser_handle,
-                                    message: ReliableServerMessage::ChatMessage(
+                                server.send_message(
+                                    *senser_handle,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
                                         public_notification.clone(),
-                                    ),
-                                });
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                         }
                         None => {}
@@ -608,10 +623,14 @@ pub(crate) fn construction_tool(
                     + "Please select a construction option first.[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: t,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        server.send_message(
+                            t,
+                            RENET_RELIABLE_CHANNEL_ID,
+                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                personal_update_text.clone(),
+                            ))
+                            .unwrap(),
+                        );
                     }
                     None => {}
                 }
@@ -681,10 +700,14 @@ pub(crate) fn construction_tool(
                     + "Construction blocked.[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: t,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        server.send_message(
+                            t,
+                            RENET_RELIABLE_CHANNEL_ID,
+                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                personal_update_text.clone(),
+                            ))
+                            .unwrap(),
+                        );
                     }
                     None => {}
                 }
@@ -707,10 +730,14 @@ pub(crate) fn construction_tool(
                         + "Construction blocked.[/font]";
                     match event.handle_option {
                         Some(t) => {
-                            net_construction_tool.send(NetConstructionTool {
-                                handle: t,
-                                message: ReliableServerMessage::ChatMessage(personal_update_text),
-                            });
+                            server.send_message(
+                                t,
+                                RENET_RELIABLE_CHANNEL_ID,
+                                bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                    personal_update_text.clone(),
+                                ))
+                                .unwrap(),
+                            );
                         }
                         None => {}
                     }
@@ -747,10 +774,14 @@ pub(crate) fn construction_tool(
                         + "Construction blocked.[/font]";
                     match event.handle_option {
                         Some(t) => {
-                            net_construction_tool.send(NetConstructionTool {
-                                handle: t,
-                                message: ReliableServerMessage::ChatMessage(personal_update_text),
-                            });
+                            server.send_message(
+                                t,
+                                RENET_RELIABLE_CHANNEL_ID,
+                                bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                    personal_update_text.clone(),
+                                ))
+                                .unwrap(),
+                            );
                         }
                         None => {}
                     }
@@ -825,10 +856,14 @@ pub(crate) fn construction_tool(
                     + ".[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        net_construction_tool.send(NetConstructionTool {
-                            handle: t,
-                            message: ReliableServerMessage::ChatMessage(personal_update_text),
-                        });
+                        server.send_message(
+                            t,
+                            RENET_RELIABLE_CHANNEL_ID,
+                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                personal_update_text.clone(),
+                            ))
+                            .unwrap(),
+                        );
                     }
                     None => {}
                 }
@@ -900,12 +935,14 @@ pub(crate) fn construction_tool(
                             + "Please construct a wall and not a floor here![/font]";
                         match event.handle_option {
                             Some(t) => {
-                                net_construction_tool.send(NetConstructionTool {
-                                    handle: t,
-                                    message: ReliableServerMessage::ChatMessage(
-                                        personal_update_text,
-                                    ),
-                                });
+                                server.send_message(
+                                    t,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                        personal_update_text.clone(),
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                             None => {}
                         }
@@ -936,12 +973,14 @@ pub(crate) fn construction_tool(
                             + "Please construct a floor and not a wall here![/font]";
                         match event.handle_option {
                             Some(t) => {
-                                net_construction_tool.send(NetConstructionTool {
-                                    handle: t,
-                                    message: ReliableServerMessage::ChatMessage(
-                                        personal_update_text,
-                                    ),
-                                });
+                                server.send_message(
+                                    t,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                        personal_update_text.clone(),
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                             None => {}
                         }
@@ -1122,10 +1161,14 @@ pub(crate) fn construction_tool(
             + "![/font]";
         match event.handle_option {
             Some(t) => {
-                net_construction_tool.send(NetConstructionTool {
-                    handle: t,
-                    message: ReliableServerMessage::ChatMessage(personal_update_text),
-                });
+                server.send_message(
+                    t,
+                    RENET_RELIABLE_CHANNEL_ID,
+                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                        personal_update_text.clone(),
+                    ))
+                    .unwrap(),
+                );
             }
             None => {}
         }
@@ -1144,12 +1187,14 @@ pub(crate) fn construction_tool(
                     match handle_to_entity.inv_map.get(sensed_by_entity) {
                         Some(senser_handle) => {
                             if senser_handle != &t {
-                                net_construction_tool.send(NetConstructionTool {
-                                    handle: *senser_handle,
-                                    message: ReliableServerMessage::ChatMessage(
+                                server.send_message(
+                                    *senser_handle,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
                                         public_notification.clone(),
-                                    ),
-                                });
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                         }
                         None => {}

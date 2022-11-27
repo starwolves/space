@@ -1,56 +1,64 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, Res, ResMut};
-use networking::server::{
-    ConnectedPlayer, HandleToEntity, ReliableServerMessage, ServerConfigMessage,
-};
+use networking::server::{ConnectedPlayer, HandleToEntity};
 use resources::core::{ServerId, TickRate};
+use serde::{Deserialize, Serialize};
+use world_environment::environment::WorldEnvironment;
 
 use crate::{
     boarding::{PersistentPlayerData, SoftPlayer},
-    connection::{AuthidI, NetPlayerConn, SendServerConfiguration},
+    connection::{AuthidI, SendServerConfiguration},
     names::UsedNames,
 };
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut net_on_new_player_connection: EventWriter<NetPlayerConn>,
     tick_rate: Res<TickRate>,
     server_id: Res<ServerId>,
     mut auth_id_i: ResMut<AuthidI>,
     mut used_names: ResMut<UsedNames>,
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use bincode::serialize;
+    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingClientServerMessage};
+
     for event in config_events.iter() {
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::Awoo),
-        });
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            serialize(&NetworkingClientServerMessage::Awoo).unwrap(),
+        );
 
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::TickRate(
-                tick_rate.physics_rate,
-            )),
-        });
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            serialize(&PlayerServerMessage::ConfigTickRate(tick_rate.physics_rate)).unwrap(),
+        );
 
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerEntityId(
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            serialize(&PlayerServerMessage::ConfigServerEntityId(
                 server_id.id.to_bits(),
-            )),
-        });
+            ))
+            .unwrap(),
+        );
 
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            serialize(&PlayerServerMessage::ChangeScene(
                 false,
                 "setupUI".to_string(),
-            )),
-        });
+            ))
+            .unwrap(),
+        );
 
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::RepeatingSFX(
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            serialize(&PlayerServerMessage::ConfigRepeatingSFX(
                 "concrete_walking_footsteps".to_string(),
                 (1..=39)
                     .map(|i| {
@@ -59,12 +67,14 @@ pub(crate) fn configure(
                     )
                     })
                     .collect(),
-            )),
-        });
+            ))
+            .unwrap(),
+        );
 
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::RepeatingSFX(
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            serialize(&PlayerServerMessage::ConfigRepeatingSFX(
                 "concrete_sprinting_footsteps".to_string(),
                 [
                     4, 5, 7, 9, 10, 12, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 25, 27, 28, 30, 31,
@@ -77,8 +87,9 @@ pub(crate) fn configure(
                     )
                 })
                 .collect(),
-            )),
-        });
+            ))
+            .unwrap(),
+        );
 
         // Create the actual Bevy entity for the player , with its network handle, authid and softConnected components.
 
@@ -125,12 +136,14 @@ pub(crate) fn configure(
             .inv_map
             .insert(player_entity_id, event.handle);
 
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            serialize(&PlayerServerMessage::ConfigEntityId(
                 player_entity_id.to_bits(),
-            )),
-        });
+            ))
+            .unwrap(),
+        );
     }
 }
 
@@ -141,16 +154,17 @@ pub struct PlayerAwaitingBoarding {
 #[cfg(feature = "server")]
 pub(crate) fn finished_configuration(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut net_on_new_player_connection: EventWriter<NetPlayerConn>,
+    mut server: ResMut<RenetServer>,
     mut player_awaiting_event: EventWriter<PlayerAwaitingBoarding>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
     for event in config_events.iter() {
-        net_on_new_player_connection.send(NetPlayerConn {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(
-                ServerConfigMessage::FinishedInitialization,
-            ),
-        });
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ConfigFinished).unwrap(),
+        );
         player_awaiting_event.send(PlayerAwaitingBoarding {
             handle: event.handle,
         });
@@ -190,4 +204,19 @@ pub(crate) fn server_events(
             }
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum PlayerServerMessage {
+    ConfigWorldEnvironment(WorldEnvironment),
+    ServerTime,
+    ConnectedPlayers(u16),
+    ConfigTickRate(u8),
+    ConfigEntityId(u64),
+    ChangeScene(bool, String),
+    ConfigServerEntityId(u64),
+    ConfigRepeatingSFX(String, Vec<String>),
+    ConfigFinished,
+    ConfigTalkSpaces(Vec<(String, String)>),
 }

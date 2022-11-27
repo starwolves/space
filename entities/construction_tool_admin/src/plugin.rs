@@ -1,17 +1,14 @@
 use std::env;
 
-use bevy::app::CoreStage::PostUpdate;
-
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_data::initialize_entity_data;
 use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{summon_base_entity, SpawnEvent};
 use inventory_item::spawn::summon_inventory_item;
-use networking::server::net_system;
 use resources::labels::{
-    ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
+    ActionsLabels, CombatLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
 use rigid_body::spawn::summon_rigid_body;
 
@@ -29,7 +26,6 @@ use super::{
     construction_tool::{
         construction_tool, InputConstruct, InputConstructionOptions, InputDeconstruct,
     },
-    net::NetConstructionTool,
     spawn::{
         default_summon_construction_tool, summon_construction_tool, summon_raw_construction_tool,
         ConstructionToolSummoner,
@@ -44,7 +40,6 @@ impl Plugin for ConstructionToolAdminPlugin {
             app.add_event::<InputConstruct>()
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()
-                .add_event::<NetConstructionTool>()
                 .add_event::<InputConstructionOptionsSelection>()
                 .add_system(
                     construction_tool
@@ -52,13 +47,6 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .before(UpdateLabels::DeconstructCell),
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetConstructionTool>),
-                )
                 .add_system(
                     summon_construction_tool::<ConstructionToolSummoner>
                         .after(SummoningLabels::TriggerSummon),

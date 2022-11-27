@@ -1,17 +1,6 @@
 use crate::controller::ControllerInput;
 use bevy::prelude::{EventReader, Res};
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::ReliableServerMessage;
-use networking_macros::NetMessage;
 use player::connection::SendServerConfiguration;
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetConfigure {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
 #[cfg(feature = "server")]
 pub(crate) fn configure(

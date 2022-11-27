@@ -2,16 +2,16 @@ use std::collections::HashMap;
 
 use bevy::{
     math::Vec3,
-    prelude::{EventReader, EventWriter, Query, Res, ResMut, Resource, Transform},
+    prelude::{EventReader, Query, Res, ResMut, Resource, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
-use networking::server::{ProjectileData, ReliableServerMessage};
 
-use crate::grid::{GridmapData, GridmapMain};
-
-use super::net::NetProjectileFOV;
+use crate::{
+    grid::{GridmapData, GridmapMain},
+    networking::ProjectileData,
+};
 
 #[cfg(feature = "server")]
 pub const FOV_DISTANCE: usize = 23;
@@ -21,6 +21,7 @@ pub const FOV_DISTANCE: usize = 23;
 pub struct ProjectileFOV {
     pub laser_projectile: ProjectileData,
 }
+use bevy_renet::renet::RenetServer;
 use networking::server::ConnectedPlayer;
 
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
@@ -28,10 +29,14 @@ use networking::server::ConnectedPlayer;
 pub(crate) fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
-    mut net_projectile_fov: EventWriter<NetProjectileFOV>,
+    mut server: ResMut<RenetServer>,
     gridmap_main: Res<GridmapMain>,
     non_blocking_cells_list: Res<GridmapData>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
+    use crate::networking::GridmapServerMessage;
+
     let mut cell_ids_with_projectiles: HashMap<Vec3Int, Vec<(usize, Vec3, f32, Vec3)>> =
         HashMap::new();
     let mut projectiles = vec![];
@@ -167,16 +172,20 @@ pub(crate) fn projectile_fov(
                             continue;
                         }
 
-                        net_projectile_fov.send(NetProjectileFOV {
-                            handle: connected_player_component.handle,
-                            message: ReliableServerMessage::FireProjectile(ProjectileData::Laser(
-                                *laser_color,
-                                *laser_height,
-                                *laser_radius,
-                                adjusted_start_pos,
-                                adjusted_end_pos,
-                            )),
-                        });
+                        server.send_message(
+                            connected_player_component.handle,
+                            RENET_RELIABLE_CHANNEL_ID,
+                            bincode::serialize(&GridmapServerMessage::FireProjectile(
+                                ProjectileData::Laser(
+                                    *laser_color,
+                                    *laser_height,
+                                    *laser_radius,
+                                    adjusted_start_pos,
+                                    adjusted_end_pos,
+                                ),
+                            ))
+                            .unwrap(),
+                        );
                     }
                 }
                 false => {}

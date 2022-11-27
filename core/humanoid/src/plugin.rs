@@ -2,13 +2,12 @@ use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
-use networking::server::net_system;
 use player::names::UsedNames;
 use resources::labels::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLabels};
 
 use crate::{
     entity_update::humanoid_core_entity_updates,
-    examine_events::{examine_entity, ExamineEntityPawn},
+    examine_events::examine_entity,
     humanoid::{humanoid_controller_input, mouse_direction_update, toggle_combat_mode, Humanoid},
 };
 use bevy::app::CoreStage::PostUpdate;
@@ -33,15 +32,7 @@ impl Plugin for HumanoidPlugin {
             )
             .add_system(toggle_combat_mode)
             .add_system(examine_entity.after(ActionsLabels::Action))
-            .add_event::<ExamineEntityPawn>()
             .init_resource::<UsedNames>()
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .after(PostUpdateLabels::VisibleChecker)
-                    .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<ExamineEntityPawn>),
-            )
             .add_system(
                 health_combat_hit_result_sfx::<Humanoid>.after(CombatLabels::FinalizeApplyDamage),
             )

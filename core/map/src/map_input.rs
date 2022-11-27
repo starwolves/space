@@ -1,15 +1,11 @@
 use crate::map::Map;
 use bevy::{
     math::Vec2,
-    prelude::{Entity, EventReader, EventWriter, Query, Resource},
+    prelude::{Entity, EventReader, Query, Resource},
 };
 use entity::senser::FOV_MAP_WIDTH;
 use math::grid::Vec2Int;
-use networking::server::ReliableServerMessage;
 
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking_macros::NetMessage;
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.
 #[cfg(feature = "server")]
@@ -40,13 +36,20 @@ pub(crate) fn map_input(
     }
 }
 
+use bevy::prelude::ResMut;
+use bevy_renet::renet::RenetServer;
+
 /// Request available map overlays.
 #[cfg(feature = "server")]
 pub(crate) fn request_map_overlay(
     mut events: EventReader<InputMapRequestOverlay>,
     map_holders: Query<&Map>,
-    mut net: EventWriter<NetRequestOverlay>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
+    use crate::networking::MapServerMessage;
+
     for event in events.iter() {
         let map_component;
 
@@ -59,20 +62,15 @@ pub(crate) fn request_map_overlay(
             }
         }
 
-        net.send(NetRequestOverlay {
-            handle: event.handle,
-            message: ReliableServerMessage::MapSendDisplayModes(
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&MapServerMessage::MapSendDisplayModes(
                 map_component.available_display_modes.clone(),
-            ),
-        });
+            ))
+            .unwrap(),
+        );
     }
-}
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetRequestOverlay {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
 }
 
 /// Mini-map data resource.

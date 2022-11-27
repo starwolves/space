@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Entity, EventWriter, Local, Query, Res, Transform};
+use bevy::prelude::{Entity, Local, Query, Res, Transform};
 use math::grid::{world_to_cell_id, Vec2Int};
-use networking::server::ReliableServerMessage;
 use pawn::pawn::Pawn;
 
 use crate::{
@@ -10,12 +9,9 @@ use crate::{
     zero_gravity::ZeroGravity,
 };
 
-use super::{
-    map_events::{
-        MAXIMUM_LIVABLE_PRESSURE, MAXIMUM_LIVABLE_TEMPERATURE, MINIMUM_LIVABLE_PRESSURE,
-        MINIMUM_LIVABLE_TEMPERATURE,
-    },
-    net::NetAtmosphericsNotices,
+use super::map_events::{
+    MAXIMUM_LIVABLE_PRESSURE, MAXIMUM_LIVABLE_TEMPERATURE, MINIMUM_LIVABLE_PRESSURE,
+    MINIMUM_LIVABLE_TEMPERATURE,
 };
 
 /// Resource with atmospherics notices that warn players when they are under certain atmospherics conditions like unlivable atmospherics conditions.
@@ -26,10 +22,13 @@ pub struct AtmosphericsNotices {
 }
 use networking::server::ConnectedPlayer;
 
+use bevy::prelude::ResMut;
+use bevy_renet::renet::RenetServer;
+
 /// Manage visible atmospherics notices for clients.
 #[cfg(feature = "server")]
 pub(crate) fn atmospherics_notices(
-    mut net: EventWriter<NetAtmosphericsNotices>,
+    mut server: ResMut<RenetServer>,
     atmospherics_resource: Res<AtmosphericsResource>,
     pawns: Query<(
         Entity,
@@ -40,6 +39,9 @@ pub(crate) fn atmospherics_notices(
     )>,
     mut atmos_notices: Local<AtmosphericsNotices>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+    use ui::networking::UiServerMessage;
+
     for (
         pawn_entity,
         _pawn_component,
@@ -114,16 +116,18 @@ pub(crate) fn atmospherics_notices(
         }
 
         for add in added_notices {
-            net.send(NetAtmosphericsNotices {
-                handle: connected_player_component.handle,
-                message: ReliableServerMessage::UIAddNotice(add),
-            });
+            server.send_message(
+                connected_player_component.handle,
+                RENET_RELIABLE_CHANNEL_ID,
+                bincode::serialize(&UiServerMessage::UIAddNotice(add)).unwrap(),
+            );
         }
         for remove in removed_notices {
-            net.send(NetAtmosphericsNotices {
-                handle: connected_player_component.handle,
-                message: ReliableServerMessage::UIRemoveNotice(remove),
-            });
+            server.send_message(
+                connected_player_component.handle,
+                RENET_RELIABLE_CHANNEL_ID,
+                bincode::serialize(&UiServerMessage::UIRemoveNotice(remove)).unwrap(),
+            );
         }
     }
 }

@@ -1,19 +1,8 @@
 use crate::connection::{Boarding, OnBoard, SetupPhase};
 use bevy::{
-    prelude::{
-        info, Added, Commands, Component, Entity, EventReader, EventWriter, Query, ResMut, Resource,
-    },
+    prelude::{info, Added, Commands, Component, Entity, EventReader, Query, ResMut, Resource},
     time::Timer,
 };
-use networking::server::ReliableServerMessage;
-use networking_macros::NetMessage;
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetDoneBoarding {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
 /// Component with boarding data.
 #[cfg(feature = "server")]
@@ -30,20 +19,22 @@ pub struct BoardingAnnouncements {
 }
 use crate::spawn_points::SpawnPoints;
 use crate::spawn_points::Spawning;
-use networking::server::ServerConfigMessage;
+use bevy_renet::renet::RenetServer;
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 
+use bevy::time::TimerMode;
+use text_api::core::get_talk_spaces;
 /// Perform initialization of spawning player.
 #[cfg(feature = "server")]
 pub(crate) fn done_boarding(
     mut spawn_points: ResMut<SpawnPoints>,
-    mut net_done_boarding: EventWriter<NetDoneBoarding>,
+    mut server: ResMut<RenetServer>,
     mut boarding_player_event: EventReader<BoardingPlayer>,
     mut commands: Commands,
 
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,
 ) {
-    use bevy::time::TimerMode;
-    use text_api::core::get_talk_spaces;
+    use crate::connections::PlayerServerMessage;
 
     for boarding_player in boarding_player_event.iter() {
         let player_character_name = boarding_player.player_character_name.clone();
@@ -73,23 +64,20 @@ pub(crate) fn done_boarding(
             spawn_points.i = 0;
         }
 
-        // Queue net_code message for client so he goes back to the main scene and ditches setupUI.
-        net_done_boarding.send(NetDoneBoarding {
-            handle: player_handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ChangeScene(
-                true,
-                "main".to_string(),
-            )),
-        });
+        server.send_message(
+            player_handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ChangeScene(true, "main".to_string()))
+                .unwrap(),
+        );
 
         let talk_spaces = get_talk_spaces();
 
-        net_done_boarding.send(NetDoneBoarding {
-            handle: player_handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::TalkSpaces(
-                talk_spaces,
-            )),
-        });
+        server.send_message(
+            player_handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ConfigTalkSpaces(talk_spaces)).unwrap(),
+        );
 
         asana_boarding_announcements.announcements.push((
             ";Security Officer ".to_owned() + &player_character_name + " is now on board.",
@@ -118,21 +106,21 @@ impl Default for PersistentPlayerData {
 }
 use networking::server::ConnectedPlayer;
 
+use ui::networking::UiServerMessage;
 /// Manage client boarding.
 #[cfg(feature = "server")]
 pub(crate) fn on_boarding(
     query: Query<&ConnectedPlayer, Added<Boarding>>,
-    mut net_on_boarding: EventWriter<NetOnBoarding>,
+    mut server: ResMut<RenetServer>,
 ) {
     for connected_player_component in query.iter() {
-        net_on_boarding.send(NetOnBoarding {
-            handle: connected_player_component.handle,
-            message: ReliableServerMessage::UIRequestInput("setupUI".to_string()),
-        });
+        server.send_message(
+            connected_player_component.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&UiServerMessage::UIRequestInput("setupUI".to_string())).unwrap(),
+        );
     }
 }
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
 
 /// The component for players that haven't yet boarded.
 #[derive(Component)]
@@ -150,11 +138,4 @@ pub struct InputUIInputTransmitText {
     pub node_path: String,
     /// The input text from the client.
     pub input_text: String,
-}
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetOnBoarding {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
 }

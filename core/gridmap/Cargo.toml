@@ -26,7 +26,7 @@ bincode = "1.3.3"
 
 doryen_fov = { path = "../doryen_fov" }
 networking = { path = "../networking",  features=["server"] }
-networking_macros = { path = "../networking_macros",  features=["server"] }
+
 data_converters = { path = "../data_converters",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }
 physics = { path = "../physics",  features=["server"] }

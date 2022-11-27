@@ -1,31 +1,28 @@
 use crate::commands::AllConsoleCommands;
-use bevy::prelude::{EventReader, EventWriter, Res};
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::{ReliableServerMessage, ServerConfigMessage};
-use networking_macros::NetMessage;
+use bevy::prelude::{EventReader, Res};
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use player::connection::SendServerConfiguration;
-#[cfg(feature = "server")]
-#[derive(NetMessage)]
-pub(crate) struct NetConfigure {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
+use bevy::prelude::ResMut;
+use bevy_renet::renet::RenetServer;
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut net_on_new_player_connection: EventWriter<NetConfigure>,
+    mut server: ResMut<RenetServer>,
     console_commands: Res<AllConsoleCommands>,
 ) {
+    use crate::networking::ConsoleCommandsServerMessage;
+
     for event in config_events.iter() {
         let console_commands = console_commands.list.clone();
 
-        net_on_new_player_connection.send(NetConfigure {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ConsoleCommands(
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&ConsoleCommandsServerMessage::ConfigConsoleCommands(
                 console_commands,
-            )),
-        });
+            ))
+            .unwrap(),
+        );
     }
 }

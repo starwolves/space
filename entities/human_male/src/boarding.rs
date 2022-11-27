@@ -1,23 +1,23 @@
 use crate::spawn::HumanMaleSummoner;
 use bevy::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
+use bevy_renet::renet::RenetServer;
 use construction_tool_admin::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
 use entity::spawn::{SpawnData, SpawnEvent};
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::{ReliableServerMessage, ServerConfigMessage};
-use networking_macros::NetMessage;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use player::spawn_points::{PawnDesignation, SpawnPawnData};
 
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use player::{boarding::PersistentPlayerData, names::UsedNames, spawn_points::Spawning};
+
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+use player::connections::PlayerServerMessage;
 /// Spawn player as human male with preset inventory.
 #[cfg(feature = "server")]
 pub(crate) fn on_spawning(
-    mut net_on_new_player_connection: EventWriter<NetOnSpawning>,
+    mut server: ResMut<RenetServer>,
     query: Query<(Entity, &Spawning, &ConnectedPlayer, &PersistentPlayerData), Added<Spawning>>,
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
@@ -83,18 +83,10 @@ pub(crate) fn on_spawning(
 
         commands.entity(entity_id).despawn();
 
-        net_on_new_player_connection.send(NetOnSpawning {
-            handle: handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::EntityId(
-                new_entity.to_bits(),
-            )),
-        });
+        server.send_message(
+            handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ConfigEntityId(new_entity.to_bits())).unwrap(),
+        );
     }
-}
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetOnSpawning {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
 }

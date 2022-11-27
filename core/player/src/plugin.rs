@@ -1,17 +1,13 @@
 use std::env;
 
 use crate::{
-    boarding::{
-        done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText,
-        NetDoneBoarding, NetOnBoarding,
-    },
-    connection::{AuthidI, NetPlayerConn, SendServerConfiguration},
+    boarding::{done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText},
+    connection::{AuthidI, SendServerConfiguration},
     connections::{configure, finished_configuration, server_events, PlayerAwaitingBoarding},
 };
-use bevy::prelude::{App, Plugin, SystemLabel, SystemSet};
-use bevy::{app::CoreStage::PostUpdate, prelude::IntoSystemDescriptor};
-use networking::server::{net_system, HandleToEntity};
-use resources::labels::PostUpdateLabels;
+use bevy::prelude::IntoSystemDescriptor;
+use bevy::prelude::{App, Plugin, SystemLabel};
+use networking::server::HandleToEntity;
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -29,20 +25,8 @@ impl Plugin for PlayerPlugin {
                 .init_resource::<HandleToEntity>()
                 .add_system(done_boarding)
                 .add_system(on_boarding)
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetOnBoarding>)
-                        .with_system(net_system::<NetDoneBoarding>)
-                        .with_system(net_system::<NetPlayerConn>),
-                )
-                .add_event::<NetOnBoarding>()
-                .add_event::<NetDoneBoarding>()
                 .init_resource::<AuthidI>()
                 .init_resource::<BoardingAnnouncements>()
-                .add_event::<NetPlayerConn>()
                 .add_event::<InputUIInputTransmitText>()
                 .add_event::<PlayerAwaitingBoarding>()
                 .add_system(

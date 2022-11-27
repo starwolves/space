@@ -7,29 +7,12 @@ use std::collections::BTreeMap;
 use bevy::prelude::Entity;
 use bevy::prelude::Resource;
 use bevy::prelude::{warn, Query, Res};
-use bevy::prelude::{Component, EventReader, EventWriter, ResMut, SystemLabel};
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::ReliableServerMessage;
-use networking_macros::NetMessage;
+use bevy::prelude::{Component, EventReader, ResMut, SystemLabel};
 use text_api::core::FURTHER_ITALIC_FONT;
 use text_api::core::HEALTHY_COLOR;
 use text_api::core::UNHEALTHY_COLOR;
 use text_api::core::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetExamine {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetConnExamine {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 use networking::server::HandleToEntity;
 
 /// Manage examining an entity.
@@ -83,20 +66,27 @@ pub fn examine_entity(
         }
     }
 }
+use bevy_renet::renet::RenetServer;
 
 /// Finalize examining an entity.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_examine_entity(
     mut examine_map_events: ResMut<ExamineEntityMessages>,
-    mut net: EventWriter<NetConnExamine>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
+
     for event in examine_map_events.messages.iter_mut() {
         event.message = event.message.to_string() + "\n" + ASTRIX;
 
-        net.send(NetConnExamine {
-            handle: event.handle,
-            message: ReliableServerMessage::ChatMessage(event.message.clone()),
-        });
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                event.message.clone(),
+            ))
+            .unwrap(),
+        );
     }
 
     examine_map_events.messages.clear();
@@ -175,12 +165,6 @@ pub fn finalize_entity_examine_input(
     }
 }
 
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct ExamineEntityPawn {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 /// Examine an entity's health.
 #[cfg(feature = "server")]
 pub(crate) fn examine_entity_health(

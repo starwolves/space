@@ -3,12 +3,11 @@ use std::env;
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use chat::chat::EntityProximityMessages;
-use networking::server::net_system;
 use resources::labels::{CombatLabels, PostUpdateLabels};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
 use crate::chat::{blanks_chat, hit_query_chat_cells};
-use crate::health_ui::{health_ui_update, ClientHealthUICache, NetHealthUpdate};
+use crate::health_ui::{health_ui_update, ClientHealthUICache};
 use crate::melee_queries::MeleeBlank;
 use crate::projectile_queries::ProjectileBlank;
 use crate::sfx::health_combat_hit_result_sfx_cells;
@@ -16,7 +15,6 @@ use crate::{
     active_attacks::{cache_attacks, ActiveAttackIncrement, ActiveAttacks},
     apply_damage::{start_apply_damage, HealthCombatHitResult},
     attack::{Attack, QueryCombatHitResult},
-    chat::NetHitQueryChat,
     melee_queries::{melee_direct, MeleeDirectQuery},
     projectile_queries::{projectile_attack, ProjectileQuery},
 };
@@ -61,17 +59,8 @@ impl Plugin for CombatPlugin {
             .init_resource::<ActiveAttacks>()
             .init_resource::<ActiveAttackIncrement>()
             .add_event::<HealthCombatHitResult>()
-            .add_event::<NetHitQueryChat>()
             .add_event::<ProjectileBlank>()
             .add_event::<MeleeBlank>()
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .after(PostUpdateLabels::VisibleChecker)
-                    .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<NetHitQueryChat>)
-                    .with_system(net_system::<NetHealthUpdate>),
-            )
             .add_system(
                 cache_attacks
                     .after(CombatLabels::RegisterAttacks)
@@ -86,7 +75,6 @@ impl Plugin for CombatPlugin {
                     .label(PostUpdateLabels::EntityUpdate)
                     .with_system(health_ui_update),
             )
-            .add_event::<NetHealthUpdate>()
             .init_resource::<ClientHealthUICache>();
         }
     }

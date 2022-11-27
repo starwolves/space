@@ -23,7 +23,7 @@ serde = "1.0.147"
 
 player = { path = "../player",  features=["server"] }
 networking = { path = "../networking",  features=["server"] }
-networking_macros = { path = "../networking_macros",  features=["server"] }
+
 entity = { path = "../entity",  features=["server"] }
 pawn = { path = "../pawn",  features=["server"] }
 combat = { path = "../combat",  features=["server"] }

@@ -26,7 +26,7 @@ doryen_fov = { path = "../doryen_fov",  features=["server"] }
 bevy_rapier3d = "0.19.0"
 
 networking = { path = "../networking",  features=["server"] }
-networking_macros = { path = "../networking_macros",  features=["server"] }
+
 math = { path = "../math",  features=["server"] }
 console_commands = { path = "../console_commands",  features=["server"] }
 actions = { path = "../actions",  features=["server"] }

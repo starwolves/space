@@ -1,71 +1,35 @@
+use crate::input::InputBuildGraphics;
+use bevy::prelude::With;
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Without};
+use entity::networking::LoadEntity;
 use gi_probe::core::GIProbe;
-use networking::server::{ReliableServerMessage, ServerConfigMessage};
-use networking_macros::NetMessage;
 use reflection_probe::core::ReflectionProbe;
 use world_environment::environment::WorldEnvironment;
 
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetSendServerTime {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetSendWorldEnvironment {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetUpdatePlayerCount {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetExamineEntity {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetOnNewPlayerConnection {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetUserName {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-use crate::input::InputBuildGraphics;
-use bevy::prelude::With;
-use entity::networking::LoadEntity;
+use bevy::prelude::ResMut;
+use bevy_renet::renet::RenetServer;
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+use player::connections::PlayerServerMessage;
 
 /// Build graphics for Godot client.
 #[cfg(feature = "server")]
 pub(crate) fn build_graphics(
     mut build_graphics_events: EventReader<InputBuildGraphics>,
-    mut net_send_world_environment: EventWriter<NetSendWorldEnvironment>,
+    mut server: ResMut<RenetServer>,
     world_environment: Res<WorldEnvironment>,
     reflection_probe_query: Query<Entity, With<ReflectionProbe>>,
     gi_probe_query: Query<Entity, With<GIProbe>>,
     mut load_entity_event: EventWriter<LoadEntity>,
 ) {
     for build_graphics_event in build_graphics_events.iter() {
-        net_send_world_environment.send(NetSendWorldEnvironment {
-            handle: build_graphics_event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::WorldEnvironment(
+        server.send_message(
+            build_graphics_event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ConfigWorldEnvironment(
                 *world_environment,
-            )),
-        });
+            ))
+            .unwrap(),
+        );
 
         for entity in gi_probe_query.iter() {
             load_entity_event.send(LoadEntity {
@@ -120,7 +84,7 @@ use networking::server::ConnectedPlayer;
 /// Send server time to clients for ping update.
 #[cfg(feature = "server")]
 pub(crate) fn send_server_time(
-    mut event_writer: EventWriter<NetSendServerTime>,
+    mut server: ResMut<RenetServer>,
     connected_players: Query<&ConnectedPlayer>,
 ) {
     for connected_player_component in connected_players.iter() {
@@ -128,10 +92,11 @@ pub(crate) fn send_server_time(
             continue;
         }
 
-        event_writer.send(NetSendServerTime {
-            handle: connected_player_component.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ServerTime),
-        });
+        server.send_message(
+            connected_player_component.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ServerTime).unwrap(),
+        );
     }
 }
 
@@ -139,7 +104,7 @@ pub(crate) fn send_server_time(
 #[cfg(feature = "server")]
 pub(crate) fn update_player_count(
     connected_players: Query<&ConnectedPlayer>,
-    mut events: EventWriter<NetUpdatePlayerCount>,
+    mut server: ResMut<RenetServer>,
 ) {
     let mut connected_players_amount: u16 = 0;
 
@@ -154,11 +119,13 @@ pub(crate) fn update_player_count(
             continue;
         }
 
-        events.send(NetUpdatePlayerCount {
-            handle: connected_player_component.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::ConnectedPlayers(
+        server.send_message(
+            connected_player_component.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ConnectedPlayers(
                 connected_players_amount,
-            )),
-        });
+            ))
+            .unwrap(),
+        );
     }
 }

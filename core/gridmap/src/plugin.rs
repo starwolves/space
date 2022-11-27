@@ -5,18 +5,17 @@ use bevy::{
     time::FixedTimestep,
 };
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
-use networking::server::net_system;
 use player::{plugin::ConfigurationLabel, spawn_points::SpawnPoints};
 use resources::labels::{
     ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
 
 use crate::{
-    connections::{configure, NetConfig},
+    connections::configure,
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
         finalize_grid_examine_input, set_action_header_name, GridmapExamineMessages,
-        InputExamineMap, NetExamineGrid,
+        InputExamineMap,
     },
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
@@ -28,7 +27,6 @@ use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 use super::{
     events::{gridmap_updates_manager, remove_cell},
     fov::{projectile_fov, senser_update_fov, DoryenMap},
-    net::{NetGridmapUpdates, NetProjectileFOV},
     sensing_ability::gridmap_sensing_ability,
 };
 
@@ -58,12 +56,9 @@ impl Plugin for GridmapPlugin {
                 .init_resource::<GridmapData>()
                 .init_resource::<DoryenMap>()
                 .init_resource::<SpawnPoints>()
-                .add_event::<NetGridmapUpdates>()
                 .add_system(senser_update_fov)
                 .add_system(projectile_fov)
                 .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
-                .add_event::<NetProjectileFOV>()
-                .add_event::<NetExamineGrid>()
                 .add_event::<RemoveCell>()
                 .add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
                 .add_startup_system(
@@ -86,16 +81,6 @@ impl Plugin for GridmapPlugin {
                         .with_system(gridmap_updates_manager),
                 )
                 .init_resource::<GridmapMain>()
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetProjectileFOV>)
-                        .with_system(net_system::<NetGridmapUpdates>)
-                        .with_system(net_system::<NetExamineGrid>)
-                        .with_system(net_system::<NetConfig>),
-                )
                 .add_system(gridmap_sensing_ability)
                 .add_system(examine_map.after(ActionsLabels::Action))
                 .add_system(
@@ -116,7 +101,6 @@ impl Plugin for GridmapPlugin {
                     finalize_examine_map.before(PostUpdateLabels::EntityUpdate),
                 )
                 .add_system(examine_grid.after(ActionsLabels::Action))
-                .add_event::<NetConfig>()
                 .add_system(
                     configure
                         .label(ConfigurationLabel::Main)

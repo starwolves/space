@@ -1,16 +1,8 @@
 use bevy::prelude::Resource;
 use bevy::prelude::{Entity, SystemLabel};
-use networking::server::PendingNetworkMessage;
-use networking::server::{GodotVariant, ReliableServerMessage};
-use networking::server::{GodotVariantValues, PendingMessage};
-use networking_macros::NetMessage;
+use networking::server::GodotVariant;
+use networking::server::GodotVariantValues;
 
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetConsoleCommands {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 /// Resource containing all registered custom console commands.
 #[derive(Default, Resource)]
 #[cfg(feature = "server")]

@@ -1,6 +1,7 @@
 use bevy::prelude::ResMut;
 
 use bevy::prelude::warn;
+use bevy::prelude::Vec3;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::GridMapLayer;
@@ -69,4 +70,26 @@ pub(crate) fn incoming_messages(
             }
         }
     }
+}
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum GridmapServerMessage {
+    RemoveCell(i16, i16, i16, GridMapLayer),
+    AddCell(i16, i16, i16, i64, i64, GridMapLayer),
+    FireProjectile(ProjectileData),
+    ConfigBlackCellID(i64, i64),
+    ConfigOrderedCellsMain(Vec<String>),
+    ConfigOrderedCellsDetails1(Vec<String>),
+    ConfigPlaceableItemsSurfaces(Vec<i64>),
+    ConfigNonBlockingCells(Vec<i64>),
+}
+
+/// Contains information about the projectile and its visual graphics.
+#[allow(dead_code)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum ProjectileData {
+    Laser((f32, f32, f32, f32), f32, f32, Vec3, Vec3),
+    Ballistic,
 }
