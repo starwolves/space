@@ -1,18 +1,7 @@
-use bevy::prelude::{Entity, EventWriter, ResMut};
-use networking::server::ReliableServerMessage;
+use bevy::prelude::{Entity, ResMut};
+use bevy_renet::renet::RenetServer;
 
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking_macros::NetMessage;
 use player::names::UsedNames;
-
-#[cfg(feature = "server")]
-#[derive(NetMessage)]
-pub(crate) struct NetPlayerSelector {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
-use crate::commands::NetBasicConsoleCommands;
 
 /// Player selector to entities.
 #[cfg(feature = "server")]
@@ -21,8 +10,11 @@ pub(crate) fn player_selector_to_entities(
     command_executor_handle_option: Option<u64>,
     mut player_selector: &str,
     used_names: &mut ResMut<UsedNames>,
-    net_console_commands: &mut EventWriter<NetBasicConsoleCommands>,
+    server: &mut ResMut<RenetServer>,
 ) -> Vec<Entity> {
+    use console_commands::networking::ConsoleCommandsServerMessage;
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
     if player_selector == "*" {
         return used_names.names.values().copied().collect();
     } else if player_selector == "@me" {
@@ -75,12 +67,14 @@ pub(crate) fn player_selector_to_entities(
         }
     };
     if let Some(handle) = command_executor_handle_option {
-        net_console_commands.send(NetBasicConsoleCommands {
+        server.send_message(
             handle,
-            message: ReliableServerMessage::ConsoleWriteLine(format!(
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(format!(
                 "[color=#ff6600]{message}[/color]"
-            )),
-        });
+            )))
+            .unwrap(),
+        );
     }
     vec![]
 }

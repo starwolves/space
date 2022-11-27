@@ -140,3 +140,21 @@ pub(crate) fn incoming_messages(
         }
     }
 }
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum ActionsServerMessage {
+    TabData(Vec<NetAction>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(feature = "server")]
+pub struct NetAction {
+    pub id: String,
+    pub text: String,
+    pub tab_list_priority: u8,
+    pub item_name: String,
+    pub entity_option: Option<u64>,
+    pub belonging_entity: Option<u64>,
+    pub cell_option: Option<(GridMapLayer, i16, i16, i16)>,
+}

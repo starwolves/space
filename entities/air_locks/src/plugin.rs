@@ -8,7 +8,6 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use gridmap_meta::core::GridItemData;
-use networking::server::net_system;
 use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
 };
@@ -31,7 +30,6 @@ use super::{
     air_lock_events::air_lock_events,
     air_lock_tick_timers::air_lock_tick_timers,
     entity_update::air_lock_update,
-    net::NetAirLock,
     spawn::{
         default_summon_air_lock, summon_air_lock, summon_raw_air_lock, AirlockSummoner,
         BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, SECURITY_AIRLOCK_ENTITY_NAME,
@@ -52,7 +50,6 @@ impl Plugin for AirLocksPlugin {
             app.add_event::<AirLockCollision>()
                 .add_event::<InputAirLockToggleOpen>()
                 .add_event::<AirLockLockOpen>()
-                .add_event::<NetAirLock>()
                 .add_system(air_lock_added)
                 .add_system(air_lock_tick_timers)
                 .add_system(air_lock_events)
@@ -68,13 +65,6 @@ impl Plugin for AirLocksPlugin {
                         .with_system(air_lock_update),
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetAirLock>),
-                )
                 .add_system(
                     summon_air_lock::<AirlockSummoner>.after(SummoningLabels::TriggerSummon),
                 )

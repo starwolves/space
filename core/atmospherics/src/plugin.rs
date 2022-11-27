@@ -1,11 +1,10 @@
 use std::env;
 
 use bevy::time::FixedTimestep;
-use networking::server::net_system;
-use resources::labels::{ActionsLabels, MapLabels, PostUpdateLabels, StartupLabels, UpdateLabels};
+use resources::labels::{ActionsLabels, MapLabels, StartupLabels, UpdateLabels};
 
 use crate::diffusion::AtmosphericsResource;
-use crate::examine_events::{examine_map_atmos, NetAtmosphericsMapExamine};
+use crate::examine_events::examine_map_atmos;
 use crate::init::startup_atmospherics;
 use crate::remove_cell_atmos_event::remove_cell_atmos_event;
 
@@ -13,14 +12,12 @@ use super::{
     diffusion::{atmos_diffusion, RigidBodyForcesAccumulation, DIFFUSION_STEP},
     effects::atmos_effects,
     map_events::{atmospherics_map, atmospherics_map_hover},
-    net::{NetAtmosphericsNotices, NetMapDisplayAtmospherics, NetMapHoverAtmospherics},
     notices::atmospherics_notices,
     rigidbody_forces::{rigidbody_forces_physics, rigidbody_pawn_forces_accumulation},
     sensing_ability::atmospherics_sensing_ability,
     zero_gravity::zero_gravity,
 };
 
-use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemLabel, SystemSet};
 
 pub const ATMOS_LABEL: &str = "fixed_timestep_map_atmos";
@@ -43,7 +40,6 @@ impl Plugin for AtmosphericsPlugin {
                         .with_system(atmospherics_notices)
                         .with_system(atmospherics_map.after(MapLabels::ChangeMode)),
                 )
-                .add_event::<NetMapDisplayAtmospherics>()
                 .add_system_set(
                     SystemSet::new()
                         .with_run_criteria(
@@ -61,23 +57,10 @@ impl Plugin for AtmosphericsPlugin {
                         ),
                 )
                 .init_resource::<RigidBodyForcesAccumulation>()
-                .add_event::<NetMapHoverAtmospherics>()
                 .add_startup_system(
                     startup_atmospherics
                         .label(StartupLabels::InitAtmospherics)
                         .after(StartupLabels::BuildGridmap),
-                )
-                .add_event::<NetAtmosphericsNotices>()
-                .add_event::<NetAtmosphericsMapExamine>()
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetMapDisplayAtmospherics>)
-                        .with_system(net_system::<NetMapHoverAtmospherics>)
-                        .with_system(net_system::<NetAtmosphericsNotices>)
-                        .with_system(net_system::<NetAtmosphericsMapExamine>),
                 )
                 .add_system(examine_map_atmos.after(ActionsLabels::Action));
         }

@@ -18,11 +18,14 @@ version = "0.9.0"
 default-features = false
 
 [dependencies]
+bincode = "1.3.3"
+bevy_renet = "0.0.6"
 
 networking = { path = "../networking",  features=["server"] }
-networking_macros = { path = "../networking_macros",  features=["server"] }
+entity = { path = "../entity",  features=["server"] }
 resources = { path = "../resources",  features=["server"] }
 player = { path = "../player",  features=["server"] }
 motd = { path = "../motd",  features=["server"] }
 text_api = { path = "../text_api",  features=["server"] }
 controller = { path = "../controller",  features=["server"] }
+console_commands = { path = "../console_commands",  features=["server"] }

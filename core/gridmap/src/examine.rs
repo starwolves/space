@@ -7,7 +7,6 @@ use entity::{
 };
 use math::grid::Vec3Int;
 use networking::server::GridMapLayer;
-use networking_macros::NetMessage;
 use text_api::core::{
     get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
     HEALTHY_COLOR, UNHEALTHY_COLOR,
@@ -369,32 +368,28 @@ impl Default for InputExamineMap {
 pub struct GridmapExamineMessages {
     pub messages: Vec<InputExamineMap>,
 }
-use bevy::prelude::EventWriter;
 
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::ReliableServerMessage;
+use bevy_renet::renet::RenetServer;
+use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
 use text_api::core::END_ASTRIX;
-
-#[derive(NetMessage)]
-pub(crate) struct NetExamineGrid {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
 /// Finalize examining the ship gridmap.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
-    mut net: EventWriter<NetExamineGrid>,
+    mut server: ResMut<RenetServer>,
 ) {
     for event in examine_map_events.messages.iter_mut() {
         event.message = event.message.to_string() + END_ASTRIX;
 
-        net.send(NetExamineGrid {
-            handle: event.handle,
-            message: ReliableServerMessage::ChatMessage(event.message.clone()),
-        });
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                event.message.clone(),
+            ))
+            .unwrap(),
+        );
     }
 
     examine_map_events.messages.clear();

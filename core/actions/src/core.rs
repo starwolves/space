@@ -1,12 +1,9 @@
 use std::collections::HashMap;
 
 use bevy::prelude::Resource;
-use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, ResMut};
+use bevy::prelude::{warn, Component, Entity, EventReader, Query, Res, ResMut};
 use math::grid::Vec3Int;
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::{GridMapLayer, NetAction, ReliableServerMessage};
-use networking_macros::NetMessage;
+use networking::server::GridMapLayer;
 
 /// Resource with a list of actions being built this frame.
 #[cfg(feature = "server")]
@@ -90,22 +87,23 @@ impl ActionData {
         return false;
     }
 }
-#[cfg(feature = "server")]
-#[derive(NetMessage)]
-pub(crate) struct NetActionDataFinalizer {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
+use bevy_renet::renet::RenetServer;
 use networking::server::HandleToEntity;
+
+use crate::networking::NetAction;
 
 #[cfg(feature = "server")]
 /// Send lists of approved actions back to player.
 pub(crate) fn list_action_data_finalizer(
     building_actions: Res<BuildingActions>,
     handle_to_entity: Res<HandleToEntity>,
-    mut net: EventWriter<NetActionDataFinalizer>,
     action_data_requests: Res<ListActionDataRequests>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
+    use crate::networking::ActionsServerMessage;
+
     for action_data in building_actions.list.iter() {
         let action_data_request;
         match action_data_requests.list.get(&action_data.incremented_i) {
@@ -149,12 +147,11 @@ pub(crate) fn list_action_data_finalizer(
         }
 
         match handle {
-            Some(h) => {
-                net.send(NetActionDataFinalizer {
-                    handle: h,
-                    message: ReliableServerMessage::TabData(net_action_datas),
-                });
-            }
+            Some(h) => server.send_message(
+                h,
+                RENET_RELIABLE_CHANNEL_ID,
+                bincode::serialize(&ActionsServerMessage::TabData(net_action_datas)).unwrap(),
+            ),
             None => {}
         }
     }

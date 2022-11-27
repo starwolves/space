@@ -3,13 +3,14 @@ use bevy::prelude::{Entity, EventWriter, Query, Transform};
 use math::grid::world_to_cell_id;
 
 use crate::networking::LoadEntity;
-use crate::networking::NetUnloadEntity;
 use crate::{
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
 };
 use networking::server::ConnectedPlayer;
-use networking::server::ReliableServerMessage;
+
+use bevy::prelude::ResMut;
+use bevy_renet::renet::RenetServer;
 
 /// Perform FOV checks to see what is and what isn't visible.
 #[cfg(feature = "server")]
@@ -21,9 +22,13 @@ pub(crate) fn visible_checker(
         &Transform,
         Option<&ConnectedPlayer>,
     )>,
-    mut net_unload_entity: EventWriter<NetUnloadEntity>,
     mut load_entity_event: EventWriter<LoadEntity>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
+    use crate::networking::EntityServerMessage;
+
     for (
         visible_entity_id,
         mut senser_component,
@@ -99,13 +104,15 @@ pub(crate) fn visible_checker(
                     match visible_checker_component_option {
                         Some(visible_checker_component) => {
                             if visible_checker_component.connected {
-                                net_unload_entity.send(NetUnloadEntity {
-                                    handle: visible_checker_component.handle,
-                                    message: ReliableServerMessage::UnloadEntity(
+                                server.send_message(
+                                    visible_checker_component.handle,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&EntityServerMessage::UnloadEntity(
                                         visible_entity_id.to_bits(),
                                         unload_entirely,
-                                    ),
-                                });
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                         }
                         None => {}
@@ -140,13 +147,15 @@ pub(crate) fn visible_checker(
                     match visible_checker_component_option {
                         Some(visible_checker_component) => {
                             if visible_checker_component.connected {
-                                net_unload_entity.send(NetUnloadEntity {
-                                    handle: visible_checker_component.handle,
-                                    message: ReliableServerMessage::UnloadEntity(
+                                server.send_message(
+                                    visible_checker_component.handle,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&EntityServerMessage::UnloadEntity(
                                         visible_entity_id.to_bits(),
                                         unload_entirely,
-                                    ),
-                                });
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                         }
                         None => {}
@@ -174,13 +183,15 @@ pub(crate) fn visible_checker(
                         match visible_checker_component_option {
                             Some(visible_checker_component) => {
                                 if visible_checker_component.connected {
-                                    net_unload_entity.send(NetUnloadEntity {
-                                        handle: visible_checker_component.handle,
-                                        message: ReliableServerMessage::UnloadEntity(
+                                    server.send_message(
+                                        visible_checker_component.handle,
+                                        RENET_RELIABLE_CHANNEL_ID,
+                                        bincode::serialize(&EntityServerMessage::UnloadEntity(
                                             visible_entity_id.to_bits(),
                                             unload_entirely,
-                                        ),
-                                    });
+                                        ))
+                                        .unwrap(),
+                                    );
                                 }
                             }
                             None => {}
@@ -239,13 +250,15 @@ pub(crate) fn visible_checker(
                     if !senser_component.sfx.contains(entity) {
                         match visible_checker_component_option {
                             Some(connected_component) => {
-                                net_unload_entity.send(NetUnloadEntity {
-                                    handle: connected_component.handle,
-                                    message: ReliableServerMessage::UnloadEntity(
+                                server.send_message(
+                                    connected_component.handle,
+                                    RENET_RELIABLE_CHANNEL_ID,
+                                    bincode::serialize(&EntityServerMessage::UnloadEntity(
                                         entity.to_bits(),
                                         true,
-                                    ),
-                                });
+                                    ))
+                                    .unwrap(),
+                                );
                             }
                             None => {}
                         }

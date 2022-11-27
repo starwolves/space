@@ -15,22 +15,15 @@ use inventory_item::combat::MeleeCombat;
 use inventory_item::combat::ProjectileCombat;
 use inventory_item::item::InventoryItem;
 use math::grid::world_to_cell_id;
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::ReliableServerMessage;
-use networking_macros::NetMessage;
 use rand::prelude::SliceRandom;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,
     projectile_queries::ProjectileBlank,
 };
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub struct NetHitQueryChat {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
+
+use bevy::prelude::ResMut;
+use bevy_renet::renet::RenetServer;
 use networking::server::HandleToEntity;
 
 /// Chat hooks for entities that got hit by something.
@@ -47,10 +40,12 @@ pub fn attacked_by_chat<T: Component>(
         &MeleeCombat,
         Option<&ProjectileCombat>,
     )>,
-    mut net: EventWriter<NetHitQueryChat>,
+    mut server: ResMut<RenetServer>,
     target_entities: Query<(&HealthComponent, &Examinable, &Transform)>,
     attacker_criteria: Query<&T>,
 ) {
+    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
+
     for query_hit_result in query_hit_results.iter() {
         let attack_cache;
 
@@ -329,12 +324,16 @@ pub fn attacked_by_chat<T: Component>(
                         if send_message {
                             match handle_to_entity.inv_map.get(&entity) {
                                 Some(handle) => {
-                                    net.send(NetHitQueryChat {
-                                        handle: *handle,
-                                        message: ReliableServerMessage::ChatMessage(
-                                            message.clone(),
-                                        ),
-                                    });
+                                    server.send_message(
+                                        *handle,
+                                        RENET_RELIABLE_CHANNEL_ID,
+                                        bincode::serialize(
+                                            &NetworkingChatServerMessage::ChatMessage(
+                                                message.clone(),
+                                            ),
+                                        )
+                                        .unwrap(),
+                                    );
                                 }
                                 None => {}
                             }
@@ -407,12 +406,16 @@ pub fn attacked_by_chat<T: Component>(
                         if should_send {
                             match handle_to_entity.inv_map.get(&entity) {
                                 Some(handle) => {
-                                    net.send(NetHitQueryChat {
-                                        handle: *handle,
-                                        message: ReliableServerMessage::ChatMessage(
-                                            message.clone(),
-                                        ),
-                                    });
+                                    server.send_message(
+                                        *handle,
+                                        RENET_RELIABLE_CHANNEL_ID,
+                                        bincode::serialize(
+                                            &NetworkingChatServerMessage::ChatMessage(
+                                                message.clone(),
+                                            ),
+                                        )
+                                        .unwrap(),
+                                    );
                                 }
                                 None => {}
                             }
@@ -441,8 +444,10 @@ pub fn hit_query_chat_cells(
     )>,
     gridmap_main: Res<GridmapMain>,
     gridmap_data: Res<GridmapData>,
-    mut net: EventWriter<NetHitQueryChat>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
+
     for query_hit_result in query_hit_results.iter() {
         let attack_cache;
 
@@ -618,10 +623,14 @@ pub fn hit_query_chat_cells(
                 if should_send {
                     match handle_to_entity.inv_map.get(&entity) {
                         Some(handle) => {
-                            net.send(NetHitQueryChat {
-                                handle: *handle,
-                                message: ReliableServerMessage::ChatMessage(message.clone()),
-                            });
+                            server.send_message(
+                                *handle,
+                                RENET_RELIABLE_CHANNEL_ID,
+                                bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                    message.clone(),
+                                ))
+                                .unwrap(),
+                            );
                         }
                         None => {}
                     }

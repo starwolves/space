@@ -1,11 +1,8 @@
 use std::collections::HashMap;
 
 use bevy::prelude::Resource;
-use bevy::prelude::{Changed, Entity, EventWriter, Query, ResMut};
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage};
-use networking_macros::NetMessage;
+use bevy::prelude::{Changed, Entity, Query, ResMut};
+use networking::server::EntityUpdateData;
 const UI_ALPHA: f32 = 146.;
 const NONE_UI_RED: f32 = 102.;
 const NONE_UI_GREEN: f32 = 165.;
@@ -49,12 +46,7 @@ pub enum UIDamageType {
 }
 use networking::server::ConnectedPlayer;
 
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetHealthUpdate {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
+use bevy_renet::renet::RenetServer;
 use entity::health::HealthComponent;
 use entity::health::HealthContainer;
 
@@ -66,8 +58,11 @@ pub(crate) fn health_ui_update(
         Changed<HealthComponent>,
     >,
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
-    mut net_health_update: EventWriter<NetHealthUpdate>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use entity::networking::{EntityServerMessage, EntityWorldType};
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
     for (entity, connected_player_component, health_component) in
         updated_player_health_entities.iter_mut()
     {
@@ -527,15 +522,17 @@ pub(crate) fn health_ui_update(
                 }
 
                 if new_update && connected_player_component.connected {
-                    net_health_update.send(NetHealthUpdate {
-                        handle: connected_player_component.handle,
-                        message: ReliableServerMessage::EntityUpdate(
+                    server.send_message(
+                        connected_player_component.handle,
+                        RENET_RELIABLE_CHANNEL_ID,
+                        bincode::serialize(&EntityServerMessage::EntityUpdate(
                             entity.to_bits(),
                             entity_updates_map,
                             false,
                             EntityWorldType::HealthUI,
-                        ),
-                    });
+                        ))
+                        .unwrap(),
+                    );
                 }
             }
             _ => (),

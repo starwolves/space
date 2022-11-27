@@ -1,18 +1,21 @@
-use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res};
+use bevy::prelude::{Entity, EventReader, Query, Res};
 use inventory_api::core::Inventory;
 use networking::server::HandleToEntity;
-use networking::server::ReliableServerMessage;
 
-use super::net::NetSwitchHands;
-
+use bevy::prelude::ResMut;
+use bevy_renet::renet::RenetServer;
 /// From client input change active hand.
 #[cfg(feature = "server")]
 pub(crate) fn switch_hands(
     mut switch_hands_events: EventReader<InputSwitchHands>,
     mut inventory_entities: Query<&mut Inventory>,
-    mut net_switch_hands: EventWriter<NetSwitchHands>,
+    mut server: ResMut<RenetServer>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
+    use crate::networking::InventoryServerMessage;
+
     for event in switch_hands_events.iter() {
         let hand_switcher_components_option = inventory_entities.get_mut(event.entity);
         let hand_switcher_components;
@@ -36,10 +39,11 @@ pub(crate) fn switch_hands(
 
         match handle_to_entity.inv_map.get(&event.entity) {
             Some(handle) => {
-                net_switch_hands.send(NetSwitchHands {
-                    handle: *handle,
-                    message: ReliableServerMessage::SwitchHands,
-                });
+                server.send_message(
+                    *handle,
+                    RENET_RELIABLE_CHANNEL_ID,
+                    bincode::serialize(&InventoryServerMessage::SwitchHands).unwrap(),
+                );
             }
             None => {}
         }

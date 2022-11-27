@@ -1,6 +1,6 @@
 use std::env;
 
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
@@ -8,12 +8,11 @@ use entity::{
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
-use networking::server::net_system;
-use resources::labels::{CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
+use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
 use rigid_body::spawn::summon_rigid_body;
 
 use crate::{
-    boarding::{on_spawning, NetOnSpawning},
+    boarding::on_spawning,
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
     spawn::{default_human_dummy, summon_base_human_male, summon_human_male, HumanMaleSummoner},
@@ -30,7 +29,7 @@ impl Plugin for HumanMalePlugin {
                         .before(SummoningLabels::TriggerSummon)
                         .label(SummoningLabels::NormalSummon),
                 )
-                .add_system_to_stage(PostUpdate, on_spawning.after(PostUpdateLabels::Net))
+                .add_system_to_stage(PostUpdate, on_spawning)
                 .add_system(
                     (summon_base_human_male::<HumanMaleSummoner>)
                         .after(SummoningLabels::TriggerSummon),
@@ -49,15 +48,7 @@ impl Plugin for HumanMalePlugin {
                         .label(CombatLabels::WeaponHandler)
                         .after(CombatLabels::CacheAttack),
                 )
-                .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon))
-                .add_event::<NetOnSpawning>()
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetOnSpawning>),
-                );
+                .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon));
         }
     }
 }

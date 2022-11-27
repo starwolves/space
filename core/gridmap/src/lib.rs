@@ -25,9 +25,6 @@ pub mod get_spawn_position;
 pub mod grid;
 /// Initialize gridmap meta data.
 mod init;
-/// Manage gridmap netcode.
-mod net;
-/// The networking module of this crate.
 pub mod networking;
 /// The Bevy plugin of this crate.
 pub mod plugin;

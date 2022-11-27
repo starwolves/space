@@ -121,29 +121,32 @@ impl PawnYAxisRotations {
 #[cfg(feature = "server")]
 pub const REACH_DISTANCE: f32 = 3.;
 
-use crate::examine_events::NetPawn;
 use bevy::prelude::ResMut;
-use bevy::prelude::{EventReader, EventWriter, Query, Res};
-use networking::server::ReliableServerMessage;
+use bevy::prelude::{EventReader, Query, Res};
 use text_api::core::escape_bb;
 
 use bevy::prelude::warn;
 use text_api::core::CONSOLE_ERROR_COLOR;
 
+use bevy_renet::renet::RenetServer;
 use networking::server::HandleToEntity;
 use player::{
     boarding::PersistentPlayerData,
     names::{InputAccountName, UsedNames},
 };
+
 /// Set player connection account name that also isn't already taken.
 #[cfg(feature = "server")]
 pub(crate) fn account_name(
     mut input_user_name_events: EventReader<InputAccountName>,
     mut persistent_player_data_query: Query<&mut PersistentPlayerData>,
     mut used_names: ResMut<UsedNames>,
-    mut net_user_name_event: EventWriter<NetPawn>,
+    mut server: ResMut<RenetServer>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
+    use console_commands::networking::ConsoleCommandsServerMessage;
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
     for event in input_user_name_events.iter() {
         match persistent_player_data_query.get_mut(event.entity) {
             Ok(mut persistent_player_data_component) => {
@@ -173,10 +176,7 @@ pub(crate) fn account_name(
 
                     match handle_option {
                         Some(handle) => {
-                            net_user_name_event.send(NetPawn{
-                                handle: *handle,
-                                message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided account name is already in-use and you were assigned a default one. To change this please change the name and restart your game.[/color]"),
-                            });
+                            server.send_message(*handle, RENET_RELIABLE_CHANNEL_ID, bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided account name is already in-use and you were assigned a default one. To change this please change the name and restart your game.[/color]")).unwrap());
                         }
                         None => {}
                     }
@@ -187,10 +187,7 @@ pub(crate) fn account_name(
                 if user_name.len() < 3 {
                     match handle_option {
                         Some(handle) => {
-                            net_user_name_event.send(NetPawn {
-                                handle: *handle,
-                                message: ReliableServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters and whitespaces are not registered.[/color]"),
-                            });
+                            server.send_message(*handle, RENET_RELIABLE_CHANNEL_ID, bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine("[color=".to_string() + CONSOLE_ERROR_COLOR + "]The provided user_name is too short. Special characters and whitespaces are not registered.[/color]")).unwrap());
                         }
                         None => {}
                     }

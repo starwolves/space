@@ -2,16 +2,14 @@ use std::env;
 
 use crate::{
     actions::{examine, examine_prerequisite_check},
-    examine_events::NetPawn,
     networking::incoming_messages,
     pawn::account_name,
 };
 use bevy::app::CoreStage::PreUpdate;
-use bevy::prelude::{App, Plugin, SystemSet};
-use bevy::{app::CoreStage::PostUpdate, prelude::IntoSystemDescriptor};
-use networking::server::net_system;
+use bevy::prelude::IntoSystemDescriptor;
+use bevy::prelude::{App, Plugin};
 use player::names::InputAccountName;
-use resources::labels::{ActionsLabels, PostUpdateLabels};
+use resources::labels::ActionsLabels;
 pub struct PawnPlugin;
 
 impl Plugin for PawnPlugin {
@@ -28,14 +26,6 @@ impl Plugin for PawnPlugin {
                     .after(ActionsLabels::Approve),
             )
             .add_system(account_name)
-            .add_event::<NetPawn>()
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .after(PostUpdateLabels::VisibleChecker)
-                    .label(PostUpdateLabels::Net)
-                    .with_system(net_system::<NetPawn>),
-            )
             .add_system_to_stage(PreUpdate, incoming_messages)
             .add_event::<InputAccountName>();
         }

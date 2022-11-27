@@ -1,9 +1,12 @@
+use std::collections::HashMap;
+
 use bevy::prelude::ResMut;
 
 use bevy::prelude::warn;
 use bevy::prelude::EventWriter;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+use networking::server::TextTreeBit;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -66,4 +69,19 @@ pub struct TextTreeInputSelection {
     pub action_id: String,
     /// The entity submitting the selection.
     pub belonging_entity: Option<u64>,
+}
+/// Gets serialized and sent over the net, this is the server message.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum UiServerMessage {
+    TextTreeSelection(
+        Option<u64>,
+        String,
+        String,
+        String,
+        HashMap<String, TextTreeBit>,
+    ),
+    UIAddNotice(String),
+    UIRemoveNotice(String),
+    UIRequestInput(String),
 }

@@ -33,6 +33,9 @@ use bevy::prelude::Res;
 use bevy::prelude::ResMut;
 use std::net::IpAddr;
 
+use crate::plugin::RENET_RELIABLE_CHANNEL_ID;
+use crate::server::NetworkingClientServerMessage;
+
 #[cfg(feature = "client")]
 pub(crate) fn connect_to_server(
     mut event: EventReader<ConnectToServer>,
@@ -40,11 +43,6 @@ pub(crate) fn connect_to_server(
     preferences: Res<ConnectionPreferences>,
     mut connection: ResMut<Connection>,
 ) {
-    use crate::{
-        plugin::RENET_RELIABLE_CHANNEL_ID,
-        server::{ReliableServerMessage, ServerConfigMessage},
-    };
-
     for _ in event.iter() {
         match connection.status {
             ConnectionStatus::None => (),
@@ -133,10 +131,7 @@ pub(crate) fn connect_to_server(
                     },
                 )
                 .unwrap();
-                let message = bincode::serialize(&ReliableServerMessage::ConfigMessage(
-                    ServerConfigMessage::Awoo,
-                ))
-                .unwrap();
+                let message = bincode::serialize(&NetworkingClientServerMessage::Awoo).unwrap();
                 client.send_message(RENET_RELIABLE_CHANNEL_ID, message);
 
                 commands.insert_resource(client);

@@ -1,8 +1,6 @@
 use bevy::{
     hierarchy::Children,
-    prelude::{
-        warn, Commands, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, With,
-    },
+    prelude::{warn, Commands, Component, Entity, EventReader, Query, Res, ResMut, With},
 };
 
 use bevy_rapier3d::prelude::RigidBody;
@@ -14,16 +12,17 @@ use entity::{
     senser::{to_doryen_coordinates, Senser},
 };
 use math::grid::Vec3Int;
-use networking::server::{GridMapLayer, ReliableServerMessage};
+use networking::server::GridMapLayer;
 use serde::Deserialize;
 
 use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMain, RemoveCell};
 
-use super::{
-    fov::{DoryenMap, FOV_DISTANCE},
-    net::NetGridmapUpdates,
-};
+use super::fov::{DoryenMap, FOV_DISTANCE};
 use networking::server::ConnectedPlayer;
+
+use crate::networking::GridmapServerMessage;
+use bevy_renet::renet::RenetServer;
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 
 /// Manage gridmap update events such as adding and removing cells.
 #[cfg(feature = "server")]
@@ -31,7 +30,7 @@ pub(crate) fn gridmap_updates_manager(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
     sensers: Query<(Entity, &Senser, &ConnectedPlayer)>,
-    mut net_gridmap_updates: EventWriter<NetGridmapUpdates>,
+    mut server: ResMut<RenetServer>,
 ) {
     for (cell_id, cell_update) in gridmap_main.updates.iter_mut() {
         let cell_coords = to_doryen_coordinates(cell_id.x, cell_id.z);
@@ -42,27 +41,31 @@ pub(crate) fn gridmap_updates_manager(
             {
                 cell_update.entities_received.push(senser_entity);
                 if cell_update.cell_data.item != -1 {
-                    net_gridmap_updates.send(NetGridmapUpdates {
-                        handle: connected_player_component.handle,
-                        message: ReliableServerMessage::AddCell(
+                    server.send_message(
+                        connected_player_component.handle,
+                        RENET_RELIABLE_CHANNEL_ID,
+                        bincode::serialize(&GridmapServerMessage::AddCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             cell_update.cell_data.item,
                             cell_update.cell_data.orientation,
                             GridMapLayer::Main,
-                        ),
-                    });
+                        ))
+                        .unwrap(),
+                    );
                 } else {
-                    net_gridmap_updates.send(NetGridmapUpdates {
-                        handle: connected_player_component.handle,
-                        message: ReliableServerMessage::RemoveCell(
+                    server.send_message(
+                        connected_player_component.handle,
+                        RENET_RELIABLE_CHANNEL_ID,
+                        bincode::serialize(&GridmapServerMessage::RemoveCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             GridMapLayer::Main,
-                        ),
-                    });
+                        ))
+                        .unwrap(),
+                    );
                 }
             }
         }
@@ -78,27 +81,31 @@ pub(crate) fn gridmap_updates_manager(
             {
                 cell_update.entities_received.push(senser_entity);
                 if cell_update.cell_data.item != -1 {
-                    net_gridmap_updates.send(NetGridmapUpdates {
-                        handle: connected_player_component.handle,
-                        message: ReliableServerMessage::AddCell(
+                    server.send_message(
+                        connected_player_component.handle,
+                        RENET_RELIABLE_CHANNEL_ID,
+                        bincode::serialize(&GridmapServerMessage::AddCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             cell_update.cell_data.item,
                             cell_update.cell_data.orientation,
                             GridMapLayer::Details1,
-                        ),
-                    });
+                        ))
+                        .unwrap(),
+                    );
                 } else {
-                    net_gridmap_updates.send(NetGridmapUpdates {
-                        handle: connected_player_component.handle,
-                        message: ReliableServerMessage::RemoveCell(
+                    server.send_message(
+                        connected_player_component.handle,
+                        RENET_RELIABLE_CHANNEL_ID,
+                        bincode::serialize(&GridmapServerMessage::RemoveCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             GridMapLayer::Details1,
-                        ),
-                    });
+                        ))
+                        .unwrap(),
+                    );
                 }
             }
         }

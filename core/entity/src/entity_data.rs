@@ -6,15 +6,12 @@ use bevy::{
 };
 use networking::{
     plugin::RENET_UNRELIABLE_CHANNEL_ID,
-    server::{EntityUpdateData, ReliableServerMessage, UnreliableServerMessage},
+    server::{EntityUpdateData, UnreliableServerMessage},
 };
-use networking_macros::NetMessage;
 use serde::Deserialize;
 
 use bevy_renet::renet::RenetServer;
 use bincode::serialize;
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
 
 use crate::{
     meta::{EntityDataProperties, EntityDataResource},
@@ -107,12 +104,7 @@ pub(crate) fn broadcast_position_updates(
 }
 #[cfg(feature = "server")]
 pub const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub struct NetShowcase {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
+
 /// Component for entities that were included and spawned with the map itself.
 #[derive(Component)]
 #[cfg(feature = "server")]

@@ -23,7 +23,7 @@ vector2math = "0.13.0"
 bevy_renet = "0.0.6"
 
 networking = { path = "../networking",  features=["server"] }
-networking_macros = { path = "../networking_macros",  features=["server"] }
+
 sounds = { path = "../../entities/sounds",  features=["server"] }
 pawn = { path = "../pawn",  features=["server"] }
 inventory_item = { path = "../inventory_item",  features=["server"] }

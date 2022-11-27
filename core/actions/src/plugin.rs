@@ -1,19 +1,17 @@
 use std::env;
 
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
-use networking::server::net_system;
-use resources::labels::{ActionsLabels, PostUpdateLabels};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use resources::labels::ActionsLabels;
 
 use crate::{
     core::{
         clear_action_building, init_action_data_listing, init_action_request_building,
         list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
         ActionRequests, BuildingActions, InputAction, InputListActionsEntity, InputListActionsMap,
-        ListActionDataRequests, NetActionDataFinalizer,
+        ListActionDataRequests,
     },
     networking::incoming_messages,
 };
-use bevy::app::CoreStage::PostUpdate;
 use bevy::app::CoreStage::PreUpdate;
 pub struct ActionsPlugin;
 
@@ -35,14 +33,6 @@ impl Plugin for ActionsPlugin {
                     clear_action_building
                         .label(ActionsLabels::Clear)
                         .before(ActionsLabels::Init),
-                )
-                .add_event::<NetActionDataFinalizer>()
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .after(PostUpdateLabels::VisibleChecker)
-                        .label(PostUpdateLabels::Net)
-                        .with_system(net_system::<NetActionDataFinalizer>),
                 )
                 .init_resource::<ActionRequests>()
                 .add_system_to_stage(PreUpdate, incoming_messages)

@@ -1,8 +1,7 @@
 use bevy::math::Vec3;
-use networking::server::ReliableServerMessage;
 use rand::Rng;
 
-use crate::builder::get_random_pitch_scale;
+use crate::{builder::get_random_pitch_scale, networking::SfxServerMessage};
 
 /// Proximity message sound data.
 #[cfg(feature = "server")]
@@ -10,12 +9,12 @@ pub struct PlaySoundProximityMessageData;
 
 #[cfg(feature = "server")]
 impl PlaySoundProximityMessageData {
-    pub fn get_message(position: Vec3) -> ReliableServerMessage {
+    pub fn get_message(position: Vec3) -> SfxServerMessage {
         let mut rng = rand::thread_rng();
 
         let random_index = rng.gen_range(0..SFX_NAMES.len());
 
-        ReliableServerMessage::PlaySound(
+        SfxServerMessage::PlaySound(
             SFX_NAMES[random_index].to_string(),
             1.,
             get_random_pitch_scale(1.),

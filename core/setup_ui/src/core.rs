@@ -2,8 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res, Resource};
 use networking::server::HandleToEntity;
-use networking::server::{EntityUpdateData, EntityWorldType, ReliableServerMessage, UIInputAction};
-use networking_macros::NetMessage;
+use networking::server::{EntityUpdateData, UIInputAction};
 use player::connections::PlayerAwaitingBoarding;
 use resources::core::ServerId;
 
@@ -48,14 +47,8 @@ pub(crate) fn register_ui_input_boarding(
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 /// Godot NodePath.
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetOnSetupUI {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
+
+use bevy_renet::renet::RenetServer;
 use motd::motd::MOTD;
 use player::name_generator::get_full_name;
 use player::{connection::SetupPhase, names::UsedNames};
@@ -67,9 +60,12 @@ pub(crate) fn initialize_setupui(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,
     query: Query<&ConnectedPlayer, Added<SetupPhase>>,
-    mut net_on_setupui: EventWriter<NetOnSetupUI>,
+    mut server: ResMut<RenetServer>,
     motd: Res<MOTD>,
 ) {
+    use entity::networking::{EntityServerMessage, EntityWorldType};
+    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
+
     for connected_player_component in query.iter() {
         let suggested_name = get_full_name(true, true, &used_names);
 
@@ -84,27 +80,27 @@ pub(crate) fn initialize_setupui(
 
         hash_map_path.insert(INPUT_NAME_PATH_FULL.to_string(), hash_map_data);
 
-        net_on_setupui.send(NetOnSetupUI {
-            handle: connected_player_component.handle,
-            message: ReliableServerMessage::EntityUpdate(
+        server.send_message(
+            connected_player_component.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&EntityServerMessage::EntityUpdate(
                 server_id.id.to_bits(),
                 hash_map_path,
                 false,
                 EntityWorldType::Main,
-            ),
-        });
+            ))
+            .unwrap(),
+        );
 
-        net_on_setupui.send(NetOnSetupUI {
-            handle: connected_player_component.handle,
-            message: ReliableServerMessage::ChatMessage(motd.message.clone()),
-        });
+        server.send_message(
+            connected_player_component.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                motd.message.clone(),
+            ))
+            .unwrap(),
+        );
     }
-}
-#[derive(NetMessage)]
-#[cfg(feature = "server")]
-pub(crate) struct NetUIInputTransmitData {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
 }
 use bevy::prelude::warn;
 use player::boarding::{BoardingPlayer, InputUIInputTransmitText, PersistentPlayerData};
@@ -121,8 +117,11 @@ pub(crate) fn ui_input_boarding(
     used_names: ResMut<UsedNames>,
     mut query: Query<(&mut PersistentPlayerData, &Boarding, &ConnectedPlayer)>,
     mut commands: Commands,
-    mut net_ui_input_transmit_data_event: EventWriter<NetUIInputTransmitData>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use console_commands::networking::ConsoleCommandsServerMessage;
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
     for new_event in event.iter() {
         let player_entity = handle_to_entity.map.get(&new_event.handle).expect(
             "ui_input_transmit_text_event.rs could not find entity belonging to player handle.",
@@ -167,26 +166,30 @@ pub(crate) fn ui_input_boarding(
 
                 if name_in_use {
                     // Character name of player is already in-use.
-                    net_ui_input_transmit_data_event.send(NetUIInputTransmitData {
-                        handle: new_event.handle,
-                        message: ReliableServerMessage::ConsoleWriteLine(
+                    server.send_message(
+                        new_event.handle,
+                        RENET_RELIABLE_CHANNEL_ID,
+                        bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
                             "[color=".to_string()
                                 + CONSOLE_ERROR_COLOR
                                 + "]Character name is already in-use.[/color]",
-                        ),
-                    });
+                        ))
+                        .unwrap(),
+                    );
                     continue;
                 }
 
                 if persistent_player_data.character_name.len() < 3 {
-                    net_ui_input_transmit_data_event.send(NetUIInputTransmitData {
-                        handle: new_event.handle,
-                        message: ReliableServerMessage::ConsoleWriteLine(
+                    server.send_message(
+                        new_event.handle,
+                        RENET_RELIABLE_CHANNEL_ID,
+                        bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
                             "[color=".to_string()
                                 + CONSOLE_ERROR_COLOR
                                 + "]Character name is too short.[/color]",
-                        ),
-                    });
+                        ))
+                        .unwrap(),
+                    );
                     continue;
                 }
 
@@ -213,30 +216,24 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     )]
 }
 
-use networking::server::ServerConfigMessage;
 use player::connection::SendServerConfiguration;
-
-#[cfg(feature = "server")]
-#[derive(NetMessage)]
-pub(crate) struct NetConfigure {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut net_on_new_player_connection: EventWriter<NetConfigure>,
+    mut server: ResMut<RenetServer>,
 ) {
+    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+    use player::connections::PlayerServerMessage;
+
     for event in config_events.iter() {
         let talk_spaces = get_talk_spaces_setupui();
 
-        net_on_new_player_connection.send(NetConfigure {
-            handle: event.handle,
-            message: ReliableServerMessage::ConfigMessage(ServerConfigMessage::TalkSpaces(
-                talk_spaces,
-            )),
-        });
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::ConfigTalkSpaces(talk_spaces)).unwrap(),
+        );
     }
 }
 

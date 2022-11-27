@@ -1,16 +1,5 @@
 use bevy::prelude::Component;
 use bevy::prelude::Resource;
-use networking::server::PendingMessage;
-use networking::server::PendingNetworkMessage;
-use networking::server::ReliableServerMessage;
-use networking_macros::NetMessage;
-
-#[cfg(feature = "server")]
-#[derive(NetMessage)]
-pub(crate) struct NetPlayerConn {
-    pub handle: u64,
-    pub message: ReliableServerMessage,
-}
 
 /// The component for players that are requesting boarding.
 #[derive(Component)]

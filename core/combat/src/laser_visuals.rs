@@ -1,7 +1,6 @@
 use bevy::prelude::{warn, Component, EventReader, EventWriter, Query, Res, Transform, Vec3};
 use gridmap::fov::ProjectileFOV;
 use inventory_item::combat::ProjectileCombat;
-use networking::server::ProjectileData;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult,
@@ -19,6 +18,8 @@ pub fn projectile_laser_visuals<T: Component>(
     transforms: Query<&Transform>,
     weapon_criteria: Query<&T>,
 ) {
+    use gridmap::networking::ProjectileData;
+
     for blank in blanks.iter() {
         let active_attack;
 
