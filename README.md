@@ -54,14 +54,6 @@ There is community sovereignty, integrity, values and strong personalities toget
 
 ![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
-
-
-## Documentation:
-The technical documentation of this project is found at [docs.sf.starwolves.io](https://docs.sf.starwolves.io).
-
-There is also a [(currently outdated) guide](https://guide.docs.sf.starwolves.io) available for code contributors.
-
-
 ## Getting Started
 
 ### Dependencies
@@ -101,6 +93,19 @@ The prototype client is built on top of a Godot 3.4 release.
 
 ### The new Bevy client
 Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are just getting started and it will be a while before it is of any use. The new Bevy client is integrated in the same repository.
+
+
+## Documentation:
+The technical documentation of the most recent stable snap branch is found at [docs.sf.starwolves.io](https://docs.sf.starwolves.io).
+
+There is also a [(currently outdated) guide](https://guide.docs.sf.starwolves.io) available.
+
+Generate documentation yourself for master (latest code and docs!!) or other versions:
+
+```
+cargo doc --no-deps --document-private-items --open
+```
+
 
 ## Contributing
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for some years to come.
