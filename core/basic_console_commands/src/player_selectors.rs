@@ -3,6 +3,8 @@ use bevy_renet::renet::RenetServer;
 
 use player::names::UsedNames;
 
+use console_commands::networking::ConsoleCommandsServerMessage;
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 /// Player selector to entities.
 #[cfg(feature = "server")]
 pub(crate) fn player_selector_to_entities(
@@ -12,9 +14,6 @@ pub(crate) fn player_selector_to_entities(
     used_names: &mut ResMut<UsedNames>,
     server: &mut ResMut<RenetServer>,
 ) -> Vec<Entity> {
-    use console_commands::networking::ConsoleCommandsServerMessage;
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
     if player_selector == "*" {
         return used_names.names.values().copied().collect();
     } else if player_selector == "@me" {
