@@ -84,6 +84,7 @@ To run Space Frontiers at maximum performance you should add the following flag 
 ```
 --release
 ```
+Also note that the client and server crates have hardcoded CPU thread limit of 2, you can change the limits inside the crates.
 
 ### Prototype Godot Client
 You can obtain the feature-rich 0.0.3-snap7 prototype client on [Discord](https://discord.gg/yYpMun9CTT).
