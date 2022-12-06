@@ -21,22 +21,21 @@ pub const FOV_DISTANCE: usize = 23;
 pub struct ProjectileFOV {
     pub laser_projectile: ProjectileData,
 }
-use bevy_renet::renet::RenetServer;
 use networking::server::ConnectedPlayer;
 
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
+
+use crate::networking::GridmapServerMessage;
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
 #[cfg(feature = "server")]
 pub(crate) fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
     gridmap_main: Res<GridmapMain>,
     non_blocking_cells_list: Res<GridmapData>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
-    use crate::networking::GridmapServerMessage;
-
     let mut cell_ids_with_projectiles: HashMap<Vec3Int, Vec<(usize, Vec3, f32, Vec3)>> =
         HashMap::new();
     let mut projectiles = vec![];
@@ -172,20 +171,16 @@ pub(crate) fn projectile_fov(
                             continue;
                         }
 
-                        server.send_message(
-                            connected_player_component.handle,
-                            RENET_RELIABLE_CHANNEL_ID,
-                            bincode::serialize(&GridmapServerMessage::FireProjectile(
-                                ProjectileData::Laser(
-                                    *laser_color,
-                                    *laser_height,
-                                    *laser_radius,
-                                    adjusted_start_pos,
-                                    adjusted_end_pos,
-                                ),
-                            ))
-                            .unwrap(),
-                        );
+                        server.send(OutgoingReliableServerMessage {
+                            handle: connected_player_component.handle,
+                            message: GridmapServerMessage::FireProjectile(ProjectileData::Laser(
+                                *laser_color,
+                                *laser_height,
+                                *laser_radius,
+                                adjusted_start_pos,
+                                adjusted_end_pos,
+                            )),
+                        });
                     }
                 }
                 false => {}

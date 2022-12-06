@@ -7,13 +7,14 @@ use networking::server::GodotVariant;
 use networking::server::GodotVariantValues;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 use crate::commands::InputConsoleCommand;
 use bevy::prelude::{EventWriter, Res};
 use networking::server::HandleToEntity;
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum ConsoleCommandsClientMessage {
     ConsoleCommand(String, Vec<GodotVariantValues>),
@@ -61,7 +62,7 @@ pub(crate) fn incoming_messages(
     }
 }
 /// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum ConsoleCommandsServerMessage {
     ConsoleWriteLine(String),

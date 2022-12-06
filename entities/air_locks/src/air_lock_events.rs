@@ -28,8 +28,10 @@ pub struct AirLockOpenRequest {
     pub opener_option: Option<Entity>,
     pub opened: Entity,
 }
-use bevy_renet::renet::RenetServer;
+use networking::server::NetworkingChatServerMessage;
 
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 /// Manage air lock events.
 #[cfg(feature = "server")]
 pub(crate) fn air_lock_events(
@@ -44,11 +46,9 @@ pub(crate) fn air_lock_events(
     mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
     mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
     mut unlock_events: EventReader<AirLockUnlock>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut collision_groups: Query<&mut CollisionGroups>,
 ) {
-    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
-
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 
@@ -76,14 +76,10 @@ pub(crate) fn air_lock_events(
                     + ".[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        server.send_message(
-                            t,
-                            RENET_RELIABLE_CHANNEL_ID,
-                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
-                                personal_update_text,
-                            ))
-                            .unwrap(),
-                        );
+                        server.send(OutgoingReliableServerMessage {
+                            handle: t,
+                            message: NetworkingChatServerMessage::ChatMessage(personal_update_text),
+                        });
                     }
                     None => {}
                 }
@@ -105,14 +101,10 @@ pub(crate) fn air_lock_events(
                     + ".[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        server.send_message(
-                            t,
-                            RENET_RELIABLE_CHANNEL_ID,
-                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
-                                personal_update_text,
-                            ))
-                            .unwrap(),
-                        );
+                        server.send(OutgoingReliableServerMessage {
+                            handle: t,
+                            message: NetworkingChatServerMessage::ChatMessage(personal_update_text),
+                        });
                     }
                     None => {}
                 }
@@ -149,14 +141,10 @@ pub(crate) fn air_lock_events(
                     + ".[/font]";
                 match event.handle_option {
                     Some(t) => {
-                        server.send_message(
-                            t,
-                            RENET_RELIABLE_CHANNEL_ID,
-                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
-                                personal_update_text,
-                            ))
-                            .unwrap(),
-                        );
+                        server.send(OutgoingReliableServerMessage {
+                            handle: t,
+                            message: NetworkingChatServerMessage::ChatMessage(personal_update_text),
+                        });
                     }
                     None => {}
                 }

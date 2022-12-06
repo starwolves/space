@@ -5,6 +5,7 @@ use bevy::{
     time::FixedTimestep,
 };
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
+use networking::typenames::{init_reliable_message, MessageSender};
 use player::{plugin::ConfigurationLabel, spawn_points::SpawnPoints};
 use resources::labels::{
     ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
@@ -20,7 +21,7 @@ use crate::{
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
     init::{startup_build_map, startup_map_cells, startup_misc_resources},
-    networking::incoming_messages,
+    networking::{incoming_messages, GridmapClientMessage, GridmapServerMessage},
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
@@ -107,5 +108,8 @@ impl Plugin for GridmapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         }
+
+        init_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
+        init_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
     }
 }

@@ -33,8 +33,9 @@ use inventory_item::item::InventoryItem;
 use networking::server::EntityUpdateData;
 use rand::Rng;
 
-use bevy_renet::renet::RenetServer;
+use entity::networking::{EntityServerMessage, EntityWorldType};
 use networking::server::HandleToEntity;
+use networking::typenames::OutgoingReliableServerMessage;
 use pawn::pawn::{Pawn, REACH_DISTANCE};
 use physics::physics::{disable_rigidbody, enable_rigidbody, RigidBodyLinkTransform};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
@@ -65,14 +66,13 @@ pub(crate) fn drop_current_item(
 
     mut collision_groups: Query<&mut CollisionGroups>,
     mut commands: Commands,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    mut server1: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
     handle_to_entity: Res<HandleToEntity>,
     gridmap_main: Res<GridmapMain>,
     gridmap_data: Res<GridmapData>,
     query_pipeline: Res<RapierContext>,
 ) {
-    use entity::networking::{EntityServerMessage, EntityWorldType};
-
     for event in drop_current_item_events.iter() {
         let pickuper_components_option = inventory_entities.get_mut(event.pickuper_entity);
         let pickuper_components;
@@ -293,17 +293,15 @@ pub(crate) fn drop_current_item(
 
                     match handle_option {
                         Some(handle) => {
-                            server.send_message(
-                                *handle,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(&EntityServerMessage::EntityUpdate(
+                            server.send(OutgoingReliableServerMessage {
+                                handle: *handle,
+                                message: EntityServerMessage::EntityUpdate(
                                     entity_id.to_bits(),
                                     root_entity_update.clone(),
                                     false,
                                     EntityWorldType::Main,
-                                ))
-                                .unwrap(),
-                            );
+                                ),
+                            });
                         }
                         None => {}
                     }
@@ -315,14 +313,10 @@ pub(crate) fn drop_current_item(
         match handle_to_entity.inv_map.get(&event.pickuper_entity) {
             Some(handle) => {
                 // Send UI/Control update to owning client.
-                server.send_message(
-                    *handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&InventoryServerMessage::DropItem(
-                        drop_slot.slot_name.clone(),
-                    ))
-                    .unwrap(),
-                );
+                server1.send(OutgoingReliableServerMessage {
+                    handle: *handle,
+                    message: InventoryServerMessage::DropItem(drop_slot.slot_name.clone()),
+                });
             }
             None => {
                 continue;
@@ -363,8 +357,6 @@ pub(crate) fn pickup_world_item_action(
     }
 }
 
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
 use crate::networking::InventoryServerMessage;
 
 /// Perform items picking up action.
@@ -387,7 +379,7 @@ pub(crate) fn pickup_world_item(
     colliders: Query<&Parent, With<Collider>>,
     rigidbody_positions: Query<&Transform>,
     mut commands: Commands,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
     query_pipeline: Res<RapierContext>,
     handle_to_entity: Res<HandleToEntity>,
     gridmap_main: Res<GridmapMain>,
@@ -544,16 +536,14 @@ pub(crate) fn pickup_world_item(
 
         match handle_to_entity.inv_map.get(&event.using_entity) {
             Some(handle) => {
-                server.send_message(
-                    *handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&InventoryServerMessage::PickedUpItem(
+                server.send(OutgoingReliableServerMessage {
+                    handle: *handle,
+                    message: InventoryServerMessage::PickedUpItem(
                         pickupable_entity_data.entity_name.clone(),
                         event.used_entity.to_bits(),
                         pickup_slot.slot_name.clone(),
-                    ))
-                    .unwrap(),
-                );
+                    ),
+                });
             }
             None => {}
         }
@@ -566,7 +556,7 @@ pub(crate) fn take_off_item(
     mut take_off_item_events: EventReader<InputTakeOffItem>,
     mut inventory_entities: Query<&mut Inventory>,
     mut pickupable_entities: Query<(&InventoryItem, &mut WorldMode, &EntityData)>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
     for event in take_off_item_events.iter() {
@@ -637,22 +627,21 @@ pub(crate) fn take_off_item(
 
         match handle_to_entity.inv_map.get(&event.entity) {
             Some(handle) => {
-                server.send_message(
-                    *handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&InventoryServerMessage::EquippedWornItem(
+                server.send(OutgoingReliableServerMessage {
+                    handle: *handle,
+                    message: InventoryServerMessage::EquippedWornItem(
                         takeoff_components.2.entity_name.clone(),
                         takeoff_entity.to_bits(),
                         takeoff_slot.slot_name.clone(),
-                    ))
-                    .unwrap(),
-                );
+                    ),
+                });
             }
             None => {}
         }
     }
 }
 use controller::controller::ControllerInput;
+use networking::server::NetworkingChatServerMessage;
 
 /// Perform throwing item action.
 #[cfg(feature = "server")]
@@ -683,14 +672,14 @@ pub(crate) fn throw_item(
     mut external_impulses: Query<&mut ExternalImpulse>,
     mut collision_groups: Query<&mut CollisionGroups>,
     mut commands: Commands,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    mut server1: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
+    mut server2: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
+
     gridmap_main: Res<GridmapMain>,
     handle_to_entity: Res<HandleToEntity>,
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
 ) {
-    use entity::networking::{EntityServerMessage, EntityWorldType};
-    use networking::server::NetworkingChatServerMessage;
-
     for event in throw_item_events.iter() {
         let pickuper_components_option = inventory_entities.get_mut(event.entity);
         let mut pickuper_components;
@@ -908,28 +897,24 @@ pub(crate) fn throw_item(
 
                     match handle_option {
                         Some(handle) => {
-                            server.send_message(
-                                *handle,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(&EntityServerMessage::EntityUpdate(
+                            server.send(OutgoingReliableServerMessage {
+                                handle: *handle,
+                                message: EntityServerMessage::EntityUpdate(
                                     entity_id.to_bits(),
                                     root_entity_update.clone(),
                                     false,
                                     EntityWorldType::Main,
-                                ))
-                                .unwrap(),
-                            );
-                            server.send_message(
-                                *handle,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                ),
+                            });
+                            server1.send(OutgoingReliableServerMessage {
+                                handle: *handle,
+                                message: NetworkingChatServerMessage::ChatMessage(
                                     character_examinable_component.name.get_name().to_owned()
                                         + " throws "
                                         + &item_examinable_component.name.get_a_name()
                                         + "!",
-                                ))
-                                .unwrap(),
-                            );
+                                ),
+                            });
                         }
                         None => {}
                     }
@@ -954,14 +939,10 @@ pub(crate) fn throw_item(
         match handle_to_entity.inv_map.get(&event.entity) {
             Some(handle) => {
                 // Send UI/Control update to owning client.
-                server.send_message(
-                    *handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&InventoryServerMessage::DropItem(
-                        drop_slot.slot_name.clone(),
-                    ))
-                    .unwrap(),
-                );
+                server2.send(OutgoingReliableServerMessage {
+                    handle: *handle,
+                    message: InventoryServerMessage::DropItem(drop_slot.slot_name.clone()),
+                });
             }
             None => {}
         }
@@ -974,7 +955,7 @@ pub(crate) fn wear_item(
     mut wear_item_events: EventReader<InputWearItem>,
     mut inventory_entities: Query<&mut Inventory>,
     mut wearable_entities: Query<(&InventoryItem, &mut WorldMode, &EntityData)>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
     handle_to_entity: Res<HandleToEntity>,
 ) {
     for event in wear_item_events.iter() {
@@ -1060,16 +1041,14 @@ pub(crate) fn wear_item(
 
         match handle_to_entity.inv_map.get(&event.wearer_entity) {
             Some(handle) => {
-                server.send_message(
-                    *handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&InventoryServerMessage::PickedUpItem(
+                server.send(OutgoingReliableServerMessage {
+                    handle: *handle,
+                    message: InventoryServerMessage::PickedUpItem(
                         wearable_components.2.entity_name.clone(),
                         wearable_entity.to_bits(),
                         wear_slot.slot_name.clone(),
-                    ))
-                    .unwrap(),
-                );
+                    ),
+                });
             }
             None => {}
         }

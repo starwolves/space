@@ -21,8 +21,9 @@ use super::fov::{DoryenMap, FOV_DISTANCE};
 use networking::server::ConnectedPlayer;
 
 use crate::networking::GridmapServerMessage;
-use bevy_renet::renet::RenetServer;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 
 /// Manage gridmap update events such as adding and removing cells.
 #[cfg(feature = "server")]
@@ -30,7 +31,7 @@ pub(crate) fn gridmap_updates_manager(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
     sensers: Query<(Entity, &Senser, &ConnectedPlayer)>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
 ) {
     for (cell_id, cell_update) in gridmap_main.updates.iter_mut() {
         let cell_coords = to_doryen_coordinates(cell_id.x, cell_id.z);
@@ -41,31 +42,27 @@ pub(crate) fn gridmap_updates_manager(
             {
                 cell_update.entities_received.push(senser_entity);
                 if cell_update.cell_data.item != -1 {
-                    server.send_message(
-                        connected_player_component.handle,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&GridmapServerMessage::AddCell(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: connected_player_component.handle,
+                        message: GridmapServerMessage::AddCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             cell_update.cell_data.item,
                             cell_update.cell_data.orientation,
                             GridMapLayer::Main,
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 } else {
-                    server.send_message(
-                        connected_player_component.handle,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&GridmapServerMessage::RemoveCell(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: connected_player_component.handle,
+                        message: GridmapServerMessage::RemoveCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             GridMapLayer::Main,
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 }
             }
         }
@@ -81,31 +78,27 @@ pub(crate) fn gridmap_updates_manager(
             {
                 cell_update.entities_received.push(senser_entity);
                 if cell_update.cell_data.item != -1 {
-                    server.send_message(
-                        connected_player_component.handle,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&GridmapServerMessage::AddCell(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: connected_player_component.handle,
+                        message: GridmapServerMessage::AddCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             cell_update.cell_data.item,
                             cell_update.cell_data.orientation,
                             GridMapLayer::Details1,
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 } else {
-                    server.send_message(
-                        connected_player_component.handle,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&GridmapServerMessage::RemoveCell(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: connected_player_component.handle,
+                        message: GridmapServerMessage::RemoveCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
                             GridMapLayer::Details1,
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 }
             }
         }

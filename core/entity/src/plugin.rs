@@ -3,6 +3,7 @@ use std::env;
 use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
+use networking::typenames::{init_reliable_message, MessageSender};
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use crate::actions::build_actions;
@@ -16,7 +17,9 @@ use crate::examine::{
 use crate::finalize_entity_updates::finalize_entity_updates;
 use crate::init::{initialize_console_commands, startup_entities};
 use crate::meta::EntityDataResource;
-use crate::networking::{incoming_messages, load_entity, LoadEntity};
+use crate::networking::{
+    incoming_messages, load_entity, EntityClientMessage, EntityServerMessage, LoadEntity,
+};
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
 
@@ -90,5 +93,8 @@ impl Plugin for EntityPlugin {
                 .add_event::<DespawnEntity>()
                 .add_event::<LoadEntity>();
         }
+
+        init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
+        init_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
     }
 }

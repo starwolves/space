@@ -1,6 +1,8 @@
 use std::env;
 
+use crate::networking::{ActionsClientMessage, ActionsServerMessage};
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use networking::typenames::{init_reliable_message, MessageSender};
 use resources::labels::ActionsLabels;
 
 use crate::{
@@ -40,5 +42,8 @@ impl Plugin for ActionsPlugin {
                 .add_event::<InputListActionsEntity>()
                 .add_event::<InputAction>();
         }
+
+        init_reliable_message::<ActionsClientMessage>(app, MessageSender::Client);
+        init_reliable_message::<ActionsServerMessage>(app, MessageSender::Server);
     }
 }

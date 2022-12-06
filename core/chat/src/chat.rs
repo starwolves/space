@@ -177,22 +177,25 @@ pub struct NewChatMessage {
 use pawn::pawn::Communicator;
 use pawn::pawn::Pawn;
 
-use bevy::prelude::ResMut;
-use bevy_renet::renet::RenetServer;
+use entity::networking::{EntityServerMessage, EntityWorldType};
+use networking::server::NetworkingChatServerMessage;
+use sfx::networking::SfxServerMessage;
+
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 /// It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
 #[cfg(feature = "server")]
 pub(crate) fn chat_message(
     mut new_chat_messages: EventReader<NewChatMessage>,
     soft_player_query: Query<&SoftPlayer>,
     global_listeners: Query<(&ConnectedPlayer, &PersistentPlayerData)>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
+    mut server1: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    mut server2: EventWriter<OutgoingReliableServerMessage<SfxServerMessage>>,
     radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,
     handle_to_entity: Res<HandleToEntity>,
     player_pawns: Query<(&Pawn, &Transform, &Sensable)>,
 ) {
-    use entity::networking::{EntityServerMessage, EntityWorldType};
-    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
-
     for new_message in new_chat_messages.iter() {
         let mut messaging_player_state = &MessagingPlayerState::Alive;
 
@@ -375,14 +378,10 @@ pub(crate) fn chat_message(
                             continue;
                         }
 
-                        server.send_message(
-                            connected_player_component.handle,
-                            RENET_RELIABLE_CHANNEL_ID,
-                            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
-                                message.clone(),
-                            ))
-                            .unwrap(),
-                        );
+                        server.send(OutgoingReliableServerMessage {
+                            handle: connected_player_component.handle,
+                            message: NetworkingChatServerMessage::ChatMessage(message.clone()),
+                        });
                     }
                 }
                 Err(_rr) => {
@@ -1064,15 +1063,12 @@ pub(crate) fn chat_message(
                         let listener_handle_result = handle_to_entity.inv_map.get(&entity);
                         match listener_handle_result {
                             Some(listener_handle) => {
-                                server.send_message(
-                                    *listener_handle,
-                                    RENET_RELIABLE_CHANNEL_ID,
-                                    bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                                server.send(OutgoingReliableServerMessage {
+                                    handle: *listener_handle,
+                                    message: NetworkingChatServerMessage::ChatMessage(
                                         radio_message.clone(),
-                                    ))
-                                    .unwrap(),
-                                );
-
+                                    ),
+                                });
                                 handles_radio.push(*listener_handle);
                             }
                             None => {}
@@ -1177,59 +1173,43 @@ pub(crate) fn chat_message(
 
                                 match distance {
                                     Distance::Nearby => {
-                                        server.send_message(
-                                            *listener_handle,
-                                            RENET_RELIABLE_CHANNEL_ID,
-                                            bincode::serialize(
-                                                &NetworkingChatServerMessage::ChatMessage(
-                                                    proximity_message_nearby.clone(),
-                                                ),
-                                            )
-                                            .unwrap(),
-                                        );
+                                        server.send(OutgoingReliableServerMessage {
+                                            handle: *listener_handle,
+                                            message: NetworkingChatServerMessage::ChatMessage(
+                                                proximity_message_nearby.clone(),
+                                            ),
+                                        });
                                     }
                                     Distance::Further => {
-                                        server.send_message(
-                                            *listener_handle,
-                                            RENET_RELIABLE_CHANNEL_ID,
-                                            bincode::serialize(
-                                                &NetworkingChatServerMessage::ChatMessage(
-                                                    proximity_message_further.clone(),
-                                                ),
-                                            )
-                                            .unwrap(),
-                                        );
+                                        server.send(OutgoingReliableServerMessage {
+                                            handle: *listener_handle,
+                                            message: NetworkingChatServerMessage::ChatMessage(
+                                                proximity_message_further.clone(),
+                                            ),
+                                        });
                                     }
                                     Distance::Far => {
-                                        server.send_message(
-                                            *listener_handle,
-                                            RENET_RELIABLE_CHANNEL_ID,
-                                            bincode::serialize(
-                                                &NetworkingChatServerMessage::ChatMessage(
-                                                    proximity_message_far.clone(),
-                                                ),
-                                            )
-                                            .unwrap(),
-                                        );
+                                        server.send(OutgoingReliableServerMessage {
+                                            handle: *listener_handle,
+                                            message: NetworkingChatServerMessage::ChatMessage(
+                                                proximity_message_far.clone(),
+                                            ),
+                                        });
                                     }
                                 }
 
                                 match new_message.send_entity_update {
                                     true => match new_message.messenger_entity_option {
                                         Some(ent) => {
-                                            server.send_message(
-                                                *listener_handle,
-                                                RENET_RELIABLE_CHANNEL_ID,
-                                                bincode::serialize(
-                                                    &EntityServerMessage::EntityUpdate(
-                                                        ent.to_bits(),
-                                                        billboard_entity_update.clone(),
-                                                        false,
-                                                        EntityWorldType::Main,
-                                                    ),
-                                                )
-                                                .unwrap(),
-                                            );
+                                            server1.send(OutgoingReliableServerMessage {
+                                                handle: *listener_handle,
+                                                message: EntityServerMessage::EntityUpdate(
+                                                    ent.to_bits(),
+                                                    billboard_entity_update.clone(),
+                                                    false,
+                                                    EntityWorldType::Main,
+                                                ),
+                                            });
                                             handles_direct_proximity.push(*listener_handle);
                                         }
                                         None => {
@@ -1250,20 +1230,18 @@ pub(crate) fn chat_message(
         }
 
         for player_handle in handles_direct_proximity.iter() {
-            server.send_message(
-                *player_handle,
-                RENET_RELIABLE_CHANNEL_ID,
-                bincode::serialize(&PlaySoundProximityMessageData::get_message(position)).unwrap(),
-            );
+            server2.send(OutgoingReliableServerMessage {
+                handle: *player_handle,
+                message: PlaySoundProximityMessageData::get_message(position),
+            });
         }
 
         for player_handle in handles_radio.iter() {
             if !handles_direct_proximity.contains(player_handle) {
-                server.send_message(
-                    *player_handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&PlaySoundRadioMessage::get_message()).unwrap(),
-                );
+                server2.send(OutgoingReliableServerMessage {
+                    handle: *player_handle,
+                    message: PlaySoundRadioMessage::get_message(),
+                });
             }
         }
     }
@@ -1290,10 +1268,8 @@ pub(crate) fn send_entity_proximity_messages(
     sensers: Query<(Entity, &Senser)>,
     positions: Query<&Transform>,
     handle_to_entity: Res<HandleToEntity>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
 ) {
-    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
-
     for entity_proximity_message in entity_proximity_messages.iter() {
         for proximity_entity in entity_proximity_message.entities.iter() {
             let entity_transform;
@@ -1319,14 +1295,12 @@ pub(crate) fn send_entity_proximity_messages(
                 ) {
                     match handle_to_entity.inv_map.get(&entity) {
                         Some(handle) => {
-                            server.send_message(
-                                *handle,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                            server.send(OutgoingReliableServerMessage {
+                                handle: *handle,
+                                message: NetworkingChatServerMessage::ChatMessage(
                                     entity_proximity_message.message.clone(),
-                                ))
-                                .unwrap(),
-                            );
+                                ),
+                            });
                         }
                         None => {}
                     }

@@ -87,23 +87,22 @@ impl ActionData {
         return false;
     }
 }
-use bevy_renet::renet::RenetServer;
 use networking::server::HandleToEntity;
 
 use crate::networking::NetAction;
 
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
+
+use crate::networking::ActionsServerMessage;
 #[cfg(feature = "server")]
 /// Send lists of approved actions back to player.
 pub(crate) fn list_action_data_finalizer(
     building_actions: Res<BuildingActions>,
     handle_to_entity: Res<HandleToEntity>,
     action_data_requests: Res<ListActionDataRequests>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<ActionsServerMessage>>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
-    use crate::networking::ActionsServerMessage;
-
     for action_data in building_actions.list.iter() {
         let action_data_request;
         match action_data_requests.list.get(&action_data.incremented_i) {
@@ -147,11 +146,12 @@ pub(crate) fn list_action_data_finalizer(
         }
 
         match handle {
-            Some(h) => server.send_message(
-                h,
-                RENET_RELIABLE_CHANNEL_ID,
-                bincode::serialize(&ActionsServerMessage::TabData(net_action_datas)).unwrap(),
-            ),
+            Some(h) => {
+                server.send(OutgoingReliableServerMessage {
+                    handle: h,
+                    message: ActionsServerMessage::TabData(net_action_datas),
+                });
+            }
             None => {}
         }
     }

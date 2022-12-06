@@ -369,27 +369,24 @@ pub struct GridmapExamineMessages {
     pub messages: Vec<InputExamineMap>,
 }
 
-use bevy_renet::renet::RenetServer;
-use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
+use networking::server::NetworkingChatServerMessage;
 use text_api::core::END_ASTRIX;
 
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 /// Finalize examining the ship gridmap.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
 ) {
     for event in examine_map_events.messages.iter_mut() {
         event.message = event.message.to_string() + END_ASTRIX;
 
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
-                event.message.clone(),
-            ))
-            .unwrap(),
-        );
+        server.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: NetworkingChatServerMessage::ChatMessage(event.message.clone()),
+        });
     }
 
     examine_map_events.messages.clear();

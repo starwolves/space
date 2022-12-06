@@ -2,6 +2,7 @@ use bevy::prelude::ResMut;
 use networking::server::GridMapLayer;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 use crate::core::InputAction;
 use crate::core::InputListActionsEntity;
@@ -16,7 +17,7 @@ use networking::server::HandleToEntity;
 use bevy::prelude::{EventWriter, Res};
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum ActionsClientMessage {
     TabDataEntity(u64),
@@ -140,7 +141,7 @@ pub(crate) fn incoming_messages(
     }
 }
 /// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum ActionsServerMessage {
     TabData(Vec<NetAction>),

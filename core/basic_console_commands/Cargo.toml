@@ -18,8 +18,6 @@ version = "0.9.0"
 default-features = false
 
 [dependencies]
-bevy_renet = "0.0.6"
-bincode = "1.3.3"
 
 console_commands = { path = "../console_commands",  features=["server"] }
 gridmap = { path = "../gridmap",  features=["server"] }

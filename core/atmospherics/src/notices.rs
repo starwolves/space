@@ -22,13 +22,14 @@ pub struct AtmosphericsNotices {
 }
 use networking::server::ConnectedPlayer;
 
-use bevy::prelude::ResMut;
-use bevy_renet::renet::RenetServer;
+use ui::networking::UiServerMessage;
 
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 /// Manage visible atmospherics notices for clients.
 #[cfg(feature = "server")]
 pub(crate) fn atmospherics_notices(
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
     atmospherics_resource: Res<AtmosphericsResource>,
     pawns: Query<(
         Entity,
@@ -39,9 +40,6 @@ pub(crate) fn atmospherics_notices(
     )>,
     mut atmos_notices: Local<AtmosphericsNotices>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-    use ui::networking::UiServerMessage;
-
     for (
         pawn_entity,
         _pawn_component,
@@ -116,18 +114,16 @@ pub(crate) fn atmospherics_notices(
         }
 
         for add in added_notices {
-            server.send_message(
-                connected_player_component.handle,
-                RENET_RELIABLE_CHANNEL_ID,
-                bincode::serialize(&UiServerMessage::UIAddNotice(add)).unwrap(),
-            );
+            server.send(OutgoingReliableServerMessage {
+                handle: connected_player_component.handle,
+                message: UiServerMessage::UIAddNotice(add),
+            });
         }
         for remove in removed_notices {
-            server.send_message(
-                connected_player_component.handle,
-                RENET_RELIABLE_CHANNEL_ID,
-                bincode::serialize(&UiServerMessage::UIRemoveNotice(remove)).unwrap(),
-            );
+            server.send(OutgoingReliableServerMessage {
+                handle: connected_player_component.handle,
+                message: UiServerMessage::UIRemoveNotice(remove),
+            });
         }
     }
 }

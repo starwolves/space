@@ -8,9 +8,10 @@ use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::TextTreeBit;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum UiClientMessage {
     TextTreeInput(Option<u64>, String, String, String),
@@ -69,7 +70,7 @@ pub struct TextTreeInputSelection {
     pub belonging_entity: Option<u64>,
 }
 /// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum UiServerMessage {
     TextTreeSelection(

@@ -1,10 +1,11 @@
 use std::env;
 
 use bevy::prelude::{App, Plugin};
+use networking::typenames::{init_reliable_message, MessageSender};
 
 use crate::{
     button::button_hover_visuals,
-    networking::{incoming_messages, TextTreeInputSelection},
+    networking::{incoming_messages, TextTreeInputSelection, UiClientMessage, UiServerMessage},
     text_input::{
         focus_events, input_characters, input_mouse_press_unfocus, ui_events, FocusTextInput,
         TextInput, TextInputLabel, UnfocusTextInput,
@@ -32,5 +33,8 @@ impl Plugin for UiPlugin {
                 .add_event::<FocusTextInput>()
                 .add_system(button_hover_visuals);
         }
+
+        init_reliable_message::<UiClientMessage>(app, MessageSender::Client);
+        init_reliable_message::<UiServerMessage>(app, MessageSender::Server);
     }
 }

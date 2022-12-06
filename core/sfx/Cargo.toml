@@ -20,6 +20,7 @@ default-features = false
 [dependencies]
 rand = "0.8.5"
 serde = "1.0.147"
+typename = "0.1.2"
 
 entity = { path = "../entity" ,  features=["server"]}
 networking = { path = "../networking",  features=["server"] }
