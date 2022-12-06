@@ -1,9 +1,9 @@
 use bevy::{
     math::Vec3,
-    prelude::{Entity, Local, Query, Res, ResMut, Transform, With, Without},
+    prelude::{Entity, Local, Query, Res, Transform, With, Without},
     time::Time,
 };
-use networking::{plugin::RENET_UNRELIABLE_CHANNEL_ID, server::UnreliableServerMessage};
+use networking::server::UnreliableServerMessage;
 
 /// All transform interpolation rates.
 #[derive(Debug)]
@@ -24,10 +24,11 @@ pub(crate) struct InterpolationFrame {
 }
 use crate::sensable::Sensable;
 use bevy_rapier3d::prelude::Velocity;
-use bevy_renet::renet::RenetServer;
 use networking::server::HandleToEntity;
 
 use crate::entity_data::CachedBroadcastTransform;
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingUnreliableServerMessage;
 
 use bevy_rapier3d::prelude::RigidBody;
 use networking::server::ConnectedPlayer;
@@ -37,7 +38,7 @@ use physics::physics::RigidBodyDisabled;
 pub(crate) fn broadcast_interpolation_transforms(
     time: Res<Time>,
 
-    mut net: ResMut<RenetServer>,
+    mut net: EventWriter<OutgoingUnreliableServerMessage<UnreliableServerMessage>>,
     handle_to_entity: Res<HandleToEntity>,
     mut query_interpolated_entities: Query<
         (
@@ -52,8 +53,6 @@ pub(crate) fn broadcast_interpolation_transforms(
     >,
     mut interpolation_frame: Local<InterpolationFrame>,
 ) {
-    use bincode::serialize;
-
     interpolation_frame.i += 1;
 
     if interpolation_frame.i > 24 {
@@ -144,21 +143,17 @@ pub(crate) fn broadcast_interpolation_transforms(
 
             match player_handle_option {
                 Some(handle) => {
-                    net.send_message(
-                        *handle,
-                        RENET_UNRELIABLE_CHANNEL_ID,
-                        serialize::<UnreliableServerMessage>(
-                            &UnreliableServerMessage::TransformUpdate(
-                                interpolated_entity.to_bits(),
-                                rigid_body_translation,
-                                rigid_body_rotation,
-                                velocity_option,
-                                current_time_stamp as u64,
-                                rate_u,
-                            ),
-                        )
-                        .unwrap(),
-                    );
+                    net.send(OutgoingUnreliableServerMessage {
+                        handle: *handle,
+                        message: UnreliableServerMessage::TransformUpdate(
+                            interpolated_entity.to_bits(),
+                            rigid_body_translation,
+                            rigid_body_rotation,
+                            velocity_option,
+                            current_time_stamp as u64,
+                            rate_u,
+                        ),
+                    });
                 }
                 None => {
                     continue;

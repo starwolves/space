@@ -7,10 +7,11 @@ use networking::server::{ConnectedPlayer, HandleToEntity};
 use crate::{entity_data::EntityUpdates, sensable::Sensable};
 
 use crate::entity_data::personalise;
+use bevy::prelude::EventWriter;
 
-use bevy::prelude::ResMut;
-use bevy_renet::renet::RenetServer;
+use networking::typenames::OutgoingReliableServerMessage;
 
+use crate::networking::{EntityServerMessage, EntityWorldType};
 /// Finalize entity updates of this frame and send them to Godot clients.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_entity_updates(
@@ -25,12 +26,8 @@ pub(crate) fn finalize_entity_updates(
         Changed<EntityUpdates>,
     >,
     handle_to_entity: Res<HandleToEntity>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
-    use crate::networking::{EntityServerMessage, EntityWorldType};
-
     for (
         visible_entity,
         visible_component_option,
@@ -71,17 +68,15 @@ pub(crate) fn finalize_entity_updates(
 
                         match handle_to_entity.inv_map.get(&sensed_by_entity) {
                             Some(handle) => {
-                                server.send_message(
-                                    *handle,
-                                    RENET_RELIABLE_CHANNEL_ID,
-                                    bincode::serialize(&EntityServerMessage::EntityUpdate(
+                                server.send(OutgoingReliableServerMessage {
+                                    handle: *handle,
+                                    message: EntityServerMessage::EntityUpdate(
                                         visible_entity.to_bits(),
                                         updates_data.clone(),
                                         false,
                                         EntityWorldType::Main,
-                                    ))
-                                    .unwrap(),
-                                );
+                                    ),
+                                });
                             }
                             None => {}
                         }
@@ -111,18 +106,15 @@ pub(crate) fn finalize_entity_updates(
                 if updates_data.len() == 0 {
                     continue;
                 }
-
-                server.send_message(
-                    showcase_component.handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&EntityServerMessage::EntityUpdate(
+                server.send(OutgoingReliableServerMessage {
+                    handle: showcase_component.handle,
+                    message: EntityServerMessage::EntityUpdate(
                         visible_entity.to_bits(),
                         updates_data,
                         false,
                         EntityWorldType::Main,
-                    ))
-                    .unwrap(),
-                );
+                    ),
+                })
             }
             None => {}
         }

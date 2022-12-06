@@ -1,6 +1,7 @@
 use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use networking::typenames::{init_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::labels::StartupLabels;
 
@@ -8,7 +9,7 @@ use crate::{
     commands::{AllConsoleCommands, ConsoleCommandsLabels, InputConsoleCommand},
     connections::configure,
     init::initialize_console_commands,
-    networking::incoming_messages,
+    networking::{incoming_messages, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage},
 };
 
 use bevy::app::CoreStage::PreUpdate;
@@ -32,5 +33,8 @@ impl Plugin for ConsoleCommandsPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         }
+
+        init_reliable_message::<ConsoleCommandsClientMessage>(app, MessageSender::Client);
+        init_reliable_message::<ConsoleCommandsServerMessage>(app, MessageSender::Server);
     }
 }

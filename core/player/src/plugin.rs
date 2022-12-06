@@ -5,13 +5,17 @@ use crate::{
     connection::{AuthidI, SendServerConfiguration},
     connections::{
         configure, confirm_connection, finished_configuration, server_events,
-        PlayerAwaitingBoarding,
+        PlayerAwaitingBoarding, PlayerServerMessage,
     },
 };
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::{App, Plugin, SystemLabel};
 use iyes_loopless::prelude::IntoConditionalSystem;
-use networking::{client::connecting, server::HandleToEntity};
+use networking::{
+    client::is_client_connected,
+    server::HandleToEntity,
+    typenames::{init_reliable_message, MessageSender},
+};
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -42,7 +46,8 @@ impl Plugin for PlayerPlugin {
                 .add_system(finished_configuration.after(ConfigurationLabel::Main))
                 .add_system(server_events.before(ConfigurationLabel::SpawnEntity));
         } else {
-            app.add_system(confirm_connection.run_if(connecting));
+            app.add_system(confirm_connection.run_if(is_client_connected));
         }
+        init_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);
     }
 }

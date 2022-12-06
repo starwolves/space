@@ -3,6 +3,7 @@ use bevy::{
     prelude::{info, Component, Entity, Quat, ResMut, Resource},
 };
 use serde::{Deserialize, Serialize};
+use typename::TypeName;
 
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
@@ -63,7 +64,7 @@ pub(crate) fn startup_server_listen_connections() -> RenetServer {
 pub(crate) fn souls(mut net: ResMut<RenetServer>) {
     for handle in net.clients_id().into_iter() {
         while let Some(message) = net.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<NetworkingMessage, _> =
+            let client_message_result: Result<NetworkingClientMessage, _> =
                 bincode::deserialize(&message);
             let client_message;
             match client_message_result {
@@ -78,7 +79,7 @@ pub(crate) fn souls(mut net: ResMut<RenetServer>) {
                 //                                        |
                 // Where the souls of the players are     |
                 //   while they're connected.             V
-                NetworkingMessage::HeartBeat => { /* <3 */ }
+                NetworkingClientMessage::HeartBeat => { /* <3 */ }
             }
         }
     }
@@ -92,14 +93,14 @@ pub enum GridMapLayer {
 }
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum NetworkingMessage {
+pub enum NetworkingClientMessage {
     HeartBeat,
 }
 
 /// This message gets sent at high intervals.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum UnreliableServerMessage {
     TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
@@ -187,14 +188,14 @@ impl Default for ConnectedPlayer {
 
 /// Gets serialized and sent over the net, this is the server message.
 /// This should be inside core/chat/ but this causes cyclic dependency for the time being.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum NetworkingChatServerMessage {
     ChatMessage(String),
 }
 
 /// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum NetworkingClientServerMessage {
     Awoo,

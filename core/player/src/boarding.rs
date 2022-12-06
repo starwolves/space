@@ -17,25 +17,25 @@ pub struct BoardingPlayer {
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
+use crate::connections::PlayerServerMessage;
 use crate::spawn_points::SpawnPoints;
 use crate::spawn_points::Spawning;
-use bevy_renet::renet::RenetServer;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 
+use bevy::prelude::EventWriter;
 use bevy::time::TimerMode;
+use networking::typenames::OutgoingReliableServerMessage;
 use text_api::core::get_talk_spaces;
+
 /// Perform initialization of spawning player.
 #[cfg(feature = "server")]
 pub(crate) fn done_boarding(
     mut spawn_points: ResMut<SpawnPoints>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
     mut boarding_player_event: EventReader<BoardingPlayer>,
     mut commands: Commands,
 
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,
 ) {
-    use crate::connections::PlayerServerMessage;
-
     for boarding_player in boarding_player_event.iter() {
         let player_character_name = boarding_player.player_character_name.clone();
         let player_handle = boarding_player.player_handle;
@@ -63,20 +63,17 @@ pub(crate) fn done_boarding(
         if spawn_points.i >= spawn_points.list.len() {
             spawn_points.i = 0;
         }
-
-        server.send_message(
-            player_handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&PlayerServerMessage::InitGame).unwrap(),
-        );
+        server.send(OutgoingReliableServerMessage {
+            handle: player_handle,
+            message: PlayerServerMessage::InitGame,
+        });
 
         let talk_spaces = get_talk_spaces();
 
-        server.send_message(
-            player_handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&PlayerServerMessage::ConfigTalkSpaces(talk_spaces)).unwrap(),
-        );
+        server.send(OutgoingReliableServerMessage {
+            handle: player_handle,
+            message: PlayerServerMessage::ConfigTalkSpaces(talk_spaces),
+        });
 
         asana_boarding_announcements.announcements.push((
             ";Security Officer ".to_owned() + &player_character_name + " is now on board.",
@@ -110,14 +107,13 @@ use ui::networking::UiServerMessage;
 #[cfg(feature = "server")]
 pub(crate) fn on_boarding(
     query: Query<&ConnectedPlayer, Added<Boarding>>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
 ) {
     for connected_player_component in query.iter() {
-        server.send_message(
-            connected_player_component.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&UiServerMessage::UIRequestInput("setupUI".to_string())).unwrap(),
-        );
+        server.send(OutgoingReliableServerMessage {
+            handle: connected_player_component.handle,
+            message: UiServerMessage::UIRequestInput("setupUI".to_string()),
+        });
     }
 }
 

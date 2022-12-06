@@ -46,10 +46,12 @@ pub enum UIDamageType {
 }
 use networking::server::ConnectedPlayer;
 
-use bevy_renet::renet::RenetServer;
 use entity::health::HealthComponent;
 use entity::health::HealthContainer;
 
+use bevy::prelude::EventWriter;
+use entity::networking::{EntityServerMessage, EntityWorldType};
+use networking::typenames::OutgoingReliableServerMessage;
 /// Manage sending UI health updates to Godot client.
 #[cfg(feature = "server")]
 pub(crate) fn health_ui_update(
@@ -58,11 +60,8 @@ pub(crate) fn health_ui_update(
         Changed<HealthComponent>,
     >,
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
-    use entity::networking::{EntityServerMessage, EntityWorldType};
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
     for (entity, connected_player_component, health_component) in
         updated_player_health_entities.iter_mut()
     {
@@ -522,17 +521,15 @@ pub(crate) fn health_ui_update(
                 }
 
                 if new_update && connected_player_component.connected {
-                    server.send_message(
-                        connected_player_component.handle,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&EntityServerMessage::EntityUpdate(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: connected_player_component.handle,
+                        message: EntityServerMessage::EntityUpdate(
                             entity.to_bits(),
                             entity_updates_map,
                             false,
                             EntityWorldType::HealthUI,
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 }
             }
             _ => (),

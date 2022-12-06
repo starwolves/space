@@ -22,3 +22,13 @@ resources = { path = "../core/resources",  features=["client"] }
 ui = { path = "../core/ui",  features=["client"] }
 setup_ui = { path = "../core/setup_ui",  features=["client"] }
 player = { path = "../core/player",  features=["client"] }
+actions = { path = "../core/actions",  features=["client"] }
+chat = { path = "../core/chat",  features=["client"] }
+console_commands = { path = "../core/console_commands",  features=["client"] }
+controller = { path = "../core/controller",  features=["client"] }
+entity = { path = "../core/entity",  features=["client"] }
+gridmap = { path = "../core/gridmap",  features=["client"] }
+inventory = { path = "../core/inventory",  features=["client"] }
+map = { path = "../core/map",  features=["client"] }
+pawn = { path = "../core/pawn",  features=["client"] }
+sfx = { path = "../core/sfx",  features=["client"] }

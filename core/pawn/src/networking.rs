@@ -10,9 +10,10 @@ use networking::server::HandleToEntity;
 use player::names::InputAccountName;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum PawnClientMessage {
     AccountName(String),

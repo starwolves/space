@@ -120,19 +120,16 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
 pub trait BaseEntitySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> BaseEntityBundle;
 }
-use bevy_renet::renet::RenetServer;
+use networking::typenames::OutgoingReliableServerMessage;
 
+use crate::networking::EntityServerMessage;
 /// Spawn base entity components handler.
 #[cfg(feature = "server")]
 pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
-    use crate::networking::EntityServerMessage;
-
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event
             .summoner
@@ -154,10 +151,9 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
 
         match &spawn_event.spawn_data.showcase_data_option {
             Some(showcase_data) => {
-                server.send_message(
-                    showcase_data.handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&EntityServerMessage::LoadEntity(
+                server.send(OutgoingReliableServerMessage {
+                    handle: showcase_data.handle,
+                    message: EntityServerMessage::LoadEntity(
                         "entity".to_string(),
                         base_entity_bundle.entity_name,
                         HashMap::new(),
@@ -166,9 +162,8 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
                         "main".to_string(),
                         ENTITY_SPAWN_PARENT.to_string(),
                         false,
-                    ))
-                    .unwrap(),
-                );
+                    ),
+                });
             }
             None => {}
         }

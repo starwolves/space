@@ -1,5 +1,6 @@
 use bevy::prelude::ResMut;
 use serde::{Deserialize, Serialize};
+use typename::TypeName;
 
 use crate::chat::NewChatMessage;
 use bevy::prelude::warn;
@@ -10,7 +11,7 @@ use networking::server::HandleToEntity;
 use bevy::prelude::{EventWriter, Res};
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum ChatClientMessage {
     InputChatMessage(String),

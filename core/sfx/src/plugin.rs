@@ -5,9 +5,10 @@ use bevy::{
     time::FixedTimestep,
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
+use networking::typenames::{init_reliable_message, MessageSender};
 use resources::labels::PostUpdateLabels;
 
-use crate::{entity_update::SfxAutoDestroyTimers, timers::free_sfx};
+use crate::{entity_update::SfxAutoDestroyTimers, networking::SfxServerMessage, timers::free_sfx};
 
 use super::{
     entity_update::{repeating_sfx_update, sfx_update},
@@ -37,5 +38,6 @@ impl Plugin for SfxPlugin {
             .add_system(free_sfx)
             .init_resource::<SfxAutoDestroyTimers>();
         }
+        init_reliable_message::<SfxServerMessage>(app, MessageSender::Server);
     }
 }

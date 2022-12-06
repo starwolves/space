@@ -66,27 +66,23 @@ pub fn examine_entity(
         }
     }
 }
-use bevy_renet::renet::RenetServer;
+use networking::server::NetworkingChatServerMessage;
 
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 /// Finalize examining an entity.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_examine_entity(
     mut examine_map_events: ResMut<ExamineEntityMessages>,
-    mut server: ResMut<RenetServer>,
+    mut net: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
 ) {
-    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
-
     for event in examine_map_events.messages.iter_mut() {
         event.message = event.message.to_string() + "\n" + ASTRIX;
 
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
-                event.message.clone(),
-            ))
-            .unwrap(),
-        );
+        net.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: NetworkingChatServerMessage::ChatMessage(event.message.clone()),
+        });
     }
 
     examine_map_events.messages.clear();

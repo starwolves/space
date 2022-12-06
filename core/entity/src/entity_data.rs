@@ -4,14 +4,8 @@ use bevy::{
     prelude::{warn, Changed, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
     time::{FixedTimesteps, Time},
 };
-use networking::{
-    plugin::RENET_UNRELIABLE_CHANNEL_ID,
-    server::{EntityUpdateData, UnreliableServerMessage},
-};
+use networking::server::{EntityUpdateData, UnreliableServerMessage};
 use serde::Deserialize;
-
-use bevy_renet::renet::RenetServer;
-use bincode::serialize;
 
 use crate::{
     meta::{EntityDataProperties, EntityDataResource},
@@ -32,6 +26,7 @@ pub fn initialize_entity_data(
     entity_data.data.push(entity_properties);
 }
 use networking::server::HandleToEntity;
+use networking::typenames::OutgoingUnreliableServerMessage;
 
 /// Broadcast transforms of entities to players for interpolation.
 #[cfg(feature = "server")]
@@ -39,7 +34,7 @@ pub(crate) fn broadcast_position_updates(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
 
-    mut net: ResMut<RenetServer>,
+    mut net: EventWriter<OutgoingUnreliableServerMessage<UnreliableServerMessage>>,
     handle_to_entity: Res<HandleToEntity>,
     mut query_update_transform_entities: Query<(
         Entity,
@@ -82,18 +77,14 @@ pub(crate) fn broadcast_position_updates(
 
             match player_handle_option {
                 Some(handle) => {
-                    net.send_message(
-                        *handle,
-                        RENET_UNRELIABLE_CHANNEL_ID,
-                        serialize::<UnreliableServerMessage>(
-                            &UnreliableServerMessage::PositionUpdate(
-                                entity.to_bits(),
-                                new_position,
-                                current_time_stamp as u64,
-                            ),
-                        )
-                        .unwrap(),
-                    );
+                    net.send(OutgoingUnreliableServerMessage {
+                        handle: *handle,
+                        message: UnreliableServerMessage::PositionUpdate(
+                            entity.to_bits(),
+                            new_position,
+                            current_time_stamp as u64,
+                        ),
+                    });
                 }
                 None => {
                     continue;

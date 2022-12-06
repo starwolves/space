@@ -2,6 +2,7 @@ use bevy::prelude::{Commands, EventReader, EventWriter, Res, ResMut};
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use resources::core::{ServerId, TickRate};
 use serde::{Deserialize, Serialize};
+use typename::TypeName;
 use world_environment::environment::WorldEnvironment;
 
 use crate::{
@@ -9,8 +10,8 @@ use crate::{
     connection::{AuthidI, SendServerConfiguration},
     names::UsedNames,
 };
-use bincode::serialize;
-use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingClientServerMessage};
+use networking::server::NetworkingClientServerMessage;
+use networking::typenames::OutgoingReliableServerMessage;
 
 #[cfg(feature = "server")]
 pub(crate) fn configure(
@@ -21,34 +22,25 @@ pub(crate) fn configure(
     mut used_names: ResMut<UsedNames>,
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<NetworkingClientServerMessage>>,
+    mut server1: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
 ) {
     for event in config_events.iter() {
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            serialize(&NetworkingClientServerMessage::Awoo).unwrap(),
-        );
-
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            serialize(&PlayerServerMessage::ConfigTickRate(tick_rate.physics_rate)).unwrap(),
-        );
-
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            serialize(&PlayerServerMessage::ConfigServerEntityId(
-                server_id.id.to_bits(),
-            ))
-            .unwrap(),
-        );
-
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            serialize(&PlayerServerMessage::ConfigRepeatingSFX(
+        server.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: NetworkingClientServerMessage::Awoo,
+        });
+        server1.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::ConfigTickRate(tick_rate.physics_rate),
+        });
+        server1.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::ConfigServerEntityId(server_id.id.to_bits()),
+        });
+        server1.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::ConfigRepeatingSFX(
                 "concrete_walking_footsteps".to_string(),
                 (1..=39)
                     .map(|i| {
@@ -57,14 +49,12 @@ pub(crate) fn configure(
                     )
                     })
                     .collect(),
-            ))
-            .unwrap(),
-        );
+            ),
+        });
 
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            serialize(&PlayerServerMessage::ConfigRepeatingSFX(
+        server1.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::ConfigRepeatingSFX(
                 "concrete_sprinting_footsteps".to_string(),
                 [
                     4, 5, 7, 9, 10, 12, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 25, 27, 28, 30, 31,
@@ -77,9 +67,8 @@ pub(crate) fn configure(
                     )
                 })
                 .collect(),
-            ))
-            .unwrap(),
-        );
+            ),
+        });
 
         // Create the actual Bevy entity for the player , with its network handle, authid and softConnected components.
 
@@ -126,14 +115,10 @@ pub(crate) fn configure(
             .inv_map
             .insert(player_entity_id, event.handle);
 
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            serialize(&PlayerServerMessage::ConfigEntityId(
-                player_entity_id.to_bits(),
-            ))
-            .unwrap(),
-        );
+        server1.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::ConfigEntityId(player_entity_id.to_bits()),
+        });
     }
 }
 
@@ -144,15 +129,14 @@ pub struct PlayerAwaitingBoarding {
 #[cfg(feature = "server")]
 pub(crate) fn finished_configuration(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
     mut player_awaiting_event: EventWriter<PlayerAwaitingBoarding>,
 ) {
     for event in config_events.iter() {
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&PlayerServerMessage::ConfigFinished).unwrap(),
-        );
+        server.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::ConfigFinished,
+        });
         player_awaiting_event.send(PlayerAwaitingBoarding {
             handle: event.handle,
         });
@@ -194,7 +178,7 @@ pub(crate) fn server_events(
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum PlayerServerMessage {
     InitSetupUi,
@@ -211,23 +195,33 @@ pub enum PlayerServerMessage {
 }
 use networking::client::Connection;
 use networking::client::ConnectionStatus;
-use networking::client::InboundReliableServerMessages;
+use networking::typenames::identify_reliable_server_input;
+use networking::typenames::IncomingReliableServerMessage;
+use networking::typenames::Typenames;
 
 /// Confirms connection with server.
 #[cfg(feature = "client")]
 pub(crate) fn confirm_connection(
-    mut client: EventReader<InboundReliableServerMessages>,
+    mut client: EventReader<IncomingReliableServerMessage>,
     mut connected_state: ResMut<Connection>,
+    typenames: Res<Typenames>,
 ) {
     for message in client.iter() {
-        match bincode::deserialize::<NetworkingClientServerMessage>(&message.message) {
-            Ok(player_message) => match player_message {
-                NetworkingClientServerMessage::Awoo => {
-                    connected_state.status = ConnectionStatus::Connected;
-                    info!("Connected.");
+        if identify_reliable_server_input::<NetworkingClientServerMessage>(
+            &typenames,
+            message.message.typename_net,
+        ) {
+            match bincode::deserialize::<NetworkingClientServerMessage>(&message.message.message) {
+                Ok(player_message) => match player_message {
+                    NetworkingClientServerMessage::Awoo => {
+                        connected_state.status = ConnectionStatus::Connected;
+                        info!("Connected.");
+                    }
+                },
+                Err(_) => {
+                    warn!("Couldnt deserialize message.");
                 }
-            },
-            Err(_) => {}
+            }
         }
     }
 }

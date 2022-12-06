@@ -32,8 +32,8 @@ use bevy::prelude::EventReader;
 use bevy::prelude::Res;
 use std::net::IpAddr;
 
-use crate::plugin::RENET_RELIABLE_CHANNEL_ID;
 use crate::server::NetworkingClientServerMessage;
+use crate::typenames::OutgoingReliableClientMessage;
 use bevy::prelude::ResMut;
 
 #[cfg(feature = "client")]
@@ -42,6 +42,7 @@ pub(crate) fn connect_to_server(
     mut commands: Commands,
     preferences: Res<ConnectionPreferences>,
     mut connection_state: ResMut<Connection>,
+    mut client: EventWriter<OutgoingReliableClientMessage<NetworkingClientServerMessage>>,
 ) {
     for _ in event.iter() {
         match connection_state.status {
@@ -109,7 +110,7 @@ pub(crate) fn connect_to_server(
 
                 info!("Establishing connection with [{}]", socket_address);
 
-                let mut client = RenetClient::new(
+                let renet_client = RenetClient::new(
                     current_time,
                     socket,
                     connection_config,
@@ -122,12 +123,10 @@ pub(crate) fn connect_to_server(
                 )
                 .unwrap();
 
-                client.send_message(
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&NetworkingClientServerMessage::Awoo).unwrap(),
-                );
-
-                commands.insert_resource(client);
+                client.send(OutgoingReliableClientMessage {
+                    message: NetworkingClientServerMessage::Awoo,
+                });
+                commands.insert_resource(renet_client);
 
                 connection_state.status = ConnectionStatus::Connecting;
             }
@@ -156,32 +155,7 @@ pub enum ConnectionStatus {
     Connected,
 }
 
-/// Event containing in-bound reliable server messages.
-pub struct InboundReliableServerMessages {
-    pub message: Vec<u8>,
-}
-/// Event containing in-bound unreliable server messages.
-pub struct InboundUnreliableServerMessages {
-    pub message: Vec<u8>,
-}
-use crate::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use bevy::prelude::EventWriter;
-
-/// RenetClient messages get turned into events so they can be consumed by multiple systems.
-#[cfg(feature = "client")]
-pub(crate) fn messages_to_event(
-    mut client: ResMut<RenetClient>,
-    mut r_events: EventWriter<InboundReliableServerMessages>,
-    mut u_events: EventWriter<InboundUnreliableServerMessages>,
-) {
-    while let Some(message) = client.receive_message(RENET_RELIABLE_CHANNEL_ID) {
-        r_events.send(InboundReliableServerMessages { message });
-    }
-
-    while let Some(message) = client.receive_message(RENET_UNRELIABLE_CHANNEL_ID) {
-        u_events.send(InboundUnreliableServerMessages { message });
-    }
-}
 
 /// System run run_if with iyes_loopless
 #[cfg(feature = "client")]
@@ -191,7 +165,7 @@ pub fn connected(connection: Res<Connection>) -> bool {
 /// System run run_if with iyes_loopless. The earliest server messages (for setup_ui, boarding etc.)
 /// come in while in the connecting stage.
 #[cfg(feature = "client")]
-pub fn connecting(connection: Res<Connection>) -> bool {
+pub fn is_client_connected(connection: Res<Connection>) -> bool {
     matches!(connection.status, ConnectionStatus::Connecting)
         || matches!(connection.status, ConnectionStatus::Connected)
 }

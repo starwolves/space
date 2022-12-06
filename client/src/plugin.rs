@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use crate::client_is_live;
+use actions::plugin::ActionsPlugin;
 use bevy::{
     app::{RunMode, ScheduleRunnerSettings},
     prelude::{App, CorePlugin, Plugin, PluginGroup, TaskPoolOptions},
@@ -8,16 +10,22 @@ use bevy::{
     DefaultPlugins,
 };
 use bevy_egui::EguiPlugin;
+use chat::plugin::ChatPlugin;
+use console_commands::plugins::ConsoleCommandsPlugin;
+use controller::plugin::ControllerPlugin;
+use entity::plugin::EntityPlugin;
+use gridmap::plugin::GridmapPlugin;
+use inventory::plugin::InventoryPlugin;
 use main_menu::plugin::MainMenuPlugin;
+use map::plugin::MapPlugin;
 use networking::plugin::NetworkingPlugin;
+use pawn::plugin::PawnPlugin;
 use player::plugin::PlayerPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
+use sfx::plugin::SfxPlugin;
 use ui::plugin::UiPlugin;
 use winit_windows::plugin::WinitWindowsPlugin;
-
-use crate::client_is_live;
-
 /// The main plugin to add to execute the client.
 pub struct ClientPlugin {
     pub version: String,
@@ -74,6 +82,16 @@ impl Plugin for ClientPlugin {
         .add_plugin(UiPlugin)
         .add_plugin(SetupUiPlugin)
         .add_plugin(PlayerPlugin)
+        .add_plugin(ActionsPlugin)
+        .add_plugin(ChatPlugin)
+        .add_plugin(ConsoleCommandsPlugin)
+        .add_plugin(ControllerPlugin::default())
+        .add_plugin(EntityPlugin)
+        .add_plugin(GridmapPlugin)
+        .add_plugin(InventoryPlugin)
+        .add_plugin(MapPlugin)
+        .add_plugin(PawnPlugin)
+        .add_plugin(SfxPlugin)
         .add_startup_system(client_is_live)
         .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {

@@ -14,8 +14,10 @@ use crate::diffusion::{
     get_atmos_id, get_atmos_index, AtmosphericsResource, CELCIUS_KELVIN_OFFSET,
 };
 
-use bevy_renet::renet::RenetServer;
 use networking::server::ConnectedPlayer;
+
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 
 /// Get data of atmospherics on tile when hovered in map by player.
 #[cfg(feature = "server")]
@@ -23,11 +25,8 @@ pub(crate) fn atmospherics_map_hover(
     map_holders: Query<(Entity, &Map, &ConnectedPlayer)>,
     atmospherics: Res<AtmosphericsResource>,
     mut display_atmos_state: ResMut<MapHolders>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<MapServerMessage>>,
 ) {
-    use map::networking::MapServerMessage;
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
     for (map_holder_entity, map_component, connected_player_component) in map_holders.iter() {
         match map_component.passed_mouse_cell {
             Some((idx, idy)) => {
@@ -59,14 +58,10 @@ pub(crate) fn atmospherics_map_hover(
                 match display_atmos_state.holders.get_mut(&map_holder_entity) {
                     Some(map_holder_data) => {
                         if map_holder_data.hovering_data != data {
-                            server.send_message(
-                                connected_player_component.handle,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(&MapServerMessage::MapOverlayHoverData(
-                                    data.to_string(),
-                                ))
-                                .unwrap(),
-                            );
+                            server.send(OutgoingReliableServerMessage {
+                                handle: connected_player_component.handle,
+                                message: MapServerMessage::MapOverlayHoverData(data.to_string()),
+                            });
                             map_holder_data.hovering_data = data;
                         }
                     }
@@ -90,17 +85,16 @@ enum SelectedDisplayMode {
     Liveable,
 }
 
+use map::networking::MapServerMessage;
+
 /// Transmit atmospherics mini-map data to player.
 #[cfg(feature = "server")]
 pub(crate) fn atmospherics_map(
     map_holders: Query<(Entity, &Map, &ConnectedPlayer)>,
     atmospherics: Res<AtmosphericsResource>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<MapServerMessage>>,
     mut display_atmos_state: ResMut<MapHolders>,
 ) {
-    use map::networking::MapServerMessage;
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
     for (map_holder_entity, map_component, connected_player_component) in map_holders.iter() {
         let show_temperature;
 
@@ -326,11 +320,10 @@ pub(crate) fn atmospherics_map(
             adjusted_cell_i = cell_i;
         }
 
-        server.send_message(
-            connected_player_component.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&MapServerMessage::MapOverlayUpdate(batch)).unwrap(),
-        );
+        server.send(OutgoingReliableServerMessage {
+            handle: connected_player_component.handle,
+            message: MapServerMessage::MapOverlayUpdate(batch),
+        });
 
         map_holder_data.batch_i = adjusted_cell_i;
 

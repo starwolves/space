@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{info, Added, Commands, EventReader, EventWriter, Query, Res, Resource};
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::HandleToEntity;
 use networking::server::{EntityUpdateData, UIInputAction};
 use player::connections::{PlayerAwaitingBoarding, PlayerServerMessage};
@@ -49,13 +48,13 @@ pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxConta
 /// Godot NodePath.
 pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
 
-use bevy_renet::renet::RenetServer;
 use motd::motd::MOTD;
 use player::name_generator::get_full_name;
 use player::{connection::SetupPhase, names::UsedNames};
 
 use entity::networking::{EntityServerMessage, EntityWorldType};
 use networking::server::NetworkingChatServerMessage;
+use networking::typenames::OutgoingReliableServerMessage;
 
 use networking::server::ConnectedPlayer;
 /// Initialize the setup UI by spawning in showcase entities etc.
@@ -64,7 +63,9 @@ pub(crate) fn initialize_setupui(
     used_names: Res<UsedNames>,
     server_id: Res<ServerId>,
     query: Query<&ConnectedPlayer, Added<SetupPhase>>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    mut server1: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
+
     motd: Res<MOTD>,
 ) {
     for connected_player_component in query.iter() {
@@ -81,29 +82,23 @@ pub(crate) fn initialize_setupui(
 
         hash_map_path.insert(INPUT_NAME_PATH_FULL.to_string(), hash_map_data);
 
-        server.send_message(
-            connected_player_component.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&EntityServerMessage::EntityUpdate(
+        server.send(OutgoingReliableServerMessage {
+            handle: connected_player_component.handle,
+            message: EntityServerMessage::EntityUpdate(
                 server_id.id.to_bits(),
                 hash_map_path,
                 false,
                 EntityWorldType::Main,
-            ))
-            .unwrap(),
-        );
-
-        server.send_message(
-            connected_player_component.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
-                motd.message.clone(),
-            ))
-            .unwrap(),
-        );
+            ),
+        });
+        server1.send(OutgoingReliableServerMessage {
+            handle: connected_player_component.handle,
+            message: NetworkingChatServerMessage::ChatMessage(motd.message.clone()),
+        });
     }
 }
 use bevy::prelude::warn;
+use console_commands::networking::ConsoleCommandsServerMessage;
 use player::boarding::{BoardingPlayer, InputUIInputTransmitText, PersistentPlayerData};
 use text_api::core::CONSOLE_ERROR_COLOR;
 
@@ -118,10 +113,8 @@ pub(crate) fn ui_input_boarding(
     used_names: ResMut<UsedNames>,
     mut query: Query<(&mut PersistentPlayerData, &Boarding, &ConnectedPlayer)>,
     mut commands: Commands,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
 ) {
-    use console_commands::networking::ConsoleCommandsServerMessage;
-
     for new_event in event.iter() {
         let player_entity = handle_to_entity.map.get(&new_event.handle).expect(
             "ui_input_transmit_text_event.rs could not find entity belonging to player handle.",
@@ -166,30 +159,26 @@ pub(crate) fn ui_input_boarding(
 
                 if name_in_use {
                     // Character name of player is already in-use.
-                    server.send_message(
-                        new_event.handle,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: new_event.handle,
+                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                             "[color=".to_string()
                                 + CONSOLE_ERROR_COLOR
                                 + "]Character name is already in-use.[/color]",
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                     continue;
                 }
 
                 if persistent_player_data.character_name.len() < 3 {
-                    server.send_message(
-                        new_event.handle,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: new_event.handle,
+                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                             "[color=".to_string()
                                 + CONSOLE_ERROR_COLOR
                                 + "]Character name is too short.[/color]",
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                     continue;
                 }
 
@@ -221,21 +210,19 @@ use player::connection::SendServerConfiguration;
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
 ) {
     for event in config_events.iter() {
         let talk_spaces = get_talk_spaces_setupui();
 
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&PlayerServerMessage::ConfigTalkSpaces(talk_spaces)).unwrap(),
-        );
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&PlayerServerMessage::InitSetupUi).unwrap(),
-        );
+        server.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::ConfigTalkSpaces(talk_spaces),
+        });
+        server.send(OutgoingReliableServerMessage {
+            handle: event.handle,
+            message: PlayerServerMessage::InitSetupUi,
+        });
     }
 }
 
@@ -258,23 +245,30 @@ pub(crate) fn new_clients_enable_setupui(
         }
     }
 }
-use networking::client::InboundReliableServerMessages;
+use networking::typenames::identify_reliable_server_input;
+use networking::typenames::IncomingReliableServerMessage;
+use networking::typenames::Typenames;
 
 /// Loads client-side setup ui.
 #[cfg(feature = "client")]
-pub(crate) fn client_init_setup_ui(mut client: EventReader<InboundReliableServerMessages>) {
+pub(crate) fn client_init_setup_ui(
+    mut client: EventReader<IncomingReliableServerMessage>,
+    typenames: Res<Typenames>,
+) {
     for message in client.iter() {
-        match bincode::deserialize::<PlayerServerMessage>(&message.message) {
-            Ok(player_message) => match player_message {
-                PlayerServerMessage::InitSetupUi => {
-                    info!(
-                        "PlayerServerMessage::InitSetupUi: {}",
-                        message.message.len()
-                    );
-                }
-                _ => (),
-            },
-            Err(_) => {}
+        if identify_reliable_server_input::<PlayerServerMessage>(
+            &typenames,
+            message.message.typename_net,
+        ) {
+            match bincode::deserialize::<PlayerServerMessage>(&message.message.message) {
+                Ok(player_message) => match player_message {
+                    PlayerServerMessage::InitSetupUi => {
+                        info!("PlayerServerMessage::InitSetupUi");
+                    }
+                    _ => (),
+                },
+                Err(_) => {}
+            }
         }
     }
 }

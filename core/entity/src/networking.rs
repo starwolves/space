@@ -5,6 +5,7 @@ use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 use crate::examine::InputExamineEntity;
 use bevy::prelude::Entity;
@@ -13,7 +14,7 @@ use bevy::prelude::Res;
 use networking::server::HandleToEntity;
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum EntityClientMessage {
     ExamineEntity(u64),
@@ -81,6 +82,7 @@ use crate::entity_data::WorldMode;
 use crate::entity_data::WorldModes;
 use bevy::prelude::EventReader;
 use bevy_rapier3d::prelude::RigidBody;
+use networking::typenames::OutgoingReliableServerMessage;
 
 /// Load an entity in for the client.
 #[cfg(feature = "server")]
@@ -93,7 +95,7 @@ pub(crate) fn load_entity(
         Option<&WorldMode>,
     )>,
     mut load_entity_events: EventReader<LoadEntity>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
     for load_entity_event in load_entity_events.iter() {
         match entity_query.get(load_entity_event.entity) {
@@ -178,10 +180,9 @@ pub(crate) fn load_entity(
                     hash_map = HashMap::new();
                 }
 
-                server.send_message(
-                    load_entity_event.loader_handle,
-                    RENET_RELIABLE_CHANNEL_ID,
-                    bincode::serialize(&EntityServerMessage::LoadEntity(
+                server.send(OutgoingReliableServerMessage {
+                    handle: load_entity_event.loader_handle,
+                    message: EntityServerMessage::LoadEntity(
                         entity_data.entity_class.clone(),
                         entity_data.entity_name.clone(),
                         hash_map,
@@ -190,9 +191,8 @@ pub(crate) fn load_entity(
                         "main".to_string(),
                         "".to_string(),
                         false,
-                    ))
-                    .unwrap(),
-                );
+                    ),
+                });
             }
             Err(_) => {
                 warn!("Couldnt find entity for load entity event.");
@@ -209,7 +209,7 @@ pub enum EntityWorldType {
 }
 
 /// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum EntityServerMessage {
     EntityUpdate(

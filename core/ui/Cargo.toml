@@ -17,6 +17,7 @@ server = []
 bevy_renet = "0.0.6"
 bincode = "1.3.3"
 serde = "1.0.147"
+typename = "0.1.2"
 
 bevy_egui = {version = "0.17.1",default-features=false, features=["manage_clipboard"]}
 networking = { path = "../networking",  features=["server"] }

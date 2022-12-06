@@ -4,11 +4,11 @@ use console_commands::commands::InputConsoleCommand;
 use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
-use bevy_renet::renet::RenetServer;
 use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
 use gridmap::grid::GridmapMain;
 use networking::server::GodotVariantValues;
 use networking::server::{ConnectedPlayer, HandleToEntity};
+use networking::typenames::OutgoingReliableServerMessage;
 use pawn::pawn::Pawn;
 use player::names::UsedNames;
 
@@ -16,7 +16,7 @@ use player::names::UsedNames;
 #[cfg(feature = "server")]
 pub(crate) fn rcon_entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
     mut rcon_spawn_event: EventWriter<RconSpawnEntity>,
 ) {
@@ -34,14 +34,12 @@ pub(crate) fn rcon_entity_console_commands(
         if player_entity.rcon == false {
             match console_command_event.handle_option {
                 Some(t) => {
-                    server.send_message(
-                        t,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: t,
+                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                             "[color=#ff6600]RCON status denied.[/color]".to_string(),
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 }
                 None => {}
             }
@@ -98,7 +96,6 @@ use bevy::prelude::Entity;
 use console_commands::networking::ConsoleCommandsServerMessage;
 use entity::spawn::spawn_entity;
 use gridmap::get_spawn_position::entity_spawn_position_for_player;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use text_api::core::CONSOLE_ERROR_COLOR;
 
 /// Event for spawning in entities with the rcon command.
@@ -116,7 +113,8 @@ pub(crate) fn rcon_spawn_entity(
     mut rcon_spawn_events: EventReader<RconSpawnEntity>,
     mut commands: Commands,
     rigid_body_positions: Query<(&Transform, &Pawn)>,
-    mut server: ResMut<RenetServer>,
+    mut server_1: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
+    mut server_2: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     gridmap_main: Res<GridmapMain>,
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
@@ -130,14 +128,12 @@ pub(crate) fn rcon_spawn_entity(
             spawn_amount = 5;
             match event.command_executor_handle_option {
                 Some(t) => {
-                    server.send_message(
-                        t,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+                    server_1.send(OutgoingReliableServerMessage {
+                        handle: t,
+                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                             "Capped amount to 5, maniac protection.".to_string(),
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 }
                 None => {}
             }
@@ -148,7 +144,7 @@ pub(crate) fn rcon_spawn_entity(
             event.command_executor_handle_option,
             &event.target_selector,
             &mut used_names,
-            &mut server,
+            &mut server_1,
         )
         .iter()
         {
@@ -214,20 +210,16 @@ pub(crate) fn rcon_spawn_entity(
                     Some(_) => {}
                     None => match event.command_executor_handle_option {
                         Some(t) => {
-                            server.send_message(
-                                t,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(
-                                    &ConsoleCommandsServerMessage::ConsoleWriteLine(
-                                        "[color=".to_string()
-                                            + CONSOLE_ERROR_COLOR
-                                            + "]Unknown entity name \""
-                                            + &event.entity_name
-                                            + "\" was provided.[/color]",
-                                    ),
-                                )
-                                .unwrap(),
-                            );
+                            server_1.send(OutgoingReliableServerMessage {
+                                handle: t,
+                                message: ConsoleCommandsServerMessage::ConsoleWriteLine(
+                                    "[color=".to_string()
+                                        + CONSOLE_ERROR_COLOR
+                                        + "]Unknown entity name \""
+                                        + &event.entity_name
+                                        + "\" was provided.[/color]",
+                                ),
+                            });
                         }
                         None => {}
                     },
@@ -236,23 +228,19 @@ pub(crate) fn rcon_spawn_entity(
 
             if player_handle.is_some() {
                 if spawn_amount == 1 {
-                    server.send_message(
-                        player_handle.unwrap(),
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                    server_2.send(OutgoingReliableServerMessage {
+                        handle: player_handle.unwrap(),
+                        message: NetworkingChatServerMessage::ChatMessage(
                             "A new entity has appeared in your proximity.".to_string(),
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 } else if spawn_amount > 1 {
-                    server.send_message(
-                        player_handle.unwrap(),
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                    server_2.send(OutgoingReliableServerMessage {
+                        handle: player_handle.unwrap(),
+                        message: NetworkingChatServerMessage::ChatMessage(
                             "New entities have appeared in your proximity.".to_string(),
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 }
             }
         }
@@ -276,7 +264,9 @@ use inventory_item::spawn::spawn_held_entity;
 #[cfg(feature = "server")]
 pub(crate) fn rcon_spawn_held_entity(
     mut commands: Commands,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
+    mut server1: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
+    mut server2: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut player_inventory_query: Query<&mut Inventory>,
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
@@ -304,9 +294,12 @@ pub(crate) fn rcon_spawn_held_entity(
                 Err(_rr) => {
                     match event.command_executor_handle_option {
                         Some(t) => {
-                            server.send_message(t, RENET_RELIABLE_CHANNEL_ID, bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
-                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
-                            )).unwrap());
+                            server.send(OutgoingReliableServerMessage {
+                                handle: t,
+                                message: ConsoleCommandsServerMessage::ConsoleWriteLine(
+                                    "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
+                                ),
+                            });
                         }
                         None => {}
                     }
@@ -325,9 +318,12 @@ pub(crate) fn rcon_spawn_held_entity(
                 None => {
                     match event.command_executor_handle_option {
                         Some(t) => {
-                            server.send_message(t, RENET_RELIABLE_CHANNEL_ID, bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
-                                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
-                            )).unwrap());
+                            server.send(OutgoingReliableServerMessage {
+                                handle: t,
+                                message: ConsoleCommandsServerMessage::ConsoleWriteLine(
+                                    "[color=".to_string() + CONSOLE_ERROR_COLOR + "]An error occured when executing your command, please report this.[/color]"
+                                ),
+                            });
                         }
                         None => {}
                     }
@@ -361,42 +357,34 @@ pub(crate) fn rcon_spawn_held_entity(
                         Some(entity) => {
                             slot.slot_item = Some(entity);
 
-                            server.send_message(
-                                player_handle,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(&InventoryServerMessage::PickedUpItem(
+                            server1.send(OutgoingReliableServerMessage {
+                                handle: player_handle,
+                                message: InventoryServerMessage::PickedUpItem(
                                     event.entity_name.clone(),
                                     entity.to_bits(),
                                     slot.slot_name.clone(),
-                                ))
-                                .unwrap(),
-                            );
+                                ),
+                            });
 
-                            server.send_message(
-                                player_handle,
-                                RENET_RELIABLE_CHANNEL_ID,
-                                bincode::serialize(&NetworkingChatServerMessage::ChatMessage(
+                            server2.send(OutgoingReliableServerMessage {
+                                handle: player_handle,
+                                message: NetworkingChatServerMessage::ChatMessage(
                                     "A new entity has appeared in your hand.".to_string(),
-                                ))
-                                .unwrap(),
-                            );
+                                ),
+                            });
                         }
                         None => match event.command_executor_handle_option {
                             Some(t) => {
-                                server.send_message(
-                                    t,
-                                    RENET_RELIABLE_CHANNEL_ID,
-                                    bincode::serialize(
-                                        &ConsoleCommandsServerMessage::ConsoleWriteLine(
-                                            "[color=".to_string()
-                                                + CONSOLE_ERROR_COLOR
-                                                + "]Unknown entity name \""
-                                                + &event.entity_name
-                                                + "\" was provided.[/color]",
-                                        ),
-                                    )
-                                    .unwrap(),
-                                );
+                                server.send(OutgoingReliableServerMessage {
+                                    handle: t,
+                                    message: ConsoleCommandsServerMessage::ConsoleWriteLine(
+                                        "[color=".to_string()
+                                            + CONSOLE_ERROR_COLOR
+                                            + "]Unknown entity name \""
+                                            + &event.entity_name
+                                            + "\" was provided.[/color]",
+                                    ),
+                                });
                             }
                             None => {}
                         },
@@ -422,7 +410,7 @@ use inventory_api::core::Inventory;
 #[cfg(feature = "server")]
 pub(crate) fn inventory_item_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
     mut spawn_entity: EventWriter<RconSpawnHeldEntity>,
 ) {
@@ -440,14 +428,12 @@ pub(crate) fn inventory_item_console_commands(
         if player_entity.rcon == false {
             match console_command_event.handle_option {
                 Some(t) => {
-                    server.send_message(
-                        t,
-                        RENET_RELIABLE_CHANNEL_ID,
-                        bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+                    server.send(OutgoingReliableServerMessage {
+                        handle: t,
+                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                             "[color=#ff6600]RCON status denied.[/color]".to_string(),
-                        ))
-                        .unwrap(),
-                    );
+                        ),
+                    });
                 }
                 None => {}
             }
@@ -495,7 +481,7 @@ pub(crate) fn rcon_console_commands(
     mut console_commands_events: EventReader<InputConsoleCommand>,
     mut rcon_bruteforce_protection: Local<BruteforceProtection>,
     mut connected_players: Query<&mut ConnectedPlayer>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
 ) {
     for console_command_event in console_commands_events.iter() {
         if console_command_event.command_name == "rcon"
@@ -534,20 +520,18 @@ pub(crate) fn rcon_authorization(
     connected_players: &mut Query<&mut ConnectedPlayer>,
     client_handle: u64,
     client_entity: Entity,
-    server: &mut ResMut<RenetServer>,
+    server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     input_password: String,
 ) {
     if bruteforce_protection.blacklist.contains(&client_handle) {
-        server.send_message(
-            client_handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+        server.send(OutgoingReliableServerMessage {
+            handle: client_handle,
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                 "[color=".to_string()
                     + CONSOLE_ERROR_COLOR
                     + "]Too many past attempts, blacklisted.[/color]",
-            ))
-            .unwrap(),
-        );
+            ),
+        });
         return;
     }
 
@@ -565,14 +549,12 @@ pub(crate) fn rcon_authorization(
 
         connected_player_component.rcon = true;
 
-        server.send_message(
-            client_handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+        server.send(OutgoingReliableServerMessage {
+            handle: client_handle,
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                 "[color=".to_string() + CONSOLE_SUCCESS_COLOR + "]RCON status granted![/color]",
-            ))
-            .unwrap(),
-        );
+            ),
+        });
     } else {
         match bruteforce_protection.tracking_data.get_mut(&client_handle) {
             Some(attempt_amount) => {
@@ -585,14 +567,12 @@ pub(crate) fn rcon_authorization(
                 bruteforce_protection.tracking_data.insert(client_handle, 1);
             }
         }
-        server.send_message(
-            client_handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+        server.send(OutgoingReliableServerMessage {
+            handle: client_handle,
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                 "[color=".to_string() + CONSOLE_ERROR_COLOR + "]Wrong password.[/color]",
-            ))
-            .unwrap(),
-        );
+            ),
+        });
     }
 }
 use text_api::core::CONSOLE_SUCCESS_COLOR;
@@ -603,7 +583,7 @@ pub(crate) fn rcon_status(
     connected_players: &mut Query<&mut ConnectedPlayer>,
     client_handle: u64,
     client_entity: Entity,
-    server: &mut ResMut<RenetServer>,
+    server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
 ) {
     let connected_player_component;
 
@@ -617,23 +597,19 @@ pub(crate) fn rcon_status(
     }
 
     if connected_player_component.rcon {
-        server.send_message(
-            client_handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+        server.send(OutgoingReliableServerMessage {
+            handle: client_handle,
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                 "[color=".to_string() + CONSOLE_SUCCESS_COLOR + "]RCON status granted![/color]",
-            ))
-            .unwrap(),
-        );
+            ),
+        });
     } else {
-        server.send_message(
-            client_handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(
+        server.send(OutgoingReliableServerMessage {
+            handle: client_handle,
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
                 "[color=".to_string() + CONSOLE_ERROR_COLOR + "]RCON status denied.[/color]",
-            ))
-            .unwrap(),
-        );
+            ),
+        });
     }
 }
 /// Resource with the configuration whether new players should be given RCON upon connection.

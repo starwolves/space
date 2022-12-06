@@ -1,6 +1,7 @@
 use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use networking::typenames::{init_reliable_message, init_unreliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::labels::MapLabels;
 
@@ -8,7 +9,9 @@ use crate::{
     connections::configure,
     map::MapHolders,
     map_input::{InputMap, InputMapChangeDisplayMode, InputMapRequestOverlay, MapData},
-    networking::incoming_messages,
+    networking::{
+        incoming_messages, MapReliableClientMessage, MapServerMessage, MapUnreliableClientMessage,
+    },
 };
 
 use super::{
@@ -36,5 +39,8 @@ impl Plugin for MapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         }
+        init_reliable_message::<MapServerMessage>(app, MessageSender::Server);
+        init_unreliable_message::<MapUnreliableClientMessage>(app, MessageSender::Client);
+        init_reliable_message::<MapReliableClientMessage>(app, MessageSender::Client);
     }
 }

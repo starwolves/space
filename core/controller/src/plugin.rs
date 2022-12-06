@@ -6,13 +6,16 @@ use crate::input::{
     InputMouseDirectionUpdate, InputMovementInput, InputSceneReady, InputSelectBodyPart,
     InputSprinting, InputToggleAutoMove, InputToggleCombatMode,
 };
-use crate::networking::incoming_messages;
+use crate::networking::{
+    incoming_messages, ControllerClientMessage, ControllerUnreliableClientMessage,
+};
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::{
     prelude::{App, Plugin, SystemSet},
     time::FixedTimestep,
 };
 
+use networking::typenames::{init_reliable_message, init_unreliable_message, MessageSender};
 use player::boarding::BoardingPlayer;
 use player::plugin::ConfigurationLabel;
 use resources::labels::UpdateLabels;
@@ -24,6 +27,7 @@ use super::{
 
 use bevy::app::CoreStage::PreUpdate;
 
+#[derive(Default)]
 pub struct ControllerPlugin {
     pub custom_motd: Option<String>,
 }
@@ -67,5 +71,8 @@ impl Plugin for ControllerPlugin {
                     .after(ConfigurationLabel::SpawnEntity),
             );
         }
+
+        init_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
+        init_unreliable_message::<ControllerUnreliableClientMessage>(app, MessageSender::Client);
     }
 }

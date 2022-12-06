@@ -1,6 +1,7 @@
 use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
+use networking::typenames::{init_reliable_message, MessageSender};
 use resources::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
 
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
         pickup_world_item_action, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
         InputUseWorldItem, InputWearItem,
     },
-    networking::incoming_messages,
+    networking::{incoming_messages, InventoryClientMessage, InventoryServerMessage},
     switch_hands::InputSwitchHands,
 };
 
@@ -55,5 +56,8 @@ impl Plugin for InventoryPlugin {
                 .add_event::<InputUseWorldItem>()
                 .add_event::<InputWearItem>();
         }
+
+        init_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
+        init_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
     }
 }

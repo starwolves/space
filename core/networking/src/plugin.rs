@@ -1,13 +1,24 @@
 use std::env;
 
-use bevy::prelude::{App, Plugin};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use bevy_renet::{RenetClientPlugin, RenetServerPlugin};
 use iyes_loopless::prelude::IntoConditionalSystem;
 
 use super::server::{souls, startup_server_listen_connections};
-use crate::client::{
-    connect_to_server, connecting, messages_to_event, ConnectToServer, Connection,
-    ConnectionPreferences, InboundReliableServerMessages, InboundUnreliableServerMessages,
+use crate::{
+    client::{
+        connect_to_server, is_client_connected, ConnectToServer, Connection, ConnectionPreferences,
+    },
+    server::{
+        NetworkingChatServerMessage, NetworkingClientMessage, NetworkingClientServerMessage,
+        UnreliableServerMessage,
+    },
+    typenames::{
+        generate_typenames, init_reliable_message, init_unreliable_message,
+        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
+        IncomingReliableServerMessage, IncomingUnreliableServerMessage, MessageSender, Typenames,
+        TypenamesLabel,
+    },
 };
 use bevy::app::CoreStage::PreUpdate;
 pub struct NetworkingPlugin;
@@ -23,11 +34,25 @@ impl Plugin for NetworkingPlugin {
                 .add_system(connect_to_server)
                 .add_event::<ConnectToServer>()
                 .init_resource::<ConnectionPreferences>()
-                .add_system_to_stage(PreUpdate, messages_to_event.run_if(connecting))
-                .add_event::<InboundReliableServerMessages>()
-                .add_event::<InboundUnreliableServerMessages>()
-                .init_resource::<Connection>();
+                .init_resource::<Connection>()
+                .add_system_to_stage(
+                    PreUpdate,
+                    receive_incoming_reliable_server_messages.run_if(is_client_connected),
+                )
+                .add_system_to_stage(
+                    PreUpdate,
+                    receive_incoming_unreliable_server_messages.run_if(is_client_connected),
+                )
+                .add_event::<IncomingReliableServerMessage>()
+                .add_event::<IncomingUnreliableServerMessage>();
         }
+
+        app.init_resource::<Typenames>()
+            .add_startup_system(generate_typenames.after(TypenamesLabel::Generate));
+        init_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
+        init_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
+        init_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);
+        init_reliable_message::<NetworkingClientServerMessage>(app, MessageSender::Both);
     }
 }
 

@@ -36,20 +36,17 @@ pub(crate) fn map_input(
     }
 }
 
-use bevy::prelude::ResMut;
-use bevy_renet::renet::RenetServer;
+use bevy::prelude::EventWriter;
+use networking::typenames::OutgoingReliableServerMessage;
 
+use crate::networking::MapServerMessage;
 /// Request available map overlays.
 #[cfg(feature = "server")]
 pub(crate) fn request_map_overlay(
     mut events: EventReader<InputMapRequestOverlay>,
     map_holders: Query<&Map>,
-    mut server: ResMut<RenetServer>,
+    mut server: EventWriter<OutgoingReliableServerMessage<MapServerMessage>>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
-    use crate::networking::MapServerMessage;
-
     for event in events.iter() {
         let map_component;
 
@@ -61,15 +58,13 @@ pub(crate) fn request_map_overlay(
                 continue;
             }
         }
+        server.send(OutgoingReliableServerMessage {
+            handle: event.handle,
 
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&MapServerMessage::MapSendDisplayModes(
+            message: MapServerMessage::MapSendDisplayModes(
                 map_component.available_display_modes.clone(),
-            ))
-            .unwrap(),
-        );
+            ),
+        });
     }
 }
 

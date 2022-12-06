@@ -8,6 +8,7 @@ use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use bevy::prelude::EventWriter;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 use crate::map_input::InputMap;
 use crate::map_input::InputMapChangeDisplayMode;
@@ -19,18 +20,18 @@ use crate::map_input::InputMapRequestOverlay;
 use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum MapMessage {
+pub enum MapReliableClientMessage {
     MapChangeDisplayMode(String),
     MapRequestDisplayModes,
     MapCameraPosition(Vec2),
 }
 
 /// This message gets sent at high intervals.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum MapUnreliableMessage {
+pub enum MapUnreliableClientMessage {
     MapViewRange(f32),
     MapOverlayMouseHoverCell(i16, i16),
 }
@@ -46,7 +47,8 @@ pub(crate) fn incoming_messages(
 ) {
     for handle in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<MapMessage, _> = bincode::deserialize(&message);
+            let client_message_result: Result<MapReliableClientMessage, _> =
+                bincode::deserialize(&message);
             let client_message;
             match client_message_result {
                 Ok(x) => {
@@ -58,7 +60,7 @@ pub(crate) fn incoming_messages(
             }
 
             match client_message {
-                MapMessage::MapChangeDisplayMode(display_mode) => {
+                MapReliableClientMessage::MapChangeDisplayMode(display_mode) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_change_display_mode.send(InputMapChangeDisplayMode {
@@ -73,19 +75,21 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                MapMessage::MapRequestDisplayModes => match handle_to_entity.map.get(&handle) {
-                    Some(player_entity) => {
-                        input_map_request_display_modes.send(InputMapRequestOverlay {
-                            handle: handle,
-                            entity: *player_entity,
-                        });
+                MapReliableClientMessage::MapRequestDisplayModes => {
+                    match handle_to_entity.map.get(&handle) {
+                        Some(player_entity) => {
+                            input_map_request_display_modes.send(InputMapRequestOverlay {
+                                handle: handle,
+                                entity: *player_entity,
+                            });
+                        }
+                        None => {
+                            warn!("Couldn't find player_entity belonging to input_map_request_display_modes sender handle.");
+                        }
                     }
-                    None => {
-                        warn!("Couldn't find player_entity belonging to input_map_request_display_modes sender handle.");
-                    }
-                },
+                }
 
-                MapMessage::MapCameraPosition(position) => {
+                MapReliableClientMessage::MapCameraPosition(position) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_view_range.send(InputMap {
@@ -103,10 +107,11 @@ pub(crate) fn incoming_messages(
         }
 
         while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
-            let client_message: MapUnreliableMessage = bincode::deserialize(&message).unwrap();
+            let client_message: MapUnreliableClientMessage =
+                bincode::deserialize(&message).unwrap();
 
             match client_message {
-                MapUnreliableMessage::MapViewRange(range_x) => {
+                MapUnreliableClientMessage::MapViewRange(range_x) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_view_range.send(InputMap {
@@ -120,7 +125,7 @@ pub(crate) fn incoming_messages(
                         }
                     }
                 }
-                MapUnreliableMessage::MapOverlayMouseHoverCell(idx, idy) => {
+                MapUnreliableClientMessage::MapOverlayMouseHoverCell(idx, idy) => {
                     match handle_to_entity.map.get(&handle) {
                         Some(player_entity) => {
                             input_map_view_range.send(InputMap {
@@ -140,7 +145,7 @@ pub(crate) fn incoming_messages(
 }
 
 /// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum MapServerMessage {
     MapSendDisplayModes(Vec<(String, String)>),

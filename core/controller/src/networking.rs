@@ -8,6 +8,7 @@ use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use networking::server::UIInputAction;
 use serde::Deserialize;
 use serde::Serialize;
+use typename::TypeName;
 
 use crate::input::InputAltItemAttack;
 use crate::input::InputAttackCell;
@@ -26,7 +27,7 @@ use networking::server::HandleToEntity;
 use player::boarding::InputUIInputTransmitText;
 
 /// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum ControllerClientMessage {
     UIInput(UIInputNodeClass, UIInputAction, String, String),
@@ -66,9 +67,9 @@ pub struct InputUIInput {
 }
 
 /// This message gets sent at high intervals.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum ControllerUnreliableMessage {
+pub enum ControllerUnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
 }
 
@@ -263,24 +264,25 @@ pub(crate) fn incoming_messages(
         }
 
         while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
-            let client_message: ControllerUnreliableMessage =
+            let client_message: ControllerUnreliableClientMessage =
                 bincode::deserialize(&message).unwrap();
 
             match client_message {
-                ControllerUnreliableMessage::MouseDirectionUpdate(mouse_direction, time_stamp) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            mouse_direction_update.send(InputMouseDirectionUpdate {
-                                entity: *player_entity,
-                                direction: mouse_direction,
-                                time_stamp,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to mouse_direction_update sender handle.");
-                        }
+                ControllerUnreliableClientMessage::MouseDirectionUpdate(
+                    mouse_direction,
+                    time_stamp,
+                ) => match handle_to_entity.map.get(&handle) {
+                    Some(player_entity) => {
+                        mouse_direction_update.send(InputMouseDirectionUpdate {
+                            entity: *player_entity,
+                            direction: mouse_direction,
+                            time_stamp,
+                        });
                     }
-                }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to mouse_direction_update sender handle.");
+                    }
+                },
             }
         }
     }

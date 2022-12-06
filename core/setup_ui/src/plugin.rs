@@ -3,7 +3,7 @@ use std::env;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use controller::networking::InputUIInput;
 use iyes_loopless::prelude::IntoConditionalSystem;
-use networking::client::connecting;
+use networking::client::is_client_connected;
 use player::plugin::ConfigurationLabel;
 use resources::labels::SummoningLabels;
 
@@ -30,7 +30,7 @@ impl Plugin for SetupUiPlugin {
                 .add_system(new_clients_enable_setupui)
                 .init_resource::<SetupUiState>();
         } else {
-            app.add_system(client_init_setup_ui.run_if(connecting));
+            app.add_system(client_init_setup_ui.run_if(is_client_connected));
         }
     }
 }

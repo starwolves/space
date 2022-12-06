@@ -1,10 +1,11 @@
 use bevy::prelude::{Entity, ResMut};
-use bevy_renet::renet::RenetServer;
 
 use player::names::UsedNames;
 
+use bevy::prelude::EventWriter;
 use console_commands::networking::ConsoleCommandsServerMessage;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
+use networking::typenames::OutgoingReliableServerMessage;
+
 /// Player selector to entities.
 #[cfg(feature = "server")]
 pub(crate) fn player_selector_to_entities(
@@ -12,7 +13,7 @@ pub(crate) fn player_selector_to_entities(
     command_executor_handle_option: Option<u64>,
     mut player_selector: &str,
     used_names: &mut ResMut<UsedNames>,
-    server: &mut ResMut<RenetServer>,
+    server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
 ) -> Vec<Entity> {
     if player_selector == "*" {
         return used_names.names.values().copied().collect();
@@ -66,14 +67,12 @@ pub(crate) fn player_selector_to_entities(
         }
     };
     if let Some(handle) = command_executor_handle_option {
-        server.send_message(
+        server.send(OutgoingReliableServerMessage {
             handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&ConsoleCommandsServerMessage::ConsoleWriteLine(format!(
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(format!(
                 "[color=#ff6600]{message}[/color]"
-            )))
-            .unwrap(),
-        );
+            )),
+        });
     }
     vec![]
 }
