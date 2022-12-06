@@ -1,6 +1,6 @@
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, Component, Entity, Quat, ResMut, Resource},
+    prelude::{info, Component, Entity, Quat, Resource},
 };
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
@@ -11,8 +11,6 @@ use bevy_renet::renet::{
     ChannelConfig, ReliableChannelConfig, RenetConnectionConfig, RenetServer, ServerAuthentication,
     ServerConfig,
 };
-
-use super::plugin::RENET_RELIABLE_CHANNEL_ID;
 
 /// The network port the server will listen use for connections.
 #[cfg(feature = "server")]
@@ -59,28 +57,40 @@ pub(crate) fn startup_server_listen_connections() -> RenetServer {
     renet_server
 }
 
+use crate::typenames::get_reliable_message;
+use bevy::prelude::EventReader;
+
+use bevy::prelude::Res;
+
+use crate::typenames::Typenames;
+
+use crate::typenames::IncomingReliableClientMessage;
 /// Obtain player souls, mwahahhaa. (=^.^=)
 #[cfg(feature = "server")]
-pub(crate) fn souls(mut net: ResMut<RenetServer>) {
-    for handle in net.clients_id().into_iter() {
-        while let Some(message) = net.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<NetworkingClientMessage, _> =
-                bincode::deserialize(&message);
-            let client_message;
-            match client_message_result {
-                Ok(x) => {
-                    client_message = x;
-                }
-                Err(_rr) => {
-                    continue;
-                }
+pub(crate) fn souls(
+    mut server: EventReader<IncomingReliableClientMessage>,
+    typenames: Res<Typenames>,
+) {
+    for message in server.iter() {
+        let client_message;
+
+        match get_reliable_message::<NetworkingClientMessage>(
+            &typenames,
+            message.message.typename_net,
+            &message.message.serialized,
+        ) {
+            Some(x) => {
+                client_message = x;
             }
-            match client_message {
-                //                                        |
-                // Where the souls of the players are     |
-                //   while they're connected.             V
-                NetworkingClientMessage::HeartBeat => { /* <3 */ }
+            None => {
+                continue;
             }
+        }
+        match client_message {
+            //                                          |
+            // Where the souls of the players are       |
+            //   while they're connected.               V
+            NetworkingClientMessage::HeartBeat => { /* <3 */ }
         }
     }
 }

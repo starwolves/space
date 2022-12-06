@@ -245,30 +245,32 @@ pub(crate) fn new_clients_enable_setupui(
         }
     }
 }
-use networking::typenames::identify_reliable_server_input;
+use networking::typenames::get_reliable_message;
 use networking::typenames::IncomingReliableServerMessage;
 use networking::typenames::Typenames;
 
-/// Loads client-side setup ui.
+/// Receive message from server to initialize setup ui.
 #[cfg(feature = "client")]
 pub(crate) fn client_init_setup_ui(
     mut client: EventReader<IncomingReliableServerMessage>,
     typenames: Res<Typenames>,
 ) {
     for message in client.iter() {
-        if identify_reliable_server_input::<PlayerServerMessage>(
+        match get_reliable_message::<PlayerServerMessage>(
             &typenames,
             message.message.typename_net,
+            &message.message.serialized,
         ) {
-            match bincode::deserialize::<PlayerServerMessage>(&message.message.message) {
-                Ok(player_message) => match player_message {
+            Some(player_message) => {
+                match player_message {
                     PlayerServerMessage::InitSetupUi => {
                         info!("PlayerServerMessage::InitSetupUi");
+                        // To do load character setup ui...
                     }
                     _ => (),
-                },
-                Err(_) => {}
+                }
             }
+            None => {}
         }
     }
 }

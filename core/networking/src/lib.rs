@@ -8,5 +8,5 @@ pub mod client;
 pub mod plugin;
 /// General server-side client input manager.
 pub mod server;
-/// Produces identifiers for netcode message types so netcode messages can be created from crates and get uniquely serialized.
+/// Create reliable and consistent identifiers linked with 16-bit identifiers for netcode messages. Required for modular netcode practises.
 pub mod typenames;

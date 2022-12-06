@@ -195,7 +195,7 @@ pub enum PlayerServerMessage {
 }
 use networking::client::Connection;
 use networking::client::ConnectionStatus;
-use networking::typenames::identify_reliable_server_input;
+use networking::typenames::get_reliable_message;
 use networking::typenames::IncomingReliableServerMessage;
 use networking::typenames::Typenames;
 
@@ -207,21 +207,18 @@ pub(crate) fn confirm_connection(
     typenames: Res<Typenames>,
 ) {
     for message in client.iter() {
-        if identify_reliable_server_input::<NetworkingClientServerMessage>(
+        match get_reliable_message::<NetworkingClientServerMessage>(
             &typenames,
             message.message.typename_net,
+            &message.message.serialized,
         ) {
-            match bincode::deserialize::<NetworkingClientServerMessage>(&message.message.message) {
-                Ok(player_message) => match player_message {
-                    NetworkingClientServerMessage::Awoo => {
-                        connected_state.status = ConnectionStatus::Connected;
-                        info!("Connected.");
-                    }
-                },
-                Err(_) => {
-                    warn!("Couldnt deserialize message.");
+            Some(player_message) => match player_message {
+                NetworkingClientServerMessage::Awoo => {
+                    connected_state.status = ConnectionStatus::Connected;
+                    info!("Connected.");
                 }
-            }
+            },
+            None => {}
         }
     }
 }

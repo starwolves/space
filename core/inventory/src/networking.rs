@@ -1,9 +1,5 @@
-use bevy::prelude::ResMut;
-
 use bevy::prelude::warn;
 use bevy::prelude::Vec3;
-use bevy_renet::renet::RenetServer;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
@@ -31,11 +27,15 @@ pub enum InventoryClientMessage {
     TakeOffItem(String),
     ThrowItem(Vec3, f32),
 }
+use bevy::prelude::EventReader;
+use networking::typenames::get_reliable_message;
+use networking::typenames::IncomingReliableClientMessage;
+use networking::typenames::Typenames;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: ResMut<RenetServer>,
+    mut server: EventReader<IncomingReliableClientMessage>,
     handle_to_entity: Res<HandleToEntity>,
     mut use_world_item: EventWriter<InputUseWorldItem>,
     mut drop_current_item: EventWriter<InputDropCurrentItem>,
@@ -43,106 +43,111 @@ pub(crate) fn incoming_messages(
     mut wear_items: EventWriter<InputWearItem>,
     mut take_off_item: EventWriter<InputTakeOffItem>,
     mut input_throw_item: EventWriter<InputThrowItem>,
+    typenames: Res<Typenames>,
 ) {
-    for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<InventoryClientMessage, _> =
-                bincode::deserialize(&message);
-            let client_message;
-            match client_message_result {
-                Ok(x) => {
-                    client_message = x;
-                }
-                Err(_rr) => {
-                    continue;
+    for message in server.iter() {
+        let client_message;
+        match get_reliable_message::<InventoryClientMessage>(
+            &typenames,
+            message.message.typename_net,
+            &message.message.serialized,
+        ) {
+            Some(x) => {
+                client_message = x;
+            }
+            None => {
+                continue;
+            }
+        }
+
+        match client_message {
+            InventoryClientMessage::UseWorldItem(entity_id) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        use_world_item.send(InputUseWorldItem {
+                            using_entity: *player_entity,
+                            used_entity: Entity::from_bits(entity_id),
+                        });
+                    }
+                    None => {
+                        warn!(
+                            "Couldn't find player_entity belonging to UseWorldItem sender handle."
+                        );
+                    }
                 }
             }
 
-            match client_message {
-                InventoryClientMessage::UseWorldItem(entity_id) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            use_world_item.send(InputUseWorldItem {
-                                using_entity: *player_entity,
-                                used_entity: Entity::from_bits(entity_id),
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to UseWorldItem sender handle.");
-                        }
+            InventoryClientMessage::DropCurrentItem(position_option) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        drop_current_item.send(InputDropCurrentItem {
+                            pickuper_entity: *player_entity,
+                            input_position_option: position_option,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to DropCurrentItem sender handle.");
                     }
                 }
+            }
 
-                InventoryClientMessage::DropCurrentItem(position_option) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            drop_current_item.send(InputDropCurrentItem {
-                                pickuper_entity: *player_entity,
-                                input_position_option: position_option,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to DropCurrentItem sender handle.");
-                        }
+            InventoryClientMessage::SwitchHands => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        switch_hands.send(InputSwitchHands {
+                            entity: *player_entity,
+                        });
+                    }
+                    None => {
+                        warn!(
+                            "Couldn't find player_entity belonging to SwitchHands sender handle."
+                        );
                     }
                 }
+            }
 
-                InventoryClientMessage::SwitchHands => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            switch_hands.send(InputSwitchHands {
-                                entity: *player_entity,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to SwitchHands sender handle.");
-                        }
+            InventoryClientMessage::WearItem(item_id, wear_slot) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        wear_items.send(InputWearItem {
+                            wearer_entity: *player_entity,
+                            worn_entity_bits: item_id,
+                            wear_slot: wear_slot,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to WearItem sender handle.");
                     }
                 }
+            }
 
-                InventoryClientMessage::WearItem(item_id, wear_slot) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            wear_items.send(InputWearItem {
-                                wearer_entity: *player_entity,
-                                worn_entity_bits: item_id,
-                                wear_slot: wear_slot,
-                            });
-                        }
-                        None => {
-                            warn!(
-                                "Couldn't find player_entity belonging to WearItem sender handle."
-                            );
-                        }
+            InventoryClientMessage::TakeOffItem(slot_name) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        take_off_item.send(InputTakeOffItem {
+                            entity: *player_entity,
+                            slot_name: slot_name,
+                        });
+                    }
+                    None => {
+                        warn!(
+                            "Couldn't find player_entity belonging to take_off_item sender handle."
+                        );
                     }
                 }
+            }
 
-                InventoryClientMessage::TakeOffItem(slot_name) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            take_off_item.send(InputTakeOffItem {
-                                entity: *player_entity,
-                                slot_name: slot_name,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to take_off_item sender handle.");
-                        }
+            InventoryClientMessage::ThrowItem(position, angle) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_throw_item.send(InputThrowItem {
+                            entity: *player_entity,
+                            position,
+                            angle,
+                        });
                     }
-                }
-
-                InventoryClientMessage::ThrowItem(position, angle) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_throw_item.send(InputThrowItem {
-                                entity: *player_entity,
-                                position,
-                                angle,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to InputThrowItem sender handle.");
-                        }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to InputThrowItem sender handle.");
                     }
                 }
             }
