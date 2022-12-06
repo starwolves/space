@@ -53,7 +53,6 @@ pub(crate) fn incoming_messages(
                     client_message = x;
                 }
                 Err(_rr) => {
-                    warn!("Received invalid client message.");
                     continue;
                 }
             }

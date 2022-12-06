@@ -67,8 +67,7 @@ pub(crate) fn done_boarding(
         server.send_message(
             player_handle,
             RENET_RELIABLE_CHANNEL_ID,
-            bincode::serialize(&PlayerServerMessage::ChangeScene(true, "main".to_string()))
-                .unwrap(),
+            bincode::serialize(&PlayerServerMessage::InitGame).unwrap(),
         );
 
         let talk_spaces = get_talk_spaces();

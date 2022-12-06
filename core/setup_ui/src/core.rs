@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res, Resource};
+use bevy::prelude::{info, Added, Commands, EventReader, EventWriter, Query, Res, Resource};
+use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::HandleToEntity;
 use networking::server::{EntityUpdateData, UIInputAction};
-use player::connections::PlayerAwaitingBoarding;
+use player::connections::{PlayerAwaitingBoarding, PlayerServerMessage};
 use resources::core::ServerId;
 
 use controller::networking::InputUIInput;
@@ -53,6 +54,9 @@ use motd::motd::MOTD;
 use player::name_generator::get_full_name;
 use player::{connection::SetupPhase, names::UsedNames};
 
+use entity::networking::{EntityServerMessage, EntityWorldType};
+use networking::server::NetworkingChatServerMessage;
+
 use networking::server::ConnectedPlayer;
 /// Initialize the setup UI by spawning in showcase entities etc.
 #[cfg(feature = "server")]
@@ -63,9 +67,6 @@ pub(crate) fn initialize_setupui(
     mut server: ResMut<RenetServer>,
     motd: Res<MOTD>,
 ) {
-    use entity::networking::{EntityServerMessage, EntityWorldType};
-    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingChatServerMessage};
-
     for connected_player_component in query.iter() {
         let suggested_name = get_full_name(true, true, &used_names);
 
@@ -120,7 +121,6 @@ pub(crate) fn ui_input_boarding(
     mut server: ResMut<RenetServer>,
 ) {
     use console_commands::networking::ConsoleCommandsServerMessage;
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 
     for new_event in event.iter() {
         let player_entity = handle_to_entity.map.get(&new_event.handle).expect(
@@ -223,9 +223,6 @@ pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
     mut server: ResMut<RenetServer>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-    use player::connections::PlayerServerMessage;
-
     for event in config_events.iter() {
         let talk_spaces = get_talk_spaces_setupui();
 
@@ -233,6 +230,11 @@ pub(crate) fn configure(
             event.handle,
             RENET_RELIABLE_CHANNEL_ID,
             bincode::serialize(&PlayerServerMessage::ConfigTalkSpaces(talk_spaces)).unwrap(),
+        );
+        server.send_message(
+            event.handle,
+            RENET_RELIABLE_CHANNEL_ID,
+            bincode::serialize(&PlayerServerMessage::InitSetupUi).unwrap(),
         );
     }
 }
@@ -249,11 +251,30 @@ pub struct SetupUiState {
 pub(crate) fn new_clients_enable_setupui(
     mut player_awaiting_boarding: EventReader<PlayerAwaitingBoarding>,
     mut state: ResMut<SetupUiState>,
-    //mut net : EventWriter<NetConfigure>,
 ) {
     for awaiting in player_awaiting_boarding.iter() {
         if !state.enabled.contains_key(&awaiting.handle) {
             state.enabled.insert(awaiting.handle, true);
+        }
+    }
+}
+use networking::client::InboundReliableServerMessages;
+
+/// Loads client-side setup ui.
+#[cfg(feature = "client")]
+pub(crate) fn client_init_setup_ui(mut client: EventReader<InboundReliableServerMessages>) {
+    for message in client.iter() {
+        match bincode::deserialize::<PlayerServerMessage>(&message.message) {
+            Ok(player_message) => match player_message {
+                PlayerServerMessage::InitSetupUi => {
+                    info!(
+                        "PlayerServerMessage::InitSetupUi: {}",
+                        message.message.len()
+                    );
+                }
+                _ => (),
+            },
+            Err(_) => {}
         }
     }
 }
