@@ -10,6 +10,7 @@ use bevy::{
 use bevy_egui::EguiPlugin;
 use main_menu::plugin::MainMenuPlugin;
 use networking::plugin::NetworkingPlugin;
+use player::plugin::PlayerPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
 use ui::plugin::UiPlugin;
@@ -62,6 +63,7 @@ impl Plugin for ClientPlugin {
                 }),
         )
         .insert_resource(WinitSettings::game())
+        .add_plugin(NetworkingPlugin)
         .add_plugin(MainMenuPlugin)
         .add_plugin(WinitWindowsPlugin)
         .add_plugin(ResourcesPlugin)
@@ -70,8 +72,8 @@ impl Plugin for ClientPlugin {
             version: self.version.clone(),
         })
         .add_plugin(UiPlugin)
-        .add_plugin(NetworkingPlugin)
         .add_plugin(SetupUiPlugin)
+        .add_plugin(PlayerPlugin)
         .add_startup_system(client_is_live)
         .insert_resource(ScheduleRunnerSettings {
             run_mode: RunMode::Loop {

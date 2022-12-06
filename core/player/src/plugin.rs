@@ -3,11 +3,15 @@ use std::env;
 use crate::{
     boarding::{done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText},
     connection::{AuthidI, SendServerConfiguration},
-    connections::{configure, finished_configuration, server_events, PlayerAwaitingBoarding},
+    connections::{
+        configure, confirm_connection, finished_configuration, server_events,
+        PlayerAwaitingBoarding,
+    },
 };
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::{App, Plugin, SystemLabel};
-use networking::server::HandleToEntity;
+use iyes_loopless::prelude::IntoConditionalSystem;
+use networking::{client::connecting, server::HandleToEntity};
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -37,6 +41,8 @@ impl Plugin for PlayerPlugin {
                 .add_event::<InputUIInputTransmitText>()
                 .add_system(finished_configuration.after(ConfigurationLabel::Main))
                 .add_system(server_events.before(ConfigurationLabel::SpawnEntity));
+        } else {
+            app.add_system(confirm_connection.run_if(connecting));
         }
     }
 }

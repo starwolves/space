@@ -9,6 +9,9 @@ use crate::{
     connection::{AuthidI, SendServerConfiguration},
     names::UsedNames,
 };
+use bincode::serialize;
+use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingClientServerMessage};
+
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
@@ -20,9 +23,6 @@ pub(crate) fn configure(
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut server: ResMut<RenetServer>,
 ) {
-    use bincode::serialize;
-    use networking::{plugin::RENET_RELIABLE_CHANNEL_ID, server::NetworkingClientServerMessage};
-
     for event in config_events.iter() {
         server.send_message(
             event.handle,
@@ -41,16 +41,6 @@ pub(crate) fn configure(
             RENET_RELIABLE_CHANNEL_ID,
             serialize(&PlayerServerMessage::ConfigServerEntityId(
                 server_id.id.to_bits(),
-            ))
-            .unwrap(),
-        );
-
-        server.send_message(
-            event.handle,
-            RENET_RELIABLE_CHANNEL_ID,
-            serialize(&PlayerServerMessage::ChangeScene(
-                false,
-                "setupUI".to_string(),
             ))
             .unwrap(),
         );
@@ -157,8 +147,6 @@ pub(crate) fn finished_configuration(
     mut server: ResMut<RenetServer>,
     mut player_awaiting_event: EventWriter<PlayerAwaitingBoarding>,
 ) {
-    use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-
     for event in config_events.iter() {
         server.send_message(
             event.handle,
@@ -200,7 +188,7 @@ pub(crate) fn server_events(
                 configure.send(SendServerConfiguration { handle: *handle })
             }
             ServerEvent::ClientDisconnected(handle) => {
-                info!("[{}] disconnected", handle);
+                info!("[{}] has disconnected.", handle);
             }
         }
     }
@@ -209,14 +197,37 @@ pub(crate) fn server_events(
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum PlayerServerMessage {
+    InitSetupUi,
+    InitGame,
     ConfigWorldEnvironment(WorldEnvironment),
     ServerTime,
     ConnectedPlayers(u16),
     ConfigTickRate(u8),
     ConfigEntityId(u64),
-    ChangeScene(bool, String),
     ConfigServerEntityId(u64),
     ConfigRepeatingSFX(String, Vec<String>),
     ConfigFinished,
     ConfigTalkSpaces(Vec<(String, String)>),
+}
+use networking::client::Connection;
+use networking::client::ConnectionStatus;
+use networking::client::InboundReliableServerMessages;
+
+/// Confirms connection with server.
+#[cfg(feature = "client")]
+pub(crate) fn confirm_connection(
+    mut client: EventReader<InboundReliableServerMessages>,
+    mut connected_state: ResMut<Connection>,
+) {
+    for message in client.iter() {
+        match bincode::deserialize::<NetworkingClientServerMessage>(&message.message) {
+            Ok(player_message) => match player_message {
+                NetworkingClientServerMessage::Awoo => {
+                    connected_state.status = ConnectionStatus::Connected;
+                    info!("Connected.");
+                }
+            },
+            Err(_) => {}
+        }
+    }
 }

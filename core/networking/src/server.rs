@@ -1,6 +1,6 @@
 use bevy::{
     math::{Vec2, Vec3},
-    prelude::{info, warn, Component, Entity, Quat, ResMut, Resource},
+    prelude::{info, Component, Entity, Quat, ResMut, Resource},
 };
 use serde::{Deserialize, Serialize};
 
@@ -71,7 +71,6 @@ pub(crate) fn souls(mut net: ResMut<RenetServer>) {
                     client_message = x;
                 }
                 Err(_rr) => {
-                    warn!("Received invalid client message.");
                     continue;
                 }
             }

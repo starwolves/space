@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use bevy::prelude::ResMut;
 
-use bevy::prelude::warn;
 use bevy::prelude::EventWriter;
 use bevy_renet::renet::RenetServer;
 use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
@@ -32,7 +31,6 @@ pub(crate) fn incoming_messages(
                     client_message = x;
                 }
                 Err(_rr) => {
-                    warn!("Received invalid client message.");
                     continue;
                 }
             }
