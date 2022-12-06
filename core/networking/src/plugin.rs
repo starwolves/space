@@ -15,8 +15,10 @@ use crate::{
     },
     typenames::{
         generate_typenames, init_reliable_message, init_unreliable_message,
-        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
-        IncomingReliableServerMessage, IncomingUnreliableServerMessage, MessageSender, Typenames,
+        receive_incoming_reliable_client_messages, receive_incoming_reliable_server_messages,
+        receive_incoming_unreliable_client_messages, receive_incoming_unreliable_server_messages,
+        IncomingReliableClientMessage, IncomingReliableServerMessage,
+        IncomingUnreliableClientMessage, IncomingUnreliableServerMessage, MessageSender, Typenames,
         TypenamesLabel,
     },
 };
@@ -28,7 +30,11 @@ impl Plugin for NetworkingPlugin {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
             app.add_plugin(RenetServerPlugin::default())
                 .insert_resource(startup_server_listen_connections())
-                .add_system(souls);
+                .add_system(souls)
+                .add_event::<IncomingReliableClientMessage>()
+                .add_event::<IncomingUnreliableClientMessage>()
+                .add_system_to_stage(PreUpdate, receive_incoming_reliable_client_messages)
+                .add_system_to_stage(PreUpdate, receive_incoming_unreliable_client_messages);
         } else {
             app.add_plugin(RenetClientPlugin::default())
                 .add_system(connect_to_server)

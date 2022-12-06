@@ -18,7 +18,6 @@ version = "0.9.0"
 default-features = false
 
 [dependencies]
-bincode = "1.3.3"
 iyes_loopless = "0.9.1"
 
 networking = { path = "../networking",  features=["server"] }

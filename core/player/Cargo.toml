@@ -21,7 +21,6 @@ default-features = false
 serde = "1.0.147"
 rand = "0.8.5"
 bevy_renet = "0.0.6"
-bincode = "1.3.3"
 iyes_loopless = "0.9.1"
 typename = "0.1.2"
 

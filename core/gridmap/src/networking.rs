@@ -1,9 +1,5 @@
-use bevy::prelude::ResMut;
-
 use bevy::prelude::warn;
 use bevy::prelude::Vec3;
-use bevy_renet::renet::RenetServer;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::GridMapLayer;
 use serde::Deserialize;
 use serde::Serialize;
@@ -22,37 +18,41 @@ pub enum GridmapClientMessage {
     ExamineMap(GridMapLayer, i16, i16, i16),
 }
 
+use bevy::prelude::EventReader;
+use networking::typenames::get_reliable_message;
+use networking::typenames::IncomingReliableClientMessage;
+use networking::typenames::Typenames;
+
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: ResMut<RenetServer>,
+    mut server: EventReader<IncomingReliableClientMessage>,
     handle_to_entity: Res<HandleToEntity>,
     mut input_examine_map: EventWriter<InputExamineMap>,
+    typenames: Res<Typenames>,
 ) {
-    for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<GridmapClientMessage, _> =
-                bincode::deserialize(&message);
-            let client_message;
-            match client_message_result {
-                Ok(x) => {
-                    client_message = x;
-                }
-                Err(_rr) => {
-                    continue;
-                }
-            }
+    for message in server.iter() {
+        let client_message;
 
-            match client_message {
-                GridmapClientMessage::ExamineMap(
-                    grid_map_type,
-                    cell_id_x,
-                    cell_id_y,
-                    cell_id_z,
-                ) => match handle_to_entity.map.get(&handle) {
+        match get_reliable_message::<GridmapClientMessage>(
+            &typenames,
+            message.message.typename_net,
+            &message.message.serialized,
+        ) {
+            Some(x) => {
+                client_message = x;
+            }
+            None => {
+                continue;
+            }
+        }
+
+        match client_message {
+            GridmapClientMessage::ExamineMap(grid_map_type, cell_id_x, cell_id_y, cell_id_z) => {
+                match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         input_examine_map.send(InputExamineMap {
-                            handle: handle,
+                            handle: message.handle,
                             entity: *player_entity,
                             gridmap_type: grid_map_type,
                             gridmap_cell_id: Vec3Int {
@@ -66,7 +66,7 @@ pub(crate) fn incoming_messages(
                     None => {
                         warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
                     }
-                },
+                }
             }
         }
     }

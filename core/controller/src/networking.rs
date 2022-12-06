@@ -1,10 +1,7 @@
 use bevy::prelude::warn;
+use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
 use bevy::prelude::Vec2;
-use bevy::prelude::{EventWriter, ResMut};
-use bevy_renet::renet::RenetServer;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
-use networking::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 use networking::server::UIInputAction;
 use serde::Deserialize;
 use serde::Serialize;
@@ -72,11 +69,20 @@ pub struct InputUIInput {
 pub enum ControllerUnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
 }
+use networking::typenames::get_reliable_message;
+use networking::typenames::IncomingUnreliableClientMessage;
+use networking::typenames::Typenames;
+
+use bevy::prelude::EventReader;
+use networking::typenames::get_unreliable_message;
+use networking::typenames::IncomingReliableClientMessage;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: ResMut<RenetServer>,
+    mut server: EventReader<IncomingReliableClientMessage>,
+    mut u_server: EventReader<IncomingUnreliableClientMessage>,
+    typenames: Res<Typenames>,
     mut input_ui_input: EventWriter<InputUIInput>,
     mut scene_ready_event: EventWriter<InputSceneReady>,
     mut ui_input_transmit_text: EventWriter<InputUIInputTransmitText>,
@@ -87,203 +93,228 @@ pub(crate) fn incoming_messages(
     mut input_toggle_combat_mode: EventWriter<InputToggleCombatMode>,
     mut input_mouse_action: EventWriter<InputMouseAction>,
     mut mouse_direction_update: EventWriter<InputMouseDirectionUpdate>,
-    mut input_select_body_part: EventWriter<InputSelectBodyPart>,
-    mut input_toggle_auto_move: EventWriter<InputToggleAutoMove>,
-    mut input_attack_entity: EventWriter<InputAttackEntity>,
-    mut input_alt_item_attack: EventWriter<InputAltItemAttack>,
-    mut input_attack_cell: EventWriter<InputAttackCell>,
+    input_tuple: (
+        EventWriter<InputSelectBodyPart>,
+        EventWriter<InputToggleAutoMove>,
+        EventWriter<InputAttackEntity>,
+        EventWriter<InputAltItemAttack>,
+        EventWriter<InputAttackCell>,
+    ),
 ) {
-    for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ControllerClientMessage, _> =
-                bincode::deserialize(&message);
-            let client_message;
-            match client_message_result {
-                Ok(x) => {
-                    client_message = x;
-                }
-                Err(_rr) => {
-                    continue;
+    let (
+        mut input_select_body_part,
+        mut input_toggle_auto_move,
+        mut input_attack_entity,
+        mut input_alt_item_attack,
+        mut input_attack_cell,
+    ) = input_tuple;
+
+    for message in server.iter() {
+        let client_message;
+        match get_reliable_message::<ControllerClientMessage>(
+            &typenames,
+            message.message.typename_net,
+            &message.message.serialized,
+        ) {
+            Some(x) => {
+                client_message = x;
+            }
+            None => {
+                continue;
+            }
+        }
+
+        match client_message {
+            ControllerClientMessage::UIInput(node_class, action, node_name, ui_type) => {
+                input_ui_input.send(InputUIInput {
+                    handle: message.handle,
+                    node_class: node_class,
+                    action: action,
+                    node_name: node_name,
+                    ui_type: ui_type,
+                });
+            }
+            ControllerClientMessage::SceneReady(scene_type) => {
+                scene_ready_event.send(InputSceneReady {
+                    handle: message.handle,
+                    scene_id: scene_type,
+                });
+            }
+            ControllerClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
+                ui_input_transmit_text.send(InputUIInputTransmitText {
+                    handle: message.handle,
+                    ui_type: ui_type,
+                    node_path: node_path,
+                    input_text: input_text,
+                });
+            }
+
+            ControllerClientMessage::MovementInput(movement_input) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        movement_input_event.send(InputMovementInput {
+                            vector: movement_input,
+                            player_entity: *player_entity,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
+                    }
                 }
             }
 
-            match client_message {
-                ControllerClientMessage::UIInput(node_class, action, node_name, ui_type) => {
-                    input_ui_input.send(InputUIInput {
-                        handle: handle,
-                        node_class: node_class,
-                        action: action,
-                        node_name: node_name,
-                        ui_type: ui_type,
-                    });
-                }
-                ControllerClientMessage::SceneReady(scene_type) => {
-                    scene_ready_event.send(InputSceneReady {
-                        handle: handle,
-                        scene_id: scene_type,
-                    });
-                }
-                ControllerClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {
-                    ui_input_transmit_text.send(InputUIInputTransmitText {
-                        handle: handle,
-                        ui_type: ui_type,
-                        node_path: node_path,
-                        input_text: input_text,
-                    });
-                }
+            ControllerClientMessage::BuildGraphics => {
+                build_graphics_event.send(InputBuildGraphics {
+                    handle: message.handle,
+                });
+            }
 
-                ControllerClientMessage::MovementInput(movement_input) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            movement_input_event.send(InputMovementInput {
-                                vector: movement_input,
-                                player_entity: *player_entity,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
-                        }
+            ControllerClientMessage::SprintInput(is_sprinting) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_sprinting_event.send(InputSprinting {
+                            is_sprinting: is_sprinting,
+                            entity: *player_entity,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
                     }
                 }
+            }
 
-                ControllerClientMessage::BuildGraphics => {
-                    build_graphics_event.send(InputBuildGraphics { handle: handle });
-                }
-
-                ControllerClientMessage::SprintInput(is_sprinting) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_sprinting_event.send(InputSprinting {
-                                is_sprinting: is_sprinting,
-                                entity: *player_entity,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
-                        }
+            ControllerClientMessage::ToggleCombatModeInput => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_toggle_combat_mode.send(InputToggleCombatMode {
+                            entity: *player_entity,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to input_toggle_combat_mode sender handle.");
                     }
                 }
+            }
 
-                ControllerClientMessage::ToggleCombatModeInput => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_toggle_combat_mode.send(InputToggleCombatMode {
-                                entity: *player_entity,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to input_toggle_combat_mode sender handle.");
-                        }
+            ControllerClientMessage::InputMouseAction(pressed) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_mouse_action.send(InputMouseAction {
+                            entity: *player_entity,
+                            pressed,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to input_mouse_action sender handle.");
                     }
                 }
+            }
 
-                ControllerClientMessage::InputMouseAction(pressed) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_mouse_action.send(InputMouseAction {
-                                entity: *player_entity,
-                                pressed,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to input_mouse_action sender handle.");
-                        }
+            ControllerClientMessage::SelectBodyPart(body_part) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_select_body_part.send(InputSelectBodyPart {
+                            entity: *player_entity,
+                            body_part,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
                     }
                 }
+            }
+            ControllerClientMessage::ToggleAutoMove => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_toggle_auto_move.send(InputToggleAutoMove {
+                            entity: *player_entity,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to InputToggleAutoMove sender handle.");
+                    }
+                }
+            }
+            ControllerClientMessage::AttackEntity(entity_id) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_attack_entity.send(InputAttackEntity {
+                            entity: *player_entity,
+                            target_entity_bits: entity_id,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to InputAttackEntity sender handle.");
+                    }
+                }
+            }
 
-                ControllerClientMessage::SelectBodyPart(body_part) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_select_body_part.send(InputSelectBodyPart {
-                                entity: *player_entity,
-                                body_part,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
-                        }
+            ControllerClientMessage::AltItemAttack => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_alt_item_attack.send(InputAltItemAttack {
+                            entity: *player_entity,
+                        });
+                    }
+                    None => {
+                        warn!(
+                            "Couldn't find player_entity belonging to AltItemAttack sender handle."
+                        );
                     }
                 }
-                ControllerClientMessage::ToggleAutoMove => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_toggle_auto_move.send(InputToggleAutoMove {
-                                entity: *player_entity,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to InputToggleAutoMove sender handle.");
-                        }
-                    }
-                }
-                ControllerClientMessage::AttackEntity(entity_id) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_attack_entity.send(InputAttackEntity {
-                                entity: *player_entity,
-                                target_entity_bits: entity_id,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to InputAttackEntity sender handle.");
-                        }
-                    }
-                }
+            }
 
-                ControllerClientMessage::AltItemAttack => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_alt_item_attack.send(InputAltItemAttack {
-                                entity: *player_entity,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to AltItemAttack sender handle.");
-                        }
+            ControllerClientMessage::AttackCell(cell_x, cell_y, cell_z) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_attack_cell.send(InputAttackCell {
+                            entity: *player_entity,
+                            id: Vec3Int {
+                                x: cell_x,
+                                y: cell_y,
+                                z: cell_z,
+                            },
+                        });
                     }
-                }
-
-                ControllerClientMessage::AttackCell(cell_x, cell_y, cell_z) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_attack_cell.send(InputAttackCell {
-                                entity: *player_entity,
-                                id: Vec3Int {
-                                    x: cell_x,
-                                    y: cell_y,
-                                    z: cell_z,
-                                },
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to InputAttackCell sender handle.");
-                        }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to InputAttackCell sender handle.");
                     }
                 }
             }
         }
+    }
 
-        while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
-            let client_message: ControllerUnreliableClientMessage =
-                bincode::deserialize(&message).unwrap();
-
-            match client_message {
-                ControllerUnreliableClientMessage::MouseDirectionUpdate(
-                    mouse_direction,
-                    time_stamp,
-                ) => match handle_to_entity.map.get(&handle) {
-                    Some(player_entity) => {
-                        mouse_direction_update.send(InputMouseDirectionUpdate {
-                            entity: *player_entity,
-                            direction: mouse_direction,
-                            time_stamp,
-                        });
-                    }
-                    None => {
-                        warn!("Couldn't find player_entity belonging to mouse_direction_update sender handle.");
-                    }
-                },
+    for message in u_server.iter() {
+        let client_message;
+        match get_unreliable_message::<ControllerUnreliableClientMessage>(
+            &typenames,
+            message.message.typename_net,
+            &message.message.serialized,
+        ) {
+            Some(x) => {
+                client_message = x;
             }
+            None => {
+                continue;
+            }
+        }
+
+        match client_message {
+            ControllerUnreliableClientMessage::MouseDirectionUpdate(
+                mouse_direction,
+                time_stamp,
+            ) => match handle_to_entity.map.get(&message.handle) {
+                Some(player_entity) => {
+                    mouse_direction_update.send(InputMouseDirectionUpdate {
+                        entity: *player_entity,
+                        direction: mouse_direction,
+                        time_stamp,
+                    });
+                }
+                None => {
+                    warn!("Couldn't find player_entity belonging to mouse_direction_update sender handle.");
+                }
+            },
         }
     }
 }

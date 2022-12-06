@@ -1,8 +1,4 @@
-use bevy::prelude::ResMut;
-
 use bevy::prelude::warn;
-use bevy_renet::renet::RenetServer;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use networking::server::GodotVariant;
 use networking::server::GodotVariantValues;
 use serde::Deserialize;
@@ -20,41 +16,47 @@ pub enum ConsoleCommandsClientMessage {
     ConsoleCommand(String, Vec<GodotVariantValues>),
 }
 
+use bevy::prelude::EventReader;
+use networking::typenames::get_reliable_message;
+use networking::typenames::IncomingReliableClientMessage;
+use networking::typenames::Typenames;
+
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: ResMut<RenetServer>,
+    mut server: EventReader<IncomingReliableClientMessage>,
     handle_to_entity: Res<HandleToEntity>,
     mut console_commands_queue: EventWriter<InputConsoleCommand>,
+    typenames: Res<Typenames>,
 ) {
-    for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<ConsoleCommandsClientMessage, _> =
-                bincode::deserialize(&message);
-            let client_message;
-            match client_message_result {
-                Ok(x) => {
-                    client_message = x;
-                }
-                Err(_rr) => {
-                    continue;
-                }
+    for message in server.iter() {
+        let client_message;
+        match get_reliable_message::<ConsoleCommandsClientMessage>(
+            &typenames,
+            message.message.typename_net,
+            &message.message.serialized,
+        ) {
+            Some(x) => {
+                client_message = x;
             }
+            None => {
+                continue;
+            }
+        }
 
-            match client_message {
-                ConsoleCommandsClientMessage::ConsoleCommand(command_name, variant_arguments) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            console_commands_queue.send(InputConsoleCommand {
-                                handle_option: Some(handle),
-                                entity: *player_entity,
-                                command_name: command_name,
-                                command_arguments: variant_arguments,
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to console_command sender handle.");
-                        }
+        match client_message {
+            ConsoleCommandsClientMessage::ConsoleCommand(command_name, variant_arguments) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        console_commands_queue.send(InputConsoleCommand {
+                            handle_option: Some(message.handle),
+                            entity: *player_entity,
+                            command_name: command_name,
+                            command_arguments: variant_arguments,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to console_command sender handle.");
                     }
                 }
             }

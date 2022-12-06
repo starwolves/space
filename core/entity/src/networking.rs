@@ -1,8 +1,4 @@
-use bevy::prelude::ResMut;
-
 use bevy::prelude::warn;
-use bevy_renet::renet::RenetServer;
-use networking::plugin::RENET_RELIABLE_CHANNEL_ID;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -19,42 +15,49 @@ use networking::server::HandleToEntity;
 pub enum EntityClientMessage {
     ExamineEntity(u64),
 }
+use networking::typenames::get_reliable_message;
+use networking::typenames::IncomingReliableClientMessage;
+use networking::typenames::Typenames;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: ResMut<RenetServer>,
+    mut server: EventReader<IncomingReliableClientMessage>,
     handle_to_entity: Res<HandleToEntity>,
     mut input_examine_entity: EventWriter<InputExamineEntity>,
+    typenames: Res<Typenames>,
 ) {
-    for handle in server.clients_id().into_iter() {
-        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
-            let client_message_result: Result<EntityClientMessage, _> =
-                bincode::deserialize(&message);
-            let client_message;
-            match client_message_result {
-                Ok(x) => {
-                    client_message = x;
-                }
-                Err(_rr) => {
-                    continue;
-                }
-            }
+    for message in server.iter() {
+        let client_message;
 
-            match client_message {
-                EntityClientMessage::ExamineEntity(entity_id) => {
-                    match handle_to_entity.map.get(&handle) {
-                        Some(player_entity) => {
-                            input_examine_entity.send(InputExamineEntity {
-                                handle: handle,
-                                examine_entity: Entity::from_bits(entity_id),
-                                entity: *player_entity,
-                                ..Default::default()
-                            });
-                        }
-                        None => {
-                            warn!("Couldn't find player_entity belonging to ExamineEntity sender handle.");
-                        }
+        match get_reliable_message::<EntityClientMessage>(
+            &typenames,
+            message.message.typename_net,
+            &message.message.serialized,
+        ) {
+            Some(x) => {
+                client_message = x;
+            }
+            None => {
+                continue;
+            }
+        }
+
+        match client_message {
+            EntityClientMessage::ExamineEntity(entity_id) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_examine_entity.send(InputExamineEntity {
+                            handle: message.handle,
+                            examine_entity: Entity::from_bits(entity_id),
+                            entity: *player_entity,
+                            ..Default::default()
+                        });
+                    }
+                    None => {
+                        warn!(
+                            "Couldn't find player_entity belonging to ExamineEntity sender handle."
+                        );
                     }
                 }
             }

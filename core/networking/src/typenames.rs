@@ -71,10 +71,11 @@ pub enum MessageSender {
     Both,
 }
 
+use crate::client::is_client_connected;
 use iyes_loopless::prelude::IntoConditionalSystem;
 use std::env;
 
-use crate::client::connected;
+/// All reliable networking messages must be registered with this system.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn init_reliable_message<T: TypeName + Send + Sync + Serialize + 'static>(
     app: &mut App,
@@ -106,10 +107,11 @@ pub fn init_reliable_message<T: TypeName + Send + Sync + Serialize + 'static>(
         app.add_event::<OutgoingReliableClientMessage<T>>()
             .add_system_to_stage(
                 PostUpdate,
-                send_outgoing_reliable_client_messages::<T>.run_if(connected),
+                send_outgoing_reliable_client_messages::<T>.run_if(is_client_connected),
             );
     }
 }
+/// All unreliable networking messages must be registered with this system.
 pub fn init_unreliable_message<T: TypeName + Send + Sync + Serialize + 'static>(
     app: &mut App,
     sender: MessageSender,
@@ -138,7 +140,7 @@ pub fn init_unreliable_message<T: TypeName + Send + Sync + Serialize + 'static>(
         app.add_event::<OutgoingUnreliableClientMessage<T>>()
             .add_system_to_stage(
                 PostUpdate,
-                send_outgoing_unreliable_client_messages::<T>.run_if(connected),
+                send_outgoing_unreliable_client_messages::<T>.run_if(is_client_connected),
             );
     }
 }
@@ -147,14 +149,14 @@ pub fn init_unreliable_message<T: TypeName + Send + Sync + Serialize + 'static>(
 #[derive(Serialize, Deserialize)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct ReliableMessage {
-    pub message: Vec<u8>,
+    pub serialized: Vec<u8>,
     pub typename_net: u16,
 }
 /// Wrapper for unreliable messages.
 #[derive(Serialize, Deserialize)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct UnreliableMessage {
-    pub message: Vec<u8>,
+    pub serialized: Vec<u8>,
     pub typename_net: u8,
 }
 
@@ -169,30 +171,58 @@ pub struct OutgoingReliableServerMessage<T: TypeName + Send + Sync + 'static> {
 pub struct IncomingReliableServerMessage {
     pub message: ReliableMessage,
 }
+
+/// Returns an option containing the desired reliable netcode message.
 #[cfg(any(feature = "client"))]
-pub fn identify_reliable_server_input<T: TypeName>(
+pub fn get_reliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>(
     typenames: &Res<Typenames>,
     identifier: u16,
-) -> bool {
+    message: &[u8],
+) -> Option<T> {
     match typenames.reliable_net_types.get(&T::type_name()) {
-        Some(i) => &identifier == i,
+        Some(i) => {
+            if &identifier == i {
+                match bincode::deserialize::<T>(message) {
+                    Ok(t) => Some(t),
+                    Err(_) => {
+                        warn!("Couldnt serialize message!");
+                        None
+                    }
+                }
+            } else {
+                None
+            }
+        }
         None => {
             warn!("Couldnt find reliable net type.");
-            false
+            None
         }
     }
 }
-
+/// Returns an option containing the desired unreliable netcode message.
 #[cfg(any(feature = "client"))]
-pub fn identify_unreliable_server_input<T: TypeName>(
+pub fn get_unreliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>(
     typenames: &Res<Typenames>,
     identifier: u8,
-) -> bool {
+    message: &[u8],
+) -> Option<T> {
     match typenames.unreliable_net_types.get(&T::type_name()) {
-        Some(i) => &identifier == i,
+        Some(i) => {
+            if &identifier == i {
+                match bincode::deserialize::<T>(message) {
+                    Ok(t) => Some(t),
+                    Err(_) => {
+                        warn!("Couldnt serialize message!");
+                        None
+                    }
+                }
+            } else {
+                None
+            }
+        }
         None => {
-            warn!("Couldnt find unreliable net type.");
-            false
+            warn!("Couldnt find reliable net type.");
+            None
         }
     }
 }
@@ -200,6 +230,18 @@ pub fn identify_unreliable_server_input<T: TypeName>(
 /// Event to when received reliable message from server.
 #[cfg(any(feature = "client"))]
 pub struct IncomingUnreliableServerMessage {
+    pub message: UnreliableMessage,
+}
+/// Event to when received reliable message from client.
+#[cfg(any(feature = "server"))]
+pub struct IncomingReliableClientMessage {
+    pub handle: u64,
+    pub message: ReliableMessage,
+}
+/// Event to when received reliable message from client.
+#[cfg(any(feature = "server"))]
+pub struct IncomingUnreliableClientMessage {
+    pub handle: u64,
     pub message: UnreliableMessage,
 }
 /// Event to send reliable messages from client to server.
@@ -261,6 +303,52 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
     }
 }
 
+/// Deserializes header of incoming client messages and writes to event.
+#[cfg(any(feature = "server"))]
+pub(crate) fn receive_incoming_reliable_client_messages(
+    mut events: EventWriter<IncomingReliableClientMessage>,
+    mut server: ResMut<RenetServer>,
+) {
+    for handle in server.clients_id().into_iter() {
+        while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
+            match bincode::deserialize::<ReliableMessage>(&message) {
+                Ok(msg) => {
+                    events.send(IncomingReliableClientMessage {
+                        message: msg,
+                        handle,
+                    });
+                }
+                Err(_) => {
+                    warn!("Received an invalid message.");
+                }
+            }
+        }
+    }
+}
+
+/// Dezerializes header of incoming client messages and writes to event.
+#[cfg(any(feature = "server"))]
+pub(crate) fn receive_incoming_unreliable_client_messages(
+    mut events: EventWriter<IncomingUnreliableClientMessage>,
+    mut server: ResMut<RenetServer>,
+) {
+    for handle in server.clients_id().into_iter() {
+        while let Some(message) = server.receive_message(handle, RENET_UNRELIABLE_CHANNEL_ID) {
+            match bincode::deserialize::<UnreliableMessage>(&message) {
+                Ok(msg) => {
+                    events.send(IncomingUnreliableClientMessage {
+                        message: msg,
+                        handle,
+                    });
+                }
+                Err(_) => {
+                    warn!("Received an invalid message.");
+                }
+            }
+        }
+    }
+}
+
 /// Serializes and sends the outgoing reliable server messages.
 #[cfg(any(feature = "server"))]
 pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serialize>(
@@ -297,7 +385,7 @@ pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync +
         }
 
         match bincode::serialize(&ReliableMessage {
-            message: bin,
+            serialized: bin,
             typename_net: *net,
         }) {
             Ok(bits) => {
@@ -345,7 +433,7 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
         }
 
         match bincode::serialize(&ReliableMessage {
-            message: bin,
+            serialized: bin,
             typename_net: *net,
         }) {
             Ok(bits) => {
@@ -393,7 +481,7 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
         }
 
         match bincode::serialize(&UnreliableMessage {
-            message: bin,
+            serialized: bin,
             typename_net: *net,
         }) {
             Ok(bits) => {
@@ -440,7 +528,7 @@ pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync
         }
 
         match bincode::serialize(&UnreliableMessage {
-            message: bin,
+            serialized: bin,
             typename_net: *net,
         }) {
             Ok(bits) => {
