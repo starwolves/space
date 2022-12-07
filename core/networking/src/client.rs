@@ -374,13 +374,13 @@ pub struct OutgoingReliableClientMessage<T: TypeName + Send + Sync + 'static> {
 
 /// Event to when received reliable message from server.
 #[cfg(feature = "client")]
-pub struct IncomingRawReliableServerMessage {
+pub (crate) struct IncomingRawReliableServerMessage {
     pub message: ReliableMessage,
 }
 
 /// Event to when received reliable message from server.
 #[cfg(feature = "client")]
-pub struct IncomingRawUnreliableServerMessage {
+pub (crate) struct IncomingRawUnreliableServerMessage {
     pub message: UnreliableMessage,
 }
 
