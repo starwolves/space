@@ -135,7 +135,7 @@ use player::{
 };
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use console_commands::networking::ConsoleCommandsServerMessage;
 /// Set player connection account name that also isn't already taken.

@@ -3,9 +3,9 @@ use bevy::prelude::{EventReader, Res};
 use player::connection::SendServerConfiguration;
 
 use crate::networking::GridmapServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,

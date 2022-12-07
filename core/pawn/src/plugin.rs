@@ -8,7 +8,7 @@ use crate::{
 use bevy::app::CoreStage::PreUpdate;
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::{App, Plugin};
-use networking::typenames::{init_reliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, MessageSender};
 use player::names::InputAccountName;
 use resources::labels::ActionsLabels;
 pub struct PawnPlugin;

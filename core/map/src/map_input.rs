@@ -37,7 +37,7 @@ pub(crate) fn map_input(
 }
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::MapServerMessage;
 /// Request available map overlays.

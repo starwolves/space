@@ -5,7 +5,7 @@ use bevy::{
     time::FixedTimestep,
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
-use networking::typenames::{init_reliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, MessageSender};
 use resources::labels::PostUpdateLabels;
 
 use crate::{entity_update::SfxAutoDestroyTimers, networking::SfxServerMessage, timers::free_sfx};

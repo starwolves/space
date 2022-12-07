@@ -4,7 +4,7 @@ use player::names::UsedNames;
 
 use bevy::prelude::EventWriter;
 use console_commands::networking::ConsoleCommandsServerMessage;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 /// Player selector to entities.
 #[cfg(feature = "server")]

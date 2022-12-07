@@ -179,10 +179,10 @@ use pawn::pawn::Pawn;
 
 use entity::networking::{EntityServerMessage, EntityWorldType};
 use networking::server::NetworkingChatServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 use sfx::networking::SfxServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 /// It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
 #[cfg(feature = "server")]
 pub(crate) fn chat_message(

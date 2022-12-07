@@ -15,9 +15,9 @@ use crate::diffusion::{
 };
 
 use networking::server::ConnectedPlayer;
+use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 
 /// Get data of atmospherics on tile when hovered in map by player.
 #[cfg(feature = "server")]

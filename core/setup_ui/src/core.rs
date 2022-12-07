@@ -54,7 +54,7 @@ use player::{connection::SetupPhase, names::UsedNames};
 
 use entity::networking::{EntityServerMessage, EntityWorldType};
 use networking::server::NetworkingChatServerMessage;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use networking::server::ConnectedPlayer;
 /// Initialize the setup UI by spawning in showcase entities etc.
@@ -245,7 +245,7 @@ pub(crate) fn new_clients_enable_setupui(
         }
     }
 }
-use networking::typenames::IncomingReliableServerMessage;
+use networking::client::IncomingReliableServerMessage;
 
 /// Receive message from server to initialize setup ui.
 #[cfg(feature = "client")]

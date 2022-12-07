@@ -15,7 +15,7 @@ use networking::server::HandleToEntity;
 pub enum EntityClientMessage {
     ExamineEntity(u64),
 }
-use networking::typenames::IncomingReliableClientMessage;
+use networking::server::IncomingReliableClientMessage;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
@@ -69,7 +69,7 @@ use crate::entity_data::WorldMode;
 use crate::entity_data::WorldModes;
 use bevy::prelude::EventReader;
 use bevy_rapier3d::prelude::RigidBody;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 /// Load an entity in for the client.
 #[cfg(feature = "server")]

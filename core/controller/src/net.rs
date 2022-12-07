@@ -3,10 +3,10 @@ use bevy::prelude::With;
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Without};
 use entity::networking::LoadEntity;
 use gi_probe::core::GIProbe;
+use networking::server::OutgoingReliableServerMessage;
 use reflection_probe::core::ReflectionProbe;
 use world_environment::environment::WorldEnvironment;
 
-use networking::typenames::OutgoingReliableServerMessage;
 use player::connections::PlayerServerMessage;
 
 /// Build graphics for Godot client.

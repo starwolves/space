@@ -93,7 +93,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
         }
     }
 }
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use entity::networking::EntityServerMessage;
 /// Human male spawner.

@@ -28,7 +28,7 @@ use networking::server::HandleToEntity;
 
 use crate::entity_data::CachedBroadcastTransform;
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingUnreliableServerMessage;
+use networking::server::OutgoingUnreliableServerMessage;
 
 use bevy_rapier3d::prelude::RigidBody;
 use networking::server::ConnectedPlayer;

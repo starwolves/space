@@ -1,10 +1,10 @@
 use crate::map_input::MapData;
 use bevy::prelude::{EventReader, Res};
+use networking::server::OutgoingReliableServerMessage;
 use player::connection::SendServerConfiguration;
 
 use crate::networking::MapServerMessage;
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,

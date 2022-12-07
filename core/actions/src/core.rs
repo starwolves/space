@@ -90,9 +90,9 @@ impl ActionData {
 use networking::server::HandleToEntity;
 
 use crate::networking::NetAction;
+use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 
 use crate::networking::ActionsServerMessage;
 #[cfg(feature = "server")]

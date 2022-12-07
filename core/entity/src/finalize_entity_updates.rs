@@ -9,7 +9,7 @@ use crate::{entity_data::EntityUpdates, sensable::Sensable};
 use crate::entity_data::personalise;
 use bevy::prelude::EventWriter;
 
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::{EntityServerMessage, EntityWorldType};
 /// Finalize entity updates of this frame and send them to Godot clients.

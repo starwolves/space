@@ -35,7 +35,7 @@ use rand::Rng;
 
 use entity::networking::{EntityServerMessage, EntityWorldType};
 use networking::server::HandleToEntity;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 use pawn::pawn::{Pawn, REACH_DISTANCE};
 use physics::physics::{disable_rigidbody, enable_rigidbody, RigidBodyLinkTransform};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};

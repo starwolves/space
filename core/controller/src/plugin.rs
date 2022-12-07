@@ -15,7 +15,7 @@ use bevy::{
     time::FixedTimestep,
 };
 
-use networking::typenames::{init_reliable_message, init_unreliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, init_unreliable_message, MessageSender};
 use player::boarding::BoardingPlayer;
 use player::plugin::ConfigurationLabel;
 use resources::labels::UpdateLabels;

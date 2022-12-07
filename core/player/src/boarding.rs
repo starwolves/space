@@ -23,7 +23,7 @@ use crate::spawn_points::Spawning;
 
 use bevy::prelude::EventWriter;
 use bevy::time::TimerMode;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 use text_api::core::get_talk_spaces;
 
 /// Perform initialization of spawning player.

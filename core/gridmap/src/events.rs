@@ -21,9 +21,9 @@ use super::fov::{DoryenMap, FOV_DISTANCE};
 use networking::server::ConnectedPlayer;
 
 use crate::networking::GridmapServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 
 /// Manage gridmap update events such as adding and removing cells.
 #[cfg(feature = "server")]

@@ -120,7 +120,7 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
 pub trait BaseEntitySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> BaseEntityBundle;
 }
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::EntityServerMessage;
 /// Spawn base entity components handler.

@@ -31,7 +31,7 @@ pub struct AirLockOpenRequest {
 use networking::server::NetworkingChatServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 /// Manage air lock events.
 #[cfg(feature = "server")]
 pub(crate) fn air_lock_events(

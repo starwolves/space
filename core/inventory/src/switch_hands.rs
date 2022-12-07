@@ -1,10 +1,10 @@
 use bevy::prelude::{Entity, EventReader, Query, Res};
 use inventory_api::core::Inventory;
 use networking::server::HandleToEntity;
+use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::InventoryServerMessage;
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 /// From client input change active hand.
 #[cfg(feature = "server")]
 pub(crate) fn switch_hands(

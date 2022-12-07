@@ -1,10 +1,10 @@
 use crate::commands::AllConsoleCommands;
 use crate::networking::ConsoleCommandsServerMessage;
 use bevy::prelude::{EventReader, Res};
+use networking::server::OutgoingReliableServerMessage;
 use player::connection::SendServerConfiguration;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 #[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,

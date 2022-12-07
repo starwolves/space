@@ -8,8 +8,8 @@ use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use player::spawn_points::{PawnDesignation, SpawnPawnData};
 
+use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
-use networking::typenames::OutgoingReliableServerMessage;
 use player::{boarding::PersistentPlayerData, names::UsedNames, spawn_points::Spawning};
 
 use player::connections::PlayerServerMessage;

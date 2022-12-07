@@ -48,10 +48,10 @@ use networking::server::ConnectedPlayer;
 
 use entity::health::HealthComponent;
 use entity::health::HealthContainer;
+use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
 use entity::networking::{EntityServerMessage, EntityWorldType};
-use networking::typenames::OutgoingReliableServerMessage;
 /// Manage sending UI health updates to Godot client.
 #[cfg(feature = "server")]
 pub(crate) fn health_ui_update(

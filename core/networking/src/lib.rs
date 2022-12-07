@@ -4,9 +4,9 @@
 
 /// General client-side server input manager.
 pub mod client;
+/// Create reliable and consistent identifiers linked with 16-bit identifiers for netcode messages. Required for modular netcode practises.
+pub mod messaging;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// General server-side client input manager.
 pub mod server;
-/// Create reliable and consistent identifiers linked with 16-bit identifiers for netcode messages. Required for modular netcode practises.
-pub mod typenames;

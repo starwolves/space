@@ -1,7 +1,7 @@
 use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use networking::typenames::{init_reliable_message, init_unreliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, init_unreliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::labels::MapLabels;
 
