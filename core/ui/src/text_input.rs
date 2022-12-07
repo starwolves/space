@@ -13,9 +13,13 @@ pub const INPUT_TEXT_BG_FOCUSED: Color = Color::rgb(0.46, 0.5, 0.79);
 #[cfg(feature = "client")]
 #[derive(Component, Default)]
 pub struct TextInputNode {
+    /// The text the input node currently holds.
     pub input: String,
+    /// The placeholder text displayed.
     pub placeholder_text_option: Option<String>,
+    /// Current text is placeholder, when focused the placeholder text clears.
     pub placeholder_active: bool,
+    /// Apply a filter to allowed characters in the input field.
     pub character_filter_option: Option<CharacterFilter>,
 }
 pub enum CharacterFilter {
