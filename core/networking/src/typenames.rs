@@ -58,7 +58,7 @@ pub fn generate_typenames(mut typenames: ResMut<Typenames>) {
         }
     }
     info!(
-        "Readied {} uniquely serializable messages.",
+        "Loaded {} uniquely serializable messages.",
         typenames.reliable_net_types.len() + typenames.unreliable_net_types.len()
     );
 }
@@ -122,8 +122,7 @@ pub fn init_reliable_message<
             );
     }
     if client_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
-        app.add_event::<IncomingReliableServerMessage<T>>()
-            .add_event::<IncomingReliableClientMessage<T>>()
+        app.add_event::<IncomingReliableClientMessage<T>>()
             .add_system_to_stage(
                 PreUpdate,
                 deserialize_incoming_reliable_client_message::<T>
@@ -175,8 +174,7 @@ pub fn init_unreliable_message<
             );
     }
     if client_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
-        app.add_event::<IncomingUnreliableServerMessage<T>>()
-            .add_event::<IncomingUnreliableClientMessage<T>>()
+        app.add_event::<IncomingUnreliableClientMessage<T>>()
             .add_system_to_stage(
                 PreUpdate,
                 deserialize_incoming_unreliable_client_message::<T>
@@ -510,12 +508,7 @@ pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync +
     mut events: EventReader<OutgoingReliableServerMessage<T>>,
     mut server: ResMut<RenetServer>,
     typenames: Res<Typenames>,
-    mut test: EventReader<IncomingReliableClientMessage<NetworkingClientServerMessage>>,
 ) {
-    for t in test.iter() {
-        info!("{:?} from {}", t.message, t.handle);
-    }
-
     for message in events.iter() {
         let net;
         match typenames
@@ -558,7 +551,6 @@ pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync +
         }
     }
 }
-use crate::server::NetworkingClientServerMessage;
 use bevy_renet::renet::RenetClient;
 
 /// Serializes and sends the outgoing reliable client messages.
