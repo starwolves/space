@@ -422,13 +422,13 @@ pub struct OutgoingUnreliableServerMessage<T: TypeName + Send + Sync + 'static> 
 }
 /// Event to when received reliable message from client.
 #[cfg(feature = "server")]
-pub struct IncomingRawReliableClientMessage {
+pub (crate) struct IncomingRawReliableClientMessage {
     pub handle: u64,
     pub message: ReliableMessage,
 }
 /// Event to when received reliable message from client.
 #[cfg(feature = "server")]
-pub struct IncomingRawUnreliableClientMessage {
+pub (crate) struct IncomingRawUnreliableClientMessage {
     pub handle: u64,
     pub message: UnreliableMessage,
 }

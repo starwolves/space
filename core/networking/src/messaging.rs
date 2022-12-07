@@ -20,12 +20,12 @@ use bevy::prelude::warn;
 
 /// Generic startup system that registers reliable netcode message types. All reliable netcode types sent over the net must be registered with this system.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn reliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
+pub (crate) fn reliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
     typenames.reliable_types.push(T::type_name());
 }
 /// Generic startup system that registers unreliable netcode message types. All unreliable netcode types sent over the net must be registered with this system.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn unreliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
+pub (crate) fn unreliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
     typenames.unreliable_types.push(T::type_name());
 }
 use bevy::prelude::info;
@@ -210,21 +210,21 @@ pub fn init_unreliable_message<
 /// Wrapper for reliable messages.
 #[derive(Serialize, Deserialize)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct ReliableMessage {
+pub (crate) struct ReliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u16,
 }
 /// Wrapper for unreliable messages.
 #[derive(Serialize, Deserialize)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct UnreliableMessage {
+pub (crate) struct UnreliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u8,
 }
 
 /// Returns an option containing the desired reliable netcode message.
 #[cfg(any(feature = "client", feature = "server"))]
-pub fn get_reliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>(
+pub (crate) fn get_reliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>(
     typenames: &Res<Typenames>,
     identifier: u16,
     message: &[u8],
