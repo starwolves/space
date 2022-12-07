@@ -17,32 +17,17 @@ pub enum ConsoleCommandsClientMessage {
 }
 
 use bevy::prelude::EventReader;
-use networking::typenames::get_reliable_message;
 use networking::typenames::IncomingReliableClientMessage;
-use networking::typenames::Typenames;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage>,
+    mut server: EventReader<IncomingReliableClientMessage<ConsoleCommandsClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
     mut console_commands_queue: EventWriter<InputConsoleCommand>,
-    typenames: Res<Typenames>,
 ) {
     for message in server.iter() {
-        let client_message;
-        match get_reliable_message::<ConsoleCommandsClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             ConsoleCommandsClientMessage::ConsoleCommand(command_name, variant_arguments) => {

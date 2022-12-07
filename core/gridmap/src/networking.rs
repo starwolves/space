@@ -19,33 +19,17 @@ pub enum GridmapClientMessage {
 }
 
 use bevy::prelude::EventReader;
-use networking::typenames::get_reliable_message;
 use networking::typenames::IncomingReliableClientMessage;
-use networking::typenames::Typenames;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage>,
+    mut server: EventReader<IncomingReliableClientMessage<GridmapClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
     mut input_examine_map: EventWriter<InputExamineMap>,
-    typenames: Res<Typenames>,
 ) {
     for message in server.iter() {
-        let client_message;
-
-        match get_reliable_message::<GridmapClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             GridmapClientMessage::ExamineMap(grid_map_type, cell_id_x, cell_id_y, cell_id_z) => {

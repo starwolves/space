@@ -69,20 +69,16 @@ pub struct InputUIInput {
 pub enum ControllerUnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
 }
-use networking::typenames::get_reliable_message;
 use networking::typenames::IncomingUnreliableClientMessage;
-use networking::typenames::Typenames;
 
 use bevy::prelude::EventReader;
-use networking::typenames::get_unreliable_message;
 use networking::typenames::IncomingReliableClientMessage;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage>,
-    mut u_server: EventReader<IncomingUnreliableClientMessage>,
-    typenames: Res<Typenames>,
+    mut server: EventReader<IncomingReliableClientMessage<ControllerClientMessage>>,
+    mut u_server: EventReader<IncomingUnreliableClientMessage<ControllerUnreliableClientMessage>>,
     mut input_ui_input: EventWriter<InputUIInput>,
     mut scene_ready_event: EventWriter<InputSceneReady>,
     mut ui_input_transmit_text: EventWriter<InputUIInputTransmitText>,
@@ -110,19 +106,7 @@ pub(crate) fn incoming_messages(
     ) = input_tuple;
 
     for message in server.iter() {
-        let client_message;
-        match get_reliable_message::<ControllerClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             ControllerClientMessage::UIInput(node_class, action, node_name, ui_type) => {
@@ -285,19 +269,7 @@ pub(crate) fn incoming_messages(
     }
 
     for message in u_server.iter() {
-        let client_message;
-        match get_unreliable_message::<ControllerUnreliableClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             ControllerUnreliableClientMessage::MouseDirectionUpdate(

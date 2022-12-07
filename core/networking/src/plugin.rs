@@ -17,9 +17,9 @@ use crate::{
         generate_typenames, init_reliable_message, init_unreliable_message,
         receive_incoming_reliable_client_messages, receive_incoming_reliable_server_messages,
         receive_incoming_unreliable_client_messages, receive_incoming_unreliable_server_messages,
-        IncomingReliableClientMessage, IncomingReliableServerMessage,
-        IncomingUnreliableClientMessage, IncomingUnreliableServerMessage, MessageSender, Typenames,
-        TypenamesLabel,
+        IncomingRawReliableClientMessage, IncomingRawReliableServerMessage,
+        IncomingRawUnreliableClientMessage, IncomingRawUnreliableServerMessage, MessageSender,
+        Typenames, TypenamesLabel,
     },
 };
 use bevy::app::CoreStage::PreUpdate;
@@ -31,10 +31,17 @@ impl Plugin for NetworkingPlugin {
             app.add_plugin(RenetServerPlugin::default())
                 .insert_resource(startup_server_listen_connections())
                 .add_system(souls)
-                .add_event::<IncomingReliableClientMessage>()
-                .add_event::<IncomingUnreliableClientMessage>()
-                .add_system_to_stage(PreUpdate, receive_incoming_reliable_client_messages)
-                .add_system_to_stage(PreUpdate, receive_incoming_unreliable_client_messages);
+                .add_event::<IncomingRawReliableClientMessage>()
+                .add_event::<IncomingRawUnreliableClientMessage>()
+                .add_system_to_stage(
+                    PreUpdate,
+                    receive_incoming_reliable_client_messages.label(TypenamesLabel::SendRawEvents),
+                )
+                .add_system_to_stage(
+                    PreUpdate,
+                    receive_incoming_unreliable_client_messages
+                        .label(TypenamesLabel::SendRawEvents),
+                );
         } else {
             app.add_plugin(RenetClientPlugin::default())
                 .add_system(connect_to_server)
@@ -43,14 +50,18 @@ impl Plugin for NetworkingPlugin {
                 .init_resource::<Connection>()
                 .add_system_to_stage(
                     PreUpdate,
-                    receive_incoming_reliable_server_messages.run_if(is_client_connected),
+                    receive_incoming_reliable_server_messages
+                        .run_if(is_client_connected)
+                        .label(TypenamesLabel::SendRawEvents),
                 )
                 .add_system_to_stage(
                     PreUpdate,
-                    receive_incoming_unreliable_server_messages.run_if(is_client_connected),
+                    receive_incoming_unreliable_server_messages
+                        .run_if(is_client_connected)
+                        .label(TypenamesLabel::SendRawEvents),
                 )
-                .add_event::<IncomingReliableServerMessage>()
-                .add_event::<IncomingUnreliableServerMessage>();
+                .add_event::<IncomingRawReliableServerMessage>()
+                .add_event::<IncomingRawUnreliableServerMessage>();
         }
 
         app.init_resource::<Typenames>()

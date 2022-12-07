@@ -28,14 +28,12 @@ pub enum InventoryClientMessage {
     ThrowItem(Vec3, f32),
 }
 use bevy::prelude::EventReader;
-use networking::typenames::get_reliable_message;
 use networking::typenames::IncomingReliableClientMessage;
-use networking::typenames::Typenames;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage>,
+    mut server: EventReader<IncomingReliableClientMessage<InventoryClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
     mut use_world_item: EventWriter<InputUseWorldItem>,
     mut drop_current_item: EventWriter<InputDropCurrentItem>,
@@ -43,22 +41,9 @@ pub(crate) fn incoming_messages(
     mut wear_items: EventWriter<InputWearItem>,
     mut take_off_item: EventWriter<InputTakeOffItem>,
     mut input_throw_item: EventWriter<InputThrowItem>,
-    typenames: Res<Typenames>,
 ) {
     for message in server.iter() {
-        let client_message;
-        match get_reliable_message::<InventoryClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             InventoryClientMessage::UseWorldItem(entity_id) => {
