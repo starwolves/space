@@ -59,6 +59,16 @@ pub(crate) struct MainMenuExitButton;
 #[cfg(feature = "client")]
 pub(crate) struct SpaceFrontiersHeader;
 use crate::events::SPACE_FRONTIERS_HEADER_TEXT_COLOR;
+use ui::button::ButtonVisuals;
+#[cfg(feature = "client")]
+pub(crate) fn on_submenu_connect_creation(
+    query: Query<Entity, Added<IpAddressInput>>,
+    mut fill_connect_menu: EventWriter<AutoFillConnectSubMenu>,
+) {
+    for _ in query.iter() {
+        fill_connect_menu.send(AutoFillConnectSubMenu);
+    }
+}
 
 /// System that toggles the base visiblity of the main menu.
 #[cfg(feature = "client")]
@@ -70,8 +80,6 @@ pub(crate) fn show_main_menu(
     client_information: Res<ClientInformation>,
     mut show_play_menu: EventWriter<EnablePlayMenu>,
 ) {
-    use ui::button::ButtonVisuals;
-
     if state.enabled {
         return;
     }
@@ -465,13 +473,14 @@ pub struct PlayMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
 }
-use bevy::prelude::Query;
 use bevy::prelude::With;
 use bevy::prelude::{warn, Resource};
+use bevy::prelude::{Added, Query};
 use bevy::ui::AlignContent;
 use bevy::ui::Interaction;
 
-use ui::text_input::{CharacterFilter, TextInputNode, INPUT_TEXT_BG, INPUT_TEXT_BG_HOVER};
+use ui::button::HOVERED_BUTTON;
+use ui::text_input::{CharacterFilter, SetText, TextInputNode, INPUT_TEXT_BG, INPUT_TEXT_BG_HOVER};
 
 /// Displays play menu
 #[cfg(feature = "client")]
@@ -482,8 +491,6 @@ pub(crate) fn show_play_menu(
     asset_server: Res<AssetServer>,
     root_node_query: Query<Entity, With<MainMainMenuRoot>>,
 ) {
-    use ui::button::{ButtonVisuals, HOVERED_BUTTON};
-
     for event in show_events.iter() {
         let mut root_node_option = None;
         for root in root_node_query.iter() {
@@ -885,3 +892,31 @@ pub struct IpAddressInput;
 #[cfg(feature = "client")]
 #[derive(Component)]
 pub struct ConnectToServerButton;
+
+/// Event that triggers auto fill.
+#[cfg(feature = "client")]
+pub struct AutoFillConnectSubMenu;
+
+#[cfg(feature = "client")]
+pub(crate) fn auto_fill_connect_menu(
+    mut events: EventReader<AutoFillConnectSubMenu>,
+    mut set_text: EventWriter<SetText>,
+    name_input_query: Query<Entity, With<AccountNameInput>>,
+    server_address_input_query: Query<Entity, With<IpAddressInput>>,
+) {
+    for _ in events.iter() {
+        for entity in name_input_query.iter() {
+            set_text.send(SetText {
+                entity,
+                text: "starwolf".to_string(),
+            })
+        }
+
+        for entity in server_address_input_query.iter() {
+            set_text.send(SetText {
+                entity,
+                text: local_ipaddress::get().unwrap_or_default(),
+            })
+        }
+    }
+}

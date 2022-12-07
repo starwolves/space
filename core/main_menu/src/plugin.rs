@@ -4,8 +4,9 @@ use bevy::prelude::{App, ClearColor, IntoSystemDescriptor, Plugin, SystemLabel};
 
 use crate::{
     build::{
-        show_main_menu, show_play_menu, startup_show_menu, EnableMainMenu, EnablePlayMenu,
-        MainMenuLabel, MainMenuState, PlayMenuState, MAIN_BG_COLOR,
+        auto_fill_connect_menu, on_submenu_connect_creation, show_main_menu, show_play_menu,
+        startup_show_menu, AutoFillConnectSubMenu, EnableMainMenu, EnablePlayMenu, MainMenuLabel,
+        MainMenuState, PlayMenuState, MAIN_BG_COLOR,
     },
     events::{button_presses, connect_to_server_button, space_frontiers_link, starwolves_link},
     hide::hide_main_menu,
@@ -34,7 +35,10 @@ impl Plugin for MainMenuPlugin {
                 .init_resource::<PlayMenuState>()
                 .add_system(starwolves_link)
                 .add_system(space_frontiers_link)
-                .add_system(connect_to_server_button);
+                .add_system(connect_to_server_button)
+                .add_system(auto_fill_connect_menu)
+                .add_event::<AutoFillConnectSubMenu>()
+                .add_system(on_submenu_connect_creation);
         }
     }
 }
