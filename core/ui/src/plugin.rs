@@ -7,8 +7,8 @@ use crate::{
     button::button_hover_visuals,
     networking::{incoming_messages, TextTreeInputSelection, UiClientMessage, UiServerMessage},
     text_input::{
-        focus_events, input_characters, input_mouse_press_unfocus, ui_events, FocusTextInput,
-        TextInput, TextInputLabel, UnfocusTextInput,
+        focus_events, input_characters, input_mouse_press_unfocus, set_text_input_node_text,
+        ui_events, FocusTextInput, SetText, TextInput, TextInputLabel, UnfocusTextInput,
     },
 };
 use bevy::app::CoreStage::PreUpdate;
@@ -31,7 +31,9 @@ impl Plugin for UiPlugin {
                 .add_system(input_characters)
                 .add_event::<UnfocusTextInput>()
                 .add_event::<FocusTextInput>()
-                .add_system(button_hover_visuals);
+                .add_system(button_hover_visuals)
+                .add_event::<SetText>()
+                .add_system(set_text_input_node_text);
         }
 
         init_reliable_message::<UiClientMessage>(app, MessageSender::Client);

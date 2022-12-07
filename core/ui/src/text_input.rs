@@ -226,6 +226,7 @@ pub(crate) fn input_mouse_press_unfocus(
     }
 }
 use bevy::time::Time;
+use bevy::time::TimerMode;
 use bevy::{prelude::Local, time::Timer};
 use bevy_egui::EguiClipboard;
 use std::time::Duration;
@@ -245,8 +246,6 @@ pub(crate) fn input_characters(
     clipboard: Res<EguiClipboard>,
     mut pasting: Local<bool>,
 ) {
-    use bevy::time::TimerMode;
-
     if !*backspace_timer_not_first {
         backspace_timer.pause();
         *backspace_timer_not_first = true;
@@ -399,6 +398,60 @@ pub(crate) fn input_characters(
         }
         Err(_) => {
             warn!("Couldn't find focussed TextInputNode");
+        }
+    }
+}
+
+/// Event that sets the content of the given TextInputNode
+#[cfg(feature = "client")]
+pub struct SetText {
+    pub entity: Entity,
+    pub text: String,
+}
+/// Processes [TextInputNode].
+#[cfg(feature = "client")]
+pub(crate) fn set_text_input_node_text(
+    mut events: EventReader<SetText>,
+    mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
+    mut text_query: Query<&mut Text>,
+) {
+    for event in events.iter() {
+        match text_input_node_query.get_mut(event.entity) {
+            Ok((mut text_input_node, children)) => {
+                text_input_node.input = event.text.clone();
+                text_input_node.placeholder_active = false;
+                let mut text_entity_option = None;
+
+                for child in children.iter() {
+                    match text_query.get(*child) {
+                        Ok(_) => {
+                            text_entity_option = Some(child);
+                            break;
+                        }
+                        Err(_) => {}
+                    }
+                }
+
+                match text_entity_option {
+                    Some(e) => {
+                        let mut text_component = text_query.get_mut(*e).unwrap();
+                        match text_component.sections.get_mut(0) {
+                            Some(section) => {
+                                section.value = event.text.clone();
+                            }
+                            None => {
+                                warn!("Couldnt find text section to set text of.");
+                            }
+                        }
+                    }
+                    None => {
+                        warn!("Couldnt find text node to set text of.");
+                    }
+                }
+            }
+            Err(_) => {
+                warn!("Couldnt find text input node to set text of.");
+            }
         }
     }
 }

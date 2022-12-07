@@ -17,6 +17,7 @@ version = "0.9.0"
 
 [dependencies]
 open = "3.0.3"
+local_ipaddress = "0.1.3"
 
 resources = { path = "../resources" ,  features=["client"]}
 ui = { path = "../ui" ,  features=["client"]}
