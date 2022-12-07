@@ -12,7 +12,6 @@ use crate::input::InputAttackCell;
 use crate::input::InputAttackEntity;
 use crate::input::InputMouseAction;
 use crate::input::InputMovementInput;
-use crate::input::InputSceneReady;
 use crate::input::InputSelectBodyPart;
 use crate::input::InputSprinting;
 use crate::input::InputToggleAutoMove;
@@ -28,7 +27,6 @@ use player::boarding::InputUIInputTransmitText;
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum ControllerClientMessage {
     UIInput(UIInputNodeClass, UIInputAction, String, String),
-    SceneReady(String),
     UIInputTransmitData(String, String, String),
     MovementInput(Vec2),
     SprintInput(bool),
@@ -78,7 +76,6 @@ pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<ControllerClientMessage>>,
     mut u_server: EventReader<IncomingUnreliableClientMessage<ControllerUnreliableClientMessage>>,
     mut input_ui_input: EventWriter<InputUIInput>,
-    mut scene_ready_event: EventWriter<InputSceneReady>,
     mut ui_input_transmit_text: EventWriter<InputUIInputTransmitText>,
     mut movement_input_event: EventWriter<InputMovementInput>,
     handle_to_entity: Res<HandleToEntity>,
@@ -114,12 +111,6 @@ pub(crate) fn incoming_messages(
                     action: action,
                     node_name: node_name,
                     ui_type: ui_type,
-                });
-            }
-            ControllerClientMessage::SceneReady(scene_type) => {
-                scene_ready_event.send(InputSceneReady {
-                    handle: message.handle,
-                    scene_id: scene_type,
                 });
             }
             ControllerClientMessage::UIInputTransmitData(ui_type, node_path, input_text) => {

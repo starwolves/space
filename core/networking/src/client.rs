@@ -314,11 +314,12 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
         }
     }
 }
-
+///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 #[cfg(feature = "client")]
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
 }
+///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 #[cfg(feature = "client")]
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
@@ -372,15 +373,17 @@ pub struct OutgoingReliableClientMessage<T: TypeName + Send + Sync + 'static> {
     pub message: T,
 }
 
-/// Event to when received reliable message from server.
+/// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
+
 #[cfg(feature = "client")]
-pub (crate) struct IncomingRawReliableServerMessage {
+pub(crate) struct IncomingRawReliableServerMessage {
     pub message: ReliableMessage,
 }
 
-/// Event to when received reliable message from server.
+/// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
+
 #[cfg(feature = "client")]
-pub (crate) struct IncomingRawUnreliableServerMessage {
+pub(crate) struct IncomingRawUnreliableServerMessage {
     pub message: UnreliableMessage,
 }
 

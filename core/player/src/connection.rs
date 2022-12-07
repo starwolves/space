@@ -1,11 +1,6 @@
 use bevy::prelude::Component;
 use bevy::prelude::Resource;
 
-/// The component for players that are requesting boarding.
-#[derive(Component)]
-#[cfg(feature = "server")]
-pub struct Boarding;
-
 /// The component for entities int he boarding phase.
 #[derive(Component)]
 #[cfg(feature = "server")]

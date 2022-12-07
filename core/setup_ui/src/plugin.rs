@@ -3,13 +3,17 @@ use std::env;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use controller::networking::InputUIInput;
 use iyes_loopless::prelude::IntoConditionalSystem;
-use networking::client::is_client_connected;
+use networking::{
+    client::is_client_connected,
+    messaging::{init_reliable_message, MessageSender},
+};
 use player::plugin::ConfigurationLabel;
 use resources::labels::SummoningLabels;
 
 use crate::core::{
-    client_init_setup_ui, configure, initialize_setupui, new_clients_enable_setupui,
-    register_ui_input_boarding, ui_input_boarding, SetupUiState,
+    client_setup_ui, configure, initialize_setupui, new_clients_enable_setupui,
+    receive_input_character_name, setupui_loaded, ui_input_boarding, SetupUiClientMessage,
+    SetupUiServerMessage, SetupUiState,
 };
 /// Atmospherics systems ordering label.
 
@@ -18,8 +22,7 @@ pub struct SetupUiPlugin;
 impl Plugin for SetupUiPlugin {
     fn build(&self, app: &mut App) {
         if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
-            app.add_system(register_ui_input_boarding)
-                .add_system(ui_input_boarding)
+            app.add_system(ui_input_boarding)
                 .add_system(initialize_setupui.label(SummoningLabels::TriggerSummon))
                 .add_event::<InputUIInput>()
                 .add_system(
@@ -28,9 +31,14 @@ impl Plugin for SetupUiPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 )
                 .add_system(new_clients_enable_setupui)
-                .init_resource::<SetupUiState>();
+                .init_resource::<SetupUiState>()
+                .add_system(setupui_loaded)
+                .add_system(receive_input_character_name);
         } else {
-            app.add_system(client_init_setup_ui.run_if(is_client_connected));
+            app.add_system(client_setup_ui.run_if(is_client_connected));
         }
+
+        init_reliable_message::<SetupUiServerMessage>(app, MessageSender::Server);
+        init_reliable_message::<SetupUiClientMessage>(app, MessageSender::Client);
     }
 }

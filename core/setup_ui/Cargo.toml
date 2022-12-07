@@ -19,6 +19,8 @@ default-features = false
 
 [dependencies]
 iyes_loopless = "0.9.1"
+serde = "1.0.147"
+typename = "0.1.2"
 
 networking = { path = "../networking",  features=["server"] }
 entity = { path = "../entity",  features=["server"] }

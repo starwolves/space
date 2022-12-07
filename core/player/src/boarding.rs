@@ -1,6 +1,6 @@
-use crate::connection::{Boarding, OnBoard, SetupPhase};
+use crate::connection::{OnBoard, SetupPhase};
 use bevy::{
-    prelude::{info, Added, Commands, Component, Entity, EventReader, Query, ResMut, Resource},
+    prelude::{info, Commands, Component, Entity, EventReader, ResMut, Resource},
     time::Timer,
 };
 
@@ -98,22 +98,6 @@ impl Default for PersistentPlayerData {
             character_name: "".to_string(),
             account_name: "".to_string(),
         }
-    }
-}
-use networking::server::ConnectedPlayer;
-
-use ui::networking::UiServerMessage;
-/// Manage client boarding.
-#[cfg(feature = "server")]
-pub(crate) fn on_boarding(
-    query: Query<&ConnectedPlayer, Added<Boarding>>,
-    mut server: EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
-) {
-    for connected_player_component in query.iter() {
-        server.send(OutgoingReliableServerMessage {
-            handle: connected_player_component.handle,
-            message: UiServerMessage::UIRequestInput("setupUI".to_string()),
-        });
     }
 }
 

@@ -1,7 +1,7 @@
 use std::env;
 
 use crate::{
-    boarding::{done_boarding, on_boarding, BoardingAnnouncements, InputUIInputTransmitText},
+    boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
     connection::{AuthidI, SendServerConfiguration},
     connections::{
         configure, confirm_connection, finished_configuration, server_events,
@@ -32,7 +32,6 @@ impl Plugin for PlayerPlugin {
             app.add_event::<SendServerConfiguration>()
                 .init_resource::<HandleToEntity>()
                 .add_system(done_boarding)
-                .add_system(on_boarding)
                 .init_resource::<AuthidI>()
                 .init_resource::<BoardingAnnouncements>()
                 .add_event::<InputUIInputTransmitText>()
