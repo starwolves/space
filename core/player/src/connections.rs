@@ -10,8 +10,8 @@ use crate::{
     connection::{AuthidI, SendServerConfiguration},
     names::UsedNames,
 };
-use networking::server::NetworkingClientServerMessage;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::GreetingClientServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 #[cfg(feature = "server")]
 pub(crate) fn configure(
@@ -22,13 +22,13 @@ pub(crate) fn configure(
     mut used_names: ResMut<UsedNames>,
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
-    mut server: EventWriter<OutgoingReliableServerMessage<NetworkingClientServerMessage>>,
+    mut server: EventWriter<OutgoingReliableServerMessage<GreetingClientServerMessage>>,
     mut server1: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
 ) {
     for event in config_events.iter() {
         server.send(OutgoingReliableServerMessage {
             handle: event.handle,
-            message: NetworkingClientServerMessage::Awoo,
+            message: GreetingClientServerMessage::Awoo,
         });
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,
@@ -195,18 +195,18 @@ pub enum PlayerServerMessage {
 }
 use networking::client::Connection;
 use networking::client::ConnectionStatus;
-use networking::typenames::IncomingReliableServerMessage;
+use networking::client::IncomingReliableServerMessage;
 
 /// Confirms connection with server.
 #[cfg(feature = "client")]
 pub(crate) fn confirm_connection(
-    mut client: EventReader<IncomingReliableServerMessage<NetworkingClientServerMessage>>,
+    mut client: EventReader<IncomingReliableServerMessage<GreetingClientServerMessage>>,
     mut connected_state: ResMut<Connection>,
 ) {
     for message in client.iter() {
         let player_message = message.message.clone();
         match player_message {
-            NetworkingClientServerMessage::Awoo => {
+            GreetingClientServerMessage::Awoo => {
                 connected_state.status = ConnectionStatus::Connected;
                 info!("Connected.");
             }

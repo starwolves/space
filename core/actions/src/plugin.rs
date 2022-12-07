@@ -2,7 +2,7 @@ use std::env;
 
 use crate::networking::{ActionsClientMessage, ActionsServerMessage};
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use networking::typenames::{init_reliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, MessageSender};
 use resources::labels::ActionsLabels;
 
 use crate::{

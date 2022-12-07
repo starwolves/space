@@ -9,7 +9,7 @@ use crate::{
 };
 use networking::server::ConnectedPlayer;
 
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::EntityServerMessage;
 /// Perform FOV checks to see what is and what isn't visible.

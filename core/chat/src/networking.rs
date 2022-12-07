@@ -13,7 +13,7 @@ use bevy::prelude::{EventWriter, Res};
 pub enum ChatClientMessage {
     InputChatMessage(String),
 }
-use networking::typenames::IncomingReliableClientMessage;
+use networking::server::IncomingReliableClientMessage;
 
 use bevy::prelude::EventReader;
 /// Manage incoming network messages from clients.

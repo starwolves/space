@@ -50,7 +50,7 @@ use sounds::{
     },
 };
 
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 use ui::networking::UiServerMessage;
 
 /// Core construction tool system.

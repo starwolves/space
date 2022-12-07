@@ -25,7 +25,7 @@ use sounds::{
 use text_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 /// Open counter window request event.
 #[cfg(feature = "server")]
 pub struct CounterWindowOpenRequest {

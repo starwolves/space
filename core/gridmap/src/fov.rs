@@ -24,7 +24,7 @@ pub struct ProjectileFOV {
 use networking::server::ConnectedPlayer;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::GridmapServerMessage;
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.

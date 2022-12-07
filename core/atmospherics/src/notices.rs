@@ -22,10 +22,10 @@ pub struct AtmosphericsNotices {
 }
 use networking::server::ConnectedPlayer;
 
+use networking::server::OutgoingReliableServerMessage;
 use ui::networking::UiServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 /// Manage visible atmospherics notices for clients.
 #[cfg(feature = "server")]
 pub(crate) fn atmospherics_notices(

@@ -30,7 +30,7 @@ pub enum MapUnreliableClientMessage {
     MapViewRange(f32),
     MapOverlayMouseHoverCell(i16, i16),
 }
-use networking::typenames::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
+use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
 
 use bevy::prelude::EventReader;
 /// Manage incoming network messages from clients.

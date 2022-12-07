@@ -1,7 +1,7 @@
 use std::env;
 
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use networking::typenames::{init_reliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, MessageSender};
 
 use crate::{
     chat::{

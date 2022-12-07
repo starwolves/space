@@ -13,8 +13,8 @@ use bevy::prelude::{App, Plugin, SystemLabel};
 use iyes_loopless::prelude::IntoConditionalSystem;
 use networking::{
     client::is_client_connected,
+    messaging::{init_reliable_message, MessageSender},
     server::HandleToEntity,
-    typenames::{init_reliable_message, MessageSender},
 };
 
 /// Atmospherics systems ordering label.

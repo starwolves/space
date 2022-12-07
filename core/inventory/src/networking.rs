@@ -28,7 +28,7 @@ pub enum InventoryClientMessage {
     ThrowItem(Vec3, f32),
 }
 use bevy::prelude::EventReader;
-use networking::typenames::IncomingReliableClientMessage;
+use networking::server::IncomingReliableClientMessage;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

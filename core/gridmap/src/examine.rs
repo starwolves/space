@@ -370,10 +370,10 @@ pub struct GridmapExamineMessages {
 }
 
 use networking::server::NetworkingChatServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 use text_api::core::END_ASTRIX;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 /// Finalize examining the ship gridmap.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_examine_map(

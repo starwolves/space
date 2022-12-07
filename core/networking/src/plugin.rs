@@ -7,19 +7,20 @@ use iyes_loopless::prelude::IntoConditionalSystem;
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
-        connect_to_server, is_client_connected, ConnectToServer, Connection, ConnectionPreferences,
+        connect_to_server, is_client_connected, receive_incoming_reliable_server_messages,
+        receive_incoming_unreliable_server_messages, ConnectToServer, Connection,
+        ConnectionPreferences, IncomingRawReliableServerMessage,
+        IncomingRawUnreliableServerMessage,
+    },
+    messaging::{
+        generate_typenames, init_reliable_message, init_unreliable_message, MessageSender,
+        Typenames, TypenamesLabel,
     },
     server::{
-        NetworkingChatServerMessage, NetworkingClientMessage, NetworkingClientServerMessage,
+        receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
+        GreetingClientServerMessage, IncomingRawReliableClientMessage,
+        IncomingRawUnreliableClientMessage, NetworkingChatServerMessage, NetworkingClientMessage,
         UnreliableServerMessage,
-    },
-    typenames::{
-        generate_typenames, init_reliable_message, init_unreliable_message,
-        receive_incoming_reliable_client_messages, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_client_messages, receive_incoming_unreliable_server_messages,
-        IncomingRawReliableClientMessage, IncomingRawReliableServerMessage,
-        IncomingRawUnreliableClientMessage, IncomingRawUnreliableServerMessage, MessageSender,
-        Typenames, TypenamesLabel,
     },
 };
 use bevy::app::CoreStage::PreUpdate;
@@ -69,7 +70,7 @@ impl Plugin for NetworkingPlugin {
         init_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
         init_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
         init_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);
-        init_reliable_message::<NetworkingClientServerMessage>(app, MessageSender::Both);
+        init_reliable_message::<GreetingClientServerMessage>(app, MessageSender::Both);
     }
 }
 

@@ -69,10 +69,8 @@ pub struct InputUIInput {
 pub enum ControllerUnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
 }
-use networking::typenames::IncomingUnreliableClientMessage;
-
 use bevy::prelude::EventReader;
-use networking::typenames::IncomingReliableClientMessage;
+use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

@@ -3,7 +3,7 @@ use std::env;
 use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use console_commands::commands::ConsoleCommandsLabels;
-use networking::typenames::{init_reliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, MessageSender};
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
 
 use crate::actions::build_actions;

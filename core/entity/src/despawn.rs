@@ -5,7 +5,6 @@ use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
 use bevy::prelude::Res;
 use networking::server::HandleToEntity;
-use networking::typenames::OutgoingReliableServerMessage;
 
 use crate::networking::EntityServerMessage;
 use crate::sensable::Sensable;
@@ -15,6 +14,7 @@ use crate::sensable::Sensable;
 pub struct DespawnEntity {
     pub entity: Entity,
 }
+use networking::server::OutgoingReliableServerMessage;
 
 /// Executes despawn logic for Sensable components.
 /// Shouldn't be called from the same stage visible_checker.system() runs in.

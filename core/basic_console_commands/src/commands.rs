@@ -7,8 +7,8 @@ use bevy::prelude::{Query, ResMut, Transform};
 use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
 use gridmap::grid::GridmapMain;
 use networking::server::GodotVariantValues;
+use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
-use networking::typenames::OutgoingReliableServerMessage;
 use pawn::pawn::Pawn;
 use player::names::UsedNames;
 

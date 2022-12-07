@@ -67,9 +67,9 @@ pub fn examine_entity(
     }
 }
 use networking::server::NetworkingChatServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
-use networking::typenames::OutgoingReliableServerMessage;
 /// Finalize examining an entity.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_examine_entity(

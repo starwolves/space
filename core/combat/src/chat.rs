@@ -24,7 +24,7 @@ use crate::{
 
 use networking::server::HandleToEntity;
 use networking::server::NetworkingChatServerMessage;
-use networking::typenames::OutgoingReliableServerMessage;
+use networking::server::OutgoingReliableServerMessage;
 
 /// Chat hooks for entities that got hit by something.
 #[cfg(feature = "server")]

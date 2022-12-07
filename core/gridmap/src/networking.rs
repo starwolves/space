@@ -17,9 +17,9 @@ use networking::server::HandleToEntity;
 pub enum GridmapClientMessage {
     ExamineMap(GridMapLayer, i16, i16, i16),
 }
+use networking::server::IncomingReliableClientMessage;
 
 use bevy::prelude::EventReader;
-use networking::typenames::IncomingReliableClientMessage;
 
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]

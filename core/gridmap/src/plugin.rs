@@ -5,7 +5,7 @@ use bevy::{
     time::FixedTimestep,
 };
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
-use networking::typenames::{init_reliable_message, MessageSender};
+use networking::messaging::{init_reliable_message, MessageSender};
 use player::{plugin::ConfigurationLabel, spawn_points::SpawnPoints};
 use resources::labels::{
     ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,

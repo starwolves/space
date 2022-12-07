@@ -26,7 +26,7 @@ pub fn initialize_entity_data(
     entity_data.data.push(entity_properties);
 }
 use networking::server::HandleToEntity;
-use networking::typenames::OutgoingUnreliableServerMessage;
+use networking::server::OutgoingUnreliableServerMessage;
 
 /// Broadcast transforms of entities to players for interpolation.
 #[cfg(feature = "server")]
