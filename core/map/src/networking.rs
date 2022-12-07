@@ -30,37 +30,21 @@ pub enum MapUnreliableClientMessage {
     MapViewRange(f32),
     MapOverlayMouseHoverCell(i16, i16),
 }
-use networking::typenames::get_unreliable_message;
-use networking::typenames::IncomingUnreliableClientMessage;
-use networking::typenames::{get_reliable_message, Typenames};
+use networking::typenames::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
 
 use bevy::prelude::EventReader;
-use networking::typenames::IncomingReliableClientMessage;
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage>,
-    mut u_server: EventReader<IncomingUnreliableClientMessage>,
+    mut server: EventReader<IncomingReliableClientMessage<MapReliableClientMessage>>,
+    mut u_server: EventReader<IncomingUnreliableClientMessage<MapUnreliableClientMessage>>,
     mut input_map_change_display_mode: EventWriter<InputMapChangeDisplayMode>,
     handle_to_entity: Res<HandleToEntity>,
     mut input_map_request_display_modes: EventWriter<InputMapRequestOverlay>,
     mut input_map_view_range: EventWriter<InputMap>,
-    typenames: Res<Typenames>,
 ) {
     for message in server.iter() {
-        let client_message;
-        match get_reliable_message::<MapReliableClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             MapReliableClientMessage::MapChangeDisplayMode(display_mode) => {
@@ -109,19 +93,7 @@ pub(crate) fn incoming_messages(
         }
 
         for message in u_server.iter() {
-            let client_message;
-            match get_unreliable_message::<MapUnreliableClientMessage>(
-                &typenames,
-                message.message.typename_net,
-                &message.message.serialized,
-            ) {
-                Some(x) => {
-                    client_message = x;
-                }
-                None => {
-                    continue;
-                }
-            }
+            let client_message = message.message.clone();
             match client_message {
                 MapUnreliableClientMessage::MapViewRange(range_x) => {
                     match handle_to_entity.map.get(&message.handle) {

@@ -15,33 +15,14 @@ pub enum UiClientMessage {
 use bevy::prelude::EventReader;
 use networking::typenames::IncomingReliableClientMessage;
 
-use networking::typenames::get_reliable_message;
-
-use bevy::prelude::Res;
-use networking::typenames::Typenames;
-
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage>,
+    mut server: EventReader<IncomingReliableClientMessage<UiClientMessage>>,
     mut text_tree_input_selection: EventWriter<TextTreeInputSelection>,
-    typenames: Res<Typenames>,
 ) {
     for message in server.iter() {
-        let client_message;
-
-        match get_reliable_message::<UiClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             UiClientMessage::TextTreeInput(

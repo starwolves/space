@@ -195,30 +195,21 @@ pub enum PlayerServerMessage {
 }
 use networking::client::Connection;
 use networking::client::ConnectionStatus;
-use networking::typenames::get_reliable_message;
 use networking::typenames::IncomingReliableServerMessage;
-use networking::typenames::Typenames;
 
 /// Confirms connection with server.
 #[cfg(feature = "client")]
 pub(crate) fn confirm_connection(
-    mut client: EventReader<IncomingReliableServerMessage>,
+    mut client: EventReader<IncomingReliableServerMessage<NetworkingClientServerMessage>>,
     mut connected_state: ResMut<Connection>,
-    typenames: Res<Typenames>,
 ) {
     for message in client.iter() {
-        match get_reliable_message::<NetworkingClientServerMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(player_message) => match player_message {
-                NetworkingClientServerMessage::Awoo => {
-                    connected_state.status = ConnectionStatus::Connected;
-                    info!("Connected.");
-                }
-            },
-            None => {}
+        let player_message = message.message.clone();
+        match player_message {
+            NetworkingClientServerMessage::Awoo => {
+                connected_state.status = ConnectionStatus::Connected;
+                info!("Connected.");
+            }
         }
     }
 }

@@ -13,33 +13,18 @@ use bevy::prelude::{EventWriter, Res};
 pub enum ChatClientMessage {
     InputChatMessage(String),
 }
-use networking::typenames::get_reliable_message;
-use networking::typenames::Typenames;
+use networking::typenames::IncomingReliableClientMessage;
 
 use bevy::prelude::EventReader;
-use networking::typenames::IncomingReliableClientMessage;
 /// Manage incoming network messages from clients.
 #[cfg(feature = "server")]
 pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage>,
+    mut server: EventReader<IncomingReliableClientMessage<ChatClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
     mut input_chat_message_event: EventWriter<NewChatMessage>,
-    typenames: Res<Typenames>,
 ) {
     for message in server.iter() {
-        let client_message;
-        match get_reliable_message::<ChatClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
 
         match client_message {
             ChatClientMessage::InputChatMessage(i_message) => {

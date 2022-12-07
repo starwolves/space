@@ -57,35 +57,17 @@ pub(crate) fn startup_server_listen_connections() -> RenetServer {
     renet_server
 }
 
-use crate::typenames::get_reliable_message;
 use bevy::prelude::EventReader;
 
-use bevy::prelude::Res;
-
-use crate::typenames::Typenames;
-
 use crate::typenames::IncomingReliableClientMessage;
+
 /// Obtain player souls, mwahahhaa. (=^.^=)
 #[cfg(feature = "server")]
 pub(crate) fn souls(
-    mut server: EventReader<IncomingReliableClientMessage>,
-    typenames: Res<Typenames>,
+    mut server: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
 ) {
     for message in server.iter() {
-        let client_message;
-
-        match get_reliable_message::<NetworkingClientMessage>(
-            &typenames,
-            message.message.typename_net,
-            &message.message.serialized,
-        ) {
-            Some(x) => {
-                client_message = x;
-            }
-            None => {
-                continue;
-            }
-        }
+        let client_message = message.message.clone();
         match client_message {
             //                                          |
             // Where the souls of the players are       |
