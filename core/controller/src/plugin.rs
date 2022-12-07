@@ -3,8 +3,8 @@ use std::env;
 use crate::connections::{configure, connections};
 use crate::input::{
     InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
-    InputMouseDirectionUpdate, InputMovementInput, InputSceneReady, InputSelectBodyPart,
-    InputSprinting, InputToggleAutoMove, InputToggleCombatMode,
+    InputMouseDirectionUpdate, InputMovementInput, InputSelectBodyPart, InputSprinting,
+    InputToggleAutoMove, InputToggleCombatMode,
 };
 use crate::networking::{
     incoming_messages, ControllerClientMessage, ControllerUnreliableClientMessage,
@@ -22,7 +22,7 @@ use resources::labels::UpdateLabels;
 
 use super::{
     input::apply_movement_input_controller,
-    net::{build_graphics, scene_ready_event, send_server_time, update_player_count},
+    net::{build_graphics, send_server_time, update_player_count},
 };
 
 use bevy::app::CoreStage::PreUpdate;
@@ -50,7 +50,6 @@ impl Plugin for ControllerPlugin {
                     .with_system(send_server_time),
             )
             .add_system(build_graphics)
-            .add_system(scene_ready_event)
             .add_system(connections)
             .add_system_to_stage(PreUpdate, incoming_messages)
             .add_event::<InputAttackCell>()
@@ -62,7 +61,6 @@ impl Plugin for ControllerPlugin {
             .add_event::<InputSelectBodyPart>()
             .add_event::<InputMovementInput>()
             .add_event::<InputSprinting>()
-            .add_event::<InputSceneReady>()
             .add_event::<InputBuildGraphics>()
             .add_event::<InputMouseDirectionUpdate>()
             .add_system(

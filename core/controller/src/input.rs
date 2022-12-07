@@ -99,13 +99,6 @@ pub struct InputSprinting {
     pub is_sprinting: bool,
 }
 
-/// Client input scene ready event.
-#[cfg(feature = "server")]
-pub struct InputSceneReady {
-    pub handle: u64,
-    pub scene_id: String,
-}
-
 /// Client input build graphics event.
 #[cfg(feature = "server")]
 pub struct InputBuildGraphics {

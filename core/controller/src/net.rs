@@ -1,6 +1,6 @@
 use crate::input::InputBuildGraphics;
 use bevy::prelude::With;
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Without};
+use bevy::prelude::{Entity, EventReader, EventWriter, Query, Res};
 use entity::networking::LoadEntity;
 use gi_probe::core::GIProbe;
 use networking::server::OutgoingReliableServerMessage;
@@ -42,36 +42,7 @@ pub(crate) fn build_graphics(
         }
     }
 }
-use crate::input::InputSceneReady;
-use player::connection::SetupPhase;
 
-use networking::server::HandleToEntity;
-use player::{boarding::SoftPlayer, connection::Boarding};
-/// Manage when client has finished loading in a scene.
-#[cfg(feature = "server")]
-pub fn scene_ready_event(
-    mut event: EventReader<InputSceneReady>,
-    handle_to_entity: Res<HandleToEntity>,
-    criteria_query: Query<&SoftPlayer, Without<Boarding>>,
-    mut commands: Commands,
-) {
-    for new_event in event.iter() {
-        let player_entity = handle_to_entity.map.get(&new_event.handle)
-        .expect("scene_ready_event.rs could not find components for player that just got done boarding.");
-
-        //Safety check.
-        match criteria_query.get(*player_entity) {
-            Ok(_) => {}
-            Err(_rr) => {
-                continue;
-            }
-        }
-
-        if new_event.scene_id == "setupUI" {
-            commands.entity(*player_entity).insert(SetupPhase);
-        }
-    }
-}
 use networking::server::ConnectedPlayer;
 
 /// Send server time to clients for ping update.

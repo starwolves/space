@@ -105,7 +105,6 @@ pub(crate) fn configure(
                 persistent_player_data,
             ))
             .id();
-
         used_names
             .account_name
             .insert(default_name, player_entity_id);
@@ -181,7 +180,6 @@ pub(crate) fn server_events(
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum PlayerServerMessage {
-    InitSetupUi,
     InitGame,
     ConfigWorldEnvironment(WorldEnvironment),
     ServerTime,
