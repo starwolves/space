@@ -39,9 +39,5 @@ text_api = { path = "../../core/text_api",  features=["server"] }
 physics = { path = "../../core/physics" ,  features=["server"]}
 actions = { path = "../../core/actions",  features=["server"] }
 ui = { path = "../../core/ui",  features=["server"] }
-
-
-data_converters = { path = "../../core/data_converters",  features=["server"] }
 resources = { path = "../../core/resources",  features=["server"] }
-
 math = { path = "../../core/math" ,  features=["server"]}

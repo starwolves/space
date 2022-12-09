@@ -27,5 +27,4 @@ entity = { path = "../../core/entity" ,  features=["server"]}
 rigid_body = { path = "../../core/rigid_body",  features=["server"] }
 text_api = { path = "../../core/text_api",  features=["server"] }
 combat = { path = "../../core/combat",  features=["server"] }
-data_converters = { path = "../../core/data_converters",  features=["server"] }
 resources = { path = "../../core/resources" ,  features=["server"]}
