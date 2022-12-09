@@ -6,7 +6,7 @@ use bevy::{
 };
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
 use networking::messaging::{init_reliable_message, MessageSender};
-use player::{plugin::ConfigurationLabel, spawn_points::SpawnPoints};
+use player::plugin::ConfigurationLabel;
 use resources::labels::{
     ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
@@ -56,7 +56,6 @@ impl Plugin for GridmapPlugin {
             app.init_resource::<GridmapDetails1>()
                 .init_resource::<GridmapData>()
                 .init_resource::<DoryenMap>()
-                .init_resource::<SpawnPoints>()
                 .add_system(senser_update_fov)
                 .add_system(projectile_fov)
                 .add_system(remove_cell.label(UpdateLabels::DeconstructCell))

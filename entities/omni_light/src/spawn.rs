@@ -1,5 +1,4 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
-use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
     sensable::Sensable,
@@ -102,7 +101,9 @@ pub fn summon_raw_omni_light(
                 .expect("load_raw_map_entities.rs Error parsing entity OmniLight data.");
             let omni_light_component = ExportData::new(omni_light_data_raw).to_component();
 
-            let entity_transform = string_transform_to_transform(&event.raw_entity.transform);
+            let mut entity_transform = Transform::from_translation(event.raw_entity.translation);
+            entity_transform.rotation = event.raw_entity.rotation;
+            entity_transform.scale = event.raw_entity.scale;
 
             summon_gi_probe.send(SpawnEvent {
                 spawn_data: SpawnData {

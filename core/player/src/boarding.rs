@@ -1,4 +1,5 @@
 use crate::connection::{OnBoard, SetupPhase};
+use bevy::math::Quat;
 use bevy::{
     prelude::{info, Commands, Component, Entity, EventReader, ResMut, Resource},
     time::Timer,
@@ -18,10 +19,10 @@ pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
 use crate::connections::PlayerServerMessage;
-use crate::spawn_points::SpawnPoints;
+use crate::spawn_points::SpawnPointRon;
 use crate::spawn_points::Spawning;
 
-use bevy::prelude::EventWriter;
+use bevy::prelude::{EventWriter, Transform};
 use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
 use text_api::core::get_talk_spaces;
@@ -40,7 +41,6 @@ pub(crate) fn done_boarding(
         let player_character_name = boarding_player.player_character_name.clone();
         let player_handle = boarding_player.player_handle;
         let entity_id = boarding_player.entity;
-
         info!(
             "{} [{}] has boarded the spaceship.",
             player_character_name, player_handle
@@ -117,4 +117,57 @@ pub struct InputUIInputTransmitText {
     pub node_path: String,
     /// The input text from the client.
     pub input_text: String,
+}
+
+/// A spawn point in which players will spawn.
+#[cfg(feature = "server")]
+pub struct SpawnPoint {
+    pub point_type: String,
+    pub transform: Transform,
+}
+#[cfg(feature = "server")]
+impl SpawnPoint {
+    pub fn new(&self) -> SpawnPoint {
+        let mut this_transform = self.transform.clone();
+
+        this_transform.translation.y = 0.05;
+
+        this_transform.rotation = Quat::IDENTITY;
+
+        SpawnPoint {
+            point_type: self.point_type.clone(),
+            transform: this_transform,
+        }
+    }
+}
+#[cfg(feature = "server")]
+impl SpawnPointRon {
+    pub fn new(&self) -> SpawnPoint {
+        let mut this_transform = Transform::from_translation(self.translation);
+
+        this_transform.translation.y = 0.05;
+
+        this_transform.rotation = Quat::IDENTITY;
+
+        SpawnPoint {
+            point_type: self.point_type.clone(),
+            transform: this_transform,
+        }
+    }
+}
+
+/// Resource containing all available spawn points for players.
+#[derive(Default, Resource)]
+#[cfg(feature = "server")]
+pub struct SpawnPoints {
+    pub list: Vec<SpawnPoint>,
+    pub i: usize,
+}
+use serde::Deserialize;
+/// Raw json.
+#[derive(Deserialize)]
+#[cfg(feature = "server")]
+pub struct SpawnPointRaw {
+    pub point_type: String,
+    pub transform: String,
 }

@@ -2,7 +2,6 @@ use bevy::math::{Mat4, Quat, Vec3};
 use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
-use data_converters::converters::string_transform_to_transform;
 use entity::entity_data::RawSpawnEvent;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
@@ -147,8 +146,9 @@ pub fn summon_raw_construction_tool(
             continue;
         }
 
-        let entity_transform = string_transform_to_transform(&spawn_event.raw_entity.transform);
-
+        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
+        entity_transform.rotation = spawn_event.raw_entity.rotation;
+        entity_transform.scale = spawn_event.raw_entity.scale;
         summon_computer.send(SpawnEvent {
             spawn_data: SpawnData {
                 entity_transform: entity_transform,

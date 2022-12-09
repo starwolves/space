@@ -22,6 +22,7 @@ bevy_rapier3d = "0.19.0"
 serde = "1.0.147"
 serde_json = "1.0.87"
 typename = "0.1.2"
+ron = "0.8.0"
 
 doryen_fov = { path = "../doryen_fov" }
 networking = { path = "../networking",  features=["server"] }
