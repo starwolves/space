@@ -5,17 +5,14 @@ use bevy::prelude::{ResMut, Resource};
 /// Initialize graphics environment from json.
 #[cfg(feature = "server")]
 pub(crate) fn startup_environment(mut map_environment: ResMut<WorldEnvironment>) {
-    let environment_json_location = Path::new("data")
+    let environment_ron_location = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("environment.json");
-    let current_map_environment_raw_json: String = fs::read_to_string(environment_json_location)
-        .expect("main.rs main() Error reading map environment.json file from drive.");
-    let current_map_raw_environment: WorldEnvironmentRaw =
-        serde_json::from_str(&current_map_environment_raw_json)
-            .expect("main.rs main() Error parsing map environment.json String.");
-    let current_map_environment: WorldEnvironment =
-        WorldEnvironment::new(current_map_raw_environment);
+        .join("environment.ron");
+    let current_map_environment_raw_ron: String = fs::read_to_string(environment_ron_location)
+        .expect("startup_environment() Error reading map environment.ron file from drive.");
+    let current_map_environment: WorldEnvironment = ron::from_str(&current_map_environment_raw_ron)
+        .expect("startup_environment() Error parsing map environment.ron String.");
 
     current_map_environment.adjust(&mut map_environment);
 }
@@ -421,4 +418,27 @@ impl WorldEnvironment {
             glow_high_quality: raw.glow_high_quality,
         }
     }
+}
+
+/// Convert old Godot json to new Bevy ron.
+#[cfg(any(feature = "server", feature = "client"))]
+#[allow(dead_code)]
+pub fn json_environment() {
+    let environment_json_location = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("environment.json");
+    let current_map_environment_raw_json: String =
+        fs::read_to_string(environment_json_location).unwrap();
+    let current_map_raw_environment: WorldEnvironmentRaw =
+        serde_json::from_str(&current_map_environment_raw_json).unwrap();
+    let current_map_environment: WorldEnvironment =
+        WorldEnvironment::new(current_map_raw_environment);
+
+    let raw_ron = ron::to_string::<WorldEnvironment>(&current_map_environment).unwrap();
+    let path = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("environment.ron");
+    fs::write(path, raw_ron).unwrap();
 }

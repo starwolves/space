@@ -5,10 +5,12 @@ use bevy_rapier3d::{
     plugin::{RapierConfiguration, TimestepMode},
     prelude::{CoefficientCombineRule, Collider},
 };
+use data_converters::converters::string_vec3_to_vec3;
 use entity::{
-    entity_data::{load_raw_map_entities, RawEntity, RawSpawnEvent, Server},
+    entity_data::{load_raw_map_entities, RawSpawnEvent, Server},
     examine::RichName,
 };
+use math::grid::Vec3Int;
 use resources::core::{ServerId, TickRate};
 use text_api::core::EXAMINATION_EMPTY;
 
@@ -762,7 +764,7 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
         main_cells_data.len() + details1_cells_data.len()
     );
 }
-use player::spawn_points::SpawnPoints;
+use player::spawn_points::SpawnPointRon;
 
 /// Initiate other gridmap meta-datas from json.
 #[cfg(feature = "server")]
@@ -776,34 +778,32 @@ pub(crate) fn startup_misc_resources(
 ) {
     // Init Bevy Rapier physics.
 
-    use player::spawn_points::{SpawnPoint, SpawnPointRaw};
-
     rapier_configuration.timestep_mode = TimestepMode::Variable {
         max_dt: 1. / tick_rate.physics_rate as f32,
         time_scale: 1.,
         substeps: 1,
     };
 
-    let mainordered_cells_json = Path::new("data")
+    let mainordered_cells_ron = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("mainordered.json");
-    let current_map_mainordered_cells_raw_json: String = fs::read_to_string(mainordered_cells_json)
-        .expect("main.rs main() Error reading map mainordered.json drive.");
+        .join("mainordered.ron");
+    let current_map_mainordered_cells_raw_ron: String = fs::read_to_string(mainordered_cells_ron)
+        .expect("startup_misc_resources() Error reading map mainordered.ron drive.");
     let current_map_mainordered_cells: Vec<String> =
-        serde_json::from_str(&current_map_mainordered_cells_raw_json)
-            .expect("main.rs main() Error parsing map mainordered.json String.");
+        ron::from_str(&current_map_mainordered_cells_raw_ron)
+            .expect("startup_misc_resources() Error parsing map mainordered.ron String.");
 
-    let details1ordered_cells_json = Path::new("data")
+    let details1ordered_cells_ron = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("details1ordered.json");
-    let current_map_details1ordered_cells_raw_json: String =
-        fs::read_to_string(details1ordered_cells_json)
-            .expect("main.rs main() Error reading map details1ordered.json drive.");
+        .join("details1ordered.ron");
+    let current_map_details1ordered_cells_raw_ron: String =
+        fs::read_to_string(details1ordered_cells_ron)
+            .expect("startup_misc_resources() Error reading map details1ordered.ron drive.");
     let current_map_details1ordered_cells: Vec<String> =
-        serde_json::from_str(&current_map_details1ordered_cells_raw_json)
-            .expect("main.rs main() Error parsing map details1ordered.json String.");
+        ron::from_str(&current_map_details1ordered_cells_raw_ron)
+            .expect("startup_misc_resources() Error parsing map details1ordered.ron String.");
 
     for (i, name) in current_map_mainordered_cells.iter().rev().enumerate() {
         gridmap_data
@@ -826,19 +826,19 @@ pub(crate) fn startup_misc_resources(
     gridmap_data.ordered_main_names = current_map_mainordered_cells;
     gridmap_data.ordered_details1_names = current_map_details1ordered_cells;
 
-    let spawnpoints_json = Path::new("data")
+    let spawnpoints_ron = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("spawnpoints.json");
-    let current_map_spawn_points_raw_json: String = fs::read_to_string(spawnpoints_json)
-        .expect("main.rs main() Error reading map spawnpoints.json from drive.");
-    let current_map_spawn_points_raw: Vec<SpawnPointRaw> =
-        serde_json::from_str(&current_map_spawn_points_raw_json)
-            .expect("main.rs main() Error parsing map spawnpoints.json String.");
+        .join("spawnpoints.ron");
+    let current_map_spawn_points_raw_ron: String = fs::read_to_string(spawnpoints_ron)
+        .expect("startup_misc_resources() Error reading map spawnpoints.ron from drive.");
+    let current_map_spawn_points_raw: Vec<SpawnPointRon> =
+        ron::from_str(&current_map_spawn_points_raw_ron)
+            .expect("startup_misc_resources() Error parsing map spawnpoints.ron String.");
     let mut current_map_spawn_points: Vec<SpawnPoint> = vec![];
 
     for raw_point in current_map_spawn_points_raw.iter() {
-        current_map_spawn_points.push(SpawnPoint::new(raw_point));
+        current_map_spawn_points.push(SpawnPoint::new(&raw_point.new()));
     }
 
     spawn_points_res.list = current_map_spawn_points;
@@ -863,14 +863,14 @@ pub(crate) fn startup_build_map(
     mut raw_spawner: EventWriter<RawSpawnEvent>,
 ) {
     // Load map json data into real static bodies.
-    let main_json = Path::new("data")
+    let main_ron = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("main.json");
-    let current_map_main_raw_json: String = fs::read_to_string(main_json)
-        .expect("main.rs launch_server() Error reading map main.json file from drive.");
-    let current_map_main_data: Vec<CellDataWID> = serde_json::from_str(&current_map_main_raw_json)
-        .expect("main.rs launch_server() Error parsing map main.json String.");
+        .join("main.ron");
+    let current_map_main_raw_ron: String = fs::read_to_string(main_ron)
+        .expect("startup_build_map() Error reading map main.ron file from drive.");
+    let current_map_main_data: Vec<CellDataRon> = ron::from_str(&current_map_main_raw_ron)
+        .expect("startup_build_map() Error parsing map main.ron String.");
 
     build_gridmap_floor_and_roof(&mut commands);
 
@@ -882,38 +882,137 @@ pub(crate) fn startup_build_map(
         &mut gridmap_data,
     );
 
-    let details1_json = Path::new("data")
+    let details1_ron_path = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("details1.json");
-    let current_map_details1_raw_json: String = fs::read_to_string(details1_json)
-        .expect("main.rs launch_server() Error reading map details1_json file from drive.");
-    let current_map_details1_data: Vec<CellDataWID> =
-        serde_json::from_str(&current_map_details1_raw_json)
-            .expect("main.rs launch_server() Error parsing map details1_json String.");
-
-    build_details1_gridmap(
-        &current_map_details1_data,
-        &mut gridmap_details1,
-        &mut gridmap_data,
+        .join("details1.ron");
+    let current_map_details1_raw_ron: String = fs::read_to_string(details1_ron_path.clone())
+        .expect(&format!(
+            "startup_build_map() Error reading map {:?} file from drive.",
+            details1_ron_path.clone(),
+        ));
+    let details1_ron: Vec<CellDataRon> = ron::from_str(&current_map_details1_raw_ron).expect(
+        &format!("startup_build_map() Error reading {:?}", details1_ron_path),
     );
+
+    build_details1_gridmap(&details1_ron, &mut gridmap_details1, &mut gridmap_data);
 
     info!(
         "Spawned {} map cells.",
-        current_map_main_data.len() + current_map_details1_data.len()
+        current_map_main_data.len() + details1_ron.len()
     );
 
-    let entities_json = Path::new("data")
+    let entities_ron = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("entities.json");
-    let current_map_entities_raw_json: String = fs::read_to_string(entities_json)
-        .expect("main.rs launch_server() Error reading map entities.json file from drive.");
-    let current_map_entities_data: Vec<RawEntity> =
-        serde_json::from_str(&current_map_entities_raw_json)
-            .expect("main.rs launch_server() Error parsing map entities.json String.");
+        .join("entities.ron");
+    let current_map_entities_raw_ron: String = fs::read_to_string(entities_ron)
+        .expect("startup_build_map() Error reading map entities.ron file from drive.");
+    let current_map_entities_data: Vec<RawEntityRon> = ron::from_str(&current_map_entities_raw_ron)
+        .expect("startup_build_map() Error parsing map entities.ron String.");
 
     load_raw_map_entities(&current_map_entities_data, &mut raw_spawner);
 
     info!("Spawned {} entities.", current_map_entities_data.len());
+}
+
+use entity::init::RawEntityRon;
+use player::boarding::{SpawnPoint, SpawnPointRaw, SpawnPoints};
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+pub struct CellDataRon {
+    pub id: Vec3Int,
+    /// Cell item id.
+    pub item: String,
+    /// Cell rotation.
+    pub orientation: i64,
+}
+
+/// Convert old Godot json files to new Bevy ron files.
+#[cfg(any(feature = "server", feature = "client"))]
+#[allow(dead_code)]
+pub fn json_map() {
+    // Load map json data into real static bodies.
+    let main_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("main.json");
+
+    let current_map_main_raw_json: String = fs::read_to_string(main_json).unwrap();
+    let current_map_main_data: Vec<CellDataWID> =
+        serde_json::from_str(&current_map_main_raw_json).unwrap();
+
+    let mut ron_data = vec![];
+
+    for raw_data in current_map_main_data {
+        let cell_id = string_vec3_to_vec3(&raw_data.id);
+
+        let cell_id_int = Vec3Int {
+            x: cell_id.x as i16,
+            y: cell_id.y as i16,
+            z: cell_id.z as i16,
+        };
+
+        ron_data.push(CellDataRon {
+            id: cell_id_int,
+            item: raw_data.item,
+            orientation: raw_data.orientation,
+        });
+    }
+
+    let raw_ron = ron::to_string::<Vec<CellDataRon>>(&ron_data).unwrap();
+    let path = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("main.ron");
+    fs::write(path, raw_ron).unwrap();
+}
+
+/// Convert old Godot json to new Bevy ron.
+#[cfg(any(feature = "server", feature = "client"))]
+#[allow(dead_code)]
+pub fn json_ordered() {
+    let details1ordered_cells_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("mainordered.json");
+    let current_map_details1ordered_cells_raw_json: String =
+        fs::read_to_string(details1ordered_cells_json).unwrap();
+    let current_map_details1ordered_cells: Vec<String> =
+        serde_json::from_str(&current_map_details1ordered_cells_raw_json).unwrap();
+
+    let raw_ron = ron::to_string::<Vec<String>>(&current_map_details1ordered_cells).unwrap();
+    let path = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("mainordered.ron");
+    fs::write(path, raw_ron).unwrap();
+}
+
+/// Convert old Godot json to new Bevy ron.
+#[cfg(any(feature = "server", feature = "client"))]
+#[allow(dead_code)]
+pub fn json_spawnpoints() {
+    let spawnpoints_json = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("spawnpoints.json");
+    let current_map_spawn_points_raw_json: String = fs::read_to_string(spawnpoints_json)
+        .expect("main.rs main() Error reading map spawnpoints.json from drive.");
+    let _current_map_spawn_points_raw: Vec<SpawnPointRaw> =
+        serde_json::from_str(&current_map_spawn_points_raw_json)
+            .expect("main.rs main() Error parsing map spawnpoints.json String.");
+    let current_map_spawn_points: Vec<SpawnPointRon> = vec![];
+
+    /*for raw_point in current_map_spawn_points_raw.iter() {
+        current_map_spawn_points.push(SpawnPoint::new(raw_point));
+    }*/
+
+    let raw_ron = ron::to_string::<Vec<SpawnPointRon>>(&current_map_spawn_points).unwrap();
+    let path = Path::new("data")
+        .join("maps")
+        .join("bullseye")
+        .join("spawnpoints.ron");
+    fs::write(path, raw_ron).unwrap();
 }

@@ -25,6 +25,7 @@ pub fn initialize_entity_data(
         .insert(entity_properties.name.clone(), entity_properties.id);
     entity_data.data.push(entity_properties);
 }
+use crate::init::RawEntityRon;
 use networking::server::HandleToEntity;
 use networking::server::OutgoingUnreliableServerMessage;
 
@@ -104,12 +105,12 @@ pub struct DefaultMapEntity;
 /// Event about spawning entities from json.
 #[cfg(feature = "server")]
 pub struct RawSpawnEvent {
-    pub raw_entity: RawEntity,
+    pub raw_entity: RawEntityRon,
 }
 /// Load json entities.
 #[cfg(feature = "server")]
 pub fn load_raw_map_entities(
-    raw_entities: &Vec<RawEntity>,
+    raw_entities: &Vec<RawEntityRon>,
     spawn_raw_entity: &mut EventWriter<RawSpawnEvent>,
 ) {
     for raw_entity in raw_entities.iter() {

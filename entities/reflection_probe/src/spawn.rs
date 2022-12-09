@@ -1,5 +1,4 @@
-use bevy::prelude::{Commands, EventReader, EventWriter};
-use data_converters::converters::string_transform_to_transform;
+use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent},
     spawn::{SpawnData, SpawnEvent},
@@ -63,8 +62,9 @@ pub fn spawn_raw_reflection_probe(
             let reflection_probe_component =
                 ExportData::new(reflection_probe_data_raw).to_component();
 
-            let entity_transform = string_transform_to_transform(&event.raw_entity.transform);
-
+            let mut entity_transform = Transform::from_translation(event.raw_entity.translation);
+            entity_transform.rotation = event.raw_entity.rotation;
+            entity_transform.scale = event.raw_entity.scale;
             summon_reflection_probe.send(SpawnEvent {
                 spawn_data: SpawnData {
                     entity_transform: entity_transform,

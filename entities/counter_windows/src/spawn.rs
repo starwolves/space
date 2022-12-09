@@ -6,7 +6,6 @@ use bevy::{
     prelude::{warn, Commands, EventReader, EventWriter, GlobalTransform, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction, Group};
-use data_converters::converters::string_transform_to_transform;
 use entity::{
     entity_data::{EntityData, EntityGroup, RawSpawnEvent},
     examine::{Examinable, RichName},
@@ -181,8 +180,9 @@ pub fn summon_raw_counter_window(
             continue;
         }
 
-        let entity_transform = string_transform_to_transform(&spawn_event.raw_entity.transform);
-
+        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
+        entity_transform.rotation = spawn_event.raw_entity.rotation;
+        entity_transform.scale = spawn_event.raw_entity.scale;
         summon_computer.send(SpawnEvent {
             spawn_data: SpawnData {
                 entity_transform: entity_transform,

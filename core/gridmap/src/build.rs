@@ -6,7 +6,6 @@ use bevy::{
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, RigidBody,
 };
-use data_converters::converters::string_vec3_to_vec3;
 use entity::{
     health::{Health, HealthContainer, HealthFlag, StructureHealth},
     senser::to_doryen_coordinates,
@@ -16,8 +15,9 @@ use physics::physics::{get_bit_masks, ColliderGroup, CHARACTER_FLOOR_FRICTION};
 
 use std::collections::HashMap;
 
+use crate::init::CellDataRon;
 use crate::{
-    events::{Cell, CellDataWID},
+    events::Cell,
     grid::{cell_id_to_world, CellData, GridmapData, GridmapDetails1, GridmapMain},
 };
 
@@ -77,7 +77,7 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
 /// Build main gridmap from scratch from exported (json) data.
 #[cfg(feature = "server")]
 pub(crate) fn build_main_gridmap(
-    current_map_main_data: &Vec<CellDataWID>,
+    current_map_main_data: &Vec<CellDataRon>,
     mut commands: &mut Commands,
     gridmap_main: &mut ResMut<GridmapMain>,
     fov_map: &mut ResMut<DoryenMap>,
@@ -88,14 +88,6 @@ pub(crate) fn build_main_gridmap(
     health_flags.insert(0, HealthFlag::ArmourPlated);
 
     for cell_data in current_map_main_data.iter() {
-        let cell_id = string_vec3_to_vec3(&cell_data.id);
-
-        let cell_id_int = Vec3Int {
-            x: cell_id.x as i16,
-            y: cell_id.y as i16,
-            z: cell_id.z as i16,
-        };
-
         let cell_item_id;
 
         match gridmap_data.main_name_id_map.get(&cell_data.item) {
@@ -108,20 +100,20 @@ pub(crate) fn build_main_gridmap(
             }
         };
 
-        if cell_id_int.y == 0 {
+        if cell_data.id.y == 0 {
             // Wall
 
             if !gridmap_data
                 .non_fov_blocking_cells_list
                 .contains(&cell_item_id)
             {
-                let coords = to_doryen_coordinates(cell_id_int.x, cell_id_int.z);
+                let coords = to_doryen_coordinates(cell_data.id.x, cell_data.id.z);
                 fov_map.map.set_transparent(coords.0, coords.1, false);
             }
         } else {
             // Floor cells dont have collision. Don't need to be an entity at this moment either.
             gridmap_main.grid_data.insert(
-                cell_id_int,
+                cell_data.id,
                 CellData {
                     item: cell_item_id,
                     orientation: cell_data.orientation,
@@ -138,14 +130,14 @@ pub(crate) fn build_main_gridmap(
 
         let entity_op = spawn_main_cell(
             &mut commands,
-            cell_id_int,
+            cell_data.id,
             cell_item_id,
             cell_data.orientation,
             &gridmap_data,
         );
 
         gridmap_main.grid_data.insert(
-            cell_id_int,
+            cell_data.id,
             CellData {
                 item: cell_item_id,
                 orientation: cell_data.orientation,
@@ -163,17 +155,15 @@ pub(crate) fn build_main_gridmap(
 /// Build details 1 from scratch from exported (json) data.
 #[cfg(feature = "server")]
 pub(crate) fn build_details1_gridmap(
-    current_map_details1_data: &Vec<CellDataWID>,
+    current_map_details1_data: &Vec<CellDataRon>,
     gridmap_details1: &mut ResMut<GridmapDetails1>,
     gridmap_data: &mut ResMut<GridmapData>,
 ) {
     for cell_data in current_map_details1_data.iter() {
-        let cell_id = string_vec3_to_vec3(&cell_data.id);
-
         let cell_id_int = Vec3Int {
-            x: cell_id.x as i16,
-            y: cell_id.y as i16,
-            z: cell_id.z as i16,
+            x: cell_data.id.x,
+            y: cell_data.id.y,
+            z: cell_data.id.z,
         };
 
         gridmap_details1.grid_data.insert(

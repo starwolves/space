@@ -1,6 +1,5 @@
 use crate::core::GIProbe;
-use bevy::prelude::{Commands, EventReader, EventWriter};
-use data_converters::converters::string_transform_to_transform;
+use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent},
     spawn::{SpawnData, SpawnEvent},
@@ -56,11 +55,13 @@ pub fn summon_raw_gi_probe(
 ) {
     for event in spawn_events.iter() {
         if event.raw_entity.entity_type == GI_PROBE_ENTITY_NAME {
-            let gi_probe_data: ExportData = serde_json::from_str(&event.raw_entity.data)
+            let gi_probe_data: ExportData = ron::from_str(&event.raw_entity.data)
                 .expect("load_raw_map_entities.rs Error parsing entity raw GIProbe data.");
             let gi_probe_component = gi_probe_data.to_component();
 
-            let entity_transform = string_transform_to_transform(&event.raw_entity.transform);
+            let mut entity_transform = Transform::from_translation(event.raw_entity.translation);
+            entity_transform.rotation = event.raw_entity.rotation;
+            entity_transform.scale = event.raw_entity.scale;
 
             summon_gi_probe.send(SpawnEvent {
                 spawn_data: SpawnData {

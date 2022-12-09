@@ -20,7 +20,7 @@ mod finalize_entity_updates;
 /// Base health resources for entities.
 pub mod health;
 /// Entity initialization.
-mod init;
+pub mod init;
 /// Meta resources for entities.
 pub mod meta;
 /// The networking module of this crate.

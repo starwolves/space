@@ -1,5 +1,6 @@
 use std::env;
 
+use crate::boarding::SpawnPoints;
 use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
     connection::{AuthidI, SendServerConfiguration},
@@ -43,7 +44,8 @@ impl Plugin for PlayerPlugin {
                 )
                 .add_event::<InputUIInputTransmitText>()
                 .add_system(finished_configuration.after(ConfigurationLabel::Main))
-                .add_system(server_events.before(ConfigurationLabel::SpawnEntity));
+                .add_system(server_events.before(ConfigurationLabel::SpawnEntity))
+                .init_resource::<SpawnPoints>();
         } else {
             app.add_system(confirm_connection.run_if(is_client_connected));
         }

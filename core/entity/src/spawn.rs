@@ -7,8 +7,7 @@ use serde::Deserialize;
 
 use crate::{
     entity_data::{
-        CachedBroadcastTransform, EntityData, EntityGroup, EntityUpdates, RawEntity,
-        ENTITY_SPAWN_PARENT,
+        CachedBroadcastTransform, EntityData, EntityGroup, EntityUpdates, ENTITY_SPAWN_PARENT,
     },
     examine::Examinable,
     health::{Health, HealthComponent},
@@ -120,6 +119,7 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
 pub trait BaseEntitySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> BaseEntityBundle;
 }
+use crate::init::RawEntityRon;
 use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::EntityServerMessage;
@@ -226,8 +226,8 @@ pub struct SpawnData {
     pub held_entity_option: Option<Entity>,
     /// If the spawn is part of the default map data.
     pub default_map_spawn: bool,
-    /// Entity as json.
-    pub raw_entity_option: Option<RawEntity>,
+    /// Entity as ron.
+    pub raw_entity_option: Option<RawEntityRon>,
     /// If the entity is spawned in a showcase find its data here.
     pub showcase_data_option: Option<ShowcaseData>,
     /// Entity type ID.
@@ -271,7 +271,7 @@ pub fn spawn_entity(
     correct_transform: bool,
     entity_data: &ResMut<EntityDataResource>,
     held_data_option: Option<Entity>,
-    raw_entity_option: Option<RawEntity>,
+    raw_entity_option: Option<RawEntityRon>,
     showcase_handle_option: Option<ShowcaseData>,
     default_spawner: &mut EventWriter<DefaultSpawnEvent>,
 ) -> Option<Entity> {
