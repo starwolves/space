@@ -35,7 +35,6 @@ text_api = { path = "../../core/text_api",  features=["server"] }
 combat = { path = "../../core/combat",  features=["server"] }
 actions = { path = "../../core/actions",  features=["server"] }
 gridmap = { path = "../../core/gridmap",  features=["server"] }
-data_converters = { path = "../../core/data_converters",  features=["server"] }
 data_link = { path = "../../core/data_link",  features=["server"] }
 resources = { path = "../../core/resources" ,  features=["server"]}
 math = { path = "../../core/math",  features=["server"] }
