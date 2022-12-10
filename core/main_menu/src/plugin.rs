@@ -9,7 +9,7 @@ use crate::{
         MainMenuState, PlayMenuState, MAIN_BG_COLOR,
     },
     events::{button_presses, connect_to_server_button, space_frontiers_link, starwolves_link},
-    hide::hide_main_menu,
+    hide::{confirm_connection, hide_main_menu},
 };
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -38,7 +38,8 @@ impl Plugin for MainMenuPlugin {
                 .add_system(connect_to_server_button)
                 .add_system(auto_fill_connect_menu)
                 .add_event::<AutoFillConnectSubMenu>()
-                .add_system(on_submenu_connect_creation);
+                .add_system(on_submenu_connect_creation)
+                .add_system(confirm_connection);
         }
     }
 }

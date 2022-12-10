@@ -153,7 +153,6 @@ pub fn summon_base_human_male<
 #[cfg(feature = "server")]
 pub struct HumanMaleSummoner {
     pub character_name: String,
-    pub user_name: String,
     pub spawn_pawn_data: SpawnPawnData,
 }
 #[cfg(feature = "server")]
@@ -184,9 +183,6 @@ impl HumanMaleSummonable for HumanMaleSummoner {
     fn get_character_name(&self) -> String {
         self.character_name.clone()
     }
-    fn get_user_name(&self) -> String {
-        self.user_name.clone()
-    }
     fn get_spawn_pawn_data(&self) -> SpawnPawnData {
         self.spawn_pawn_data.clone()
     }
@@ -195,7 +191,6 @@ impl HumanMaleSummonable for HumanMaleSummoner {
 #[cfg(feature = "server")]
 pub trait HumanMaleSummonable {
     fn get_character_name(&self) -> String;
-    fn get_user_name(&self) -> String;
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
 /// human-male specific spawn components and bundles.
@@ -283,7 +278,6 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
             },
             PersistentPlayerData {
                 character_name: spawn_event.summoner.get_character_name().clone(),
-                account_name: spawn_event.summoner.get_user_name().clone(),
                 ..Default::default()
             },
             WorldMode {
@@ -435,7 +429,6 @@ pub(crate) fn default_human_dummy(
                 spawn_data: spawn_event.spawn_data.clone(),
                 summoner: HumanMaleSummoner {
                     character_name: get_dummy_name(&mut used_names),
-                    user_name: "DUMMY_USER_NAME".to_string(),
                     spawn_pawn_data: SpawnPawnData {
                         persistent_player_data: PersistentPlayerData::default(),
                         connected_player_option: None,

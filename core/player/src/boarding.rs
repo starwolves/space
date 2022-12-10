@@ -1,7 +1,6 @@
-use crate::connection::{OnBoard, SetupPhase};
 use bevy::math::Quat;
 use bevy::{
-    prelude::{info, Commands, Component, Entity, EventReader, ResMut, Resource},
+    prelude::{Commands, Component, Entity, EventReader, ResMut, Resource},
     time::Timer,
 };
 
@@ -22,6 +21,7 @@ use crate::connections::PlayerServerMessage;
 use crate::spawn_points::SpawnPointRon;
 use crate::spawn_points::Spawning;
 
+use crate::connections::{OnBoard, SetupPhase};
 use bevy::prelude::{EventWriter, Transform};
 use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
@@ -41,10 +41,6 @@ pub(crate) fn done_boarding(
         let player_character_name = boarding_player.player_character_name.clone();
         let player_handle = boarding_player.player_handle;
         let entity_id = boarding_player.entity;
-        info!(
-            "{} [{}] has boarded the spaceship.",
-            player_character_name, player_handle
-        );
 
         let assigned_spawn_transform = spawn_points.list[spawn_points.i].transform;
 
@@ -86,17 +82,13 @@ pub(crate) fn done_boarding(
 #[derive(Clone, Component)]
 #[cfg(feature = "server")]
 pub struct PersistentPlayerData {
-    pub account_name_is_set: bool,
     pub character_name: String,
-    pub account_name: String,
 }
 #[cfg(feature = "server")]
 impl Default for PersistentPlayerData {
     fn default() -> Self {
         Self {
-            account_name_is_set: false,
             character_name: "".to_string(),
-            account_name: "".to_string(),
         }
     }
 }

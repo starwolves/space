@@ -32,7 +32,7 @@ use bevy::prelude::EventReader;
 use bevy::prelude::Res;
 use std::net::IpAddr;
 
-use crate::server::GreetingClientServerMessage;
+use crate::server::NetworkingClientMessage;
 use bevy::prelude::ResMut;
 
 #[cfg(feature = "client")]
@@ -41,7 +41,7 @@ pub(crate) fn connect_to_server(
     mut commands: Commands,
     preferences: Res<ConnectionPreferences>,
     mut connection_state: ResMut<Connection>,
-    mut client: EventWriter<OutgoingReliableClientMessage<GreetingClientServerMessage>>,
+    mut client: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
 ) {
     for _ in event.iter() {
         match connection_state.status {
@@ -123,7 +123,7 @@ pub(crate) fn connect_to_server(
                 .unwrap();
 
                 client.send(OutgoingReliableClientMessage {
-                    message: GreetingClientServerMessage::Awoo,
+                    message: NetworkingClientMessage::Account(preferences.account_name.clone()),
                 });
                 commands.insert_resource(renet_client);
 
@@ -411,6 +411,24 @@ pub fn get_unreliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>
         None => {
             warn!("Couldnt find reliable net type.");
             None
+        }
+    }
+}
+use crate::server::NetworkingServerMessage;
+
+/// Confirms connection with server.
+#[cfg(feature = "client")]
+pub(crate) fn confirm_connection(
+    mut client1: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
+    mut connected_state: ResMut<Connection>,
+) {
+    for message in client1.iter() {
+        let player_message = message.message.clone();
+        match player_message {
+            NetworkingServerMessage::Awoo => {
+                connected_state.status = ConnectionStatus::Connected;
+                info!("Connection approved.");
+            }
         }
     }
 }

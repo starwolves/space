@@ -1,7 +1,7 @@
 use crate::map_input::MapData;
 use bevy::prelude::{EventReader, Res};
 use networking::server::OutgoingReliableServerMessage;
-use player::connection::SendServerConfiguration;
+use player::connections::SendServerConfiguration;
 
 use crate::networking::MapServerMessage;
 use bevy::prelude::EventWriter;

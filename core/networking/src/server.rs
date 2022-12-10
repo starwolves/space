@@ -73,6 +73,7 @@ pub(crate) fn souls(
             // Where the souls of the players are       |
             //   while they're connected.               V
             NetworkingClientMessage::HeartBeat => { /* <3 */ }
+            _ => (),
         }
     }
 }
@@ -89,6 +90,14 @@ pub enum GridMapLayer {
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum NetworkingClientMessage {
     HeartBeat,
+    Account(String),
+}
+
+/// Gets serialized and sent over the net, this is the client message.
+#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum NetworkingServerMessage {
+    Awoo,
 }
 
 /// This message gets sent at high intervals.
@@ -184,13 +193,6 @@ impl Default for ConnectedPlayer {
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum NetworkingChatServerMessage {
     ChatMessage(String),
-}
-
-/// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum GreetingClientServerMessage {
-    Awoo,
 }
 
 use bevy::prelude::warn;

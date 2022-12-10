@@ -1,19 +1,18 @@
 use std::env;
 
+use crate::account::{account_verification, Accounts};
 use crate::boarding::SpawnPoints;
+use crate::configuration::{
+    client_receive_pawnid, finished_configuration, server_new_client_configuration, PawnEntityId,
+};
+use crate::connections::{AuthidI, SendServerConfiguration};
 use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
-    connection::{AuthidI, SendServerConfiguration},
-    connections::{
-        configure, confirm_connection, finished_configuration, server_events,
-        PlayerAwaitingBoarding, PlayerServerMessage,
-    },
+    connections::{server_events, PlayerAwaitingBoarding, PlayerServerMessage},
 };
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::{App, Plugin, SystemLabel};
-use iyes_loopless::prelude::IntoConditionalSystem;
 use networking::{
-    client::is_client_connected,
     messaging::{init_reliable_message, MessageSender},
     server::HandleToEntity,
 };
@@ -38,16 +37,19 @@ impl Plugin for PlayerPlugin {
                 .add_event::<InputUIInputTransmitText>()
                 .add_event::<PlayerAwaitingBoarding>()
                 .add_system(
-                    configure
+                    server_new_client_configuration
                         .label(ConfigurationLabel::SpawnEntity)
                         .before(ConfigurationLabel::Main),
                 )
                 .add_event::<InputUIInputTransmitText>()
                 .add_system(finished_configuration.after(ConfigurationLabel::Main))
                 .add_system(server_events.before(ConfigurationLabel::SpawnEntity))
-                .init_resource::<SpawnPoints>();
+                .init_resource::<SpawnPoints>()
+                .add_system(account_verification)
+                .init_resource::<Accounts>();
         } else {
-            app.add_system(confirm_connection.run_if(is_client_connected));
+            app.add_system(client_receive_pawnid)
+                .init_resource::<PawnEntityId>();
         }
         init_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);
     }

@@ -180,6 +180,7 @@ use pawn::pawn::Pawn;
 use entity::networking::{EntityServerMessage, EntityWorldType};
 use networking::server::NetworkingChatServerMessage;
 use networking::server::OutgoingReliableServerMessage;
+use player::account::Accounts;
 use sfx::networking::SfxServerMessage;
 
 use bevy::prelude::EventWriter;
@@ -188,13 +189,14 @@ use bevy::prelude::EventWriter;
 pub(crate) fn chat_message(
     mut new_chat_messages: EventReader<NewChatMessage>,
     soft_player_query: Query<&SoftPlayer>,
-    global_listeners: Query<(&ConnectedPlayer, &PersistentPlayerData)>,
+    global_listeners: Query<&ConnectedPlayer>,
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut server1: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
     mut server2: EventWriter<OutgoingReliableServerMessage<SfxServerMessage>>,
     radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,
     handle_to_entity: Res<HandleToEntity>,
     player_pawns: Query<(&Pawn, &Transform, &Sensable)>,
+    accounts: Res<Accounts>,
 ) {
     for new_message in new_chat_messages.iter() {
         let mut messaging_player_state = &MessagingPlayerState::Alive;
@@ -368,12 +370,25 @@ pub(crate) fn chat_message(
 
         if matches!(radio_channel, RadioChannel::Global) {
             match global_listeners.get(new_message.messenger_entity_option.unwrap()) {
-                Ok((_connected, persistent_player_data_component)) => {
-                    let message = persistent_player_data_component.account_name.clone()
-                        + "[b][color=#322bff](Global)[/color][/b]: "
-                        + &message;
+                Ok(_connected) => {
+                    for connected_player_component in global_listeners.iter() {
+                        let account_name;
+                        match accounts.list.get(&connected_player_component.handle) {
+                            Some(a) => {
+                                account_name = a.clone();
+                            }
+                            None => {
+                                warn!(
+                                    "Could not find account with handle {}",
+                                    connected_player_component.handle
+                                );
+                                continue;
+                            }
+                        }
 
-                    for (connected_player_component, _persistent) in global_listeners.iter() {
+                        let message =
+                            account_name + "[b][color=#322bff](Global)[/color][/b]: " + &message;
+
                         if connected_player_component.connected == false {
                             continue;
                         }

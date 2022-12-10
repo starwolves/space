@@ -1,157 +1,20 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, Res, ResMut};
-use networking::server::{ConnectedPlayer, HandleToEntity};
-use resources::core::{ServerId, TickRate};
+use bevy::prelude::{EventReader, Res};
+
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 use world_environment::environment::WorldEnvironment;
 
-use crate::{
-    boarding::{PersistentPlayerData, SoftPlayer},
-    connection::{AuthidI, SendServerConfiguration},
-    names::UsedNames,
-};
-use networking::server::GreetingClientServerMessage;
-use networking::server::OutgoingReliableServerMessage;
-
-#[cfg(feature = "server")]
-pub(crate) fn configure(
-    mut config_events: EventReader<SendServerConfiguration>,
-    tick_rate: Res<TickRate>,
-    server_id: Res<ServerId>,
-    mut auth_id_i: ResMut<AuthidI>,
-    mut used_names: ResMut<UsedNames>,
-    mut commands: Commands,
-    mut handle_to_entity: ResMut<HandleToEntity>,
-    mut server: EventWriter<OutgoingReliableServerMessage<GreetingClientServerMessage>>,
-    mut server1: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
-) {
-    for event in config_events.iter() {
-        server.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: GreetingClientServerMessage::Awoo,
-        });
-        server1.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigTickRate(tick_rate.physics_rate),
-        });
-        server1.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigServerEntityId(server_id.id.to_bits()),
-        });
-        server1.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigRepeatingSFX(
-                "concrete_walking_footsteps".to_string(),
-                (1..=39)
-                    .map(|i| {
-                        format!(
-                        "/content/audio/footsteps/default/Concrete_Shoes_Walking_step{i}.sample"
-                    )
-                    })
-                    .collect(),
-            ),
-        });
-
-        server1.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigRepeatingSFX(
-                "concrete_sprinting_footsteps".to_string(),
-                [
-                    4, 5, 7, 9, 10, 12, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 25, 27, 28, 30, 31,
-                    32, 34, 35, 36, 38, 40, 41, 42, 43, 44, 45, 46, 47, 49, 50, 51,
-                ]
-                .iter()
-                .map(|i| {
-                    format!(
-                        "/content/audio/footsteps/default/Concrete_Shoes_Running_step{i}.sample"
-                    )
-                })
-                .collect(),
-            ),
-        });
-
-        // Create the actual Bevy entity for the player , with its network handle, authid and softConnected components.
-
-        let connected_player_component = ConnectedPlayer {
-            handle: event.handle,
-            authid: auth_id_i.i,
-            rcon: false,
-            ..Default::default()
-        };
-
-        let soft_connected_component = SoftPlayer;
-
-        let mut default_name = "Wolf".to_string() + &used_names.player_i.to_string();
-
-        used_names.player_i += 1;
-
-        while used_names.account_name.contains_key(&default_name) {
-            used_names.player_i += 1;
-            default_name = "Wolf".to_string() + &used_names.player_i.to_string();
-        }
-
-        let persistent_player_data = PersistentPlayerData {
-            character_name: "".to_string(),
-            account_name: default_name.clone(),
-            ..Default::default()
-        };
-
-        auth_id_i.i += 1;
-
-        let player_entity_id = commands
-            .spawn((
-                connected_player_component,
-                soft_connected_component,
-                persistent_player_data,
-            ))
-            .id();
-        used_names
-            .account_name
-            .insert(default_name, player_entity_id);
-
-        handle_to_entity.map.insert(event.handle, player_entity_id);
-        handle_to_entity
-            .inv_map
-            .insert(player_entity_id, event.handle);
-
-        server1.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigEntityId(player_entity_id.to_bits()),
-        });
-    }
-}
-
 pub struct PlayerAwaitingBoarding {
     pub handle: u64,
-}
-
-#[cfg(feature = "server")]
-pub(crate) fn finished_configuration(
-    mut config_events: EventReader<SendServerConfiguration>,
-    mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
-    mut player_awaiting_event: EventWriter<PlayerAwaitingBoarding>,
-) {
-    for event in config_events.iter() {
-        server.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigFinished,
-        });
-        player_awaiting_event.send(PlayerAwaitingBoarding {
-            handle: event.handle,
-        });
-    }
 }
 use bevy::prelude::info;
 use bevy::prelude::warn;
 use bevy_renet::renet::RenetServer;
 use bevy_renet::renet::ServerEvent;
 
+/// Networking connect and disconnect events.
 #[cfg(feature = "server")]
-pub(crate) fn server_events(
-    mut server_events: EventReader<ServerEvent>,
-    server: Res<RenetServer>,
-    mut configure: EventWriter<SendServerConfiguration>,
-) {
+pub(crate) fn server_events(mut server_events: EventReader<ServerEvent>, server: Res<RenetServer>) {
     for event in server_events.iter() {
         match event {
             ServerEvent::ClientConnected(handle, _) => {
@@ -168,7 +31,6 @@ pub(crate) fn server_events(
                 };
 
                 info!("Incoming connection [{}] [{:?}]", handle, client_address);
-                configure.send(SendServerConfiguration { handle: *handle })
             }
             ServerEvent::ClientDisconnected(handle) => {
                 info!("[{}] has disconnected.", handle);
@@ -176,7 +38,6 @@ pub(crate) fn server_events(
         }
     }
 }
-
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum PlayerServerMessage {
@@ -185,29 +46,33 @@ pub enum PlayerServerMessage {
     ServerTime,
     ConnectedPlayers(u16),
     ConfigTickRate(u8),
-    ConfigEntityId(u64),
+    PawnId(u64),
     ConfigServerEntityId(u64),
     ConfigRepeatingSFX(String, Vec<String>),
     ConfigFinished,
     ConfigTalkSpaces(Vec<(String, String)>),
 }
-use networking::client::Connection;
-use networking::client::ConnectionStatus;
-use networking::client::IncomingReliableServerMessage;
+use bevy::prelude::Component;
+use bevy::prelude::Resource;
 
-/// Confirms connection with server.
-#[cfg(feature = "client")]
-pub(crate) fn confirm_connection(
-    mut client: EventReader<IncomingReliableServerMessage<GreetingClientServerMessage>>,
-    mut connected_state: ResMut<Connection>,
-) {
-    for message in client.iter() {
-        let player_message = message.message.clone();
-        match player_message {
-            GreetingClientServerMessage::Awoo => {
-                connected_state.status = ConnectionStatus::Connected;
-                info!("Connected.");
-            }
-        }
-    }
+/// The component for entities int he boarding phase.
+#[derive(Component)]
+#[cfg(feature = "server")]
+pub struct SetupPhase;
+
+/// The component for entities that are done boarding and about to spawn in on the ship. A stage after [Boarding].
+#[derive(Component)]
+#[cfg(feature = "server")]
+pub struct OnBoard;
+
+/// Event for sending server configuration to newly connected client. Done after client account is verified.
+#[cfg(feature = "server")]
+pub struct SendServerConfiguration {
+    pub handle: u64,
+}
+/// Resource with the current incremented authentication ID.
+#[derive(Default, Resource)]
+#[cfg(feature = "server")]
+pub(crate) struct AuthidI {
+    pub i: u16,
 }

@@ -2,7 +2,7 @@ use crate::commands::AllConsoleCommands;
 use crate::networking::ConsoleCommandsServerMessage;
 use bevy::prelude::{EventReader, Res};
 use networking::server::OutgoingReliableServerMessage;
-use player::connection::SendServerConfiguration;
+use player::connections::SendServerConfiguration;
 
 use bevy::prelude::EventWriter;
 #[cfg(feature = "server")]
