@@ -15,6 +15,7 @@ pub struct Accounts {
 }
 use crate::connections::SendServerConfiguration;
 use crate::names::UsedNames;
+use bevy::prelude::warn;
 use bevy::prelude::ResMut;
 use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage};
 
@@ -36,7 +37,11 @@ pub(crate) fn account_verification(
                 }
 
                 if used_names.account_name.contains_key(&user_name) {
-                    //Already exists.
+                    // Account name already exists.
+                    warn!(
+                        "Account name {} by [{}] already exists.",
+                        user_name, message.handle
+                    );
                     continue;
                 }
                 accounts.list.insert(message.handle, user_name);
