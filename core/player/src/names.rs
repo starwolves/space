@@ -6,8 +6,8 @@ use std::collections::HashMap;
 pub struct UsedNames {
     /// Character names.
     pub names: HashMap<String, Entity>,
-    /// Global user names.
-    pub account_name: HashMap<String, Entity>,
+    pub used_account_names: Vec<String>,
+    /// Useful for fallback acccount name assignment with non conflicting incremental IDs.
     pub player_i: u32,
     pub dummy_i: u32,
 }

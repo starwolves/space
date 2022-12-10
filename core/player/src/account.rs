@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use bevy::prelude::Res;
 use bevy::prelude::Resource;
 use networking::server::IncomingReliableClientMessage;
 use networking::server::NetworkingClientMessage;
@@ -26,7 +25,7 @@ pub(crate) fn account_verification(
     mut outgoing: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut configure: EventWriter<SendServerConfiguration>,
     mut accounts: ResMut<Accounts>,
-    used_names: Res<UsedNames>,
+    mut used_names: ResMut<UsedNames>,
 ) {
     for message in incoming.iter() {
         match &message.message {
@@ -36,14 +35,25 @@ pub(crate) fn account_verification(
                     user_name = user_name[..16].to_string();
                 }
 
-                if used_names.account_name.contains_key(&user_name) {
+                if used_names.used_account_names.contains(&user_name) {
                     // Account name already exists.
+
+                    let mut default_name = "Wolf".to_string() + &used_names.player_i.to_string();
+                    used_names.player_i += 1;
+
+                    while used_names.used_account_names.contains(&default_name) {
+                        used_names.player_i += 1;
+                        default_name = "Wolf".to_string() + &used_names.player_i.to_string();
+                    }
+
                     warn!(
-                        "Account name {} by [{}] already exists.",
-                        user_name, message.handle
+                        "Account name {} by [{}] already exists. Assigned account name {}.",
+                        user_name, message.handle, default_name
                     );
-                    continue;
+
+                    user_name = default_name;
                 }
+                used_names.used_account_names.push(user_name.clone());
                 accounts.list.insert(message.handle, user_name);
 
                 outgoing.send(OutgoingReliableServerMessage {
