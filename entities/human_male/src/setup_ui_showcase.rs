@@ -8,7 +8,7 @@ use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use crate::spawn::HumanMaleSummoner;
 use networking::server::ConnectedPlayer;
 use player::spawn_points::{PawnDesignation, SpawnPawnData};
-use player::{boarding::PersistentPlayerData, connection::SetupPhase};
+use player::{boarding::PersistentPlayerData, connections::SetupPhase};
 
 /// Initialize the setup UI by spawning in showcase entities etc.
 #[cfg(feature = "server")]
@@ -39,7 +39,6 @@ pub(crate) fn human_male_setup_ui(
             },
             summoner: HumanMaleSummoner {
                 character_name: persistent_player_data_component.character_name.clone(),
-                user_name: persistent_player_data_component.account_name.clone(),
                 spawn_pawn_data: SpawnPawnData {
                     persistent_player_data: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),

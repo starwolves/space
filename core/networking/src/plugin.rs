@@ -7,9 +7,9 @@ use iyes_loopless::prelude::IntoConditionalSystem;
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
-        connect_to_server, is_client_connected, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_server_messages, ConnectToServer, Connection,
-        ConnectionPreferences, IncomingRawReliableServerMessage,
+        confirm_connection, connect_to_server, is_client_connected,
+        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
+        ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
         IncomingRawUnreliableServerMessage,
     },
     messaging::{
@@ -18,8 +18,8 @@ use crate::{
     },
     server::{
         receive_incoming_reliable_client_messages, receive_incoming_unreliable_client_messages,
-        GreetingClientServerMessage, IncomingRawReliableClientMessage,
-        IncomingRawUnreliableClientMessage, NetworkingChatServerMessage, NetworkingClientMessage,
+        IncomingRawReliableClientMessage, IncomingRawUnreliableClientMessage,
+        NetworkingChatServerMessage, NetworkingClientMessage, NetworkingServerMessage,
         UnreliableServerMessage,
     },
 };
@@ -62,7 +62,8 @@ impl Plugin for NetworkingPlugin {
                         .label(TypenamesLabel::SendRawEvents),
                 )
                 .add_event::<IncomingRawReliableServerMessage>()
-                .add_event::<IncomingRawUnreliableServerMessage>();
+                .add_event::<IncomingRawUnreliableServerMessage>()
+                .add_system(confirm_connection.run_if(is_client_connected));
         }
 
         app.init_resource::<Typenames>()
@@ -70,7 +71,7 @@ impl Plugin for NetworkingPlugin {
         init_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
         init_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
         init_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);
-        init_reliable_message::<GreetingClientServerMessage>(app, MessageSender::Both);
+        init_reliable_message::<NetworkingServerMessage>(app, MessageSender::Server);
     }
 }
 

@@ -2,8 +2,6 @@
 
 /// Manage pawn actions.
 mod actions;
-/// The networking module of this crate.
-pub mod networking;
 /// Pawn resources.
 pub mod pawn;
 /// The Bevy plugin of this crate.

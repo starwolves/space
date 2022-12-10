@@ -11,10 +11,3 @@ pub struct UsedNames {
     pub player_i: u32,
     pub dummy_i: u32,
 }
-
-/// Client input user name event.
-#[cfg(feature = "server")]
-pub struct InputAccountName {
-    pub entity: Entity,
-    pub input_name: String,
-}

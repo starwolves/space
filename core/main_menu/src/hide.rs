@@ -1,16 +1,44 @@
-use bevy::prelude::Res;
+use bevy::prelude::EventWriter;
 use bevy::prelude::{Commands, EventReader};
+use bevy::prelude::{DespawnRecursiveExt, ResMut};
+use networking::client::IncomingReliableServerMessage;
 
 use crate::build::{EnableMainMenu, MainMenuState};
 
 /// System that toggles the visiblity of the main menu based on an event.
 #[cfg(feature = "client")]
 pub(crate) fn hide_main_menu(
-    mut _enable_events: EventReader<EnableMainMenu>,
-    state: Res<MainMenuState>,
-    mut _commands: Commands,
+    mut enable_events: EventReader<EnableMainMenu>,
+    mut state: ResMut<MainMenuState>,
+    mut commands: Commands,
 ) {
-    if !state.enabled {
-        return;
+    for event in enable_events.iter() {
+        if event.enable == false {
+            if !state.enabled {
+                return;
+            }
+            state.enabled = false;
+            commands.entity(state.root.unwrap()).despawn_recursive();
+            state.root = None;
+            commands.entity(state.camera.unwrap()).despawn_recursive();
+            state.camera = None;
+        }
+    }
+}
+use player::connections::PlayerServerMessage;
+
+/// Confirms connection with server.
+#[cfg(feature = "client")]
+pub(crate) fn confirm_connection(
+    mut client2: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
+    mut enable_menu_events: EventWriter<EnableMainMenu>,
+) {
+    for message in client2.iter() {
+        match &message.message {
+            PlayerServerMessage::InitGame => {
+                enable_menu_events.send(EnableMainMenu { enable: false });
+            }
+            _ => (),
+        }
     }
 }

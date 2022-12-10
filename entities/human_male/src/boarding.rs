@@ -8,10 +8,13 @@ use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use player::spawn_points::{PawnDesignation, SpawnPawnData};
 
+use bevy::prelude::info;
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use player::{boarding::PersistentPlayerData, names::UsedNames, spawn_points::Spawning};
 
+use bevy::prelude::Res;
+use player::account::Accounts;
 use player::connections::PlayerServerMessage;
 /// Spawn player as human male with preset inventory.
 #[cfg(feature = "server")]
@@ -22,7 +25,10 @@ pub(crate) fn on_spawning(
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut used_names: ResMut<UsedNames>,
     mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
+    accounts: Res<Accounts>,
 ) {
+    use bevy::prelude::warn;
+
     for (
         entity_id,
         spawning_component,
@@ -57,7 +63,6 @@ pub(crate) fn on_spawning(
             },
             summoner: HumanMaleSummoner {
                 character_name: persistent_player_data_component.character_name.clone(),
-                user_name: persistent_player_data_component.account_name.clone(),
                 spawn_pawn_data: SpawnPawnData {
                     persistent_player_data: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),
@@ -82,9 +87,21 @@ pub(crate) fn on_spawning(
 
         commands.entity(entity_id).despawn();
 
+        match accounts.list.get(&handle) {
+            Some(n) => {
+                info!(
+                    "{} has boarded as \"{}\". [{}][{:?}]",
+                    n, persistent_player_data_component.character_name, handle, new_entity
+                );
+            }
+            None => {
+                warn!("Couldn't find account name of {}", handle);
+            }
+        }
+
         server.send(OutgoingReliableServerMessage {
             handle,
-            message: PlayerServerMessage::ConfigEntityId(new_entity.to_bits()),
+            message: PlayerServerMessage::PawnId(new_entity.to_bits()),
         });
     }
 }

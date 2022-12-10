@@ -11,7 +11,7 @@ pub const INPUT_NAME_PATH : &str = "ColorRect/background/VBoxContainer/HBoxConta
 
 use motd::motd::MOTD;
 use player::name_generator::get_full_name;
-use player::{connection::SetupPhase, names::UsedNames};
+use player::{connections::SetupPhase, names::UsedNames};
 
 use networking::server::NetworkingChatServerMessage;
 use networking::server::OutgoingReliableServerMessage;
@@ -177,7 +177,7 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     )]
 }
 
-use player::connection::SendServerConfiguration;
+use player::connections::SendServerConfiguration;
 
 #[cfg(feature = "server")]
 pub(crate) fn configure(
