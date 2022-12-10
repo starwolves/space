@@ -2,11 +2,11 @@
 name = "pawn"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Pawns are controllable entities by either players or AI."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Pawns are controllable entities by either players or AI."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -19,14 +19,9 @@ default-features = false
 
 [dependencies]
 bevy_rapier3d = "0.19.0"
-serde = "1.0.147"
-typename = "0.1.2"
 
-networking = { path = "../networking",  features=["server"] }
-actions = { path = "../actions",  features=["server"] }
-resources = { path = "../resources",  features=["server"] }
-math = { path = "../math",  features=["server"] }
-entity = { path = "../entity",  features=["server"] }
-text_api = { path = "../text_api",  features=["server"] }
-player = { path = "../player",  features=["server"] }
-console_commands = { path = "../console_commands",  features=["server"] }
+networking = { path = "../networking", features = ["server"] }
+actions = { path = "../actions", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+math = { path = "../math", features = ["server"] }
+entity = { path = "../entity", features = ["server"] }
