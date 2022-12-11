@@ -3,7 +3,7 @@ use std::time::Duration;
 use crate::client_is_live;
 use actions::plugin::ActionsPlugin;
 use bevy::{
-    app::{RunMode, ScheduleRunnerSettings},
+    app::ScheduleRunnerSettings,
     prelude::{App, CorePlugin, Plugin, PluginGroup, TaskPoolOptions},
     window::{PresentMode, WindowDescriptor, WindowMode, WindowPlugin, WindowPosition},
     winit::WinitSettings,
@@ -93,10 +93,8 @@ impl Plugin for ClientPlugin {
         .add_plugin(PawnPlugin)
         .add_plugin(SfxPlugin)
         .add_startup_system(client_is_live)
-        .insert_resource(ScheduleRunnerSettings {
-            run_mode: RunMode::Loop {
-                wait: Some(Duration::from_secs_f64(1. / (64. as f64))),
-            },
-        });
+        .insert_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f32(
+            1. / 64.,
+        )));
     }
 }

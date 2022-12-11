@@ -6,7 +6,7 @@ use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::{
-    app::{RunMode, ScheduleRunnerSettings},
+    app::ScheduleRunnerSettings,
     core::CorePlugin,
     prelude::{App, IntoSystemDescriptor, Plugin, PluginGroup, TaskPoolOptions},
     window::WindowPlugin,
@@ -152,11 +152,9 @@ impl Plugin for ServerPlugin {
             tick_rate.bevy_rate = bevy_rate;
         }
         app.insert_resource::<TickRate>(tick_rate);
-        app.insert_resource(ScheduleRunnerSettings {
-            run_mode: RunMode::Loop {
-                wait: Some(Duration::from_secs_f64(1. / (bevy_rate as f64))),
-            },
-        });
+        app.insert_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f32(
+            1. / bevy_rate as f32,
+        )));
 
         match &self.custom_motd {
             Some(motd) => {
