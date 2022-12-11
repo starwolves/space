@@ -82,38 +82,14 @@ pub(crate) fn connect_to_server(
 
                 let socket_address: SocketAddr = SocketAddr::new(ip_address, port as u16);
 
-                let mut socket_option = None;
-                let mut client_port = CLIENT_PORT;
-                let max_attempts = 128;
-                let mut i = 0;
-                // Useful for connecting multiple clients to a server from the same machine.
-                loop {
-                    i += 1;
-                    match UdpSocket::bind(
-                        local_ipaddress::get().unwrap_or_default() + ":" + &client_port.to_string(),
-                    ) {
-                        Ok(socket) => {
-                            socket_option = Some(socket);
-                            break;
-                        }
-                        Err(_) => {
-                            if i < max_attempts {
-                                client_port = CLIENT_PORT + i;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-                }
-
                 let socket;
-
-                match socket_option {
-                    Some(s) => {
+                // Useful for connecting multiple clients to a server from the same machine.
+                match UdpSocket::bind(local_ipaddress::get().unwrap_or_default() + ":0") {
+                    Ok(s) => {
                         socket = s;
                     }
-                    None => {
-                        warn!("Couldn't bind UdpSocket.");
+                    Err(err) => {
+                        warn!("Failed to bind udp socket: {}", err);
                         continue;
                     }
                 }
@@ -160,6 +136,8 @@ pub(crate) fn connect_to_server(
                 commands.insert_resource(renet_client);
 
                 connection_state.status = ConnectionStatus::Connecting;
+
+                info!("Connecting...");
             }
             ConnectionStatus::Connecting => {
                 continue;
@@ -459,8 +437,24 @@ pub(crate) fn confirm_connection(
         match player_message {
             NetworkingServerMessage::Awoo => {
                 connected_state.status = ConnectionStatus::Connected;
-                info!("Connection approved.");
+                info!("Connected.");
             }
         }
+    }
+}
+
+#[cfg(feature = "client")]
+pub(crate) fn on_disconnect(
+    client: Res<RenetClient>,
+    mut connected_state: ResMut<Connection>,
+    mut commands: Commands,
+) {
+    match client.disconnected() {
+        Some(_d) => {
+            warn!("Disconnected from server.");
+            connected_state.status = ConnectionStatus::None;
+            commands.remove_resource::<RenetClient>();
+        }
+        None => {}
     }
 }
