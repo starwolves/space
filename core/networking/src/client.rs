@@ -115,7 +115,7 @@ pub(crate) fn connect_to_server(
                     .unwrap();
                 let client_id = current_time.as_millis() as u64;
 
-                info!("Establishing connection with [{}]", socket_address);
+                info!("Connecting to [{}]...", socket_address);
 
                 let renet_client = RenetClient::new(
                     current_time,
@@ -136,8 +136,6 @@ pub(crate) fn connect_to_server(
                 commands.insert_resource(renet_client);
 
                 connection_state.status = ConnectionStatus::Connecting;
-
-                info!("Connecting...");
             }
             ConnectionStatus::Connecting => {
                 continue;
