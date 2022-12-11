@@ -7,7 +7,7 @@ use iyes_loopless::prelude::IntoConditionalSystem;
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
-        confirm_connection, connect_to_server, is_client_connected,
+        confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
         receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
         ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
         IncomingRawUnreliableServerMessage,
@@ -63,7 +63,8 @@ impl Plugin for NetworkingPlugin {
                 )
                 .add_event::<IncomingRawReliableServerMessage>()
                 .add_event::<IncomingRawUnreliableServerMessage>()
-                .add_system(confirm_connection.run_if(is_client_connected));
+                .add_system(confirm_connection.run_if(is_client_connected))
+                .add_system(on_disconnect.run_if(connected));
         }
 
         app.init_resource::<Typenames>()

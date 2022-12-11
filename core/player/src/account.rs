@@ -27,6 +27,8 @@ pub(crate) fn account_verification(
     mut accounts: ResMut<Accounts>,
     mut used_names: ResMut<UsedNames>,
 ) {
+    use bevy::prelude::info;
+
     for message in incoming.iter() {
         match &message.message {
             NetworkingClientMessage::Account(account_name) => {
@@ -54,7 +56,7 @@ pub(crate) fn account_verification(
                     user_name = default_name;
                 }
                 used_names.used_account_names.push(user_name.clone());
-                accounts.list.insert(message.handle, user_name);
+                accounts.list.insert(message.handle, user_name.clone());
 
                 outgoing.send(OutgoingReliableServerMessage {
                     handle: message.handle,
@@ -63,7 +65,9 @@ pub(crate) fn account_verification(
 
                 configure.send(SendServerConfiguration {
                     handle: message.handle,
-                })
+                });
+
+                info!("Set account name {} for {}", user_name, message.handle);
             }
             _ => {}
         }
