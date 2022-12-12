@@ -14,7 +14,7 @@ use entity::{
 };
 use physics::{
     rigid_body::STANDARD_BODY_FRICTION,
-    spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable},
+    spawn::{RigidBodyBundle, RigidBodySummonable},
 };
 use std::collections::BTreeMap;
 

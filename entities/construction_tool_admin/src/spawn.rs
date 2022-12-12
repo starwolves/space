@@ -13,7 +13,7 @@ use inventory_item::combat::{DamageModel, MeleeCombat};
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
 use physics::rigid_body::STANDARD_BODY_FRICTION;
-use physics::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
+use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
 use std::collections::BTreeMap;
 
 use crate::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;

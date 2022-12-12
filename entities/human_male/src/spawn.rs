@@ -29,7 +29,7 @@ use map::map::Map;
 use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
-use physics::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
+use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
 use player::names::UsedNames;
 
 /// Get default transform.

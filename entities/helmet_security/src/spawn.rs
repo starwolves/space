@@ -13,7 +13,6 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
-use physics::rigid_body::STANDARD_BODY_FRICTION;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::BaseEntitySummonable;
 use entity::spawn::DefaultSpawnEvent;
@@ -26,8 +25,9 @@ use inventory_item::combat::MeleeCombat;
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::InventoryItemBundle;
 use inventory_item::spawn::InventoryItemSummonable;
-use physics::spawn_rigidbody::RigidBodyBundle;
-use physics::spawn_rigidbody::RigidBodySummonable;
+use physics::rigid_body::STANDARD_BODY_FRICTION;
+use physics::spawn::RigidBodyBundle;
+use physics::spawn::RigidBodySummonable;
 
 use crate::helmet::HELMET_SECURITY_ENTITY_NAME;
 
