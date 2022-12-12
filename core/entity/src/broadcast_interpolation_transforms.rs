@@ -27,12 +27,12 @@ use bevy_rapier3d::prelude::Velocity;
 use networking::server::HandleToEntity;
 
 use crate::entity_data::CachedBroadcastTransform;
+use crate::physics::RigidBodyDisabled;
 use bevy::prelude::EventWriter;
 use networking::server::OutgoingUnreliableServerMessage;
 
 use bevy_rapier3d::prelude::RigidBody;
 use networking::server::ConnectedPlayer;
-use physics::physics::RigidBodyDisabled;
 /// Broadcast transforms.
 #[cfg(feature = "server")]
 pub(crate) fn broadcast_interpolation_transforms(

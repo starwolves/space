@@ -5,15 +5,15 @@ use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use entity::entity_data::RawSpawnEvent;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
+use entity::rigid_body::STANDARD_BODY_FRICTION;
 use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
 };
+use entity::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
 use inventory_api::core::SlotType;
 use inventory_item::combat::{DamageModel, MeleeCombat};
 use inventory_item::item::InventoryItem;
 use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
-use rigid_body::rigid_body::STANDARD_BODY_FRICTION;
-use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 use std::collections::BTreeMap;
 
 use crate::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;

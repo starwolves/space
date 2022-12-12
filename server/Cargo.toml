@@ -2,11 +2,11 @@
 name = "server"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Space Frontiers, the server."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Space Frontiers, the server."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [dependencies.bevy]
@@ -16,40 +16,53 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.19.0"
 
-atmospherics = { path = "../core/atmospherics" ,  features=["server"] }
-combat = { path = "../core/combat",  features=["server"] }
-controller = { path = "../core/controller",  features=["server"] }
-console_commands = { path = "../core/console_commands",  features=["server"] }
-gridmap = { path = "../core/gridmap",  features=["server"] }
-humanoid = { path = "../core/humanoid",  features=["server"] }
-inventory_item = { path = "../core/inventory_item",  features=["server"] }
-networking = { path = "../core/networking",  features=["server"] }
-actions = { path = "../core/actions",  features=["server"] }
-world_environment = { path = "../core/world_environment",  features=["server"] }
-pawn = { path = "../core/pawn",  features=["server"] }
-sfx = { path = "../core/sfx",  features=["server"] }
-entity = { path = "../core/entity",  features=["server"] }
-map = { path = "../core/map",  features=["server"] }
-inventory = { path = "../core/inventory",  features=["server"] }
-rigid_body = { path = "../core/rigid_body",  features=["server"] }
-chat = { path = "../core/chat",  features=["server"] }
-motd = { path = "../core/motd",  features=["server"] }
-resources = { path = "../core/resources",  features=["server"] }
-ui = { path = "../core/ui",  features=["server"] }
-player = { path = "../core/player",  features=["server"] }
-basic_console_commands = { path = "../core/basic_console_commands",  features=["server"] }
-setup_ui = { path = "../core/setup_ui",  features=["server"] }
+atmospherics = { path = "../core/atmospherics", features = ["server"] }
+combat = { path = "../core/combat", features = ["server"] }
+controller = { path = "../core/controller", features = ["server"] }
+console_commands = { path = "../core/console_commands", features = ["server"] }
+gridmap = { path = "../core/gridmap", features = ["server"] }
+humanoid = { path = "../core/humanoid", features = ["server"] }
+inventory_item = { path = "../core/inventory_item", features = ["server"] }
+networking = { path = "../core/networking", features = ["server"] }
+actions = { path = "../core/actions", features = ["server"] }
+world_environment = { path = "../core/world_environment", features = [
+    "server",
+] }
+pawn = { path = "../core/pawn", features = ["server"] }
+sfx = { path = "../core/sfx", features = ["server"] }
+entity = { path = "../core/entity", features = ["server"] }
+map = { path = "../core/map", features = ["server"] }
+inventory = { path = "../core/inventory", features = ["server"] }
+chat = { path = "../core/chat", features = ["server"] }
+motd = { path = "../core/motd", features = ["server"] }
+resources = { path = "../core/resources", features = ["server"] }
+ui = { path = "../core/ui", features = ["server"] }
+player = { path = "../core/player", features = ["server"] }
+basic_console_commands = { path = "../core/basic_console_commands", features = [
+    "server",
+] }
+setup_ui = { path = "../core/setup_ui", features = ["server"] }
 
-sounds = { path = "../entities/sounds",  features=["server"] }
-air_locks = { path = "../entities/air_locks",  features=["server"] }
-asana = { path = "../entities/asana",  features=["server"] }
-computers = { path = "../entities/computers",  features=["server"] }
-construction_tool_admin = { path = "../entities/construction_tool_admin",  features=["server"] }
-counter_windows = { path = "../entities/counter_windows",  features=["server"] }
-helmet_security = { path = "../entities/helmet_security",  features=["server"] }
-human_male = { path = "../entities/human_male",  features=["server"] }
-jumpsuit_security = { path = "../entities/jumpsuit_security",  features=["server"] }
-line_arrow = { path = "../entities/line_arrow",  features=["server"] }
-omni_light = { path = "../entities/omni_light",  features=["server"] }
-pistol_l1 = { path = "../entities/pistol_l1",  features=["server"] }
-reflection_probe = { path = "../entities/reflection_probe",  features=["server"] }
+sounds = { path = "../entities/sounds", features = ["server"] }
+air_locks = { path = "../entities/air_locks", features = ["server"] }
+asana = { path = "../entities/asana", features = ["server"] }
+computers = { path = "../entities/computers", features = ["server"] }
+construction_tool_admin = { path = "../entities/construction_tool_admin", features = [
+    "server",
+] }
+counter_windows = { path = "../entities/counter_windows", features = [
+    "server",
+] }
+helmet_security = { path = "../entities/helmet_security", features = [
+    "server",
+] }
+human_male = { path = "../entities/human_male", features = ["server"] }
+jumpsuit_security = { path = "../entities/jumpsuit_security", features = [
+    "server",
+] }
+line_arrow = { path = "../entities/line_arrow", features = ["server"] }
+omni_light = { path = "../entities/omni_light", features = ["server"] }
+pistol_l1 = { path = "../entities/pistol_l1", features = ["server"] }
+reflection_probe = { path = "../entities/reflection_probe", features = [
+    "server",
+] }

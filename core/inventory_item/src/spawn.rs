@@ -4,7 +4,6 @@ use entity::{
     meta::EntityDataResource,
     spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
 };
-use physics::physics::RigidBodyLinkTransform;
 
 use crate::combat::{MeleeCombat, ProjectileCombat};
 
@@ -26,6 +25,7 @@ pub struct InventoryBuilderData {
     pub melee_combat: MeleeCombat,
     pub projectile_option: Option<ProjectileCombat>,
 }
+use entity::physics::RigidBodyLinkTransform;
 
 /// Build inventory item at summon stage.
 #[cfg(feature = "server")]

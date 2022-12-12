@@ -18,7 +18,6 @@ use gridmap::{
 };
 use inventory_item::combat::ProjectileCombat;
 use math::grid::Vec3Int;
-use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::{
     active_attacks::ActiveAttacks,
@@ -44,6 +43,7 @@ pub struct ProjectileQuery {
     /// Attack id.
     pub incremented: u64,
 }
+use entity::physics::{get_bit_masks, ColliderGroup};
 
 /// Perform a projectile attack physics query by reading event [ProjectileQuery].
 #[cfg(feature = "server")]

@@ -3,9 +3,9 @@ use bevy::{
     prelude::{warn, Commands, Component, Entity, Query, Res, Transform, With},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use entity::rigid_body::RigidBodyData;
 use gridmap::grid::GridmapMain;
 use math::grid::world_to_cell_id;
-use rigid_body::rigid_body::RigidBodyData;
 
 /// Manage zero gravity for rigid bodies.
 #[cfg(feature = "server")]

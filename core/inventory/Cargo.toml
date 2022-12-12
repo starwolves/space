@@ -2,11 +2,11 @@
 name = "inventory"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Inventory management of entities."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Inventory management of entities."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -23,18 +23,17 @@ rand = "0.8.5"
 serde = "1.0.147"
 typename = "0.1.2"
 
-networking = { path = "../networking",  features=["server"] }
-sounds = { path = "../../entities/sounds",  features=["server"] }
-inventory_item = { path = "../inventory_item",  features=["server"] }
-inventory_api = { path = "../inventory_api",  features=["server"] }
-pawn = { path = "../pawn",  features=["server"] }
-physics = { path = "../physics",  features=["server"] }
-humanoid = { path = "../humanoid",  features=["server"] }
-sfx = { path = "../sfx",  features=["server"] }
-gridmap = { path = "../gridmap",  features=["server"] }
-actions = { path = "../actions",  features=["server"] }
-entity = { path = "../entity",  features=["server"] }
-resources = { path = "../resources",  features=["server"] }
-atmospherics = { path = "../atmospherics",  features=["server"] }
-math = { path = "../math",  features=["server"] }
-controller = { path = "../controller",  features=["server"] }
+networking = { path = "../networking", features = ["server"] }
+sounds = { path = "../../entities/sounds", features = ["server"] }
+inventory_item = { path = "../inventory_item", features = ["server"] }
+inventory_api = { path = "../inventory_api", features = ["server"] }
+pawn = { path = "../pawn", features = ["server"] }
+humanoid = { path = "../humanoid", features = ["server"] }
+sfx = { path = "../sfx", features = ["server"] }
+gridmap = { path = "../gridmap", features = ["server"] }
+actions = { path = "../actions", features = ["server"] }
+entity = { path = "../entity", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+atmospherics = { path = "../atmospherics", features = ["server"] }
+math = { path = "../math", features = ["server"] }
+controller = { path = "../controller", features = ["server"] }

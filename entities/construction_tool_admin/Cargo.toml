@@ -2,11 +2,11 @@
 name = "construction_tool_admin"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Admin construction tool."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Admin construction tool."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 
@@ -23,21 +23,19 @@ doryen_fov = { path = "../../core/doryen_fov" }
 rand = "0.8.5"
 bevy_rapier3d = "0.19.0"
 
-entity = { path = "../../core/entity",  features=["server"] }
-gridmap = { path = "../../core/gridmap",  features=["server"] }
-networking = { path = "../../core/networking" ,  features=["server"]}
+entity = { path = "../../core/entity", features = ["server"] }
+gridmap = { path = "../../core/gridmap", features = ["server"] }
+networking = { path = "../../core/networking", features = ["server"] }
 
-pawn = { path = "../../core/pawn",  features=["server"] }
-combat = { path = "../../core/combat" ,  features=["server"]}
-atmospherics = { path = "../../core/atmospherics" ,  features=["server"]}
-inventory_item = { path = "../../core/inventory_item" ,  features=["server"]}
-inventory_api = { path = "../../core/inventory_api",  features=["server"] }
-rigid_body = { path = "../../core/rigid_body" ,  features=["server"]}
-sfx = { path = "../../core/sfx",  features=["server"] }
-sounds = { path = "../sounds",  features=["server"] }
-text_api = { path = "../../core/text_api",  features=["server"] }
-physics = { path = "../../core/physics" ,  features=["server"]}
-actions = { path = "../../core/actions",  features=["server"] }
-ui = { path = "../../core/ui",  features=["server"] }
-resources = { path = "../../core/resources",  features=["server"] }
-math = { path = "../../core/math" ,  features=["server"]}
+pawn = { path = "../../core/pawn", features = ["server"] }
+combat = { path = "../../core/combat", features = ["server"] }
+atmospherics = { path = "../../core/atmospherics", features = ["server"] }
+inventory_item = { path = "../../core/inventory_item", features = ["server"] }
+inventory_api = { path = "../../core/inventory_api", features = ["server"] }
+sfx = { path = "../../core/sfx", features = ["server"] }
+sounds = { path = "../sounds", features = ["server"] }
+text_api = { path = "../../core/text_api", features = ["server"] }
+actions = { path = "../../core/actions", features = ["server"] }
+ui = { path = "../../core/ui", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }
+math = { path = "../../core/math", features = ["server"] }

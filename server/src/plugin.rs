@@ -38,7 +38,6 @@ use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
 use resources::{core::TickRate, labels::StartupLabels, plugin::ResourcesPlugin};
-use rigid_body::plugin::RigidBodyPlugin;
 use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
@@ -117,7 +116,6 @@ impl Plugin for ServerPlugin {
         .add_plugin(InventoryPlugin)
         .add_plugin(NetworkingPlugin)
         .add_plugin(HumanoidPlugin)
-        .add_plugin(RigidBodyPlugin)
         .add_plugin(ComputersPlugin)
         .add_plugin(CombatPlugin)
         .add_plugin(OmniLightPlugin)
