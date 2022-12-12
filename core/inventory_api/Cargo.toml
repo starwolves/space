@@ -2,11 +2,11 @@
 name = "inventory_api"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Inventory API to prevent cyclic dependencies."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Inventory API to prevent cyclic dependencies."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -14,5 +14,5 @@ server = []
 client = []
 
 [dependencies.bevy]
-version = "0.9.0"
+version = "0.9.1"
 default-features = false

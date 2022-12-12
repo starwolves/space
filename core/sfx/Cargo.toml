@@ -2,11 +2,11 @@
 name = "sfx"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Sound effects."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Sound effects."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -14,14 +14,14 @@ server = []
 client = []
 
 [dependencies.bevy]
-version = "0.9.0"
+version = "0.9.1"
 default-features = false
 
 [dependencies]
 rand = "0.8.5"
-serde = "1.0.147"
+serde = "1.0.150"
 typename = "0.1.2"
 
-entity = { path = "../entity" ,  features=["server"]}
-networking = { path = "../networking",  features=["server"] }
-resources = { path = "../resources",  features=["server"] }
+entity = { path = "../entity", features = ["server"] }
+networking = { path = "../networking", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }

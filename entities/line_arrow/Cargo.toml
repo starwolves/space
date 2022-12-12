@@ -2,11 +2,11 @@
 name = "line_arrow"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="An arrow for pin pointing locations."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "An arrow for pin pointing locations."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 
@@ -15,12 +15,13 @@ server = []
 client = []
 
 [dependencies.bevy]
-version = "0.9.0"
+version = "0.9.1"
 default-features = false
 
 [dependencies]
-console_commands = { path = "../../core/console_commands" ,  features=["server"]}
-entity = { path = "../../core/entity" ,  features=["server"]}
-networking = { path = "../../core/networking",  features=["server"] }
-resources = { path = "../../core/resources",  features=["server"] }
-
+console_commands = { path = "../../core/console_commands", features = [
+    "server",
+] }
+entity = { path = "../../core/entity", features = ["server"] }
+networking = { path = "../../core/networking", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }
