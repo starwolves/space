@@ -72,7 +72,6 @@ impl Plugin for ClientPlugin {
         .insert_resource(WinitSettings::game())
         .add_plugin(NetworkingPlugin)
         .add_plugin(MainMenuPlugin)
-        .add_plugin(ResourcesPlugin)
         .add_plugin(EguiPlugin)
         .insert_resource(ClientInformation {
             version: self.version.clone(),
