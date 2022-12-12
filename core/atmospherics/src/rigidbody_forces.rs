@@ -3,7 +3,7 @@ use bevy::{
     prelude::{Entity, Query, Res, ResMut, Transform, Without},
 };
 use bevy_rapier3d::prelude::ExternalForce;
-use entity::senser::FOV_MAP_WIDTH;
+use entity::senser::WORLD_WIDTH_CELLS;
 use gridmap::grid::{AdjacentTileDirection, GridmapMain};
 use math::grid::{world_to_cell_id, Vec2Int};
 use pawn::pawn::Pawn;
@@ -86,10 +86,10 @@ pub(crate) fn rigidbody_pawn_forces_accumulation(
     {
         let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
 
-        if cell_id.x >= FOV_MAP_WIDTH as i16 / 2
-            || cell_id.x <= -(FOV_MAP_WIDTH as i16 / 2)
-            || cell_id.z >= FOV_MAP_WIDTH as i16 / 2
-            || cell_id.z <= -(FOV_MAP_WIDTH as i16 / 2)
+        if cell_id.x >= WORLD_WIDTH_CELLS as i16 / 2
+            || cell_id.x <= -(WORLD_WIDTH_CELLS as i16 / 2)
+            || cell_id.z >= WORLD_WIDTH_CELLS as i16 / 2
+            || cell_id.z <= -(WORLD_WIDTH_CELLS as i16 / 2)
         {
             continue;
         }
@@ -149,10 +149,10 @@ pub(crate) fn rigidbody_pawn_forces_accumulation(
 
             to_be_applied_forces.insert(tile_direction.clone(), Vec3::ZERO);
 
-            if adjacent_cell_id.x >= FOV_MAP_WIDTH as i16 / 2
-                || adjacent_cell_id.x <= -(FOV_MAP_WIDTH as i16 / 2)
-                || adjacent_cell_id.z >= FOV_MAP_WIDTH as i16 / 2
-                || adjacent_cell_id.z <= -(FOV_MAP_WIDTH as i16 / 2)
+            if adjacent_cell_id.x >= WORLD_WIDTH_CELLS as i16 / 2
+                || adjacent_cell_id.x <= -(WORLD_WIDTH_CELLS as i16 / 2)
+                || adjacent_cell_id.z >= WORLD_WIDTH_CELLS as i16 / 2
+                || adjacent_cell_id.z <= -(WORLD_WIDTH_CELLS as i16 / 2)
             {
                 continue;
             }

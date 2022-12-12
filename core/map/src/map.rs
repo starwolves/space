@@ -4,7 +4,7 @@ use bevy::{
     math::Vec2,
     prelude::{Component, Entity, Resource},
 };
-use entity::senser::FOV_MAP_WIDTH;
+use entity::senser::WORLD_WIDTH_CELLS;
 use math::grid::Vec2Int;
 
 /// Mini-map overlay tile color.
@@ -77,7 +77,7 @@ impl Default for MapHolderData {
     fn default() -> Self {
         Self {
             batch_i: 0,
-            cache: vec![AtmosphericsCache::default(); FOV_MAP_WIDTH * FOV_MAP_WIDTH],
+            cache: vec![AtmosphericsCache::default(); WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS],
             prev_camera_cell_id: Vec2Int::default(),
             prev_camera_view_range: 20,
             reset_cache: true,
