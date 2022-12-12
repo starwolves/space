@@ -22,7 +22,6 @@ use vector2math::{FloatingVector2, Vector2};
 use crate::humanoid::{CharacterAnimationState, Humanoid};
 use controller::controller::ControllerInput;
 use networking::server::ConnectedPlayer;
-use player::boarding::PersistentPlayerData;
 
 /// All the core humanoid entity updates for the Godot client.
 #[cfg(feature = "server")]
@@ -30,10 +29,9 @@ pub(crate) fn humanoid_core_entity_updates(
     mut updated_humans: Query<
         (
             Entity,
-            Option<&Pawn>,
+            &Pawn,
             &Humanoid,
             &mut EntityUpdates,
-            &PersistentPlayerData,
             &Inventory,
             Option<&ControllerInput>,
             Option<&ConnectedPlayer>,
@@ -48,7 +46,6 @@ pub(crate) fn humanoid_core_entity_updates(
         pawn_component_option,
         humanoid_component,
         mut entity_updates_component,
-        persistent_player_data_component,
         inventory_component,
         player_input_option,
         connected_player_component_option,
@@ -210,7 +207,7 @@ pub(crate) fn humanoid_core_entity_updates(
 
                     let mut strafe_blend_position;
 
-                    match pawn_component_option.as_ref().unwrap().facing_direction {
+                    match pawn_component_option.facing_direction {
                         FacingDirection::UpLeft => {
                             strafe_blend_position = [-1., 1.];
                         }
@@ -386,7 +383,7 @@ pub(crate) fn humanoid_core_entity_updates(
                     "bbcode".to_string(),
                     EntityUpdateData::String(
                         "[color=white][center][b]".to_owned()
-                            + &persistent_player_data_component.character_name
+                            + &pawn_component_option.character_name
                             + "[/b][/center][/color]",
                     ),
                 );

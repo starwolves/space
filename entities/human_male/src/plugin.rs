@@ -29,7 +29,6 @@ impl Plugin for HumanMalePlugin {
                         .before(SummoningLabels::TriggerSummon)
                         .label(SummoningLabels::NormalSummon),
                 )
-                .add_system_to_stage(PostUpdate, on_spawning)
                 .add_system(
                     (summon_base_human_male::<HumanMaleSummoner>)
                         .after(SummoningLabels::TriggerSummon),
@@ -48,7 +47,8 @@ impl Plugin for HumanMalePlugin {
                         .label(CombatLabels::WeaponHandler)
                         .after(CombatLabels::CacheAttack),
                 )
-                .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon));
+                .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon))
+                .add_system_to_stage(PostUpdate, on_spawning);
         }
     }
 }

@@ -2,11 +2,11 @@
 name = "setup_ui"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Text character setup ui."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Text character setup ui."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -22,10 +22,9 @@ iyes_loopless = "0.9.1"
 serde = "1.0.147"
 typename = "0.1.2"
 
-networking = { path = "../networking",  features=["server"] }
-resources = { path = "../resources",  features=["server"] }
-player = { path = "../player",  features=["server"] }
-motd = { path = "../motd",  features=["server"] }
-text_api = { path = "../text_api",  features=["server"] }
-controller = { path = "../controller",  features=["server"] }
-console_commands = { path = "../console_commands",  features=["server"] }
+networking = { path = "../networking", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+player = { path = "../player", features = ["server"] }
+motd = { path = "../motd", features = ["server"] }
+text_api = { path = "../text_api", features = ["server"] }
+controller = { path = "../controller", features = ["server"] }

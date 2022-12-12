@@ -66,8 +66,6 @@ const FIRST_MELEE_TIME: u64 = 433;
 pub struct Humanoid {
     /// Lower body blended animation state of humanoid.
     pub current_lower_animation_state: CharacterAnimationState,
-    /// In-game name.
-    pub character_name: String,
     /// Whether the humanoid is in combat mode or normal mode.
     pub combat_mode: bool,
     /// The the humanoid is facing.
@@ -87,7 +85,6 @@ impl Default for Humanoid {
         t.tick(Duration::from_millis(FIRST_MELEE_TIME));
         Self {
             current_lower_animation_state: CharacterAnimationState::Idle,
-            character_name: "".to_string(),
             combat_mode: false,
             facing_direction: 0.,
             is_attacking: false,

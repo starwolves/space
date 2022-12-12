@@ -2,11 +2,11 @@
 name = "human_male"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="A humanoid."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "A humanoid."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 
@@ -21,22 +21,25 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.19.0"
 
-player = { path = "../../core/player" ,  features=["server"]}
-entity = { path = "../../core/entity" ,  features=["server"]}
-physics = { path = "../../core/physics" ,  features=["server"]}
-chat = { path = "../../core/chat" ,  features=["server"]}
-data_link = { path = "../../core/data_link",  features=["server"] }
-inventory_item = { path = "../../core/inventory_item" ,  features=["server"]}
-inventory_api = { path = "../../core/inventory_api" ,  features=["server"]}
-map = { path = "../../core/map",  features=["server"] }
-rigid_body = { path = "../../core/rigid_body" ,  features=["server"]}
-controller = { path = "../../core/controller" ,  features=["server"]}
-combat = { path = "../../core/combat",  features=["server"] }
-networking = { path = "../../core/networking",  features=["server"] }
-resources = { path = "../../core/resources" ,  features=["server"]}
-humanoid = { path = "../../core/humanoid",  features=["server"] }
-pawn = { path = "../../core/pawn" ,  features=["server"]}
-jumpsuit_security = { path = "../jumpsuit_security",  features=["server"] }
-helmet_security = { path = "../helmet_security",  features=["server"] }
-pistol_l1 = { path = "../pistol_l1" ,  features=["server"]}
-construction_tool_admin = { path = "../construction_tool_admin" ,  features=["server"]}
+player = { path = "../../core/player", features = ["server"] }
+entity = { path = "../../core/entity", features = ["server"] }
+physics = { path = "../../core/physics", features = ["server"] }
+chat = { path = "../../core/chat", features = ["server"] }
+data_link = { path = "../../core/data_link", features = ["server"] }
+inventory_item = { path = "../../core/inventory_item", features = ["server"] }
+inventory_api = { path = "../../core/inventory_api", features = ["server"] }
+map = { path = "../../core/map", features = ["server"] }
+rigid_body = { path = "../../core/rigid_body", features = ["server"] }
+controller = { path = "../../core/controller", features = ["server"] }
+combat = { path = "../../core/combat", features = ["server"] }
+networking = { path = "../../core/networking", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }
+humanoid = { path = "../../core/humanoid", features = ["server"] }
+pawn = { path = "../../core/pawn", features = ["server"] }
+jumpsuit_security = { path = "../jumpsuit_security", features = ["server"] }
+helmet_security = { path = "../helmet_security", features = ["server"] }
+pistol_l1 = { path = "../pistol_l1", features = ["server"] }
+construction_tool_admin = { path = "../construction_tool_admin", features = [
+    "server",
+] }
+setup_ui = { path = "../../core/setup_ui", features = ["server"] }

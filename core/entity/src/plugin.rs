@@ -2,9 +2,8 @@ use std::env;
 
 use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
-use console_commands::commands::ConsoleCommandsLabels;
 use networking::messaging::{init_reliable_message, MessageSender};
-use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels};
+use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
 use crate::actions::build_actions;
 use crate::broadcast_interpolation_transforms::broadcast_interpolation_transforms;
@@ -15,7 +14,7 @@ use crate::examine::{
     ExamineEntityMessages, InputExamineEntity,
 };
 use crate::finalize_entity_updates::finalize_entity_updates;
-use crate::init::{initialize_console_commands, startup_entities};
+use crate::init::startup_entities;
 use crate::meta::EntityDataResource;
 use crate::networking::{
     incoming_messages, load_entity, EntityClientMessage, EntityServerMessage, LoadEntity,
@@ -45,11 +44,6 @@ impl Plugin for EntityPlugin {
                     startup_entities
                         .before(StartupLabels::BuildGridmap)
                         .label(StartupLabels::InitEntities),
-                )
-                .add_startup_system(
-                    initialize_console_commands
-                        .before(ConsoleCommandsLabels::Finalize)
-                        .label(SummoningLabels::TriggerSummon),
                 )
                 .add_system_set_to_stage(
                     PostUpdate,

@@ -20,6 +20,8 @@ pub const SERVER_PORT: u16 = 57713;
 #[cfg(any(feature = "server", feature = "client"))]
 pub(crate) const PROTOCOL_ID: u64 = 7;
 
+pub(crate) const PRIV_KEY: [u8; 32] = *b"(=^.^=)(=^.^=)(=^.^=)(=^.^=)(=^.";
+
 /// Start server and open and listen to port.
 #[cfg(feature = "server")]
 pub(crate) fn startup_server_listen_connections() -> RenetServer {
@@ -44,8 +46,14 @@ pub(crate) fn startup_server_listen_connections() -> RenetServer {
         ..Default::default()
     };
 
-    let server_config =
-        ServerConfig::new(64, PROTOCOL_ID, server_addr, ServerAuthentication::Unsecure);
+    let server_config = ServerConfig::new(
+        128,
+        PROTOCOL_ID,
+        server_addr,
+        ServerAuthentication::Secure {
+            private_key: PRIV_KEY,
+        },
+    );
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();

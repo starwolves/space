@@ -27,12 +27,9 @@ use inventory_item::{
 };
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;
-use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum, ShipJobsEnum};
+use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
-use player::{
-    names::UsedNames,
-    spawn_points::{PawnDesignation, SpawnPawnData},
-};
+use player::names::UsedNames;
 use rigid_body::spawn::{RigidBodyBundle, RigidBodySummonable};
 
 /// Get default transform.
@@ -64,11 +61,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
                 character_name = "Ai".to_string();
             }
             _ => {
-                character_name = self
-                    .spawn_pawn_data
-                    .persistent_player_data
-                    .character_name
-                    .clone();
+                character_name = self.spawn_pawn_data.pawn_component.character_name.clone();
             }
         }
 
@@ -152,7 +145,6 @@ pub fn summon_base_human_male<
 /// Human male spawner.
 #[cfg(feature = "server")]
 pub struct HumanMaleSummoner {
-    pub character_name: String,
     pub spawn_pawn_data: SpawnPawnData,
 }
 #[cfg(feature = "server")]
@@ -180,9 +172,6 @@ impl RigidBodySummonable<NoData> for HumanMaleSummoner {
 
 #[cfg(feature = "server")]
 impl HumanMaleSummonable for HumanMaleSummoner {
-    fn get_character_name(&self) -> String {
-        self.character_name.clone()
-    }
     fn get_spawn_pawn_data(&self) -> SpawnPawnData {
         self.spawn_pawn_data.clone()
     }
@@ -190,9 +179,10 @@ impl HumanMaleSummonable for HumanMaleSummoner {
 
 #[cfg(feature = "server")]
 pub trait HumanMaleSummonable {
-    fn get_character_name(&self) -> String;
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
+use controller::controller::ControllerInput;
+
 /// human-male specific spawn components and bundles.
 #[cfg(feature = "server")]
 pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
@@ -201,20 +191,17 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     mut default_spawner: EventWriter<DefaultSpawnEvent>,
     entity_data: ResMut<EntityDataResource>,
 ) {
-    use controller::controller::ControllerInput;
-    use player::boarding::PersistentPlayerData;
-
     for spawn_event in spawn_events.iter() {
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
         let spawn_pawn_data = spawn_event.summoner.get_spawn_pawn_data();
 
         if spawn_event.spawn_data.showcase_data_option.is_none() {
-            let pawn_component = Pawn {
-                name: spawn_event.summoner.get_character_name().clone(),
-                job: ShipJobsEnum::Security,
-                ..Default::default()
-            };
+            let pawn_component = spawn_event
+                .summoner
+                .get_spawn_pawn_data()
+                .pawn_component
+                .clone();
 
             spawner.remove::<Transform>();
             let mut new_transform = spawn_event.spawn_data.entity_transform;
@@ -272,14 +259,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
         let mut first_damage_flags = HashMap::new();
         first_damage_flags.insert(0, DamageFlag::SoftDamage);
         spawner.insert((
-            Humanoid {
-                character_name: spawn_event.summoner.get_character_name().clone(),
-                ..Default::default()
-            },
-            PersistentPlayerData {
-                character_name: spawn_event.summoner.get_character_name().clone(),
-                ..Default::default()
-            },
+            Humanoid::default(),
             WorldMode {
                 mode: WorldModes::Kinematic,
             },
@@ -421,17 +401,16 @@ pub(crate) fn default_human_dummy(
     mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,
     mut used_names: ResMut<UsedNames>,
 ) {
-    use player::boarding::PersistentPlayerData;
-
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name == HUMAN_DUMMY_ENTITY_NAME {
             spawner.send(SpawnEvent {
                 spawn_data: spawn_event.spawn_data.clone(),
                 summoner: HumanMaleSummoner {
-                    character_name: get_dummy_name(&mut used_names),
                     spawn_pawn_data: SpawnPawnData {
-                        persistent_player_data: PersistentPlayerData::default(),
-                        connected_player_option: None,
+                        pawn_component: Pawn {
+                            character_name: get_dummy_name(&mut used_names),
+                            ..Default::default()
+                        },
                         inventory_setup: vec![
                             (
                                 "jumpsuit".to_string(),
@@ -443,6 +422,7 @@ pub(crate) fn default_human_dummy(
                             ),
                         ],
                         designation: PawnDesignation::Dummy,
+                        connected_player_option: None,
                     },
                 },
             });

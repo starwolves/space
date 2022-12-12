@@ -152,7 +152,7 @@ pub(crate) fn construction_tool(
         match inventory_item_component.in_inventory_of_entity {
             Some(owner_entity) => match pawns.get(owner_entity) {
                 Ok(pawn_component) => {
-                    pawn_name = &pawn_component.name;
+                    pawn_name = &pawn_component.character_name;
                 }
                 Err(_) => {
                     warn!("This construction tool's owner isnt a pawn!");
@@ -281,7 +281,7 @@ pub(crate) fn construction_tool(
         match inventory_item_component.in_inventory_of_entity {
             Some(owner_entity) => match pawns.get(owner_entity) {
                 Ok(pawn_component) => {
-                    pawn_name = &pawn_component.name;
+                    pawn_name = &pawn_component.character_name;
                 }
                 Err(_) => {
                     warn!("This construction tool's owner isnt a pawn!");
@@ -515,7 +515,7 @@ pub(crate) fn construction_tool(
         match inventory_item_component.in_inventory_of_entity {
             Some(owner_entity) => match pawns.get(owner_entity) {
                 Ok(pawn_component) => {
-                    pawn_name = &pawn_component.name;
+                    pawn_name = &pawn_component.character_name;
                 }
                 Err(_) => {
                     warn!("This construction tool's owner isnt a pawn!");
@@ -776,7 +776,7 @@ pub(crate) fn construction_tool(
         match inventory_item_component.in_inventory_of_entity {
             Some(owner_entity) => match pawns.get(owner_entity) {
                 Ok(pawn_component) => {
-                    pawn_name = &pawn_component.name;
+                    pawn_name = &pawn_component.character_name;
                 }
                 Err(_) => {
                     warn!("This construction tool's owner isnt a pawn!");

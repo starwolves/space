@@ -19,12 +19,12 @@ pub struct BoardingAnnouncements {
 }
 use crate::connections::PlayerServerMessage;
 use crate::spawn_points::SpawnPointRon;
-use crate::spawn_points::Spawning;
 
 use crate::connections::{OnBoard, SetupPhase};
 use bevy::prelude::{EventWriter, Transform};
 use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
+use pawn::pawn::Spawning;
 use text_api::core::get_talk_spaces;
 
 /// Perform initialization of spawning player.
@@ -75,21 +75,6 @@ pub(crate) fn done_boarding(
             ";Security Officer ".to_owned() + &player_character_name + " is now on board.",
             Timer::from_seconds(2., TimerMode::Once),
         ));
-    }
-}
-
-/// Persistent player data component.
-#[derive(Clone, Component)]
-#[cfg(feature = "server")]
-pub struct PersistentPlayerData {
-    pub character_name: String,
-}
-#[cfg(feature = "server")]
-impl Default for PersistentPlayerData {
-    fn default() -> Self {
-        Self {
-            character_name: "".to_string(),
-        }
     }
 }
 

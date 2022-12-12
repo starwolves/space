@@ -13,10 +13,8 @@ use resources::labels::SummoningLabels;
 use crate::core::{
     client_setup_ui, configure, initialize_setupui, new_clients_enable_setupui,
     receive_input_character_name, setupui_loaded, ui_input_boarding, SetupUiClientMessage,
-    SetupUiServerMessage, SetupUiState,
+    SetupUiDatas, SetupUiServerMessage, SetupUiState,
 };
-/// Atmospherics systems ordering label.
-
 pub struct SetupUiPlugin;
 
 impl Plugin for SetupUiPlugin {
@@ -33,7 +31,8 @@ impl Plugin for SetupUiPlugin {
                 .add_system(new_clients_enable_setupui)
                 .init_resource::<SetupUiState>()
                 .add_system(setupui_loaded)
-                .add_system(receive_input_character_name);
+                .add_system(receive_input_character_name)
+                .init_resource::<SetupUiDatas>();
         } else {
             app.add_system(client_setup_ui.run_if(is_client_connected));
         }

@@ -1,4 +1,4 @@
-use crate::boarding::{PersistentPlayerData, SoftPlayer};
+use crate::boarding::SoftPlayer;
 use bevy::prelude::{Commands, Entity, EventReader, Res, ResMut, Resource};
 
 use bevy::prelude::EventWriter;
@@ -71,18 +71,10 @@ pub(crate) fn server_new_client_configuration(
         };
 
         let soft_connected_component = SoftPlayer;
-        let persistent_player_data = PersistentPlayerData {
-            character_name: "".to_string(),
-            ..Default::default()
-        };
         auth_id_i.i += 1;
 
         let player_entity_id = commands
-            .spawn((
-                connected_player_component,
-                soft_connected_component,
-                persistent_player_data,
-            ))
+            .spawn((connected_player_component, soft_connected_component))
             .id();
 
         handle_to_entity.map.insert(event.handle, player_entity_id);

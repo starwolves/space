@@ -2,11 +2,11 @@
 name = "entity"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Entity base."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Entity base."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -24,13 +24,13 @@ bevy_rapier3d = "0.19.0"
 serde_json = "1.0.87"
 ron = "0.8.0"
 
-doryen_fov = { path = "../doryen_fov",  features=["server"] }
-networking = { path = "../networking",  features=["server"] }
-math = { path = "../math",  features=["server"] }
-console_commands = { path = "../console_commands",  features=["server"] }
-actions = { path = "../actions",  features=["server"] }
-resources = { path = "../resources",  features=["server"] }
-gridmap_meta = { path = "../gridmap_meta",  features=["server"] }
-text_api = { path = "../text_api",  features=["server"] }
-physics = { path = "../physics",  features=["server"] }
-data_converters = { path = "../data_converters",  features=["server"] }
+doryen_fov = { path = "../doryen_fov", features = ["server"] }
+networking = { path = "../networking", features = ["server"] }
+math = { path = "../math", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+gridmap_meta = { path = "../gridmap_meta", features = ["server"] }
+text_api = { path = "../text_api", features = ["server"] }
+data_converters = { path = "../data_converters", features = ["server"] }
+
+physics = { path = "../physics", features = ["server"] }
+actions = { path = "../actions", features = ["server"] }

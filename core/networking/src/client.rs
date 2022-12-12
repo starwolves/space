@@ -10,9 +10,6 @@ use bevy_renet::renet::{
 
 use crate::server::PROTOCOL_ID;
 
-#[cfg(feature = "client")]
-pub const CLIENT_PORT: u16 = 56613;
-
 /// Resource containing needed for the server.
 #[cfg(feature = "client")]
 #[derive(Default, Resource)]
@@ -35,6 +32,9 @@ use std::net::IpAddr;
 use crate::server::NetworkingClientMessage;
 use bevy::prelude::ResMut;
 
+use bevy_renet::renet::ConnectToken;
+
+use crate::server::PRIV_KEY;
 #[cfg(feature = "client")]
 pub(crate) fn connect_to_server(
     mut event: EventReader<ConnectToServer>,
@@ -83,7 +83,6 @@ pub(crate) fn connect_to_server(
                 let socket_address: SocketAddr = SocketAddr::new(ip_address, port as u16);
 
                 let socket;
-                // Useful for connecting multiple clients to a server from the same machine.
                 match UdpSocket::bind(local_ipaddress::get().unwrap_or_default() + ":0") {
                     Ok(s) => {
                         socket = s;
@@ -115,27 +114,40 @@ pub(crate) fn connect_to_server(
                     .unwrap();
                 let client_id = current_time.as_millis() as u64;
 
-                info!("Connecting to [{}]...", socket_address);
+                info!("Connecting to {}...", socket_address);
 
-                let renet_client = RenetClient::new(
+                match ConnectToken::generate(
                     current_time,
-                    socket,
-                    connection_config,
-                    ClientAuthentication::Unsecure {
-                        protocol_id: PROTOCOL_ID,
-                        client_id: client_id,
-                        server_addr: socket_address,
-                        user_data: None,
-                    },
-                )
-                .unwrap();
+                    PROTOCOL_ID,
+                    120,
+                    client_id,
+                    120,
+                    vec![socket_address],
+                    None,
+                    &PRIV_KEY,
+                ) {
+                    Ok(connect_token) => {
+                        let renet_client = RenetClient::new(
+                            current_time,
+                            socket,
+                            connection_config,
+                            ClientAuthentication::Secure { connect_token },
+                        )
+                        .unwrap();
 
-                client.send(OutgoingReliableClientMessage {
-                    message: NetworkingClientMessage::Account(preferences.account_name.clone()),
-                });
-                commands.insert_resource(renet_client);
+                        client.send(OutgoingReliableClientMessage {
+                            message: NetworkingClientMessage::Account(
+                                preferences.account_name.clone(),
+                            ),
+                        });
+                        commands.insert_resource(renet_client);
 
-                connection_state.status = ConnectionStatus::Connecting;
+                        connection_state.status = ConnectionStatus::Connecting;
+                    }
+                    Err(err) => {
+                        warn!("Token generation failed: {:?}", err);
+                    }
+                }
             }
             ConnectionStatus::Connecting => {
                 continue;
@@ -448,8 +460,8 @@ pub(crate) fn on_disconnect(
     mut commands: Commands,
 ) {
     match client.disconnected() {
-        Some(_d) => {
-            warn!("Disconnected from server.");
+        Some(d) => {
+            warn!("Disconnected from server: {}", d);
             connected_state.status = ConnectionStatus::None;
             commands.remove_resource::<RenetClient>();
         }
