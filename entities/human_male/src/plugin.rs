@@ -8,8 +8,8 @@ use entity::{
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
+use entity::spawn_rigidbody::summon_rigid_body;
 use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
-use rigid_body::spawn::summon_rigid_body;
 
 use crate::{
     boarding::on_spawning,

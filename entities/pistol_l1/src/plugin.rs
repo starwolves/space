@@ -7,6 +7,7 @@ use combat::{
     projectile_queries::projectile_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
+use entity::spawn_rigidbody::summon_rigid_body;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
@@ -14,7 +15,6 @@ use entity::{
 };
 use inventory_item::spawn::summon_inventory_item;
 use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
-use rigid_body::spawn::summon_rigid_body;
 
 use crate::pistol_l1::{PistolL1, PISTOL_L1_ENTITY_NAME};
 

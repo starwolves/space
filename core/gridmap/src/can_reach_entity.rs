@@ -11,7 +11,6 @@ use bevy_rapier3d::{
 };
 use entity::health::HealthComponent;
 use pawn::pawn::REACH_DISTANCE;
-use physics::physics::{get_bit_masks, ColliderGroup, ReachResult};
 
 use crate::{
     events::Cell,
@@ -19,6 +18,8 @@ use crate::{
 };
 
 use bevy_rapier3d::rapier::geometry::Group;
+use entity::physics::ReachResult;
+use entity::physics::{get_bit_masks, ColliderGroup};
 
 /// Check if entity can be reached by another entity with nothing in between to block it as a function.
 #[cfg(feature = "server")]

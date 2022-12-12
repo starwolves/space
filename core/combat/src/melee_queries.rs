@@ -18,7 +18,6 @@ use gridmap::{
 };
 use inventory_item::combat::{MeleeCombat, ProjectileCombat};
 use math::grid::Vec3Int;
-use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::{
     active_attacks::ActiveAttacks,
@@ -73,6 +72,7 @@ pub struct MeleeDirectQuery {
     /// Attack id.
     pub incremented_id: u64,
 }
+use entity::physics::{get_bit_masks, ColliderGroup};
 
 /// Perform a melee physics query with event [MeleeDirectQuery].
 #[cfg(feature = "server")]

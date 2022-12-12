@@ -2,11 +2,11 @@
 name = "pistol_l1"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="A projectile laser weapon."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "A projectile laser weapon."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 
@@ -21,10 +21,9 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.19.0"
 
-entity = { path = "../../core/entity" ,  features=["server"]}
-inventory_item = { path = "../../core/inventory_item" ,  features=["server"]}
-inventory_api = { path = "../../core/inventory_api",  features=["server"] }
-rigid_body = { path = "../../core/rigid_body",  features=["server"] }
-text_api = { path = "../../core/text_api",  features=["server"] }
-combat = { path = "../../core/combat",  features=["server"] }
-resources = { path = "../../core/resources" ,  features=["server"]}
+entity = { path = "../../core/entity", features = ["server"] }
+inventory_item = { path = "../../core/inventory_item", features = ["server"] }
+inventory_api = { path = "../../core/inventory_api", features = ["server"] }
+text_api = { path = "../../core/text_api", features = ["server"] }
+combat = { path = "../../core/combat", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }

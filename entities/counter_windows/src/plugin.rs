@@ -5,6 +5,7 @@ use bevy::{
     prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet, Transform},
 };
 use combat::sfx::health_combat_hit_result_sfx;
+use entity::spawn_rigidbody::summon_rigid_body;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
@@ -14,7 +15,6 @@ use gridmap_meta::core::GridItemData;
 use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
 };
-use rigid_body::spawn::summon_rigid_body;
 
 use crate::{
     actions::{

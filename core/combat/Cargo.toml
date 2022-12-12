@@ -2,11 +2,11 @@
 name = "combat"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="For combat and damage applications."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "For combat and damage applications."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -21,14 +21,13 @@ default-features = false
 bevy_rapier3d = "0.19.0"
 rand = "0.8.5"
 
-networking = { path = "../networking",  features=["server"] }
+networking = { path = "../networking", features = ["server"] }
 
-sounds = { path = "../../entities/sounds",  features=["server"] }
-physics = { path = "../physics",  features=["server"] }
-gridmap = { path = "../gridmap",  features=["server"] }
-sfx = { path = "../sfx",  features=["server"] }
-inventory_item = { path = "../inventory_item",  features=["server"] }
-chat = { path = "../chat",  features=["server"] }
-entity = { path = "../entity",  features=["server"] }
-resources = { path = "../resources",  features=["server"] }
-math = { path = "../math",  features=["server"] }
+sounds = { path = "../../entities/sounds", features = ["server"] }
+gridmap = { path = "../gridmap", features = ["server"] }
+sfx = { path = "../sfx", features = ["server"] }
+inventory_item = { path = "../inventory_item", features = ["server"] }
+chat = { path = "../chat", features = ["server"] }
+entity = { path = "../entity", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+math = { path = "../math", features = ["server"] }

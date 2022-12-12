@@ -7,7 +7,6 @@ use bevy_rapier3d::prelude::{CollisionGroups, Group};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use math::grid::{world_to_cell_id, Vec2Int};
 use pawn::pawn::{Pawn, ShipAuthorization};
-use physics::physics::{get_bit_masks, ColliderGroup};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     air_lock::{
@@ -49,6 +48,8 @@ pub(crate) fn air_lock_events(
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut collision_groups: Query<&mut CollisionGroups>,
 ) {
+    use entity::physics::{get_bit_masks, ColliderGroup};
+
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 

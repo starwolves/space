@@ -2,11 +2,11 @@
 name = "inventory_item"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="InventoryItems interact with Inventory entities."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "InventoryItems interact with Inventory entities."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -18,13 +18,12 @@ version = "0.9.0"
 default-features = false
 
 [dependencies]
-entity = { path = "../entity",  features=["server"] }
-console_commands = { path = "../console_commands" ,  features=["server"]}
+entity = { path = "../entity", features = ["server"] }
+console_commands = { path = "../console_commands", features = ["server"] }
 
 
-actions = { path = "../actions",  features=["server"] }
-networking = { path = "../networking" ,  features=["server"]}
-resources = { path = "../resources" ,  features=["server"]}
-inventory_api = { path = "../inventory_api",  features=["server"] }
-text_api = { path = "../text_api",  features=["server"] }
-physics = { path = "../physics" ,  features=["server"]}
+actions = { path = "../actions", features = ["server"] }
+networking = { path = "../networking", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+inventory_api = { path = "../inventory_api", features = ["server"] }
+text_api = { path = "../text_api", features = ["server"] }

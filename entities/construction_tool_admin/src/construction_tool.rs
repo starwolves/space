@@ -9,6 +9,7 @@ use bevy::{
     },
 };
 use doryen_fov::FovAlgorithm;
+use entity::physics::RigidBodyDisabled;
 use entity::{
     entity_data::EntityData,
     health::{Health, HealthContainer, StructureHealth},
@@ -28,7 +29,6 @@ use gridmap::{
 use inventory_api::core::Inventory;
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::server::{GridMapLayer, TextTreeBit};
-use physics::physics::RigidBodyDisabled;
 use text_api::core::FURTHER_ITALIC_FONT;
 
 use inventory_item::item::InventoryItem;

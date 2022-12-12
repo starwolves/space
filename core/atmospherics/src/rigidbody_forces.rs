@@ -7,12 +7,12 @@ use entity::senser::FOV_MAP_WIDTH;
 use gridmap::grid::{AdjacentTileDirection, GridmapMain};
 use math::grid::{world_to_cell_id, Vec2Int};
 use pawn::pawn::Pawn;
-use physics::physics::RigidBodyDisabled;
 use resources::core::TickRate;
 
 use std::collections::HashMap;
 
 use bevy_rapier3d::prelude::Velocity;
+use entity::physics::RigidBodyDisabled;
 
 use crate::diffusion::{get_atmos_index, AtmosphericsResource, DIFFUSION_STEP};
 

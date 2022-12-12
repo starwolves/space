@@ -12,9 +12,9 @@ use entity::{
         SpawnData, SpawnEvent,
     },
 };
-use rigid_body::{
+use entity::{
     rigid_body::STANDARD_BODY_FRICTION,
-    spawn::{RigidBodyBundle, RigidBodySummonable},
+    spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable},
 };
 use std::collections::BTreeMap;
 

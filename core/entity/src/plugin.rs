@@ -19,6 +19,8 @@ use crate::meta::EntityDataResource;
 use crate::networking::{
     incoming_messages, load_entity, EntityClientMessage, EntityServerMessage, LoadEntity,
 };
+use crate::out_of_bounds_teleportation::out_of_bounds_tp;
+use crate::rigidbody_link_transform::rigidbody_link_transform;
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
 
@@ -85,7 +87,9 @@ impl Plugin for EntityPlugin {
                 )
                 .add_system(load_entity)
                 .add_event::<DespawnEntity>()
-                .add_event::<LoadEntity>();
+                .add_event::<LoadEntity>()
+                .add_system(out_of_bounds_tp)
+                .add_system(rigidbody_link_transform);
         }
 
         init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);

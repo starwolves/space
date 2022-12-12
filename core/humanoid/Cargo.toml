@@ -2,11 +2,11 @@
 name = "humanoid"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Humanoid entities share animations and API."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Humanoid entities share animations and API."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -22,20 +22,19 @@ bevy_rapier3d = "0.19.0"
 vector2math = "0.13.0"
 bevy_renet = "0.0.6"
 
-networking = { path = "../networking",  features=["server"] }
+networking = { path = "../networking", features = ["server"] }
 
-sounds = { path = "../../entities/sounds",  features=["server"] }
-pawn = { path = "../pawn",  features=["server"] }
-inventory_item = { path = "../inventory_item",  features=["server"] }
-inventory_api = { path = "../inventory_api",  features=["server"] }
-combat = { path = "../combat",  features=["server"] }
-sfx = { path = "../sfx",  features=["server"] }
-rigid_body = { path = "../rigid_body",  features=["server"] }
-entity = { path = "../entity",  features=["server"] }
-gridmap = { path = "../gridmap",  features=["server"] }
-resources = { path = "../resources",  features=["server"] }
-atmospherics = { path = "../atmospherics",  features=["server"] }
-math = { path = "../math",  features=["server"] }
-text_api = { path = "../text_api",  features=["server"] }
-controller = { path = "../controller",  features=["server"] }
-player = { path = "../player",  features=["server"] }
+sounds = { path = "../../entities/sounds", features = ["server"] }
+pawn = { path = "../pawn", features = ["server"] }
+inventory_item = { path = "../inventory_item", features = ["server"] }
+inventory_api = { path = "../inventory_api", features = ["server"] }
+combat = { path = "../combat", features = ["server"] }
+sfx = { path = "../sfx", features = ["server"] }
+entity = { path = "../entity", features = ["server"] }
+gridmap = { path = "../gridmap", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+atmospherics = { path = "../atmospherics", features = ["server"] }
+math = { path = "../math", features = ["server"] }
+text_api = { path = "../text_api", features = ["server"] }
+controller = { path = "../controller", features = ["server"] }
+player = { path = "../player", features = ["server"] }

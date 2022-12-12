@@ -22,7 +22,6 @@ use inventory_item::{
 use math::grid::world_to_cell_id;
 use pawn::pawn::{facing_direction_to_direction, FacingDirection, Pawn, PawnYAxisRotations};
 use resources::core::TickRate;
-use rigid_body::rigid_body::RigidBodyData;
 use sfx::builder::repeating_sfx_builder;
 use sounds::actions::{
     footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
@@ -134,9 +133,10 @@ enum CharacterMovementState {
 }
 use controller::controller::ControllerInput;
 use entity::despawn::DespawnEntity;
+use entity::rigid_body::RigidBodyData;
 use networking::server::HandleToEntity;
 
-/// Core humanoid logic.
+/// Core humanoid logic. Will get granularized into more systems in the future.
 #[cfg(feature = "server")]
 pub(crate) fn humanoid_core(
     mut humanoids_query: Query<
