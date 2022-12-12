@@ -140,3 +140,6 @@ pub enum PawnDesignation {
 pub struct Spawning {
     pub transform: Transform,
 }
+/// How far melee fists attacks can reach.
+#[cfg(feature = "server")]
+pub const ARMS_REACH: f32 = 1.2;

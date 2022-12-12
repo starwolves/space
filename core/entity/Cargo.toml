@@ -31,5 +31,3 @@ resources = { path = "../resources", features = ["server"] }
 gridmap_meta = { path = "../gridmap_meta", features = ["server"] }
 text_api = { path = "../text_api", features = ["server"] }
 data_converters = { path = "../data_converters", features = ["server"] }
-
-actions = { path = "../actions", features = ["server"] }

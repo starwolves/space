@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use bevy::prelude::Component;
-use entity::{actions::MELEE_FISTS_REACH, health::DamageFlag};
+use entity::health::DamageFlag;
+use pawn::pawn::ARMS_REACH;
 use text_api::core::Color;
 /// The component for items that can be used to perform melee attacks with. Should be used in combination with handlers.
 #[derive(Component)]
@@ -21,7 +22,7 @@ impl Default for MeleeCombat {
     fn default() -> Self {
         Self {
             combat_melee_damage_model: DamageModel::default(),
-            melee_attack_range: MELEE_FISTS_REACH,
+            melee_attack_range: ARMS_REACH,
             combat_melee_text_set: get_default_strike_words(),
             combat_attack_animation: CombatAttackAnimation::OneHandedMeleePunch,
             trigger_melee_text_set: get_default_trigger_melee_words(),
