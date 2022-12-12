@@ -1,4 +1,7 @@
-use bevy::{math::Vec2, prelude::Component};
+use bevy::{
+    math::Vec2,
+    prelude::{Component, Transform},
+};
 
 /// Ship authorizations for pawns.
 #[derive(PartialEq)]
@@ -8,42 +11,31 @@ pub enum ShipAuthorizationEnum {
     Common,
 }
 /// Crew jobs for pawns.
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 #[cfg(feature = "server")]
 pub enum ShipJobsEnum {
+    #[default]
     Security,
     Control,
 }
 /// The component.
-#[derive(Component)]
+#[derive(Default, Component, Clone)]
 #[cfg(feature = "server")]
 pub struct Pawn {
-    pub name: String,
+    pub character_name: String,
     pub job: ShipJobsEnum,
     pub communicator: Communicator,
     pub facing_direction: FacingDirection,
 }
 
 /// The kind of communicator.
-#[derive(Clone)]
+#[derive(Default, Clone)]
 #[cfg(feature = "server")]
 pub enum Communicator {
+    #[default]
     Standard,
     Machine,
 }
-
-#[cfg(feature = "server")]
-impl Default for Pawn {
-    fn default() -> Self {
-        Self {
-            name: "".to_string(),
-            job: ShipJobsEnum::Security,
-            facing_direction: FacingDirection::Up,
-            communicator: Communicator::Standard,
-        }
-    }
-}
-
 /// Ship authorization component.
 #[derive(Component)]
 #[cfg(feature = "server")]
@@ -51,10 +43,11 @@ pub struct ShipAuthorization {
     pub access: Vec<ShipAuthorizationEnum>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 #[cfg(feature = "server")]
 pub enum FacingDirection {
     UpLeft,
+    #[default]
     Up,
     UpRight,
     Right,
@@ -79,6 +72,7 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
     }
 }
 use bevy_rapier3d::na::Quaternion;
+use networking::server::ConnectedPlayer;
 
 #[cfg(feature = "server")]
 pub struct PawnYAxisRotations;
@@ -120,3 +114,29 @@ impl PawnYAxisRotations {
 /// How far an entity can reach ie with picking up items.
 #[cfg(feature = "server")]
 pub const REACH_DISTANCE: f32 = 3.;
+
+/// Data for spawning.
+#[derive(Clone)]
+#[cfg(feature = "server")]
+pub struct SpawnPawnData {
+    pub pawn_component: Pawn,
+    pub connected_player_option: Option<ConnectedPlayer>,
+    pub inventory_setup: Vec<(String, String)>,
+    pub designation: PawnDesignation,
+}
+
+#[derive(Clone)]
+#[cfg(feature = "server")]
+pub enum PawnDesignation {
+    Showcase,
+    Player,
+    Dummy,
+    Ai,
+}
+
+/// Component that contains the spawn data of a to-be-spawned pawn.
+#[derive(Component)]
+#[cfg(feature = "server")]
+pub struct Spawning {
+    pub transform: Transform,
+}

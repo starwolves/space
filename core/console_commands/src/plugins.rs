@@ -3,12 +3,12 @@ use std::env;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use networking::messaging::{init_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
-use resources::labels::StartupLabels;
+use resources::labels::{StartupLabels, SummoningLabels};
 
 use crate::{
     commands::{AllConsoleCommands, ConsoleCommandsLabels, InputConsoleCommand},
     connections::configure,
-    init::initialize_console_commands,
+    init::{initialize_console_commands, initialize_console_commands_2},
     networking::{incoming_messages, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage},
 };
 
@@ -31,6 +31,11 @@ impl Plugin for ConsoleCommandsPlugin {
                     configure
                         .label(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
+                )
+                .add_startup_system(
+                    initialize_console_commands_2
+                        .before(ConsoleCommandsLabels::Finalize)
+                        .label(SummoningLabels::TriggerSummon),
                 );
         }
 

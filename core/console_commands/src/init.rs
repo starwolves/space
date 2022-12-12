@@ -23,3 +23,17 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 
     info!("Loaded {} different console commands.", commands.list.len());
 }
+
+/// Initialize console commands.
+#[cfg(feature = "server")]
+pub(crate) fn initialize_console_commands_2(mut commands: ResMut<AllConsoleCommands>) {
+    commands.list.push((
+        "spawn".to_string(),
+        "For server administrators only. Spawn in entities in proximity.".to_string(),
+        vec![
+            ("entity_name".to_string(), GodotVariant::String),
+            ("amount".to_string(), GodotVariant::Int),
+            ("player_selector".to_string(), GodotVariant::String),
+        ],
+    ));
+}

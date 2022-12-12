@@ -25,6 +25,7 @@ pub(crate) fn initialize_setupui(
     mut server1: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut server2: EventWriter<OutgoingReliableServerMessage<SetupUiServerMessage>>,
     motd: Res<MOTD>,
+    mut datas: ResMut<SetupUiDatas>,
 ) {
     for connected_player_component in query.iter() {
         let suggested_name = get_full_name(true, true, &used_names);
@@ -36,39 +37,45 @@ pub(crate) fn initialize_setupui(
             handle: connected_player_component.handle,
             message: NetworkingChatServerMessage::ChatMessage(motd.message.clone()),
         });
+        datas.list.insert(
+            connected_player_component.handle,
+            SetupUiData {
+                character_name: suggested_name,
+            },
+        );
     }
 }
 use bevy::prelude::warn;
-use console_commands::networking::ConsoleCommandsServerMessage;
-use player::boarding::{BoardingPlayer, PersistentPlayerData};
+use player::boarding::BoardingPlayer;
 use serde::{Deserialize, Serialize};
-use text_api::core::CONSOLE_ERROR_COLOR;
 
 use bevy::prelude::ResMut;
-use text_api::core::escape_bb;
+#[derive(Default, Resource)]
+#[cfg(feature = "server")]
+/// Each stored [SetupUiState] for the connected handles.
+pub struct SetupUiDatas {
+    pub list: HashMap<u64, SetupUiData>,
+}
+
+#[cfg(feature = "server")]
+pub struct SetupUiData {
+    pub character_name: String,
+}
 
 #[cfg(feature = "server")]
 pub(crate) fn receive_input_character_name(
     mut server: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
-    handle_to_entity: Res<HandleToEntity>,
-    mut persistent_query: Query<&mut PersistentPlayerData>,
+    mut datas: ResMut<SetupUiDatas>,
 ) {
     for message in server.iter() {
         match message.message.clone() {
             SetupUiClientMessage::InputCharacterName(name) => {
-                match handle_to_entity.map.get(&message.handle) {
-                    Some(entity) => match persistent_query.get_mut(*entity) {
-                        Ok(mut component) => {
-                            component.character_name = name;
-                        }
-                        Err(_) => {
-                            warn!("coudlnt find entity in query receive_input_character_name");
-                            continue;
-                        }
-                    },
+                match datas.list.get_mut(&message.handle) {
+                    Some(setupui_data) => {
+                        setupui_data.character_name = name;
+                    }
                     None => {
-                        warn!("Couldnt find entity of handle receive_input_character_name");
-                        continue;
+                        warn!("Could not find SetupUiData for handle {}", message.handle);
                     }
                 }
             }
@@ -83,83 +90,40 @@ pub(crate) fn ui_input_boarding(
     mut event: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
     mut boarding_player_event: EventWriter<BoardingPlayer>,
     handle_to_entity: Res<HandleToEntity>,
-    used_names: ResMut<UsedNames>,
-    mut query: Query<(&mut PersistentPlayerData, &ConnectedPlayer)>,
-    mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
+    mut query: Query<&ConnectedPlayer>,
+    setupui_datas: Res<SetupUiDatas>,
 ) {
     for new_event in event.iter() {
-        let player_entity = handle_to_entity.map.get(&new_event.handle).expect(
-            "ui_input_transmit_text_event.rs could not find entity belonging to player handle.",
-        );
+        let player_entity = handle_to_entity
+            .map
+            .get(&new_event.handle)
+            .expect("ui_input_boarding could not find entity belonging to player handle.");
 
         match new_event.message {
             SetupUiClientMessage::RequestBoarding => {
-                let player_components;
-
+                let connected_player_component;
                 match query.get_mut(*player_entity) {
                     Ok(s) => {
-                        player_components = s;
+                        connected_player_component = s;
                     }
                     Err(_rr) => {
-                        warn!("ui_input_transmit_text_event.rs could not find components belonging to player entity: {:?}", player_entity);
+                        warn!("ui_input_boarding could not find components belonging to player entity: {:?}", player_entity);
                         continue;
                     }
                 }
 
-                let mut persistent_player_data = player_components.0;
-                let connected_player_component = player_components.1;
-
-                persistent_player_data.character_name = escape_bb(
-                    persistent_player_data.character_name.to_string(),
-                    true,
-                    true,
-                );
-
-                if persistent_player_data.character_name.len() > 26 {
-                    persistent_player_data.character_name =
-                        persistent_player_data.character_name[..26].to_string();
-                }
-
-                let mut name_in_use = false;
-
-                for name in used_names.names.keys() {
-                    if name.to_lowercase() == persistent_player_data.character_name.to_lowercase() {
-                        // Character name of player is already in-use.
-                        name_in_use = true;
-                        break;
+                match setupui_datas.list.get(&connected_player_component.handle) {
+                    Some(setupui_data) => {
+                        boarding_player_event.send(BoardingPlayer {
+                            entity: *player_entity,
+                            player_handle: connected_player_component.handle,
+                            player_character_name: setupui_data.character_name.clone(),
+                        });
+                    }
+                    None => {
+                        warn!("ui_input_boarding could not find setupui_datas belonging to player: {:?}", connected_player_component.handle);
                     }
                 }
-
-                if name_in_use {
-                    // Character name of player is already in-use.
-                    server.send(OutgoingReliableServerMessage {
-                        handle: new_event.handle,
-                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                            "[color=".to_string()
-                                + CONSOLE_ERROR_COLOR
-                                + "]Character name is already in-use.[/color]",
-                        ),
-                    });
-                    continue;
-                }
-
-                if persistent_player_data.character_name.len() < 3 {
-                    server.send(OutgoingReliableServerMessage {
-                        handle: new_event.handle,
-                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                            "[color=".to_string()
-                                + CONSOLE_ERROR_COLOR
-                                + "]Character name is too short.[/color]",
-                        ),
-                    });
-                    continue;
-                }
-
-                boarding_player_event.send(BoardingPlayer {
-                    entity: *player_entity,
-                    player_handle: connected_player_component.handle,
-                    player_character_name: persistent_player_data.character_name.clone(),
-                });
             }
             _ => (),
         }
@@ -270,8 +234,13 @@ pub fn setupui_loaded(
     mut commands: Commands,
 ) {
     for new_event in event.iter() {
-        let player_entity = handle_to_entity.map.get(&new_event.handle)
+        match new_event.message {
+            SetupUiClientMessage::SetupUiLoaded => {
+                let player_entity = handle_to_entity.map.get(&new_event.handle)
         .expect("scene_ready_event.rs could not find components for player that just got done boarding.");
-        commands.entity(*player_entity).insert(SetupPhase);
+                commands.entity(*player_entity).insert(SetupPhase);
+            }
+            _ => {}
+        }
     }
 }

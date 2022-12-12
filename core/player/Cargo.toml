@@ -27,3 +27,4 @@ networking = { path = "../networking", features = ["server"] }
 text_api = { path = "../text_api", features = ["server"] }
 resources = { path = "../resources", features = ["server"] }
 world_environment = { path = "../world_environment", features = ["server"] }
+pawn = { path = "../pawn", features = ["server"] }

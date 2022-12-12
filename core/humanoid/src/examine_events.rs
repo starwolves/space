@@ -1,4 +1,3 @@
-use crate::humanoid::Humanoid;
 use bevy::prelude::{Query, ResMut};
 use entity::examine::Examinable;
 use entity::examine::ExamineEntityMessages;
@@ -6,6 +5,7 @@ use entity::health::HealthComponent;
 use entity::sensable::Sensable;
 use entity::senser::Senser;
 use inventory_api::core::Inventory;
+use pawn::pawn::Pawn;
 use text_api::core::FURTHER_NORMAL_FONT;
 
 /// Examine a humanoid entity.
@@ -13,13 +13,7 @@ use text_api::core::FURTHER_NORMAL_FONT;
 pub(crate) fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     criteria_query: Query<&Senser>,
-    q1: Query<(
-        &Examinable,
-        &Sensable,
-        &HealthComponent,
-        &Inventory,
-        &Humanoid,
-    )>,
+    q1: Query<(&Examinable, &Sensable, &HealthComponent, &Inventory, &Pawn)>,
     q2: Query<&Examinable>,
 ) {
     for examine_event in examine_entity_events.messages.iter_mut() {

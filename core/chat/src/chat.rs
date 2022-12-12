@@ -84,7 +84,7 @@ pub enum RadioChannel {
 use networking::server::HandleToEntity;
 
 use networking::server::ConnectedPlayer;
-use player::boarding::{PersistentPlayerData, SoftPlayer};
+use player::boarding::SoftPlayer;
 
 /// Chat distance. Impacts font size.
 #[cfg(feature = "server")]
@@ -193,7 +193,7 @@ pub(crate) fn chat_message(
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut server1: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
     mut server2: EventWriter<OutgoingReliableServerMessage<SfxServerMessage>>,
-    radio_pawns: Query<(Entity, &Radio, &Transform, &PersistentPlayerData)>,
+    radio_pawns: Query<(Entity, &Radio, &Transform, &Pawn)>,
     handle_to_entity: Res<HandleToEntity>,
     player_pawns: Query<(&Pawn, &Transform, &Sensable)>,
     accounts: Res<Accounts>,
@@ -243,7 +243,7 @@ pub(crate) fn chat_message(
                     communicator = pawn.communicator.clone();
                     job = pawn.job;
                     if !set_name {
-                        messenger_name = pawn.name.clone();
+                        messenger_name = pawn.character_name.clone();
                     }
                 }
                 Err(_) => {

@@ -1,7 +1,7 @@
 //! A humanoid.
 //! This entity is always a humanoid and always a pawn.
 
-/// Spawn human male on player boarding.
+/// Process player boarding. From setup_ui to spawned into the game.
 pub mod boarding;
 /// Handler for bare hand combat.
 mod hands_attack_handler;
