@@ -5,7 +5,6 @@ use bevy::time::FixedTimestep;
 use networking::messaging::{init_reliable_message, MessageSender};
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
-use crate::actions::build_actions;
 use crate::broadcast_interpolation_transforms::broadcast_interpolation_transforms;
 use crate::despawn::{despawn_entity, DespawnEntity};
 use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
@@ -62,11 +61,6 @@ impl Plugin for EntityPlugin {
                 .add_system_to_stage(
                     PostUpdate,
                     despawn_entity.after(PostUpdateLabels::VisibleChecker),
-                )
-                .add_system(
-                    build_actions
-                        .label(ActionsLabels::Build)
-                        .after(ActionsLabels::Init),
                 )
                 .add_system_to_stage(
                     PostUpdate,

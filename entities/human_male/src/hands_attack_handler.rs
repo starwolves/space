@@ -1,6 +1,6 @@
 use bevy::prelude::{EventReader, EventWriter};
 use combat::{attack::Attack, melee_queries::MeleeDirectQuery};
-use entity::actions::MELEE_FISTS_REACH;
+use pawn::pawn::ARMS_REACH;
 
 /// Handles attacks with bare hands.
 #[cfg(feature = "server")]
@@ -15,7 +15,7 @@ pub(crate) fn hands_attack_handler(
                 targetted_entity: attack.targetted_entity,
                 targetted_cell: attack.targetted_cell,
                 angle: attack.angle,
-                range: MELEE_FISTS_REACH,
+                range: ARMS_REACH,
                 exclude_physics: vec![],
                 barehanded: true,
                 incremented_id: attack.incremented_id,

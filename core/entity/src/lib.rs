@@ -5,8 +5,6 @@
 //! Includes health systems and resource.
 //! Includes the base examine action.
 
-/// Perform base entity actions such as examining.
-pub mod actions;
 /// Broadcast unreliable transforms to clients.
 mod broadcast_interpolation_transforms;
 /// Despawns entities.
