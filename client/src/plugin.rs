@@ -25,7 +25,6 @@ use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
 use ui::plugin::UiPlugin;
-use winit_windows::plugin::WinitWindowsPlugin;
 /// The main plugin to add to execute the client.
 pub struct ClientPlugin {
     pub version: String,
@@ -73,7 +72,6 @@ impl Plugin for ClientPlugin {
         .insert_resource(WinitSettings::game())
         .add_plugin(NetworkingPlugin)
         .add_plugin(MainMenuPlugin)
-        .add_plugin(WinitWindowsPlugin)
         .add_plugin(ResourcesPlugin)
         .add_plugin(EguiPlugin)
         .insert_resource(ClientInformation {
@@ -92,6 +90,7 @@ impl Plugin for ClientPlugin {
         .add_plugin(MapPlugin)
         .add_plugin(PawnPlugin)
         .add_plugin(SfxPlugin)
+        .add_plugin(ResourcesPlugin)
         .add_startup_system(client_is_live)
         .insert_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f32(
             1. / 64.,
