@@ -12,7 +12,7 @@ use resources::core::TickRate;
 use std::collections::HashMap;
 
 use bevy_rapier3d::prelude::Velocity;
-use entity::physics::RigidBodyDisabled;
+use physics::physics::RigidBodyDisabled;
 
 use crate::diffusion::{get_atmos_index, AtmosphericsResource, DIFFUSION_STEP};
 

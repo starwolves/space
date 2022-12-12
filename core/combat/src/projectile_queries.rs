@@ -43,7 +43,7 @@ pub struct ProjectileQuery {
     /// Attack id.
     pub incremented: u64,
 }
-use entity::physics::{get_bit_masks, ColliderGroup};
+use physics::physics::{get_bit_masks, ColliderGroup};
 
 /// Perform a projectile attack physics query by reading event [ProjectileQuery].
 #[cfg(feature = "server")]

@@ -5,13 +5,13 @@ use bevy::{
     prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet, Transform},
 };
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::spawn_rigidbody::summon_rigid_body;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
 use gridmap_meta::core::GridItemData;
+use physics::spawn_rigidbody::summon_rigid_body;
 use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
 };

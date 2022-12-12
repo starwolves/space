@@ -3,8 +3,6 @@ use std::collections::{BTreeMap, HashMap};
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
-use entity::physics::CHARACTER_FLOOR_FRICTION;
-use entity::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
 use entity::{
     entity_data::{WorldMode, WorldModes, ENTITY_SPAWN_PARENT},
     examine::{Examinable, RichName},
@@ -30,6 +28,8 @@ use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;
 use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
+use physics::physics::CHARACTER_FLOOR_FRICTION;
+use physics::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
 use player::names::UsedNames;
 
 /// Get default transform.

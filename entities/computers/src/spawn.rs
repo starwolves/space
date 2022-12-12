@@ -12,7 +12,7 @@ use entity::{
         SpawnData, SpawnEvent,
     },
 };
-use entity::{
+use physics::{
     rigid_body::STANDARD_BODY_FRICTION,
     spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable},
 };

@@ -1,11 +1,10 @@
 use std::env;
 
-use bevy::prelude::{App, CoreStage, IntoSystemDescriptor, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use networking::messaging::{init_reliable_message, MessageSender};
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
-use crate::broadcast_interpolation_transforms::broadcast_interpolation_transforms;
 use crate::despawn::{despawn_entity, DespawnEntity};
 use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::examine::{
@@ -18,8 +17,6 @@ use crate::meta::EntityDataResource;
 use crate::networking::{
     incoming_messages, load_entity, EntityClientMessage, EntityServerMessage, LoadEntity,
 };
-use crate::out_of_bounds_teleportation::out_of_bounds_tp;
-use crate::rigidbody_link_transform::rigidbody_link_transform;
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
 
@@ -72,7 +69,6 @@ impl Plugin for EntityPlugin {
                 .add_system(examine_entity.after(ActionsLabels::Action))
                 .add_system_to_stage(PreUpdate, incoming_messages)
                 .add_event::<InputExamineEntity>()
-                .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms)
                 .add_system_to_stage(
                     PostUpdate,
                     finalize_entity_updates
@@ -81,9 +77,7 @@ impl Plugin for EntityPlugin {
                 )
                 .add_system(load_entity)
                 .add_event::<DespawnEntity>()
-                .add_event::<LoadEntity>()
-                .add_system(out_of_bounds_tp)
-                .add_system(rigidbody_link_transform);
+                .add_event::<LoadEntity>();
         }
 
         init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);

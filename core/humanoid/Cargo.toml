@@ -38,3 +38,4 @@ math = { path = "../math", features = ["server"] }
 text_api = { path = "../text_api", features = ["server"] }
 controller = { path = "../controller", features = ["server"] }
 player = { path = "../player", features = ["server"] }
+physics = { path = "../physics", features = ["server"] }

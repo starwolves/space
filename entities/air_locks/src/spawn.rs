@@ -6,7 +6,6 @@ use bevy::{
     prelude::{warn, Commands, EventReader, EventWriter, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use entity::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
 use entity::{
     entity_data::{EntityGroup, RawSpawnEvent},
     examine::{Examinable, RichName},
@@ -16,6 +15,7 @@ use entity::{
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
+use physics::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 #[cfg(feature = "server")]

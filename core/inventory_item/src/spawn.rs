@@ -25,7 +25,7 @@ pub struct InventoryBuilderData {
     pub melee_combat: MeleeCombat,
     pub projectile_option: Option<ProjectileCombat>,
 }
-use entity::physics::RigidBodyLinkTransform;
+use physics::physics::RigidBodyLinkTransform;
 
 /// Build inventory item at summon stage.
 #[cfg(feature = "server")]

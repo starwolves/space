@@ -66,3 +66,4 @@ pistol_l1 = { path = "../entities/pistol_l1", features = ["server"] }
 reflection_probe = { path = "../entities/reflection_probe", features = [
     "server",
 ] }
+physics = { path = "../core/physics", features = ["server"] }

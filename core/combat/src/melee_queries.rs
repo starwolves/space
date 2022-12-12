@@ -72,7 +72,7 @@ pub struct MeleeDirectQuery {
     /// Attack id.
     pub incremented_id: u64,
 }
-use entity::physics::{get_bit_masks, ColliderGroup};
+use physics::physics::{get_bit_masks, ColliderGroup};
 
 /// Perform a melee physics query with event [MeleeDirectQuery].
 #[cfg(feature = "server")]

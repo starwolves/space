@@ -5,8 +5,6 @@
 //! Includes health systems and resource.
 //! Includes the base examine action.
 
-/// Broadcast unreliable transforms to clients.
-mod broadcast_interpolation_transforms;
 /// Despawns entities.
 pub mod despawn;
 /// Manage base entity data.
@@ -35,14 +33,3 @@ pub mod showcase;
 pub mod spawn;
 /// Crate that performs FOV logic for sensing and sensable entities.
 pub mod visible_checker;
-
-/// Check if entities leave boundaries of physics space.
-mod out_of_bounds_teleportation;
-/// Physics resources.
-pub mod physics;
-/// Rigid body resources.
-pub mod rigid_body;
-/// Link rigid body transforms.
-mod rigidbody_link_transform;
-/// Base rigid body spawner.
-pub mod spawn_rigidbody;

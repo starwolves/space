@@ -36,3 +36,4 @@ resources = { path = "../../core/resources", features = ["server"] }
 math = { path = "../../core/math", features = ["server"] }
 gridmap_meta = { path = "../../core/gridmap_meta", features = ["server"] }
 air_locks = { path = "../air_locks", features = ["server"] }
+physics = { path = "../../core/physics", features = ["server"] }

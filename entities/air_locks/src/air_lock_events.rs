@@ -30,6 +30,8 @@ pub struct AirLockOpenRequest {
 use networking::server::NetworkingChatServerMessage;
 
 use bevy::prelude::EventWriter;
+use physics::physics::{get_bit_masks, ColliderGroup};
+
 use networking::server::OutgoingReliableServerMessage;
 /// Manage air lock events.
 #[cfg(feature = "server")]
@@ -48,8 +50,6 @@ pub(crate) fn air_lock_events(
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut collision_groups: Query<&mut CollisionGroups>,
 ) {
-    use entity::physics::{get_bit_masks, ColliderGroup};
-
     let mut close_requests = vec![];
     let mut open_requests = vec![];
 

@@ -133,8 +133,8 @@ enum CharacterMovementState {
 }
 use controller::controller::ControllerInput;
 use entity::despawn::DespawnEntity;
-use entity::rigid_body::RigidBodyData;
 use networking::server::HandleToEntity;
+use physics::rigid_body::RigidBodyData;
 
 /// Core humanoid logic. Will get granularized into more systems in the future.
 #[cfg(feature = "server")]
