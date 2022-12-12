@@ -2,11 +2,11 @@
 name = "math"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Resources related to math, 3d or 2d space etc."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Resources related to math, 3d or 2d space etc."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -14,8 +14,8 @@ server = []
 client = []
 
 [dependencies.bevy]
-version = "0.9.0"
+version = "0.9.1"
 default-features = false
 
 [dependencies]
-serde = "1.0.147"
+serde = "1.0.150"
