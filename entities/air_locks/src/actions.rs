@@ -1,8 +1,8 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
-use data_link::core::{DataLink, DataLinkType};
 use gridmap::grid::cell_id_to_world;
 use math::grid::Vec3Int;
+use pawn::pawn::{DataLink, DataLinkType};
 
 use crate::{
     air_lock_events::{AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen},

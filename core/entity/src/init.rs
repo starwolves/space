@@ -23,7 +23,7 @@ pub struct RawEntityRon {
     pub scale: Vec3,
     pub data: String,
 }
-use data_converters::converters::string_transform_to_transform;
+use resources::converters::string_transform_to_transform;
 #[allow(dead_code)]
 pub fn json_entities() {
     let entities_json = Path::new("data")

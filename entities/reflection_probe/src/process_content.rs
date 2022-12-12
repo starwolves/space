@@ -1,5 +1,5 @@
 use bevy::math::Vec3;
-use data_converters::converters::{string_color_to_color, string_vec3_to_vec3};
+use resources::converters::{string_color_to_color, string_vec3_to_vec3};
 use serde::Deserialize;
 
 use crate::core::ReflectionProbe;

@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
-use data_link::core::{DataLink, DataLinkType};
 use entity::senser::{Senser, SensingAbility};
+use pawn::pawn::{DataLink, DataLinkType};
 
 /// Sensing ability allows players to obtain atmospherics data of a tile by examining it.
 #[cfg(feature = "server")]

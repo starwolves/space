@@ -6,5 +6,7 @@ pub mod core;
 /// Systems ordering labels.
 pub mod labels;
 
+/// Convert data, mainly used for old  Godot prototype.
+pub mod converters;
 /// The Bevy ECS plugin of this crate.
 pub mod plugin;

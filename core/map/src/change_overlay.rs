@@ -1,5 +1,5 @@
 use bevy::prelude::{EventReader, Query, ResMut};
-use data_link::core::{DataLink, DataLinkType};
+use pawn::pawn::{DataLink, DataLinkType};
 
 use crate::map::{Map, MapHolders};
 use crate::map_input::InputMapChangeDisplayMode;

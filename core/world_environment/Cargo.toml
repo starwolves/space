@@ -2,11 +2,11 @@
 name = "world_environment"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="World environment manages client-side graphics and post processing."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "World environment manages client-side graphics and post processing."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -22,4 +22,4 @@ serde_json = "1.0.87"
 serde = "1.0.147"
 ron = "0.8.0"
 
-data_converters = { path = "../data_converters",  features=["server"] }
+resources = { path = "../resources", features = ["server"] }

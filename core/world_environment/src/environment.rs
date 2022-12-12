@@ -17,7 +17,7 @@ pub(crate) fn startup_environment(mut map_environment: ResMut<WorldEnvironment>)
     current_map_environment.adjust(&mut map_environment);
 }
 use bevy::math::Quat;
-use data_converters::converters::{string_color_to_color, string_quat_to_quat};
+use resources::converters::{string_color_to_color, string_quat_to_quat};
 use serde::{Deserialize, Serialize};
 
 // The resource we send to each client on connection to initialize the Godot 3D WorldEnvironment for graphics and post-processing.

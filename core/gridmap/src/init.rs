@@ -5,12 +5,12 @@ use bevy_rapier3d::{
     plugin::{RapierConfiguration, TimestepMode},
     prelude::{CoefficientCombineRule, Collider},
 };
-use data_converters::converters::string_vec3_to_vec3;
 use entity::{
     entity_data::{load_raw_map_entities, RawSpawnEvent, Server},
     examine::RichName,
 };
 use math::grid::Vec3Int;
+use resources::converters::string_vec3_to_vec3;
 use resources::core::{ServerId, TickRate};
 use text_api::core::EXAMINATION_EMPTY;
 
