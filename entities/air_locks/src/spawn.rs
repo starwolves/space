@@ -15,7 +15,7 @@ use entity::{
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
-use physics::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
+use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 #[cfg(feature = "server")]

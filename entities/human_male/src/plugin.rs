@@ -8,7 +8,7 @@ use entity::{
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
-use physics::spawn_rigidbody::summon_rigid_body;
+use physics::spawn::summon_rigid_body;
 use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
 use crate::{

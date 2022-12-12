@@ -8,7 +8,7 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use gridmap_meta::core::GridItemData;
-use physics::spawn_rigidbody::summon_rigid_body;
+use physics::spawn::summon_rigid_body;
 use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
 };

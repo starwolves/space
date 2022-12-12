@@ -7,7 +7,7 @@ use entity::entity_data::initialize_entity_data;
 use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{summon_base_entity, SpawnEvent};
 use inventory_item::spawn::summon_inventory_item;
-use physics::spawn_rigidbody::summon_rigid_body;
+use physics::spawn::summon_rigid_body;
 use resources::labels::{
     ActionsLabels, CombatLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };

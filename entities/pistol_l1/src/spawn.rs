@@ -27,8 +27,8 @@ use inventory_item::item::InventoryItem;
 use inventory_item::spawn::InventoryItemBundle;
 use inventory_item::spawn::InventoryItemSummonable;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
-use physics::spawn_rigidbody::RigidBodyBundle;
-use physics::spawn_rigidbody::RigidBodySummonable;
+use physics::spawn::RigidBodyBundle;
+use physics::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
 use text_api::core::Color;
 

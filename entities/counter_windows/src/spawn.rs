@@ -16,7 +16,7 @@ use entity::{
 };
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
-use physics::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
+use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 use super::counter_window_events::{CounterWindow, CounterWindowSensor};

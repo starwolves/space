@@ -12,4 +12,4 @@ pub mod rigid_body;
 /// Link rigid body transforms.
 mod rigidbody_link_transform;
 /// Base rigid body spawner.
-pub mod spawn_rigidbody;
+pub mod spawn;
