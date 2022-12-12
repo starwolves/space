@@ -1,4 +1,4 @@
-use data_converters::converters::string_vec3_to_vec3;
+use resources::converters::string_vec3_to_vec3;
 use serde::Deserialize;
 
 use crate::core::GIProbe;

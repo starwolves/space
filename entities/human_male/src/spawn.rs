@@ -3,7 +3,6 @@ use std::collections::{BTreeMap, HashMap};
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
-use data_link::core::{DataLink, DataLinkType};
 use entity::physics::CHARACTER_FLOOR_FRICTION;
 use entity::spawn_rigidbody::{RigidBodyBundle, RigidBodySummonable};
 use entity::{
@@ -29,6 +28,7 @@ use inventory_item::{
 };
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;
+use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use player::names::UsedNames;
 

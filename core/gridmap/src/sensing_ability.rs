@@ -1,6 +1,6 @@
 use bevy::prelude::{Changed, Query};
-use data_link::core::{DataLink, DataLinkType};
 use entity::senser::{Senser, SensingAbility};
+use pawn::pawn::{DataLink, DataLinkType};
 
 /// Allow players to examine the gridmap and get cell information.
 #[cfg(feature = "server")]

@@ -2,11 +2,11 @@
 name = "resources"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Additional resources."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Additional resources."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -16,3 +16,8 @@ client = []
 [dependencies.bevy]
 version = "0.9.0"
 default-features = false
+
+[dependencies]
+bevy_rapier3d = "0.19.0"
+
+math = { path = "../math", features = ["server"] }

@@ -2,11 +2,11 @@
 name = "reflection_probe"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="Manages client-side reflection graphics."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "Manages client-side reflection graphics."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 
@@ -22,7 +22,6 @@ default-features = false
 serde = "1.0.147"
 serde_json = "1.0.87"
 
-entity = { path = "../../core/entity" ,  features=["server"]}
-data_converters = { path = "../../core/data_converters" ,  features=["server"]}
-resources = { path = "../../core/resources" ,  features=["server"]}
-networking = { path = "../../core/networking",  features=["server"] }
+entity = { path = "../../core/entity", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }
+networking = { path = "../../core/networking", features = ["server"] }

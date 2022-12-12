@@ -143,3 +143,18 @@ pub struct Spawning {
 /// How far melee fists attacks can reach.
 #[cfg(feature = "server")]
 pub const ARMS_REACH: f32 = 1.2;
+
+/// The component for entities with data links.
+#[derive(Component, Default)]
+#[cfg(feature = "server")]
+pub struct DataLink {
+    pub links: Vec<DataLinkType>,
+}
+
+#[derive(PartialEq)]
+#[cfg(feature = "server")]
+pub enum DataLinkType {
+    FullAtmospherics,
+    RemoteLock,
+    ShipEngineeringKnowledge,
+}

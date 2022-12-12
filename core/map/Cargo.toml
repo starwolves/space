@@ -2,11 +2,11 @@
 name = "map"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description="The 2D mini-map that can display various data."
-homepage="https://starwolves.io"
-repository="https://gitlab.starwolves.io/starwolves/space"
-documentation="https://docs.sf.starwolves.io"
-license-file="LICENSE"
+description = "The 2D mini-map that can display various data."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
 edition = "2021"
 
 [features]
@@ -21,9 +21,9 @@ default-features = false
 serde = "1.0.147"
 typename = "0.1.2"
 
-networking = { path = "../networking" ,  features=["server"]}
-data_link = { path = "../data_link",  features=["server"] }
-resources = { path = "../resources" ,  features=["server"]}
-math = { path = "../math" ,  features=["server"]}
-entity = { path = "../entity" ,  features=["server"]}
-player = { path = "../player" ,  features=["server"]}
+networking = { path = "../networking", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
+math = { path = "../math", features = ["server"] }
+entity = { path = "../entity", features = ["server"] }
+player = { path = "../player", features = ["server"] }
+pawn = { path = "../pawn", features = ["server"] }

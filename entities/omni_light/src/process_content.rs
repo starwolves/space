@@ -1,4 +1,4 @@
-use data_converters::converters::string_color_to_color;
+use resources::converters::string_color_to_color;
 use serde::Deserialize;
 
 use super::omni_light::OmniLight;
