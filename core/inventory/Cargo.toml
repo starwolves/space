@@ -37,3 +37,4 @@ resources = { path = "../resources", features = ["server"] }
 atmospherics = { path = "../atmospherics", features = ["server"] }
 math = { path = "../math", features = ["server"] }
 controller = { path = "../controller", features = ["server"] }
+physics = { path = "../physics", features = ["server"] }

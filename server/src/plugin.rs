@@ -34,6 +34,7 @@ use motd::motd::MOTD;
 use networking::plugin::NetworkingPlugin;
 use omni_light::plugin::OmniLightPlugin;
 use pawn::plugin::PawnPlugin;
+use physics::plugin::PhysicsPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
@@ -131,6 +132,7 @@ impl Plugin for ServerPlugin {
         .add_plugin(UiPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(SetupUiPlugin)
+        .add_plugin(PhysicsPlugin)
         .add_plugin(BasicConsoleCommandsPlugin {
             give_all_rcon: self.give_all_rcon,
         })

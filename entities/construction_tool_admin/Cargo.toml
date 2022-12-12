@@ -39,3 +39,4 @@ actions = { path = "../../core/actions", features = ["server"] }
 ui = { path = "../../core/ui", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
 math = { path = "../../core/math", features = ["server"] }
+physics = { path = "../../core/physics", features = ["server"] }

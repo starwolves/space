@@ -33,3 +33,4 @@ resources = { path = "../resources", features = ["server"] }
 math = { path = "../math", features = ["server"] }
 text_api = { path = "../text_api", features = ["server"] }
 player = { path = "../player", features = ["server"] }
+physics = { path = "../physics", features = ["server"] }

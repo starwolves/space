@@ -28,3 +28,4 @@ resources = { path = "../resources", features = ["server"] }
 inventory_api = { path = "../inventory_api", features = ["server"] }
 text_api = { path = "../text_api", features = ["server"] }
 pawn = { path = "../pawn", features = ["server"] }
+physics = { path = "../physics", features = ["server"] }

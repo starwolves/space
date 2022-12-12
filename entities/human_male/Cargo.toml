@@ -40,3 +40,4 @@ construction_tool_admin = { path = "../construction_tool_admin", features = [
     "server",
 ] }
 setup_ui = { path = "../../core/setup_ui", features = ["server"] }
+physics = { path = "../../core/physics", features = ["server"] }

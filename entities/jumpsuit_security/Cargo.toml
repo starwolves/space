@@ -26,3 +26,4 @@ inventory_item = { path = "../../core/inventory_item", features = ["server"] }
 inventory_api = { path = "../../core/inventory_api", features = ["server"] }
 combat = { path = "../../core/combat", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
+physics = { path = "../../core/physics", features = ["server"] }

@@ -19,8 +19,8 @@ use crate::{
     events::Cell,
     grid::{cell_id_to_world, CellData, GridmapData, GridmapDetails1, GridmapMain},
 };
-use entity::physics::CHARACTER_FLOOR_FRICTION;
-use entity::physics::{get_bit_masks, ColliderGroup};
+use physics::physics::CHARACTER_FLOOR_FRICTION;
+use physics::physics::{get_bit_masks, ColliderGroup};
 
 use super::fov::DoryenMap;
 /// Build gridmap floor and roof physics bodies.
