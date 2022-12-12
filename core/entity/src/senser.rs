@@ -26,7 +26,7 @@ impl Default for Senser {
     fn default() -> Self {
         Self {
             cell_id: Vec2Int { x: 0, y: 0 },
-            fov: FovRecursiveShadowCasting::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
+            fov: FovRecursiveShadowCasting::new(WORLD_WIDTH_CELLS, WORLD_WIDTH_CELLS),
             sensing: vec![],
             sfx: vec![],
             sensing_abilities: vec![],
@@ -40,13 +40,13 @@ impl Default for Senser {
 /// For bigger maps than 500x500 gridmaps we need a new and better FOV algorithm.
 /// Dividible by 2.
 #[cfg(feature = "server")]
-pub const FOV_MAP_WIDTH: usize = 500;
+pub const WORLD_WIDTH_CELLS: usize = 500;
 
 /// Use this to use the Doryen FOV algorithm.
 #[cfg(feature = "server")]
 pub fn to_doryen_coordinates(x: i16, y: i16) -> (usize, usize) {
-    let mut n_x = x + FOV_MAP_WIDTH as i16 / 2;
-    let mut n_y = y + FOV_MAP_WIDTH as i16 / 2;
+    let mut n_x = x + WORLD_WIDTH_CELLS as i16 / 2;
+    let mut n_y = y + WORLD_WIDTH_CELLS as i16 / 2;
 
     if doryen_coordinates_out_of_range(n_x as usize, n_y as usize) {
         n_x = 0;
@@ -58,5 +58,5 @@ pub fn to_doryen_coordinates(x: i16, y: i16) -> (usize, usize) {
 /// Check if supplied doryen coordinates are out of range as a function.
 #[cfg(feature = "server")]
 pub fn doryen_coordinates_out_of_range(x: usize, y: usize) -> bool {
-    x > FOV_MAP_WIDTH || y > FOV_MAP_WIDTH
+    x > WORLD_WIDTH_CELLS || y > WORLD_WIDTH_CELLS
 }

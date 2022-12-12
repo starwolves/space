@@ -25,7 +25,7 @@ pub(crate) fn initialize_setupui(
     mut server1: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut server2: EventWriter<OutgoingReliableServerMessage<SetupUiServerMessage>>,
     motd: Res<MOTD>,
-    mut datas: ResMut<SetupUiDatas>,
+    mut datas: ResMut<SetupUiUserDataSets>,
 ) {
     for connected_player_component in query.iter() {
         let suggested_name = get_full_name(true, true, &used_names);
@@ -39,7 +39,7 @@ pub(crate) fn initialize_setupui(
         });
         datas.list.insert(
             connected_player_component.handle,
-            SetupUiData {
+            SetupUiUserData {
                 character_name: suggested_name,
             },
         );
@@ -53,19 +53,19 @@ use bevy::prelude::ResMut;
 #[derive(Default, Resource)]
 #[cfg(feature = "server")]
 /// Each stored [SetupUiState] for the connected handles.
-pub struct SetupUiDatas {
-    pub list: HashMap<u64, SetupUiData>,
+pub struct SetupUiUserDataSets {
+    pub list: HashMap<u64, SetupUiUserData>,
 }
 
 #[cfg(feature = "server")]
-pub struct SetupUiData {
+pub struct SetupUiUserData {
     pub character_name: String,
 }
 
 #[cfg(feature = "server")]
 pub(crate) fn receive_input_character_name(
     mut server: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
-    mut datas: ResMut<SetupUiDatas>,
+    mut datas: ResMut<SetupUiUserDataSets>,
 ) {
     for message in server.iter() {
         match message.message.clone() {
@@ -91,7 +91,7 @@ pub(crate) fn ui_input_boarding(
     mut boarding_player_event: EventWriter<BoardingPlayer>,
     handle_to_entity: Res<HandleToEntity>,
     mut query: Query<&ConnectedPlayer>,
-    setupui_datas: Res<SetupUiDatas>,
+    setupui_datas: Res<SetupUiUserDataSets>,
 ) {
     for new_event in event.iter() {
         let player_entity = handle_to_entity

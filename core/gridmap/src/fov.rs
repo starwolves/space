@@ -5,7 +5,7 @@ use bevy::{
     prelude::{EventReader, Query, Res, ResMut, Resource, Transform},
 };
 use doryen_fov::{FovAlgorithm, MapData};
-use entity::senser::{to_doryen_coordinates, Senser, FOV_MAP_WIDTH};
+use entity::senser::{to_doryen_coordinates, Senser, WORLD_WIDTH_CELLS};
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 
 use crate::{
@@ -200,7 +200,7 @@ pub struct DoryenMap {
 impl Default for DoryenMap {
     fn default() -> Self {
         DoryenMap {
-            map: MapData::new(FOV_MAP_WIDTH, FOV_MAP_WIDTH),
+            map: MapData::new(WORLD_WIDTH_CELLS, WORLD_WIDTH_CELLS),
         }
     }
 }
@@ -219,10 +219,10 @@ pub(crate) fn senser_update_fov(
         };
 
         if senser_component.cell_id != senser_cell_id
-            && senser_cell_id.x < FOV_MAP_WIDTH as i16 / 2
-            && senser_cell_id.x > -(FOV_MAP_WIDTH as i16) / 2
-            && senser_cell_id.y < FOV_MAP_WIDTH as i16 / 2
-            && senser_cell_id.y > -(FOV_MAP_WIDTH as i16) / 2
+            && senser_cell_id.x < WORLD_WIDTH_CELLS as i16 / 2
+            && senser_cell_id.x > -(WORLD_WIDTH_CELLS as i16) / 2
+            && senser_cell_id.y < WORLD_WIDTH_CELLS as i16 / 2
+            && senser_cell_id.y > -(WORLD_WIDTH_CELLS as i16) / 2
         {
             senser_component.cell_id = senser_cell_id;
 

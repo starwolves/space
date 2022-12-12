@@ -1,14 +1,14 @@
 use crate::physics::RigidBodyDisabled;
 use bevy::prelude::{warn, Entity, Query, Transform, Without};
 use entity::entity_data::EntityData;
-use entity::senser::FOV_MAP_WIDTH;
+use entity::senser::WORLD_WIDTH_CELLS;
 
 /// Check if rigidbody is out of bounds if so teleport on the mirrored side.
 #[cfg(feature = "server")]
 pub(crate) fn out_of_bounds_tp(
     mut rigid_bodies: Query<(Entity, &EntityData, &mut Transform), (Without<RigidBodyDisabled>,)>,
 ) {
-    let max = FOV_MAP_WIDTH as f32 * 0.5 * 2.;
+    let max = WORLD_WIDTH_CELLS as f32 * 0.5 * 2.;
 
     for (rigid_body_entity, entity_data_component, mut rigid_body_position_component) in
         rigid_bodies.iter_mut()

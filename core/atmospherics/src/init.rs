@@ -1,5 +1,5 @@
 use bevy::prelude::{info, Res, ResMut};
-use entity::senser::FOV_MAP_WIDTH;
+use entity::senser::WORLD_WIDTH_CELLS;
 use gridmap::grid::{GridmapData, GridmapMain};
 use math::grid::{Vec2Int, Vec3Int};
 
@@ -14,8 +14,8 @@ pub(crate) fn startup_atmospherics(
     mut atmospherics: ResMut<AtmosphericsResource>,
     gridmap_main_data: Res<GridmapData>,
 ) {
-    let default_x = FOV_MAP_WIDTH as i16 / 2;
-    let default_z = FOV_MAP_WIDTH as i16 / 2;
+    let default_x = WORLD_WIDTH_CELLS as i16 / 2;
+    let default_z = WORLD_WIDTH_CELLS as i16 / 2;
 
     let mut current_cell_id = Vec2Int {
         x: -default_x - 1,
@@ -24,7 +24,7 @@ pub(crate) fn startup_atmospherics(
 
     let mut vacuum_cells: u32 = 0;
 
-    for _i in 0..FOV_MAP_WIDTH * FOV_MAP_WIDTH {
+    for _i in 0..WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS {
         current_cell_id.x += 1;
 
         if current_cell_id.x > default_x {
@@ -84,7 +84,8 @@ pub(crate) fn startup_atmospherics(
         }
     }
 
-    let internal_cells_count = (FOV_MAP_WIDTH * FOV_MAP_WIDTH - vacuum_cells as usize) as f32;
+    let internal_cells_count =
+        (WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS - vacuum_cells as usize) as f32;
 
     let internal_m3 = internal_cells_count / 2.;
 

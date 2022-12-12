@@ -3,7 +3,7 @@ use bevy::{
     math::Vec2,
     prelude::{Entity, EventReader, Query, Resource},
 };
-use entity::senser::FOV_MAP_WIDTH;
+use entity::senser::WORLD_WIDTH_CELLS;
 use math::grid::Vec2Int;
 
 use std::collections::HashMap;
@@ -18,10 +18,10 @@ pub(crate) fn map_input(
             Ok(mut map_component) => match event.input {
                 MapInput::Range(range_x) => {
                     map_component.view_range =
-                        range_x.clamp(0., (FOV_MAP_WIDTH / 2) as f32) as usize;
+                        range_x.clamp(0., (WORLD_WIDTH_CELLS / 2) as f32) as usize;
                 }
                 MapInput::Position(position) => {
-                    let width = FOV_MAP_WIDTH as f32 * 2. - 1.;
+                    let width = WORLD_WIDTH_CELLS as f32 * 2. - 1.;
                     map_component.camera_position =
                         position.clamp(Vec2::new(-width, -width), Vec2::new(width, width));
                 }

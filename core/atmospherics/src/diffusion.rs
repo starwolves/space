@@ -5,7 +5,7 @@ use bevy::{
     prelude::{warn, Entity, Res, ResMut, Resource},
     time::{FixedTimesteps, Time},
 };
-use entity::senser::FOV_MAP_WIDTH;
+use entity::senser::WORLD_WIDTH_CELLS;
 use math::grid::Vec2Int;
 
 use super::plugin::ATMOS_DIFFUSION_LABEL;
@@ -52,7 +52,7 @@ pub(crate) fn atmos_diffusion(
     // and when theres an unbalance in an unclosed space diffuse only inside of it until a new balance is reached.
     // This means we can simulate atmospherics of at least 250k active cells at once during a game session, it could probably hanle more too.
 
-    let default_x = FOV_MAP_WIDTH as i16 / 2;
+    let default_x = WORLD_WIDTH_CELLS as i16 / 2;
 
     let mut current_cell_id = Vec2Int {
         x: -default_x - 1,
@@ -62,7 +62,7 @@ pub(crate) fn atmos_diffusion(
     let vacuum_atmos = Atmospherics::default();
 
     // Takes about 1ms.
-    for _i in 0..FOV_MAP_WIDTH * FOV_MAP_WIDTH {
+    for _i in 0..WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS {
         current_cell_id.x += 1;
 
         if current_cell_id.x > default_x {
@@ -162,7 +162,7 @@ pub struct AtmosphericsResource {
 impl Default for AtmosphericsResource {
     fn default() -> Self {
         AtmosphericsResource {
-            atmospherics: vec![Atmospherics::default(); FOV_MAP_WIDTH * FOV_MAP_WIDTH],
+            atmospherics: vec![Atmospherics::default(); WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS],
         }
     }
 }
@@ -170,7 +170,7 @@ impl Default for AtmosphericsResource {
 impl AtmosphericsResource {
     /// Check if cell id is out of atmospherics range.
     pub fn is_id_out_of_range(id: Vec2Int) -> bool {
-        let half_width = FOV_MAP_WIDTH as i16 / 2;
+        let half_width = WORLD_WIDTH_CELLS as i16 / 2;
         let range = -half_width..half_width;
         let in_range = range.contains(&id.x) && range.contains(&id.y);
         !in_range
@@ -276,19 +276,19 @@ pub struct AtmosEffect {
 
 #[cfg(feature = "server")]
 pub fn get_atmos_index(id: Vec2Int) -> usize {
-    let idx: u32 = (id.x + (FOV_MAP_WIDTH / 2) as i16) as u32;
-    let idy: u32 = (id.y + (FOV_MAP_WIDTH / 2) as i16) as u32;
+    let idx: u32 = (id.x + (WORLD_WIDTH_CELLS / 2) as i16) as u32;
+    let idy: u32 = (id.y + (WORLD_WIDTH_CELLS / 2) as i16) as u32;
 
-    (idx + (idy * FOV_MAP_WIDTH as u32)) as usize
+    (idx + (idy * WORLD_WIDTH_CELLS as u32)) as usize
 }
 
 #[cfg(feature = "server")]
 pub fn get_atmos_id(i: usize) -> Vec2Int {
-    let y = (i as f32 / FOV_MAP_WIDTH as f32).floor() as usize;
-    let x = i - (y * FOV_MAP_WIDTH);
+    let y = (i as f32 / WORLD_WIDTH_CELLS as f32).floor() as usize;
+    let x = i - (y * WORLD_WIDTH_CELLS);
 
     Vec2Int {
-        x: x as i16 - (FOV_MAP_WIDTH as i16 / 2),
-        y: y as i16 - (FOV_MAP_WIDTH as i16 / 2),
+        x: x as i16 - (WORLD_WIDTH_CELLS as i16 / 2),
+        y: y as i16 - (WORLD_WIDTH_CELLS as i16 / 2),
     }
 }

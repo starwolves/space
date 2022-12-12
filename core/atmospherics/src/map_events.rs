@@ -4,7 +4,7 @@ use bevy::{
     math::Vec3,
     prelude::{Entity, Query, Res, ResMut},
 };
-use entity::senser::FOV_MAP_WIDTH;
+use entity::senser::WORLD_WIDTH_CELLS;
 use map::map::{
     get_overlay_tile_item, get_overlay_tile_priority, Map, MapHolderData, MapHolders, OverlayTile,
 };
@@ -128,21 +128,21 @@ pub(crate) fn atmospherics_map(
         let mut start_cam_x = camera_center_cell.x - map_component.view_range as i16;
         let mut start_cam_y = camera_center_cell.y - map_component.view_range as i16;
 
-        if start_cam_x < -(FOV_MAP_WIDTH as i16) / 2 {
-            start_cam_x = -(FOV_MAP_WIDTH as i16) / 2;
+        if start_cam_x < -(WORLD_WIDTH_CELLS as i16) / 2 {
+            start_cam_x = -(WORLD_WIDTH_CELLS as i16) / 2;
         }
-        if start_cam_y < -(FOV_MAP_WIDTH as i16) / 2 {
-            start_cam_y = -(FOV_MAP_WIDTH as i16) / 2;
+        if start_cam_y < -(WORLD_WIDTH_CELLS as i16) / 2 {
+            start_cam_y = -(WORLD_WIDTH_CELLS as i16) / 2;
         }
 
         let mut end_cam_x = camera_center_cell.x + map_component.view_range as i16;
         let mut end_cam_y = camera_center_cell.y + map_component.view_range as i16;
 
-        if end_cam_x > FOV_MAP_WIDTH as i16 / 2 {
-            end_cam_x = FOV_MAP_WIDTH as i16 / 2;
+        if end_cam_x > WORLD_WIDTH_CELLS as i16 / 2 {
+            end_cam_x = WORLD_WIDTH_CELLS as i16 / 2;
         }
-        if end_cam_y > FOV_MAP_WIDTH as i16 / 2 {
-            end_cam_y = FOV_MAP_WIDTH as i16 / 2;
+        if end_cam_y > WORLD_WIDTH_CELLS as i16 / 2 {
+            end_cam_y = WORLD_WIDTH_CELLS as i16 / 2;
         }
 
         let min_i = get_atmos_index(Vec2Int {
@@ -213,7 +213,7 @@ pub(crate) fn atmospherics_map(
 
             first_time = false;
 
-            if cell_i >= FOV_MAP_WIDTH * FOV_MAP_WIDTH || cell_i > max_i {
+            if cell_i >= WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS || cell_i > max_i {
                 cell_i = min_i;
             }
 
@@ -336,11 +336,11 @@ pub(crate) fn atmospherics_map(
         let mut prev_start_cam_y =
             map_holder_data.prev_camera_cell_id.y - map_holder_data.prev_camera_view_range as i16;
 
-        if prev_start_cam_x < -(FOV_MAP_WIDTH as i16) / 2 {
-            prev_start_cam_x = -(FOV_MAP_WIDTH as i16) / 2;
+        if prev_start_cam_x < -(WORLD_WIDTH_CELLS as i16) / 2 {
+            prev_start_cam_x = -(WORLD_WIDTH_CELLS as i16) / 2;
         }
-        if prev_start_cam_y < -(FOV_MAP_WIDTH as i16) / 2 {
-            prev_start_cam_y = -(FOV_MAP_WIDTH as i16) / 2;
+        if prev_start_cam_y < -(WORLD_WIDTH_CELLS as i16) / 2 {
+            prev_start_cam_y = -(WORLD_WIDTH_CELLS as i16) / 2;
         }
 
         let mut prev_end_cam_x =
@@ -348,11 +348,11 @@ pub(crate) fn atmospherics_map(
         let mut prev_end_cam_y =
             map_holder_data.prev_camera_cell_id.y + map_holder_data.prev_camera_view_range as i16;
 
-        if prev_end_cam_x > FOV_MAP_WIDTH as i16 / 2 {
-            prev_end_cam_x = FOV_MAP_WIDTH as i16 / 2;
+        if prev_end_cam_x > WORLD_WIDTH_CELLS as i16 / 2 {
+            prev_end_cam_x = WORLD_WIDTH_CELLS as i16 / 2;
         }
-        if prev_end_cam_y > FOV_MAP_WIDTH as i16 / 2 {
-            prev_end_cam_y = FOV_MAP_WIDTH as i16 / 2;
+        if prev_end_cam_y > WORLD_WIDTH_CELLS as i16 / 2 {
+            prev_end_cam_y = WORLD_WIDTH_CELLS as i16 / 2;
         }
 
         let mut prev_cell_is = vec![];
@@ -413,7 +413,7 @@ pub(crate) fn atmospherics_map(
 
         for i in difference {
             // If outside of FOV put tile color to none as client resets it too.
-            if i >= FOV_MAP_WIDTH * FOV_MAP_WIDTH {
+            if i >= WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS {
                 continue;
             }
             let atmos_data = map_holder_data.cache.get_mut(i).unwrap();

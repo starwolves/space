@@ -17,7 +17,7 @@ use entity::spawn::SpawnData;
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
-use setup_ui::core::SetupUiDatas;
+use setup_ui::core::SetupUiUserDataSets;
 
 use entity::spawn::SpawnEvent;
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
@@ -33,7 +33,7 @@ pub(crate) fn on_spawning(
     mut used_names: ResMut<UsedNames>,
     mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
     accounts: Res<Accounts>,
-    setup_ui_datas: Res<SetupUiDatas>,
+    setup_ui_datas: Res<SetupUiUserDataSets>,
 ) {
     use pawn::pawn::Pawn;
 
