@@ -1,4 +1,5 @@
 # Space Frontiers pre-alpha
+
 <img src="/data/project/sflogo.png?raw=true" data-canonical-src="/data/project/sflogo.png?raw=true" width="175" height="175"/>
 
 *"You gotta die for something." - STARWOLF*
@@ -24,19 +25,22 @@
 **There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
 
 ### Community
+
 Socials:
+
 * [Forum Board](https://starwolves.io)
 * [Discord](https://discord.gg/yYpMun9CTT)
 * [Matrix](https://matrix.to/#/#space-frontiers:comms.starwolves.io)
 
-#### Community description:
+#### Community description
+
 We are by no means ordinary and revolutionary would be a better word.
 There is community sovereignty, integrity, values and strong personalities together with honest beings and experienced leaders that operate in truth and good faith.
 
 **Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
 
-
 ### Features (All Moddable & Modular)
+
 * Decentralized gameplay, each community can host their own server. 👑
 * Parallelized Entity Component System architecture. 📡
 * Pure Rust. No garbage collection. Fast code execution. 🌟
@@ -61,42 +65,46 @@ There is community sovereignty, integrity, values and strong personalities toget
 * [Rust](https://www.rust-lang.org/)
 * [Bevy ECS dependencies](https://bevyengine.org/learn/book/getting-started/setup/#install-os-dependencies)
   
-
 ### Executing Space Frontiers
 
-  
-
 To compile and run Space Frontiers:
+
 * Select latest versioned branch (not master) from this repository and clone it.
 * In your terminal navigate to the project folder you have just obtained and run:
 
 To start the server run:
+
 ```
 cargo run --bin server
 ```
 
 To start the new client run:
+
 ```
 cargo run --bin client
 ```
 
 To run Space Frontiers at maximum performance you should add the following flag to the run command:
+
 ```
 --release
 ```
-Also note that the client and server crates have hardcoded CPU thread limit of 2, you can change the limits inside the crates.
+
+Also note that the client and server crates have hardcoded CPU thread limit, you can change the limits inside the crates.
 
 ### Prototype Godot Client
+
 You can obtain the feature-rich 0.0.3-snap7 prototype client on [Discord](https://discord.gg/yYpMun9CTT).
 Ensure your server has the right git branch with the same version as the obtained Godot client and not the master branch!
 
 The prototype client is built on top of a Godot 3.4 release.
 
 ### The new Bevy client
+
 Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are just getting started and it will be a while before it is of any use. The new Bevy client is integrated in the same repository.
 
+## Documentation
 
-## Documentation:
 The technical documentation of the most recent stable snap branch is found at [docs.sf.starwolves.io](https://docs.sf.starwolves.io).
 
 There is also a [(currently outdated) guide](https://guide.docs.sf.starwolves.io) available.
@@ -107,8 +115,8 @@ Generate documentation yourself for master (latest code and docs!!) or other ver
 cargo doc --no-deps --document-private-items --open
 ```
 
-
 ## Contributing
+
 This project is oriented towards long-term development, meaning it is here to stay and to be developed for some years to come.
 Feedback, bug reports, suggestions and critique are very much appreciated. [Gitlab](https://gitlab.starwolves.io/starwolves/space) issues and pull requests will be reviewed and considered.
 
@@ -118,13 +126,12 @@ The hopes are to financially reward and/or hire the most suitable people for the
 
 Contributors of this project have to agree to our [Collaberative License Agreement](https://gitlab.starwolves.io/starwolves/contributor-license-agreement). You may send your signed version to cla@starwolves.io so your associated [Gitlab](https://gitlab.starwolves.io/) account will get activated.
 
-
 ![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
 
 ## License
 
 The code of this repository is licensed under [the proprietary code license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE). The assets of this repository are licensed under the [the proprietary assets license](https://gitlab.starwolves.io/starwolves/space/-/blob/master/LICENSE_ASSETS). Both licenses we intend to support with value to authenticity and community freedoms without elements of modern day cancel culture 👑.
 
-### AGPLv3 & CC BY-SA 4.0 Milestone 
+### AGPLv3 & CC BY-SA 4.0 Milestone
 
 In the further future when a yet to be-decided amount of accounts have been sold: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International.

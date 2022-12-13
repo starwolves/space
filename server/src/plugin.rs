@@ -72,7 +72,7 @@ impl Default for ServerPlugin {
             bevy_rate: None,
             version: "0.0.0".to_string(),
             // Dev values.
-            threads_amount: Some(2),
+            threads_amount: Some(1),
             give_all_rcon: true,
         }
     }
