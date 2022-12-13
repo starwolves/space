@@ -6,11 +6,19 @@ use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::{
-    app::ScheduleRunnerSettings,
+    app::{ScheduleRunnerPlugin, ScheduleRunnerSettings},
     core::CorePlugin,
-    prelude::{App, IntoSystemDescriptor, Plugin, PluginGroup, TaskPoolOptions},
+    diagnostic::DiagnosticsPlugin,
+    log::LogPlugin,
+    prelude::{
+        App, AssetPlugin, HierarchyPlugin, ImagePlugin, IntoSystemDescriptor, Plugin,
+        TaskPoolOptions,
+    },
+    render::{settings::WgpuSettings, RenderPlugin},
+    scene::ScenePlugin,
+    time::TimePlugin,
+    transform::TransformPlugin,
     window::WindowPlugin,
-    DefaultPlugins,
 };
 use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use chat::plugin::ChatPlugin;
@@ -82,65 +90,75 @@ impl Plugin for ServerPlugin {
                 task_pool = TaskPoolOptions::default();
             }
         }
+        let mut wgpu_settings = WgpuSettings::default();
+        wgpu_settings.backends = None;
 
-        app.add_plugins(
-            DefaultPlugins
-                .set(CorePlugin {
-                    task_pool_options: task_pool,
-                    ..Default::default()
-                })
-                .set(WindowPlugin {
-                    add_primary_window: false,
-                    exit_on_all_closed: false,
-                    ..Default::default()
-                }),
-        )
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(ControllerPlugin {
-            custom_motd: self.custom_motd.clone(),
-        })
-        .add_plugin(AsanaPlugin)
-        .add_plugin(WorldEnvironmentPlugin)
-        .add_plugin(GridmapPlugin)
-        .add_plugin(ResourcesPlugin)
-        .add_plugin(PawnPlugin)
-        .add_plugin(HumanMalePlugin)
-        .add_plugin(SfxPlugin)
-        .add_plugin(EntityPlugin)
-        .add_plugin(AtmosphericsPlugin)
-        .add_plugin(ConsoleCommandsPlugin)
-        .add_plugin(ConstructionToolAdminPlugin)
-        .add_plugin(ActionsPlugin)
-        .add_plugin(MapPlugin)
-        .add_plugin(AirLocksPlugin)
-        .add_plugin(CounterWindowsPlugin)
-        .add_plugin(InventoryPlugin)
-        .add_plugin(NetworkingPlugin)
-        .add_plugin(HumanoidPlugin)
-        .add_plugin(ComputersPlugin)
-        .add_plugin(CombatPlugin)
-        .add_plugin(OmniLightPlugin)
-        .add_plugin(ReflectionProbePlugin)
-        .add_plugin(InventoryItemPlugin)
-        .add_plugin(JumpsuitsPlugin)
-        .add_plugin(HelmetsPlugin)
-        .add_plugin(PistolL1Plugin)
-        .add_plugin(LineArrowPlugin)
-        .add_plugin(PointArrowPlugin)
-        .add_plugin(SoundsPlugin)
-        .add_plugin(ChatPlugin)
-        .add_plugin(UiPlugin)
-        .add_plugin(PlayerPlugin)
-        .add_plugin(SetupUiPlugin)
-        .add_plugin(PhysicsPlugin)
-        .add_plugin(BasicConsoleCommandsPlugin {
-            give_all_rcon: self.give_all_rcon,
-        })
-        .add_startup_system(
-            server_is_live
-                .label(StartupLabels::ServerIsLive)
-                .after(StartupLabels::InitAtmospherics),
-        );
+        app.add_plugin(LogPlugin::default())
+            .add_plugin(CorePlugin {
+                task_pool_options: task_pool,
+                ..Default::default()
+            })
+            .add_plugin(AssetPlugin::default())
+            .insert_resource(wgpu_settings)
+            .add_plugin(WindowPlugin {
+                add_primary_window: false,
+                exit_on_all_closed: false,
+                ..Default::default()
+            })
+            .add_plugin(ScheduleRunnerPlugin::default())
+            .add_plugin(TimePlugin::default())
+            .add_plugin(TransformPlugin::default())
+            .add_plugin(HierarchyPlugin::default())
+            .add_plugin(DiagnosticsPlugin::default())
+            .add_plugin(ScenePlugin::default())
+            .add_plugin(RenderPlugin::default())
+            .add_plugin(ImagePlugin::default())
+            .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+            .add_plugin(ControllerPlugin {
+                custom_motd: self.custom_motd.clone(),
+            })
+            .add_plugin(AsanaPlugin)
+            .add_plugin(WorldEnvironmentPlugin)
+            .add_plugin(GridmapPlugin)
+            .add_plugin(ResourcesPlugin)
+            .add_plugin(PawnPlugin)
+            .add_plugin(HumanMalePlugin)
+            .add_plugin(SfxPlugin)
+            .add_plugin(EntityPlugin)
+            .add_plugin(AtmosphericsPlugin)
+            .add_plugin(ConsoleCommandsPlugin)
+            .add_plugin(ConstructionToolAdminPlugin)
+            .add_plugin(ActionsPlugin)
+            .add_plugin(MapPlugin)
+            .add_plugin(AirLocksPlugin)
+            .add_plugin(CounterWindowsPlugin)
+            .add_plugin(InventoryPlugin)
+            .add_plugin(NetworkingPlugin)
+            .add_plugin(HumanoidPlugin)
+            .add_plugin(ComputersPlugin)
+            .add_plugin(CombatPlugin)
+            .add_plugin(OmniLightPlugin)
+            .add_plugin(ReflectionProbePlugin)
+            .add_plugin(InventoryItemPlugin)
+            .add_plugin(JumpsuitsPlugin)
+            .add_plugin(HelmetsPlugin)
+            .add_plugin(PistolL1Plugin)
+            .add_plugin(LineArrowPlugin)
+            .add_plugin(PointArrowPlugin)
+            .add_plugin(SoundsPlugin)
+            .add_plugin(ChatPlugin)
+            .add_plugin(UiPlugin)
+            .add_plugin(PlayerPlugin)
+            .add_plugin(SetupUiPlugin)
+            .add_plugin(PhysicsPlugin)
+            .add_plugin(BasicConsoleCommandsPlugin {
+                give_all_rcon: self.give_all_rcon,
+            })
+            .add_startup_system(
+                server_is_live
+                    .label(StartupLabels::ServerIsLive)
+                    .after(StartupLabels::InitAtmospherics),
+            );
 
         let mut tick_rate = TickRate::default();
         if self.physics_rate.is_some() {
