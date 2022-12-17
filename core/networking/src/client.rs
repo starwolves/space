@@ -461,7 +461,7 @@ pub(crate) fn on_disconnect(
 ) {
     match client.disconnected() {
         Some(d) => {
-            warn!("Disconnected from server: {}", d);
+            warn!("Disconnected from server: [{}]", d);
             connected_state.status = ConnectionStatus::None;
             commands.remove_resource::<RenetClient>();
         }
