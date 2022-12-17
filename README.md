@@ -124,7 +124,7 @@ You can fund the project [here](https://github.com/sponsors/starwolfy/) and get 
 
 The hopes are to financially reward and/or hire the most suitable people for their contributions in the much further future.
 
-Contributors of this project have to agree to our [Collaberative License Agreement](https://gitlab.starwolves.io/starwolves/contributor-license-agreement). You may send your signed version to cla@starwolves.io so your associated [Gitlab](https://gitlab.starwolves.io/) account will get activated.
+Contributors of this project have to agree to our [Contributor License Agreement](https://gitlab.starwolves.io/starwolves/contributor-license-agreement). You may send your signed version to cla@starwolves.io so your associated [Gitlab](https://gitlab.starwolves.io/) account will get activated.
 
 ![Screenshot of Space Frontiers GUI project map and content editor](/data/project/sfeditorss.png?raw=true)
 
