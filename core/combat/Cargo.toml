@@ -26,9 +26,9 @@ networking = { path = "../networking", features = ["server"] }
 sounds = { path = "../../entities/sounds", features = ["server"] }
 gridmap = { path = "../gridmap", features = ["server"] }
 sfx = { path = "../sfx", features = ["server"] }
-inventory_item = { path = "../inventory_item", features = ["server"] }
 chat = { path = "../chat", features = ["server"] }
 entity = { path = "../entity", features = ["server"] }
 resources = { path = "../resources", features = ["server"] }
 math = { path = "../math", features = ["server"] }
 physics = { path = "../physics", features = ["server"] }
+inventory = { path = "../inventory", features = ["server"] }

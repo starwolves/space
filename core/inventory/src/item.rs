@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
+use crate::inventory::SlotType;
 use bevy::prelude::{Component, Entity, Transform};
-use inventory_api::core::SlotType;
 
 /// Humanoid animations for combat.
 #[cfg(feature = "server")]

@@ -22,8 +22,7 @@ default-features = false
 bevy_rapier3d = "0.19.0"
 
 entity = { path = "../../core/entity", features = ["server"] }
-inventory_item = { path = "../../core/inventory_item", features = ["server"] }
-inventory_api = { path = "../../core/inventory_api", features = ["server"] }
 combat = { path = "../../core/combat", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }
+inventory = { path = "../../core/inventory", features = ["server"] }

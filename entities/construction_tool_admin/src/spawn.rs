@@ -8,10 +8,10 @@ use entity::health::DamageFlag;
 use entity::spawn::{
     BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
 };
-use inventory_api::core::SlotType;
-use inventory_item::combat::{DamageModel, MeleeCombat};
-use inventory_item::item::InventoryItem;
-use inventory_item::spawn::{InventoryItemBundle, InventoryItemSummonable};
+use inventory::combat::{DamageModel, MeleeCombat};
+use inventory::inventory::SlotType;
+use inventory::item::InventoryItem;
+use inventory::spawn_item::{InventoryItemBundle, InventoryItemSummonable};
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
 use std::collections::BTreeMap;

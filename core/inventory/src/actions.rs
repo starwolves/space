@@ -1,7 +1,7 @@
+use crate::inventory::Inventory;
 use actions::core::BuildingActions;
 use bevy::prelude::{warn, Query, ResMut, Transform};
 use gridmap::grid::cell_id_to_world;
-use inventory_api::core::Inventory;
 use math::grid::Vec3Int;
 use pawn::pawn::REACH_DISTANCE;
 

@@ -6,16 +6,16 @@ use bevy::{
 };
 use entity::entity_data::{get_entity_update_difference, EntityUpdates};
 use entity::showcase::Showcase;
-use inventory_api::core::Inventory;
+use inventory::inventory::Inventory;
 use networking::server::EntityUpdateData;
 use pawn::pawn::FacingDirection;
 
-use inventory_item::{
+use inventory::{
     combat::{CombatAttackAnimation, MeleeCombat, ProjectileCombat},
     item::CombatStandardAnimation,
 };
 
-use inventory_item::item::InventoryItem;
+use inventory::item::InventoryItem;
 use pawn::pawn::Pawn;
 use vector2math::{FloatingVector2, Vector2};
 

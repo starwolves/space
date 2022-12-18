@@ -29,8 +29,6 @@ doryen_fov = { path = "../../core/doryen_fov" }
 pawn = { path = "../../core/pawn", features = ["server"] }
 combat = { path = "../../core/combat", features = ["server"] }
 atmospherics = { path = "../../core/atmospherics", features = ["server"] }
-inventory_item = { path = "../../core/inventory_item", features = ["server"] }
-inventory_api = { path = "../../core/inventory_api", features = ["server"] }
 sfx = { path = "../../core/sfx", features = ["server"] }
 sounds = { path = "../sounds", features = ["server"] }
 text_api = { path = "../../core/text_api", features = ["server"] }
@@ -39,3 +37,4 @@ ui = { path = "../../core/ui", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
 math = { path = "../../core/math", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }
+inventory = { path = "../../core/inventory", features = ["server"] }

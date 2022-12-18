@@ -4,7 +4,7 @@ use entity::examine::ExamineEntityMessages;
 use entity::health::HealthComponent;
 use entity::sensable::Sensable;
 use entity::senser::Senser;
-use inventory_api::core::Inventory;
+use inventory::inventory::Inventory;
 use pawn::pawn::Pawn;
 use text_api::core::FURTHER_NORMAL_FONT;
 

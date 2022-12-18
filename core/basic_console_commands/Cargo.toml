@@ -28,6 +28,4 @@ networking = { path = "../networking", features = ["server"] }
 entity = { path = "../entity", features = ["server"] }
 text_api = { path = "../text_api", features = ["server"] }
 resources = { path = "../resources", features = ["server"] }
-inventory_item = { path = "../inventory_item", features = ["server"] }
-inventory_api = { path = "../inventory_api", features = ["server"] }
 inventory = { path = "../inventory", features = ["server"] }

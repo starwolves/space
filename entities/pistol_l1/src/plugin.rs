@@ -12,7 +12,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{summon_base_entity, SpawnEvent},
 };
-use inventory_item::spawn::summon_inventory_item;
+use inventory::spawn_item::summon_inventory_item;
 use physics::spawn::summon_rigid_body;
 use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
 
