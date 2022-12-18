@@ -58,31 +58,25 @@ impl Plugin for InventoryPlugin {
                 .add_event::<InputTakeOffItem>()
                 .add_event::<InputUseWorldItem>()
                 .add_event::<InputWearItem>()
-                .add_event::<ThrownItem>();
+                .add_event::<ThrownItem>()
+                .add_system_set_to_stage(
+                    PostUpdate,
+                    SystemSet::new()
+                        .label(PostUpdateLabels::EntityUpdate)
+                        .with_system(inventory_item_update),
+                )
+                .add_startup_system(
+                    initialize_console_commands.before(ConsoleCommandsLabels::Finalize),
+                )
+                .add_system(
+                    build_actions
+                        .label(ActionsLabels::Build)
+                        .after(ActionsLabels::Init),
+                );
         }
 
         init_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
         init_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
-    }
-}
-pub struct InventoryItemPlugin;
-
-impl Plugin for InventoryItemPlugin {
-    fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
-            app.add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .label(PostUpdateLabels::EntityUpdate)
-                    .with_system(inventory_item_update),
-            )
-            .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
-            .add_system(
-                build_actions
-                    .label(ActionsLabels::Build)
-                    .after(ActionsLabels::Init),
-            );
-        }
     }
 }
 use networking::server::GodotVariant;
