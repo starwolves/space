@@ -14,8 +14,8 @@ use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
 use entity::showcase::Showcase;
 use entity::{examine::Examinable, health::DamageFlag};
 use gridmap::grid::GridmapMain;
-use inventory_api::core::Inventory;
-use inventory_item::{
+use inventory::inventory::Inventory;
+use inventory::{
     combat::{MeleeCombat, ProjectileCombat},
     item::{CombatStandardAnimation, InventoryItem},
 };

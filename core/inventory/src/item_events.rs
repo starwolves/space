@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use actions::core::{ActionRequests, BuildingActions};
 
+use crate::inventory::Inventory;
+use crate::item::InventoryItem;
 use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
     hierarchy::{Children, Parent},
@@ -27,16 +29,13 @@ use gridmap::{
     get_spawn_position::entity_spawn_position_for_player,
     grid::{GridmapData, GridmapMain},
 };
-use humanoid::humanoid::{CharacterAnimationState, Humanoid};
-use inventory_api::core::Inventory;
-use inventory_item::item::InventoryItem;
 use networking::server::EntityUpdateData;
 use rand::Rng;
 
 use entity::networking::{EntityServerMessage, EntityWorldType};
 use networking::server::HandleToEntity;
 use networking::server::OutgoingReliableServerMessage;
-use pawn::pawn::{Pawn, REACH_DISTANCE};
+use pawn::pawn::{FacingDirection, Pawn, REACH_DISTANCE};
 use physics::physics::{disable_rigidbody, enable_rigidbody, RigidBodyLinkTransform};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
@@ -640,8 +639,13 @@ pub(crate) fn take_off_item(
         }
     }
 }
-use controller::controller::ControllerInput;
 use networking::server::NetworkingChatServerMessage;
+
+/// Event when an inventory holding entity has just thrown an inventory item entity.
+pub struct ThrownItem {
+    pub direction: FacingDirection,
+    pub inventory_entity: Entity,
+}
 
 /// Perform throwing item action.
 #[cfg(feature = "server")]
@@ -653,8 +657,6 @@ pub(crate) fn throw_item(
         &mut Inventory,
         &Sensable,
         &mut Pawn,
-        &Humanoid,
-        &mut ControllerInput,
         Option<&ZeroGravity>,
         Entity,
     )>,
@@ -679,10 +681,11 @@ pub(crate) fn throw_item(
     gridmap_main: Res<GridmapMain>,
     handle_to_entity: Res<HandleToEntity>,
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
+    mut thrown_event: EventWriter<ThrownItem>,
 ) {
     for event in throw_item_events.iter() {
         let pickuper_components_option = inventory_entities.get_mut(event.entity);
-        let mut pickuper_components;
+        let pickuper_components;
 
         match pickuper_components_option {
             Ok(components) => {
@@ -791,14 +794,10 @@ pub(crate) fn throw_item(
                     &gridmap_main,
                 );
 
-                match pickuper_components.3.current_lower_animation_state {
-                    CharacterAnimationState::Idle => {
-                        if !pickuper_components.3.combat_mode {
-                            pickuper_components.4.pending_direction = Some(results.1);
-                        }
-                    }
-                    _ => (),
-                }
+                thrown_event.send(ThrownItem {
+                    direction: results.1,
+                    inventory_entity: event.entity,
+                });
 
                 new_pickupable_transform.translation = results.0.translation;
                 new_pickupable_transform.scale = results.0.scale;
@@ -823,7 +822,7 @@ pub(crate) fn throw_item(
 
         let thrower_vec3: Vec3;
 
-        match rigidbody_positions.get(pickuper_components.6) {
+        match rigidbody_positions.get(pickuper_components.4) {
             Ok(pos) => {
                 thrower_vec3 = pos.translation.into();
             }
@@ -862,9 +861,9 @@ pub(crate) fn throw_item(
             Err(_rr) => {}
         }
 
-        if pickuper_components.5.is_some() {
+        if pickuper_components.3.is_some() {
             // Thrower has zerogravity, apply inverse impulse energy.
-            match external_impulses.get_mut(pickuper_components.6) {
+            match external_impulses.get_mut(pickuper_components.4) {
                 Ok(mut s) => {
                     s.impulse = -impulse_absolute;
                 }

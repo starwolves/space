@@ -25,10 +25,7 @@ typename = "0.1.2"
 
 networking = { path = "../networking", features = ["server"] }
 sounds = { path = "../../entities/sounds", features = ["server"] }
-inventory_item = { path = "../inventory_item", features = ["server"] }
-inventory_api = { path = "../inventory_api", features = ["server"] }
 pawn = { path = "../pawn", features = ["server"] }
-humanoid = { path = "../humanoid", features = ["server"] }
 sfx = { path = "../sfx", features = ["server"] }
 gridmap = { path = "../gridmap", features = ["server"] }
 actions = { path = "../actions", features = ["server"] }
@@ -36,5 +33,6 @@ entity = { path = "../entity", features = ["server"] }
 resources = { path = "../resources", features = ["server"] }
 atmospherics = { path = "../atmospherics", features = ["server"] }
 math = { path = "../math", features = ["server"] }
-controller = { path = "../controller", features = ["server"] }
 physics = { path = "../physics", features = ["server"] }
+text_api = { path = "../text_api", features = ["server"] }
+console_commands = { path = "../console_commands", features = ["server"] }

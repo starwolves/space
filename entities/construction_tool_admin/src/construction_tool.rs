@@ -25,13 +25,13 @@ use gridmap::{
         GridmapDetails1, GridmapMain, RemoveCell,
     },
 };
-use inventory_api::core::Inventory;
+use inventory::inventory::Inventory;
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 use networking::server::{GridMapLayer, TextTreeBit};
 use physics::physics::RigidBodyDisabled;
 use text_api::core::FURTHER_ITALIC_FONT;
 
-use inventory_item::item::InventoryItem;
+use inventory::item::InventoryItem;
 use networking::server::NetworkingChatServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use pawn::pawn::Pawn;

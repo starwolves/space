@@ -22,7 +22,6 @@ controller = { path = "../core/controller", features = ["server"] }
 console_commands = { path = "../core/console_commands", features = ["server"] }
 gridmap = { path = "../core/gridmap", features = ["server"] }
 humanoid = { path = "../core/humanoid", features = ["server"] }
-inventory_item = { path = "../core/inventory_item", features = ["server"] }
 networking = { path = "../core/networking", features = ["server"] }
 actions = { path = "../core/actions", features = ["server"] }
 world_environment = { path = "../core/world_environment", features = [

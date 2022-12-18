@@ -16,7 +16,7 @@ use gridmap::{
     events::Cell,
     grid::{cell_id_to_world, GridmapData, GridmapMain},
 };
-use inventory_item::combat::ProjectileCombat;
+use inventory::combat::ProjectileCombat;
 use math::grid::Vec3Int;
 
 use crate::{

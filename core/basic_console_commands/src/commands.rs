@@ -258,7 +258,7 @@ pub struct RconSpawnHeldEntity {
     pub command_executor_handle_option: Option<u64>,
     pub command_executor_entity: Entity,
 }
-use inventory_item::spawn::spawn_held_entity;
+use inventory::spawn_item::spawn_held_entity;
 
 /// Function to spawn an entity in another entity's inventory through an RCON command.
 #[cfg(feature = "server")]
@@ -404,7 +404,7 @@ pub(crate) fn rcon_spawn_held_entity(
     }
 }
 
-use inventory_api::core::Inventory;
+use inventory::inventory::Inventory;
 
 /// Manage inventory item console commands.
 #[cfg(feature = "server")]

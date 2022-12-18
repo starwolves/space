@@ -25,8 +25,6 @@ bevy_renet = "0.0.6"
 networking = { path = "../networking", features = ["server"] }
 sounds = { path = "../../entities/sounds", features = ["server"] }
 pawn = { path = "../pawn", features = ["server"] }
-inventory_item = { path = "../inventory_item", features = ["server"] }
-inventory_api = { path = "../inventory_api", features = ["server"] }
 combat = { path = "../combat", features = ["server"] }
 sfx = { path = "../sfx", features = ["server"] }
 entity = { path = "../entity", features = ["server"] }
@@ -38,3 +36,4 @@ text_api = { path = "../text_api", features = ["server"] }
 controller = { path = "../controller", features = ["server"] }
 player = { path = "../player", features = ["server"] }
 physics = { path = "../physics", features = ["server"] }
+inventory = { path = "../inventory", features = ["server"] }

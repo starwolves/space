@@ -1,5 +1,5 @@
+use crate::inventory::Inventory;
 use bevy::prelude::{Entity, EventReader, Query, Res};
-use inventory_api::core::Inventory;
 use networking::server::HandleToEntity;
 use networking::server::OutgoingReliableServerMessage;
 

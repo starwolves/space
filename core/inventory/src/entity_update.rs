@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
+use crate::inventory::Inventory;
+use crate::item::InventoryItem;
 use bevy::prelude::{warn, Changed, Query};
 use entity::entity_data::{get_entity_update_difference, EntityData, EntityUpdates};
-use inventory_api::core::Inventory;
-use inventory_item::item::InventoryItem;
 use networking::server::EntityUpdateData;
 
 /// Attach items to slots or wear items with 3d models and textures for clients.

@@ -19,10 +19,10 @@ use humanoid::{
     humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME},
     user_name::get_dummy_name,
 };
-use inventory_api::core::{Inventory, Slot, SlotType};
-use inventory_item::{
+use inventory::inventory::{Inventory, Slot, SlotType};
+use inventory::{
     combat::{DamageModel, MeleeCombat},
-    spawn::spawn_held_entity,
+    spawn_item::spawn_held_entity,
 };
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;

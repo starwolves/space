@@ -1,6 +1,6 @@
 use bevy::prelude::{warn, Component, EventReader, EventWriter, Query, Res, Transform, Vec3};
 use gridmap::fov::ProjectileFOV;
-use inventory_item::combat::ProjectileCombat;
+use inventory::combat::ProjectileCombat;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult,
