@@ -26,7 +26,7 @@ pub(crate) fn visible_checker(
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
     for (
-        visible_entity_id,
+        visible_checker_entity_id,
         mut senser_component,
         visible_checker_rigid_body_position_component,
         visible_checker_component_option,
@@ -34,12 +34,12 @@ pub(crate) fn visible_checker(
     {
         let visible_checker_translation = visible_checker_rigid_body_position_component.translation;
 
-        for (visible_checker_entity_id, mut sensable_component, transform_component) in
+        for (visible_entity_id, mut sensable_component, visible_transform_component) in
             query_visible_entities.iter_mut()
         {
             let visible_entity_transform;
 
-            visible_entity_transform = transform_component;
+            visible_entity_transform = visible_transform_component;
 
             let distance =
                 visible_checker_translation.distance(visible_entity_transform.translation);
