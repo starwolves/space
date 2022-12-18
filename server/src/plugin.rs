@@ -33,7 +33,6 @@ use gridmap::plugin::GridmapPlugin;
 use helmet_security::plugin::HelmetsPlugin;
 use human_male::plugin::HumanMalePlugin;
 use humanoid::plugin::HumanoidPlugin;
-use inventory::plugin::InventoryItemPlugin;
 use inventory::plugin::InventoryPlugin;
 use jumpsuit_security::plugin::JumpsuitsPlugin;
 use line_arrow::plugin::{LineArrowPlugin, PointArrowPlugin};
@@ -139,7 +138,6 @@ impl Plugin for ServerPlugin {
             .add_plugin(CombatPlugin)
             .add_plugin(OmniLightPlugin)
             .add_plugin(ReflectionProbePlugin)
-            .add_plugin(InventoryItemPlugin)
             .add_plugin(JumpsuitsPlugin)
             .add_plugin(HelmetsPlugin)
             .add_plugin(PistolL1Plugin)
