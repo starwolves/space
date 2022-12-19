@@ -1,7 +1,8 @@
-use std::env;
-
 use bevy::time::FixedTimestep;
-use resources::labels::{ActionsLabels, MapLabels, StartupLabels, UpdateLabels};
+use resources::{
+    is_server::is_server,
+    labels::{ActionsLabels, MapLabels, StartupLabels, UpdateLabels},
+};
 
 use crate::diffusion::AtmosphericsResource;
 use crate::examine_events::examine_map_atmos;
@@ -27,7 +28,7 @@ pub struct AtmosphericsPlugin;
 
 impl Plugin for AtmosphericsPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.init_resource::<AtmosphericsResource>()
                 .add_system(atmospherics_map_hover.after(MapLabels::ChangeMode))
                 .add_system(atmospherics_sensing_ability)

@@ -1,7 +1,5 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use resources::labels::SummoningLabels;
+use resources::{is_server::is_server, labels::SummoningLabels};
 
 use crate::commands::{
     inventory_item_console_commands, rcon_console_commands, rcon_entity_console_commands,
@@ -15,7 +13,7 @@ pub struct BasicConsoleCommandsPlugin {
 
 impl Plugin for BasicConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(rcon_entity_console_commands.after(SummoningLabels::DefaultSummon))
                 .add_system(
                     inventory_item_console_commands

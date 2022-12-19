@@ -1,9 +1,10 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use networking::messaging::{init_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
-use resources::labels::{StartupLabels, SummoningLabels};
+use resources::{
+    is_server::is_server,
+    labels::{StartupLabels, SummoningLabels},
+};
 
 use crate::{
     commands::{AllConsoleCommands, ConsoleCommandsLabels, InputConsoleCommand},
@@ -18,7 +19,7 @@ pub struct ConsoleCommandsPlugin;
 
 impl Plugin for ConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.init_resource::<AllConsoleCommands>()
                 .add_startup_system(
                     initialize_console_commands

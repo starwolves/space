@@ -22,3 +22,4 @@ default-features = false
 rand = "0.8.5"
 
 sfx = { path = "../../core/sfx", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }

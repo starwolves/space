@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::{
     math::Quat,
     prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet, Transform},
@@ -12,8 +10,9 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use physics::spawn::summon_rigid_body;
-use resources::labels::{
-    ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
+use resources::{
+    is_server::is_server,
+    labels::{ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels},
 };
 
 use crate::{
@@ -45,7 +44,7 @@ pub struct CounterWindowsPlugin;
 
 impl Plugin for CounterWindowsPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_event::<CounterWindowSensorCollision>()
                 .add_system(counter_window_tick_timers)
                 .add_system(counter_window_events)

@@ -1,9 +1,10 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use player::names::UsedNames;
-use resources::labels::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLabels};
+use resources::{
+    is_server::is_server,
+    labels::{ActionsLabels, CombatLabels, PostUpdateLabels, UpdateLabels},
+};
 
 use crate::{
     entity_update::humanoid_core_entity_updates,
@@ -18,7 +19,7 @@ pub struct HumanoidPlugin;
 
 impl Plugin for HumanoidPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(
                 humanoid_core
                     .label(UpdateLabels::StandardCharacters)

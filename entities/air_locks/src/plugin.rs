@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemLabel, SystemSet, Transform};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::meta::GridItemData;
@@ -9,6 +7,7 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use physics::spawn::summon_rigid_body;
+use resources::is_server::is_server;
 use resources::labels::{
     ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
 };
@@ -46,7 +45,7 @@ pub struct AirLocksPlugin;
 
 impl Plugin for AirLocksPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_event::<AirLockCollision>()
                 .add_event::<InputAirLockToggleOpen>()
                 .add_event::<AirLockLockOpen>()

@@ -1,8 +1,7 @@
-use std::env;
-
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use entity::spawn::SpawnEvent;
+use resources::is_server::is_server;
 use resources::labels::{PostUpdateLabels, SummoningLabels};
 
 use super::entity_update::reflection_probe_update;
@@ -12,7 +11,7 @@ pub struct ReflectionProbePlugin;
 
 impl Plugin for ReflectionProbePlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()

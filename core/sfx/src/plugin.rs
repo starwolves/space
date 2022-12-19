@@ -1,12 +1,10 @@
-use std::env;
-
 use bevy::{
     prelude::{App, Plugin, SystemSet},
     time::FixedTimestep,
 };
 use entity::entity_data::INTERPOLATION_LABEL1;
 use networking::messaging::{init_reliable_message, MessageSender};
-use resources::labels::PostUpdateLabels;
+use resources::{is_server::is_server, labels::PostUpdateLabels};
 
 use crate::{entity_update::SfxAutoDestroyTimers, networking::SfxServerMessage, timers::free_sfx};
 
@@ -20,7 +18,7 @@ pub struct SfxPlugin;
 
 impl Plugin for SfxPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system_set(
                 SystemSet::new()
                     .with_run_criteria(

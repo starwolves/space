@@ -1,9 +1,7 @@
-use std::env;
-
 use crate::networking::{ActionsClientMessage, ActionsServerMessage};
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use networking::messaging::{init_reliable_message, MessageSender};
-use resources::labels::ActionsLabels;
+use resources::{is_server::is_server, labels::ActionsLabels};
 
 use crate::{
     core::{
@@ -19,7 +17,7 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(init_action_data_listing.label(ActionsLabels::Init))
                 .add_system(
                     list_action_data_from_actions_component

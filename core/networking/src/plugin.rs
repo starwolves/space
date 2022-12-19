@@ -1,8 +1,7 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use bevy_renet::{RenetClientPlugin, RenetServerPlugin};
 use iyes_loopless::prelude::IntoConditionalSystem;
+use resources::is_server::is_server;
 
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
@@ -28,7 +27,7 @@ pub struct NetworkingPlugin;
 
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_plugin(RenetServerPlugin::default())
                 .insert_resource(startup_server_listen_connections())
                 .add_system(souls)

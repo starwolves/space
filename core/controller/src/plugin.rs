@@ -1,5 +1,3 @@
-use std::env;
-
 use crate::connections::{configure, connections};
 use crate::input::{
     InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
@@ -18,6 +16,7 @@ use bevy::{
 use networking::messaging::{init_reliable_message, init_unreliable_message, MessageSender};
 use player::boarding::BoardingPlayer;
 use player::plugin::ConfigurationLabel;
+use resources::is_server::is_server;
 use resources::labels::UpdateLabels;
 
 use super::{
@@ -34,7 +33,7 @@ pub struct ControllerPlugin {
 
 impl Plugin for ControllerPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(
                 apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput),
             )

@@ -1,9 +1,7 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use networking::messaging::{init_reliable_message, init_unreliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
-use resources::labels::MapLabels;
+use resources::{is_server::is_server, labels::MapLabels};
 
 use crate::{
     connections::configure,
@@ -23,7 +21,7 @@ pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.init_resource::<MapData>()
                 .add_system(change_map_overlay.label(MapLabels::ChangeMode))
                 .add_system(request_map_overlay)

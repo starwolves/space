@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use entity::{
     entity_data::initialize_entity_data,
@@ -9,7 +7,10 @@ use entity::{
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
 use physics::spawn::summon_rigid_body;
-use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
+use resources::{
+    is_server::is_server,
+    labels::{CombatLabels, StartupLabels, SummoningLabels},
+};
 
 use crate::{
     boarding::on_spawning,
@@ -22,7 +23,7 @@ pub struct HumanMalePlugin;
 
 impl Plugin for HumanMalePlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
                     summon_human_male::<HumanMaleSummoner>

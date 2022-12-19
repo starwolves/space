@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
@@ -8,7 +6,10 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use networking::server::GodotVariant;
-use resources::labels::{StartupLabels, SummoningLabels};
+use resources::{
+    is_server::is_server,
+    labels::{StartupLabels, SummoningLabels},
+};
 
 use crate::console_command::entity_console_commands;
 
@@ -21,7 +22,7 @@ pub struct LineArrowPlugin;
 
 impl Plugin for LineArrowPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_startup_system(
                 initialize_console_commands
                     .before(ConsoleCommandsLabels::Finalize)

@@ -1,7 +1,6 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use entity::spawn::SpawnEvent;
+use resources::is_server::is_server;
 use resources::labels::{PostUpdateLabels, SummoningLabels};
 
 use super::entity_update::omni_light_update;
@@ -11,7 +10,7 @@ pub struct OmniLightPlugin;
 
 impl Plugin for OmniLightPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system_set_to_stage(
                 PostUpdate,
                 SystemSet::new()

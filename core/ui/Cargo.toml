@@ -21,6 +21,7 @@ bevy_egui = { version = "0.18.0", default-features = false, features = [
     "manage_clipboard",
 ] }
 networking = { path = "../networking", features = ["server"] }
+resources = { path = "../resources", features = ["server"] }
 
 [dependencies.bevy]
 version = "0.9.1"
