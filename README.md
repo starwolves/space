@@ -20,9 +20,11 @@
 
 *Space frontiers seeks to deliver an experience that offers very high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
-**The repository of the the sci-fi community game Space Frontiers, written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The prototype client is made with Godot. The new client is being built with Bevy.**
-
 **There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
+
+### Technology
+
+The repository contains both the server and client. Both are entirely written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Space Frontiers is designed from the ground up to support modern CPUs to efficiently take advantage of a any amount of available threads without increasing code complexity or data races. The old prototype client is made with Godot 3.
 
 ### Community
 
@@ -34,7 +36,7 @@ Socials:
 
 #### Community description
 
-We are by no means ordinary and revolutionary would be a better word.
+We are not ordinary, revolutionary would be a better word.
 There is community sovereignty, integrity, values and strong personalities together with honest beings and experienced leaders that operate in truth and good faith.
 
 **Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
@@ -74,23 +76,21 @@ To compile and run Space Frontiers:
 
 To start the server run:
 
-```
+```bash
 cargo run --bin server
 ```
 
 To start the new client run:
 
-```
+```bash
 cargo run --bin client
 ```
 
 To run Space Frontiers at maximum performance you should add the following flag to the run command:
 
-```
+```bash
 --release
 ```
-
-Also note that the client and server crates have hardcoded CPU thread limit, you can change the limits inside the crates.
 
 ### Prototype Godot Client
 
@@ -111,7 +111,7 @@ There is also a [(currently outdated) guide](https://guide.docs.sf.starwolves.io
 
 Generate documentation yourself for master (latest code and docs!!) or other versions:
 
-```
+```bash
 cargo doc --no-deps --document-private-items --open
 ```
 
