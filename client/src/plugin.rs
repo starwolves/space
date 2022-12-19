@@ -35,7 +35,7 @@ impl Default for ClientPlugin {
     fn default() -> Self {
         Self {
             version: "0.0.0".to_string(),
-            threads_amount: Some(1),
+            threads_amount: None,
         }
     }
 }
