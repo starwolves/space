@@ -29,6 +29,7 @@ const AMOUNT_DIFFUSIVITY: f32 = 1.;
 pub const DIFFUSION_STEP: f64 = 28.;
 
 /// Diffuse atmospherics.
+/// This system takes 5ms. Needs optimization.
 #[cfg(feature = "server")]
 pub(crate) fn atmos_diffusion(
     time: Res<Time>,
@@ -61,7 +62,6 @@ pub(crate) fn atmos_diffusion(
 
     let vacuum_atmos = Atmospherics::default();
 
-    // Takes about 1ms.
     for _i in 0..WORLD_WIDTH_CELLS * WORLD_WIDTH_CELLS {
         current_cell_id.x += 1;
 
