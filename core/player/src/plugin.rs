@@ -1,5 +1,3 @@
-use std::env;
-
 use crate::account::{account_verification, Accounts};
 use crate::boarding::SpawnPoints;
 use crate::configuration::{
@@ -16,6 +14,7 @@ use networking::{
     messaging::{init_reliable_message, MessageSender},
     server::HandleToEntity,
 };
+use resources::is_server::is_server;
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -28,7 +27,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_event::<SendServerConfiguration>()
                 .init_resource::<HandleToEntity>()
                 .add_system(done_boarding)

@@ -1,9 +1,10 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use console_commands::commands::ConsoleCommandsLabels;
 use networking::messaging::{init_reliable_message, MessageSender};
-use resources::labels::{ActionsLabels, PostUpdateLabels, UpdateLabels};
+use resources::{
+    is_server::is_server,
+    labels::{ActionsLabels, PostUpdateLabels, UpdateLabels},
+};
 
 use crate::{
     actions::pickup_prerequisite_check,
@@ -28,7 +29,7 @@ pub struct InventoryPlugin;
 
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(pickup_world_item)
                 .add_system(switch_hands)
                 .add_system(wear_item)

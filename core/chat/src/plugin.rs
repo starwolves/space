@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use networking::messaging::{init_reliable_message, MessageSender};
 
@@ -11,12 +9,12 @@ use crate::{
     networking::{incoming_messages, ChatClientMessage},
 };
 use bevy::app::CoreStage::PreUpdate;
-
+use resources::is_server::is_server;
 pub struct ChatPlugin;
 
 impl Plugin for ChatPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_event::<EntityProximityMessage>()
                 .add_system(send_entity_proximity_messages.label(EntityProximityMessages::Send))
                 .add_system_to_stage(PreUpdate, incoming_messages)

@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
@@ -8,7 +6,10 @@ use entity::{
     spawn::{summon_base_entity, SpawnEvent},
 };
 use physics::spawn::summon_rigid_body;
-use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
+use resources::{
+    is_server::is_server,
+    labels::{CombatLabels, StartupLabels, SummoningLabels},
+};
 
 use crate::computer::Computer;
 
@@ -24,7 +25,7 @@ pub struct ComputersPlugin;
 
 impl Plugin for ComputersPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(computer_added)
                 .add_event::<SpawnEvent<ComputerSummoner>>()
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))

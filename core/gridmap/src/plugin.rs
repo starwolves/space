@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::{
     prelude::{App, IntoSystemDescriptor, Plugin, SystemSet},
     time::FixedTimestep,
@@ -7,8 +5,9 @@ use bevy::{
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
 use networking::messaging::{init_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
-use resources::labels::{
-    ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels,
+use resources::{
+    is_server::is_server,
+    labels::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels},
 };
 
 use crate::{
@@ -52,7 +51,7 @@ pub struct GridmapPlugin;
 
 impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.init_resource::<GridmapDetails1>()
                 .init_resource::<GridmapData>()
                 .init_resource::<DoryenMap>()

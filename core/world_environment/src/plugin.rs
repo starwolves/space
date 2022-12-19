@@ -1,6 +1,5 @@
-use std::env;
-
 use bevy::prelude::{App, Plugin};
+use resources::is_server::is_server;
 
 use crate::environment::{startup_environment, WorldEnvironment};
 
@@ -8,7 +7,7 @@ pub struct WorldEnvironmentPlugin;
 
 impl Plugin for WorldEnvironmentPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.init_resource::<WorldEnvironment>()
                 .add_startup_system(startup_environment);
         }

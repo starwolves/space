@@ -21,3 +21,4 @@ default-features = false
 [dependencies]
 chat = { path = "../../core/chat", features = ["server"] }
 player = { path = "../../core/player", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }

@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::{
     laser_visuals::projectile_laser_visuals,
@@ -14,7 +12,10 @@ use entity::{
 };
 use inventory::spawn_item::summon_inventory_item;
 use physics::spawn::summon_rigid_body;
-use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
+use resources::{
+    is_server::is_server,
+    labels::{CombatLabels, StartupLabels, SummoningLabels},
+};
 
 use crate::pistol_l1::{PistolL1, PISTOL_L1_ENTITY_NAME};
 
@@ -26,7 +27,7 @@ pub struct PistolL1Plugin;
 
 impl Plugin for PistolL1Plugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
                     (summon_base_entity::<PistolL1Summoner>).after(SummoningLabels::TriggerSummon),

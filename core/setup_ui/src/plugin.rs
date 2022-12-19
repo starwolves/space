@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use controller::networking::InputUIInput;
 use iyes_loopless::prelude::IntoConditionalSystem;
@@ -8,7 +6,7 @@ use networking::{
     messaging::{init_reliable_message, MessageSender},
 };
 use player::plugin::ConfigurationLabel;
-use resources::labels::SummoningLabels;
+use resources::{is_server::is_server, labels::SummoningLabels};
 
 use crate::core::{
     client_setup_ui, configure, initialize_setupui, new_clients_enable_setupui,
@@ -19,7 +17,7 @@ pub struct SetupUiPlugin;
 
 impl Plugin for SetupUiPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(ui_input_boarding)
                 .add_system(initialize_setupui.label(SummoningLabels::TriggerSummon))
                 .add_event::<InputUIInput>()

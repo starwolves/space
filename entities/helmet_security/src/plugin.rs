@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::{
     melee_queries::melee_attack_handler,
@@ -12,7 +10,10 @@ use entity::{
 };
 use inventory::spawn_item::summon_inventory_item;
 use physics::spawn::summon_rigid_body;
-use resources::labels::{CombatLabels, StartupLabels, SummoningLabels};
+use resources::{
+    is_server::is_server,
+    labels::{CombatLabels, StartupLabels, SummoningLabels},
+};
 
 use crate::helmet::{Helmet, HELMET_SECURITY_ENTITY_NAME};
 
@@ -24,7 +25,7 @@ pub struct HelmetsPlugin;
 
 impl Plugin for HelmetsPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(summon_helmet::<HelmetSummoner>.after(SummoningLabels::TriggerSummon))
                 .add_system(

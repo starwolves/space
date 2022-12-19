@@ -1,6 +1,5 @@
-use std::env;
-
 use bevy::prelude::{App, ClearColor, IntoSystemDescriptor, Plugin, SystemLabel};
+use resources::is_server::is_server;
 
 use crate::{
     build::{
@@ -22,7 +21,7 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") == false {
+        if is_server() == false {
             app.add_system(show_main_menu.label(MainMenuLabel::BuildMainMenu))
                 .add_system(hide_main_menu)
                 .add_event::<EnableMainMenu>()

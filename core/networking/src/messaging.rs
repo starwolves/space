@@ -74,7 +74,6 @@ pub enum MessageSender {
 use crate::client::is_client_connected;
 use bevy::app::CoreStage::PreUpdate;
 use iyes_loopless::prelude::IntoConditionalSystem;
-use std::env;
 /// All reliable networking messages must be registered with this system.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn init_reliable_message<
@@ -112,11 +111,11 @@ pub fn init_reliable_message<
         }
     }
 
-    if server_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+    if server_is_sender && is_server() {
         app.add_event::<OutgoingReliableServerMessage<T>>()
             .add_system_to_stage(PostUpdate, send_outgoing_reliable_server_messages::<T>);
     }
-    if server_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("client") {
+    if server_is_sender && !is_server() {
         app.add_event::<IncomingReliableServerMessage<T>>()
             .add_system_to_stage(
                 PreUpdate,
@@ -125,14 +124,14 @@ pub fn init_reliable_message<
             );
     }
 
-    if client_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("client") {
+    if client_is_sender && !is_server() {
         app.add_event::<OutgoingReliableClientMessage<T>>()
             .add_system_to_stage(
                 PostUpdate,
                 send_outgoing_reliable_client_messages::<T>.run_if(is_client_connected),
             );
     }
-    if client_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+    if client_is_sender && is_server() {
         app.add_event::<IncomingReliableClientMessage<T>>()
             .add_system_to_stage(
                 PreUpdate,
@@ -141,6 +140,8 @@ pub fn init_reliable_message<
             );
     }
 }
+use resources::is_server::is_server;
+
 #[cfg(any(feature = "server", feature = "client"))]
 /// All unreliable networking messages must be registered with this system.
 pub fn init_unreliable_message<
@@ -178,11 +179,11 @@ pub fn init_unreliable_message<
             server_is_sender = true;
         }
     }
-    if server_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+    if server_is_sender && is_server() {
         app.add_event::<OutgoingUnreliableServerMessage<T>>()
             .add_system_to_stage(PostUpdate, send_outgoing_unreliable_server_messages::<T>);
     }
-    if server_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("client") {
+    if server_is_sender && !is_server() {
         app.add_event::<IncomingUnreliableServerMessage<T>>()
             .add_system_to_stage(
                 PreUpdate,
@@ -190,14 +191,14 @@ pub fn init_unreliable_message<
                     .after(TypenamesLabel::SendRawEvents),
             );
     }
-    if client_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("client") {
+    if client_is_sender && !is_server() {
         app.add_event::<OutgoingUnreliableClientMessage<T>>()
             .add_system_to_stage(
                 PostUpdate,
                 send_outgoing_unreliable_client_messages::<T>.run_if(is_client_connected),
             );
     }
-    if client_is_sender && env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+    if client_is_sender && is_server() {
         app.add_event::<IncomingUnreliableClientMessage<T>>()
             .add_system_to_stage(
                 PreUpdate,

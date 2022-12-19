@@ -1,5 +1,3 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
@@ -8,6 +6,7 @@ use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{summon_base_entity, SpawnEvent};
 use inventory::spawn_item::summon_inventory_item;
 use physics::spawn::summon_rigid_body;
+use resources::is_server::is_server;
 use resources::labels::{
     ActionsLabels, CombatLabels, StartupLabels, SummoningLabels, UpdateLabels,
 };
@@ -36,7 +35,7 @@ pub struct ConstructionToolAdminPlugin;
 
 impl Plugin for ConstructionToolAdminPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_event::<InputConstruct>()
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()

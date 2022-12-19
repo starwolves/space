@@ -1,8 +1,7 @@
-use std::env;
-
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
 use networking::messaging::{init_reliable_message, MessageSender};
+use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
 use crate::despawn::{despawn_entity, DespawnEntity};
@@ -27,7 +26,7 @@ use bevy::app::CoreStage::PreUpdate;
 pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.init_resource::<EntityDataResource>()
                 .add_event::<RawSpawnEvent>()
                 .add_event::<DefaultSpawnEvent>()

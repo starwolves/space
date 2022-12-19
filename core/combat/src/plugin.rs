@@ -1,8 +1,7 @@
-use std::env;
-
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use chat::chat::EntityProximityMessages;
+use resources::is_server::is_server;
 use resources::labels::{CombatLabels, PostUpdateLabels};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
@@ -23,7 +22,7 @@ pub struct CombatPlugin;
 
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut App) {
-        if env::var("CARGO_MANIFEST_DIR").unwrap().ends_with("server") {
+        if is_server() {
             app.add_system(
                 melee_direct
                     .after(CombatLabels::WeaponHandler)
