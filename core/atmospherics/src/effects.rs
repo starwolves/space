@@ -12,6 +12,7 @@ use super::plugin::ATMOS_DIFFUSION_LABEL;
 const ATMOS_EFFECT_SPEED: f32 = 0.01;
 
 /// Apply atmospherics effects to tiles in [AtmosphericsResource].
+/// This system takes 5ms. Needs optimization.
 #[cfg(feature = "server")]
 pub(crate) fn atmos_effects(
     time: Res<Time>,
