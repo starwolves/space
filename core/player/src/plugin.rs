@@ -43,13 +43,13 @@ impl Plugin for PlayerPlugin {
                 .add_event::<InputUIInputTransmitText>()
                 .add_system(finished_configuration.after(ConfigurationLabel::Main))
                 .add_system(server_events.before(ConfigurationLabel::SpawnEntity))
-                .init_resource::<SpawnPoints>()
                 .add_system(account_verification)
                 .init_resource::<Accounts>();
         } else {
             app.add_system(client_receive_pawnid)
                 .init_resource::<PawnEntityId>();
         }
+        app.init_resource::<SpawnPoints>();
         init_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);
     }
 }

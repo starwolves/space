@@ -28,7 +28,6 @@ impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.init_resource::<EntityDataResource>()
-                .add_event::<RawSpawnEvent>()
                 .add_event::<DefaultSpawnEvent>()
                 .add_system_set(
                     SystemSet::new()
@@ -78,6 +77,7 @@ impl Plugin for EntityPlugin {
                 .add_event::<DespawnEntity>()
                 .add_event::<LoadEntity>();
         }
+        app.add_event::<RawSpawnEvent>();
 
         init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         init_reliable_message::<EntityClientMessage>(app, MessageSender::Client);

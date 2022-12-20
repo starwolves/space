@@ -33,3 +33,4 @@ inventory = { path = "../core/inventory", features = ["client"] }
 map = { path = "../core/map", features = ["client"] }
 pawn = { path = "../core/pawn", features = ["client"] }
 sfx = { path = "../core/sfx", features = ["client"] }
+physics = { path = "../core/physics", features = ["client"] }

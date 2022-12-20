@@ -1,4 +1,5 @@
 use bevy::prelude::{App, CoreStage, Plugin};
+use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use resources::is_server::is_server;
 
 use crate::{
@@ -15,5 +16,6 @@ impl Plugin for PhysicsPlugin {
                 .add_system(rigidbody_link_transform)
                 .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms);
         }
+        app.add_plugin(RapierPhysicsPlugin::<NoUserData>::default());
     }
 }

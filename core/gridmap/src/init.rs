@@ -6,12 +6,12 @@ use bevy_rapier3d::{
     prelude::{CoefficientCombineRule, Collider},
 };
 use entity::{
-    entity_data::{load_raw_map_entities, RawSpawnEvent, Server},
+    entity_data::{load_raw_map_entities, RawSpawnEvent},
     examine::RichName,
 };
 use math::grid::Vec3Int;
 use resources::converters::string_vec3_to_vec3;
-use resources::core::{ServerId, TickRate};
+use resources::core::TickRate;
 use text_api::core::EXAMINATION_EMPTY;
 
 use crate::{
@@ -26,15 +26,15 @@ use crate::{
 };
 
 /// Physics friction on placeable item surfaces.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub const PLACEABLE_SURFACE_FRICTION: f32 = 0.2;
 /// Physics coefficient combiner of placeable item surfaces.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
 /// Initiate map resource meta-data.
-#[cfg(feature = "server")]
-pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
+#[cfg(any(feature = "server", feature = "client"))]
+pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<GridmapData>) {
     gridmap_data.blackcell_blocking_id = *gridmap_data
         .main_name_id_map
         .get("blackCellBlocking")
@@ -767,14 +767,12 @@ pub(crate) fn startup_map_cells(mut gridmap_data: ResMut<GridmapData>) {
 use player::spawn_points::SpawnPointRon;
 
 /// Initiate other gridmap meta-datas from json.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub(crate) fn startup_misc_resources(
-    mut server_id: ResMut<ServerId>,
     mut gridmap_data: ResMut<GridmapData>,
     mut spawn_points_res: ResMut<SpawnPoints>,
     mut rapier_configuration: ResMut<RapierConfiguration>,
     tick_rate: Res<TickRate>,
-    mut commands: Commands,
 ) {
     // Init Bevy Rapier physics.
 
@@ -844,16 +842,11 @@ pub(crate) fn startup_misc_resources(
     spawn_points_res.list = current_map_spawn_points;
     spawn_points_res.i = 0;
 
-    // So we have one reserved Id that isnt an entity for sure
-    let server_component = Server;
-
-    server_id.id = commands.spawn(()).insert(server_component).id();
-
     info!("Loaded misc map data.");
 }
 
 /// Build the gridmaps in their own resources from json.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub(crate) fn startup_build_map(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
@@ -919,7 +912,7 @@ pub(crate) fn startup_build_map(
 use entity::init::RawEntityRon;
 use player::boarding::{SpawnPoint, SpawnPointRaw, SpawnPoints};
 use serde::{Deserialize, Serialize};
-
+#[cfg(any(feature = "server", feature = "client"))]
 #[derive(Serialize, Deserialize)]
 pub struct CellDataRon {
     pub id: Vec3Int,

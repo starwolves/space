@@ -1,12 +1,10 @@
-use std::time::Duration;
-
 use actions::plugin::ActionsPlugin;
 use air_locks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::{
-    app::{ScheduleRunnerPlugin, ScheduleRunnerSettings},
+    app::ScheduleRunnerPlugin,
     core::CorePlugin,
     diagnostic::DiagnosticsPlugin,
     log::LogPlugin,
@@ -20,7 +18,6 @@ use bevy::{
     transform::TransformPlugin,
     window::WindowPlugin,
 };
-use bevy_rapier3d::prelude::{NoUserData, RapierPhysicsPlugin};
 use chat::plugin::ChatPlugin;
 use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
@@ -45,7 +42,7 @@ use physics::plugin::PhysicsPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use reflection_probe::plugin::ReflectionProbePlugin;
-use resources::{core::TickRate, labels::StartupLabels, plugin::ResourcesPlugin};
+use resources::{labels::StartupLabels, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
@@ -57,8 +54,6 @@ use crate::server_is_live;
 /// The main plugin to add to execute the server.
 pub struct ServerPlugin {
     pub custom_motd: Option<String>,
-    pub physics_rate: Option<u8>,
-    pub bevy_rate: Option<u8>,
     pub threads_amount: Option<u8>,
     pub give_all_rcon: bool,
     pub version: String,
@@ -67,8 +62,6 @@ impl Default for ServerPlugin {
     fn default() -> Self {
         Self {
             custom_motd: None,
-            physics_rate: None,
-            bevy_rate: None,
             version: "0.0.0".to_string(),
             // Dev values.
             threads_amount: None,
@@ -112,7 +105,6 @@ impl Plugin for ServerPlugin {
             .add_plugin(ScenePlugin::default())
             .add_plugin(RenderPlugin::default())
             .add_plugin(ImagePlugin::default())
-            .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
             .add_plugin(ControllerPlugin {
                 custom_motd: self.custom_motd.clone(),
             })
@@ -157,20 +149,6 @@ impl Plugin for ServerPlugin {
                     .label(StartupLabels::ServerIsLive)
                     .after(StartupLabels::InitAtmospherics),
             );
-
-        let mut tick_rate = TickRate::default();
-        if self.physics_rate.is_some() {
-            tick_rate.physics_rate = self.physics_rate.unwrap();
-        }
-        let mut bevy_rate = tick_rate.bevy_rate;
-        if self.bevy_rate.is_some() {
-            bevy_rate = self.bevy_rate.unwrap();
-            tick_rate.bevy_rate = bevy_rate;
-        }
-        app.insert_resource::<TickRate>(tick_rate);
-        app.insert_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f32(
-            1. / bevy_rate as f32,
-        )));
 
         match &self.custom_motd {
             Some(motd) => {

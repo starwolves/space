@@ -19,7 +19,7 @@ use crate::{
     },
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
-    init::{startup_build_map, startup_map_cells, startup_misc_resources},
+    init::{startup_build_map, startup_map_cell_properties, startup_misc_resources},
     networking::{incoming_messages, GridmapClientMessage, GridmapServerMessage},
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
@@ -52,26 +52,11 @@ pub struct GridmapPlugin;
 impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.init_resource::<GridmapDetails1>()
-                .init_resource::<GridmapData>()
-                .init_resource::<DoryenMap>()
-                .add_system(senser_update_fov)
+            app.add_system(senser_update_fov)
                 .add_system(projectile_fov)
                 .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
                 .add_event::<RemoveCell>()
-                .add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
-                .add_startup_system(
-                    startup_map_cells
-                        .label(StartupLabels::InitDefaultGridmapData)
-                        .label(SummoningLabels::TriggerSummon)
-                        .after(StartupLabels::MiscResources),
-                )
                 .init_resource::<GridmapDetails1>()
-                .add_startup_system(
-                    startup_build_map
-                        .label(StartupLabels::BuildGridmap)
-                        .after(StartupLabels::InitDefaultGridmapData),
-                )
                 .add_system_set(
                     SystemSet::new()
                         .with_run_criteria(
@@ -79,7 +64,6 @@ impl Plugin for GridmapPlugin {
                         )
                         .with_system(gridmap_updates_manager),
                 )
-                .init_resource::<GridmapMain>()
                 .add_system(gridmap_sensing_ability)
                 .add_system(examine_map.after(ActionsLabels::Action))
                 .add_system(
@@ -106,6 +90,23 @@ impl Plugin for GridmapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         }
+
+        app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
+            .add_startup_system(
+                startup_map_cell_properties
+                    .label(StartupLabels::InitDefaultGridmapData)
+                    .label(SummoningLabels::TriggerSummon)
+                    .after(StartupLabels::MiscResources),
+            )
+            .add_startup_system(
+                startup_build_map
+                    .label(StartupLabels::BuildGridmap)
+                    .after(StartupLabels::InitDefaultGridmapData),
+            )
+            .init_resource::<GridmapData>()
+            .init_resource::<GridmapDetails1>()
+            .init_resource::<GridmapMain>()
+            .init_resource::<DoryenMap>();
 
         init_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         init_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
