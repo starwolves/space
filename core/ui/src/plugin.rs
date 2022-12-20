@@ -1,4 +1,3 @@
-
 use bevy::prelude::{App, Plugin};
 use networking::messaging::{init_reliable_message, MessageSender};
 
@@ -9,9 +8,10 @@ use crate::{
         focus_events, input_characters, input_mouse_press_unfocus, set_text_input_node_text,
         ui_events, FocusTextInput, SetText, TextInput, TextInputLabel, UnfocusTextInput,
     },
-};use resources::is_server::is_server;
+};
 use bevy::app::CoreStage::PreUpdate;
 use bevy::prelude::IntoSystemDescriptor;
+use resources::is_server::is_server;
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {

@@ -1,9 +1,6 @@
-use std::time::Duration;
-
 use crate::client_is_live;
 use actions::plugin::ActionsPlugin;
 use bevy::{
-    app::ScheduleRunnerSettings,
     prelude::{App, CorePlugin, Plugin, PluginGroup, TaskPoolOptions},
     window::{PresentMode, WindowDescriptor, WindowMode, WindowPlugin, WindowPosition},
     winit::WinitSettings,
@@ -20,6 +17,7 @@ use main_menu::plugin::MainMenuPlugin;
 use map::plugin::MapPlugin;
 use networking::plugin::NetworkingPlugin;
 use pawn::plugin::PawnPlugin;
+use physics::plugin::PhysicsPlugin;
 use player::plugin::PlayerPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
@@ -72,6 +70,7 @@ impl Plugin for ClientPlugin {
         .insert_resource(WinitSettings::game())
         .add_plugin(NetworkingPlugin)
         .add_plugin(MainMenuPlugin)
+        .add_plugin(PhysicsPlugin)
         .add_plugin(EguiPlugin)
         .insert_resource(ClientInformation {
             version: self.version.clone(),
@@ -90,9 +89,6 @@ impl Plugin for ClientPlugin {
         .add_plugin(PawnPlugin)
         .add_plugin(SfxPlugin)
         .add_plugin(ResourcesPlugin)
-        .add_startup_system(client_is_live)
-        .insert_resource(ScheduleRunnerSettings::run_loop(Duration::from_secs_f32(
-            1. / 64.,
-        )));
+        .add_startup_system(client_is_live);
     }
 }

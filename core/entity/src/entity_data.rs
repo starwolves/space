@@ -128,10 +128,6 @@ pub struct RawEntity {
     pub transform: String,
     pub data: String,
 }
-/// Component reserved server entity.
-#[derive(Component)]
-#[cfg(feature = "server")]
-pub struct Server;
 
 /// Component with the cache of the latest broadcasted transforms for its entity.
 #[derive(Component, Default)]

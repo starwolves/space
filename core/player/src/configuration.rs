@@ -7,14 +7,13 @@ use crate::connections::PlayerServerMessage;
 use crate::connections::{AuthidI, SendServerConfiguration};
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
-use resources::core::{ServerId, TickRate};
+use resources::core::TickRate;
 
 /// Send server configuration to a new client that has connected.
 #[cfg(feature = "server")]
 pub(crate) fn server_new_client_configuration(
     mut config_events: EventReader<SendServerConfiguration>,
     tick_rate: Res<TickRate>,
-    server_id: Res<ServerId>,
     mut auth_id_i: ResMut<AuthidI>,
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
@@ -24,10 +23,6 @@ pub(crate) fn server_new_client_configuration(
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,
             message: PlayerServerMessage::ConfigTickRate(tick_rate.physics_rate),
-        });
-        server1.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigServerEntityId(server_id.id.to_bits()),
         });
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,

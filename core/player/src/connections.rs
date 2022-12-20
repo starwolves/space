@@ -47,7 +47,6 @@ pub enum PlayerServerMessage {
     ConnectedPlayers(u16),
     ConfigTickRate(u8),
     PawnId(u64),
-    ConfigServerEntityId(u64),
     ConfigRepeatingSFX(String, Vec<String>),
     ConfigFinished,
     ConfigTalkSpaces(Vec<(String, String)>),
