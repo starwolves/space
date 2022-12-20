@@ -26,6 +26,41 @@ use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
 use pawn::pawn::Spawning;
 use text_api::core::get_talk_spaces;
+#[cfg(feature = "server")]
+/// Event that fires when a player has successfully boarded.
+pub struct PlayerBoarded {
+    pub handle: u64,
+    pub entity: Entity,
+    pub character_name: String,
+    pub account_name: String,
+}
+use bevy::prelude::info;
+
+/// Do some logic when a player has successfully boarded.
+#[cfg(feature = "server")]
+pub(crate) fn player_boarded(
+    mut events: EventReader<PlayerBoarded>,
+    mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
+) {
+    for boarded_player in events.iter() {
+        info!(
+            "{} has boarded as \"{}\". [{}][{:?}]",
+            boarded_player.account_name,
+            boarded_player.character_name,
+            boarded_player.handle,
+            boarded_player.entity
+        );
+
+        server.send(OutgoingReliableServerMessage {
+            handle: boarded_player.handle,
+            message: PlayerServerMessage::PawnId(boarded_player.entity.to_bits()),
+        });
+        server.send(OutgoingReliableServerMessage {
+            handle: boarded_player.handle,
+            message: PlayerServerMessage::Boarded,
+        });
+    }
+}
 
 /// Perform initialization of spawning player.
 #[cfg(feature = "server")]

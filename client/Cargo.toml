@@ -34,3 +34,4 @@ map = { path = "../core/map", features = ["client"] }
 pawn = { path = "../core/pawn", features = ["client"] }
 sfx = { path = "../core/sfx", features = ["client"] }
 physics = { path = "../core/physics", features = ["client"] }
+point_light = { path = "../entities/point_light", features = ["client"] }

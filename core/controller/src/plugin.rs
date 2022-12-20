@@ -21,7 +21,7 @@ use resources::labels::UpdateLabels;
 
 use super::{
     input::apply_movement_input_controller,
-    net::{build_graphics, send_server_time, update_player_count},
+    net::{send_server_time, update_player_count},
 };
 
 use bevy::app::CoreStage::PreUpdate;
@@ -48,7 +48,6 @@ impl Plugin for ControllerPlugin {
                     .with_run_criteria(FixedTimestep::step(2.))
                     .with_system(send_server_time),
             )
-            .add_system(build_graphics)
             .add_system(connections)
             .add_system_to_stage(PreUpdate, incoming_messages)
             .add_event::<InputAttackCell>()

@@ -1,9 +1,10 @@
 use crate::account::{account_verification, Accounts};
-use crate::boarding::SpawnPoints;
+use crate::boarding::{player_boarded, PlayerBoarded, SpawnPoints};
 use crate::configuration::{
     client_receive_pawnid, finished_configuration, server_new_client_configuration, PawnEntityId,
 };
 use crate::connections::{AuthidI, SendServerConfiguration};
+use crate::debug_camera::spawn_debug_camera;
 use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
     connections::{server_events, PlayerAwaitingBoarding, PlayerServerMessage},
@@ -44,10 +45,13 @@ impl Plugin for PlayerPlugin {
                 .add_system(finished_configuration.after(ConfigurationLabel::Main))
                 .add_system(server_events.before(ConfigurationLabel::SpawnEntity))
                 .add_system(account_verification)
-                .init_resource::<Accounts>();
+                .init_resource::<Accounts>()
+                .add_event::<PlayerBoarded>()
+                .add_system(player_boarded);
         } else {
             app.add_system(client_receive_pawnid)
-                .init_resource::<PawnEntityId>();
+                .init_resource::<PawnEntityId>()
+                .add_system(spawn_debug_camera);
         }
         app.init_resource::<SpawnPoints>();
         init_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);

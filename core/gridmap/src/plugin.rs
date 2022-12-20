@@ -19,6 +19,7 @@ use crate::{
     },
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
+    gridmap_graphics::spawn_cubes,
     init::{startup_build_map, startup_map_cell_properties, startup_misc_resources},
     networking::{incoming_messages, GridmapClientMessage, GridmapServerMessage},
 };
@@ -89,6 +90,8 @@ impl Plugin for GridmapPlugin {
                         .label(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
                 );
+        } else {
+            app.add_system(spawn_cubes);
         }
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
