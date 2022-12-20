@@ -2,6 +2,8 @@
 //! A storage component for inventory items.
 //! Not all inventory holding entities are humanoids or pawns.
 //! Includes actions related to the inventory system.
+//! Also includes items. Item entities have special interactions with entities that hold an inventory component.
+//! All inventory items can be stored inside inventories.
 
 /// Manage actions related to inventory.
 mod actions;
