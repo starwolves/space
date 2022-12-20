@@ -36,18 +36,15 @@ use line_arrow::plugin::{LineArrowPlugin, PointArrowPlugin};
 use map::plugin::MapPlugin;
 use motd::motd::MOTD;
 use networking::plugin::NetworkingPlugin;
-use omni_light::plugin::OmniLightPlugin;
 use pawn::plugin::PawnPlugin;
 use physics::plugin::PhysicsPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
-use reflection_probe::plugin::ReflectionProbePlugin;
 use resources::{labels::StartupLabels, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use ui::plugin::UiPlugin;
-use world_environment::plugin::WorldEnvironmentPlugin;
 
 use crate::server_is_live;
 
@@ -109,7 +106,6 @@ impl Plugin for ServerPlugin {
                 custom_motd: self.custom_motd.clone(),
             })
             .add_plugin(AsanaPlugin)
-            .add_plugin(WorldEnvironmentPlugin)
             .add_plugin(GridmapPlugin)
             .add_plugin(ResourcesPlugin)
             .add_plugin(PawnPlugin)
@@ -128,8 +124,6 @@ impl Plugin for ServerPlugin {
             .add_plugin(HumanoidPlugin)
             .add_plugin(ComputersPlugin)
             .add_plugin(CombatPlugin)
-            .add_plugin(OmniLightPlugin)
-            .add_plugin(ReflectionProbePlugin)
             .add_plugin(JumpsuitsPlugin)
             .add_plugin(HelmetsPlugin)
             .add_plugin(PistolL1Plugin)

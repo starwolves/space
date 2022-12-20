@@ -2,7 +2,6 @@ use bevy::prelude::{EventReader, Res};
 
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
-use world_environment::environment::WorldEnvironment;
 
 pub struct PlayerAwaitingBoarding {
     pub handle: u64,
@@ -42,11 +41,11 @@ pub(crate) fn server_events(mut server_events: EventReader<ServerEvent>, server:
 #[cfg(any(feature = "server", feature = "client"))]
 pub enum PlayerServerMessage {
     InitGame,
-    ConfigWorldEnvironment(WorldEnvironment),
     ServerTime,
     ConnectedPlayers(u16),
     ConfigTickRate(u8),
     PawnId(u64),
+    Boarded,
     ConfigRepeatingSFX(String, Vec<String>),
     ConfigFinished,
     ConfigTalkSpaces(Vec<(String, String)>),

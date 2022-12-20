@@ -8,6 +8,8 @@ pub mod boarding;
 pub mod configuration;
 /// The configuration send from the server to newly connected clients.
 pub mod connections;
+/// Spawns a camera at a fixed position, useful to inspect the 3D scene.
+pub mod debug_camera;
 /// Generate human names.
 pub mod name_generator;
 /// Account and player names.

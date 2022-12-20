@@ -26,10 +26,5 @@ networking = { path = "../networking", features = ["server"] }
 entity = { path = "../entity", features = ["server"] }
 pawn = { path = "../pawn", features = ["server"] }
 combat = { path = "../combat", features = ["server"] }
-world_environment = { path = "../world_environment", features = ["server"] }
 resources = { path = "../resources", features = ["server"] }
 math = { path = "../math", features = ["server"] }
-gi_probe = { path = "../../entities/gi_probe", features = ["server"] }
-reflection_probe = { path = "../../entities/reflection_probe", features = [
-    "server",
-] }

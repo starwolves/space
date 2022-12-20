@@ -105,6 +105,7 @@ pub struct GridmapDetails1 {
 }
 
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
+/// The hashmaps should probably be turned into arrays by converting Vec3Int into an index for performance reasons.
 #[derive(Default, Resource)]
 #[cfg(feature = "server")]
 pub struct GridmapMain {

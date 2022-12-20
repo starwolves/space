@@ -1,33 +1,28 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
+use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, Transform};
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
     sensable::Sensable,
     spawn::{SpawnData, SpawnEvent},
 };
 
-use super::{
-    omni_light::OmniLight,
-    process_content::{ExportData, ExportDataRaw},
-};
+#[cfg(feature = "client")]
+pub struct PointLightBundle;
 
-#[cfg(feature = "server")]
-pub struct OmniLightBundle;
-
-#[cfg(feature = "server")]
+#[cfg(feature = "client")]
 pub const OMNI_LIGHT_ENTITY_NAME: &str = "omni_light";
 
-#[cfg(feature = "server")]
-impl OmniLightBundle {
+#[cfg(feature = "client")]
+impl PointLightBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
         _correct_transform: bool,
-        omni_light_component: OmniLight,
+        point_light_component: PointLight,
     ) {
         let static_transform_component = entity_transform;
 
         commands.spawn((
-            omni_light_component,
+            point_light_component,
             Sensable {
                 is_light: true,
                 ..Default::default()
@@ -45,13 +40,13 @@ impl OmniLightBundle {
     }
 }
 
-#[cfg(feature = "server")]
-pub struct OmniLightSummoner {
-    pub light: OmniLight,
+#[cfg(feature = "client")]
+pub struct PointLightSummoner {
+    pub light: PointLight,
 }
 
-#[cfg(feature = "server")]
-pub fn summon_omni_light<T: OmniLightSummonable + Send + Sync + 'static>(
+#[cfg(feature = "client")]
+pub fn summon_point_light<T: OmniLightSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
 ) {
@@ -62,13 +57,13 @@ pub fn summon_omni_light<T: OmniLightSummonable + Send + Sync + 'static>(
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(feature = "client")]
 pub trait OmniLightSummonable {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
 }
 
-#[cfg(feature = "server")]
-impl OmniLightSummonable for OmniLightSummoner {
+#[cfg(feature = "client")]
+impl OmniLightSummonable for PointLightSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
         commands.spawn((
             self.light.clone(),
@@ -89,23 +84,19 @@ impl OmniLightSummonable for OmniLightSummoner {
     }
 }
 
-#[cfg(feature = "server")]
-pub fn summon_raw_omni_light(
+#[cfg(feature = "client")]
+pub fn summon_raw_point_light(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_gi_probe: EventWriter<SpawnEvent<OmniLightSummoner>>,
+    mut summon_point_light: EventWriter<SpawnEvent<PointLightSummoner>>,
     mut commands: Commands,
 ) {
     for event in spawn_events.iter() {
         if event.raw_entity.entity_type == "OmniLight" {
-            let omni_light_data_raw: ExportDataRaw = serde_json::from_str(&event.raw_entity.data)
-                .expect("load_raw_map_entities.rs Error parsing entity OmniLight data.");
-            let omni_light_component = ExportData::new(omni_light_data_raw).to_component();
-
             let mut entity_transform = Transform::from_translation(event.raw_entity.translation);
             entity_transform.rotation = event.raw_entity.rotation;
             entity_transform.scale = event.raw_entity.scale;
 
-            summon_gi_probe.send(SpawnEvent {
+            summon_point_light.send(SpawnEvent {
                 spawn_data: SpawnData {
                     entity_transform: entity_transform,
                     default_map_spawn: true,
@@ -113,8 +104,14 @@ pub fn summon_raw_omni_light(
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                summoner: OmniLightSummoner {
-                    light: omni_light_component,
+                summoner: PointLightSummoner {
+                    light: PointLight {
+                        intensity: 1500.,
+                        range: 10.,
+                        radius: 5.,
+                        shadows_enabled: true,
+                        ..Default::default()
+                    },
                 },
             });
         }

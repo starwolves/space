@@ -19,6 +19,7 @@ use networking::plugin::NetworkingPlugin;
 use pawn::plugin::PawnPlugin;
 use physics::plugin::PhysicsPlugin;
 use player::plugin::PlayerPlugin;
+use point_light::plugin::PointLightPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
@@ -89,6 +90,7 @@ impl Plugin for ClientPlugin {
         .add_plugin(PawnPlugin)
         .add_plugin(SfxPlugin)
         .add_plugin(ResourcesPlugin)
+        .add_plugin(PointLightPlugin)
         .add_startup_system(client_is_live);
     }
 }
