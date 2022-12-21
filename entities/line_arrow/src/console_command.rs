@@ -127,14 +127,14 @@ pub(crate) fn entity_console_commands(
         }
     }
 }
-use entity::despawn::DespawnEntity;
+use entity::despawn::DespawnClientEntity;
 
 /// Despawn point arrows after duration.
 #[cfg(feature = "server")]
 pub(crate) fn expire_point_arrow(
     mut point_arrows: Query<(Entity, &mut PointArrow)>,
     time: Res<Time>,
-    mut net_unload_entity: EventWriter<DespawnEntity>,
+    mut net_unload_entity: EventWriter<DespawnClientEntity>,
 ) {
     for (entity, mut point_arrow_component) in point_arrows.iter_mut() {
         if point_arrow_component
@@ -142,7 +142,7 @@ pub(crate) fn expire_point_arrow(
             .tick(time.delta())
             .just_finished()
         {
-            net_unload_entity.send(DespawnEntity { entity });
+            net_unload_entity.send(DespawnClientEntity { entity });
         }
     }
 }

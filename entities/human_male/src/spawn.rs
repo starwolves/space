@@ -33,18 +33,18 @@ use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
 use player::names::UsedNames;
 
 /// Get default transform.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn get_default_transform() -> Transform {
     Transform::IDENTITY
 }
 
 /// Human male spawn data.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct HumanMaleSummonData {
     pub used_names: UsedNames,
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
     fn get_bundle(
         &self,
@@ -90,7 +90,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use entity::networking::EntityServerMessage;
 /// Human male spawner.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_base_human_male<
     T: BaseEntitySummonable<HumanMaleSummonData> + Send + Sync + 'static,
 >(
@@ -143,14 +143,14 @@ pub fn summon_base_human_male<
 }
 
 /// Human male spawner.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct HumanMaleSummoner {
     pub spawn_pawn_data: SpawnPawnData,
 }
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub const R: f32 = 0.5;
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl RigidBodySummonable<NoData> for HumanMaleSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(CHARACTER_FLOOR_FRICTION);
@@ -170,21 +170,21 @@ impl RigidBodySummonable<NoData> for HumanMaleSummoner {
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl HumanMaleSummonable for HumanMaleSummoner {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData {
         self.spawn_pawn_data.clone()
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub trait HumanMaleSummonable {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
 use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -395,7 +395,7 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
 }
 
 /// Manage spawning human dummy.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub(crate) fn default_human_dummy(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,

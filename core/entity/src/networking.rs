@@ -60,7 +60,7 @@ use networking::server::EntityUpdateData;
 use crate::entity_data::EntityData;
 
 /// Event to load in entity for client.
-pub struct LoadEntity {
+pub struct SpawnClientEntity {
     pub entity: Entity,
     pub loader_handle: u64,
     pub load_entirely: bool,
@@ -73,7 +73,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 /// Load an entity in for the client.
 #[cfg(feature = "server")]
-pub(crate) fn load_entity(
+pub(crate) fn spawn_entity_for_client(
     entity_query: Query<(
         &EntityData,
         &EntityUpdates,
@@ -81,7 +81,7 @@ pub(crate) fn load_entity(
         Option<&RigidBody>,
         Option<&WorldMode>,
     )>,
-    mut load_entity_events: EventReader<LoadEntity>,
+    mut load_entity_events: EventReader<SpawnClientEntity>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
     for load_entity_event in load_entity_events.iter() {

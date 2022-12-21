@@ -37,7 +37,7 @@ pub(crate) fn spawn_cubes(
                             {
                                 spawned_i += 1;
                                 commands.spawn(PbrBundle {
-                                    mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+                                    mesh: meshes.add(Mesh::from(shape::Cube { size: 2.0 })),
                                     material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
                                     transform: Transform::from_translation(cell_id_to_world(*id)),
                                     ..Default::default()

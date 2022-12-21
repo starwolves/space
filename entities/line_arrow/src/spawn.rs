@@ -13,12 +13,12 @@ use entity::{
     },
 };
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn get_default_transform() -> Transform {
     Transform::IDENTITY
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl BaseEntitySummonable<NoData> for LineArrowSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text =
@@ -43,25 +43,25 @@ impl BaseEntitySummonable<NoData> for LineArrowSummoner {
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct LineArrowSummoner {
     pub duration: f32,
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl LinerArrowSummonable for LineArrowSummoner {
     fn get_duration(&self) -> f32 {
         self.duration
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub trait LinerArrowSummonable {
     fn get_duration(&self) -> f32;
 }
 use bevy::time::TimerMode;
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
@@ -80,10 +80,10 @@ pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub const LINE_ARROW_ENTITY_NAME: &str = "lineArrow";
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn default_line_arrow(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<LineArrowSummoner>>,

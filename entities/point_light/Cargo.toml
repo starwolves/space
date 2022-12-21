@@ -21,3 +21,4 @@ default-features = false
 [dependencies]
 
 entity = { path = "../../core/entity", features = ["server"] }
+resources = { path = "../../core/resources", features = ["server"] }

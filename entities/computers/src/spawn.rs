@@ -1,6 +1,6 @@
 use bevy::{
     math::{Mat4, Quat, Vec3},
-    prelude::{warn, Commands, EventReader, EventWriter, Transform},
+    prelude::{Commands, EventReader, EventWriter, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use entity::{
@@ -8,8 +8,7 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, ExportProperty, NoData,
-        SpawnData, SpawnEvent,
+        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
     },
 };
 use physics::{
@@ -18,7 +17,7 @@ use physics::{
 };
 use std::collections::BTreeMap;
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -27,7 +26,7 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl BaseEntitySummonable<NoData> for ComputerSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text = "A computer used by bridge personnel.".to_string();
@@ -56,7 +55,7 @@ impl BaseEntitySummonable<NoData> for ComputerSummoner {
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl RigidBodySummonable<NoData> for ComputerSummoner {
     fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -72,41 +71,25 @@ impl RigidBodySummonable<NoData> for ComputerSummoner {
     }
 }
 
-#[cfg(feature = "server")]
-pub struct ComputerSummoner {
-    pub computer_type: String,
-}
+#[cfg(any(feature = "server", feature = "client"))]
+pub struct ComputerSummoner;
 
-#[cfg(feature = "server")]
-impl ComputerSummonable for ComputerSummoner {
-    fn get_computer_type(&self) -> String {
-        self.computer_type.clone()
-    }
-}
-
-#[cfg(feature = "server")]
-pub trait ComputerSummonable {
-    fn get_computer_type(&self) -> String;
-}
-
-#[cfg(feature = "server")]
-pub fn summon_computer<T: ComputerSummonable + Send + Sync + 'static>(
+#[cfg(any(feature = "server", feature = "client"))]
+pub fn summon_computer<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEvent<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
             .entity(spawn_event.spawn_data.entity)
-            .insert(Computer {
-                computer_type: spawn_event.summoner.get_computer_type().clone(),
-            });
+            .insert(Computer);
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub const BRIDGE_COMPUTER_ENTITY_NAME: &str = "bridgeComputer";
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_raw_computer(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_computer: EventWriter<SpawnEvent<ComputerSummoner>>,
@@ -120,30 +103,6 @@ pub fn summon_raw_computer(
         let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
-        let data_result: Result<Vec<ExportProperty>, _> =
-            serde_json::from_str(&spawn_event.raw_entity.data);
-
-        let mut computer_name = "".to_string();
-
-        match data_result {
-            Ok(ds) => {
-                for d in ds {
-                    if d.key == "computerType" {
-                        if d.value_type == 4 {
-                            computer_name = d.value;
-                        } else {
-                            warn!("Entity from entities.json had unknown type!");
-                            continue;
-                        }
-                    }
-                }
-            }
-            Err(_rr) => {
-                warn!("Invalid json!");
-                warn!("{}", spawn_event.raw_entity.data);
-                continue;
-            }
-        }
 
         summon_computer.send(SpawnEvent {
             spawn_data: SpawnData {
@@ -154,16 +113,14 @@ pub fn summon_raw_computer(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: ComputerSummoner {
-                computer_type: computer_name,
-            },
+            summoner: ComputerSummoner,
         });
     }
 }
 
 use super::computer::Computer;
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn default_summon_computer(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEvent<ComputerSummoner>>,
@@ -174,9 +131,7 @@ pub fn default_summon_computer(
         }
         spawner.send(SpawnEvent {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: ComputerSummoner {
-                computer_type: "".to_string(),
-            },
+            summoner: ComputerSummoner,
         });
     }
 }

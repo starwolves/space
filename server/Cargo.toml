@@ -36,6 +36,8 @@ player = { path = "../core/player", features = ["server"] }
 basic_console_commands = { path = "../core/basic_console_commands", features = [
     "server",
 ] }
+physics = { path = "../core/physics", features = ["server"] }
+
 setup_ui = { path = "../core/setup_ui", features = ["server"] }
 
 sounds = { path = "../entities/sounds", features = ["server"] }
@@ -57,4 +59,4 @@ jumpsuit_security = { path = "../entities/jumpsuit_security", features = [
 ] }
 line_arrow = { path = "../entities/line_arrow", features = ["server"] }
 pistol_l1 = { path = "../entities/pistol_l1", features = ["server"] }
-physics = { path = "../core/physics", features = ["server"] }
+point_light = { path = "../entities/point_light", features = ["server"] }

@@ -24,33 +24,32 @@ pub struct HumanMalePlugin;
 impl Plugin for HumanMalePlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-                .add_system(
-                    summon_human_male::<HumanMaleSummoner>
-                        .before(SummoningLabels::TriggerSummon)
-                        .label(SummoningLabels::NormalSummon),
-                )
-                .add_system(
-                    (summon_base_human_male::<HumanMaleSummoner>)
-                        .after(SummoningLabels::TriggerSummon),
-                )
-                .add_system(
-                    (default_human_dummy)
-                        .label(SummoningLabels::DefaultSummon)
-                        .after(SummoningLabels::NormalSummon),
-                )
-                .add_event::<SpawnEvent<HumanMaleSummoner>>()
-                .add_system(
-                    (summon_rigid_body::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
-                )
-                .add_system(
-                    hands_attack_handler
-                        .label(CombatLabels::WeaponHandler)
-                        .after(CombatLabels::CacheAttack),
-                )
-                .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon))
-                .add_system_to_stage(PostUpdate, on_spawning);
+            app.add_system(
+                hands_attack_handler
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
+            )
+            .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon))
+            .add_system_to_stage(PostUpdate, on_spawning);
         }
+        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
+            .add_system(
+                summon_human_male::<HumanMaleSummoner>
+                    .before(SummoningLabels::TriggerSummon)
+                    .label(SummoningLabels::NormalSummon),
+            )
+            .add_system(
+                (summon_base_human_male::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
+            )
+            .add_event::<SpawnEvent<HumanMaleSummoner>>()
+            .add_system(
+                (summon_rigid_body::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
+            )
+            .add_system(
+                (default_human_dummy)
+                    .label(SummoningLabels::DefaultSummon)
+                    .after(SummoningLabels::NormalSummon),
+            );
     }
 }
 

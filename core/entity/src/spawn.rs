@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use crate::showcase::{Showcase, ShowcaseData};
-use bevy::prelude::{warn, Commands, Entity, EventReader, EventWriter, ResMut, Transform};
-use networking::server::GodotVariantValues;
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform};
 use serde::Deserialize;
 
 use crate::{
@@ -18,7 +17,7 @@ use crate::{
 use super::entity_data::DefaultMapEntity;
 
 /// A base bundle for the basis of entities. Should be used by almost all entities.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
     pub examinable: Examinable,
@@ -29,7 +28,7 @@ pub struct BaseEntityBundle {
     pub default_map_spawn: bool,
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl Default for BaseEntityBundle {
     fn default() -> Self {
         Self {
@@ -43,7 +42,7 @@ impl Default for BaseEntityBundle {
     }
 }
 /// Base entity data.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct BaseEntityData {
     /// Entity type ID.
     pub entity_type: String,
@@ -59,7 +58,7 @@ pub struct BaseEntityData {
     pub showcase_handle_option: Option<ShowcaseData>,
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl Default for BaseEntityData {
     fn default() -> Self {
         Self {
@@ -76,7 +75,7 @@ impl Default for BaseEntityData {
 }
 
 /// Spawn a base entity.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity: Entity) {
     let mut builder = commands.entity(entity);
     builder.insert((
@@ -115,7 +114,7 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
 }
 
 /// BaseEntity trait.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub trait BaseEntitySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> BaseEntityBundle;
 }
@@ -124,7 +123,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use crate::networking::EntityServerMessage;
 /// Spawn base entity components handler.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
@@ -170,51 +169,17 @@ pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'stati
     }
 }
 
-/// A json property.
+/// Additional ron properties contained by a raw ron entity.
 #[derive(Deserialize)]
-#[cfg(feature = "server")]
-pub struct ExportProperty {
-    pub value_type: i64,
-    pub value: String,
-    pub key: String,
-}
-
-/// Additional json properties contained by a json entity.
-#[derive(Deserialize)]
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct ExportDataRaw {
-    pub properties: Vec<ExportProperty>,
-}
-
-/// All export json properties turned into a variant hashmap.
-#[cfg(feature = "server")]
-pub struct ExportData {
-    pub properties: HashMap<String, GodotVariantValues>,
-}
-
-#[cfg(feature = "server")]
-impl ExportData {
-    pub fn new(raw: ExportDataRaw) -> ExportData {
-        let mut hashmap = HashMap::new();
-        for property in raw.properties {
-            let v;
-            if property.value_type == 4 {
-                v = GodotVariantValues::String(property.value)
-            } else {
-                warn!("Entity from entities.json had unknown type!");
-                continue;
-            }
-            hashmap.insert(property.key, v);
-        }
-        ExportData {
-            properties: hashmap,
-        }
-    }
+    pub data: String,
+    pub entity_type: String,
 }
 
 /// Spawn data used to spawn in entities.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct SpawnData {
     /// Transform of the to be spawned entity.
     pub entity_transform: Transform,
@@ -234,7 +199,7 @@ pub struct SpawnData {
     pub entity_name: String,
     pub entity: Entity,
 }
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl Default for SpawnData {
     fn default() -> Self {
         Self {
@@ -251,19 +216,19 @@ impl Default for SpawnData {
     }
 }
 /// Default spawn event.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct DefaultSpawnEvent {
     pub spawn_data: SpawnData,
 }
 
 /// Standard spawn event.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct SpawnEvent<T> {
     pub spawn_data: SpawnData,
     pub summoner: T,
 }
 /// A function to spawn an entity.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn spawn_entity(
     entity_name: String,
     transform: Transform,
@@ -319,5 +284,5 @@ pub fn spawn_entity(
 
     return_entity
 }
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct NoData;
