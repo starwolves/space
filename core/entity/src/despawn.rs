@@ -11,7 +11,7 @@ use crate::sensable::Sensable;
 
 ///Despawn sensable component event.
 #[cfg(feature = "server")]
-pub struct DespawnEntity {
+pub struct DespawnClientEntity {
     pub entity: Entity,
 }
 use networking::server::OutgoingReliableServerMessage;
@@ -20,7 +20,7 @@ use networking::server::OutgoingReliableServerMessage;
 /// Shouldn't be called from the same stage visible_checker.system() runs in.
 #[cfg(feature = "server")]
 pub(crate) fn despawn_entity(
-    mut despawn_event: EventReader<DespawnEntity>,
+    mut despawn_event: EventReader<DespawnClientEntity>,
     handle_to_entity: Res<HandleToEntity>,
     mut sensable_query: Query<&mut Sensable>,
     mut commands: Commands,

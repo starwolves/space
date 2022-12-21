@@ -2,7 +2,7 @@ use bevy::prelude::{Entity, EventWriter, Query, Transform};
 
 use math::grid::world_to_cell_id;
 
-use crate::networking::LoadEntity;
+use crate::networking::SpawnClientEntity;
 use crate::{
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
@@ -22,7 +22,7 @@ pub(crate) fn visible_checker(
         &Transform,
         Option<&ConnectedPlayer>,
     )>,
-    mut load_entity_event: EventWriter<LoadEntity>,
+    mut load_entity_event: EventWriter<SpawnClientEntity>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
     for (
@@ -206,7 +206,7 @@ pub(crate) fn visible_checker(
                     match visible_checker_component_option {
                         Some(visible_checker_component) => {
                             if visible_checker_component.connected {
-                                load_entity_event.send(LoadEntity {
+                                load_entity_event.send(SpawnClientEntity {
                                     entity: visible_entity_id,
                                     loader_handle: visible_checker_component.handle,
                                     load_entirely: true,

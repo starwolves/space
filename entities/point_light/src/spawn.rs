@@ -1,18 +1,18 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, Transform};
+use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, PointLightBundle, Transform};
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
     sensable::Sensable,
     spawn::{SpawnData, SpawnEvent},
 };
 
-#[cfg(feature = "client")]
-pub struct PointLightBundle;
+#[cfg(any(feature = "server", feature = "client"))]
+pub struct PointLightSummonBundle;
 
-#[cfg(feature = "client")]
-pub const OMNI_LIGHT_ENTITY_NAME: &str = "omni_light";
+#[cfg(any(feature = "server", feature = "client"))]
+pub const POINT_LIGHT_ENTITY_NAME: &str = "point_light";
 
-#[cfg(feature = "client")]
-impl PointLightBundle {
+#[cfg(any(feature = "server", feature = "client"))]
+impl PointLightSummonBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
@@ -29,7 +29,7 @@ impl PointLightBundle {
             },
             static_transform_component,
             EntityData {
-                entity_class: OMNI_LIGHT_ENTITY_NAME.to_string(),
+                entity_class: POINT_LIGHT_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),
@@ -40,13 +40,13 @@ impl PointLightBundle {
     }
 }
 
-#[cfg(feature = "client")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct PointLightSummoner {
     pub light: PointLight,
 }
 
-#[cfg(feature = "client")]
-pub fn summon_point_light<T: OmniLightSummonable + Send + Sync + 'static>(
+#[cfg(any(feature = "server", feature = "client"))]
+pub fn summon_point_light<T: PointLightSummonable + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,
 ) {
@@ -57,23 +57,26 @@ pub fn summon_point_light<T: OmniLightSummonable + Send + Sync + 'static>(
     }
 }
 
-#[cfg(feature = "client")]
-pub trait OmniLightSummonable {
+#[cfg(any(feature = "server", feature = "client"))]
+pub trait PointLightSummonable {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
 }
 
-#[cfg(feature = "client")]
-impl OmniLightSummonable for PointLightSummoner {
+#[cfg(any(feature = "server", feature = "client"))]
+impl PointLightSummonable for PointLightSummoner {
     fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
         commands.spawn((
-            self.light.clone(),
+            PointLightBundle {
+                point_light: self.light.clone(),
+                transform: spawn_data.entity_transform,
+                ..Default::default()
+            },
             Sensable {
                 is_light: true,
                 ..Default::default()
             },
-            spawn_data.entity_transform,
             EntityData {
-                entity_class: OMNI_LIGHT_ENTITY_NAME.to_string(),
+                entity_class: POINT_LIGHT_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             EntityUpdates::default(),
@@ -84,7 +87,7 @@ impl OmniLightSummonable for PointLightSummoner {
     }
 }
 
-#[cfg(feature = "client")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_raw_point_light(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut summon_point_light: EventWriter<SpawnEvent<PointLightSummoner>>,
@@ -105,15 +108,19 @@ pub fn summon_raw_point_light(
                     ..Default::default()
                 },
                 summoner: PointLightSummoner {
-                    light: PointLight {
-                        intensity: 1500.,
-                        range: 10.,
-                        radius: 5.,
-                        shadows_enabled: true,
-                        ..Default::default()
-                    },
+                    light: get_default_point_light(),
                 },
             });
         }
+    }
+}
+
+pub fn get_default_point_light() -> PointLight {
+    PointLight {
+        intensity: 1500.,
+        range: 10.,
+        radius: 5.,
+        shadows_enabled: true,
+        ..Default::default()
     }
 }

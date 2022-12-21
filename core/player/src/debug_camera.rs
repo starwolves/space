@@ -16,7 +16,8 @@ pub(crate) fn spawn_debug_camera(
     if *spawning {
         *spawning = false;
         commands.spawn(Camera3dBundle {
-            transform: Transform::from_xyz(0., 10., 0.).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0., 1.8, 0.)
+                .looking_at(Vec3::new(0., 1.8, -2.), Vec3::Y),
             ..Default::default()
         });
     }

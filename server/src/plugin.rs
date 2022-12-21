@@ -40,6 +40,7 @@ use pawn::plugin::PawnPlugin;
 use physics::plugin::PhysicsPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
+use point_light::plugin::PointLightPlugin;
 use resources::{labels::StartupLabels, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
@@ -135,6 +136,7 @@ impl Plugin for ServerPlugin {
             .add_plugin(PlayerPlugin)
             .add_plugin(SetupUiPlugin)
             .add_plugin(PhysicsPlugin)
+            .add_plugin(PointLightPlugin)
             .add_plugin(BasicConsoleCommandsPlugin {
                 give_all_rcon: self.give_all_rcon,
             })

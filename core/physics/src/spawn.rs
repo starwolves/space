@@ -12,7 +12,7 @@ use bevy_rapier3d::prelude::{
 };
 use entity::spawn::SpawnData;
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct RigidBodyBundle {
     pub collider: Collider,
     pub collider_transform: Transform,
@@ -21,7 +21,7 @@ pub struct RigidBodyBundle {
     pub collision_events: bool,
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl Default for RigidBodyBundle {
     fn default() -> Self {
         Self {
@@ -34,7 +34,7 @@ impl Default for RigidBodyBundle {
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub struct RigidBodySpawnData {
     pub rigidbody_dynamic: bool,
     pub rigid_transform: Transform,
@@ -51,7 +51,7 @@ pub struct RigidBodySpawnData {
     pub collision_events: bool,
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 impl Default for RigidBodySpawnData {
     fn default() -> Self {
         let masks = get_bit_masks(ColliderGroup::Standard);
@@ -77,7 +77,7 @@ impl Default for RigidBodySpawnData {
 }
 
 use crate::physics::RigidBodyDisabled;
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn rigidbody_builder(
     commands: &mut Commands,
     rigidbody_spawn_data: RigidBodySpawnData,
@@ -193,14 +193,14 @@ pub fn rigidbody_builder(
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub trait RigidBodySummonable<Y> {
     fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> RigidBodyBundle;
 }
 use entity::spawn::{NoData, SpawnEvent};
 
 /// Rigid body spawning.
-#[cfg(feature = "server")]
+#[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_rigid_body<T: RigidBodySummonable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEvent<T>>,
     mut commands: Commands,

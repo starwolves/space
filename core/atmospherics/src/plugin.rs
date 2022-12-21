@@ -1,4 +1,5 @@
 use bevy::time::FixedTimestep;
+use iyes_loopless::prelude::IntoConditionalSystem;
 use resources::{
     is_server::is_server,
     labels::{ActionsLabels, MapLabels, StartupLabels, UpdateLabels},
@@ -47,9 +48,15 @@ impl Plugin for AtmosphericsPlugin {
                             FixedTimestep::step(1. / DIFFUSION_STEP)
                                 .with_label(ATMOS_DIFFUSION_LABEL),
                         )
-                        .with_system(atmos_diffusion.label(AtmosphericsLabels::Diffusion))
+                        // Disabled in this early porting stage, because it's CPU heavy.
+                        .with_system(
+                            atmos_diffusion
+                                .run_if(disable_atmos)
+                                .label(AtmosphericsLabels::Diffusion),
+                        )
                         .with_system(
                             atmos_effects
+                                .run_if(disable_atmos)
                                 .after(AtmosphericsLabels::Diffusion)
                                 .label(AtmosphericsLabels::Effects),
                         )
@@ -73,4 +80,8 @@ impl Plugin for AtmosphericsPlugin {
 pub enum AtmosphericsLabels {
     Diffusion,
     Effects,
+}
+
+fn disable_atmos() -> bool {
+    false
 }

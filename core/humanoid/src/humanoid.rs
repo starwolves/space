@@ -132,7 +132,7 @@ enum CharacterMovementState {
     Sprinting,
 }
 use controller::controller::ControllerInput;
-use entity::despawn::DespawnEntity;
+use entity::despawn::DespawnClientEntity;
 use networking::server::HandleToEntity;
 use physics::rigid_body::RigidBodyData;
 
@@ -169,7 +169,7 @@ pub(crate) fn humanoid_core(
     mut commands: Commands,
     tick_rate: Res<TickRate>,
     mut attack_event_writer: EventWriter<Attack>,
-    mut net_unload_entity: EventWriter<DespawnEntity>,
+    mut net_unload_entity: EventWriter<DespawnClientEntity>,
     gridmap_main: Res<GridmapMain>,
     mut attack_events: ResMut<ActiveAttackIncrement>,
 ) {
@@ -549,7 +549,7 @@ pub(crate) fn humanoid_core(
 
                     match linked_footsteps_walking_option {
                         Some(linked_footsteps_walking_component) => {
-                            net_unload_entity.send(DespawnEntity {
+                            net_unload_entity.send(DespawnClientEntity {
                                 entity: linked_footsteps_walking_component.entity,
                             });
 
@@ -575,7 +575,7 @@ pub(crate) fn humanoid_core(
 
                     match linked_footsteps_sprinting_option {
                         Some(linked_footsteps_sprinting_component) => {
-                            net_unload_entity.send(DespawnEntity {
+                            net_unload_entity.send(DespawnClientEntity {
                                 entity: linked_footsteps_sprinting_component.entity,
                             });
 
@@ -622,7 +622,7 @@ pub(crate) fn humanoid_core(
                     ) {
                         match linked_footsteps_sprinting_option {
                             Some(linked_footsteps_sprinting_component) => {
-                                net_unload_entity.send(DespawnEntity {
+                                net_unload_entity.send(DespawnClientEntity {
                                     entity: linked_footsteps_sprinting_component.entity,
                                 });
 
@@ -695,7 +695,7 @@ pub(crate) fn humanoid_core(
                     ) {
                         match linked_footsteps_walking_option {
                             Some(linked_footsteps_walking_component) => {
-                                net_unload_entity.send(DespawnEntity {
+                                net_unload_entity.send(DespawnClientEntity {
                                     entity: linked_footsteps_walking_component.entity,
                                 });
 
@@ -877,7 +877,7 @@ pub(crate) fn humanoid_core(
         if zero_gravity_component_option.is_some() {
             match linked_footsteps_walking_option {
                 Some(linked_footsteps_walking_component) => {
-                    net_unload_entity.send(DespawnEntity {
+                    net_unload_entity.send(DespawnClientEntity {
                         entity: linked_footsteps_walking_component.entity,
                     });
 
@@ -893,7 +893,7 @@ pub(crate) fn humanoid_core(
             }
             match linked_footsteps_sprinting_option {
                 Some(linked_footsteps_sprinting_component) => {
-                    net_unload_entity.send(DespawnEntity {
+                    net_unload_entity.send(DespawnClientEntity {
                         entity: linked_footsteps_sprinting_component.entity,
                     });
 

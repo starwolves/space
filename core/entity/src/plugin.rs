@@ -4,7 +4,7 @@ use networking::messaging::{init_reliable_message, MessageSender};
 use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
-use crate::despawn::{despawn_entity, DespawnEntity};
+use crate::despawn::{despawn_entity, DespawnClientEntity};
 use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
@@ -14,7 +14,8 @@ use crate::finalize_entity_updates::finalize_entity_updates;
 use crate::init::startup_entities;
 use crate::meta::EntityDataResource;
 use crate::networking::{
-    incoming_messages, load_entity, EntityClientMessage, EntityServerMessage, LoadEntity,
+    incoming_messages, spawn_entity_for_client, EntityClientMessage, EntityServerMessage,
+    SpawnClientEntity,
 };
 use crate::spawn::DefaultSpawnEvent;
 use crate::visible_checker::visible_checker;
@@ -27,8 +28,7 @@ pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.init_resource::<EntityDataResource>()
-                .add_event::<DefaultSpawnEvent>()
+            app.add_event::<DefaultSpawnEvent>()
                 .add_system_set(
                     SystemSet::new()
                         .with_run_criteria(
@@ -73,12 +73,12 @@ impl Plugin for EntityPlugin {
                         .after(PostUpdateLabels::EntityUpdate)
                         .label(PostUpdateLabels::SendEntityUpdates),
                 )
-                .add_system(load_entity)
-                .add_event::<DespawnEntity>()
-                .add_event::<LoadEntity>();
+                .add_system(spawn_entity_for_client)
+                .add_event::<DespawnClientEntity>()
+                .add_event::<SpawnClientEntity>();
         }
         app.add_event::<RawSpawnEvent>();
-
+        app.init_resource::<EntityDataResource>();
         init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         init_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
     }

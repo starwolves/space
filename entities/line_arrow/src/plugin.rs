@@ -28,8 +28,9 @@ impl Plugin for LineArrowPlugin {
                     .before(ConsoleCommandsLabels::Finalize)
                     .label(StartupLabels::ConsoleCommands),
             )
-            .add_system(entity_console_commands.label(SummoningLabels::TriggerSummon))
-            .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
+            .add_system(entity_console_commands.label(SummoningLabels::TriggerSummon));
+        }
+        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(
                 (summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon),
             )
@@ -42,7 +43,6 @@ impl Plugin for LineArrowPlugin {
                     .label(SummoningLabels::DefaultSummon)
                     .after(SummoningLabels::NormalSummon),
             );
-        }
     }
 }
 

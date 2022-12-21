@@ -39,6 +39,4 @@ pub(crate) fn computer_added(
 /// The computer component.
 #[derive(Component)]
 #[cfg(feature = "server")]
-pub struct Computer {
-    pub computer_type: String,
-}
+pub struct Computer;
