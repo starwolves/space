@@ -183,7 +183,6 @@ pub(crate) fn spawn_entity_for_client(
                 server.send(OutgoingReliableServerMessage {
                     handle: load_entity_event.loader_handle,
                     message: EntityServerMessage::LoadEntity(
-                        entity_data.entity_class.clone(),
                         entity_data.entity_name.clone(),
                         hash_map,
                         load_entity_event.entity.to_bits(),

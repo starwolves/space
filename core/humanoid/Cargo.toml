@@ -21,6 +21,7 @@ default-features = false
 bevy_rapier3d = "0.19.0"
 vector2math = "0.13.0"
 bevy_renet = "0.0.6"
+const_format = "0.2.30"
 
 networking = { path = "../networking", features = ["server"] }
 sounds = { path = "../../entities/sounds", features = ["server"] }

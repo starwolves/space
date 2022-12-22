@@ -125,7 +125,6 @@ pub fn build_base_human_males<
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        "entity".to_string(),
                         base_entity_bundle.entity_name,
                         HashMap::new(),
                         spawn_event.spawn_data.entity.to_bits(),

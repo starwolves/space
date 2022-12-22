@@ -142,7 +142,6 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
                             parent: spawn_event.spawn_data.entity,
                         },
                         EntityData {
-                            entity_class: "child".to_string(),
                             entity_name: "counterWindowSensor".to_string(),
                             entity_group: EntityGroup::CounterWindowSensor,
                         },
@@ -164,9 +163,12 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
             });
     }
 }
-
-pub const SECURITY_COUNTER_WINDOW_ENTITY_NAME: &str = "securityCounterWindow";
-pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str = "bridgeCounterWindow";
+use const_format::concatcp;
+use entity::meta::SF_CONTENT_PREFIX;
+pub const SECURITY_COUNTER_WINDOW_ENTITY_NAME: &str =
+    concatcp!(SF_CONTENT_PREFIX, "securityCounterWindow");
+pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str =
+    concatcp!(SF_CONTENT_PREFIX, "bridgeCounterWindow");
 
 #[cfg(feature = "server")]
 pub fn build_raw_counter_windows(

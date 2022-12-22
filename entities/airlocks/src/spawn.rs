@@ -6,10 +6,12 @@ use bevy::{
     prelude::{warn, Commands, EventReader, EventWriter, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use const_format::concatcp;
 use entity::{
     entity_data::{EntityGroup, RawSpawnEvent},
     examine::{Examinable, RichName},
     health::Health,
+    meta::SF_CONTENT_PREFIX,
     spawn::{
         BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
         SpawnEntity,
@@ -128,10 +130,10 @@ pub fn build_airlocks<T: Send + Sync + 'static>(
     }
 }
 
-pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = "securityAirLock1";
-pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = "bridgeAirLock";
-pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = "governmentAirLock";
-pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = "vacuumAirLock";
+pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "securityAirLock1");
+pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeAirLock");
+pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "governmentAirLock");
+pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuumAirLock");
 
 #[cfg(feature = "server")]
 pub fn default_build_airlocks(
