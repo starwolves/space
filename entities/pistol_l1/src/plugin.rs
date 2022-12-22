@@ -11,7 +11,7 @@ use entity::{
     spawn::{build_base_entities, SpawnEntity},
 };
 use inventory::spawn_item::build_inventory_items;
-use physics::spawn::summon_rigid_body;
+use physics::spawn::build_rigid_boies;
 use resources::{
     is_server::is_server,
     labels::{BuildingLabels, CombatLabels, StartupLabels},
@@ -33,7 +33,7 @@ impl Plugin for PistolL1Plugin {
                     (build_base_entities::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
+                    (build_rigid_boies::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
                     (build_inventory_items::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),

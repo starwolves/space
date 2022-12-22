@@ -16,7 +16,7 @@ use player::connections::SetupPhase;
 #[cfg(feature = "server")]
 pub(crate) fn human_male_setup_ui(
     query: Query<(&ConnectedPlayer, &Pawn), Added<SetupPhase>>,
-    mut summon_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
+    mut spawn_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
     mut commands: Commands,
 ) {
     for (connected_player_component, persistent_player_data_component) in query.iter() {
@@ -30,7 +30,7 @@ pub(crate) fn human_male_setup_ui(
 
         let human_male_entity = commands.spawn(()).id();
 
-        summon_human_male.send(SpawnEntity {
+        spawn_human_male.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity: human_male_entity,
                 showcase_data_option: Some(ShowcaseData {
@@ -39,7 +39,7 @@ pub(crate) fn human_male_setup_ui(
                 entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
-            summoner: HumanMaleBuilder {
+            builder: HumanMaleBuilder {
                 spawn_pawn_data: SpawnPawnData {
                     pawn_component: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),

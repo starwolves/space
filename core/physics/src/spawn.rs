@@ -200,13 +200,13 @@ use entity::spawn::{NoData, SpawnEntity};
 
 /// Rigid body spawning.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_rigid_body<T: RigidBodyBuildable<NoData> + Send + Sync + 'static>(
+pub fn build_rigid_boies<T: RigidBodyBuildable<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
         let rigidbody_bundle = spawn_event
-            .summoner
+            .builder
             .get_bundle(&spawn_event.spawn_data, NoData);
 
         rigidbody_builder(

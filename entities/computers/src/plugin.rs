@@ -5,7 +5,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{build_base_entities, SpawnEntity},
 };
-use physics::spawn::summon_rigid_body;
+use physics::spawn::build_rigid_boies;
 use resources::{
     is_server::is_server,
     labels::{BuildingLabels, CombatLabels, StartupLabels},
@@ -36,7 +36,7 @@ impl Plugin for ComputersPlugin {
             .add_system(
                 (build_base_entities::<ComputerBuilder>).after(BuildingLabels::TriggerBuild),
             )
-            .add_system((summon_rigid_body::<ComputerBuilder>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_rigid_boies::<ComputerBuilder>).after(BuildingLabels::TriggerBuild))
             .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_computers)

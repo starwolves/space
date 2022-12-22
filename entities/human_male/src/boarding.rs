@@ -29,7 +29,7 @@ pub(crate) fn spawn_boarding_player(
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut used_names: ResMut<UsedNames>,
-    mut summon_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
+    mut builder_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
     accounts: Res<Accounts>,
     setup_ui_datas: Res<SetupUiUserDataSets>,
     mut boarded: EventWriter<PlayerBoarded>,
@@ -68,14 +68,14 @@ pub(crate) fn spawn_boarding_player(
 
         let new_entity = commands.spawn(()).id();
 
-        summon_human_male.send(SpawnEntity {
+        builder_human_male.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity: new_entity,
                 entity_transform: spawning_component.transform.clone(),
                 entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
-            summoner: HumanMaleBuilder {
+            builder: HumanMaleBuilder {
                 spawn_pawn_data: SpawnPawnData {
                     pawn_component: Pawn {
                         character_name: setup_data.character_name.clone(),

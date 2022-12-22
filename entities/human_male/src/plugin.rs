@@ -6,7 +6,7 @@ use entity::{
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
-use physics::spawn::summon_rigid_body;
+use physics::spawn::build_rigid_boies;
 use resources::{
     is_server::is_server,
     labels::{BuildingLabels, CombatLabels, StartupLabels},
@@ -44,7 +44,7 @@ impl Plugin for HumanMalePlugin {
                 (build_base_human_males::<HumanMaleBuilder>).after(BuildingLabels::TriggerBuild),
             )
             .add_event::<SpawnEntity<HumanMaleBuilder>>()
-            .add_system((summon_rigid_body::<HumanMaleBuilder>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_rigid_boies::<HumanMaleBuilder>).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_human_dummies)
                     .label(BuildingLabels::DefaultBuild)

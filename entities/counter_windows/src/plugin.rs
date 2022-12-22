@@ -9,7 +9,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{build_base_entities, SpawnEntity},
 };
-use physics::spawn::summon_rigid_body;
+use physics::spawn::build_rigid_boies;
 use resources::{
     is_server::is_server,
     labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels},
@@ -71,7 +71,7 @@ impl Plugin for CounterWindowsPlugin {
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<CounterWindowBuilder>).after(BuildingLabels::TriggerBuild),
+                    (build_rigid_boies::<CounterWindowBuilder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild))
                 .add_event::<SpawnEntity<CounterWindowBuilder>>()

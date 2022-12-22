@@ -131,7 +131,7 @@ pub fn build_base_entities<T: BaseEntityBuildable<NoData> + Send + Sync + 'stati
 ) {
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event
-            .summoner
+            .builder
             .get_bundle(&spawn_event.spawn_data, NoData);
 
         base_entity_builder(
@@ -225,7 +225,7 @@ pub struct DefaultSpawnEvent {
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct SpawnEntity<T> {
     pub spawn_data: EntityBuildData,
-    pub summoner: T,
+    pub builder: T,
 }
 /// A function to spawn an entity.
 #[cfg(any(feature = "server", feature = "client"))]

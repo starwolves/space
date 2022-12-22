@@ -120,7 +120,7 @@ pub(crate) fn entity_console_commands(
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                summoner: LineArrowBuilder {
+                builder: LineArrowBuilder {
                     duration: duration as f32,
                 },
             });

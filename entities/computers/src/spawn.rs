@@ -93,7 +93,7 @@ pub const BRIDGE_COMPUTER_ENTITY_NAME: &str = "bridgeComputer";
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_raw_computers(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEntity<ComputerBuilder>>,
+    mut build_computer: EventWriter<SpawnEntity<ComputerBuilder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -105,7 +105,7 @@ pub fn build_raw_computers(
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
 
-        summon_computer.send(SpawnEntity {
+        build_computer.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
@@ -114,7 +114,7 @@ pub fn build_raw_computers(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: ComputerBuilder,
+            builder: ComputerBuilder,
         });
     }
 }
@@ -132,7 +132,7 @@ pub fn default_build_computers(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: ComputerBuilder,
+            builder: ComputerBuilder,
         });
     }
 }

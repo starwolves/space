@@ -26,7 +26,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntityBuildable<NoData> for ConstructionToolSummoner {
+impl BaseEntityBuildable<NoData> for ConstructionToolBuilder {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
@@ -53,7 +53,7 @@ impl BaseEntityBuildable<NoData> for ConstructionToolSummoner {
 use std::collections::HashMap;
 
 #[cfg(feature = "server")]
-impl InventoryItemBuildable for ConstructionToolSummoner {
+impl InventoryItemBuildable for ConstructionToolBuilder {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
         attachment_transforms.insert(
@@ -106,7 +106,7 @@ impl InventoryItemBuildable for ConstructionToolSummoner {
 }
 
 #[cfg(feature = "server")]
-impl RigidBodyBuildable<NoData> for ConstructionToolSummoner {
+impl RigidBodyBuildable<NoData> for ConstructionToolBuilder {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
@@ -121,10 +121,10 @@ impl RigidBodyBuildable<NoData> for ConstructionToolSummoner {
 }
 
 #[cfg(feature = "server")]
-pub struct ConstructionToolSummoner;
+pub struct ConstructionToolBuilder;
 
 #[cfg(feature = "server")]
-pub fn summon_construction_tool<T: Send + Sync + 'static>(
+pub fn build_construction_tools<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
@@ -136,9 +136,9 @@ pub fn summon_construction_tool<T: Send + Sync + 'static>(
 }
 
 #[cfg(feature = "server")]
-pub fn summon_raw_construction_tool(
+pub fn build_raw_construction_tools(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEntity<ConstructionToolSummoner>>,
+    mut builder_computer: EventWriter<SpawnEntity<ConstructionToolBuilder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -149,7 +149,7 @@ pub fn summon_raw_construction_tool(
         let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
-        summon_computer.send(SpawnEntity {
+        builder_computer.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
@@ -158,15 +158,15 @@ pub fn summon_raw_construction_tool(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: ConstructionToolSummoner,
+            builder: ConstructionToolBuilder,
         });
     }
 }
 
 #[cfg(feature = "server")]
-pub fn default_summon_construction_tool(
+pub fn default_build_construction_tools(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<ConstructionToolSummoner>>,
+    mut spawner: EventWriter<SpawnEntity<ConstructionToolBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name != CONSTRUCTION_TOOL_ENTITY_NAME {
@@ -174,7 +174,7 @@ pub fn default_summon_construction_tool(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: ConstructionToolSummoner,
+            builder: ConstructionToolBuilder,
         });
     }
 }
