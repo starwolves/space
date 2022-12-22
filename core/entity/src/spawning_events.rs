@@ -20,7 +20,6 @@ use networking::server::OutgoingReliableServerMessage;
 pub struct SpawnClientEntity {
     pub entity: Entity,
     pub loader_handle: u64,
-    pub load_entirely: bool,
 }
 /// Executes despawn logic for Sensable components.
 /// Shouldn't be called from the same stage visible_checker.system() runs in.
@@ -40,24 +39,7 @@ pub(crate) fn despawn_entity(
                         Some(handle) => {
                             net.send(OutgoingReliableServerMessage {
                                 handle: *handle,
-                                message: EntityServerMessage::UnloadEntity(
-                                    event.entity.to_bits(),
-                                    true,
-                                ),
-                            });
-                        }
-                        None => {}
-                    }
-                }
-                for sensed_by_entity in sensable_component.sensed_by_cached.iter() {
-                    match handle_to_entity.inv_map.get(&sensed_by_entity) {
-                        Some(handle) => {
-                            net.send(OutgoingReliableServerMessage {
-                                handle: *handle,
-                                message: EntityServerMessage::UnloadEntity(
-                                    event.entity.to_bits(),
-                                    true,
-                                ),
+                                message: EntityServerMessage::UnloadEntity(event.entity.to_bits()),
                             });
                         }
                         None => {}
@@ -65,7 +47,6 @@ pub(crate) fn despawn_entity(
                 }
 
                 sensable_component.sensed_by = vec![];
-                sensable_component.sensed_by_cached = vec![];
             }
             Err(_) => {}
         }
@@ -135,61 +116,50 @@ pub(crate) fn spawn_entity_for_client(
 
                 let mut hash_map;
 
-                if load_entity_event.load_entirely {
-                    hash_map = entity_update.updates.clone();
+                hash_map = entity_update.updates.clone();
 
-                    personalise(
-                        &mut hash_map,
-                        load_entity_event.loader_handle,
-                        entity_update,
-                    );
+                personalise(
+                    &mut hash_map,
+                    load_entity_event.loader_handle,
+                    entity_update,
+                );
 
-                    let transform_entity_update = EntityUpdateData::Transform(
-                        transform.translation,
-                        transform.rotation,
-                        transform.scale,
-                    );
+                let transform_entity_update = EntityUpdateData::Transform(
+                    transform.translation,
+                    transform.rotation,
+                    transform.scale,
+                );
 
-                    match is_interpolated {
-                        true => {
-                            let mut transform_hash_map = HashMap::new();
-                            transform_hash_map
-                                .insert("transform".to_string(), transform_entity_update);
+                match is_interpolated {
+                    true => {
+                        let mut transform_hash_map = HashMap::new();
+                        transform_hash_map.insert("transform".to_string(), transform_entity_update);
 
-                            hash_map.insert("rawTransform".to_string(), transform_hash_map);
-                        }
-                        false => {
-                            let root_map_option = hash_map.get_mut(&".".to_string());
+                        hash_map.insert("rawTransform".to_string(), transform_hash_map);
+                    }
+                    false => {
+                        let root_map_option = hash_map.get_mut(&".".to_string());
 
-                            match root_map_option {
-                                Some(root_map) => {
-                                    root_map
-                                        .insert("transform".to_string(), transform_entity_update);
-                                }
-                                None => {
-                                    let mut transform_hash_map = HashMap::new();
-                                    transform_hash_map
-                                        .insert("transform".to_string(), transform_entity_update);
+                        match root_map_option {
+                            Some(root_map) => {
+                                root_map.insert("transform".to_string(), transform_entity_update);
+                            }
+                            None => {
+                                let mut transform_hash_map = HashMap::new();
+                                transform_hash_map
+                                    .insert("transform".to_string(), transform_entity_update);
 
-                                    hash_map.insert(".".to_string(), transform_hash_map);
-                                }
+                                hash_map.insert(".".to_string(), transform_hash_map);
                             }
                         }
                     }
-                } else {
-                    hash_map = HashMap::new();
                 }
 
                 server.send(OutgoingReliableServerMessage {
                     handle: load_entity_event.loader_handle,
                     message: EntityServerMessage::LoadEntity(
                         entity_data.entity_name.clone(),
-                        hash_map,
                         load_entity_event.entity.to_bits(),
-                        load_entity_event.load_entirely,
-                        "main".to_string(),
-                        "".to_string(),
-                        false,
                     ),
                 });
             }
