@@ -19,10 +19,7 @@ pub fn spawn_ambience_sfx(
 
     commands.entity(entity).insert((
         rigid_body_position,
-        EntityData {
-            entity_class: "SFX".to_string(),
-            ..Default::default()
-        },
+        EntityData::default(),
         Sensable {
             is_audible: true,
             always_sensed: true,
@@ -184,10 +181,7 @@ pub fn repeating_sfx_builder(
     let entity = (builder)(commands);
     commands.entity(entity).insert((
         rigid_body_position,
-        EntityData {
-            entity_class: "RepeatingSFX".to_string(),
-            ..Default::default()
-        },
+        EntityData::default(),
         Sensable {
             is_audible: true,
             ..Default::default()
@@ -208,10 +202,7 @@ pub fn sfx_builder(
     let entity = (builder)(commands);
     commands.entity(entity).insert((
         rigid_body_position,
-        EntityData {
-            entity_class: "SFX".to_string(),
-            ..Default::default()
-        },
+        EntityData::default(),
         Sensable {
             is_audible: true,
             ..Default::default()

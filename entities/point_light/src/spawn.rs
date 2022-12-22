@@ -1,4 +1,6 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, PointLightBundle, Transform};
+use const_format::concatcp;
+use entity::meta::SF_CONTENT_PREFIX;
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
     sensable::Sensable,
@@ -9,7 +11,7 @@ use entity::{
 pub struct PointLightBuilderBundle;
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub const POINT_LIGHT_ENTITY_NAME: &str = "point_light";
+pub const POINT_LIGHT_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "PointLight");
 
 #[cfg(any(feature = "server", feature = "client"))]
 impl PointLightBuilderBundle {
@@ -28,10 +30,7 @@ impl PointLightBuilderBundle {
                 ..Default::default()
             },
             static_transform_component,
-            EntityData {
-                entity_class: POINT_LIGHT_ENTITY_NAME.to_string(),
-                ..Default::default()
-            },
+            EntityData::default(),
             EntityUpdates::default(),
             WorldMode {
                 mode: WorldModes::Static,
@@ -75,10 +74,7 @@ impl PointLightBuildable for PointLightBuilder {
                 is_light: true,
                 ..Default::default()
             },
-            EntityData {
-                entity_class: POINT_LIGHT_ENTITY_NAME.to_string(),
-                ..Default::default()
-            },
+            EntityData::default(),
             EntityUpdates::default(),
             WorldMode {
                 mode: WorldModes::Static,
@@ -94,11 +90,10 @@ pub fn build_raw_point_lights(
     mut commands: Commands,
 ) {
     for event in spawn_events.iter() {
-        if event.raw_entity.entity_type == "OmniLight" {
+        if event.raw_entity.entity_type == POINT_LIGHT_ENTITY_NAME {
             let mut entity_transform = Transform::from_translation(event.raw_entity.translation);
             entity_transform.rotation = event.raw_entity.rotation;
             entity_transform.scale = event.raw_entity.scale;
-
             build_point_light.send(SpawnEntity {
                 spawn_data: EntityBuildData {
                     entity_transform: entity_transform,
@@ -119,7 +114,6 @@ pub fn get_default_point_light() -> PointLight {
     PointLight {
         intensity: 1500.,
         range: 10.,
-        radius: 5.,
         shadows_enabled: true,
         ..Default::default()
     }

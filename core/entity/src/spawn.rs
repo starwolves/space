@@ -80,7 +80,6 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
     let mut builder = commands.entity(entity);
     builder.insert((
         EntityData {
-            entity_class: "entity".to_string(),
             entity_name: data.entity_type.to_string(),
             entity_group: data.entity_group,
         },
@@ -153,7 +152,6 @@ pub fn build_base_entities<T: BaseEntityBuildable<NoData> + Send + Sync + 'stati
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        "entity".to_string(),
                         base_entity_bundle.entity_name,
                         HashMap::new(),
                         spawn_event.spawn_data.entity.to_bits(),

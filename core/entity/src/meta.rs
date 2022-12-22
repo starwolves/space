@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use bevy::prelude::Resource;
 
+pub const SF_CONTENT_PREFIX: &str = "sf::";
+
 /// Resource that contains entity meta data.
 #[derive(Default, Resource)]
 #[cfg(feature = "server")]

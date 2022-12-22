@@ -80,9 +80,9 @@ pub fn build_line_arrows<T: LinerArrowBuildable + Send + Sync + 'static>(
         ));
     }
 }
-
+use entity::meta::SF_CONTENT_PREFIX;
 #[cfg(any(feature = "server", feature = "client"))]
-pub const LINE_ARROW_ENTITY_NAME: &str = "lineArrow";
+pub const LINE_ARROW_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "lineArrow");
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn default_build_line_arrows(
@@ -98,3 +98,4 @@ pub fn default_build_line_arrows(
         }
     }
 }
+use const_format::concatcp;

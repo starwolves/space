@@ -1247,8 +1247,7 @@ pub struct InputDeconstruct {
     pub belonging_entity: Entity,
 }
 #[cfg(feature = "server")]
-pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = "constructionTool";
-
+pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "constructionTool");
 /// Client input construction options selection event.
 #[cfg(feature = "server")]
 pub struct InputConstructionOptionsSelection {
@@ -1257,3 +1256,5 @@ pub struct InputConstructionOptionsSelection {
     // Entity has been validated.
     pub entity: Entity,
 }
+use const_format::concatcp;
+use entity::meta::SF_CONTENT_PREFIX;
