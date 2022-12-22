@@ -133,7 +133,7 @@ pub(crate) fn airlock_added(
 
 /// When a default map air lock gets spawned.
 #[cfg(feature = "server")]
-pub(crate) fn air_lock_default_map_added(
+pub(crate) fn airlock_default_map_added(
     airlock_windows: Query<(Entity, &Transform, &DefaultMapEntity, &EntityData), Added<Airlock>>,
     mut map_data: ResMut<MapData>,
     mut gridmap_main: ResMut<GridmapMain>,
