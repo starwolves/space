@@ -17,7 +17,7 @@ pub(crate) fn toggle_open_action_prequisite_check(
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
-            if action.data.id == "actions::air_locks/toggleopen" {
+            if action.data.id == "actions::airlocks/toggleopen" {
                 let examiner_transform;
 
                 match transforms.get(building.action_taker) {
@@ -78,11 +78,11 @@ use networking::server::HandleToEntity;
 
 /// Manage air lock actions.
 #[cfg(feature = "server")]
-pub(crate) fn air_lock_actions(
+pub(crate) fn airlock_actions(
     building_action: Res<BuildingActions>,
-    mut air_lock_lock_open_event: EventWriter<AirLockLockOpen>,
-    mut air_lock_lock_closed_event: EventWriter<AirlockLockClosed>,
-    mut air_lock_unlock_event: EventWriter<AirlockUnlock>,
+    mut airlock_lock_open_event: EventWriter<AirLockLockOpen>,
+    mut airlock_lock_closed_event: EventWriter<AirlockLockClosed>,
+    mut airlock_unlock_event: EventWriter<AirlockUnlock>,
     mut toggle_open_events: EventWriter<InputAirlockToggleOpen>,
     handle_to_entity: Res<HandleToEntity>,
     action_requests: Res<ActionRequests>,
@@ -99,7 +99,7 @@ pub(crate) fn air_lock_actions(
         }
         for action_data in building.actions.iter() {
             if action_data.is_approved()
-                && action_data.data.id == "actions::air_locks/lockopen"
+                && action_data.data.id == "actions::airlocks/lockopen"
                 && action_data.data.id == building_action_id
             {
                 let handle_option;
@@ -111,14 +111,14 @@ pub(crate) fn air_lock_actions(
                         handle_option = None;
                     }
                 }
-                air_lock_lock_open_event.send(AirLockLockOpen {
+                airlock_lock_open_event.send(AirLockLockOpen {
                     handle_option,
                     locker: building.action_taker,
                     locked: building.target_entity_option.unwrap(),
                 });
             }
             if action_data.is_approved()
-                && action_data.data.id == "actions::air_locks/lockclosed"
+                && action_data.data.id == "actions::airlocks/lockclosed"
                 && action_data.data.id == building_action_id
             {
                 let handle_option;
@@ -130,14 +130,14 @@ pub(crate) fn air_lock_actions(
                         handle_option = None;
                     }
                 }
-                air_lock_lock_closed_event.send(AirlockLockClosed {
+                airlock_lock_closed_event.send(AirlockLockClosed {
                     handle_option,
                     locker: building.action_taker,
                     locked: building.target_entity_option.unwrap(),
                 });
             }
             if action_data.is_approved()
-                && action_data.data.id == "actions::air_locks/unlock"
+                && action_data.data.id == "actions::airlocks/unlock"
                 && action_data.data.id == building_action_id
             {
                 let handle_option;
@@ -149,14 +149,14 @@ pub(crate) fn air_lock_actions(
                         handle_option = None;
                     }
                 }
-                air_lock_unlock_event.send(AirlockUnlock {
+                airlock_unlock_event.send(AirlockUnlock {
                     handle_option,
                     locker: building.action_taker,
                     locked: building.target_entity_option.unwrap(),
                 });
             }
             if action_data.is_approved()
-                && action_data.data.id == "actions::air_locks/toggleopen"
+                && action_data.data.id == "actions::airlocks/toggleopen"
                 && action_data.data.id == building_action_id
             {
                 let handle_option;
@@ -187,9 +187,9 @@ pub(crate) fn lock_action_prequisite_check(
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
-            if action.data.id == "actions::air_locks/lockopen"
-                || action.data.id == "actions::air_locks/lockclosed"
-                || action.data.id == "actions::air_locks/unlock"
+            if action.data.id == "actions::airlocks/lockopen"
+                || action.data.id == "actions::airlocks/lockclosed"
+                || action.data.id == "actions::airlocks/unlock"
             {
                 let examiner_transform;
                 let examiner_data_link;
@@ -255,16 +255,16 @@ pub(crate) fn lock_action_prequisite_check(
 #[cfg(feature = "server")]
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
-    air_locks: Query<&Airlock>,
+    airlocks: Query<&Airlock>,
 ) {
     for building_action in building_action_data.list.iter_mut() {
         match building_action.target_entity_option {
-            Some(examined_entity) => match air_locks.get(examined_entity) {
+            Some(examined_entity) => match airlocks.get(examined_entity) {
                 Ok(_) => {
                     let mut new_vec = vec![
                         ActionData {
                             data: Action {
-                                id: "actions::air_locks/toggleopen".to_string(),
+                                id: "actions::airlocks/toggleopen".to_string(),
                                 text: "Toggle Open".to_string(),
                                 tab_list_priority: 100,
                             },
@@ -272,7 +272,7 @@ pub(crate) fn build_actions(
                         },
                         ActionData {
                             data: Action {
-                                id: "actions::air_locks/lockopen".to_string(),
+                                id: "actions::airlocks/lockopen".to_string(),
                                 text: "Lock Open".to_string(),
                                 tab_list_priority: 99,
                             },
@@ -280,7 +280,7 @@ pub(crate) fn build_actions(
                         },
                         ActionData {
                             data: Action {
-                                id: "actions::air_locks/lockclosed".to_string(),
+                                id: "actions::airlocks/lockclosed".to_string(),
                                 text: "Lock Closed".to_string(),
                                 tab_list_priority: 98,
                             },
@@ -288,7 +288,7 @@ pub(crate) fn build_actions(
                         },
                         ActionData {
                             data: Action {
-                                id: "actions::air_locks/unlock".to_string(),
+                                id: "actions::airlocks/unlock".to_string(),
                                 text: "Unlock".to_string(),
                                 tab_list_priority: 97,
                             },

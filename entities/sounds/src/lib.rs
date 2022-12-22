@@ -3,7 +3,7 @@
 /// Sound library.
 pub mod actions;
 /// Sound library.
-pub mod air_lock;
+pub mod airlock;
 /// Sound library.
 mod ambience;
 /// Sound library.

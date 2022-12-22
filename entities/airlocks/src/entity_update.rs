@@ -8,17 +8,17 @@ use super::resources::{AccessLightsStatus, Airlock, AirlockStatus};
 
 /// Air lock entity update for Godot clients.
 #[cfg(feature = "server")]
-pub(crate) fn air_lock_update(
-    mut updated_air_locks: Query<(&Airlock, &mut EntityUpdates), Changed<Airlock>>,
+pub(crate) fn airlock_update(
+    mut updated_airlocks: Query<(&Airlock, &mut EntityUpdates), Changed<Airlock>>,
 ) {
-    for (air_lock_component, mut entity_updates_component) in updated_air_locks.iter_mut() {
+    for (airlock_component, mut entity_updates_component) in updated_airlocks.iter_mut() {
         let old_entity_updates = entity_updates_component.updates.clone();
 
         let mut animation_tree_data = HashMap::new();
 
         animation_tree_data.insert("blend_speed".to_string(), EntityUpdateData::Float(0.6));
 
-        match air_lock_component.status {
+        match airlock_component.status {
             AirlockStatus::Open => {
                 animation_tree_data
                     .insert("blend_position".to_string(), EntityUpdateData::Float(1.));
@@ -37,7 +37,7 @@ pub(crate) fn air_lock_update(
         let mut door_left_data = HashMap::new();
         let mut door_right_data = HashMap::new();
 
-        match air_lock_component.access_lights {
+        match airlock_component.access_lights {
             AccessLightsStatus::Neutral => {
                 door_left_data.insert(
                     "emissiveTexture".to_string(),

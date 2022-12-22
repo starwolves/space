@@ -14,7 +14,7 @@ use resources::labels::{
 
 use crate::{
     actions::{
-        air_lock_actions, build_actions, lock_action_prequisite_check,
+        airlock_actions, build_actions, lock_action_prequisite_check,
         toggle_open_action_prequisite_check,
     },
     airlock_events::{
@@ -25,10 +25,10 @@ use crate::{
 };
 
 use super::{
-    airlock_added::{air_lock_default_map_added, airlock_added},
+    airlock_added::{airlock_added, airlock_default_map_added},
     airlock_events::airlock_events,
     airlock_tick_timers::airlock_tick_timers,
-    entity_update::air_lock_update,
+    entity_update::airlock_update,
     spawn::{
         build_airlocks, default_build_airlocks, summon_raw_airlocks, AirlockBuilder,
         BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, SECURITY_AIRLOCK_ENTITY_NAME,
@@ -52,7 +52,7 @@ impl Plugin for AirLocksPlugin {
                 .add_system(airlock_added)
                 .add_system(airlock_tick_timers)
                 .add_system(airlock_events)
-                .add_system(air_lock_default_map_added)
+                .add_system(airlock_default_map_added)
                 .add_system(physics_events)
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>()
@@ -61,7 +61,7 @@ impl Plugin for AirLocksPlugin {
                     PostUpdate,
                     SystemSet::new()
                         .label(PostUpdateLabels::EntityUpdate)
-                        .with_system(air_lock_update),
+                        .with_system(airlock_update),
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
                 .add_system(build_airlocks::<AirlockBuilder>.after(BuildingLabels::TriggerBuild))
@@ -92,7 +92,7 @@ impl Plugin for AirLocksPlugin {
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
-                    air_lock_actions
+                    airlock_actions
                         .label(ActionsLabels::Action)
                         .after(ActionsLabels::Approve),
                 )

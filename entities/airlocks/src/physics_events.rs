@@ -67,7 +67,7 @@ fn process_physics_event(
     collider2_entity: Entity,
     collision_started: bool,
     interesting_entities_query: &Query<(Entity, &EntityData, &Transform)>,
-    air_lock_collision_event: &mut EventWriter<AirlockCollision>,
+    airlock_collision_event: &mut EventWriter<AirlockCollision>,
 ) {
     let mut first_collider_group = EntityGroup::None;
     let mut second_collider_group = EntityGroup::None;
@@ -105,7 +105,7 @@ fn process_physics_event(
     if matches!(first_collider_group, EntityGroup::AirLock)
         || matches!(second_collider_group, EntityGroup::AirLock)
     {
-        air_lock_collision_event.send(AirlockCollision {
+        airlock_collision_event.send(AirlockCollision {
             collider1_entity: collider1_entity,
             collider2_entity: collider2_entity,
 

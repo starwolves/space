@@ -92,7 +92,7 @@ impl BaseEntityBuildable<NoData> for AirlockBuilder {
 }
 
 #[cfg(feature = "server")]
-pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
+pub const DEFAULT_AIRLOCK_Y: f32 = 1.;
 
 #[cfg(feature = "server")]
 impl RigidBodyBuildable<NoData> for AirlockBuilder {
@@ -102,7 +102,7 @@ impl RigidBodyBuildable<NoData> for AirlockBuilder {
 
         RigidBodyBundle {
             collider: Collider::cuboid(1., 1., 0.2),
-            collider_transform: Transform::from_translation(Vec3::new(0., DEFAULT_AIR_LOCK_Y, 0.)),
+            collider_transform: Transform::from_translation(Vec3::new(0., DEFAULT_AIRLOCK_Y, 0.)),
             collider_friction: friction,
             rigidbody_dynamic: false,
             collision_events: true,
@@ -157,7 +157,7 @@ pub fn default_build_airlocks(
 #[cfg(feature = "server")]
 pub fn summon_raw_airlocks(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_air_lock: EventWriter<SpawnEntity<AirlockBuilder>>,
+    mut summon_airlock: EventWriter<SpawnEntity<AirlockBuilder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -173,7 +173,7 @@ pub fn summon_raw_airlocks(
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
 
-        summon_air_lock.send(SpawnEntity {
+        summon_airlock.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
