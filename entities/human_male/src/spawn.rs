@@ -4,7 +4,7 @@ use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transfor
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
 use entity::{
-    entity_data::{WorldMode, WorldModes, ENTITY_SPAWN_PARENT},
+    entity_data::{WorldMode, WorldModes},
     examine::{Examinable, RichName},
     health::{DamageFlag, Health, HealthContainer, HumanoidHealth},
     meta::EntityDataResource,
@@ -126,12 +126,7 @@ pub fn build_base_human_males<
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
                         base_entity_bundle.entity_name,
-                        HashMap::new(),
                         spawn_event.spawn_data.entity.to_bits(),
-                        true,
-                        "main".to_string(),
-                        ENTITY_SPAWN_PARENT.to_string(),
-                        false,
                     ),
                 });
             }

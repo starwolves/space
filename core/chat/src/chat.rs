@@ -1108,9 +1108,6 @@ pub(crate) fn chat_message(
                             for s in sensable.sensed_by.iter() {
                                 sensed_by_list.push(*s);
                             }
-                            for s in sensable.sensed_by_cached.iter() {
-                                sensed_by_list.push(*s);
-                            }
                         }
                         Err(_) => {
                             warn!("chat couldnt find player pawn.");

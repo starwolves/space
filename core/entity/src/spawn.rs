@@ -1,13 +1,9 @@
-use std::collections::HashMap;
-
 use crate::showcase::{Showcase, ShowcaseData};
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform};
 use serde::Deserialize;
 
 use crate::{
-    entity_data::{
-        CachedBroadcastTransform, EntityData, EntityGroup, EntityUpdates, ENTITY_SPAWN_PARENT,
-    },
+    entity_data::{CachedBroadcastTransform, EntityData, EntityGroup, EntityUpdates},
     examine::Examinable,
     health::{Health, HealthComponent},
     meta::EntityDataResource,
@@ -153,12 +149,7 @@ pub fn build_base_entities<T: BaseEntityBuildable<NoData> + Send + Sync + 'stati
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
                         base_entity_bundle.entity_name,
-                        HashMap::new(),
                         spawn_event.spawn_data.entity.to_bits(),
-                        true,
-                        "main".to_string(),
-                        ENTITY_SPAWN_PARENT.to_string(),
-                        false,
                     ),
                 });
             }
