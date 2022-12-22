@@ -75,6 +75,7 @@ impl Default for RigidBodySpawnData {
         }
     }
 }
+use entity::entity_data::{WorldMode, WorldModes};
 
 use crate::physics::RigidBodyDisabled;
 #[cfg(any(feature = "server", feature = "client"))]
@@ -84,8 +85,6 @@ pub fn rigidbody_builder(
     entity: Entity,
     is_showcase: bool,
 ) {
-    use entity::entity_data::{WorldMode, WorldModes};
-
     let rigidbody;
     let masks;
 

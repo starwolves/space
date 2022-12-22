@@ -82,7 +82,12 @@ pub(crate) fn broadcast_interpolation_transforms(
             scale: Vec3::ONE,
         };
 
-        if this_transform == cached_transform_component.transform {
+        if this_transform == cached_transform_component.transform
+            || this_transform
+                .translation
+                .distance(cached_transform_component.transform.translation)
+                < 0.01
+        {
             cached_transform_component.is_active = false;
             continue;
         }

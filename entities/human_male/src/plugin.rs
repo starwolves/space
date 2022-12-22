@@ -13,7 +13,7 @@ use resources::{
 };
 
 use crate::{
-    boarding::on_spawning,
+    boarding::spawn_boarding_player,
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
     spawn::{default_human_dummy, summon_base_human_male, summon_human_male, HumanMaleSummoner},
@@ -30,7 +30,7 @@ impl Plugin for HumanMalePlugin {
                     .after(CombatLabels::CacheAttack),
             )
             .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon))
-            .add_system_to_stage(PostUpdate, on_spawning);
+            .add_system_to_stage(PostUpdate, spawn_boarding_player);
         }
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(

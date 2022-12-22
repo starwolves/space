@@ -24,7 +24,7 @@ use pawn::pawn::Pawn;
 use player::boarding::PlayerBoarded;
 /// Spawn player as human male with preset inventory.
 #[cfg(feature = "server")]
-pub(crate) fn on_spawning(
+pub(crate) fn spawn_boarding_player(
     query: Query<(Entity, &Spawning, &ConnectedPlayer), Added<Spawning>>,
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
@@ -71,7 +71,7 @@ pub(crate) fn on_spawning(
         summon_human_male.send(SpawnEvent {
             spawn_data: SpawnData {
                 entity: new_entity,
-                entity_transform: spawning_component.transform,
+                entity_transform: spawning_component.transform.clone(),
                 entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },

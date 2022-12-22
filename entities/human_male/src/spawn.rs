@@ -106,7 +106,6 @@ pub fn summon_base_human_male<
                 used_names: used_names.clone(),
             },
         );
-
         base_entity_builder(
             &mut commands,
             BaseEntityData {
@@ -202,11 +201,6 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
                 .get_spawn_pawn_data()
                 .pawn_component
                 .clone();
-
-            spawner.remove::<Transform>();
-            let mut new_transform = spawn_event.spawn_data.entity_transform;
-            new_transform.translation.y = 0.9 - R;
-            spawner.insert(new_transform);
 
             spawner.insert((
                 Senser::default(),
