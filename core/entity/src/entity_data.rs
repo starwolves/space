@@ -109,12 +109,12 @@ pub const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 #[cfg(feature = "server")]
 pub struct DefaultMapEntity;
 
-/// Event about spawning entities from json.
+/// Event about spawning entities from ron.
 #[cfg(feature = "server")]
 pub struct RawSpawnEvent {
     pub raw_entity: RawEntityRon,
 }
-/// Load json entities.
+/// Load ron entities.
 #[cfg(feature = "server")]
 pub fn load_raw_map_entities(
     raw_entities: &Vec<RawEntityRon>,
@@ -127,7 +127,7 @@ pub fn load_raw_map_entities(
     }
 }
 
-/// json entity.
+/// ron entity.
 #[derive(Deserialize, Clone)]
 #[cfg(feature = "server")]
 pub struct RawEntity {
@@ -151,7 +151,7 @@ pub struct UpdateTransform;
 #[cfg(feature = "server")]
 pub const ENTITY_SPAWN_PARENT : &str = "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial";
 
-/// Check if entity updates for a player has changed.
+/// Check if entity updates for a player has changed. Old Godot netcode.
 #[cfg(feature = "server")]
 pub fn entity_update_changed_detection(
     changed_parameters: &mut Vec<String>,
@@ -205,7 +205,7 @@ pub enum EntityGroup {
     Pawn,
 }
 
-/// Entity update component containing Godot node related updates for clients for visual changes.
+/// Entity update component containing Godot node related updates for clients for visual changes. Old Godot netcode.
 #[derive(Component)]
 #[cfg(feature = "server")]
 pub struct EntityUpdates {
@@ -229,7 +229,7 @@ impl Default for EntityUpdates {
     }
 }
 
-/// Match entity data as a function.
+/// Match entity data as a function. Old Godot netcode.
 #[cfg(feature = "server")]
 pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateData) -> bool {
     let mut is_not_matching = true;
@@ -364,7 +364,7 @@ pub fn personalise(
     }
 }
 
-/// Get difference between this frame and last's frame entity updates per player.
+/// Get difference between this frame and last's frame entity updates per player. Old Godot netcode.
 #[cfg(feature = "server")]
 pub fn get_entity_update_difference(
     old_data: HashMap<String, HashMap<String, EntityUpdateData>>,
