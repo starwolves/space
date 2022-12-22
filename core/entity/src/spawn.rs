@@ -255,7 +255,6 @@ pub fn spawn_entity(
                 }
             }
             return_entity = Some(commands.spawn(()).id());
-
             default_spawner.send(DefaultSpawnEvent {
                 spawn_data: SpawnData {
                     entity_transform: transform,
@@ -276,9 +275,7 @@ pub fn spawn_entity(
     };
 
     match return_entity {
-        Some(_entity) => {
-            //info!("{:?}",entity);
-        }
+        Some(_entity) => {}
         None => {}
     }
 
