@@ -6,7 +6,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{build_base_entities, SpawnEntity},
 };
-use physics::spawn::summon_rigid_body;
+use physics::spawn::build_rigid_boies;
 use resources::is_server::is_server;
 use resources::labels::{
     ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels,
@@ -30,7 +30,7 @@ use super::{
     airlock_tick_timers::airlock_tick_timers,
     entity_update::airlock_update,
     spawn::{
-        build_airlocks, default_build_airlocks, summon_raw_airlocks, AirlockBuilder,
+        build_airlocks, build_raw_airlocks, default_build_airlocks, AirlockBuilder,
         BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, SECURITY_AIRLOCK_ENTITY_NAME,
         VACUUM_AIRLOCK_ENTITY_NAME,
     },
@@ -66,12 +66,12 @@ impl Plugin for AirLocksPlugin {
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
                 .add_system(build_airlocks::<AirlockBuilder>.after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    (summon_rigid_body::<AirlockBuilder>).after(BuildingLabels::TriggerBuild),
+                    (build_rigid_boies::<AirlockBuilder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
                     (build_base_entities::<AirlockBuilder>).after(BuildingLabels::TriggerBuild),
                 )
-                .add_system((summon_raw_airlocks).after(BuildingLabels::TriggerBuild))
+                .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild))
                 .add_system(
                     default_build_airlocks
                         .label(BuildingLabels::DefaultBuild)

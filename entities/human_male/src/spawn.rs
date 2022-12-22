@@ -100,7 +100,7 @@ pub fn build_base_human_males<
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
     for spawn_event in spawn_events.iter() {
-        let base_entity_bundle = spawn_event.summoner.get_bundle(
+        let base_entity_bundle = spawn_event.builder.get_bundle(
             &spawn_event.spawn_data,
             HumanMaleBuildData {
                 used_names: used_names.clone(),
@@ -193,11 +193,11 @@ pub fn build_human_males<T: HumanMaleBuildable + Send + Sync + 'static>(
     for spawn_event in spawn_events.iter() {
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
-        let spawn_pawn_data = spawn_event.summoner.get_spawn_pawn_data();
+        let spawn_pawn_data = spawn_event.builder.get_spawn_pawn_data();
 
         if spawn_event.spawn_data.showcase_data_option.is_none() {
             let pawn_component = spawn_event
-                .summoner
+                .builder
                 .get_spawn_pawn_data()
                 .pawn_component
                 .clone();
@@ -399,7 +399,7 @@ pub(crate) fn default_build_human_dummies(
         if spawn_event.spawn_data.entity_name == HUMAN_DUMMY_ENTITY_NAME {
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
-                summoner: HumanMaleBuilder {
+                builder: HumanMaleBuilder {
                     spawn_pawn_data: SpawnPawnData {
                         pawn_component: Pawn {
                             character_name: get_dummy_name(&mut used_names),

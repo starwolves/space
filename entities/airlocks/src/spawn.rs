@@ -149,15 +149,15 @@ pub fn default_build_airlocks(
 
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: AirlockBuilder,
+            builder: AirlockBuilder,
         });
     }
 }
 
 #[cfg(feature = "server")]
-pub fn summon_raw_airlocks(
+pub fn build_raw_airlocks(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_airlock: EventWriter<SpawnEntity<AirlockBuilder>>,
+    mut build_airlock: EventWriter<SpawnEntity<AirlockBuilder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -173,7 +173,7 @@ pub fn summon_raw_airlocks(
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
 
-        summon_airlock.send(SpawnEntity {
+        build_airlock.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
@@ -182,7 +182,7 @@ pub fn summon_raw_airlocks(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: AirlockBuilder,
+            builder: AirlockBuilder,
         });
     }
 }

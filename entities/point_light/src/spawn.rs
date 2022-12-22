@@ -6,13 +6,13 @@ use entity::{
 };
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct PointLightSummonBundle;
+pub struct PointLightBuilderBundle;
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub const POINT_LIGHT_ENTITY_NAME: &str = "point_light";
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl PointLightSummonBundle {
+impl PointLightBuilderBundle {
     pub fn spawn(
         entity_transform: Transform,
         commands: &mut Commands,
@@ -52,7 +52,7 @@ pub fn build_point_lights<T: PointLightBuildable + Send + Sync + 'static>(
 ) {
     for spawn_event in spawn_events.iter() {
         spawn_event
-            .summoner
+            .builder
             .spawn(&spawn_event.spawn_data, &mut commands);
     }
 }
@@ -90,7 +90,7 @@ impl PointLightBuildable for PointLightBuilder {
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_raw_point_lights(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_point_light: EventWriter<SpawnEntity<PointLightBuilder>>,
+    mut build_point_light: EventWriter<SpawnEntity<PointLightBuilder>>,
     mut commands: Commands,
 ) {
     for event in spawn_events.iter() {
@@ -99,7 +99,7 @@ pub fn build_raw_point_lights(
             entity_transform.rotation = event.raw_entity.rotation;
             entity_transform.scale = event.raw_entity.scale;
 
-            summon_point_light.send(SpawnEntity {
+            build_point_light.send(SpawnEntity {
                 spawn_data: EntityBuildData {
                     entity_transform: entity_transform,
                     default_map_spawn: true,
@@ -107,7 +107,7 @@ pub fn build_raw_point_lights(
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                summoner: PointLightBuilder {
+                builder: PointLightBuilder {
                     light: get_default_point_light(),
                 },
             });

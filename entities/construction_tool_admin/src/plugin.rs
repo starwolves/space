@@ -5,7 +5,7 @@ use entity::entity_data::initialize_entity_data;
 use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::{build_base_entities, SpawnEntity};
 use inventory::spawn_item::build_inventory_items;
-use physics::spawn::summon_rigid_body;
+use physics::spawn::build_rigid_boies;
 use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, StartupLabels, UpdateLabels};
 
@@ -24,8 +24,8 @@ use super::{
         construction_tool, InputConstruct, InputConstructionOptions, InputDeconstruct,
     },
     spawn::{
-        default_summon_construction_tool, summon_construction_tool, summon_raw_construction_tool,
-        ConstructionToolSummoner,
+        build_construction_tools, build_raw_construction_tools, default_build_construction_tools,
+        ConstructionToolBuilder,
     },
 };
 
@@ -45,25 +45,25 @@ impl Plugin for ConstructionToolAdminPlugin {
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
-                    summon_construction_tool::<ConstructionToolSummoner>
+                    build_construction_tools::<ConstructionToolBuilder>
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (build_base_entities::<ConstructionToolSummoner>)
+                    (build_base_entities::<ConstructionToolBuilder>)
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<ConstructionToolSummoner>)
+                    (build_rigid_boies::<ConstructionToolBuilder>)
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (build_inventory_items::<ConstructionToolSummoner>)
+                    (build_inventory_items::<ConstructionToolBuilder>)
                         .after(BuildingLabels::TriggerBuild),
                 )
-                .add_system((summon_raw_construction_tool).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<ConstructionToolSummoner>>()
+                .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild))
+                .add_event::<SpawnEntity<ConstructionToolBuilder>>()
                 .add_system(
-                    (default_summon_construction_tool)
+                    (default_build_construction_tools)
                         .label(BuildingLabels::DefaultBuild)
                         .after(BuildingLabels::NormalBuild),
                 )

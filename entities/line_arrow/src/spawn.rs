@@ -72,7 +72,7 @@ pub fn build_line_arrows<T: LinerArrowBuildable + Send + Sync + 'static>(
             spawn_event.spawn_data.entity_transform,
             LineArrow,
             PointArrow {
-                timer: Timer::from_seconds(spawn_event.summoner.get_duration(), TimerMode::Once),
+                timer: Timer::from_seconds(spawn_event.builder.get_duration(), TimerMode::Once),
             },
             WorldMode {
                 mode: WorldModes::Static,
@@ -93,7 +93,7 @@ pub fn default_build_line_arrows(
         if spawn_event.spawn_data.entity_name == LINE_ARROW_ENTITY_NAME {
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
-                summoner: LineArrowBuilder { duration: 6000.0 },
+                builder: LineArrowBuilder { duration: 6000.0 },
             });
         }
     }

@@ -9,7 +9,7 @@ use entity::{
     spawn::{build_base_entities, SpawnEntity},
 };
 use inventory::spawn_item::build_inventory_items;
-use physics::spawn::summon_rigid_body;
+use physics::spawn::build_rigid_boies;
 use resources::{
     is_server::is_server,
     labels::{BuildingLabels, CombatLabels, StartupLabels},
@@ -32,7 +32,7 @@ impl Plugin for JumpsuitsPlugin {
                     (build_base_entities::<JumpsuitSpawner>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<JumpsuitSpawner>).after(BuildingLabels::TriggerBuild),
+                    (build_rigid_boies::<JumpsuitSpawner>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_jumpsuits).after(BuildingLabels::TriggerBuild))
                 .add_system(

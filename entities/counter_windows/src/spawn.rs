@@ -171,7 +171,7 @@ pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str = "bridgeCounterWindow";
 #[cfg(feature = "server")]
 pub fn build_raw_counter_windows(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEntity<CounterWindowBuilder>>,
+    mut builder_computer: EventWriter<SpawnEntity<CounterWindowBuilder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -184,7 +184,7 @@ pub fn build_raw_counter_windows(
         let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
-        summon_computer.send(SpawnEntity {
+        builder_computer.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
@@ -193,7 +193,7 @@ pub fn build_raw_counter_windows(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: CounterWindowBuilder,
+            builder: CounterWindowBuilder,
         });
     }
 }
@@ -211,7 +211,7 @@ pub fn default_build_counter_windows(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: CounterWindowBuilder,
+            builder: CounterWindowBuilder,
         });
     }
 }

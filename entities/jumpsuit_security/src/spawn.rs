@@ -157,7 +157,7 @@ pub fn build_jumpsuits<T: Send + Sync + 'static>(
 #[cfg(feature = "server")]
 pub fn build_raw_jumpsuits(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEntity<JumpsuitSpawner>>,
+    mut builder_computer: EventWriter<SpawnEntity<JumpsuitSpawner>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -168,7 +168,7 @@ pub fn build_raw_jumpsuits(
         let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
-        summon_computer.send(SpawnEntity {
+        builder_computer.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
@@ -177,7 +177,7 @@ pub fn build_raw_jumpsuits(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: JumpsuitSpawner,
+            builder: JumpsuitSpawner,
         });
     }
 }
@@ -194,7 +194,7 @@ pub fn default_build_jumpsuits(
 
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: JumpsuitSpawner,
+            builder: JumpsuitSpawner,
         });
     }
 }
