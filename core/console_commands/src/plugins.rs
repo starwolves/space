@@ -3,7 +3,7 @@ use networking::messaging::{init_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
     is_server::is_server,
-    labels::{StartupLabels, SummoningLabels},
+    labels::{BuildingLabels, StartupLabels},
 };
 
 use crate::{
@@ -37,7 +37,7 @@ impl Plugin for ConsoleCommandsPlugin {
                 .add_startup_system(
                     initialize_console_commands_2
                         .before(ConsoleCommandsLabels::Finalize)
-                        .label(SummoningLabels::TriggerSummon),
+                        .label(BuildingLabels::TriggerBuild),
                 );
         }
 

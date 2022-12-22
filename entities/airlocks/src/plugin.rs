@@ -4,12 +4,12 @@ use entity::meta::GridItemData;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{summon_base_entity, SpawnEvent},
+    spawn::{build_base_entities, SpawnEntity},
 };
 use physics::spawn::summon_rigid_body;
 use resources::is_server::is_server;
 use resources::labels::{
-    ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels,
+    ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels,
 };
 
 use crate::{
@@ -17,20 +17,20 @@ use crate::{
         air_lock_actions, build_actions, lock_action_prequisite_check,
         toggle_open_action_prequisite_check,
     },
-    air_lock_events::{
-        AirLockCollision, AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen,
+    airlock_events::{
+        AirLockLockOpen, AirlockCollision, AirlockLockClosed, AirlockUnlock, InputAirlockToggleOpen,
     },
     physics_events::physics_events,
-    resources::AirLock,
+    resources::Airlock,
 };
 
 use super::{
-    air_lock_added::{air_lock_added, air_lock_default_map_added},
-    air_lock_events::air_lock_events,
-    air_lock_tick_timers::air_lock_tick_timers,
+    airlock_added::{air_lock_default_map_added, airlock_added},
+    airlock_events::airlock_events,
+    airlock_tick_timers::airlock_tick_timers,
     entity_update::air_lock_update,
     spawn::{
-        default_summon_air_lock, summon_air_lock, summon_raw_air_lock, AirlockSummoner,
+        build_airlocks, default_build_airlocks, summon_raw_airlocks, AirlockBuilder,
         BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, SECURITY_AIRLOCK_ENTITY_NAME,
         VACUUM_AIRLOCK_ENTITY_NAME,
     },
@@ -46,17 +46,17 @@ pub struct AirLocksPlugin;
 impl Plugin for AirLocksPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_event::<AirLockCollision>()
-                .add_event::<InputAirLockToggleOpen>()
+            app.add_event::<AirlockCollision>()
+                .add_event::<InputAirlockToggleOpen>()
                 .add_event::<AirLockLockOpen>()
-                .add_system(air_lock_added)
-                .add_system(air_lock_tick_timers)
-                .add_system(air_lock_events)
+                .add_system(airlock_added)
+                .add_system(airlock_tick_timers)
+                .add_system(airlock_events)
                 .add_system(air_lock_default_map_added)
                 .add_system(physics_events)
-                .add_event::<AirLockLockClosed>()
-                .add_event::<AirLockUnlock>()
-                .add_event::<SpawnEvent<AirlockSummoner>>()
+                .add_event::<AirlockLockClosed>()
+                .add_event::<AirlockUnlock>()
+                .add_event::<SpawnEntity<AirlockBuilder>>()
                 .add_system_set_to_stage(
                     PostUpdate,
                     SystemSet::new()
@@ -64,23 +64,21 @@ impl Plugin for AirLocksPlugin {
                         .with_system(air_lock_update),
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
+                .add_system(build_airlocks::<AirlockBuilder>.after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    summon_air_lock::<AirlockSummoner>.after(SummoningLabels::TriggerSummon),
+                    (summon_rigid_body::<AirlockBuilder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<AirlockSummoner>).after(SummoningLabels::TriggerSummon),
+                    (build_base_entities::<AirlockBuilder>).after(BuildingLabels::TriggerBuild),
+                )
+                .add_system((summon_raw_airlocks).after(BuildingLabels::TriggerBuild))
+                .add_system(
+                    default_build_airlocks
+                        .label(BuildingLabels::DefaultBuild)
+                        .after(BuildingLabels::NormalBuild),
                 )
                 .add_system(
-                    (summon_base_entity::<AirlockSummoner>).after(SummoningLabels::TriggerSummon),
-                )
-                .add_system((summon_raw_air_lock).after(SummoningLabels::TriggerSummon))
-                .add_system(
-                    default_summon_air_lock
-                        .label(SummoningLabels::DefaultSummon)
-                        .after(SummoningLabels::NormalSummon),
-                )
-                .add_system(
-                    health_combat_hit_result_sfx::<AirLock>
+                    health_combat_hit_result_sfx::<Airlock>
                         .after(CombatLabels::FinalizeApplyDamage),
                 )
                 .add_system(

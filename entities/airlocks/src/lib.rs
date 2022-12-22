@@ -5,11 +5,11 @@
 /// Air lock actions.
 mod actions;
 /// On new air lock creation.
-mod air_lock_added;
+mod airlock_added;
 /// Manage air lock events.
-pub mod air_lock_events;
+pub mod airlock_events;
 /// Manage air lock timers like auto-close.
-mod air_lock_tick_timers;
+mod airlock_tick_timers;
 /// Manage air lock entity updates.
 mod entity_update;
 /// Manage physics events.

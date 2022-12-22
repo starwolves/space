@@ -7,12 +7,12 @@ use entity::meta::GridItemData;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{summon_base_entity, SpawnEvent},
+    spawn::{build_base_entities, SpawnEntity},
 };
 use physics::spawn::summon_rigid_body;
 use resources::{
     is_server::is_server,
-    labels::{ActionsLabels, CombatLabels, PostUpdateLabels, StartupLabels, SummoningLabels},
+    labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels},
 };
 
 use crate::{
@@ -33,8 +33,8 @@ use super::{
     counter_window_tick_timers::counter_window_tick_timers,
     entity_update::counter_window_update,
     spawn::{
-        default_summon_counter_window, summon_counter_window, summon_raw_counter_window,
-        CounterWindowSummoner, BRIDGE_COUNTER_WINDOW_ENTITY_NAME,
+        build_counter_windows, build_raw_counter_windows, default_build_counter_windows,
+        CounterWindowBuilder, BRIDGE_COUNTER_WINDOW_ENTITY_NAME,
         SECURITY_COUNTER_WINDOW_ENTITY_NAME,
     },
 };
@@ -63,23 +63,22 @@ impl Plugin for CounterWindowsPlugin {
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
                 .add_system(
-                    summon_counter_window::<CounterWindowSummoner>
-                        .after(SummoningLabels::TriggerSummon),
+                    build_counter_windows::<CounterWindowBuilder>
+                        .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_base_entity::<CounterWindowSummoner>)
-                        .after(SummoningLabels::TriggerSummon),
+                    (build_base_entities::<CounterWindowBuilder>)
+                        .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<CounterWindowSummoner>)
-                        .after(SummoningLabels::TriggerSummon),
+                    (summon_rigid_body::<CounterWindowBuilder>).after(BuildingLabels::TriggerBuild),
                 )
-                .add_system((summon_raw_counter_window).after(SummoningLabels::TriggerSummon))
-                .add_event::<SpawnEvent<CounterWindowSummoner>>()
+                .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild))
+                .add_event::<SpawnEntity<CounterWindowBuilder>>()
                 .add_system(
-                    (default_summon_counter_window)
-                        .label(SummoningLabels::DefaultSummon)
-                        .after(SummoningLabels::NormalSummon),
+                    (default_build_counter_windows)
+                        .label(BuildingLabels::DefaultBuild)
+                        .after(BuildingLabels::NormalBuild),
                 )
                 .add_system(
                     health_combat_hit_result_sfx::<CounterWindow>

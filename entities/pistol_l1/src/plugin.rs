@@ -8,19 +8,19 @@ use combat::{
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{summon_base_entity, SpawnEvent},
+    spawn::{build_base_entities, SpawnEntity},
 };
-use inventory::spawn_item::summon_inventory_item;
+use inventory::spawn_item::build_inventory_items;
 use physics::spawn::summon_rigid_body;
 use resources::{
     is_server::is_server,
-    labels::{CombatLabels, StartupLabels, SummoningLabels},
+    labels::{BuildingLabels, CombatLabels, StartupLabels},
 };
 
 use crate::pistol_l1::{PistolL1, PISTOL_L1_ENTITY_NAME};
 
 use super::spawn::{
-    default_summon_pistol_l1, summon_pistol_l1, summon_raw_pistol_l1, PistolL1Summoner,
+    build_pistols_l1, build_raw_pistols_l1, default_build_pistols_l1, PistolL1Builder,
 };
 
 pub struct PistolL1Plugin;
@@ -30,24 +30,21 @@ impl Plugin for PistolL1Plugin {
         if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
-                    (summon_base_entity::<PistolL1Summoner>).after(SummoningLabels::TriggerSummon),
+                    (build_base_entities::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<PistolL1Summoner>).after(SummoningLabels::TriggerSummon),
+                    (summon_rigid_body::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_inventory_item::<PistolL1Summoner>)
-                        .after(SummoningLabels::TriggerSummon),
+                    (build_inventory_items::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
                 )
+                .add_system(build_pistols_l1::<PistolL1Builder>.after(BuildingLabels::TriggerBuild))
+                .add_system((build_raw_pistols_l1).after(BuildingLabels::TriggerBuild))
+                .add_event::<SpawnEntity<PistolL1Builder>>()
                 .add_system(
-                    summon_pistol_l1::<PistolL1Summoner>.after(SummoningLabels::TriggerSummon),
-                )
-                .add_system((summon_raw_pistol_l1).after(SummoningLabels::TriggerSummon))
-                .add_event::<SpawnEvent<PistolL1Summoner>>()
-                .add_system(
-                    (default_summon_pistol_l1)
-                        .label(SummoningLabels::DefaultSummon)
-                        .after(SummoningLabels::NormalSummon),
+                    (default_build_pistols_l1)
+                        .label(BuildingLabels::DefaultBuild)
+                        .after(BuildingLabels::NormalBuild),
                 )
                 .add_system(
                     melee_attack_handler::<PistolL1>

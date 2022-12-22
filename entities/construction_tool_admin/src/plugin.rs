@@ -3,13 +3,11 @@ use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_data::initialize_entity_data;
 use entity::meta::{EntityDataProperties, EntityDataResource};
-use entity::spawn::{summon_base_entity, SpawnEvent};
-use inventory::spawn_item::summon_inventory_item;
+use entity::spawn::{build_base_entities, SpawnEntity};
+use inventory::spawn_item::build_inventory_items;
 use physics::spawn::summon_rigid_body;
 use resources::is_server::is_server;
-use resources::labels::{
-    ActionsLabels, CombatLabels, StartupLabels, SummoningLabels, UpdateLabels,
-};
+use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, StartupLabels, UpdateLabels};
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
@@ -48,26 +46,26 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
                     summon_construction_tool::<ConstructionToolSummoner>
-                        .after(SummoningLabels::TriggerSummon),
+                        .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_base_entity::<ConstructionToolSummoner>)
-                        .after(SummoningLabels::TriggerSummon),
+                    (build_base_entities::<ConstructionToolSummoner>)
+                        .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
                     (summon_rigid_body::<ConstructionToolSummoner>)
-                        .after(SummoningLabels::TriggerSummon),
+                        .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_inventory_item::<ConstructionToolSummoner>)
-                        .after(SummoningLabels::TriggerSummon),
+                    (build_inventory_items::<ConstructionToolSummoner>)
+                        .after(BuildingLabels::TriggerBuild),
                 )
-                .add_system((summon_raw_construction_tool).after(SummoningLabels::TriggerSummon))
-                .add_event::<SpawnEvent<ConstructionToolSummoner>>()
+                .add_system((summon_raw_construction_tool).after(BuildingLabels::TriggerBuild))
+                .add_event::<SpawnEntity<ConstructionToolSummoner>>()
                 .add_system(
                     (default_summon_construction_tool)
-                        .label(SummoningLabels::DefaultSummon)
-                        .after(SummoningLabels::NormalSummon),
+                        .label(BuildingLabels::DefaultBuild)
+                        .after(BuildingLabels::NormalBuild),
                 )
                 .add_system(
                     melee_attack_handler::<ConstructionTool>

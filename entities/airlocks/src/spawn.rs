@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use super::resources::AirLock;
+use super::resources::Airlock;
 use bevy::{
     math::Vec3,
     prelude::{warn, Commands, EventReader, EventWriter, Transform},
@@ -11,11 +11,12 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
+        BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        SpawnEntity,
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
-use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
+use physics::spawn::{RigidBodyBuildable, RigidBodyBundle};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 #[cfg(feature = "server")]
@@ -24,8 +25,8 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntitySummonable<NoData> for AirlockSummoner {
-    fn get_bundle(&self, spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
+impl BaseEntityBuildable<NoData> for AirlockBuilder {
+    fn get_bundle(&self, spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let description;
         let sub_name;
 
@@ -94,8 +95,8 @@ impl BaseEntitySummonable<NoData> for AirlockSummoner {
 pub const DEFAULT_AIR_LOCK_Y: f32 = 1.;
 
 #[cfg(feature = "server")]
-impl RigidBodySummonable<NoData> for AirlockSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
+impl RigidBodyBuildable<NoData> for AirlockBuilder {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 
@@ -110,17 +111,17 @@ impl RigidBodySummonable<NoData> for AirlockSummoner {
 }
 
 #[cfg(feature = "server")]
-pub struct AirlockSummoner;
+pub struct AirlockBuilder;
 
 #[cfg(feature = "server")]
-pub fn summon_air_lock<T: Send + Sync + 'static>(
+pub fn build_airlocks<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut airlock_spawns: EventReader<SpawnEvent<T>>,
+    mut airlock_spawns: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in airlock_spawns.iter() {
         commands
             .entity(spawn_event.spawn_data.entity)
-            .insert(AirLock {
+            .insert(Airlock {
                 access_permissions: vec![ShipAuthorizationEnum::Security],
                 ..Default::default()
             });
@@ -133,9 +134,9 @@ pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = "governmentAirLock";
 pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = "vacuumAirLock";
 
 #[cfg(feature = "server")]
-pub fn default_summon_air_lock(
+pub fn default_build_airlocks(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEvent<AirlockSummoner>>,
+    mut spawner: EventWriter<SpawnEntity<AirlockBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name != SECURITY_AIRLOCK_ENTITY_NAME
@@ -146,17 +147,17 @@ pub fn default_summon_air_lock(
             continue;
         }
 
-        spawner.send(SpawnEvent {
+        spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: AirlockSummoner,
+            summoner: AirlockBuilder,
         });
     }
 }
 
 #[cfg(feature = "server")]
-pub fn summon_raw_air_lock(
+pub fn summon_raw_airlocks(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_air_lock: EventWriter<SpawnEvent<AirlockSummoner>>,
+    mut summon_air_lock: EventWriter<SpawnEntity<AirlockBuilder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -172,8 +173,8 @@ pub fn summon_raw_air_lock(
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
 
-        summon_air_lock.send(SpawnEvent {
-            spawn_data: SpawnData {
+        summon_air_lock.send(SpawnEntity {
+            spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
@@ -181,7 +182,7 @@ pub fn summon_raw_air_lock(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: AirlockSummoner,
+            summoner: AirlockBuilder,
         });
     }
 }

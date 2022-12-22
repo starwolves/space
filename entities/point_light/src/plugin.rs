@@ -1,17 +1,17 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use entity::spawn::SpawnEvent;
-use resources::labels::SummoningLabels;
+use entity::spawn::SpawnEntity;
+use resources::labels::BuildingLabels;
 
-use crate::spawn::{summon_point_light, summon_raw_point_light, PointLightSummoner};
+use crate::spawn::{build_point_lights, build_raw_point_lights, PointLightBuilder};
 
 pub struct PointLightPlugin;
 
 impl Plugin for PointLightPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(
-            (summon_point_light::<PointLightSummoner>).after(SummoningLabels::TriggerSummon),
+            (build_point_lights::<PointLightBuilder>).after(BuildingLabels::TriggerBuild),
         )
-        .add_system((summon_raw_point_light).after(SummoningLabels::TriggerSummon))
-        .add_event::<SpawnEvent<PointLightSummoner>>();
+        .add_system((build_raw_point_lights).after(BuildingLabels::TriggerBuild))
+        .add_event::<SpawnEntity<PointLightBuilder>>();
     }
 }

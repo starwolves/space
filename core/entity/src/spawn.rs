@@ -115,8 +115,8 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
 
 /// BaseEntity trait.
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait BaseEntitySummonable<Y> {
-    fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> BaseEntityBundle;
+pub trait BaseEntityBuildable<Y> {
+    fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> BaseEntityBundle;
 }
 use crate::init::RawEntityRon;
 use networking::server::OutgoingReliableServerMessage;
@@ -124,8 +124,8 @@ use networking::server::OutgoingReliableServerMessage;
 use crate::net::EntityServerMessage;
 /// Spawn base entity components handler.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'static>(
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+pub fn build_base_entities<T: BaseEntityBuildable<NoData> + Send + Sync + 'static>(
+    mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
 ) {
@@ -180,7 +180,7 @@ pub struct ExportDataRaw {
 /// Spawn data used to spawn in entities.
 #[derive(Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct SpawnData {
+pub struct EntityBuildData {
     /// Transform of the to be spawned entity.
     pub entity_transform: Transform,
     /// Whether the transform (rotation) should be corrected.
@@ -200,7 +200,7 @@ pub struct SpawnData {
     pub entity: Entity,
 }
 #[cfg(any(feature = "server", feature = "client"))]
-impl Default for SpawnData {
+impl Default for EntityBuildData {
     fn default() -> Self {
         Self {
             entity_transform: Transform::IDENTITY,
@@ -218,13 +218,13 @@ impl Default for SpawnData {
 /// Default spawn event.
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct DefaultSpawnEvent {
-    pub spawn_data: SpawnData,
+    pub spawn_data: EntityBuildData,
 }
 
 /// Standard spawn event.
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct SpawnEvent<T> {
-    pub spawn_data: SpawnData,
+pub struct SpawnEntity<T> {
+    pub spawn_data: EntityBuildData,
     pub summoner: T,
 }
 /// A function to spawn an entity.
@@ -256,7 +256,7 @@ pub fn spawn_entity(
             }
             return_entity = Some(commands.spawn(()).id());
             default_spawner.send(DefaultSpawnEvent {
-                spawn_data: SpawnData {
+                spawn_data: EntityBuildData {
                     entity_transform: transform,
                     correct_transform,
                     holder_entity_option: held,

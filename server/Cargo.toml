@@ -41,7 +41,7 @@ physics = { path = "../core/physics", features = ["server"] }
 setup_ui = { path = "../core/setup_ui", features = ["server"] }
 
 sounds = { path = "../entities/sounds", features = ["server"] }
-air_locks = { path = "../entities/air_locks", features = ["server"] }
+airlocks = { path = "../entities/airlocks", features = ["server"] }
 asana = { path = "../entities/asana", features = ["server"] }
 computers = { path = "../entities/computers", features = ["server"] }
 construction_tool_admin = { path = "../entities/construction_tool_admin", features = [

@@ -1,5 +1,5 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use resources::{is_server::is_server, labels::SummoningLabels};
+use resources::{is_server::is_server, labels::BuildingLabels};
 
 use crate::commands::{
     inventory_item_console_commands, rcon_console_commands, rcon_entity_console_commands,
@@ -14,11 +14,11 @@ pub struct BasicConsoleCommandsPlugin {
 impl Plugin for BasicConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(rcon_entity_console_commands.after(SummoningLabels::DefaultSummon))
+            app.add_system(rcon_entity_console_commands.after(BuildingLabels::DefaultBuild))
                 .add_system(
                     inventory_item_console_commands
-                        .before(SummoningLabels::TriggerSummon)
-                        .label(SummoningLabels::NormalSummon),
+                        .before(BuildingLabels::TriggerBuild)
+                        .label(BuildingLabels::NormalBuild),
                 )
                 .add_system(rcon_console_commands)
                 .insert_resource::<GiveAllRCON>(GiveAllRCON {

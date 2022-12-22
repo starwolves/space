@@ -2,7 +2,7 @@ use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, PointLightBu
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
     sensable::Sensable,
-    spawn::{SpawnData, SpawnEvent},
+    spawn::{EntityBuildData, SpawnEntity},
 };
 
 #[cfg(any(feature = "server", feature = "client"))]
@@ -41,13 +41,13 @@ impl PointLightSummonBundle {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct PointLightSummoner {
+pub struct PointLightBuilder {
     pub light: PointLight,
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_point_light<T: PointLightSummonable + Send + Sync + 'static>(
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+pub fn build_point_lights<T: PointLightBuildable + Send + Sync + 'static>(
+    mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -58,13 +58,13 @@ pub fn summon_point_light<T: PointLightSummonable + Send + Sync + 'static>(
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait PointLightSummonable {
-    fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands);
+pub trait PointLightBuildable {
+    fn spawn(&self, spawn_data: &EntityBuildData, commands: &mut Commands);
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl PointLightSummonable for PointLightSummoner {
-    fn spawn(&self, spawn_data: &SpawnData, commands: &mut Commands) {
+impl PointLightBuildable for PointLightBuilder {
+    fn spawn(&self, spawn_data: &EntityBuildData, commands: &mut Commands) {
         commands.spawn((
             PointLightBundle {
                 point_light: self.light.clone(),
@@ -88,9 +88,9 @@ impl PointLightSummonable for PointLightSummoner {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_raw_point_light(
+pub fn build_raw_point_lights(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_point_light: EventWriter<SpawnEvent<PointLightSummoner>>,
+    mut summon_point_light: EventWriter<SpawnEntity<PointLightBuilder>>,
     mut commands: Commands,
 ) {
     for event in spawn_events.iter() {
@@ -99,15 +99,15 @@ pub fn summon_raw_point_light(
             entity_transform.rotation = event.raw_entity.rotation;
             entity_transform.scale = event.raw_entity.scale;
 
-            summon_point_light.send(SpawnEvent {
-                spawn_data: SpawnData {
+            summon_point_light.send(SpawnEntity {
+                spawn_data: EntityBuildData {
                     entity_transform: entity_transform,
                     default_map_spawn: true,
                     entity_name: event.raw_entity.entity_type.clone(),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                summoner: PointLightSummoner {
+                summoner: PointLightBuilder {
                     light: get_default_point_light(),
                 },
             });

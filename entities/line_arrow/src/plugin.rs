@@ -3,19 +3,21 @@ use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{summon_base_entity, SpawnEvent},
+    spawn::{build_base_entities, SpawnEntity},
 };
 use networking::server::GodotVariant;
 use resources::{
     is_server::is_server,
-    labels::{StartupLabels, SummoningLabels},
+    labels::{BuildingLabels, StartupLabels},
 };
 
 use crate::console_command::entity_console_commands;
 
 use super::{
     console_command::expire_point_arrow,
-    spawn::{default_line_arrow, summon_line_arrow, LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
+    spawn::{
+        build_line_arrows, default_build_line_arrows, LineArrowBuilder, LINE_ARROW_ENTITY_NAME,
+    },
 };
 
 pub struct LineArrowPlugin;
@@ -28,20 +30,18 @@ impl Plugin for LineArrowPlugin {
                     .before(ConsoleCommandsLabels::Finalize)
                     .label(StartupLabels::ConsoleCommands),
             )
-            .add_system(entity_console_commands.label(SummoningLabels::TriggerSummon));
+            .add_system(entity_console_commands.label(BuildingLabels::TriggerBuild));
         }
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(
-                (summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon),
+                (build_base_entities::<LineArrowBuilder>).after(BuildingLabels::TriggerBuild),
             )
+            .add_system(build_line_arrows::<LineArrowBuilder>.after(BuildingLabels::TriggerBuild))
+            .add_event::<SpawnEntity<LineArrowBuilder>>()
             .add_system(
-                summon_line_arrow::<LineArrowSummoner>.after(SummoningLabels::TriggerSummon),
-            )
-            .add_event::<SpawnEvent<LineArrowSummoner>>()
-            .add_system(
-                (default_line_arrow)
-                    .label(SummoningLabels::DefaultSummon)
-                    .after(SummoningLabels::NormalSummon),
+                (default_build_line_arrows)
+                    .label(BuildingLabels::DefaultBuild)
+                    .after(BuildingLabels::NormalBuild),
             );
     }
 }
@@ -51,7 +51,7 @@ pub struct PointArrowPlugin;
 impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(expire_point_arrow).add_system(
-            (summon_base_entity::<LineArrowSummoner>).after(SummoningLabels::TriggerSummon),
+            (build_base_entities::<LineArrowBuilder>).after(BuildingLabels::TriggerBuild),
         );
     }
 }

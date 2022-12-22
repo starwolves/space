@@ -63,8 +63,8 @@ pub enum PostUpdateLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 #[cfg(feature = "server")]
-pub enum SummoningLabels {
-    TriggerSummon,
-    DefaultSummon,
-    NormalSummon,
+pub enum BuildingLabels {
+    TriggerBuild,
+    DefaultBuild,
+    NormalBuild,
 }

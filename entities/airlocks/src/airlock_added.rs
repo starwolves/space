@@ -15,12 +15,12 @@ use crate::spawn::{
     BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, VACUUM_AIRLOCK_ENTITY_NAME,
 };
 
-use super::resources::AirLock;
+use super::resources::Airlock;
 
 /// On new air lock spawn.
 #[cfg(feature = "server")]
-pub(crate) fn air_lock_added(
-    mut air_locks: Query<(Entity, &EntityData, &Transform, &mut Examinable), Added<AirLock>>,
+pub(crate) fn airlock_added(
+    mut airlocks: Query<(Entity, &EntityData, &Transform, &mut Examinable), Added<Airlock>>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
 ) {
     for (
@@ -28,7 +28,7 @@ pub(crate) fn air_lock_added(
         entity_data_component,
         rigid_body_position_component,
         mut examinable_component,
-    ) in air_locks.iter_mut()
+    ) in airlocks.iter_mut()
     {
         let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
         let cell_id2 = Vec2Int {
@@ -134,7 +134,7 @@ pub(crate) fn air_lock_added(
 /// When a default map air lock gets spawned.
 #[cfg(feature = "server")]
 pub(crate) fn air_lock_default_map_added(
-    airlock_windows: Query<(Entity, &Transform, &DefaultMapEntity, &EntityData), Added<AirLock>>,
+    airlock_windows: Query<(Entity, &Transform, &DefaultMapEntity, &EntityData), Added<Airlock>>,
     mut map_data: ResMut<MapData>,
     mut gridmap_main: ResMut<GridmapMain>,
 ) {

@@ -15,7 +15,7 @@ use entity::{
     meta::EntityDataResource,
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
-    spawn::{DefaultSpawnEvent, SpawnData},
+    spawn::{DefaultSpawnEvent, EntityBuildData},
 };
 use gridmap::{
     build::spawn_main_cell,
@@ -1109,7 +1109,7 @@ pub(crate) fn construction_tool(
                 let new_entity = commands.spawn(()).id();
 
                 default_spawner.send(DefaultSpawnEvent {
-                    spawn_data: SpawnData {
+                    spawn_data: EntityBuildData {
                         entity_transform: spawn_transform,
                         entity_name: construction_entity_name.to_string(),
                         entity: new_entity,

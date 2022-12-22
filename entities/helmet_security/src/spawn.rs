@@ -13,21 +13,21 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
+use entity::spawn::BaseEntityBuildable;
 use entity::spawn::BaseEntityBundle;
-use entity::spawn::BaseEntitySummonable;
 use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::EntityBuildData;
 use entity::spawn::NoData;
-use entity::spawn::SpawnData;
-use entity::spawn::SpawnEvent;
+use entity::spawn::SpawnEntity;
 use inventory::combat::DamageModel;
 use inventory::combat::MeleeCombat;
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
+use inventory::spawn_item::InventoryItemBuildable;
 use inventory::spawn_item::InventoryItemBundle;
-use inventory::spawn_item::InventoryItemSummonable;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
+use physics::spawn::RigidBodyBuildable;
 use physics::spawn::RigidBodyBundle;
-use physics::spawn::RigidBodySummonable;
 
 use crate::helmet::HELMET_SECURITY_ENTITY_NAME;
 
@@ -43,8 +43,8 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntitySummonable<NoData> for HelmetSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
+impl BaseEntityBuildable<NoData> for HelmetBuilder {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
@@ -69,8 +69,8 @@ impl BaseEntitySummonable<NoData> for HelmetSummoner {
 use std::collections::HashMap;
 
 #[cfg(feature = "server")]
-impl InventoryItemSummonable for HelmetSummoner {
-    fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
+impl InventoryItemBuildable for HelmetBuilder {
+    fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
 
         attachment_transforms.insert(
@@ -131,8 +131,8 @@ impl InventoryItemSummonable for HelmetSummoner {
     }
 }
 #[cfg(feature = "server")]
-impl RigidBodySummonable<NoData> for HelmetSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
+impl RigidBodyBuildable<NoData> for HelmetBuilder {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 
@@ -147,12 +147,12 @@ impl RigidBodySummonable<NoData> for HelmetSummoner {
 }
 
 #[cfg(feature = "server")]
-pub struct HelmetSummoner;
+pub struct HelmetBuilder;
 
 #[cfg(feature = "server")]
-pub fn summon_helmet<T: Send + Sync + 'static>(
+pub fn build_helmets<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
@@ -162,9 +162,9 @@ pub fn summon_helmet<T: Send + Sync + 'static>(
 }
 
 #[cfg(feature = "server")]
-pub fn summon_raw_helmet(
+pub fn build_raw_helmets(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEvent<HelmetSummoner>>,
+    mut summon_computer: EventWriter<SpawnEntity<HelmetBuilder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -175,8 +175,8 @@ pub fn summon_raw_helmet(
         let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
-        summon_computer.send(SpawnEvent {
-            spawn_data: SpawnData {
+        summon_computer.send(SpawnEntity {
+            spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
@@ -184,23 +184,23 @@ pub fn summon_raw_helmet(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: HelmetSummoner,
+            summoner: HelmetBuilder,
         });
     }
 }
 
 #[cfg(feature = "server")]
-pub fn default_summon_helmet_security(
+pub fn default_build_helmets_security(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEvent<HelmetSummoner>>,
+    mut spawner: EventWriter<SpawnEntity<HelmetBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name != HELMET_SECURITY_ENTITY_NAME {
             continue;
         }
-        spawner.send(SpawnEvent {
+        spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: HelmetSummoner,
+            summoner: HelmetBuilder,
         });
     }
 }

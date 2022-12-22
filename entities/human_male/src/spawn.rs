@@ -10,8 +10,8 @@ use entity::{
     meta::EntityDataResource,
     senser::Senser,
     spawn::{
-        base_entity_builder, BaseEntityBundle, BaseEntityData, BaseEntitySummonable,
-        DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
+        base_entity_builder, BaseEntityBuildable, BaseEntityBundle, BaseEntityData,
+        DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
     },
 };
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
@@ -29,7 +29,7 @@ use map::map::Map;
 use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
-use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
+use physics::spawn::{RigidBodyBuildable, RigidBodyBundle};
 use player::names::UsedNames;
 
 /// Get default transform.
@@ -40,16 +40,16 @@ pub fn get_default_transform() -> Transform {
 
 /// Human male spawn data.
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct HumanMaleSummonData {
+pub struct HumanMaleBuildData {
     pub used_names: UsedNames,
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
+impl BaseEntityBuildable<HumanMaleBuildData> for HumanMaleBuilder {
     fn get_bundle(
         &self,
-        _spawn_data: &SpawnData,
-        mut entity_data: HumanMaleSummonData,
+        _spawn_data: &EntityBuildData,
+        mut entity_data: HumanMaleBuildData,
     ) -> BaseEntityBundle {
         let character_name;
 
@@ -91,10 +91,10 @@ use networking::server::OutgoingReliableServerMessage;
 use entity::net::EntityServerMessage;
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_base_human_male<
-    T: BaseEntitySummonable<HumanMaleSummonData> + Send + Sync + 'static,
+pub fn build_base_human_males<
+    T: BaseEntityBuildable<HumanMaleBuildData> + Send + Sync + 'static,
 >(
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     used_names: ResMut<UsedNames>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
@@ -102,7 +102,7 @@ pub fn summon_base_human_male<
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event.summoner.get_bundle(
             &spawn_event.spawn_data,
-            HumanMaleSummonData {
+            HumanMaleBuildData {
                 used_names: used_names.clone(),
             },
         );
@@ -143,15 +143,15 @@ pub fn summon_base_human_male<
 
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct HumanMaleSummoner {
+pub struct HumanMaleBuilder {
     pub spawn_pawn_data: SpawnPawnData,
 }
 #[cfg(any(feature = "server", feature = "client"))]
 pub const R: f32 = 0.5;
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl RigidBodySummonable<NoData> for HumanMaleSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
+impl RigidBodyBuildable<NoData> for HumanMaleBuilder {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(CHARACTER_FLOOR_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Min;
 
@@ -170,23 +170,23 @@ impl RigidBodySummonable<NoData> for HumanMaleSummoner {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl HumanMaleSummonable for HumanMaleSummoner {
+impl HumanMaleBuildable for HumanMaleBuilder {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData {
         self.spawn_pawn_data.clone()
     }
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait HumanMaleSummonable {
+pub trait HumanMaleBuildable {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
 use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
+pub fn build_human_males<T: HumanMaleBuildable + Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut spawn_events: EventReader<SpawnEntity<T>>,
     mut default_spawner: EventWriter<DefaultSpawnEvent>,
     entity_data: ResMut<EntityDataResource>,
 ) {
@@ -390,16 +390,16 @@ pub fn summon_human_male<T: HumanMaleSummonable + Send + Sync + 'static>(
 
 /// Manage spawning human dummy.
 #[cfg(any(feature = "server", feature = "client"))]
-pub(crate) fn default_human_dummy(
+pub(crate) fn default_build_human_dummies(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEvent<HumanMaleSummoner>>,
+    mut spawner: EventWriter<SpawnEntity<HumanMaleBuilder>>,
     mut used_names: ResMut<UsedNames>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name == HUMAN_DUMMY_ENTITY_NAME {
-            spawner.send(SpawnEvent {
+            spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
-                summoner: HumanMaleSummoner {
+                summoner: HumanMaleBuilder {
                     spawn_pawn_data: SpawnPawnData {
                         pawn_component: Pawn {
                             character_name: get_dummy_name(&mut used_names),

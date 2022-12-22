@@ -18,7 +18,7 @@ use sounds::{
 use text_api::core::{FURTHER_ITALIC_FONT, WARNING_COLOR};
 
 use super::resources::{
-    closed_timer, denied_timer, open_timer, AccessLightsStatus, AirLock, AirLockStatus,
+    closed_timer, denied_timer, open_timer, AccessLightsStatus, Airlock, AirlockStatus,
 };
 
 /// Air lock open request event.
@@ -35,18 +35,18 @@ use physics::physics::{get_bit_masks, ColliderGroup};
 use networking::server::OutgoingReliableServerMessage;
 /// Manage air lock events.
 #[cfg(feature = "server")]
-pub(crate) fn air_lock_events(
-    mut air_lock_collisions: EventReader<AirLockCollision>,
-    mut toggle_open_action: EventReader<InputAirLockToggleOpen>,
+pub(crate) fn airlock_events(
+    mut airlock_collisions: EventReader<AirlockCollision>,
+    mut toggle_open_action: EventReader<InputAirlockToggleOpen>,
     transforms: Query<&Transform>,
-    mut air_lock_query: Query<(&mut AirLock, Entity, &mut Examinable, &Children)>,
+    mut airlock_query: Query<(&mut Airlock, Entity, &mut Examinable, &Children)>,
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
-    mut air_lock_lock_open_event: EventReader<AirLockLockOpen>,
-    mut air_lock_lock_close_event: EventReader<AirLockLockClosed>,
-    mut unlock_events: EventReader<AirLockUnlock>,
+    mut airlock_lock_open_event: EventReader<AirLockLockOpen>,
+    mut airlock_lock_close_event: EventReader<AirlockLockClosed>,
+    mut unlock_events: EventReader<AirlockUnlock>,
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut collision_groups: Query<&mut CollisionGroups>,
 ) {
@@ -54,19 +54,19 @@ pub(crate) fn air_lock_events(
     let mut open_requests = vec![];
 
     for event in unlock_events.iter() {
-        match air_lock_query.get_mut(event.locked) {
-            Ok((mut air_lock_component, _air_lock_entity, mut examinable_component, _children)) => {
-                air_lock_component.locked_status = LockedStatus::None;
-                air_lock_component.access_lights = AccessLightsStatus::Neutral;
+        match airlock_query.get_mut(event.locked) {
+            Ok((mut airlock_component, _air_lock_entity, mut examinable_component, _children)) => {
+                airlock_component.locked_status = LockedStatus::None;
+                airlock_component.access_lights = AccessLightsStatus::Neutral;
 
-                match air_lock_component.status {
-                    AirLockStatus::Open => {
-                        close_requests.push(AirLockCloseRequest {
+                match airlock_component.status {
+                    AirlockStatus::Open => {
+                        close_requests.push(AirlockCloseRequest {
                             interacter_option: None,
                             interacted: event.locked,
                         });
                     }
-                    AirLockStatus::Closed => {}
+                    AirlockStatus::Closed => {}
                 }
 
                 let personal_update_text = "[font=".to_owned()
@@ -90,8 +90,8 @@ pub(crate) fn air_lock_events(
         }
     }
 
-    for event in air_lock_lock_open_event.iter() {
-        match air_lock_query.get_mut(event.locked) {
+    for event in airlock_lock_open_event.iter() {
+        match airlock_query.get_mut(event.locked) {
             Ok((mut air_lock_component, _air_lock_entity, mut examinable_component, _children)) => {
                 air_lock_component.locked_status = LockedStatus::Open;
                 let personal_update_text = "[font=".to_owned()
@@ -110,8 +110,8 @@ pub(crate) fn air_lock_events(
                     None => {}
                 }
                 match air_lock_component.status {
-                    AirLockStatus::Open => {}
-                    AirLockStatus::Closed => {
+                    AirlockStatus::Open => {}
+                    AirlockStatus::Closed => {
                         open_requests.push(AirLockOpenRequest {
                             opener_option: None,
                             opened: event.locked,
@@ -130,10 +130,10 @@ pub(crate) fn air_lock_events(
             Err(_rr) => {}
         }
     }
-    for event in air_lock_lock_close_event.iter() {
-        match air_lock_query.get_mut(event.locked) {
-            Ok((mut air_lock_component, _air_lock_entity, mut examinable_component, _children)) => {
-                air_lock_component.locked_status = LockedStatus::Closed;
+    for event in airlock_lock_close_event.iter() {
+        match airlock_query.get_mut(event.locked) {
+            Ok((mut airlock_component, _air_lock_entity, mut examinable_component, _children)) => {
+                airlock_component.locked_status = LockedStatus::Closed;
                 let personal_update_text = "[font=".to_owned()
                     + FURTHER_ITALIC_FONT
                     + "]"
@@ -149,14 +149,14 @@ pub(crate) fn air_lock_events(
                     }
                     None => {}
                 }
-                match air_lock_component.status {
-                    AirLockStatus::Open => {
-                        close_requests.push(AirLockCloseRequest {
+                match airlock_component.status {
+                    AirlockStatus::Open => {
+                        close_requests.push(AirlockCloseRequest {
                             interacter_option: None,
                             interacted: event.locked,
                         });
                     }
-                    AirLockStatus::Closed => {}
+                    AirlockStatus::Closed => {}
                 }
 
                 examinable_component.assigned_texts.insert(
@@ -172,8 +172,8 @@ pub(crate) fn air_lock_events(
         }
     }
 
-    for (mut air_lock_component, air_lock_entity, _examinable_component, children) in
-        air_lock_query.iter_mut()
+    for (mut airlock_component, air_lock_entity, _examinable_component, children) in
+        airlock_query.iter_mut()
     {
         let rigid_body_position_component;
 
@@ -187,26 +187,26 @@ pub(crate) fn air_lock_events(
             }
         }
 
-        match air_lock_component.locked_status {
+        match airlock_component.locked_status {
             LockedStatus::Open => {
-                if !matches!(air_lock_component.access_lights, AccessLightsStatus::Denied) {
-                    air_lock_component.access_lights = AccessLightsStatus::Denied;
+                if !matches!(airlock_component.access_lights, AccessLightsStatus::Denied) {
+                    airlock_component.access_lights = AccessLightsStatus::Denied;
                 }
             }
             LockedStatus::Closed => {
-                if !matches!(air_lock_component.access_lights, AccessLightsStatus::Denied) {
-                    air_lock_component.access_lights = AccessLightsStatus::Denied;
+                if !matches!(airlock_component.access_lights, AccessLightsStatus::Denied) {
+                    airlock_component.access_lights = AccessLightsStatus::Denied;
                 }
             }
             LockedStatus::None => {}
         }
 
-        match air_lock_component.open_timer_option.as_mut() {
+        match airlock_component.open_timer_option.as_mut() {
             Some(timer_component) => {
                 if timer_component.finished() == true {
                     timer_component.pause();
                     timer_component.reset();
-                    close_requests.push(AirLockCloseRequest {
+                    close_requests.push(AirlockCloseRequest {
                         interacter_option: None,
                         interacted: air_lock_entity,
                     });
@@ -215,7 +215,7 @@ pub(crate) fn air_lock_events(
             None => {}
         }
 
-        match air_lock_component.closed_timer_option.as_mut() {
+        match airlock_component.closed_timer_option.as_mut() {
             Some(timer_component) => {
                 if timer_component.finished() == true {
                     timer_component.pause();
@@ -246,7 +246,7 @@ pub(crate) fn air_lock_events(
                         }
                     }
 
-                    air_lock_component.access_lights = AccessLightsStatus::Neutral;
+                    airlock_component.access_lights = AccessLightsStatus::Neutral;
 
                     let sfx_entity = sfx_builder(
                         &mut commands,
@@ -260,13 +260,13 @@ pub(crate) fn air_lock_events(
             None => {}
         }
 
-        match air_lock_component.denied_timer_option.as_mut() {
+        match airlock_component.denied_timer_option.as_mut() {
             Some(timer_component) => {
                 if timer_component.finished() == true {
                     timer_component.pause();
                     timer_component.reset();
 
-                    air_lock_component.access_lights = AccessLightsStatus::Neutral;
+                    airlock_component.access_lights = AccessLightsStatus::Neutral;
                 }
             }
             None => {}
@@ -274,16 +274,16 @@ pub(crate) fn air_lock_events(
     }
 
     for event in toggle_open_action.iter() {
-        match air_lock_query.get(event.opened) {
-            Ok((air_lock_component, _air_lock_entity, _examinable_component, _children)) => {
-                match air_lock_component.status {
-                    AirLockStatus::Open => {
-                        close_requests.push(AirLockCloseRequest {
+        match airlock_query.get(event.opened) {
+            Ok((airlock_component, _air_lock_entity, _examinable_component, _children)) => {
+                match airlock_component.status {
+                    AirlockStatus::Open => {
+                        close_requests.push(AirlockCloseRequest {
                             interacter_option: Some(event.opener),
                             interacted: event.opened,
                         });
                     }
-                    AirLockStatus::Closed => {
+                    AirlockStatus::Closed => {
                         open_requests.push(AirLockOpenRequest {
                             opener_option: Some(event.opener),
                             opened: event.opened,
@@ -295,7 +295,7 @@ pub(crate) fn air_lock_events(
         }
     }
 
-    for collision_event in air_lock_collisions.iter() {
+    for collision_event in airlock_collisions.iter() {
         if collision_event.started == false {
             continue;
         }
@@ -318,13 +318,13 @@ pub(crate) fn air_lock_events(
     }
 
     for request in open_requests {
-        let air_lock_components_result = air_lock_query.get_mut(request.opened);
+        let airlock_components_result = airlock_query.get_mut(request.opened);
 
         let mut air_lock_component;
         let children;
         let air_lock_static_transform_component;
 
-        match air_lock_components_result {
+        match airlock_components_result {
             Ok(result) => {
                 air_lock_component = result.0;
                 children = result.3;
@@ -414,7 +414,7 @@ pub(crate) fn air_lock_events(
                 .unwrap();
 
             atmospherics.blocked = false;
-            air_lock_component.status = AirLockStatus::Open;
+            air_lock_component.status = AirlockStatus::Open;
             air_lock_component.access_lights = AccessLightsStatus::Granted;
 
             let mut collision_child_option = None;
@@ -465,8 +465,8 @@ pub(crate) fn air_lock_events(
     }
 
     for request in close_requests {
-        match air_lock_query.get_mut(request.interacted) {
-            Ok((mut air_lock_component, _air_lock_entity, _examinable_component, _children)) => {
+        match airlock_query.get_mut(request.interacted) {
+            Ok((mut airlock_component, _air_lock_entity, _examinable_component, _children)) => {
                 let rigid_body_position_component;
 
                 match transforms.get(request.interacted) {
@@ -479,7 +479,7 @@ pub(crate) fn air_lock_events(
                     }
                 }
 
-                match air_lock_component.locked_status {
+                match airlock_component.locked_status {
                     LockedStatus::Open => {
                         continue;
                     }
@@ -504,7 +504,7 @@ pub(crate) fn air_lock_events(
                             }
                         }
 
-                        for space_permission in &air_lock_component.access_permissions {
+                        for space_permission in &airlock_component.access_permissions {
                             if pawn_space_access_component
                                 .access
                                 .contains(space_permission)
@@ -539,9 +539,9 @@ pub(crate) fn air_lock_events(
                     .unwrap();
 
                 atmospherics.blocked = true;
-                air_lock_component.status = AirLockStatus::Closed;
+                airlock_component.status = AirlockStatus::Closed;
 
-                air_lock_component.closed_timer_option = Some(closed_timer());
+                airlock_component.closed_timer_option = Some(closed_timer());
             }
 
             Err(_rr) => {}
@@ -551,7 +551,7 @@ pub(crate) fn air_lock_events(
 
 /// Air lock collision event.
 #[cfg(feature = "server")]
-pub struct AirLockCollision {
+pub struct AirlockCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
 
@@ -564,7 +564,7 @@ pub struct AirLockCollision {
 
 /// Air lock toggle open event.
 #[cfg(feature = "server")]
-pub struct InputAirLockToggleOpen {
+pub struct InputAirlockToggleOpen {
     pub handle_option: Option<u64>,
 
     pub opener: Entity,
@@ -580,7 +580,7 @@ pub struct AirLockLockOpen {
 }
 /// Air lock , lock the door to closed event.
 #[cfg(feature = "server")]
-pub struct AirLockLockClosed {
+pub struct AirlockLockClosed {
     pub handle_option: Option<u64>,
 
     pub locked: Entity,
@@ -588,7 +588,7 @@ pub struct AirLockLockClosed {
 }
 /// Unlock the air lock event.
 #[cfg(feature = "server")]
-pub struct AirLockUnlock {
+pub struct AirlockUnlock {
     pub handle_option: Option<u64>,
     pub locked: Entity,
     pub locker: Entity,
@@ -601,7 +601,7 @@ pub enum LockedStatus {
 }
 /// Air lock open request event.
 #[cfg(feature = "server")]
-pub struct AirLockCloseRequest {
+pub struct AirlockCloseRequest {
     pub interacter_option: Option<Entity>,
     pub interacted: Entity,
 }
