@@ -5,8 +5,8 @@ use math::grid::Vec3Int;
 use pawn::pawn::{DataLink, DataLinkType};
 
 use crate::{
-    air_lock_events::{AirLockLockClosed, AirLockLockOpen, AirLockUnlock, InputAirLockToggleOpen},
-    resources::AirLock,
+    airlock_events::{AirLockLockOpen, AirlockLockClosed, AirlockUnlock, InputAirlockToggleOpen},
+    resources::Airlock,
 };
 
 /// Action prerequite check.
@@ -81,9 +81,9 @@ use networking::server::HandleToEntity;
 pub(crate) fn air_lock_actions(
     building_action: Res<BuildingActions>,
     mut air_lock_lock_open_event: EventWriter<AirLockLockOpen>,
-    mut air_lock_lock_closed_event: EventWriter<AirLockLockClosed>,
-    mut air_lock_unlock_event: EventWriter<AirLockUnlock>,
-    mut toggle_open_events: EventWriter<InputAirLockToggleOpen>,
+    mut air_lock_lock_closed_event: EventWriter<AirlockLockClosed>,
+    mut air_lock_unlock_event: EventWriter<AirlockUnlock>,
+    mut toggle_open_events: EventWriter<InputAirlockToggleOpen>,
     handle_to_entity: Res<HandleToEntity>,
     action_requests: Res<ActionRequests>,
 ) {
@@ -130,7 +130,7 @@ pub(crate) fn air_lock_actions(
                         handle_option = None;
                     }
                 }
-                air_lock_lock_closed_event.send(AirLockLockClosed {
+                air_lock_lock_closed_event.send(AirlockLockClosed {
                     handle_option,
                     locker: building.action_taker,
                     locked: building.target_entity_option.unwrap(),
@@ -149,7 +149,7 @@ pub(crate) fn air_lock_actions(
                         handle_option = None;
                     }
                 }
-                air_lock_unlock_event.send(AirLockUnlock {
+                air_lock_unlock_event.send(AirlockUnlock {
                     handle_option,
                     locker: building.action_taker,
                     locked: building.target_entity_option.unwrap(),
@@ -168,7 +168,7 @@ pub(crate) fn air_lock_actions(
                         handle_option = None;
                     }
                 }
-                toggle_open_events.send(InputAirLockToggleOpen {
+                toggle_open_events.send(InputAirlockToggleOpen {
                     handle_option,
                     opener: building.action_taker,
                     opened: building.target_entity_option.unwrap(),
@@ -255,7 +255,7 @@ pub(crate) fn lock_action_prequisite_check(
 #[cfg(feature = "server")]
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
-    air_locks: Query<&AirLock>,
+    air_locks: Query<&Airlock>,
 ) {
     for building_action in building_action_data.list.iter_mut() {
         match building_action.target_entity_option {

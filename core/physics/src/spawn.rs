@@ -10,7 +10,7 @@ use bevy_rapier3d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
     GravityScale, Group, RigidBody, Sleeping, Velocity,
 };
-use entity::spawn::SpawnData;
+use entity::spawn::EntityBuildData;
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct RigidBodyBundle {
@@ -35,7 +35,7 @@ impl Default for RigidBodyBundle {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct RigidBodySpawnData {
+pub struct RigidBodyBuildData {
     pub rigidbody_dynamic: bool,
     pub rigid_transform: Transform,
     pub external_impulse: ExternalImpulse,
@@ -52,7 +52,7 @@ pub struct RigidBodySpawnData {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl Default for RigidBodySpawnData {
+impl Default for RigidBodyBuildData {
     fn default() -> Self {
         let masks = get_bit_masks(ColliderGroup::Standard);
         Self {
@@ -81,7 +81,7 @@ use crate::physics::RigidBodyDisabled;
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn rigidbody_builder(
     commands: &mut Commands,
-    rigidbody_spawn_data: RigidBodySpawnData,
+    rigidbody_spawn_data: RigidBodyBuildData,
     entity: Entity,
     is_showcase: bool,
 ) {
@@ -193,15 +193,15 @@ pub fn rigidbody_builder(
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait RigidBodySummonable<Y> {
-    fn get_bundle(&self, spawn_data: &SpawnData, entity_data_option: Y) -> RigidBodyBundle;
+pub trait RigidBodyBuildable<Y> {
+    fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> RigidBodyBundle;
 }
-use entity::spawn::{NoData, SpawnEvent};
+use entity::spawn::{NoData, SpawnEntity};
 
 /// Rigid body spawning.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_rigid_body<T: RigidBodySummonable<NoData> + Send + Sync + 'static>(
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+pub fn summon_rigid_body<T: RigidBodyBuildable<NoData> + Send + Sync + 'static>(
+    mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -211,7 +211,7 @@ pub fn summon_rigid_body<T: RigidBodySummonable<NoData> + Send + Sync + 'static>
 
         rigidbody_builder(
             &mut commands,
-            RigidBodySpawnData {
+            RigidBodyBuildData {
                 rigidbody_dynamic: rigidbody_bundle.rigidbody_dynamic,
                 rigid_transform: spawn_event.spawn_data.entity_transform,
                 entity_is_stored_item: spawn_event.spawn_data.holder_entity_option.is_some(),

@@ -2,21 +2,23 @@ use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::SpawnEvent,
+    spawn::SpawnEntity,
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
 use physics::spawn::summon_rigid_body;
 use resources::{
     is_server::is_server,
-    labels::{CombatLabels, StartupLabels, SummoningLabels},
+    labels::{BuildingLabels, CombatLabels, StartupLabels},
 };
 
 use crate::{
     boarding::spawn_boarding_player,
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
-    spawn::{default_human_dummy, summon_base_human_male, summon_human_male, HumanMaleSummoner},
+    spawn::{
+        build_base_human_males, build_human_males, default_build_human_dummies, HumanMaleBuilder,
+    },
 };
 use bevy::app::CoreStage::PostUpdate;
 pub struct HumanMalePlugin;
@@ -29,26 +31,24 @@ impl Plugin for HumanMalePlugin {
                     .label(CombatLabels::WeaponHandler)
                     .after(CombatLabels::CacheAttack),
             )
-            .add_system(human_male_setup_ui.label(SummoningLabels::TriggerSummon))
+            .add_system(human_male_setup_ui.label(BuildingLabels::TriggerBuild))
             .add_system_to_stage(PostUpdate, spawn_boarding_player);
         }
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(
-                summon_human_male::<HumanMaleSummoner>
-                    .before(SummoningLabels::TriggerSummon)
-                    .label(SummoningLabels::NormalSummon),
+                build_human_males::<HumanMaleBuilder>
+                    .before(BuildingLabels::TriggerBuild)
+                    .label(BuildingLabels::NormalBuild),
             )
             .add_system(
-                (summon_base_human_male::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
+                (build_base_human_males::<HumanMaleBuilder>).after(BuildingLabels::TriggerBuild),
             )
-            .add_event::<SpawnEvent<HumanMaleSummoner>>()
+            .add_event::<SpawnEntity<HumanMaleBuilder>>()
+            .add_system((summon_rigid_body::<HumanMaleBuilder>).after(BuildingLabels::TriggerBuild))
             .add_system(
-                (summon_rigid_body::<HumanMaleSummoner>).after(SummoningLabels::TriggerSummon),
-            )
-            .add_system(
-                (default_human_dummy)
-                    .label(SummoningLabels::DefaultSummon)
-                    .after(SummoningLabels::NormalSummon),
+                (default_build_human_dummies)
+                    .label(BuildingLabels::DefaultBuild)
+                    .after(BuildingLabels::NormalBuild),
             );
     }
 }

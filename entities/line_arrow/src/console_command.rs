@@ -3,12 +3,12 @@ use bevy::{
     prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Transform},
     time::Time,
 };
-use entity::spawn::{SpawnData, SpawnEvent};
+use entity::spawn::{EntityBuildData, SpawnEntity};
 use networking::server::GodotVariantValues;
 
 use super::{
     line_arrow::PointArrow,
-    spawn::{LineArrowSummoner, LINE_ARROW_ENTITY_NAME},
+    spawn::{LineArrowBuilder, LINE_ARROW_ENTITY_NAME},
 };
 use console_commands::commands::InputConsoleCommand;
 
@@ -17,7 +17,7 @@ use console_commands::commands::InputConsoleCommand;
 pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
-    mut spawn_event: EventWriter<SpawnEvent<LineArrowSummoner>>,
+    mut spawn_event: EventWriter<SpawnEntity<LineArrowBuilder>>,
 ) {
     for command in queue.iter() {
         if command.command_name == "pointArrow" {
@@ -112,15 +112,15 @@ pub(crate) fn entity_console_commands(
             let mut passed_transform = Transform::IDENTITY;
             passed_transform.translation = translation;
 
-            spawn_event.send(SpawnEvent {
-                spawn_data: SpawnData {
+            spawn_event.send(SpawnEntity {
+                spawn_data: EntityBuildData {
                     entity_transform: passed_transform,
                     correct_transform: false,
                     entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                summoner: LineArrowSummoner {
+                summoner: LineArrowBuilder {
                     duration: duration as f32,
                 },
             });

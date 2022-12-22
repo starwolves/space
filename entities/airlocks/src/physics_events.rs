@@ -5,7 +5,7 @@ use bevy::{
 use bevy_rapier3d::{pipeline::CollisionEvent, prelude::Collider};
 use entity::entity_data::{EntityData, EntityGroup};
 
-use crate::air_lock_events::AirLockCollision;
+use crate::airlock_events::AirlockCollision;
 
 /// Manage air lock physics events as interactions with pawns.
 #[cfg(feature = "server")]
@@ -13,7 +13,7 @@ pub(crate) fn physics_events(
     mut collision_events: EventReader<CollisionEvent>,
     interesting_entities_query: Query<(Entity, &EntityData, &Transform)>,
     parents: Query<&Parent, With<Collider>>,
-    mut air_lock_collision_event: EventWriter<AirLockCollision>,
+    mut airlock_collision_event: EventWriter<AirlockCollision>,
 ) {
     for collision_event in collision_events.iter() {
         match collision_event {
@@ -44,7 +44,7 @@ pub(crate) fn physics_events(
                     collider2_parent,
                     true,
                     &interesting_entities_query,
-                    &mut air_lock_collision_event,
+                    &mut airlock_collision_event,
                 );
             }
             CollisionEvent::Stopped(collider1_handle, collider2_handle, _flags) => {
@@ -53,7 +53,7 @@ pub(crate) fn physics_events(
                     *collider2_handle,
                     false,
                     &interesting_entities_query,
-                    &mut air_lock_collision_event,
+                    &mut airlock_collision_event,
                 );
             }
         }
@@ -67,7 +67,7 @@ fn process_physics_event(
     collider2_entity: Entity,
     collision_started: bool,
     interesting_entities_query: &Query<(Entity, &EntityData, &Transform)>,
-    air_lock_collision_event: &mut EventWriter<AirLockCollision>,
+    air_lock_collision_event: &mut EventWriter<AirlockCollision>,
 ) {
     let mut first_collider_group = EntityGroup::None;
     let mut second_collider_group = EntityGroup::None;
@@ -105,7 +105,7 @@ fn process_physics_event(
     if matches!(first_collider_group, EntityGroup::AirLock)
         || matches!(second_collider_group, EntityGroup::AirLock)
     {
-        air_lock_collision_event.send(AirLockCollision {
+        air_lock_collision_event.send(AirlockCollision {
             collider1_entity: collider1_entity,
             collider2_entity: collider2_entity,
 

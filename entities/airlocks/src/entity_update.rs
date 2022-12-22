@@ -4,12 +4,12 @@ use bevy::prelude::{Changed, Query};
 use entity::entity_data::{get_entity_update_difference, EntityUpdates};
 use networking::server::EntityUpdateData;
 
-use super::resources::{AccessLightsStatus, AirLock, AirLockStatus};
+use super::resources::{AccessLightsStatus, Airlock, AirlockStatus};
 
 /// Air lock entity update for Godot clients.
 #[cfg(feature = "server")]
 pub(crate) fn air_lock_update(
-    mut updated_air_locks: Query<(&AirLock, &mut EntityUpdates), Changed<AirLock>>,
+    mut updated_air_locks: Query<(&Airlock, &mut EntityUpdates), Changed<Airlock>>,
 ) {
     for (air_lock_component, mut entity_updates_component) in updated_air_locks.iter_mut() {
         let old_entity_updates = entity_updates_component.updates.clone();
@@ -19,11 +19,11 @@ pub(crate) fn air_lock_update(
         animation_tree_data.insert("blend_speed".to_string(), EntityUpdateData::Float(0.6));
 
         match air_lock_component.status {
-            AirLockStatus::Open => {
+            AirlockStatus::Open => {
                 animation_tree_data
                     .insert("blend_position".to_string(), EntityUpdateData::Float(1.));
             }
-            AirLockStatus::Closed => {
+            AirlockStatus::Closed => {
                 animation_tree_data
                     .insert("blend_position".to_string(), EntityUpdateData::Float(-1.));
             }

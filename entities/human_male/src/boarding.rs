@@ -10,16 +10,16 @@ use pawn::pawn::{PawnDesignation, SpawnPawnData};
 use player::account::Accounts;
 
 use construction_tool_admin::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
-use entity::spawn::SpawnData;
+use entity::spawn::EntityBuildData;
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use setup_ui::core::SetupUiUserDataSets;
 
-use entity::spawn::SpawnEvent;
+use entity::spawn::SpawnEntity;
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 
-use crate::spawn::HumanMaleSummoner;
+use crate::spawn::HumanMaleBuilder;
 use pawn::pawn::Pawn;
 use player::boarding::PlayerBoarded;
 /// Spawn player as human male with preset inventory.
@@ -29,7 +29,7 @@ pub(crate) fn spawn_boarding_player(
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut used_names: ResMut<UsedNames>,
-    mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
+    mut summon_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
     accounts: Res<Accounts>,
     setup_ui_datas: Res<SetupUiUserDataSets>,
     mut boarded: EventWriter<PlayerBoarded>,
@@ -68,14 +68,14 @@ pub(crate) fn spawn_boarding_player(
 
         let new_entity = commands.spawn(()).id();
 
-        summon_human_male.send(SpawnEvent {
-            spawn_data: SpawnData {
+        summon_human_male.send(SpawnEntity {
+            spawn_data: EntityBuildData {
                 entity: new_entity,
                 entity_transform: spawning_component.transform.clone(),
                 entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
-            summoner: HumanMaleSummoner {
+            summoner: HumanMaleBuilder {
                 spawn_pawn_data: SpawnPawnData {
                     pawn_component: Pawn {
                         character_name: setup_data.character_name.clone(),

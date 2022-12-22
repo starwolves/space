@@ -2,7 +2,7 @@ use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transfor
 use entity::showcase::ShowcaseData;
 use entity::{
     meta::EntityDataResource,
-    spawn::{DefaultSpawnEvent, SpawnData, SpawnEvent},
+    spawn::{DefaultSpawnEvent, EntityBuildData, SpawnEntity},
 };
 
 use crate::combat::{MeleeCombat, ProjectileCombat};
@@ -27,7 +27,7 @@ pub struct InventoryBuilderData {
 }
 use physics::physics::RigidBodyLinkTransform;
 
-/// Build inventory item at summon stage.
+/// Build inventory item at building stage.
 #[cfg(any(feature = "server", feature = "client"))]
 pub(crate) fn inventory_item_builder(
     commands: &mut Commands,
@@ -54,14 +54,14 @@ pub(crate) fn inventory_item_builder(
 }
 /// Inventory item summonable.
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait InventoryItemSummonable {
-    fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle;
+pub trait InventoryItemBuildable {
+    fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle;
 }
 
 /// Inventory item spawn handler.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_inventory_item<T: InventoryItemSummonable + Send + Sync + 'static>(
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+pub fn build_inventory_items<T: InventoryItemBuildable + Send + Sync + 'static>(
+    mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -97,7 +97,7 @@ pub fn spawn_held_entity(
             return_entity = Some(commands.spawn(()).id());
 
             default_spawner.send(DefaultSpawnEvent {
-                spawn_data: SpawnData {
+                spawn_data: EntityBuildData {
                     entity_transform: Transform::IDENTITY,
                     correct_transform: false,
                     holder_entity_option: Some(holder_entity),

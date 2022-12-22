@@ -1,5 +1,5 @@
 use actions::plugin::ActionsPlugin;
-use air_locks::plugin::AirLocksPlugin;
+use airlocks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
 use atmospherics::plugin::AtmosphericsPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;

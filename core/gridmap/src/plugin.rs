@@ -7,7 +7,7 @@ use networking::messaging::{init_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
     is_server::is_server,
-    labels::{ActionsLabels, PostUpdateLabels, StartupLabels, SummoningLabels, UpdateLabels},
+    labels::{ActionsLabels, BuildingLabels, PostUpdateLabels, StartupLabels, UpdateLabels},
 };
 
 use crate::{
@@ -98,7 +98,7 @@ impl Plugin for GridmapPlugin {
             .add_startup_system(
                 startup_map_cell_properties
                     .label(StartupLabels::InitDefaultGridmapData)
-                    .label(SummoningLabels::TriggerSummon)
+                    .label(BuildingLabels::TriggerBuild)
                     .after(StartupLabels::MiscResources),
             )
             .add_startup_system(

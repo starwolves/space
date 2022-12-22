@@ -34,5 +34,5 @@ actions = { path = "../../core/actions", features = ["server"] }
 gridmap = { path = "../../core/gridmap", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
 math = { path = "../../core/math", features = ["server"] }
-air_locks = { path = "../air_locks", features = ["server"] }
+airlocks = { path = "../airlocks", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }

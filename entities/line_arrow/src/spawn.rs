@@ -9,7 +9,8 @@ use entity::{
     entity_data::{WorldMode, WorldModes},
     examine::{Examinable, RichName},
     spawn::{
-        BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
+        BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        SpawnEntity,
     },
 };
 
@@ -19,8 +20,8 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl BaseEntitySummonable<NoData> for LineArrowSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
+impl BaseEntityBuildable<NoData> for LineArrowBuilder {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text =
             "A holographic arrow without additional data points.".to_string();
         let mut examine_map = BTreeMap::new();
@@ -44,27 +45,27 @@ impl BaseEntitySummonable<NoData> for LineArrowSummoner {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct LineArrowSummoner {
+pub struct LineArrowBuilder {
     pub duration: f32,
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl LinerArrowSummonable for LineArrowSummoner {
+impl LinerArrowBuildable for LineArrowBuilder {
     fn get_duration(&self) -> f32 {
         self.duration
     }
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait LinerArrowSummonable {
+pub trait LinerArrowBuildable {
     fn get_duration(&self) -> f32;
 }
 use bevy::time::TimerMode;
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
+pub fn build_line_arrows<T: LinerArrowBuildable + Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands.entity(spawn_event.spawn_data.entity).insert((
@@ -84,15 +85,15 @@ pub fn summon_line_arrow<T: LinerArrowSummonable + Send + Sync + 'static>(
 pub const LINE_ARROW_ENTITY_NAME: &str = "lineArrow";
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn default_line_arrow(
+pub fn default_build_line_arrows(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEvent<LineArrowSummoner>>,
+    mut spawner: EventWriter<SpawnEntity<LineArrowBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name == LINE_ARROW_ENTITY_NAME {
-            spawner.send(SpawnEvent {
+            spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
-                summoner: LineArrowSummoner { duration: 6000.0 },
+                summoner: LineArrowBuilder { duration: 6000.0 },
             });
         }
     }

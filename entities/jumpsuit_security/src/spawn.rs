@@ -10,21 +10,21 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
+use entity::spawn::BaseEntityBuildable;
 use entity::spawn::BaseEntityBundle;
-use entity::spawn::BaseEntitySummonable;
 use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::EntityBuildData;
 use entity::spawn::NoData;
-use entity::spawn::SpawnData;
-use entity::spawn::SpawnEvent;
+use entity::spawn::SpawnEntity;
 use inventory::combat::DamageModel;
 use inventory::combat::MeleeCombat;
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
+use inventory::spawn_item::InventoryItemBuildable;
 use inventory::spawn_item::InventoryItemBundle;
-use inventory::spawn_item::InventoryItemSummonable;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
+use physics::spawn::RigidBodyBuildable;
 use physics::spawn::RigidBodyBundle;
-use physics::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
@@ -42,8 +42,8 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntitySummonable<NoData> for JumpsuitSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
+impl BaseEntityBuildable<NoData> for JumpsuitSpawner {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
@@ -69,8 +69,8 @@ impl BaseEntitySummonable<NoData> for JumpsuitSummoner {
 }
 
 #[cfg(feature = "server")]
-impl InventoryItemSummonable for JumpsuitSummoner {
-    fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
+impl InventoryItemBuildable for JumpsuitSpawner {
+    fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
 
         let left_hand_rotation = Vec3::new(-0.324509068, -1.52304412, 2.79253);
@@ -124,8 +124,8 @@ impl InventoryItemSummonable for JumpsuitSummoner {
 }
 
 #[cfg(feature = "server")]
-impl RigidBodySummonable<NoData> for JumpsuitSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
+impl RigidBodyBuildable<NoData> for JumpsuitSpawner {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 
@@ -140,12 +140,12 @@ impl RigidBodySummonable<NoData> for JumpsuitSummoner {
 }
 
 #[cfg(feature = "server")]
-pub struct JumpsuitSummoner;
+pub struct JumpsuitSpawner;
 
 #[cfg(feature = "server")]
-pub fn summon_jumpsuit<T: Send + Sync + 'static>(
+pub fn build_jumpsuits<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
@@ -155,9 +155,9 @@ pub fn summon_jumpsuit<T: Send + Sync + 'static>(
 }
 
 #[cfg(feature = "server")]
-pub fn summon_raw_jumpsuit(
+pub fn build_raw_jumpsuits(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEvent<JumpsuitSummoner>>,
+    mut summon_computer: EventWriter<SpawnEntity<JumpsuitSpawner>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -168,8 +168,8 @@ pub fn summon_raw_jumpsuit(
         let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
-        summon_computer.send(SpawnEvent {
-            spawn_data: SpawnData {
+        summon_computer.send(SpawnEntity {
+            spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
@@ -177,24 +177,24 @@ pub fn summon_raw_jumpsuit(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: JumpsuitSummoner,
+            summoner: JumpsuitSpawner,
         });
     }
 }
 
 #[cfg(feature = "server")]
-pub fn default_summon_jumpsuit(
+pub fn default_build_jumpsuits(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEvent<JumpsuitSummoner>>,
+    mut spawner: EventWriter<SpawnEntity<JumpsuitSpawner>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name != JUMPSUIT_SECURITY_ENTITY_NAME {
             continue;
         }
 
-        spawner.send(SpawnEvent {
+        spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: JumpsuitSummoner,
+            summoner: JumpsuitSpawner,
         });
     }
 }

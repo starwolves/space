@@ -6,7 +6,7 @@ use networking::{
     messaging::{init_reliable_message, MessageSender},
 };
 use player::plugin::ConfigurationLabel;
-use resources::{is_server::is_server, labels::SummoningLabels};
+use resources::{is_server::is_server, labels::BuildingLabels};
 
 use crate::{
     core::{
@@ -22,7 +22,7 @@ impl Plugin for SetupUiPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_system(ui_input_boarding)
-                .add_system(initialize_setupui.label(SummoningLabels::TriggerSummon))
+                .add_system(initialize_setupui.label(BuildingLabels::TriggerBuild))
                 .add_event::<InputUIInput>()
                 .add_system(
                     configure

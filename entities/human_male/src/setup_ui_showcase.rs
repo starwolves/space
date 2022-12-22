@@ -1,11 +1,11 @@
 use bevy::prelude::{Added, Commands, EventWriter, Query};
 use entity::showcase::ShowcaseData;
-use entity::spawn::{SpawnData, SpawnEvent};
+use entity::spawn::{EntityBuildData, SpawnEntity};
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 
-use crate::spawn::HumanMaleSummoner;
+use crate::spawn::HumanMaleBuilder;
 use networking::server::ConnectedPlayer;
 use pawn::pawn::Pawn;
 use pawn::pawn::PawnDesignation;
@@ -16,7 +16,7 @@ use player::connections::SetupPhase;
 #[cfg(feature = "server")]
 pub(crate) fn human_male_setup_ui(
     query: Query<(&ConnectedPlayer, &Pawn), Added<SetupPhase>>,
-    mut summon_human_male: EventWriter<SpawnEvent<HumanMaleSummoner>>,
+    mut summon_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
     mut commands: Commands,
 ) {
     for (connected_player_component, persistent_player_data_component) in query.iter() {
@@ -30,8 +30,8 @@ pub(crate) fn human_male_setup_ui(
 
         let human_male_entity = commands.spawn(()).id();
 
-        summon_human_male.send(SpawnEvent {
-            spawn_data: SpawnData {
+        summon_human_male.send(SpawnEntity {
+            spawn_data: EntityBuildData {
                 entity: human_male_entity,
                 showcase_data_option: Some(ShowcaseData {
                     handle: connected_player_component.handle,
@@ -39,7 +39,7 @@ pub(crate) fn human_male_setup_ui(
                 entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
-            summoner: HumanMaleSummoner {
+            summoner: HumanMaleBuilder {
                 spawn_pawn_data: SpawnPawnData {
                     pawn_component: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),

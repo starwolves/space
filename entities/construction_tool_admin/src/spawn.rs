@@ -6,14 +6,14 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
 use entity::spawn::{
-    BaseEntityBundle, BaseEntitySummonable, DefaultSpawnEvent, NoData, SpawnData, SpawnEvent,
+    BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
 };
 use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
-use inventory::spawn_item::{InventoryItemBundle, InventoryItemSummonable};
+use inventory::spawn_item::{InventoryItemBuildable, InventoryItemBundle};
 use physics::rigid_body::STANDARD_BODY_FRICTION;
-use physics::spawn::{RigidBodyBundle, RigidBodySummonable};
+use physics::spawn::{RigidBodyBuildable, RigidBodyBundle};
 use std::collections::BTreeMap;
 
 use crate::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
@@ -26,8 +26,8 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntitySummonable<NoData> for ConstructionToolSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
+impl BaseEntityBuildable<NoData> for ConstructionToolSummoner {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
@@ -53,8 +53,8 @@ impl BaseEntitySummonable<NoData> for ConstructionToolSummoner {
 use std::collections::HashMap;
 
 #[cfg(feature = "server")]
-impl InventoryItemSummonable for ConstructionToolSummoner {
-    fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
+impl InventoryItemBuildable for ConstructionToolSummoner {
+    fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
         attachment_transforms.insert(
             "left_hand".to_string(),
@@ -106,8 +106,8 @@ impl InventoryItemSummonable for ConstructionToolSummoner {
 }
 
 #[cfg(feature = "server")]
-impl RigidBodySummonable<NoData> for ConstructionToolSummoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
+impl RigidBodyBuildable<NoData> for ConstructionToolSummoner {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 
@@ -126,7 +126,7 @@ pub struct ConstructionToolSummoner;
 #[cfg(feature = "server")]
 pub fn summon_construction_tool<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
@@ -138,7 +138,7 @@ pub fn summon_construction_tool<T: Send + Sync + 'static>(
 #[cfg(feature = "server")]
 pub fn summon_raw_construction_tool(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEvent<ConstructionToolSummoner>>,
+    mut summon_computer: EventWriter<SpawnEntity<ConstructionToolSummoner>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -149,8 +149,8 @@ pub fn summon_raw_construction_tool(
         let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
-        summon_computer.send(SpawnEvent {
-            spawn_data: SpawnData {
+        summon_computer.send(SpawnEntity {
+            spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
@@ -166,13 +166,13 @@ pub fn summon_raw_construction_tool(
 #[cfg(feature = "server")]
 pub fn default_summon_construction_tool(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEvent<ConstructionToolSummoner>>,
+    mut spawner: EventWriter<SpawnEntity<ConstructionToolSummoner>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name != CONSTRUCTION_TOOL_ENTITY_NAME {
             continue;
         }
-        spawner.send(SpawnEvent {
+        spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
             summoner: ConstructionToolSummoner,
         });

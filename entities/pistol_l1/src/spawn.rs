@@ -11,12 +11,12 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
+use entity::spawn::BaseEntityBuildable;
 use entity::spawn::BaseEntityBundle;
-use entity::spawn::BaseEntitySummonable;
 use entity::spawn::DefaultSpawnEvent;
+use entity::spawn::EntityBuildData;
 use entity::spawn::NoData;
-use entity::spawn::SpawnData;
-use entity::spawn::SpawnEvent;
+use entity::spawn::SpawnEntity;
 use inventory::combat::CombatAttackAnimation;
 use inventory::combat::DamageModel;
 use inventory::combat::MeleeCombat;
@@ -24,11 +24,11 @@ use inventory::combat::ProjectileCombat;
 use inventory::inventory::SlotType;
 use inventory::item::CombatStandardAnimation;
 use inventory::item::InventoryItem;
+use inventory::spawn_item::InventoryItemBuildable;
 use inventory::spawn_item::InventoryItemBundle;
-use inventory::spawn_item::InventoryItemSummonable;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
+use physics::spawn::RigidBodyBuildable;
 use physics::spawn::RigidBodyBundle;
-use physics::spawn::RigidBodySummonable;
 use std::collections::BTreeMap;
 use text_api::core::Color;
 
@@ -42,8 +42,8 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntitySummonable<NoData> for PistolL1Summoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> BaseEntityBundle {
+impl BaseEntityBuildable<NoData> for PistolL1Builder {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
             0,
@@ -73,8 +73,8 @@ use std::collections::HashMap;
 pub const PISTOL_L1_PROJECTILE_RANGE: f32 = 50.;
 
 #[cfg(feature = "server")]
-impl InventoryItemSummonable for PistolL1Summoner {
-    fn get_bundle(&self, spawn_data: &SpawnData) -> InventoryItemBundle {
+impl InventoryItemBuildable for PistolL1Builder {
+    fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
 
         attachment_transforms.insert(
@@ -150,8 +150,8 @@ impl InventoryItemSummonable for PistolL1Summoner {
 }
 
 #[cfg(feature = "server")]
-impl RigidBodySummonable<NoData> for PistolL1Summoner {
-    fn get_bundle(&self, _spawn_data: &SpawnData, _entity_data: NoData) -> RigidBodyBundle {
+impl RigidBodyBuildable<NoData> for PistolL1Builder {
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
 
@@ -170,12 +170,12 @@ use crate::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use super::pistol_l1::PistolL1;
 
 #[cfg(feature = "server")]
-pub struct PistolL1Summoner;
+pub struct PistolL1Builder;
 
 #[cfg(feature = "server")]
-pub fn summon_pistol_l1<T: Send + Sync + 'static>(
+pub fn build_pistols_l1<T: Send + Sync + 'static>(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEvent<T>>,
+    mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
     for spawn_event in spawn_events.iter() {
         commands
@@ -185,9 +185,9 @@ pub fn summon_pistol_l1<T: Send + Sync + 'static>(
 }
 
 #[cfg(feature = "server")]
-pub fn summon_raw_pistol_l1(
+pub fn build_raw_pistols_l1(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut summon_computer: EventWriter<SpawnEvent<PistolL1Summoner>>,
+    mut summon_computer: EventWriter<SpawnEntity<PistolL1Builder>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -199,8 +199,8 @@ pub fn summon_raw_pistol_l1(
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
 
-        summon_computer.send(SpawnEvent {
-            spawn_data: SpawnData {
+        summon_computer.send(SpawnEntity {
+            spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
                 entity_name: spawn_event.raw_entity.entity_type.clone(),
@@ -208,23 +208,23 @@ pub fn summon_raw_pistol_l1(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            summoner: PistolL1Summoner,
+            summoner: PistolL1Builder,
         });
     }
 }
 
 #[cfg(feature = "server")]
-pub fn default_summon_pistol_l1(
+pub fn default_build_pistols_l1(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEvent<PistolL1Summoner>>,
+    mut spawner: EventWriter<SpawnEntity<PistolL1Builder>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_name != PISTOL_L1_ENTITY_NAME {
             continue;
         }
-        spawner.send(SpawnEvent {
+        spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            summoner: PistolL1Summoner,
+            summoner: PistolL1Builder,
         });
     }
 }

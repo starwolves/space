@@ -3,12 +3,12 @@ use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{summon_base_entity, SpawnEvent},
+    spawn::{build_base_entities, SpawnEntity},
 };
 use physics::spawn::summon_rigid_body;
 use resources::{
     is_server::is_server,
-    labels::{CombatLabels, StartupLabels, SummoningLabels},
+    labels::{BuildingLabels, CombatLabels, StartupLabels},
 };
 
 use crate::computer::Computer;
@@ -16,7 +16,7 @@ use crate::computer::Computer;
 use super::{
     computer::computer_added,
     spawn::{
-        default_summon_computer, summon_computer, summon_raw_computer, ComputerSummoner,
+        build_computers, build_raw_computers, default_build_computers, ComputerBuilder,
         BRIDGE_COMPUTER_ENTITY_NAME,
     },
 };
@@ -30,20 +30,18 @@ impl Plugin for ComputersPlugin {
                 health_combat_hit_result_sfx::<Computer>.after(CombatLabels::FinalizeApplyDamage),
             );
         }
-        app.add_event::<SpawnEvent<ComputerSummoner>>()
+        app.add_event::<SpawnEntity<ComputerBuilder>>()
             .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(summon_computer::<ComputerSummoner>.after(SummoningLabels::TriggerSummon))
+            .add_system(build_computers::<ComputerBuilder>.after(BuildingLabels::TriggerBuild))
             .add_system(
-                (summon_base_entity::<ComputerSummoner>).after(SummoningLabels::TriggerSummon),
+                (build_base_entities::<ComputerBuilder>).after(BuildingLabels::TriggerBuild),
             )
+            .add_system((summon_rigid_body::<ComputerBuilder>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild))
             .add_system(
-                (summon_rigid_body::<ComputerSummoner>).after(SummoningLabels::TriggerSummon),
-            )
-            .add_system((summon_raw_computer).after(SummoningLabels::TriggerSummon))
-            .add_system(
-                (default_summon_computer)
-                    .label(SummoningLabels::DefaultSummon)
-                    .after(SummoningLabels::NormalSummon),
+                (default_build_computers)
+                    .label(BuildingLabels::DefaultBuild)
+                    .after(BuildingLabels::NormalBuild),
             );
     }
 }

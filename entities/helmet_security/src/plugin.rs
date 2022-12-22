@@ -6,19 +6,19 @@ use combat::{
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{summon_base_entity, SpawnEvent},
+    spawn::{build_base_entities, SpawnEntity},
 };
-use inventory::spawn_item::summon_inventory_item;
+use inventory::spawn_item::build_inventory_items;
 use physics::spawn::summon_rigid_body;
 use resources::{
     is_server::is_server,
-    labels::{CombatLabels, StartupLabels, SummoningLabels},
+    labels::{BuildingLabels, CombatLabels, StartupLabels},
 };
 
 use crate::helmet::{Helmet, HELMET_SECURITY_ENTITY_NAME};
 
 use super::spawn::{
-    default_summon_helmet_security, summon_helmet, summon_raw_helmet, HelmetSummoner,
+    build_helmets, build_raw_helmets, default_build_helmets_security, HelmetBuilder,
 };
 
 pub struct HelmetsPlugin;
@@ -27,22 +27,22 @@ impl Plugin for HelmetsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-                .add_system(summon_helmet::<HelmetSummoner>.after(SummoningLabels::TriggerSummon))
+                .add_system(build_helmets::<HelmetBuilder>.after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    (summon_base_entity::<HelmetSummoner>).after(SummoningLabels::TriggerSummon),
+                    (build_base_entities::<HelmetBuilder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_rigid_body::<HelmetSummoner>).after(SummoningLabels::TriggerSummon),
+                    (summon_rigid_body::<HelmetBuilder>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (summon_inventory_item::<HelmetSummoner>).after(SummoningLabels::TriggerSummon),
+                    (build_inventory_items::<HelmetBuilder>).after(BuildingLabels::TriggerBuild),
                 )
-                .add_system((summon_raw_helmet).after(SummoningLabels::TriggerSummon))
-                .add_event::<SpawnEvent<HelmetSummoner>>()
+                .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild))
+                .add_event::<SpawnEntity<HelmetBuilder>>()
                 .add_system(
-                    (default_summon_helmet_security)
-                        .label(SummoningLabels::DefaultSummon)
-                        .after(SummoningLabels::NormalSummon),
+                    (default_build_helmets_security)
+                        .label(BuildingLabels::DefaultBuild)
+                        .after(BuildingLabels::NormalBuild),
                 )
                 .add_system(
                     melee_attack_handler::<Helmet>

@@ -1,14 +1,14 @@
 use bevy::{prelude::Component, time::Timer};
 use pawn::pawn::ShipAuthorizationEnum;
 
-use crate::air_lock_events::LockedStatus;
+use crate::airlock_events::LockedStatus;
 
 /// Air lock component.
 #[derive(Component)]
 #[cfg(feature = "server")]
-pub struct AirLock {
+pub struct Airlock {
     /// Air lock state.
-    pub status: AirLockStatus,
+    pub status: AirlockStatus,
     /// Current color of the access lights.
     pub access_lights: AccessLightsStatus,
     /// Required authorization to interact with the air lock.
@@ -23,7 +23,7 @@ pub struct AirLock {
 
 /// Air lock open or closed status.
 #[cfg(feature = "server")]
-pub enum AirLockStatus {
+pub enum AirlockStatus {
     Open,
     Closed,
 }
@@ -37,10 +37,10 @@ pub enum AccessLightsStatus {
 }
 
 #[cfg(feature = "server")]
-impl Default for AirLock {
+impl Default for Airlock {
     fn default() -> Self {
         Self {
-            status: AirLockStatus::Closed,
+            status: AirlockStatus::Closed,
             access_lights: AccessLightsStatus::Neutral,
             access_permissions: vec![ShipAuthorizationEnum::Common],
             locked_status: LockedStatus::None,

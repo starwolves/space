@@ -1,4 +1,4 @@
-use air_locks::air_lock_events::{AirLockCloseRequest, LockedStatus};
+use airlocks::airlock_events::{AirlockCloseRequest, LockedStatus};
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::{
     hierarchy::Children,
@@ -73,7 +73,7 @@ pub(crate) fn counter_window_events(
 
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
-                        close_requests.push(AirLockCloseRequest {
+                        close_requests.push(AirlockCloseRequest {
                             interacter_option: None,
                             interacted: event.locked,
                         });
@@ -162,7 +162,7 @@ pub(crate) fn counter_window_events(
                 counter_window_component.locked_status = LockedStatus::Closed;
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
-                        close_requests.push(AirLockCloseRequest {
+                        close_requests.push(AirlockCloseRequest {
                             interacter_option: None,
                             interacted: event.locked,
                         });
@@ -234,7 +234,7 @@ pub(crate) fn counter_window_events(
                     timer_component.pause();
                     timer_component.reset();
 
-                    close_requests.push(AirLockCloseRequest {
+                    close_requests.push(AirlockCloseRequest {
                         interacter_option: None,
                         interacted: counter_window_entity,
                     });
@@ -369,7 +369,7 @@ pub(crate) fn counter_window_events(
             )) => {
                 match counter_window_component.status {
                     CounterWindowStatus::Open => {
-                        close_requests.push(AirLockCloseRequest {
+                        close_requests.push(AirlockCloseRequest {
                             interacter_option: Some(event.opener),
                             interacted: opened_entity,
                         });
