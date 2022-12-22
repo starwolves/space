@@ -5,12 +5,19 @@ use bevy::{
     time::{FixedTimesteps, Time},
 };
 use networking::server::{EntityUpdateData, UnreliableServerMessage};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     meta::{EntityDataProperties, EntityDataResource},
     sensable::Sensable,
 };
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg(any(feature = "server", feature = "client"))]
+pub enum EntityWorldType {
+    Main,
+    HealthUI,
+}
+
 /// Initialize meta-data for an entity as a function.
 #[cfg(feature = "server")]
 pub fn initialize_entity_data(

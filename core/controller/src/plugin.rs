@@ -4,9 +4,8 @@ use crate::input::{
     InputMouseDirectionUpdate, InputMovementInput, InputSelectBodyPart, InputSprinting,
     InputToggleAutoMove, InputToggleCombatMode,
 };
-use crate::networking::{
-    incoming_messages, ControllerClientMessage, ControllerUnreliableClientMessage,
-};
+use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
+use crate::networking::incoming_messages;
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::{
     prelude::{App, Plugin, SystemSet},

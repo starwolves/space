@@ -438,3 +438,41 @@ pub(crate) fn examine_grid(
         }
     }
 }
+
+use networking::server::IncomingReliableClientMessage;
+
+use crate::net::GridmapClientMessage;
+/// Manage incoming network messages from clients.
+#[cfg(feature = "server")]
+pub(crate) fn incoming_messages(
+    mut server: EventReader<IncomingReliableClientMessage<GridmapClientMessage>>,
+    handle_to_entity: Res<HandleToEntity>,
+    mut input_examine_map: EventWriter<InputExamineMap>,
+) {
+    for message in server.iter() {
+        let client_message = message.message.clone();
+
+        match client_message {
+            GridmapClientMessage::ExamineMap(grid_map_type, cell_id_x, cell_id_y, cell_id_z) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_examine_map.send(InputExamineMap {
+                            handle: message.handle,
+                            entity: *player_entity,
+                            gridmap_type: grid_map_type,
+                            gridmap_cell_id: Vec3Int {
+                                x: cell_id_x,
+                                y: cell_id_y,
+                                z: cell_id_z,
+                            },
+                            ..Default::default()
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
+                    }
+                }
+            }
+        }
+    }
+}

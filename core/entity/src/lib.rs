@@ -5,8 +5,6 @@
 //! Includes health systems and resource.
 //! Includes the base examine action.
 
-/// Despawns entities.
-pub mod despawn;
 /// Manage base entity data.
 pub mod entity_data;
 /// Resources for the ability to examine entities as an action.
@@ -20,7 +18,7 @@ pub mod init;
 /// Meta resources for entities.
 pub mod meta;
 /// The networking module of this crate.
-pub mod networking;
+pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Entity that can be sensed, heard or seen by other sensers.
@@ -31,5 +29,7 @@ pub mod senser;
 pub mod showcase;
 /// Base spawner for entities.
 pub mod spawn;
+/// Despawns entities.
+pub mod spawning_events;
 /// Crate that performs FOV logic for sensing and sensable entities.
 pub mod visible_checker;

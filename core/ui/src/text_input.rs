@@ -455,3 +455,48 @@ pub(crate) fn set_text_input_node_text(
         }
     }
 }
+
+use networking::server::IncomingReliableClientMessage;
+
+use crate::networking::UiClientMessage;
+/// Manage incoming network messages from clients.
+#[cfg(feature = "server")]
+pub(crate) fn incoming_messages(
+    mut server: EventReader<IncomingReliableClientMessage<UiClientMessage>>,
+    mut text_tree_input_selection: EventWriter<TextTreeInputSelection>,
+) {
+    for message in server.iter() {
+        let client_message = message.message.clone();
+
+        match client_message {
+            UiClientMessage::TextTreeInput(
+                belonging_entity,
+                tab_action_id,
+                menu_id,
+                input_selection,
+            ) => {
+                text_tree_input_selection.send(TextTreeInputSelection {
+                    handle: message.handle,
+                    menu_id,
+                    menu_selection: input_selection,
+                    belonging_entity,
+                    action_id: tab_action_id,
+                });
+            }
+        }
+    }
+}
+/// Client text tree input selection event.
+#[cfg(feature = "server")]
+pub struct TextTreeInputSelection {
+    /// Handle of the submitter of the selection.
+    pub handle: u64,
+    /// Menu ID.
+    pub menu_id: String,
+    /// The selection on the menu.
+    pub menu_selection: String,
+    /// The action ID.
+    pub action_id: String,
+    /// The entity submitting the selection.
+    pub belonging_entity: Option<u64>,
+}

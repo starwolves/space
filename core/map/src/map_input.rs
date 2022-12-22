@@ -39,7 +39,7 @@ pub(crate) fn map_input(
 use bevy::prelude::EventWriter;
 use networking::server::OutgoingReliableServerMessage;
 
-use crate::networking::MapServerMessage;
+use crate::net::MapServerMessage;
 /// Request available map overlays.
 #[cfg(feature = "server")]
 pub(crate) fn request_map_overlay(
@@ -117,3 +117,106 @@ pub struct InputMapRequestOverlay {
     pub handle: u64,
     pub entity: Entity,
 }
+use crate::net::{MapReliableClientMessage, MapUnreliableClientMessage};
+
+/// Manage incoming network messages from clients.
+#[cfg(feature = "server")]
+pub(crate) fn incoming_messages(
+    mut server: EventReader<IncomingReliableClientMessage<MapReliableClientMessage>>,
+    mut u_server: EventReader<IncomingUnreliableClientMessage<MapUnreliableClientMessage>>,
+    mut input_map_change_display_mode: EventWriter<InputMapChangeDisplayMode>,
+    handle_to_entity: Res<HandleToEntity>,
+    mut input_map_request_display_modes: EventWriter<InputMapRequestOverlay>,
+    mut input_map_view_range: EventWriter<InputMap>,
+) {
+    for message in server.iter() {
+        let client_message = message.message.clone();
+
+        match client_message {
+            MapReliableClientMessage::MapChangeDisplayMode(display_mode) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_map_change_display_mode.send(InputMapChangeDisplayMode {
+                            handle: message.handle,
+                            entity: *player_entity,
+                            display_mode,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to MapChangeDisplayMode sender handle.");
+                    }
+                }
+            }
+
+            MapReliableClientMessage::MapRequestDisplayModes => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_map_request_display_modes.send(InputMapRequestOverlay {
+                            handle: message.handle,
+                            entity: *player_entity,
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to input_map_request_display_modes sender handle.");
+                    }
+                }
+            }
+
+            MapReliableClientMessage::MapCameraPosition(position) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_map_view_range.send(InputMap {
+                            handle: message.handle,
+                            entity: *player_entity,
+                            input: MapInput::Position(position),
+                        });
+                    }
+                    None => {
+                        warn!("Couldn't find player_entity belonging to MapCameraPosition sender handle.");
+                    }
+                }
+            }
+        }
+
+        for message in u_server.iter() {
+            let client_message = message.message.clone();
+            match client_message {
+                MapUnreliableClientMessage::MapViewRange(range_x) => {
+                    match handle_to_entity.map.get(&message.handle) {
+                        Some(player_entity) => {
+                            input_map_view_range.send(InputMap {
+                                handle: message.handle,
+                                entity: *player_entity,
+                                input: MapInput::Range(range_x),
+                            });
+                        }
+                        None => {
+                            warn!("Couldn't find player_entity belonging to MapViewRange sender handle.");
+                        }
+                    }
+                }
+                MapUnreliableClientMessage::MapOverlayMouseHoverCell(idx, idy) => {
+                    match handle_to_entity.map.get(&message.handle) {
+                        Some(player_entity) => {
+                            input_map_view_range.send(InputMap {
+                                handle: message.handle,
+                                entity: *player_entity,
+                                input: MapInput::MouseCell(idx, idy),
+                            });
+                        }
+                        None => {
+                            warn!("Couldn't find player_entity belonging to MapMouseHoverCell sender handle.");
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+use bevy::prelude::Res;
+use networking::server::HandleToEntity;
+
+use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
+
+use bevy::prelude::warn;

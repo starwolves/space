@@ -5,6 +5,8 @@
 
 /// Manage chat, radio chat and global chat.
 pub mod chat;
+/// The serialized messages that get sent over the net.
+pub mod net;
 /// The networking module of this crate.
 pub mod networking;
 /// The Bevy plugin of this crate.

@@ -5,7 +5,7 @@
 pub mod builder;
 /// Manage entity updates.
 pub mod entity_update;
-pub mod networking;
+pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Resources for proximity messages.

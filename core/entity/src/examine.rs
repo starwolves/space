@@ -609,3 +609,38 @@ impl Default for InputExamineEntity {
         }
     }
 }
+
+use networking::server::IncomingReliableClientMessage;
+
+use crate::net::EntityClientMessage;
+/// Manage incoming network messages from clients.
+#[cfg(feature = "server")]
+pub(crate) fn incoming_messages(
+    mut server: EventReader<IncomingReliableClientMessage<EntityClientMessage>>,
+    handle_to_entity: Res<HandleToEntity>,
+    mut input_examine_entity: EventWriter<InputExamineEntity>,
+) {
+    for message in server.iter() {
+        let client_message = message.message.clone();
+
+        match client_message {
+            EntityClientMessage::ExamineEntity(entity_id) => {
+                match handle_to_entity.map.get(&message.handle) {
+                    Some(player_entity) => {
+                        input_examine_entity.send(InputExamineEntity {
+                            handle: message.handle,
+                            examine_entity: Entity::from_bits(entity_id),
+                            entity: *player_entity,
+                            ..Default::default()
+                        });
+                    }
+                    None => {
+                        warn!(
+                            "Couldn't find player_entity belonging to ExamineEntity sender handle."
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

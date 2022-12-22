@@ -1,5 +1,5 @@
 use crate::commands::AllConsoleCommands;
-use crate::networking::ConsoleCommandsServerMessage;
+use crate::net::ConsoleCommandsServerMessage;
 use bevy::prelude::{EventReader, Res};
 use networking::server::OutgoingReliableServerMessage;
 use player::connections::SendServerConfiguration;

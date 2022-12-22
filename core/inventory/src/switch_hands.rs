@@ -3,7 +3,7 @@ use bevy::prelude::{Entity, EventReader, Query, Res};
 use networking::server::HandleToEntity;
 use networking::server::OutgoingReliableServerMessage;
 
-use crate::networking::InventoryServerMessage;
+use crate::net::InventoryServerMessage;
 use bevy::prelude::EventWriter;
 /// From client input change active hand.
 #[cfg(feature = "server")]

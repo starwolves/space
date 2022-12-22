@@ -18,7 +18,7 @@ pub fn projectile_laser_visuals<T: Component>(
     transforms: Query<&Transform>,
     weapon_criteria: Query<&T>,
 ) {
-    use gridmap::networking::ProjectileData;
+    use gridmap::net::ProjectileData;
 
     for blank in blanks.iter() {
         let active_attack;

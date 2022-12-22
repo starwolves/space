@@ -285,7 +285,7 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
     }
 }
 use crate::construction_tool::InputConstructionOptionsSelection;
-use ui::networking::TextTreeInputSelection;
+use ui::text_input::TextTreeInputSelection;
 
 #[cfg(feature = "server")]
 pub(crate) fn text_tree_input_selection(

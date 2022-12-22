@@ -177,11 +177,11 @@ pub struct NewChatMessage {
 use pawn::pawn::Communicator;
 use pawn::pawn::Pawn;
 
-use entity::networking::{EntityServerMessage, EntityWorldType};
+use entity::net::EntityServerMessage;
 use networking::server::NetworkingChatServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 use player::account::Accounts;
-use sfx::networking::SfxServerMessage;
+use sfx::net::SfxServerMessage;
 
 use bevy::prelude::EventWriter;
 /// It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
@@ -198,6 +198,8 @@ pub(crate) fn chat_message(
     player_pawns: Query<(&Pawn, &Transform, &Sensable)>,
     accounts: Res<Accounts>,
 ) {
+    use entity::entity_data::EntityWorldType;
+
     for new_message in new_chat_messages.iter() {
         let mut messaging_player_state = &MessagingPlayerState::Alive;
 

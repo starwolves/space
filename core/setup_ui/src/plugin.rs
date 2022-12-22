@@ -8,10 +8,13 @@ use networking::{
 use player::plugin::ConfigurationLabel;
 use resources::{is_server::is_server, labels::SummoningLabels};
 
-use crate::core::{
-    client_setup_ui, configure, initialize_setupui, new_clients_enable_setupui,
-    receive_input_character_name, setupui_loaded, ui_input_boarding, SetupUiClientMessage,
-    SetupUiServerMessage, SetupUiState, SetupUiUserDataSets,
+use crate::{
+    core::{
+        client_setup_ui, configure, initialize_setupui, new_clients_enable_setupui,
+        receive_input_character_name, setupui_loaded, ui_input_boarding, SetupUiState,
+        SetupUiUserDataSets,
+    },
+    net::{SetupUiClientMessage, SetupUiServerMessage},
 };
 pub struct SetupUiPlugin;
 

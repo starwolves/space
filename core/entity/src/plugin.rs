@@ -4,20 +4,19 @@ use networking::messaging::{init_reliable_message, MessageSender};
 use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
-use crate::despawn::{despawn_entity, DespawnClientEntity};
 use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
-    ExamineEntityMessages, InputExamineEntity,
+    incoming_messages, ExamineEntityMessages, InputExamineEntity,
 };
 use crate::finalize_entity_updates::finalize_entity_updates;
 use crate::init::startup_entities;
 use crate::meta::EntityDataResource;
-use crate::networking::{
-    incoming_messages, spawn_entity_for_client, EntityClientMessage, EntityServerMessage,
-    SpawnClientEntity,
-};
+use crate::net::{EntityClientMessage, EntityServerMessage};
 use crate::spawn::DefaultSpawnEvent;
+use crate::spawning_events::{
+    despawn_entity, spawn_entity_for_client, DespawnClientEntity, SpawnClientEntity,
+};
 use crate::visible_checker::visible_checker;
 
 use super::entity_data::broadcast_position_updates;

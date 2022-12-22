@@ -6,7 +6,7 @@ use entity::entity_data::INTERPOLATION_LABEL1;
 use networking::messaging::{init_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::PostUpdateLabels};
 
-use crate::{entity_update::SfxAutoDestroyTimers, networking::SfxServerMessage, timers::free_sfx};
+use crate::{entity_update::SfxAutoDestroyTimers, net::SfxServerMessage, timers::free_sfx};
 
 use super::{
     entity_update::{repeating_sfx_update, sfx_update},

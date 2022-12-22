@@ -25,7 +25,7 @@ pub(crate) fn hide_main_menu(
         }
     }
 }
-use player::connections::PlayerServerMessage;
+use player::net::PlayerServerMessage;
 
 /// Confirms connection with server.
 #[cfg(feature = "client")]

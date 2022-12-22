@@ -85,7 +85,7 @@ enum SelectedDisplayMode {
     Liveable,
 }
 
-use map::networking::MapServerMessage;
+use map::net::MapServerMessage;
 
 /// Transmit atmospherics mini-map data to player.
 #[cfg(feature = "server")]

@@ -132,7 +132,7 @@ enum CharacterMovementState {
     Sprinting,
 }
 use controller::controller::ControllerInput;
-use entity::despawn::DespawnClientEntity;
+use entity::spawning_events::DespawnClientEntity;
 use networking::server::HandleToEntity;
 use physics::rigid_body::RigidBodyData;
 

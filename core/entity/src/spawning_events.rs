@@ -1,63 +1,20 @@
-use bevy::prelude::warn;
-use serde::Deserialize;
-use serde::Serialize;
-use typename::TypeName;
-
-use crate::examine::InputExamineEntity;
+use bevy::prelude::Commands;
 use bevy::prelude::Entity;
+use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
+use bevy::prelude::Query;
 use bevy::prelude::Res;
 use networking::server::HandleToEntity;
 
-/// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum EntityClientMessage {
-    ExamineEntity(u64),
-}
-use networking::server::IncomingReliableClientMessage;
+use crate::net::EntityServerMessage;
+use crate::sensable::Sensable;
 
-/// Manage incoming network messages from clients.
+///Despawn sensable component event.
 #[cfg(feature = "server")]
-pub(crate) fn incoming_messages(
-    mut server: EventReader<IncomingReliableClientMessage<EntityClientMessage>>,
-    handle_to_entity: Res<HandleToEntity>,
-    mut input_examine_entity: EventWriter<InputExamineEntity>,
-) {
-    for message in server.iter() {
-        let client_message = message.message.clone();
-
-        match client_message {
-            EntityClientMessage::ExamineEntity(entity_id) => {
-                match handle_to_entity.map.get(&message.handle) {
-                    Some(player_entity) => {
-                        input_examine_entity.send(InputExamineEntity {
-                            handle: message.handle,
-                            examine_entity: Entity::from_bits(entity_id),
-                            entity: *player_entity,
-                            ..Default::default()
-                        });
-                    }
-                    None => {
-                        warn!(
-                            "Couldn't find player_entity belonging to ExamineEntity sender handle."
-                        );
-                    }
-                }
-            }
-        }
-    }
+pub struct DespawnClientEntity {
+    pub entity: Entity,
 }
-
-use std::collections::HashMap;
-
-use crate::entity_data::personalise;
-use crate::entity_data::EntityUpdates;
-use bevy::prelude::Query;
-use bevy::prelude::Transform;
-use networking::server::EntityUpdateData;
-
-use crate::entity_data::EntityData;
+use networking::server::OutgoingReliableServerMessage;
 
 /// Event to load in entity for client.
 pub struct SpawnClientEntity {
@@ -65,12 +22,68 @@ pub struct SpawnClientEntity {
     pub loader_handle: u64,
     pub load_entirely: bool,
 }
-use crate::entity_data::WorldMode;
-use crate::entity_data::WorldModes;
-use bevy::prelude::EventReader;
-use bevy_rapier3d::prelude::RigidBody;
-use networking::server::OutgoingReliableServerMessage;
+/// Executes despawn logic for Sensable components.
+/// Shouldn't be called from the same stage visible_checker.system() runs in.
+#[cfg(feature = "server")]
+pub(crate) fn despawn_entity(
+    mut despawn_event: EventReader<DespawnClientEntity>,
+    handle_to_entity: Res<HandleToEntity>,
+    mut sensable_query: Query<&mut Sensable>,
+    mut commands: Commands,
+    mut net: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+) {
+    for event in despawn_event.iter() {
+        match sensable_query.get_mut(event.entity) {
+            Ok(mut sensable_component) => {
+                for sensed_by_entity in sensable_component.sensed_by.iter() {
+                    match handle_to_entity.inv_map.get(&sensed_by_entity) {
+                        Some(handle) => {
+                            net.send(OutgoingReliableServerMessage {
+                                handle: *handle,
+                                message: EntityServerMessage::UnloadEntity(
+                                    event.entity.to_bits(),
+                                    true,
+                                ),
+                            });
+                        }
+                        None => {}
+                    }
+                }
+                for sensed_by_entity in sensable_component.sensed_by_cached.iter() {
+                    match handle_to_entity.inv_map.get(&sensed_by_entity) {
+                        Some(handle) => {
+                            net.send(OutgoingReliableServerMessage {
+                                handle: *handle,
+                                message: EntityServerMessage::UnloadEntity(
+                                    event.entity.to_bits(),
+                                    true,
+                                ),
+                            });
+                        }
+                        None => {}
+                    }
+                }
 
+                sensable_component.sensed_by = vec![];
+                sensable_component.sensed_by_cached = vec![];
+            }
+            Err(_) => {}
+        }
+
+        commands.entity(event.entity).despawn();
+    }
+}
+
+use crate::entity_data::personalise;
+use crate::entity_data::WorldModes;
+use bevy::prelude::warn;
+use bevy::prelude::Transform;
+use bevy_rapier3d::prelude::RigidBody;
+
+use std::collections::HashMap;
+
+use crate::entity_data::{EntityData, EntityUpdates, WorldMode};
+use networking::server::EntityUpdateData;
 /// Load an entity in for the client.
 #[cfg(feature = "server")]
 pub(crate) fn spawn_entity_for_client(
@@ -186,34 +199,4 @@ pub(crate) fn spawn_entity_for_client(
             }
         }
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum EntityWorldType {
-    Main,
-    HealthUI,
-}
-
-/// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum EntityServerMessage {
-    EntityUpdate(
-        u64,
-        HashMap<String, HashMap<String, EntityUpdateData>>,
-        bool,
-        EntityWorldType,
-    ),
-    LoadEntity(
-        String,
-        String,
-        HashMap<String, HashMap<String, EntityUpdateData>>,
-        u64,
-        bool,
-        String,
-        String,
-        bool,
-    ),
-    UnloadEntity(u64, bool),
 }

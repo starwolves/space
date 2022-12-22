@@ -2,7 +2,7 @@ use bevy::prelude::{Camera3dBundle, Commands, EventReader, Transform, Vec3};
 
 use networking::client::IncomingReliableServerMessage;
 
-use crate::connections::PlayerServerMessage;
+use crate::net::PlayerServerMessage;
 use bevy::prelude::Local;
 
 /// Spawn 3D debug camera on boarding.
