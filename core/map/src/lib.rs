@@ -9,6 +9,6 @@ pub mod map;
 /// Manage player input.
 pub mod map_input;
 /// The networking module of this crate.
-pub mod networking;
+pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;

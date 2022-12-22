@@ -127,7 +127,7 @@ pub(crate) fn entity_console_commands(
         }
     }
 }
-use entity::despawn::DespawnClientEntity;
+use entity::spawning_events::DespawnClientEntity;
 
 /// Despawn point arrows after duration.
 #[cfg(feature = "server")]

@@ -1,4 +1,4 @@
-use crate::{builder::get_random_pitch_scale, networking::SfxServerMessage};
+use crate::{builder::get_random_pitch_scale, net::SfxServerMessage};
 
 /// Play radio sound message data.
 #[cfg(feature = "server")]

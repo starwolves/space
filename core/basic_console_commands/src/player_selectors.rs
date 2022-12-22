@@ -3,7 +3,7 @@ use bevy::prelude::{Entity, ResMut};
 use player::names::UsedNames;
 
 use bevy::prelude::EventWriter;
-use console_commands::networking::ConsoleCommandsServerMessage;
+use console_commands::net::ConsoleCommandsServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 
 /// Player selector to entities.

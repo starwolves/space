@@ -4,6 +4,7 @@ use console_commands::commands::InputConsoleCommand;
 use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
+use console_commands::net::ConsoleCommandsServerMessage;
 use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
 use gridmap::grid::GridmapMain;
 use networking::server::GodotVariantValues;
@@ -93,7 +94,6 @@ pub(crate) fn rcon_entity_console_commands(
 use crate::player_selectors::player_selector_to_entities;
 use bevy::prelude::Entity;
 
-use console_commands::networking::ConsoleCommandsServerMessage;
 use entity::spawn::spawn_entity;
 use gridmap::get_spawn_position::entity_spawn_position_for_player;
 use text_api::core::CONSOLE_ERROR_COLOR;
@@ -246,7 +246,7 @@ pub(crate) fn rcon_spawn_entity(
         }
     }
 }
-use inventory::networking::InventoryServerMessage;
+use inventory::net::InventoryServerMessage;
 
 use bevy::prelude::warn;
 use networking::server::NetworkingChatServerMessage;

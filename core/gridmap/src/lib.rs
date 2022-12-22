@@ -27,7 +27,7 @@ pub mod grid;
 pub mod gridmap_graphics;
 /// Initialize gridmap meta data.
 mod init;
-pub mod networking;
+pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Manage sensing authorization for gridmap examining.

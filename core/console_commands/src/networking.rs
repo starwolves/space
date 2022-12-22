@@ -1,21 +1,10 @@
 use bevy::prelude::warn;
-use networking::server::GodotVariant;
-use networking::server::GodotVariantValues;
-use serde::Deserialize;
-use serde::Serialize;
-use typename::TypeName;
 
 use crate::commands::InputConsoleCommand;
 use bevy::prelude::{EventWriter, Res};
 use networking::server::HandleToEntity;
 
-/// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ConsoleCommandsClientMessage {
-    ConsoleCommand(String, Vec<GodotVariantValues>),
-}
-
+use crate::net::ConsoleCommandsClientMessage;
 use bevy::prelude::EventReader;
 use networking::server::IncomingReliableClientMessage;
 
@@ -47,11 +36,4 @@ pub(crate) fn incoming_messages(
             }
         }
     }
-}
-/// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ConsoleCommandsServerMessage {
-    ConsoleWriteLine(String),
-    ConfigConsoleCommands(Vec<(String, String, Vec<(String, GodotVariant)>)>),
 }

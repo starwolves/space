@@ -14,6 +14,7 @@ pub mod debug_camera;
 pub mod name_generator;
 /// Account and player names.
 pub mod names;
+pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Map spawn points.

@@ -3,7 +3,7 @@ use bevy::prelude::{EventReader, Res};
 use networking::server::OutgoingReliableServerMessage;
 use player::connections::SendServerConfiguration;
 
-use crate::networking::MapServerMessage;
+use crate::net::MapServerMessage;
 use bevy::prelude::EventWriter;
 #[cfg(feature = "server")]
 pub(crate) fn configure(

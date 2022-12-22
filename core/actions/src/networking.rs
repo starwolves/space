@@ -1,7 +1,6 @@
 use networking::server::GridMapLayer;
 use serde::Deserialize;
 use serde::Serialize;
-use typename::TypeName;
 
 use crate::core::InputAction;
 use crate::core::InputListActionsEntity;
@@ -11,21 +10,9 @@ use bevy::prelude::Entity;
 use math::grid::Vec3Int;
 use networking::server::HandleToEntity;
 
+use crate::net::ActionsClientMessage;
 use bevy::prelude::{EventWriter, Res};
 
-/// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ActionsClientMessage {
-    TabDataEntity(u64),
-    TabDataMap(GridMapLayer, i16, i16, i16),
-    TabPressed(
-        String,
-        Option<u64>,
-        Option<(GridMapLayer, i16, i16, i16)>,
-        Option<u64>,
-    ),
-}
 use bevy::prelude::EventReader;
 use networking::server::IncomingReliableClientMessage;
 
@@ -122,12 +109,6 @@ pub(crate) fn incoming_messages(
             }
         }
     }
-}
-/// Gets serialized and sent over the net, this is the server message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ActionsServerMessage {
-    TabData(Vec<NetAction>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

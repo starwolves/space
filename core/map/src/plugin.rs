@@ -6,10 +6,10 @@ use resources::{is_server::is_server, labels::MapLabels};
 use crate::{
     connections::configure,
     map::MapHolders,
-    map_input::{InputMap, InputMapChangeDisplayMode, InputMapRequestOverlay, MapData},
-    networking::{
-        incoming_messages, MapReliableClientMessage, MapServerMessage, MapUnreliableClientMessage,
+    map_input::{
+        incoming_messages, InputMap, InputMapChangeDisplayMode, InputMapRequestOverlay, MapData,
     },
+    net::{MapReliableClientMessage, MapServerMessage, MapUnreliableClientMessage},
 };
 
 use super::{

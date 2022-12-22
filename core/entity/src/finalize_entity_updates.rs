@@ -9,9 +9,10 @@ use crate::{entity_data::EntityUpdates, sensable::Sensable};
 use crate::entity_data::personalise;
 use bevy::prelude::EventWriter;
 
+use crate::entity_data::EntityWorldType;
 use networking::server::OutgoingReliableServerMessage;
 
-use crate::networking::{EntityServerMessage, EntityWorldType};
+use crate::net::EntityServerMessage;
 /// Finalize entity updates of this frame and send them to Godot clients.
 #[cfg(feature = "server")]
 pub(crate) fn finalize_entity_updates(

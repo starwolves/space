@@ -1,6 +1,5 @@
-use std::collections::HashMap;
+use bevy::prelude::Vec3;
 
-use networking::server::TextTreeBit;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -8,22 +7,21 @@ use typename::TypeName;
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum UiClientMessage {
-    TextTreeInput(Option<u64>, String, String, String),
+pub enum InventoryClientMessage {
+    UseWorldItem(u64),
+    DropCurrentItem(Option<Vec3>),
+    SwitchHands,
+    WearItem(u64, String),
+    TakeOffItem(String),
+    ThrowItem(Vec3, f32),
 }
 
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub enum UiServerMessage {
-    TextTreeSelection(
-        Option<u64>,
-        String,
-        String,
-        String,
-        HashMap<String, TextTreeBit>,
-    ),
-    UIAddNotice(String),
-    UIRemoveNotice(String),
-    UIRequestInput(String),
+pub enum InventoryServerMessage {
+    PickedUpItem(String, u64, String),
+    DropItem(String),
+    SwitchHands,
+    EquippedWornItem(String, u64, String),
 }

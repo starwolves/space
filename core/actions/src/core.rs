@@ -94,7 +94,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
 
-use crate::networking::ActionsServerMessage;
+use crate::net::ActionsServerMessage;
 #[cfg(feature = "server")]
 /// Send lists of approved actions back to player.
 pub(crate) fn list_action_data_finalizer(

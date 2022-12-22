@@ -17,7 +17,7 @@ pub struct BoardingPlayer {
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
-use crate::connections::PlayerServerMessage;
+use crate::net::PlayerServerMessage;
 use crate::spawn_points::SpawnPointRon;
 
 use crate::connections::{OnBoard, SetupPhase};

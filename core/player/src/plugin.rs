@@ -5,9 +5,10 @@ use crate::configuration::{
 };
 use crate::connections::{AuthidI, SendServerConfiguration};
 use crate::debug_camera::spawn_debug_camera;
+use crate::net::PlayerServerMessage;
 use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
-    connections::{server_events, PlayerAwaitingBoarding, PlayerServerMessage},
+    connections::{server_events, PlayerAwaitingBoarding},
 };
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::{App, Plugin, SystemLabel};

@@ -2,7 +2,7 @@ use crate::grid::GridmapData;
 use bevy::prelude::{EventReader, Res};
 use player::connections::SendServerConfiguration;
 
-use crate::networking::GridmapServerMessage;
+use crate::net::GridmapServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;

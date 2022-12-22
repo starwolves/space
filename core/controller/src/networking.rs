@@ -1,11 +1,9 @@
 use bevy::prelude::warn;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
-use bevy::prelude::Vec2;
 use networking::server::UIInputAction;
 use serde::Deserialize;
 use serde::Serialize;
-use typename::TypeName;
 
 use crate::input::InputAltItemAttack;
 use crate::input::InputAttackCell;
@@ -21,24 +19,6 @@ use math::grid::Vec3Int;
 
 use networking::server::HandleToEntity;
 use player::boarding::InputUIInputTransmitText;
-
-/// Gets serialized and sent over the net, this is the client message.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ControllerClientMessage {
-    UIInput(UIInputNodeClass, UIInputAction, String, String),
-    UIInputTransmitData(String, String, String),
-    MovementInput(Vec2),
-    SprintInput(bool),
-    BuildGraphics,
-    ToggleCombatModeInput,
-    InputMouseAction(bool),
-    SelectBodyPart(String),
-    ToggleAutoMove,
-    AttackEntity(u64),
-    AltItemAttack,
-    AttackCell(i16, i16, i16),
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
@@ -61,12 +41,7 @@ pub struct InputUIInput {
     pub ui_type: String,
 }
 
-/// This message gets sent at high intervals.
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum ControllerUnreliableClientMessage {
-    MouseDirectionUpdate(f32, u64),
-}
+use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
 use bevy::prelude::EventReader;
 use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
 

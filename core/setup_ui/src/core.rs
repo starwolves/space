@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::prelude::{Added, Commands, EventReader, EventWriter, Query, Res, Resource};
 use networking::server::HandleToEntity;
-use player::connections::{PlayerAwaitingBoarding, PlayerServerMessage};
+use player::connections::PlayerAwaitingBoarding;
 
 /// Godot NodePath.
 pub const INPUT_NAME_PATH_FULL : &str = "setupUI::ColorRect/background/VBoxContainer/HBoxContainer/characterSettingsPopup/Control/TabContainer/Boarding Configuration/VBoxContainer/vBoxNameInput/Control/inputName";
@@ -47,7 +47,6 @@ pub(crate) fn initialize_setupui(
 }
 use bevy::prelude::warn;
 use player::boarding::BoardingPlayer;
-use serde::{Deserialize, Serialize};
 
 use bevy::prelude::ResMut;
 #[derive(Default, Resource)]
@@ -142,6 +141,7 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
 }
 
 use player::connections::SendServerConfiguration;
+use player::net::PlayerServerMessage;
 
 #[cfg(feature = "server")]
 pub(crate) fn configure(
@@ -182,9 +182,9 @@ pub(crate) fn new_clients_enable_setupui(
         }
     }
 }
+use crate::net::SetupUiServerMessage;
 use networking::client::IncomingReliableServerMessage;
 use networking::client::OutgoingReliableClientMessage;
-use typename::TypeName;
 
 /// Receive message from server to initialize setup ui.
 #[cfg(feature = "client")]
@@ -211,20 +211,8 @@ pub(crate) fn client_setup_ui(
         }
     }
 }
+use crate::net::SetupUiClientMessage;
 
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum SetupUiServerMessage {
-    SuggestedCharacterName(String),
-    InitSetupUi,
-}
-#[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
-pub enum SetupUiClientMessage {
-    InputCharacterName(String),
-    SetupUiLoaded,
-    RequestBoarding,
-}
 use networking::server::IncomingReliableClientMessage;
 /// Manage when client has finished loading in a scene.
 #[cfg(feature = "server")]

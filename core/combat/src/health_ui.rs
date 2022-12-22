@@ -46,12 +46,13 @@ pub enum UIDamageType {
 }
 use networking::server::ConnectedPlayer;
 
+use entity::entity_data::EntityWorldType;
 use entity::health::HealthComponent;
 use entity::health::HealthContainer;
 use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
-use entity::networking::{EntityServerMessage, EntityWorldType};
+use entity::net::EntityServerMessage;
 /// Manage sending UI health updates to Godot client.
 #[cfg(feature = "server")]
 pub(crate) fn health_ui_update(

@@ -6,7 +6,8 @@ use crate::{
         chat_message, send_entity_proximity_messages, EntityProximityMessage,
         EntityProximityMessages, NewChatMessage,
     },
-    networking::{incoming_messages, ChatClientMessage},
+    net::ChatClientMessage,
+    networking::incoming_messages,
 };
 use bevy::app::CoreStage::PreUpdate;
 use resources::is_server::is_server;

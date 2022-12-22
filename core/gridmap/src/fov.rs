@@ -10,7 +10,7 @@ use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 
 use crate::{
     grid::{GridmapData, GridmapMain},
-    networking::ProjectileData,
+    net::ProjectileData,
 };
 
 #[cfg(feature = "server")]
@@ -26,7 +26,7 @@ use networking::server::ConnectedPlayer;
 use bevy::prelude::EventWriter;
 use networking::server::OutgoingReliableServerMessage;
 
-use crate::networking::GridmapServerMessage;
+use crate::net::GridmapServerMessage;
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
 #[cfg(feature = "server")]
 pub(crate) fn projectile_fov(

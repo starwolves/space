@@ -121,7 +121,7 @@ pub trait BaseEntitySummonable<Y> {
 use crate::init::RawEntityRon;
 use networking::server::OutgoingReliableServerMessage;
 
-use crate::networking::EntityServerMessage;
+use crate::net::EntityServerMessage;
 /// Spawn base entity components handler.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_base_entity<T: BaseEntitySummonable<NoData> + Send + Sync + 'static>(

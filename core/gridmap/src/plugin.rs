@@ -14,14 +14,14 @@ use crate::{
     connections::configure,
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
-        finalize_grid_examine_input, set_action_header_name, GridmapExamineMessages,
-        InputExamineMap,
+        finalize_grid_examine_input, incoming_messages, set_action_header_name,
+        GridmapExamineMessages, InputExamineMap,
     },
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
     gridmap_graphics::spawn_cubes,
     init::{startup_build_map, startup_map_cell_properties, startup_misc_resources},
-    networking::{incoming_messages, GridmapClientMessage, GridmapServerMessage},
+    net::{GridmapClientMessage, GridmapServerMessage},
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 

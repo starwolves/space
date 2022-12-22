@@ -8,13 +8,13 @@ use resources::{
 
 use crate::{
     actions::pickup_prerequisite_check,
-    actions_item::build_actions,
+    actions_item::{build_actions, incoming_messages},
     entity_update_item::inventory_item_update,
     item_events::{
         pickup_world_item_action, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
         InputUseWorldItem, InputWearItem, ThrownItem,
     },
-    networking::{incoming_messages, InventoryClientMessage, InventoryServerMessage},
+    net::{InventoryClientMessage, InventoryServerMessage},
     switch_hands::InputSwitchHands,
 };
 

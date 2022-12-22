@@ -2,16 +2,16 @@ use bevy::prelude::{Entity, EventWriter, Query, Transform};
 
 use math::grid::world_to_cell_id;
 
-use crate::networking::SpawnClientEntity;
 use crate::{
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
 };
 use networking::server::ConnectedPlayer;
 
+use crate::spawning_events::SpawnClientEntity;
 use networking::server::OutgoingReliableServerMessage;
 
-use crate::networking::EntityServerMessage;
+use crate::net::EntityServerMessage;
 /// Perform FOV checks to see what is and what isn't visible.
 #[cfg(feature = "server")]
 pub(crate) fn visible_checker(

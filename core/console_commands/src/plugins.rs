@@ -10,7 +10,8 @@ use crate::{
     commands::{AllConsoleCommands, ConsoleCommandsLabels, InputConsoleCommand},
     connections::configure,
     init::{initialize_console_commands, initialize_console_commands_2},
-    networking::{incoming_messages, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage},
+    net::{ConsoleCommandsClientMessage, ConsoleCommandsServerMessage},
+    networking::incoming_messages,
 };
 
 use bevy::app::CoreStage::PreUpdate;

@@ -20,7 +20,7 @@ use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMai
 use super::fov::{DoryenMap, FOV_DISTANCE};
 use networking::server::ConnectedPlayer;
 
-use crate::networking::GridmapServerMessage;
+use crate::net::GridmapServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;

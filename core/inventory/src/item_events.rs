@@ -32,7 +32,7 @@ use gridmap::{
 use networking::server::EntityUpdateData;
 use rand::Rng;
 
-use entity::networking::{EntityServerMessage, EntityWorldType};
+use entity::net::EntityServerMessage;
 use networking::server::HandleToEntity;
 use networking::server::OutgoingReliableServerMessage;
 use pawn::pawn::{FacingDirection, Pawn, REACH_DISTANCE};
@@ -72,6 +72,8 @@ pub(crate) fn drop_current_item(
     gridmap_data: Res<GridmapData>,
     query_pipeline: Res<RapierContext>,
 ) {
+    use entity::entity_data::EntityWorldType;
+
     for event in drop_current_item_events.iter() {
         let pickuper_components_option = inventory_entities.get_mut(event.pickuper_entity);
         let pickuper_components;
@@ -356,7 +358,7 @@ pub(crate) fn pickup_world_item_action(
     }
 }
 
-use crate::networking::InventoryServerMessage;
+use crate::net::InventoryServerMessage;
 
 /// Perform items picking up action.
 #[cfg(feature = "server")]
@@ -683,6 +685,8 @@ pub(crate) fn throw_item(
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut thrown_event: EventWriter<ThrownItem>,
 ) {
+    use entity::entity_data::EntityWorldType;
+
     for event in throw_item_events.iter() {
         let pickuper_components_option = inventory_entities.get_mut(event.entity);
         let pickuper_components;

@@ -88,7 +88,7 @@ impl BaseEntitySummonable<HumanMaleSummonData> for HumanMaleSummoner {
 }
 use networking::server::OutgoingReliableServerMessage;
 
-use entity::networking::EntityServerMessage;
+use entity::net::EntityServerMessage;
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn summon_base_human_male<

@@ -1,4 +1,3 @@
-use crate::networking::{ActionsClientMessage, ActionsServerMessage};
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use networking::messaging::{init_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::ActionsLabels};
@@ -10,6 +9,7 @@ use crate::{
         ActionRequests, BuildingActions, InputAction, InputListActionsEntity, InputListActionsMap,
         ListActionDataRequests,
     },
+    net::{ActionsClientMessage, ActionsServerMessage},
     networking::incoming_messages,
 };
 use bevy::app::CoreStage::PreUpdate;

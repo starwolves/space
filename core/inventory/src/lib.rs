@@ -14,7 +14,7 @@ pub mod inventory;
 /// Manage inventory item events such as dropping or throwing them.
 pub mod item_events;
 /// The networking module of this crate.
-pub mod networking;
+pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Switch actively selected hand for inventory holder.

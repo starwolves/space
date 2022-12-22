@@ -11,7 +11,7 @@ use bevy::prelude::StandardMaterial;
 use bevy::prelude::Transform;
 use bevy::prelude::{shape, Color, Mesh, PbrBundle};
 use bevy::prelude::{Assets, ResMut};
-use player::connections::PlayerServerMessage;
+use player::net::PlayerServerMessage;
 
 use crate::grid::GridmapMain;
 /// Spawn 3D debug camera on boarding.

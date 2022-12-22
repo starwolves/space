@@ -3,8 +3,8 @@ use bevy::prelude::{Commands, Entity, EventReader, Res, ResMut, Resource};
 
 use bevy::prelude::EventWriter;
 
-use crate::connections::PlayerServerMessage;
 use crate::connections::{AuthidI, SendServerConfiguration};
+use crate::net::PlayerServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use resources::core::TickRate;
