@@ -3,7 +3,7 @@ use const_format::concatcp;
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
     sensable::Sensable,
-    spawn::{EntityBuildData, SpawnEntity},
+    spawn::{EntityBuildData, EntityType, SpawnEntity},
 };
 use resources::content::SF_CONTENT_PREFIX;
 
@@ -46,7 +46,11 @@ impl PointLightBuilderBundle {
 pub struct PointLightType {
     pub light: PointLight,
 }
-
+impl EntityType for PointLightType {
+    fn to_string() -> String {
+        POINT_LIGHT_ENTITY_NAME.to_owned()
+    }
+}
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_point_lights<T: PointLightBuilder + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,

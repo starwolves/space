@@ -11,8 +11,8 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType,
+        NoData, SpawnEntity,
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
@@ -107,6 +107,12 @@ pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 #[cfg(feature = "server")]
 pub struct CounterWindowType;
 
+impl EntityType for CounterWindowType {
+    fn to_string() -> String {
+        COUNTER_WINDOW_ENTITY_NAME.to_owned()
+    }
+}
+
 #[cfg(feature = "server")]
 pub fn build_counter_windows<T: Send + Sync + 'static>(
     mut commands: Commands,
@@ -169,6 +175,7 @@ pub const SECURITY_COUNTER_WINDOW_ENTITY_NAME: &str =
     concatcp!(SF_CONTENT_PREFIX, "securityCounterWindow");
 pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str =
     concatcp!(SF_CONTENT_PREFIX, "bridgeCounterWindow");
+pub const COUNTER_WINDOW_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "counterWindow");
 
 #[cfg(feature = "server")]
 pub fn build_raw_counter_windows(

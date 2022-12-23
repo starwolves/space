@@ -5,6 +5,7 @@ use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
 use crate::entity_data::{world_mode_update, RawSpawnEvent, INTERPOLATION_LABEL1};
+use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
 use crate::examine::{
     examine_entity, examine_entity_health, finalize_entity_examine_input, finalize_examine_entity,
     incoming_messages, ExamineEntityMessages, InputExamineEntity,
@@ -79,8 +80,10 @@ impl Plugin for EntityPlugin {
         } else {
             app.add_system(load_entities);
         }
-        app.add_event::<RawSpawnEvent>();
-        app.init_resource::<EntityDataResource>();
+        app.add_event::<RawSpawnEvent>()
+            .init_resource::<EntityDataResource>()
+            .init_resource::<EntityTypes>()
+            .add_startup_system(finalize_register_entity_types.after(EntityTypeLabel::Register));
         init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         init_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
     }

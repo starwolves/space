@@ -272,5 +272,13 @@ pub fn spawn_entity(
 }
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct NoData;
+
+/// Each entity type has a type struct. Types are identified using unhygenic strings with prefixes.
+/// String identifiers for entity types are useful for future persistent storage including databases.
+/// A hardcoded string name per entity type makes it so that each entity name keeps the same name at all times despite any amount of code changes.
+/// This way entities stored inside a database will remain identfiable across different codebases.
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait EntityType: Send + Sync {}
+pub trait EntityType: Send + Sync {
+    /// Persistent string identifier of entity type. Unhygenic.
+    fn to_string() -> String;
+}

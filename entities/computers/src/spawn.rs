@@ -8,8 +8,8 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType,
+        NoData, SpawnEntity,
     },
 };
 use physics::{
@@ -74,6 +74,12 @@ impl RigidBodyBuilder<NoData> for ComputerType {
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct ComputerType;
+
+impl EntityType for ComputerType {
+    fn to_string() -> String {
+        BRIDGE_COMPUTER_ENTITY_NAME.to_owned()
+    }
+}
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_computers<T: Send + Sync + 'static>(

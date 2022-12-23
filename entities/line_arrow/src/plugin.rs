@@ -2,8 +2,9 @@ use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{
     entity_data::initialize_entity_data,
+    entity_types::init_entity_type,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{build_base_entities, SpawnEntity},
+    spawn::build_base_entities,
 };
 use networking::server::GodotVariant;
 use resources::{
@@ -33,12 +34,12 @@ impl Plugin for LineArrowPlugin {
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild))
             .add_system(build_line_arrows::<LineArrowType>.after(BuildingLabels::TriggerBuild))
-            .add_event::<SpawnEntity<LineArrowType>>()
             .add_system(
                 (default_build_line_arrows)
                     .label(BuildingLabels::DefaultBuild)
                     .after(BuildingLabels::NormalBuild),
             );
+        init_entity_type::<LineArrowType>(app);
     }
 }
 

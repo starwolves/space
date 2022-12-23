@@ -12,8 +12,8 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType,
+        NoData, SpawnEntity,
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
@@ -114,6 +114,12 @@ impl RigidBodyBuilder<NoData> for AirlockType {
 #[cfg(feature = "server")]
 pub struct AirlockType;
 
+impl EntityType for AirlockType {
+    fn to_string() -> String {
+        AIRLOCK_ENTITY_NAME.to_owned()
+    }
+}
+
 #[cfg(feature = "server")]
 pub fn build_airlocks<T: Send + Sync + 'static>(
     mut commands: Commands,
@@ -134,6 +140,7 @@ pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sec
 pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeAirLock");
 pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "governmentAirLock");
 pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuumAirLock");
+pub const AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "airLock");
 
 #[cfg(feature = "server")]
 pub fn default_build_airlocks(

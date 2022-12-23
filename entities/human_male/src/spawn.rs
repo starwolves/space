@@ -11,7 +11,7 @@ use entity::{
     senser::Senser,
     spawn::{
         base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData,
-        DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
+        DefaultSpawnEvent, EntityBuildData, EntityType, NoData, SpawnEntity,
     },
 };
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
@@ -137,6 +137,11 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct HumanMaleType {
     pub spawn_pawn_data: SpawnPawnData,
+}
+impl EntityType for HumanMaleType {
+    fn to_string() -> String {
+        HUMAN_MALE_ENTITY_NAME.to_owned()
+    }
 }
 #[cfg(any(feature = "server", feature = "client"))]
 pub const R: f32 = 0.5;
