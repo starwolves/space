@@ -76,11 +76,11 @@ pub(crate) fn counter_window_default_map_added(
             cell_id,
             EntityGridData {
                 entity: counter_window_entity,
-                entity_name: entity_data_component.entity_name.to_string(),
+                entity_type: entity_data_component.entity_type.to_string(),
             },
         );
 
-        if entity_data_component.entity_name == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
+        if entity_data_component.entity_type == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "security counter window".to_string(),
                 n: false,
@@ -97,7 +97,7 @@ pub(crate) fn counter_window_default_map_added(
                     + "]It is fully operational.[/color][/font]",
             );
             examinable_component.assigned_texts = examine_map;
-        } else if entity_data_component.entity_name == BRIDGE_COUNTER_WINDOW_ENTITY_NAME {
+        } else if entity_data_component.entity_type == BRIDGE_COUNTER_WINDOW_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "bridge counter window".to_string(),
                 n: false,

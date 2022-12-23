@@ -30,7 +30,10 @@ impl PointLightBuilderBundle {
                 ..Default::default()
             },
             static_transform_component,
-            EntityData::default(),
+            EntityData {
+                entity_type: POINT_LIGHT_ENTITY_NAME.to_string(),
+                ..Default::default()
+            },
             EntityUpdates::default(),
             WorldMode {
                 mode: WorldModes::Static,
@@ -74,7 +77,10 @@ impl PointLightBuildable for PointLightBuilder {
                 is_light: true,
                 ..Default::default()
             },
-            EntityData::default(),
+            EntityData {
+                entity_type: POINT_LIGHT_ENTITY_NAME.to_string(),
+                ..Default::default()
+            },
             EntityUpdates::default(),
             WorldMode {
                 mode: WorldModes::Static,
@@ -98,7 +104,7 @@ pub fn build_raw_point_lights(
                 spawn_data: EntityBuildData {
                     entity_transform: entity_transform,
                     default_map_spawn: true,
-                    entity_name: event.raw_entity.entity_type.clone(),
+                    entity_type: event.raw_entity.entity_type.clone(),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },

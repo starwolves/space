@@ -61,7 +61,7 @@ impl BaseEntityBuildable<NoData> for HelmetBuilder {
                 },
                 ..Default::default()
             },
-            entity_name: HELMET_SECURITY_ENTITY_NAME.to_string(),
+            entity_type: HELMET_SECURITY_ENTITY_NAME.to_string(),
             ..Default::default()
         }
     }
@@ -179,7 +179,7 @@ pub fn build_raw_helmets(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: spawn_event.raw_entity.entity_type.clone(),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
@@ -195,7 +195,7 @@ pub fn default_build_helmets_security(
     mut spawner: EventWriter<SpawnEntity<HelmetBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != HELMET_SECURITY_ENTITY_NAME {
+        if spawn_event.spawn_data.entity_type != HELMET_SECURITY_ENTITY_NAME {
             continue;
         }
         spawner.send(SpawnEntity {

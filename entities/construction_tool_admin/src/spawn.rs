@@ -45,7 +45,7 @@ impl BaseEntityBuildable<NoData> for ConstructionToolBuilder {
                 },
                 ..Default::default()
             },
-            entity_name: CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
+            entity_type: CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
             ..Default::default()
         }
     }
@@ -153,7 +153,7 @@ pub fn build_raw_construction_tools(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: spawn_event.raw_entity.entity_type.clone(),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
@@ -169,7 +169,7 @@ pub fn default_build_construction_tools(
     mut spawner: EventWriter<SpawnEntity<ConstructionToolBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != CONSTRUCTION_TOOL_ENTITY_NAME {
+        if spawn_event.spawn_data.entity_type != CONSTRUCTION_TOOL_ENTITY_NAME {
             continue;
         }
         spawner.send(SpawnEntity {

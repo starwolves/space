@@ -45,7 +45,7 @@ impl BaseEntityBuildable<NoData> for ComputerBuilder {
                 },
                 ..Default::default()
             },
-            entity_name: BRIDGE_COMPUTER_ENTITY_NAME.to_string(),
+            entity_type: BRIDGE_COMPUTER_ENTITY_NAME.to_string(),
             health: Health {
                 is_combat_obstacle: true,
                 is_reach_obstacle: true,
@@ -111,7 +111,7 @@ pub fn build_raw_computers(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: spawn_event.raw_entity.entity_type.clone(),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
@@ -129,7 +129,7 @@ pub fn default_build_computers(
     mut spawner: EventWriter<SpawnEntity<ComputerBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != BRIDGE_COMPUTER_ENTITY_NAME {
+        if spawn_event.spawn_data.entity_type != BRIDGE_COMPUTER_ENTITY_NAME {
             continue;
         }
         spawner.send(SpawnEntity {

@@ -21,6 +21,7 @@ default-features = false
 rand = "0.8.5"
 serde = "1.0.150"
 typename = "0.1.2"
+const_format = "0.2.30"
 
 entity = { path = "../entity", features = ["server"] }
 networking = { path = "../networking", features = ["server"] }

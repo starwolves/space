@@ -2,11 +2,16 @@ use bevy::{
     prelude::{Commands, Component, Entity, Transform},
     time::Timer,
 };
+use const_format::concatcp;
 use entity::{
     entity_data::{CachedBroadcastTransform, EntityData, EntityUpdates, UpdateTransform},
     sensable::Sensable,
 };
 use rand::Rng;
+use resources::content::SF_CONTENT_PREFIX;
+pub const SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sfx");
+pub const AMBIENCE_SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "ambience_sfx");
+pub const REPEATING_SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "repeating_sfx");
 
 /// Spawn background sound effect with commands as a function.
 #[cfg(feature = "server")]
@@ -19,7 +24,10 @@ pub fn spawn_ambience_sfx(
 
     commands.entity(entity).insert((
         rigid_body_position,
-        EntityData::default(),
+        EntityData {
+            entity_type: AMBIENCE_SFX_ENTITY_NAME.to_owned(),
+            ..Default::default()
+        },
         Sensable {
             is_audible: true,
             always_sensed: true,
@@ -181,7 +189,10 @@ pub fn repeating_sfx_builder(
     let entity = (builder)(commands);
     commands.entity(entity).insert((
         rigid_body_position,
-        EntityData::default(),
+        EntityData {
+            entity_type: REPEATING_SFX_ENTITY_NAME.to_owned(),
+            ..Default::default()
+        },
         Sensable {
             is_audible: true,
             ..Default::default()
@@ -202,7 +213,10 @@ pub fn sfx_builder(
     let entity = (builder)(commands);
     commands.entity(entity).insert((
         rigid_body_position,
-        EntityData::default(),
+        EntityData {
+            entity_type: SFX_ENTITY_NAME.to_owned(),
+            ..Default::default()
+        },
         Sensable {
             is_audible: true,
             ..Default::default()

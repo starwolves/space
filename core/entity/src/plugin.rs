@@ -11,6 +11,7 @@ use crate::examine::{
 };
 use crate::finalize_entity_updates::finalize_entity_updates;
 use crate::init::startup_entities;
+use crate::loading::load_entities;
 use crate::meta::EntityDataResource;
 use crate::net::{EntityClientMessage, EntityServerMessage};
 use crate::spawn::DefaultSpawnEvent;
@@ -75,6 +76,8 @@ impl Plugin for EntityPlugin {
                 .add_system(spawn_entity_for_client)
                 .add_event::<DespawnClientEntity>()
                 .add_event::<SpawnClientEntity>();
+        } else {
+            app.add_system(load_entities);
         }
         app.add_event::<RawSpawnEvent>();
         app.init_resource::<EntityDataResource>();

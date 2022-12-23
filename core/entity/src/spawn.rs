@@ -17,7 +17,7 @@ use super::entity_data::DefaultMapEntity;
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
     pub examinable: Examinable,
-    pub entity_name: String,
+    pub entity_type: String,
     pub health: Health,
     pub entity_group: EntityGroup,
     /// If this entity was spawned by default from map data.
@@ -31,7 +31,7 @@ impl Default for BaseEntityBundle {
             entity_group: EntityGroup::None,
             default_transform: Transform::default(),
             examinable: Examinable::default(),
-            entity_name: "".to_string(),
+            entity_type: "".to_string(),
             health: Health::default(),
             default_map_spawn: false,
         }
@@ -76,7 +76,7 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
     let mut builder = commands.entity(entity);
     builder.insert((
         EntityData {
-            entity_name: data.entity_type.to_string(),
+            entity_type: data.entity_type.to_string(),
             entity_group: data.entity_group,
         },
         EntityUpdates::default(),
@@ -132,7 +132,7 @@ pub fn build_base_entities<T: BaseEntityBuildable<NoData> + Send + Sync + 'stati
         base_entity_builder(
             &mut commands,
             BaseEntityData {
-                entity_type: base_entity_bundle.entity_name.clone(),
+                entity_type: base_entity_bundle.entity_type.clone(),
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
@@ -148,7 +148,7 @@ pub fn build_base_entities<T: BaseEntityBuildable<NoData> + Send + Sync + 'stati
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        base_entity_bundle.entity_name,
+                        base_entity_bundle.entity_type,
                         spawn_event.spawn_data.entity.to_bits(),
                     ),
                 });
@@ -185,7 +185,7 @@ pub struct EntityBuildData {
     /// If the entity is spawned in a showcase find its data here.
     pub showcase_data_option: Option<ShowcaseData>,
     /// Entity type ID.
-    pub entity_name: String,
+    pub entity_type: String,
     pub entity: Entity,
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -199,7 +199,7 @@ impl Default for EntityBuildData {
             default_map_spawn: false,
             raw_entity_option: None,
             showcase_data_option: None,
-            entity_name: "".to_string(),
+            entity_type: "".to_string(),
             entity: Entity::from_bits(0),
         }
     }
@@ -251,7 +251,7 @@ pub fn spawn_entity(
                     holder_entity_option: held,
                     raw_entity_option: raw_entity_option,
                     showcase_data_option: showcase_handle_option,
-                    entity_name,
+                    entity_type: entity_name,
                     entity: return_entity.unwrap(),
 
                     ..Default::default()

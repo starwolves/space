@@ -30,7 +30,7 @@ pub fn get_default_transform() -> Transform {
 #[cfg(feature = "server")]
 impl BaseEntityBuildable<NoData> for CounterWindowBuilder {
     fn get_bundle(&self, spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
-        let entity_name = spawn_data.entity_name.clone();
+        let entity_name = spawn_data.entity_type.clone();
         let department_name;
 
         if entity_name == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
@@ -58,7 +58,7 @@ impl BaseEntityBuildable<NoData> for CounterWindowBuilder {
                 + "]It is fully operational.[/color][/font]",
         );
         BaseEntityBundle {
-            entity_name: entity_name,
+            entity_type: entity_name,
             default_transform: get_default_transform(),
             examinable: Examinable {
                 assigned_texts: examine_map,
@@ -142,7 +142,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
                             parent: spawn_event.spawn_data.entity,
                         },
                         EntityData {
-                            entity_name: "counterWindowSensor".to_string(),
+                            entity_type: "counterWindowSensor".to_string(),
                             entity_group: EntityGroup::CounterWindowSensor,
                         },
                     ))
@@ -190,7 +190,7 @@ pub fn build_raw_counter_windows(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: spawn_event.raw_entity.entity_type.clone(),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
@@ -206,8 +206,8 @@ pub fn default_build_counter_windows(
     mut spawner: EventWriter<SpawnEntity<CounterWindowBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != SECURITY_COUNTER_WINDOW_ENTITY_NAME
-            || spawn_event.spawn_data.entity_name != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
+        if spawn_event.spawn_data.entity_type != SECURITY_COUNTER_WINDOW_ENTITY_NAME
+            || spawn_event.spawn_data.entity_type != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
         {
             continue;
         }
