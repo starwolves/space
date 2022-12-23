@@ -57,13 +57,13 @@ impl LinerArrowBuilder for LineArrowType {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait LinerArrowBuilder {
+pub trait LinerArrowBuilder: Send + Sync {
     fn get_duration(&self) -> f32;
 }
 use bevy::time::TimerMode;
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_line_arrows<T: LinerArrowBuilder + Send + Sync + 'static>(
+pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
