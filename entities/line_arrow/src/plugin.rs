@@ -31,6 +31,7 @@ impl Plugin for LineArrowPlugin {
             )
             .add_system(entity_console_commands.label(BuildingLabels::TriggerBuild));
         }
+        init_entity_type::<LineArrowType>(app);
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild))
             .add_system(build_line_arrows::<LineArrowType>.after(BuildingLabels::TriggerBuild))
@@ -39,7 +40,6 @@ impl Plugin for LineArrowPlugin {
                     .label(BuildingLabels::DefaultBuild)
                     .after(BuildingLabels::NormalBuild),
             );
-        init_entity_type::<LineArrowType>(app);
     }
 }
 

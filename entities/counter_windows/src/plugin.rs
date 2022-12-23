@@ -9,7 +9,7 @@ use entity::{
     spawn::build_base_entities,
 };
 use entity::{entity_types::init_entity_type, meta::GridItemData};
-use physics::spawn::build_rigid_boies;
+use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
     labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels},
@@ -60,22 +60,6 @@ impl Plugin for CounterWindowsPlugin {
                         .label(PostUpdateLabels::EntityUpdate)
                         .with_system(counter_window_update),
                 )
-                .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-                .add_system(
-                    build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_rigid_boies::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild))
-                .add_system(
-                    (default_build_counter_windows)
-                        .label(BuildingLabels::DefaultBuild)
-                        .after(BuildingLabels::NormalBuild),
-                )
                 .add_system(
                     health_combat_hit_result_sfx::<CounterWindow>
                         .after(CombatLabels::FinalizeApplyDamage),
@@ -102,6 +86,22 @@ impl Plugin for CounterWindowsPlugin {
                 );
         }
         init_entity_type::<CounterWindowType>(app);
+        app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
+            .add_system(
+                build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
+            )
+            .add_system(
+                (build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
+            )
+            .add_system(
+                (build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
+            )
+            .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild))
+            .add_system(
+                (default_build_counter_windows)
+                    .label(BuildingLabels::DefaultBuild)
+                    .after(BuildingLabels::NormalBuild),
+            );
     }
 }
 

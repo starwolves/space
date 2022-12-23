@@ -116,7 +116,7 @@ impl PawnYAxisRotations {
 pub const REACH_DISTANCE: f32 = 3.;
 
 /// Data for spawning.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 #[cfg(feature = "server")]
 pub struct SpawnPawnData {
     pub pawn_component: Pawn,
@@ -125,10 +125,11 @@ pub struct SpawnPawnData {
     pub designation: PawnDesignation,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 #[cfg(feature = "server")]
 pub enum PawnDesignation {
     Showcase,
+    #[default]
     Player,
     Dummy,
     Ai,

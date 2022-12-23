@@ -200,7 +200,7 @@ use entity::spawn::{NoData, SpawnEntity};
 
 /// Rigid body spawning.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_rigid_boies<T: RigidBodyBuilder<NoData> + 'static>(
+pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {

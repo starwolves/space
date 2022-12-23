@@ -451,7 +451,11 @@ pub(crate) fn construction_tool(
                 let mut cell_data_clone = (*cell_data).clone();
                 cell_data_clone.item = -1;
 
-                deconstructed_item_name = text_names_map.get(&cell_data.item).unwrap().get_name();
+                deconstructed_item_name = text_names_map
+                    .get(&cell_data.item)
+                    .unwrap()
+                    .get_name()
+                    .to_string();
 
                 gridmap_main.updates.insert(
                     *cell_id_int,
@@ -476,7 +480,7 @@ pub(crate) fn construction_tool(
                 let entity_position_component = g.0;
                 let entity_data = g.1;
 
-                deconstructed_item_name = &entity_data.entity_type;
+                deconstructed_item_name = entity_data.entity_type.to_string();
 
                 let cell_id = world_to_cell_id(entity_position_component.translation.into());
 
@@ -804,7 +808,7 @@ pub(crate) fn construction_tool(
             };
 
             if cell_id_2 == target_cell_id_2 {
-                let name = entity_data_component.entity_type.clone();
+                let name = entity_data_component.entity_type.to_string();
                 blockers.push(name);
             }
         }

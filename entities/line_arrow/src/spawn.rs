@@ -38,19 +38,27 @@ impl BaseEntityBuilder<NoData> for LineArrowType {
                 },
                 ..Default::default()
             },
-            entity_type: LINE_ARROW_ENTITY_NAME.to_string(),
+            entity_type: Box::new(LineArrowType::new()),
             ..Default::default()
         }
     }
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
+#[derive(Default)]
 pub struct LineArrowType {
     pub duration: f32,
 }
 impl EntityType for LineArrowType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         LINE_ARROW_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        LineArrowType::default()
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]

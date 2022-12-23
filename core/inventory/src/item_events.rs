@@ -540,7 +540,7 @@ pub(crate) fn pickup_world_item(
                 server.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: InventoryServerMessage::PickedUpItem(
-                        pickupable_entity_data.entity_type.clone(),
+                        pickupable_entity_data.entity_type.to_string(),
                         event.used_entity.to_bits(),
                         pickup_slot.slot_name.clone(),
                     ),
@@ -631,7 +631,7 @@ pub(crate) fn take_off_item(
                 server.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: InventoryServerMessage::EquippedWornItem(
-                        takeoff_components.2.entity_type.clone(),
+                        takeoff_components.2.entity_type.to_string(),
                         takeoff_entity.to_bits(),
                         takeoff_slot.slot_name.clone(),
                     ),
@@ -1047,7 +1047,7 @@ pub(crate) fn wear_item(
                 server.send(OutgoingReliableServerMessage {
                     handle: *handle,
                     message: InventoryServerMessage::PickedUpItem(
-                        wearable_components.2.entity_type.clone(),
+                        wearable_components.2.entity_type.to_string(),
                         wearable_entity.to_bits(),
                         wear_slot.slot_name.clone(),
                     ),

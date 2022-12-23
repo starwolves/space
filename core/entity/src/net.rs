@@ -25,6 +25,6 @@ pub enum EntityServerMessage {
         bool,
         EntityWorldType,
     ),
-    LoadEntity(String, u64),
+    LoadEntity(u16, u64),
     UnloadEntity(u64),
 }

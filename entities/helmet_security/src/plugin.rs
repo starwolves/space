@@ -10,7 +10,7 @@ use entity::{
     spawn::build_base_entities,
 };
 use inventory::spawn_item::build_inventory_items;
-use physics::spawn::build_rigid_boies;
+use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
     labels::{BuildingLabels, CombatLabels, StartupLabels},
@@ -25,34 +25,32 @@ pub struct HelmetsPlugin;
 impl Plugin for HelmetsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-                .add_system(build_helmets::<HelmetType>.after(BuildingLabels::TriggerBuild))
-                .add_system((build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild))
-                .add_system((build_rigid_boies::<HelmetType>).after(BuildingLabels::TriggerBuild))
-                .add_system(
-                    (build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild))
-                .add_system(
-                    (default_build_helmets_security)
-                        .label(BuildingLabels::DefaultBuild)
-                        .after(BuildingLabels::NormalBuild),
-                )
-                .add_system(
-                    melee_attack_handler::<Helmet>
-                        .label(CombatLabels::WeaponHandler)
-                        .after(CombatLabels::CacheAttack),
-                )
-                .add_system(
-                    attack_sfx::<Helmet>
-                        .after(CombatLabels::WeaponHandler)
-                        .after(CombatLabels::Query),
-                )
-                .add_system(
-                    health_combat_hit_result_sfx::<Helmet>.after(CombatLabels::FinalizeApplyDamage),
-                );
+            app.add_system(
+                melee_attack_handler::<Helmet>
+                    .label(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::CacheAttack),
+            )
+            .add_system(
+                attack_sfx::<Helmet>
+                    .after(CombatLabels::WeaponHandler)
+                    .after(CombatLabels::Query),
+            )
+            .add_system(
+                health_combat_hit_result_sfx::<Helmet>.after(CombatLabels::FinalizeApplyDamage),
+            );
         }
         init_entity_type::<HelmetType>(app);
+        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
+            .add_system(build_helmets::<HelmetType>.after(BuildingLabels::TriggerBuild))
+            .add_system((build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_rigid_bodies::<HelmetType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild))
+            .add_system(
+                (default_build_helmets_security)
+                    .label(BuildingLabels::DefaultBuild)
+                    .after(BuildingLabels::NormalBuild),
+            );
     }
 }
 

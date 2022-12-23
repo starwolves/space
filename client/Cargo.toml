@@ -34,4 +34,22 @@ map = { path = "../core/map", features = ["client"] }
 pawn = { path = "../core/pawn", features = ["client"] }
 sfx = { path = "../core/sfx", features = ["client"] }
 physics = { path = "../core/physics", features = ["client"] }
-point_light = { path = "../entities/point_light", features = ["client"] }
+
+airlocks = { path = "../entities/airlocks", features = ["server"] }
+computers = { path = "../entities/computers", features = ["server"] }
+construction_tool_admin = { path = "../entities/construction_tool_admin", features = [
+    "server",
+] }
+counter_windows = { path = "../entities/counter_windows", features = [
+    "server",
+] }
+helmet_security = { path = "../entities/helmet_security", features = [
+    "server",
+] }
+human_male = { path = "../entities/human_male", features = ["server"] }
+jumpsuit_security = { path = "../entities/jumpsuit_security", features = [
+    "server",
+] }
+line_arrow = { path = "../entities/line_arrow", features = ["server"] }
+pistol_l1 = { path = "../entities/pistol_l1", features = ["server"] }
+point_light = { path = "../entities/point_light", features = ["server"] }

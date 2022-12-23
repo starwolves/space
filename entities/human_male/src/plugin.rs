@@ -6,7 +6,7 @@ use entity::{
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
-use physics::spawn::build_rigid_boies;
+use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
     labels::{BuildingLabels, CombatLabels, StartupLabels},
@@ -34,6 +34,7 @@ impl Plugin for HumanMalePlugin {
             .add_system(human_male_setup_ui.label(BuildingLabels::TriggerBuild))
             .add_system_to_stage(PostUpdate, spawn_boarding_player);
         }
+        init_entity_type::<HumanMaleType>(app);
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(
                 build_human_males::<HumanMaleType>
@@ -43,13 +44,12 @@ impl Plugin for HumanMalePlugin {
             .add_system(
                 (build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild),
             )
-            .add_system((build_rigid_boies::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_rigid_bodies::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_human_dummies)
                     .label(BuildingLabels::DefaultBuild)
                     .after(BuildingLabels::NormalBuild),
             );
-        init_entity_type::<HumanMaleType>(app);
     }
 }
 

@@ -6,7 +6,7 @@ use entity::entity_types::init_entity_type;
 use entity::meta::{EntityDataProperties, EntityDataResource};
 use entity::spawn::build_base_entities;
 use inventory::spawn_item::build_inventory_items;
-use physics::spawn::build_rigid_boies;
+use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, StartupLabels, UpdateLabels};
 
@@ -43,28 +43,6 @@ impl Plugin for ConstructionToolAdminPlugin {
                     construction_tool
                         .after(UpdateLabels::TextTreeInputSelection)
                         .before(UpdateLabels::DeconstructCell),
-                )
-                .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-                .add_system(
-                    build_construction_tools::<ConstructionToolType>
-                        .after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_base_entities::<ConstructionToolType>)
-                        .after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_rigid_boies::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_inventory_items::<ConstructionToolType>)
-                        .after(BuildingLabels::TriggerBuild),
-                )
-                .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild))
-                .add_system(
-                    (default_build_construction_tools)
-                        .label(BuildingLabels::DefaultBuild)
-                        .after(BuildingLabels::NormalBuild),
                 )
                 .add_system(
                     melee_attack_handler::<ConstructionTool>
@@ -113,6 +91,26 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection));
         }
         init_entity_type::<ConstructionToolType>(app);
+        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
+            .add_system(
+                build_construction_tools::<ConstructionToolType>
+                    .after(BuildingLabels::TriggerBuild),
+            )
+            .add_system(
+                (build_base_entities::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
+            )
+            .add_system(
+                (build_rigid_bodies::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
+            )
+            .add_system(
+                (build_inventory_items::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
+            )
+            .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild))
+            .add_system(
+                (default_build_construction_tools)
+                    .label(BuildingLabels::DefaultBuild)
+                    .after(BuildingLabels::NormalBuild),
+            );
     }
 }
 

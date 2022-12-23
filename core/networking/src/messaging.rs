@@ -72,6 +72,16 @@ pub enum MessageSender {
 }
 
 use crate::client::is_client_connected;
+use crate::{
+    client::{
+        deserialize_incoming_reliable_server_message, send_outgoing_reliable_client_messages,
+        IncomingReliableServerMessage, OutgoingReliableClientMessage,
+    },
+    server::{
+        deserialize_incoming_reliable_client_message, send_outgoing_reliable_server_messages,
+        IncomingReliableClientMessage, OutgoingReliableServerMessage,
+    },
+};
 use bevy::app::CoreStage::PreUpdate;
 use iyes_loopless::prelude::IntoConditionalSystem;
 /// All reliable networking messages must be registered with this system.
@@ -82,17 +92,6 @@ pub fn init_reliable_message<
     app: &mut App,
     sender: MessageSender,
 ) {
-    use crate::{
-        client::{
-            deserialize_incoming_reliable_server_message, send_outgoing_reliable_client_messages,
-            IncomingReliableServerMessage, OutgoingReliableClientMessage,
-        },
-        server::{
-            deserialize_incoming_reliable_client_message, send_outgoing_reliable_server_messages,
-            IncomingReliableClientMessage, OutgoingReliableServerMessage,
-        },
-    };
-
     app.add_startup_system(reliable_message::<T>.label(TypenamesLabel::Generate));
 
     let mut client_is_sender = false;
@@ -111,33 +110,32 @@ pub fn init_reliable_message<
         }
     }
 
+    app.add_event::<OutgoingReliableServerMessage<T>>();
     if server_is_sender && is_server() {
-        app.add_event::<OutgoingReliableServerMessage<T>>()
-            .add_system_to_stage(PostUpdate, send_outgoing_reliable_server_messages::<T>);
+        app.add_system_to_stage(PostUpdate, send_outgoing_reliable_server_messages::<T>);
     }
+    app.add_event::<IncomingReliableServerMessage<T>>();
     if server_is_sender && !is_server() {
-        app.add_event::<IncomingReliableServerMessage<T>>()
-            .add_system_to_stage(
-                PreUpdate,
-                deserialize_incoming_reliable_server_message::<T>
-                    .after(TypenamesLabel::SendRawEvents),
-            );
+        app.add_system_to_stage(
+            PreUpdate,
+            deserialize_incoming_reliable_server_message::<T>.after(TypenamesLabel::SendRawEvents),
+        );
     }
+    app.add_event::<OutgoingReliableClientMessage<T>>();
 
     if client_is_sender && !is_server() {
-        app.add_event::<OutgoingReliableClientMessage<T>>()
-            .add_system_to_stage(
-                PostUpdate,
-                send_outgoing_reliable_client_messages::<T>.run_if(is_client_connected),
-            );
+        app.add_system_to_stage(
+            PostUpdate,
+            send_outgoing_reliable_client_messages::<T>.run_if(is_client_connected),
+        );
     }
+    app.add_event::<IncomingReliableClientMessage<T>>();
+
     if client_is_sender && is_server() {
-        app.add_event::<IncomingReliableClientMessage<T>>()
-            .add_system_to_stage(
-                PreUpdate,
-                deserialize_incoming_reliable_client_message::<T>
-                    .after(TypenamesLabel::SendRawEvents),
-            );
+        app.add_system_to_stage(
+            PreUpdate,
+            deserialize_incoming_reliable_client_message::<T>.after(TypenamesLabel::SendRawEvents),
+        );
     }
 }
 use resources::is_server::is_server;

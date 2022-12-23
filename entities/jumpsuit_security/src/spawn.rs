@@ -62,7 +62,7 @@ impl BaseEntityBuilder<NoData> for JumpsuitType {
                 },
                 ..Default::default()
             },
-            entity_type: JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
+            entity_type: Box::new(JumpsuitType::new()),
 
             ..Default::default()
         }
@@ -143,8 +143,15 @@ impl RigidBodyBuilder<NoData> for JumpsuitType {
 #[cfg(feature = "server")]
 pub struct JumpsuitType;
 impl EntityType for JumpsuitType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         JUMPSUIT_SECURITY_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        JumpsuitType
     }
 }
 #[cfg(feature = "server")]

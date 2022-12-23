@@ -61,6 +61,7 @@ use bevy::prelude::warn;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::RigidBody;
 
+use crate::entity_types::EntityTypes;
 use std::collections::HashMap;
 
 use crate::entity_data::{EntityData, EntityUpdates, WorldMode};
@@ -77,6 +78,7 @@ pub(crate) fn spawn_entity_for_client(
     )>,
     mut load_entity_events: EventReader<SpawnClientEntity>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    types: Res<EntityTypes>,
 ) {
     for load_entity_event in load_entity_events.iter() {
         match entity_query.get(load_entity_event.entity) {
@@ -154,11 +156,13 @@ pub(crate) fn spawn_entity_for_client(
                         }
                     }
                 }
-
                 server.send(OutgoingReliableServerMessage {
                     handle: load_entity_event.loader_handle,
                     message: EntityServerMessage::LoadEntity(
-                        entity_data.entity_type.clone(),
+                        *types
+                            .types
+                            .get(&entity_data.entity_type.to_string())
+                            .unwrap(),
                         load_entity_event.entity.to_bits(),
                     ),
                 });

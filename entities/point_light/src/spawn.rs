@@ -31,7 +31,7 @@ impl PointLightBuilderBundle {
             },
             static_transform_component,
             EntityData {
-                entity_type: POINT_LIGHT_ENTITY_NAME.to_string(),
+                entity_type: Box::new(PointLightType::new()),
                 ..Default::default()
             },
             EntityUpdates::default(),
@@ -43,12 +43,20 @@ impl PointLightBuilderBundle {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
+#[derive(Default)]
 pub struct PointLightType {
     pub light: PointLight,
 }
 impl EntityType for PointLightType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         POINT_LIGHT_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        PointLightType::default()
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -82,7 +90,7 @@ impl PointLightBuilder for PointLightType {
                 ..Default::default()
             },
             EntityData {
-                entity_type: POINT_LIGHT_ENTITY_NAME.to_string(),
+                entity_type: Box::new(PointLightType::new()),
                 ..Default::default()
             },
             EntityUpdates::default(),

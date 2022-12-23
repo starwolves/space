@@ -6,7 +6,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::build_base_entities,
 };
-use physics::spawn::build_rigid_boies;
+use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
     labels::{BuildingLabels, CombatLabels, StartupLabels},
@@ -31,17 +31,17 @@ impl Plugin for ComputersPlugin {
                 health_combat_hit_result_sfx::<Computer>.after(CombatLabels::FinalizeApplyDamage),
             );
         }
+        init_entity_type::<ComputerType>(app);
         app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
             .add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_rigid_boies::<ComputerType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_computers)
                     .label(BuildingLabels::DefaultBuild)
                     .after(BuildingLabels::NormalBuild),
             );
-        init_entity_type::<ComputerType>(app);
     }
 }
 
