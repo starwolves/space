@@ -1,8 +1,8 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use entity::{
     entity_data::initialize_entity_data,
+    entity_types::init_entity_type,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::SpawnEntity,
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
@@ -43,13 +43,13 @@ impl Plugin for HumanMalePlugin {
             .add_system(
                 (build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild),
             )
-            .add_event::<SpawnEntity<HumanMaleType>>()
             .add_system((build_rigid_boies::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_human_dummies)
                     .label(BuildingLabels::DefaultBuild)
                     .after(BuildingLabels::NormalBuild),
             );
+        init_entity_type::<HumanMaleType>(app);
     }
 }
 

@@ -14,6 +14,7 @@ use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
+use entity::spawn::EntityType;
 use entity::spawn::NoData;
 use entity::spawn::SpawnEntity;
 use inventory::combat::DamageModel;
@@ -141,7 +142,11 @@ impl RigidBodyBuilder<NoData> for JumpsuitType {
 
 #[cfg(feature = "server")]
 pub struct JumpsuitType;
-
+impl EntityType for JumpsuitType {
+    fn to_string() -> String {
+        JUMPSUIT_SECURITY_ENTITY_NAME.to_owned()
+    }
+}
 #[cfg(feature = "server")]
 pub fn build_jumpsuits<T: Send + Sync + 'static>(
     mut commands: Commands,

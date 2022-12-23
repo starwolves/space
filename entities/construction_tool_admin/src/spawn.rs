@@ -6,7 +6,8 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
 use entity::spawn::{
-    BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
+    BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType, NoData,
+    SpawnEntity,
 };
 use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::SlotType;
@@ -122,6 +123,12 @@ impl RigidBodyBuilder<NoData> for ConstructionToolType {
 
 #[cfg(feature = "server")]
 pub struct ConstructionToolType;
+
+impl EntityType for ConstructionToolType {
+    fn to_string() -> String {
+        CONSTRUCTION_TOOL_ENTITY_NAME.to_owned()
+    }
+}
 
 #[cfg(feature = "server")]
 pub fn build_construction_tools<T: Send + Sync + 'static>(

@@ -5,6 +5,7 @@ use combat::{
 };
 use entity::{
     entity_data::initialize_entity_data,
+    entity_types::init_entity_type,
     meta::{EntityDataProperties, EntityDataResource},
     spawn::{build_base_entities, SpawnEntity},
 };
@@ -55,6 +56,7 @@ impl Plugin for JumpsuitsPlugin {
                         .after(CombatLabels::FinalizeApplyDamage),
                 );
         }
+        init_entity_type::<JumpsuitType>(app);
     }
 }
 

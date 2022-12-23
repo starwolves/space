@@ -17,6 +17,7 @@ use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
+use entity::spawn::EntityType;
 use entity::spawn::NoData;
 use entity::spawn::SpawnEntity;
 use inventory::combat::DamageModel;
@@ -148,6 +149,11 @@ impl RigidBodyBuilder<NoData> for HelmetType {
 
 #[cfg(feature = "server")]
 pub struct HelmetType;
+impl EntityType for HelmetType {
+    fn to_string() -> String {
+        HELMET_SECURITY_ENTITY_NAME.to_owned()
+    }
+}
 
 #[cfg(feature = "server")]
 pub fn build_helmets<T: Send + Sync + 'static>(

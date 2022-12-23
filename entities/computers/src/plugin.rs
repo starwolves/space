@@ -2,8 +2,9 @@ use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::{
     entity_data::initialize_entity_data,
+    entity_types::init_entity_type,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{build_base_entities, SpawnEntity},
+    spawn::build_base_entities,
 };
 use physics::spawn::build_rigid_boies;
 use resources::{
@@ -30,8 +31,7 @@ impl Plugin for ComputersPlugin {
                 health_combat_hit_result_sfx::<Computer>.after(CombatLabels::FinalizeApplyDamage),
             );
         }
-        app.add_event::<SpawnEntity<ComputerType>>()
-            .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
+        app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
             .add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_boies::<ComputerType>).after(BuildingLabels::TriggerBuild))
@@ -41,6 +41,7 @@ impl Plugin for ComputersPlugin {
                     .label(BuildingLabels::DefaultBuild)
                     .after(BuildingLabels::NormalBuild),
             );
+        init_entity_type::<ComputerType>(app);
     }
 }
 

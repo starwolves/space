@@ -9,8 +9,8 @@ use entity::{
     entity_data::{WorldMode, WorldModes},
     examine::{Examinable, RichName},
     spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType,
+        NoData, SpawnEntity,
     },
 };
 
@@ -48,7 +48,11 @@ impl BaseEntityBuilder<NoData> for LineArrowType {
 pub struct LineArrowType {
     pub duration: f32,
 }
-
+impl EntityType for LineArrowType {
+    fn to_string() -> String {
+        LINE_ARROW_ENTITY_NAME.to_owned()
+    }
+}
 #[cfg(any(feature = "server", feature = "client"))]
 impl LinerArrowBuilder for LineArrowType {
     fn get_duration(&self) -> f32 {

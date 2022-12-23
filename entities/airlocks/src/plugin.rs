@@ -1,10 +1,11 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemLabel, SystemSet, Transform};
 use combat::sfx::health_combat_hit_result_sfx;
+use entity::entity_types::init_entity_type;
 use entity::meta::GridItemData;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{build_base_entities, SpawnEntity},
+    spawn::build_base_entities,
 };
 use physics::spawn::build_rigid_boies;
 use resources::is_server::is_server;
@@ -56,7 +57,6 @@ impl Plugin for AirLocksPlugin {
                 .add_system(physics_events)
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>()
-                .add_event::<SpawnEntity<AirlockType>>()
                 .add_system_set_to_stage(
                     PostUpdate,
                     SystemSet::new()
@@ -100,6 +100,8 @@ impl Plugin for AirLocksPlugin {
                         .after(ActionsLabels::Init),
                 );
         }
+
+        init_entity_type::<AirlockType>(app);
     }
 }
 

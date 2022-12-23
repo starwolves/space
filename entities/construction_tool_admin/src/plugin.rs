@@ -2,8 +2,9 @@ use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_data::initialize_entity_data;
+use entity::entity_types::init_entity_type;
 use entity::meta::{EntityDataProperties, EntityDataResource};
-use entity::spawn::{build_base_entities, SpawnEntity};
+use entity::spawn::build_base_entities;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_boies;
 use resources::is_server::is_server;
@@ -60,7 +61,6 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<ConstructionToolType>>()
                 .add_system(
                     (default_build_construction_tools)
                         .label(BuildingLabels::DefaultBuild)
@@ -112,6 +112,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                 )
                 .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection));
         }
+        init_entity_type::<ConstructionToolType>(app);
     }
 }
 

@@ -15,6 +15,7 @@ use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
+use entity::spawn::EntityType;
 use entity::spawn::NoData;
 use entity::spawn::SpawnEntity;
 use inventory::combat::CombatAttackAnimation;
@@ -171,7 +172,11 @@ use super::pistol_l1::PistolL1;
 
 #[cfg(feature = "server")]
 pub struct PistolL1Type;
-
+impl EntityType for PistolL1Type {
+    fn to_string() -> String {
+        PISTOL_L1_ENTITY_NAME.to_owned()
+    }
+}
 #[cfg(feature = "server")]
 pub fn build_pistols_l1<T: Send + Sync + 'static>(
     mut commands: Commands,

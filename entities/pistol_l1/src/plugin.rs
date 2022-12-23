@@ -7,8 +7,9 @@ use combat::{
 };
 use entity::{
     entity_data::initialize_entity_data,
+    entity_types::init_entity_type,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{build_base_entities, SpawnEntity},
+    spawn::build_base_entities,
 };
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_boies;
@@ -38,7 +39,6 @@ impl Plugin for PistolL1Plugin {
                 )
                 .add_system(build_pistols_l1::<PistolL1Type>.after(BuildingLabels::TriggerBuild))
                 .add_system((build_raw_pistols_l1).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<PistolL1Type>>()
                 .add_system(
                     (default_build_pistols_l1)
                         .label(BuildingLabels::DefaultBuild)
@@ -65,6 +65,7 @@ impl Plugin for PistolL1Plugin {
                 )
                 .add_system(projectile_laser_visuals::<PistolL1>.after(CombatLabels::Query));
         }
+        init_entity_type::<PistolL1Type>(app);
     }
 }
 

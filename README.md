@@ -26,7 +26,7 @@
 
 ### Technology
 
-The repository contains both the server and client. Both are entirely written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Space Frontiers is designed from the ground up to support modern CPUs to efficiently take advantage of a any amount of available threads without increasing code complexity or data races. The old prototype client is made with Godot 3.
+The repository contains both the server and client. Both are entirely written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Space Frontiers is designed from the ground up to support modern CPUs to efficiently take advantage of any amount of available threads without increasing code complexity and without chances of data races. The old prototype client is made with Godot 3.
 
 ### Community
 

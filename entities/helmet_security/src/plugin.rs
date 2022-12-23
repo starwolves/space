@@ -5,8 +5,9 @@ use combat::{
 };
 use entity::{
     entity_data::initialize_entity_data,
+    entity_types::init_entity_type,
     meta::{EntityDataProperties, EntityDataResource},
-    spawn::{build_base_entities, SpawnEntity},
+    spawn::build_base_entities,
 };
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_boies;
@@ -32,7 +33,6 @@ impl Plugin for HelmetsPlugin {
                     (build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<HelmetType>>()
                 .add_system(
                     (default_build_helmets_security)
                         .label(BuildingLabels::DefaultBuild)
@@ -52,6 +52,7 @@ impl Plugin for HelmetsPlugin {
                     health_combat_hit_result_sfx::<Helmet>.after(CombatLabels::FinalizeApplyDamage),
                 );
         }
+        init_entity_type::<HelmetType>(app);
     }
 }
 
