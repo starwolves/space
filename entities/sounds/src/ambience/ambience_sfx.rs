@@ -13,7 +13,8 @@ impl AmbienceSfxBundle {
             .spawn((
                 Sfx {
                     unit_db: 21.,
-                    stream_id: "/content/audio/ambience/spaceshipAmbientSound.sample".to_string(),
+                    stream_id: SF_CONTENT_PREFIX.to_string() + "spaceshipAmbientSound",
+
                     play_back_position: 0.,
                     play_back_duration: AMBIENCE_SFX_PLAY_BACK_DURATION,
                     auto_destroy: false,
@@ -29,6 +30,7 @@ impl AmbienceSfxBundle {
 
 use bevy::prelude::Transform;
 use bevy::time::{Timer, TimerMode};
+use resources::content::SF_CONTENT_PREFIX;
 use sfx::builder::{spawn_ambience_sfx, AmbienceSfxTimer, Sfx};
 
 #[cfg(feature = "server")]

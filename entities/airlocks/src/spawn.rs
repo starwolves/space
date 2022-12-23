@@ -11,7 +11,6 @@ use entity::{
     entity_data::{EntityGroup, RawSpawnEvent},
     examine::{Examinable, RichName},
     health::Health,
-    meta::SF_CONTENT_PREFIX,
     spawn::{
         BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
         SpawnEntity,
@@ -129,6 +128,7 @@ pub fn build_airlocks<T: Send + Sync + 'static>(
             });
     }
 }
+use resources::content::SF_CONTENT_PREFIX;
 
 pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "securityAirLock1");
 pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeAirLock");

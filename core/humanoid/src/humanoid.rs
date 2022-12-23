@@ -911,7 +911,7 @@ pub(crate) fn humanoid_core(
     }
 }
 use const_format::concatcp;
-use entity::meta::SF_CONTENT_PREFIX;
+use resources::content::SF_CONTENT_PREFIX;
 #[cfg(feature = "server")]
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "humanDummy");
 #[cfg(feature = "server")]

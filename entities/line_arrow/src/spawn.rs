@@ -80,7 +80,7 @@ pub fn build_line_arrows<T: LinerArrowBuildable + Send + Sync + 'static>(
         ));
     }
 }
-use entity::meta::SF_CONTENT_PREFIX;
+use resources::content::SF_CONTENT_PREFIX;
 #[cfg(any(feature = "server", feature = "client"))]
 pub const LINE_ARROW_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "lineArrow");
 

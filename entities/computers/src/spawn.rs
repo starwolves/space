@@ -87,7 +87,7 @@ pub fn build_computers<T: Send + Sync + 'static>(
     }
 }
 use const_format::concatcp;
-use entity::meta::SF_CONTENT_PREFIX;
+use resources::content::SF_CONTENT_PREFIX;
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub const BRIDGE_COMPUTER_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeComputer");

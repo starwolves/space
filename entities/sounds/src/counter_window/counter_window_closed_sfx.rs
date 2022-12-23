@@ -1,4 +1,5 @@
 use bevy::prelude::{Commands, Entity};
+use resources::content::SF_CONTENT_PREFIX;
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
 #[cfg(feature = "server")]
@@ -13,7 +14,7 @@ impl CounterWindowClosedSfxBundle {
         commands
             .spawn((Sfx {
                 unit_db: 18.,
-                stream_id: "/content/audio/counterWindow/windowCloseCompressed.sample".to_string(),
+                stream_id: SF_CONTENT_PREFIX.to_string() + "windowCloseCompressed",
                 play_back_duration: PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

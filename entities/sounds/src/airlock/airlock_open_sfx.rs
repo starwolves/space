@@ -1,4 +1,5 @@
 use bevy::prelude::{Commands, Entity};
+use resources::content::SF_CONTENT_PREFIX;
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
 #[cfg(feature = "server")]
@@ -13,7 +14,8 @@ impl AirLockOpenSfxBundle {
         commands
             .spawn((Sfx {
                 unit_db: 13.,
-                stream_id: "/content/audio/airLock/doorOpen.sample".to_string(),
+                stream_id: SF_CONTENT_PREFIX.to_string() + "doorOpen",
+
                 play_back_duration: PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.6),
                 ..Default::default()

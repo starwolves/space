@@ -11,5 +11,6 @@ pub mod converters;
 /// The Bevy ECS plugin of this crate.
 pub mod plugin;
 // Set window icon of client.
+pub mod content;
 pub mod is_server;
 pub mod set_icon;
