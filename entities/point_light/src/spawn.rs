@@ -1,11 +1,11 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, PointLightBundle, Transform};
 use const_format::concatcp;
-use entity::meta::SF_CONTENT_PREFIX;
 use entity::{
     entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
     sensable::Sensable,
     spawn::{EntityBuildData, SpawnEntity},
 };
+use resources::content::SF_CONTENT_PREFIX;
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct PointLightBuilderBundle;

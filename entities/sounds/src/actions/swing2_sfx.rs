@@ -1,4 +1,5 @@
 use bevy::prelude::{Commands, Entity};
+use resources::content::SF_CONTENT_PREFIX;
 use sfx::builder::{get_random_pitch_scale, Sfx};
 
 #[cfg(feature = "server")]
@@ -14,7 +15,8 @@ impl Swing2SfxBundle {
             .spawn((Sfx {
                 unit_db: 12.,
                 unit_size: 1.,
-                stream_id: "/content/audio/combat/swing2.sample".to_string(),
+                stream_id: SF_CONTENT_PREFIX.to_string() + "swing2",
+
                 play_back_duration: SWING2_PLAY_BACK_DURATION,
                 pitch_scale: get_random_pitch_scale(1.0),
                 ..Default::default()

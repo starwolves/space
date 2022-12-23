@@ -1,6 +1,6 @@
 use bevy::prelude::Component;
 use const_format::concatcp;
-use entity::meta::SF_CONTENT_PREFIX;
+use resources::content::SF_CONTENT_PREFIX;
 /// The component.
 #[derive(Component)]
 #[cfg(feature = "server")]

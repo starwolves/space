@@ -1257,4 +1257,4 @@ pub struct InputConstructionOptionsSelection {
     pub entity: Entity,
 }
 use const_format::concatcp;
-use entity::meta::SF_CONTENT_PREFIX;
+use resources::content::SF_CONTENT_PREFIX;

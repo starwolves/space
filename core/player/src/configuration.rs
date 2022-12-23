@@ -19,6 +19,8 @@ pub(crate) fn server_new_client_configuration(
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut server1: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
 ) {
+    use resources::content::SF_CONTENT_PREFIX;
+
     for event in config_events.iter() {
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,
@@ -30,9 +32,8 @@ pub(crate) fn server_new_client_configuration(
                 "concrete_walking_footsteps".to_string(),
                 (1..=39)
                     .map(|i| {
-                        format!(
-                        "/content/audio/footsteps/default/Concrete_Shoes_Walking_step{i}.sample"
-                    )
+                        SF_CONTENT_PREFIX.to_string()
+                            + &format!("Concrete_Shoes_Walking_step{i}.sample")
                     })
                     .collect(),
             ),
@@ -48,9 +49,8 @@ pub(crate) fn server_new_client_configuration(
                 ]
                 .iter()
                 .map(|i| {
-                    format!(
-                        "/content/audio/footsteps/default/Concrete_Shoes_Running_step{i}.sample"
-                    )
+                    SF_CONTENT_PREFIX.to_string()
+                        + &format!("Concrete_Shoes_Running_step{i}.sample")
                 })
                 .collect(),
             ),

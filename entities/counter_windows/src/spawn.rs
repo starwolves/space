@@ -164,7 +164,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
     }
 }
 use const_format::concatcp;
-use entity::meta::SF_CONTENT_PREFIX;
+use resources::content::SF_CONTENT_PREFIX;
 pub const SECURITY_COUNTER_WINDOW_ENTITY_NAME: &str =
     concatcp!(SF_CONTENT_PREFIX, "securityCounterWindow");
 pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str =
