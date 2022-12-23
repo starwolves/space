@@ -72,7 +72,7 @@ pub(crate) fn spawn_boarding_player(
             spawn_data: EntityBuildData {
                 entity: new_entity,
                 entity_transform: spawning_component.transform.clone(),
-                entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
+                entity_type: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             builder: HumanMaleBuilder {

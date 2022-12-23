@@ -77,7 +77,7 @@ impl BaseEntityBuildable<HumanMaleBuildData> for HumanMaleBuilder {
                 },
                 ..Default::default()
             },
-            entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
+            entity_type: HUMAN_MALE_ENTITY_NAME.to_string(),
             health: Health {
                 health_container: HealthContainer::Humanoid(HumanoidHealth::default()),
                 ..Default::default()
@@ -109,7 +109,7 @@ pub fn build_base_human_males<
         base_entity_builder(
             &mut commands,
             BaseEntityData {
-                entity_type: base_entity_bundle.entity_name.clone(),
+                entity_type: base_entity_bundle.entity_type.clone(),
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
@@ -125,7 +125,7 @@ pub fn build_base_human_males<
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        base_entity_bundle.entity_name,
+                        base_entity_bundle.entity_type,
                         spawn_event.spawn_data.entity.to_bits(),
                     ),
                 });
@@ -390,7 +390,7 @@ pub(crate) fn default_build_human_dummies(
     mut used_names: ResMut<UsedNames>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name == HUMAN_DUMMY_ENTITY_NAME {
+        if spawn_event.spawn_data.entity_type == HUMAN_DUMMY_ENTITY_NAME {
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
                 builder: HumanMaleBuilder {

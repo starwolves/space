@@ -180,7 +180,7 @@ pub fn entity_update_changed_detection(
 #[derive(Component)]
 #[cfg(feature = "server")]
 pub struct EntityData {
-    pub entity_name: String,
+    pub entity_type: String,
     pub entity_group: EntityGroup,
 }
 
@@ -188,7 +188,7 @@ pub struct EntityData {
 impl Default for EntityData {
     fn default() -> Self {
         Self {
-            entity_name: "".to_string(),
+            entity_type: "".to_string(),
             entity_group: EntityGroup::None,
         }
     }

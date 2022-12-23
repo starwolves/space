@@ -38,7 +38,7 @@ impl BaseEntityBuildable<NoData> for LineArrowBuilder {
                 },
                 ..Default::default()
             },
-            entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
+            entity_type: LINE_ARROW_ENTITY_NAME.to_string(),
             ..Default::default()
         }
     }
@@ -90,7 +90,7 @@ pub fn default_build_line_arrows(
     mut spawner: EventWriter<SpawnEntity<LineArrowBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name == LINE_ARROW_ENTITY_NAME {
+        if spawn_event.spawn_data.entity_type == LINE_ARROW_ENTITY_NAME {
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
                 builder: LineArrowBuilder { duration: 6000.0 },

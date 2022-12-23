@@ -118,7 +118,7 @@ pub struct GridmapMain {
 #[cfg(feature = "server")]
 pub struct EntityGridData {
     pub entity: Entity,
-    pub entity_name: String,
+    pub entity_type: String,
 }
 /// Directional rotations alongside their "orientation" value used for Godot gridmaps.
 #[derive(Clone)]

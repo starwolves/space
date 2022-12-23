@@ -476,7 +476,7 @@ pub(crate) fn construction_tool(
                 let entity_position_component = g.0;
                 let entity_data = g.1;
 
-                deconstructed_item_name = &entity_data.entity_name;
+                deconstructed_item_name = &entity_data.entity_type;
 
                 let cell_id = world_to_cell_id(entity_position_component.translation.into());
 
@@ -733,7 +733,7 @@ pub(crate) fn construction_tool(
             Some(ed) => {
                 let entity_data = entity_data
                     .data
-                    .get(*entity_data.name_to_id.get(&ed.entity_name).unwrap())
+                    .get(*entity_data.name_to_id.get(&ed.entity_type).unwrap())
                     .unwrap();
 
                 let mut is_blocking = true;
@@ -804,7 +804,7 @@ pub(crate) fn construction_tool(
             };
 
             if cell_id_2 == target_cell_id_2 {
-                let name = entity_data_component.entity_name.clone();
+                let name = entity_data_component.entity_type.clone();
                 blockers.push(name);
             }
         }
@@ -1111,7 +1111,7 @@ pub(crate) fn construction_tool(
                 default_spawner.send(DefaultSpawnEvent {
                     spawn_data: EntityBuildData {
                         entity_transform: spawn_transform,
-                        entity_name: construction_entity_name.to_string(),
+                        entity_type: construction_entity_name.to_string(),
                         entity: new_entity,
                         ..Default::default()
                     },
@@ -1121,7 +1121,7 @@ pub(crate) fn construction_tool(
                     target_cell_id,
                     EntityGridData {
                         entity: new_entity,
-                        entity_name: construction_entity_name.to_string(),
+                        entity_type: construction_entity_name.to_string(),
                     },
                 );
             }

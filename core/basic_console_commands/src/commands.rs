@@ -82,7 +82,7 @@ pub(crate) fn rcon_entity_console_commands(
             }
 
             rcon_spawn_event.send(RconSpawnEntity {
-                entity_name: entity_name.to_string(),
+                entity_type: entity_name.to_string(),
                 target_selector: player_selector.to_string(),
                 spawn_amount: spawn_amount,
                 command_executor_handle_option: console_command_event.handle_option,
@@ -100,7 +100,7 @@ use text_api::core::CONSOLE_ERROR_COLOR;
 
 /// Event for spawning in entities with the rcon command.
 pub struct RconSpawnEntity {
-    pub entity_name: String,
+    pub entity_type: String,
     pub target_selector: String,
     pub spawn_amount: i64,
     pub command_executor_handle_option: Option<u64>,
@@ -185,7 +185,7 @@ pub(crate) fn rcon_spawn_entity(
 
             for _i in 0..spawn_amount {
                 final_result = spawn_entity(
-                    event.entity_name.clone(),
+                    event.entity_type.clone(),
                     individual_transform,
                     &mut commands,
                     true,
@@ -216,7 +216,7 @@ pub(crate) fn rcon_spawn_entity(
                                     "[color=".to_string()
                                         + CONSOLE_ERROR_COLOR
                                         + "]Unknown entity name \""
-                                        + &event.entity_name
+                                        + &event.entity_type
                                         + "\" was provided.[/color]",
                                 ),
                             });
@@ -253,7 +253,7 @@ use networking::server::NetworkingChatServerMessage;
 
 /// Event for spawning in entities with the rcon command.
 pub struct RconSpawnHeldEntity {
-    pub entity_name: String,
+    pub entity_type: String,
     pub target_selector: String,
     pub command_executor_handle_option: Option<u64>,
     pub command_executor_entity: Entity,
@@ -345,7 +345,7 @@ pub(crate) fn rcon_spawn_held_entity(
             match available_slot {
                 Some(slot) => {
                     let entity_option = spawn_held_entity(
-                        event.entity_name.clone(),
+                        event.entity_type.clone(),
                         &mut commands,
                         event.command_executor_entity,
                         None,
@@ -360,7 +360,7 @@ pub(crate) fn rcon_spawn_held_entity(
                             server1.send(OutgoingReliableServerMessage {
                                 handle: player_handle,
                                 message: InventoryServerMessage::PickedUpItem(
-                                    event.entity_name.clone(),
+                                    event.entity_type.clone(),
                                     entity.to_bits(),
                                     slot.slot_name.clone(),
                                 ),
@@ -381,7 +381,7 @@ pub(crate) fn rcon_spawn_held_entity(
                                         "[color=".to_string()
                                             + CONSOLE_ERROR_COLOR
                                             + "]Unknown entity name \""
-                                            + &event.entity_name
+                                            + &event.entity_type
                                             + "\" was provided.[/color]",
                                     ),
                                 });
@@ -392,7 +392,7 @@ pub(crate) fn rcon_spawn_held_entity(
                 }
                 None => {
                     spawn_entity.send(RconSpawnEntity {
-                        entity_name: event.entity_name.clone(),
+                        entity_type: event.entity_type.clone(),
                         target_selector: event.target_selector.clone(),
                         spawn_amount: 1,
                         command_executor_handle_option: event.command_executor_handle_option,
@@ -465,7 +465,7 @@ pub(crate) fn inventory_item_console_commands(
             }
 
             spawn_entity.send(RconSpawnHeldEntity {
-                entity_name: entity_name.to_string(),
+                entity_type: entity_name.to_string(),
                 target_selector: player_selector.to_string(),
                 command_executor_handle_option: console_command_event.handle_option,
                 command_executor_entity: console_command_event.entity,

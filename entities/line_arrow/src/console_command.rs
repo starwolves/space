@@ -116,7 +116,7 @@ pub(crate) fn entity_console_commands(
                 spawn_data: EntityBuildData {
                     entity_transform: passed_transform,
                     correct_transform: false,
-                    entity_name: LINE_ARROW_ENTITY_NAME.to_string(),
+                    entity_type: LINE_ARROW_ENTITY_NAME.to_string(),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },

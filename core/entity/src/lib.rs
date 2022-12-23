@@ -15,6 +15,10 @@ mod finalize_entity_updates;
 pub mod health;
 /// Entity initialization.
 pub mod init;
+/// Load and unload logic for entities between the server and client.
+/// For example based on whether entities are inside the FOV of a player the server may request to (un)load them on the client-side.
+/// Entity loading and unloading is just replicated client-side spawning and despawning.
+pub mod loading;
 /// Meta resources for entities.
 pub mod meta;
 /// The networking module of this crate.

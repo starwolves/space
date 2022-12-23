@@ -104,7 +104,7 @@ pub fn spawn_held_entity(
                     default_map_spawn: false,
                     raw_entity_option: None,
                     showcase_data_option: showcase_handle_option,
-                    entity_name,
+                    entity_type: entity_name,
                     entity: return_entity.unwrap(),
                     held_entity_option: return_entity,
                 },

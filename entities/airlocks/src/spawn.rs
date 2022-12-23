@@ -31,29 +31,29 @@ impl BaseEntityBuildable<NoData> for AirlockBuilder {
         let description;
         let sub_name;
 
-        if spawn_data.entity_name == SECURITY_AIRLOCK_ENTITY_NAME {
+        if spawn_data.entity_type == SECURITY_AIRLOCK_ENTITY_NAME {
             sub_name = "security";
             description = "An air lock with ".to_string()
                 + "security"
                 + " department colors. It will only grant access to security personnel.";
-        } else if spawn_data.entity_name == BRIDGE_AIRLOCK_ENTITY_NAME {
+        } else if spawn_data.entity_type == BRIDGE_AIRLOCK_ENTITY_NAME {
             sub_name = "bridge";
             description = "An air lock with ".to_string()
                 + "bridge"
                 + " department colors. It will only grant access to high ranked personnel.";
-        } else if spawn_data.entity_name == GOVERNMENT_AIRLOCK_ENTITY_NAME {
+        } else if spawn_data.entity_type == GOVERNMENT_AIRLOCK_ENTITY_NAME {
             sub_name = "government";
 
             description = "An air lock with ".to_string()
                 + "government"
                 + " department colors. It will only grant access to a select few.";
-        } else if spawn_data.entity_name == VACUUM_AIRLOCK_ENTITY_NAME {
+        } else if spawn_data.entity_type == VACUUM_AIRLOCK_ENTITY_NAME {
             sub_name = "vacuum";
             description = "An air lock with ".to_string()
                 + "danger markings"
                 + ". On the other side is nothing but space.";
         } else {
-            warn!("Unrecognized airlock sub-type {}", spawn_data.entity_name);
+            warn!("Unrecognized airlock sub-type {}", spawn_data.entity_type);
             sub_name = "ERR";
             description = "ERR ".to_string();
         }
@@ -80,7 +80,7 @@ impl BaseEntityBuildable<NoData> for AirlockBuilder {
                 assigned_texts: examine_map,
                 ..Default::default()
             },
-            entity_name: spawn_data.entity_name.to_string(),
+            entity_type: spawn_data.entity_type.to_string(),
             entity_group: EntityGroup::AirLock,
             health: Health {
                 is_combat_obstacle: true,
@@ -141,10 +141,10 @@ pub fn default_build_airlocks(
     mut spawner: EventWriter<SpawnEntity<AirlockBuilder>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_name != SECURITY_AIRLOCK_ENTITY_NAME
-            || spawn_event.spawn_data.entity_name != BRIDGE_AIRLOCK_ENTITY_NAME
-            || spawn_event.spawn_data.entity_name != GOVERNMENT_AIRLOCK_ENTITY_NAME
-            || spawn_event.spawn_data.entity_name != VACUUM_AIRLOCK_ENTITY_NAME
+        if spawn_event.spawn_data.entity_type != SECURITY_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_type != BRIDGE_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_type != GOVERNMENT_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_type != VACUUM_AIRLOCK_ENTITY_NAME
         {
             continue;
         }
@@ -179,7 +179,7 @@ pub fn build_raw_airlocks(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_name: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: spawn_event.raw_entity.entity_type.clone(),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()

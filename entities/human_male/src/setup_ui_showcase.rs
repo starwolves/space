@@ -36,7 +36,7 @@ pub(crate) fn human_male_setup_ui(
                 showcase_data_option: Some(ShowcaseData {
                     handle: connected_player_component.handle,
                 }),
-                entity_name: HUMAN_MALE_ENTITY_NAME.to_string(),
+                entity_type: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
             builder: HumanMaleBuilder {

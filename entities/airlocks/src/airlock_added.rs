@@ -46,7 +46,7 @@ pub(crate) fn airlock_added(
 
         atmospherics.blocked = true;
 
-        if entity_data_component.entity_name == BRIDGE_AIRLOCK_ENTITY_NAME {
+        if entity_data_component.entity_type == BRIDGE_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "bridge airlock".to_string(),
                 n: false,
@@ -67,7 +67,7 @@ pub(crate) fn airlock_added(
                     + "]It is fully operational.[/color][/font]",
             );
             examinable_component.assigned_texts = examine_map;
-        } else if entity_data_component.entity_name == GOVERNMENT_AIRLOCK_ENTITY_NAME {
+        } else if entity_data_component.entity_type == GOVERNMENT_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "government airlock".to_string(),
                 n: false,
@@ -87,7 +87,7 @@ pub(crate) fn airlock_added(
                     + HEALTHY_COLOR
                     + "]It is fully operational.[/color][/font]",
             );
-        } else if entity_data_component.entity_name == "securityAirlock" {
+        } else if entity_data_component.entity_type == "securityAirlock" {
             examinable_component.name = RichName {
                 name: "security airlock".to_string(),
                 n: false,
@@ -107,7 +107,7 @@ pub(crate) fn airlock_added(
                     + HEALTHY_COLOR
                     + "]It is fully operational.[/color][/font]",
             );
-        } else if entity_data_component.entity_name == VACUUM_AIRLOCK_ENTITY_NAME {
+        } else if entity_data_component.entity_type == VACUUM_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "vacuum airlock".to_string(),
                 n: false,
@@ -152,7 +152,7 @@ pub(crate) fn airlock_default_map_added(
             cell_id,
             EntityGridData {
                 entity: airlock_entity,
-                entity_name: entity_data_component.entity_name.to_string(),
+                entity_type: entity_data_component.entity_type.to_string(),
             },
         );
     }
