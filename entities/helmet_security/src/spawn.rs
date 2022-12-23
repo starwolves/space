@@ -13,7 +13,7 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
-use entity::spawn::BaseEntityBuildable;
+use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
@@ -23,10 +23,10 @@ use inventory::combat::DamageModel;
 use inventory::combat::MeleeCombat;
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
-use inventory::spawn_item::InventoryItemBuildable;
+use inventory::spawn_item::InventoryItemBuilder;
 use inventory::spawn_item::InventoryItemBundle;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
-use physics::spawn::RigidBodyBuildable;
+use physics::spawn::RigidBodyBuilder;
 use physics::spawn::RigidBodyBundle;
 
 use crate::helmet::HELMET_SECURITY_ENTITY_NAME;
@@ -43,7 +43,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntityBuildable<NoData> for HelmetBuilder {
+impl BaseEntityBuilder<NoData> for HelmetType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
@@ -69,7 +69,7 @@ impl BaseEntityBuildable<NoData> for HelmetBuilder {
 use std::collections::HashMap;
 
 #[cfg(feature = "server")]
-impl InventoryItemBuildable for HelmetBuilder {
+impl InventoryItemBuilder for HelmetType {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
 
@@ -131,7 +131,7 @@ impl InventoryItemBuildable for HelmetBuilder {
     }
 }
 #[cfg(feature = "server")]
-impl RigidBodyBuildable<NoData> for HelmetBuilder {
+impl RigidBodyBuilder<NoData> for HelmetType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
@@ -147,7 +147,7 @@ impl RigidBodyBuildable<NoData> for HelmetBuilder {
 }
 
 #[cfg(feature = "server")]
-pub struct HelmetBuilder;
+pub struct HelmetType;
 
 #[cfg(feature = "server")]
 pub fn build_helmets<T: Send + Sync + 'static>(
@@ -164,7 +164,7 @@ pub fn build_helmets<T: Send + Sync + 'static>(
 #[cfg(feature = "server")]
 pub fn build_raw_helmets(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<HelmetBuilder>>,
+    mut builder_computer: EventWriter<SpawnEntity<HelmetType>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -184,7 +184,7 @@ pub fn build_raw_helmets(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: HelmetBuilder,
+            builder: HelmetType,
         });
     }
 }
@@ -192,7 +192,7 @@ pub fn build_raw_helmets(
 #[cfg(feature = "server")]
 pub fn default_build_helmets_security(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<HelmetBuilder>>,
+    mut spawner: EventWriter<SpawnEntity<HelmetType>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type != HELMET_SECURITY_ENTITY_NAME {
@@ -200,7 +200,7 @@ pub fn default_build_helmets_security(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: HelmetBuilder,
+            builder: HelmetType,
         });
     }
 }

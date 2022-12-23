@@ -10,7 +10,7 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
-use entity::spawn::BaseEntityBuildable;
+use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
@@ -20,10 +20,10 @@ use inventory::combat::DamageModel;
 use inventory::combat::MeleeCombat;
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
-use inventory::spawn_item::InventoryItemBuildable;
+use inventory::spawn_item::InventoryItemBuilder;
 use inventory::spawn_item::InventoryItemBundle;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
-use physics::spawn::RigidBodyBuildable;
+use physics::spawn::RigidBodyBuilder;
 use physics::spawn::RigidBodyBundle;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
@@ -42,7 +42,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntityBuildable<NoData> for JumpsuitSpawner {
+impl BaseEntityBuilder<NoData> for JumpsuitType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
@@ -69,7 +69,7 @@ impl BaseEntityBuildable<NoData> for JumpsuitSpawner {
 }
 
 #[cfg(feature = "server")]
-impl InventoryItemBuildable for JumpsuitSpawner {
+impl InventoryItemBuilder for JumpsuitType {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
 
@@ -124,7 +124,7 @@ impl InventoryItemBuildable for JumpsuitSpawner {
 }
 
 #[cfg(feature = "server")]
-impl RigidBodyBuildable<NoData> for JumpsuitSpawner {
+impl RigidBodyBuilder<NoData> for JumpsuitType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
@@ -140,7 +140,7 @@ impl RigidBodyBuildable<NoData> for JumpsuitSpawner {
 }
 
 #[cfg(feature = "server")]
-pub struct JumpsuitSpawner;
+pub struct JumpsuitType;
 
 #[cfg(feature = "server")]
 pub fn build_jumpsuits<T: Send + Sync + 'static>(
@@ -157,7 +157,7 @@ pub fn build_jumpsuits<T: Send + Sync + 'static>(
 #[cfg(feature = "server")]
 pub fn build_raw_jumpsuits(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<JumpsuitSpawner>>,
+    mut builder_computer: EventWriter<SpawnEntity<JumpsuitType>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -177,7 +177,7 @@ pub fn build_raw_jumpsuits(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: JumpsuitSpawner,
+            builder: JumpsuitType,
         });
     }
 }
@@ -185,7 +185,7 @@ pub fn build_raw_jumpsuits(
 #[cfg(feature = "server")]
 pub fn default_build_jumpsuits(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<JumpsuitSpawner>>,
+    mut spawner: EventWriter<SpawnEntity<JumpsuitType>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type != JUMPSUIT_SECURITY_ENTITY_NAME {
@@ -194,7 +194,7 @@ pub fn default_build_jumpsuits(
 
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: JumpsuitSpawner,
+            builder: JumpsuitType,
         });
     }
 }

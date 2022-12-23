@@ -16,7 +16,7 @@ use crate::computer::Computer;
 use super::{
     computer::computer_added,
     spawn::{
-        build_computers, build_raw_computers, default_build_computers, ComputerBuilder,
+        build_computers, build_raw_computers, default_build_computers, ComputerType,
         BRIDGE_COMPUTER_ENTITY_NAME,
     },
 };
@@ -30,13 +30,11 @@ impl Plugin for ComputersPlugin {
                 health_combat_hit_result_sfx::<Computer>.after(CombatLabels::FinalizeApplyDamage),
             );
         }
-        app.add_event::<SpawnEntity<ComputerBuilder>>()
+        app.add_event::<SpawnEntity<ComputerType>>()
             .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(build_computers::<ComputerBuilder>.after(BuildingLabels::TriggerBuild))
-            .add_system(
-                (build_base_entities::<ComputerBuilder>).after(BuildingLabels::TriggerBuild),
-            )
-            .add_system((build_rigid_boies::<ComputerBuilder>).after(BuildingLabels::TriggerBuild))
+            .add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
+            .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_rigid_boies::<ComputerType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_computers)

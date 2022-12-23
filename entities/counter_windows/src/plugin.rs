@@ -34,8 +34,7 @@ use super::{
     entity_update::counter_window_update,
     spawn::{
         build_counter_windows, build_raw_counter_windows, default_build_counter_windows,
-        CounterWindowBuilder, BRIDGE_COUNTER_WINDOW_ENTITY_NAME,
-        SECURITY_COUNTER_WINDOW_ENTITY_NAME,
+        CounterWindowType, BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME,
     },
 };
 use crate::actions::build_actions;
@@ -63,18 +62,16 @@ impl Plugin for CounterWindowsPlugin {
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
                 .add_system(
-                    build_counter_windows::<CounterWindowBuilder>
-                        .after(BuildingLabels::TriggerBuild),
+                    build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (build_base_entities::<CounterWindowBuilder>)
-                        .after(BuildingLabels::TriggerBuild),
+                    (build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (build_rigid_boies::<CounterWindowBuilder>).after(BuildingLabels::TriggerBuild),
+                    (build_rigid_boies::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<CounterWindowBuilder>>()
+                .add_event::<SpawnEntity<CounterWindowType>>()
                 .add_system(
                     (default_build_counter_windows)
                         .label(BuildingLabels::DefaultBuild)

@@ -5,7 +5,7 @@ use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 
-use crate::spawn::HumanMaleBuilder;
+use crate::spawn::HumanMaleType;
 use networking::server::ConnectedPlayer;
 use pawn::pawn::Pawn;
 use pawn::pawn::PawnDesignation;
@@ -16,7 +16,7 @@ use player::connections::SetupPhase;
 #[cfg(feature = "server")]
 pub(crate) fn human_male_setup_ui(
     query: Query<(&ConnectedPlayer, &Pawn), Added<SetupPhase>>,
-    mut spawn_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
+    mut spawn_human_male: EventWriter<SpawnEntity<HumanMaleType>>,
     mut commands: Commands,
 ) {
     for (connected_player_component, persistent_player_data_component) in query.iter() {
@@ -39,7 +39,7 @@ pub(crate) fn human_male_setup_ui(
                 entity_type: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
-            builder: HumanMaleBuilder {
+            builder: HumanMaleType {
                 spawn_pawn_data: SpawnPawnData {
                     pawn_component: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),

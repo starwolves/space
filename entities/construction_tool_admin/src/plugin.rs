@@ -25,7 +25,7 @@ use super::{
     },
     spawn::{
         build_construction_tools, build_raw_construction_tools, default_build_construction_tools,
-        ConstructionToolBuilder,
+        ConstructionToolType,
     },
 };
 
@@ -45,23 +45,22 @@ impl Plugin for ConstructionToolAdminPlugin {
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
-                    build_construction_tools::<ConstructionToolBuilder>
+                    build_construction_tools::<ConstructionToolType>
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (build_base_entities::<ConstructionToolBuilder>)
+                    (build_base_entities::<ConstructionToolType>)
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (build_rigid_boies::<ConstructionToolBuilder>)
-                        .after(BuildingLabels::TriggerBuild),
+                    (build_rigid_boies::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system(
-                    (build_inventory_items::<ConstructionToolBuilder>)
+                    (build_inventory_items::<ConstructionToolType>)
                         .after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<ConstructionToolBuilder>>()
+                .add_event::<SpawnEntity<ConstructionToolType>>()
                 .add_system(
                     (default_build_construction_tools)
                         .label(BuildingLabels::DefaultBuild)

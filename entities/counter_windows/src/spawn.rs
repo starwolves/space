@@ -11,13 +11,13 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
         SpawnEntity,
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
-use physics::spawn::{RigidBodyBuildable, RigidBodyBundle};
+use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 use super::counter_window_events::{CounterWindow, CounterWindowSensor};
@@ -28,7 +28,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntityBuildable<NoData> for CounterWindowBuilder {
+impl BaseEntityBuilder<NoData> for CounterWindowType {
     fn get_bundle(&self, spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let entity_name = spawn_data.entity_type.clone();
         let department_name;
@@ -80,7 +80,7 @@ impl BaseEntityBuildable<NoData> for CounterWindowBuilder {
     }
 }
 #[cfg(feature = "server")]
-impl RigidBodyBuildable<NoData> for CounterWindowBuilder {
+impl RigidBodyBuilder<NoData> for CounterWindowType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Average;
@@ -105,7 +105,7 @@ use bevy_rapier3d::prelude::{ActiveEvents, CollisionGroups, RigidBody, Sensor};
 pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
 #[cfg(feature = "server")]
-pub struct CounterWindowBuilder;
+pub struct CounterWindowType;
 
 #[cfg(feature = "server")]
 pub fn build_counter_windows<T: Send + Sync + 'static>(
@@ -173,7 +173,7 @@ pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str =
 #[cfg(feature = "server")]
 pub fn build_raw_counter_windows(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<CounterWindowBuilder>>,
+    mut builder_computer: EventWriter<SpawnEntity<CounterWindowType>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -195,7 +195,7 @@ pub fn build_raw_counter_windows(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: CounterWindowBuilder,
+            builder: CounterWindowType,
         });
     }
 }
@@ -203,7 +203,7 @@ pub fn build_raw_counter_windows(
 #[cfg(feature = "server")]
 pub fn default_build_counter_windows(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<CounterWindowBuilder>>,
+    mut spawner: EventWriter<SpawnEntity<CounterWindowType>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type != SECURITY_COUNTER_WINDOW_ENTITY_NAME
@@ -213,7 +213,7 @@ pub fn default_build_counter_windows(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: CounterWindowBuilder,
+            builder: CounterWindowType,
         });
     }
 }

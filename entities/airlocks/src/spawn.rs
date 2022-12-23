@@ -12,12 +12,12 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
         SpawnEntity,
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
-use physics::spawn::{RigidBodyBuildable, RigidBodyBundle};
+use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 #[cfg(feature = "server")]
@@ -26,7 +26,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntityBuildable<NoData> for AirlockBuilder {
+impl BaseEntityBuilder<NoData> for AirlockType {
     fn get_bundle(&self, spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let description;
         let sub_name;
@@ -96,7 +96,7 @@ impl BaseEntityBuildable<NoData> for AirlockBuilder {
 pub const DEFAULT_AIRLOCK_Y: f32 = 1.;
 
 #[cfg(feature = "server")]
-impl RigidBodyBuildable<NoData> for AirlockBuilder {
+impl RigidBodyBuilder<NoData> for AirlockType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
         friction.combine_rule = CoefficientCombineRule::Multiply;
@@ -112,7 +112,7 @@ impl RigidBodyBuildable<NoData> for AirlockBuilder {
 }
 
 #[cfg(feature = "server")]
-pub struct AirlockBuilder;
+pub struct AirlockType;
 
 #[cfg(feature = "server")]
 pub fn build_airlocks<T: Send + Sync + 'static>(
@@ -138,7 +138,7 @@ pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuu
 #[cfg(feature = "server")]
 pub fn default_build_airlocks(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<AirlockBuilder>>,
+    mut spawner: EventWriter<SpawnEntity<AirlockType>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type != SECURITY_AIRLOCK_ENTITY_NAME
@@ -151,7 +151,7 @@ pub fn default_build_airlocks(
 
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: AirlockBuilder,
+            builder: AirlockType,
         });
     }
 }
@@ -159,7 +159,7 @@ pub fn default_build_airlocks(
 #[cfg(feature = "server")]
 pub fn build_raw_airlocks(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut build_airlock: EventWriter<SpawnEntity<AirlockBuilder>>,
+    mut build_airlock: EventWriter<SpawnEntity<AirlockType>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -184,7 +184,7 @@ pub fn build_raw_airlocks(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: AirlockBuilder,
+            builder: AirlockType,
         });
     }
 }
