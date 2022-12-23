@@ -48,7 +48,7 @@ pub struct PointLightType {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_point_lights<T: PointLightBuilder + Send + Sync + 'static>(
+pub fn build_point_lights<T: PointLightBuilder + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
@@ -60,7 +60,7 @@ pub fn build_point_lights<T: PointLightBuilder + Send + Sync + 'static>(
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait PointLightBuilder {
+pub trait PointLightBuilder: Send + Sync {
     fn spawn(&self, spawn_data: &EntityBuildData, commands: &mut Commands);
 }
 

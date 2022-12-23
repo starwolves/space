@@ -91,7 +91,7 @@ use networking::server::OutgoingReliableServerMessage;
 use entity::net::EntityServerMessage;
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + Send + Sync + 'static>(
+pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     used_names: ResMut<UsedNames>,
@@ -169,14 +169,14 @@ impl HumanMaleBuilder for HumanMaleType {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait HumanMaleBuilder {
+pub trait HumanMaleBuilder: Send + Sync {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
 use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_human_males<T: HumanMaleBuilder + Send + Sync + 'static>(
+pub fn build_human_males<T: HumanMaleBuilder + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut default_spawner: EventWriter<DefaultSpawnEvent>,
