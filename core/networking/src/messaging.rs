@@ -58,7 +58,7 @@ pub fn generate_typenames(mut typenames: ResMut<Typenames>) {
         }
     }
     info!(
-        "Loaded {} uniquely serializable messages.",
+        "Loaded {} serializable messages.",
         typenames.reliable_net_types.len() + typenames.unreliable_net_types.len()
     );
 }

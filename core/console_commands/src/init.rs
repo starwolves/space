@@ -21,7 +21,7 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
         vec![],
     ));
 
-    info!("Loaded {} different console commands.", commands.list.len());
+    info!("Loaded {} console commands.", commands.list.len());
 }
 
 /// Initialize console commands.

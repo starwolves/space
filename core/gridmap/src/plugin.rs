@@ -20,7 +20,7 @@ use crate::{
     fov::ProjectileFOV,
     grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
     gridmap_graphics::spawn_cubes,
-    init::{startup_build_map, startup_map_cell_properties, startup_misc_resources},
+    init::{load_ron_gridmap, startup_map_cell_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
@@ -102,7 +102,7 @@ impl Plugin for GridmapPlugin {
                     .after(StartupLabels::MiscResources),
             )
             .add_startup_system(
-                startup_build_map
+                load_ron_gridmap
                     .label(StartupLabels::BuildGridmap)
                     .after(StartupLabels::InitDefaultGridmapData),
             )

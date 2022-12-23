@@ -114,19 +114,6 @@ pub struct DefaultMapEntity;
 pub struct RawSpawnEvent {
     pub raw_entity: RawEntityRon,
 }
-/// Load ron entities.
-#[cfg(feature = "server")]
-pub fn load_raw_map_entities(
-    raw_entities: &Vec<RawEntityRon>,
-    spawn_raw_entity: &mut EventWriter<RawSpawnEvent>,
-) {
-    for raw_entity in raw_entities.iter() {
-        spawn_raw_entity.send(RawSpawnEvent {
-            raw_entity: raw_entity.clone(),
-        });
-    }
-}
-
 /// ron entity.
 #[derive(Deserialize, Clone)]
 #[cfg(feature = "server")]

@@ -1,14 +1,11 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy::prelude::{info, Commands, EventWriter, Res, ResMut, Transform};
+use bevy::prelude::{info, Commands, Res, ResMut, Transform};
 use bevy_rapier3d::{
     plugin::{RapierConfiguration, TimestepMode},
     prelude::{CoefficientCombineRule, Collider},
 };
-use entity::{
-    entity_data::{load_raw_map_entities, RawSpawnEvent},
-    examine::RichName,
-};
+use entity::examine::RichName;
 use math::grid::Vec3Int;
 use resources::converters::string_vec3_to_vec3;
 use resources::core::TickRate;
@@ -760,13 +757,13 @@ pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<GridmapData>)
     }
 
     info!(
-        "Loaded {} different map cell types.",
+        "Loaded {} gridmap cell types.",
         main_cells_data.len() + details1_cells_data.len()
     );
 }
 use player::spawn_points::SpawnPointRon;
 
-/// Initiate other gridmap meta-datas from json.
+/// Initiate other gridmap meta-datas from ron.
 #[cfg(any(feature = "server", feature = "client"))]
 pub(crate) fn startup_misc_resources(
     mut gridmap_data: ResMut<GridmapData>,
@@ -787,10 +784,10 @@ pub(crate) fn startup_misc_resources(
         .join("bullseye")
         .join("mainordered.ron");
     let current_map_mainordered_cells_raw_ron: String = fs::read_to_string(mainordered_cells_ron)
-        .expect("startup_misc_resources() Error reading map mainordered.ron drive.");
+        .expect("Error reading map mainordered.ron drive.");
     let current_map_mainordered_cells: Vec<String> =
         ron::from_str(&current_map_mainordered_cells_raw_ron)
-            .expect("startup_misc_resources() Error parsing map mainordered.ron String.");
+            .expect("Error parsing map mainordered.ron String.");
 
     let details1ordered_cells_ron = Path::new("data")
         .join("maps")
@@ -798,10 +795,10 @@ pub(crate) fn startup_misc_resources(
         .join("details1ordered.ron");
     let current_map_details1ordered_cells_raw_ron: String =
         fs::read_to_string(details1ordered_cells_ron)
-            .expect("startup_misc_resources() Error reading map details1ordered.ron drive.");
+            .expect("Error reading map details1ordered.ron drive.");
     let current_map_details1ordered_cells: Vec<String> =
         ron::from_str(&current_map_details1ordered_cells_raw_ron)
-            .expect("startup_misc_resources() Error parsing map details1ordered.ron String.");
+            .expect("Error parsing map details1ordered.ron String.");
 
     for (i, name) in current_map_mainordered_cells.iter().rev().enumerate() {
         gridmap_data
@@ -828,32 +825,29 @@ pub(crate) fn startup_misc_resources(
         .join("maps")
         .join("bullseye")
         .join("spawnpoints.ron");
-    let current_map_spawn_points_raw_ron: String = fs::read_to_string(spawnpoints_ron)
-        .expect("startup_misc_resources() Error reading map spawnpoints.ron from drive.");
+    let current_map_spawn_points_raw_ron: String =
+        fs::read_to_string(spawnpoints_ron).expect("Error reading map spawnpoints.ron from drive.");
     let current_map_spawn_points_raw: Vec<SpawnPointRon> =
         ron::from_str(&current_map_spawn_points_raw_ron)
-            .expect("startup_misc_resources() Error parsing map spawnpoints.ron String.");
+            .expect("Error parsing map spawnpoints.ron String.");
     let mut current_map_spawn_points: Vec<SpawnPoint> = vec![];
 
     for raw_point in current_map_spawn_points_raw.iter() {
         current_map_spawn_points.push(SpawnPoint::new(&raw_point.new()));
     }
-
+    info!("Loaded {} spawnpoints.", current_map_spawn_points.len());
     spawn_points_res.list = current_map_spawn_points;
     spawn_points_res.i = 0;
-
-    info!("Loaded misc map data.");
 }
 
-/// Build the gridmaps in their own resources from json.
+/// Build the gridmaps in their own resources from ron.
 #[cfg(any(feature = "server", feature = "client"))]
-pub(crate) fn startup_build_map(
+pub(crate) fn load_ron_gridmap(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
     mut gridmap_data: ResMut<GridmapData>,
     mut fov_map: ResMut<DoryenMap>,
     mut commands: Commands,
-    mut raw_spawner: EventWriter<RawSpawnEvent>,
 ) {
     // Load map json data into real static bodies.
     let main_ron = Path::new("data")
@@ -894,22 +888,8 @@ pub(crate) fn startup_build_map(
         "Spawned {} map cells.",
         current_map_main_data.len() + details1_ron.len()
     );
-
-    let entities_ron = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("entities.ron");
-    let current_map_entities_raw_ron: String = fs::read_to_string(entities_ron)
-        .expect("startup_build_map() Error reading map entities.ron file from drive.");
-    let current_map_entities_data: Vec<RawEntityRon> = ron::from_str(&current_map_entities_raw_ron)
-        .expect("startup_build_map() Error parsing map entities.ron String.");
-
-    load_raw_map_entities(&current_map_entities_data, &mut raw_spawner);
-
-    info!("Spawned {} entities.", current_map_entities_data.len());
 }
 
-use entity::init::RawEntityRon;
 use player::boarding::{SpawnPoint, SpawnPointRaw, SpawnPoints};
 use serde::{Deserialize, Serialize};
 #[cfg(any(feature = "server", feature = "client"))]

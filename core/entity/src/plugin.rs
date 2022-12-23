@@ -11,7 +11,7 @@ use crate::examine::{
     incoming_messages, ExamineEntityMessages, InputExamineEntity,
 };
 use crate::finalize_entity_updates::finalize_entity_updates;
-use crate::init::startup_entities;
+use crate::init::load_ron_entities;
 use crate::loading::load_entities;
 use crate::meta::EntityDataResource;
 use crate::net::{EntityClientMessage, EntityServerMessage};
@@ -36,11 +36,6 @@ impl Plugin for EntityPlugin {
                             FixedTimestep::step(1. / 2.).with_label(INTERPOLATION_LABEL1),
                         )
                         .with_system(broadcast_position_updates),
-                )
-                .add_startup_system(
-                    startup_entities
-                        .before(StartupLabels::BuildGridmap)
-                        .label(StartupLabels::InitEntities),
                 )
                 .add_system_set_to_stage(
                     PostUpdate,
@@ -83,7 +78,12 @@ impl Plugin for EntityPlugin {
         app.add_event::<RawSpawnEvent>()
             .init_resource::<EntityDataResource>()
             .init_resource::<EntityTypes>()
-            .add_startup_system(finalize_register_entity_types.after(EntityTypeLabel::Register));
+            .add_startup_system(finalize_register_entity_types.after(EntityTypeLabel::Register))
+            .add_startup_system(
+                load_ron_entities
+                    .after(StartupLabels::BuildGridmap)
+                    .label(StartupLabels::InitEntities),
+            );
         init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         init_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
     }

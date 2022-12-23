@@ -94,8 +94,6 @@ pub(crate) fn startup_atmospherics(
     let internal_liter = internal_m3 * 1000.;
     let internal_kilo_liter = internal_liter * 0.001;
 
-    info!(
-        "Loaded {:.1}Mmol atmosphere into {:.1}kl ship.",
-        internal_mega_mol, internal_kilo_liter
-    );
+    info!("Volume: {:.0}kl.", internal_kilo_liter);
+    info!("Atmosphere amount: {:.3}Mmol.", internal_mega_mol);
 }

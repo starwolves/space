@@ -8,7 +8,6 @@ pub enum StartupLabels {
     InitDefaultGridmapData,
     BuildGridmap,
     InitAtmospherics,
-    ListenConnections,
     InitEntities,
     ServerIsLive,
 }
