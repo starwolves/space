@@ -15,9 +15,7 @@ use crate::console_command::entity_console_commands;
 
 use super::{
     console_command::expire_point_arrow,
-    spawn::{
-        build_line_arrows, default_build_line_arrows, LineArrowBuilder, LINE_ARROW_ENTITY_NAME,
-    },
+    spawn::{build_line_arrows, default_build_line_arrows, LineArrowType, LINE_ARROW_ENTITY_NAME},
 };
 
 pub struct LineArrowPlugin;
@@ -33,11 +31,9 @@ impl Plugin for LineArrowPlugin {
             .add_system(entity_console_commands.label(BuildingLabels::TriggerBuild));
         }
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system(
-                (build_base_entities::<LineArrowBuilder>).after(BuildingLabels::TriggerBuild),
-            )
-            .add_system(build_line_arrows::<LineArrowBuilder>.after(BuildingLabels::TriggerBuild))
-            .add_event::<SpawnEntity<LineArrowBuilder>>()
+            .add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild))
+            .add_system(build_line_arrows::<LineArrowType>.after(BuildingLabels::TriggerBuild))
+            .add_event::<SpawnEntity<LineArrowType>>()
             .add_system(
                 (default_build_line_arrows)
                     .label(BuildingLabels::DefaultBuild)
@@ -50,9 +46,8 @@ pub struct PointArrowPlugin;
 
 impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(expire_point_arrow).add_system(
-            (build_base_entities::<LineArrowBuilder>).after(BuildingLabels::TriggerBuild),
-        );
+        app.add_system(expire_point_arrow)
+            .add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild));
     }
 }
 

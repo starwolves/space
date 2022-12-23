@@ -30,7 +30,7 @@ use super::{
     airlock_tick_timers::airlock_tick_timers,
     entity_update::airlock_update,
     spawn::{
-        build_airlocks, build_raw_airlocks, default_build_airlocks, AirlockBuilder,
+        build_airlocks, build_raw_airlocks, default_build_airlocks, AirlockType,
         BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, SECURITY_AIRLOCK_ENTITY_NAME,
         VACUUM_AIRLOCK_ENTITY_NAME,
     },
@@ -56,7 +56,7 @@ impl Plugin for AirLocksPlugin {
                 .add_system(physics_events)
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>()
-                .add_event::<SpawnEntity<AirlockBuilder>>()
+                .add_event::<SpawnEntity<AirlockType>>()
                 .add_system_set_to_stage(
                     PostUpdate,
                     SystemSet::new()
@@ -64,12 +64,10 @@ impl Plugin for AirLocksPlugin {
                         .with_system(airlock_update),
                 )
                 .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-                .add_system(build_airlocks::<AirlockBuilder>.after(BuildingLabels::TriggerBuild))
+                .add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
+                .add_system((build_rigid_boies::<AirlockType>).after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    (build_rigid_boies::<AirlockBuilder>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_base_entities::<AirlockBuilder>).after(BuildingLabels::TriggerBuild),
+                    (build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild))
                 .add_system(

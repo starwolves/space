@@ -193,14 +193,14 @@ pub fn rigidbody_builder(
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait RigidBodyBuildable<Y> {
+pub trait RigidBodyBuilder<Y> {
     fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> RigidBodyBundle;
 }
 use entity::spawn::{NoData, SpawnEntity};
 
 /// Rigid body spawning.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_rigid_boies<T: RigidBodyBuildable<NoData> + Send + Sync + 'static>(
+pub fn build_rigid_boies<T: RigidBodyBuilder<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {

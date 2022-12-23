@@ -11,7 +11,7 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
-use entity::spawn::BaseEntityBuildable;
+use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
@@ -24,10 +24,10 @@ use inventory::combat::ProjectileCombat;
 use inventory::inventory::SlotType;
 use inventory::item::CombatStandardAnimation;
 use inventory::item::InventoryItem;
-use inventory::spawn_item::InventoryItemBuildable;
+use inventory::spawn_item::InventoryItemBuilder;
 use inventory::spawn_item::InventoryItemBundle;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
-use physics::spawn::RigidBodyBuildable;
+use physics::spawn::RigidBodyBuilder;
 use physics::spawn::RigidBodyBundle;
 use std::collections::BTreeMap;
 use text_api::core::Color;
@@ -42,7 +42,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntityBuildable<NoData> for PistolL1Builder {
+impl BaseEntityBuilder<NoData> for PistolL1Type {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
@@ -73,7 +73,7 @@ use std::collections::HashMap;
 pub const PISTOL_L1_PROJECTILE_RANGE: f32 = 50.;
 
 #[cfg(feature = "server")]
-impl InventoryItemBuildable for PistolL1Builder {
+impl InventoryItemBuilder for PistolL1Type {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
 
@@ -150,7 +150,7 @@ impl InventoryItemBuildable for PistolL1Builder {
 }
 
 #[cfg(feature = "server")]
-impl RigidBodyBuildable<NoData> for PistolL1Builder {
+impl RigidBodyBuilder<NoData> for PistolL1Type {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
@@ -170,7 +170,7 @@ use crate::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use super::pistol_l1::PistolL1;
 
 #[cfg(feature = "server")]
-pub struct PistolL1Builder;
+pub struct PistolL1Type;
 
 #[cfg(feature = "server")]
 pub fn build_pistols_l1<T: Send + Sync + 'static>(
@@ -187,7 +187,7 @@ pub fn build_pistols_l1<T: Send + Sync + 'static>(
 #[cfg(feature = "server")]
 pub fn build_raw_pistols_l1(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<PistolL1Builder>>,
+    mut builder_computer: EventWriter<SpawnEntity<PistolL1Type>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -208,7 +208,7 @@ pub fn build_raw_pistols_l1(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: PistolL1Builder,
+            builder: PistolL1Type,
         });
     }
 }
@@ -216,7 +216,7 @@ pub fn build_raw_pistols_l1(
 #[cfg(feature = "server")]
 pub fn default_build_pistols_l1(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<PistolL1Builder>>,
+    mut spawner: EventWriter<SpawnEntity<PistolL1Type>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type != PISTOL_L1_ENTITY_NAME {
@@ -224,7 +224,7 @@ pub fn default_build_pistols_l1(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: PistolL1Builder,
+            builder: PistolL1Type,
         });
     }
 }

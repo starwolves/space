@@ -8,7 +8,7 @@ use networking::server::GodotVariantValues;
 
 use super::{
     line_arrow::PointArrow,
-    spawn::{LineArrowBuilder, LINE_ARROW_ENTITY_NAME},
+    spawn::{LineArrowType, LINE_ARROW_ENTITY_NAME},
 };
 use console_commands::commands::InputConsoleCommand;
 
@@ -17,7 +17,7 @@ use console_commands::commands::InputConsoleCommand;
 pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
-    mut spawn_event: EventWriter<SpawnEntity<LineArrowBuilder>>,
+    mut spawn_event: EventWriter<SpawnEntity<LineArrowType>>,
 ) {
     for command in queue.iter() {
         if command.command_name == "pointArrow" {
@@ -120,7 +120,7 @@ pub(crate) fn entity_console_commands(
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                builder: LineArrowBuilder {
+                builder: LineArrowType {
                     duration: duration as f32,
                 },
             });

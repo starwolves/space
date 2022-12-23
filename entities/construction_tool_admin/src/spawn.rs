@@ -6,14 +6,14 @@ use entity::entity_data::RawSpawnEvent;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
 use entity::spawn::{
-    BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
+    BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
 };
 use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
-use inventory::spawn_item::{InventoryItemBuildable, InventoryItemBundle};
+use inventory::spawn_item::{InventoryItemBuilder, InventoryItemBundle};
 use physics::rigid_body::STANDARD_BODY_FRICTION;
-use physics::spawn::{RigidBodyBuildable, RigidBodyBundle};
+use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use std::collections::BTreeMap;
 
 use crate::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
@@ -26,7 +26,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(feature = "server")]
-impl BaseEntityBuildable<NoData> for ConstructionToolBuilder {
+impl BaseEntityBuilder<NoData> for ConstructionToolType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
         examine_map.insert(
@@ -53,7 +53,7 @@ impl BaseEntityBuildable<NoData> for ConstructionToolBuilder {
 use std::collections::HashMap;
 
 #[cfg(feature = "server")]
-impl InventoryItemBuildable for ConstructionToolBuilder {
+impl InventoryItemBuilder for ConstructionToolType {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
         attachment_transforms.insert(
@@ -106,7 +106,7 @@ impl InventoryItemBuildable for ConstructionToolBuilder {
 }
 
 #[cfg(feature = "server")]
-impl RigidBodyBuildable<NoData> for ConstructionToolBuilder {
+impl RigidBodyBuilder<NoData> for ConstructionToolType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Multiply;
@@ -121,7 +121,7 @@ impl RigidBodyBuildable<NoData> for ConstructionToolBuilder {
 }
 
 #[cfg(feature = "server")]
-pub struct ConstructionToolBuilder;
+pub struct ConstructionToolType;
 
 #[cfg(feature = "server")]
 pub fn build_construction_tools<T: Send + Sync + 'static>(
@@ -138,7 +138,7 @@ pub fn build_construction_tools<T: Send + Sync + 'static>(
 #[cfg(feature = "server")]
 pub fn build_raw_construction_tools(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<ConstructionToolBuilder>>,
+    mut builder_computer: EventWriter<SpawnEntity<ConstructionToolType>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -158,7 +158,7 @@ pub fn build_raw_construction_tools(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: ConstructionToolBuilder,
+            builder: ConstructionToolType,
         });
     }
 }
@@ -166,7 +166,7 @@ pub fn build_raw_construction_tools(
 #[cfg(feature = "server")]
 pub fn default_build_construction_tools(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<ConstructionToolBuilder>>,
+    mut spawner: EventWriter<SpawnEntity<ConstructionToolType>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type != CONSTRUCTION_TOOL_ENTITY_NAME {
@@ -174,7 +174,7 @@ pub fn default_build_construction_tools(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: ConstructionToolBuilder,
+            builder: ConstructionToolType,
         });
     }
 }

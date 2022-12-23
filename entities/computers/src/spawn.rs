@@ -8,13 +8,13 @@ use entity::{
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuildable, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
         SpawnEntity,
     },
 };
 use physics::{
     rigid_body::STANDARD_BODY_FRICTION,
-    spawn::{RigidBodyBuildable, RigidBodyBundle},
+    spawn::{RigidBodyBuilder, RigidBodyBundle},
 };
 use std::collections::BTreeMap;
 
@@ -28,7 +28,7 @@ pub fn get_default_transform() -> Transform {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl BaseEntityBuildable<NoData> for ComputerBuilder {
+impl BaseEntityBuilder<NoData> for ComputerType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text = "A computer used by bridge personnel.".to_string();
         let mut examine_map = BTreeMap::new();
@@ -57,7 +57,7 @@ impl BaseEntityBuildable<NoData> for ComputerBuilder {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl RigidBodyBuildable<NoData> for ComputerBuilder {
+impl RigidBodyBuilder<NoData> for ComputerType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Min;
@@ -73,7 +73,7 @@ impl RigidBodyBuildable<NoData> for ComputerBuilder {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct ComputerBuilder;
+pub struct ComputerType;
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_computers<T: Send + Sync + 'static>(
@@ -95,7 +95,7 @@ pub const BRIDGE_COMPUTER_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "brid
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_raw_computers(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut build_computer: EventWriter<SpawnEntity<ComputerBuilder>>,
+    mut build_computer: EventWriter<SpawnEntity<ComputerType>>,
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
@@ -116,7 +116,7 @@ pub fn build_raw_computers(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: ComputerBuilder,
+            builder: ComputerType,
         });
     }
 }
@@ -126,7 +126,7 @@ use super::computer::Computer;
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn default_build_computers(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<ComputerBuilder>>,
+    mut spawner: EventWriter<SpawnEntity<ComputerType>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type != BRIDGE_COMPUTER_ENTITY_NAME {
@@ -134,7 +134,7 @@ pub fn default_build_computers(
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: ComputerBuilder,
+            builder: ComputerType,
         });
     }
 }

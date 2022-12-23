@@ -17,7 +17,7 @@ use crate::{
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
     spawn::{
-        build_base_human_males, build_human_males, default_build_human_dummies, HumanMaleBuilder,
+        build_base_human_males, build_human_males, default_build_human_dummies, HumanMaleType,
     },
 };
 use bevy::app::CoreStage::PostUpdate;
@@ -36,15 +36,15 @@ impl Plugin for HumanMalePlugin {
         }
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(
-                build_human_males::<HumanMaleBuilder>
+                build_human_males::<HumanMaleType>
                     .before(BuildingLabels::TriggerBuild)
                     .label(BuildingLabels::NormalBuild),
             )
             .add_system(
-                (build_base_human_males::<HumanMaleBuilder>).after(BuildingLabels::TriggerBuild),
+                (build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild),
             )
-            .add_event::<SpawnEntity<HumanMaleBuilder>>()
-            .add_system((build_rigid_boies::<HumanMaleBuilder>).after(BuildingLabels::TriggerBuild))
+            .add_event::<SpawnEntity<HumanMaleType>>()
+            .add_system((build_rigid_boies::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_human_dummies)
                     .label(BuildingLabels::DefaultBuild)

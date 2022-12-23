@@ -10,7 +10,7 @@ use entity::{
     meta::EntityDataResource,
     senser::Senser,
     spawn::{
-        base_entity_builder, BaseEntityBuildable, BaseEntityBundle, BaseEntityData,
+        base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData,
         DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
     },
 };
@@ -29,7 +29,7 @@ use map::map::Map;
 use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
-use physics::spawn::{RigidBodyBuildable, RigidBodyBundle};
+use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use player::names::UsedNames;
 
 /// Get default transform.
@@ -45,7 +45,7 @@ pub struct HumanMaleBuildData {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl BaseEntityBuildable<HumanMaleBuildData> for HumanMaleBuilder {
+impl BaseEntityBuilder<HumanMaleBuildData> for HumanMaleType {
     fn get_bundle(
         &self,
         _spawn_data: &EntityBuildData,
@@ -91,9 +91,7 @@ use networking::server::OutgoingReliableServerMessage;
 use entity::net::EntityServerMessage;
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_base_human_males<
-    T: BaseEntityBuildable<HumanMaleBuildData> + Send + Sync + 'static,
->(
+pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     used_names: ResMut<UsedNames>,
@@ -137,14 +135,14 @@ pub fn build_base_human_males<
 
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct HumanMaleBuilder {
+pub struct HumanMaleType {
     pub spawn_pawn_data: SpawnPawnData,
 }
 #[cfg(any(feature = "server", feature = "client"))]
 pub const R: f32 = 0.5;
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl RigidBodyBuildable<NoData> for HumanMaleBuilder {
+impl RigidBodyBuilder<NoData> for HumanMaleType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(CHARACTER_FLOOR_FRICTION);
         friction.combine_rule = CoefficientCombineRule::Min;
@@ -164,21 +162,21 @@ impl RigidBodyBuildable<NoData> for HumanMaleBuilder {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl HumanMaleBuildable for HumanMaleBuilder {
+impl HumanMaleBuilder for HumanMaleType {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData {
         self.spawn_pawn_data.clone()
     }
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait HumanMaleBuildable {
+pub trait HumanMaleBuilder {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
 use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_human_males<T: HumanMaleBuildable + Send + Sync + 'static>(
+pub fn build_human_males<T: HumanMaleBuilder + Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut default_spawner: EventWriter<DefaultSpawnEvent>,
@@ -386,14 +384,14 @@ pub fn build_human_males<T: HumanMaleBuildable + Send + Sync + 'static>(
 #[cfg(any(feature = "server", feature = "client"))]
 pub(crate) fn default_build_human_dummies(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
-    mut spawner: EventWriter<SpawnEntity<HumanMaleBuilder>>,
+    mut spawner: EventWriter<SpawnEntity<HumanMaleType>>,
     mut used_names: ResMut<UsedNames>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type == HUMAN_DUMMY_ENTITY_NAME {
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
-                builder: HumanMaleBuilder {
+                builder: HumanMaleType {
                     spawn_pawn_data: SpawnPawnData {
                         pawn_component: Pawn {
                             character_name: get_dummy_name(&mut used_names),

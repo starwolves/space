@@ -17,9 +17,7 @@ use resources::{
 
 use crate::jumpsuit::{Jumpsuit, JUMPSUIT_SECURITY_ENTITY_NAME};
 
-use super::spawn::{
-    build_jumpsuits, build_raw_jumpsuits, default_build_jumpsuits, JumpsuitSpawner,
-};
+use super::spawn::{build_jumpsuits, build_raw_jumpsuits, default_build_jumpsuits, JumpsuitType};
 
 pub struct JumpsuitsPlugin;
 
@@ -27,18 +25,16 @@ impl Plugin for JumpsuitsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-                .add_system(build_jumpsuits::<JumpsuitSpawner>.after(BuildingLabels::TriggerBuild))
+                .add_system(build_jumpsuits::<JumpsuitType>.after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    (build_base_entities::<JumpsuitSpawner>).after(BuildingLabels::TriggerBuild),
+                    (build_base_entities::<JumpsuitType>).after(BuildingLabels::TriggerBuild),
                 )
-                .add_system(
-                    (build_rigid_boies::<JumpsuitSpawner>).after(BuildingLabels::TriggerBuild),
-                )
+                .add_system((build_rigid_boies::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
                 .add_system((build_raw_jumpsuits).after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    (build_inventory_items::<JumpsuitSpawner>).after(BuildingLabels::TriggerBuild),
+                    (build_inventory_items::<JumpsuitType>).after(BuildingLabels::TriggerBuild),
                 )
-                .add_event::<SpawnEntity<JumpsuitSpawner>>()
+                .add_event::<SpawnEntity<JumpsuitType>>()
                 .add_system(
                     (default_build_jumpsuits)
                         .label(BuildingLabels::DefaultBuild)

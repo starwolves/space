@@ -54,13 +54,13 @@ pub(crate) fn inventory_item_builder(
 }
 /// Inventory item buildable.
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait InventoryItemBuildable {
+pub trait InventoryItemBuilder {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle;
 }
 
 /// Inventory item spawn handler.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_inventory_items<T: InventoryItemBuildable + Send + Sync + 'static>(
+pub fn build_inventory_items<T: InventoryItemBuilder + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {

@@ -19,7 +19,7 @@ use setup_ui::core::SetupUiUserDataSets;
 use entity::spawn::SpawnEntity;
 use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 
-use crate::spawn::HumanMaleBuilder;
+use crate::spawn::HumanMaleType;
 use pawn::pawn::Pawn;
 use player::boarding::PlayerBoarded;
 /// Spawn player as human male with preset inventory.
@@ -29,7 +29,7 @@ pub(crate) fn spawn_boarding_player(
     mut commands: Commands,
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut used_names: ResMut<UsedNames>,
-    mut builder_human_male: EventWriter<SpawnEntity<HumanMaleBuilder>>,
+    mut builder_human_male: EventWriter<SpawnEntity<HumanMaleType>>,
     accounts: Res<Accounts>,
     setup_ui_datas: Res<SetupUiUserDataSets>,
     mut boarded: EventWriter<PlayerBoarded>,
@@ -75,7 +75,7 @@ pub(crate) fn spawn_boarding_player(
                 entity_type: HUMAN_MALE_ENTITY_NAME.to_string(),
                 ..Default::default()
             },
-            builder: HumanMaleBuilder {
+            builder: HumanMaleType {
                 spawn_pawn_data: SpawnPawnData {
                     pawn_component: Pawn {
                         character_name: setup_data.character_name.clone(),

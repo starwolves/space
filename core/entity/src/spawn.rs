@@ -110,7 +110,7 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
 
 /// BaseEntity trait.
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait BaseEntityBuildable<Y> {
+pub trait BaseEntityBuilder<Y> {
     fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> BaseEntityBundle;
 }
 use crate::init::RawEntityRon;
@@ -119,7 +119,7 @@ use networking::server::OutgoingReliableServerMessage;
 use crate::net::EntityServerMessage;
 /// Spawn base entity components handler.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_base_entities<T: BaseEntityBuildable<NoData> + Send + Sync + 'static>(
+pub fn build_base_entities<T: BaseEntityBuilder<NoData> + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,

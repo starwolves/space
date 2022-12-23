@@ -43,12 +43,12 @@ impl PointLightBuilderBundle {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct PointLightBuilder {
+pub struct PointLightType {
     pub light: PointLight,
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_point_lights<T: PointLightBuildable + Send + Sync + 'static>(
+pub fn build_point_lights<T: PointLightBuilder + Send + Sync + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
 ) {
@@ -60,12 +60,12 @@ pub fn build_point_lights<T: PointLightBuildable + Send + Sync + 'static>(
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub trait PointLightBuildable {
+pub trait PointLightBuilder {
     fn spawn(&self, spawn_data: &EntityBuildData, commands: &mut Commands);
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-impl PointLightBuildable for PointLightBuilder {
+impl PointLightBuilder for PointLightType {
     fn spawn(&self, spawn_data: &EntityBuildData, commands: &mut Commands) {
         commands.spawn((
             PointLightBundle {
@@ -92,7 +92,7 @@ impl PointLightBuildable for PointLightBuilder {
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_raw_point_lights(
     mut spawn_events: EventReader<RawSpawnEvent>,
-    mut build_point_light: EventWriter<SpawnEntity<PointLightBuilder>>,
+    mut build_point_light: EventWriter<SpawnEntity<PointLightType>>,
     mut commands: Commands,
 ) {
     for event in spawn_events.iter() {
@@ -108,7 +108,7 @@ pub fn build_raw_point_lights(
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                builder: PointLightBuilder {
+                builder: PointLightType {
                     light: get_default_point_light(),
                 },
             });

@@ -17,9 +17,7 @@ use resources::{
 
 use crate::helmet::{Helmet, HELMET_SECURITY_ENTITY_NAME};
 
-use super::spawn::{
-    build_helmets, build_raw_helmets, default_build_helmets_security, HelmetBuilder,
-};
+use super::spawn::{build_helmets, build_raw_helmets, default_build_helmets_security, HelmetType};
 
 pub struct HelmetsPlugin;
 
@@ -27,18 +25,14 @@ impl Plugin for HelmetsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-                .add_system(build_helmets::<HelmetBuilder>.after(BuildingLabels::TriggerBuild))
+                .add_system(build_helmets::<HelmetType>.after(BuildingLabels::TriggerBuild))
+                .add_system((build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild))
+                .add_system((build_rigid_boies::<HelmetType>).after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    (build_base_entities::<HelmetBuilder>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_rigid_boies::<HelmetBuilder>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(
-                    (build_inventory_items::<HelmetBuilder>).after(BuildingLabels::TriggerBuild),
+                    (build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild),
                 )
                 .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<HelmetBuilder>>()
+                .add_event::<SpawnEntity<HelmetType>>()
                 .add_system(
                     (default_build_helmets_security)
                         .label(BuildingLabels::DefaultBuild)

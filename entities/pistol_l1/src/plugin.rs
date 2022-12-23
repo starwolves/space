@@ -20,7 +20,7 @@ use resources::{
 use crate::pistol_l1::{PistolL1, PISTOL_L1_ENTITY_NAME};
 
 use super::spawn::{
-    build_pistols_l1, build_raw_pistols_l1, default_build_pistols_l1, PistolL1Builder,
+    build_pistols_l1, build_raw_pistols_l1, default_build_pistols_l1, PistolL1Type,
 };
 
 pub struct PistolL1Plugin;
@@ -30,17 +30,15 @@ impl Plugin for PistolL1Plugin {
         if is_server() {
             app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
                 .add_system(
-                    (build_base_entities::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
+                    (build_base_entities::<PistolL1Type>).after(BuildingLabels::TriggerBuild),
                 )
+                .add_system((build_rigid_boies::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
                 .add_system(
-                    (build_rigid_boies::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
+                    (build_inventory_items::<PistolL1Type>).after(BuildingLabels::TriggerBuild),
                 )
-                .add_system(
-                    (build_inventory_items::<PistolL1Builder>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system(build_pistols_l1::<PistolL1Builder>.after(BuildingLabels::TriggerBuild))
+                .add_system(build_pistols_l1::<PistolL1Type>.after(BuildingLabels::TriggerBuild))
                 .add_system((build_raw_pistols_l1).after(BuildingLabels::TriggerBuild))
-                .add_event::<SpawnEntity<PistolL1Builder>>()
+                .add_event::<SpawnEntity<PistolL1Type>>()
                 .add_system(
                     (default_build_pistols_l1)
                         .label(BuildingLabels::DefaultBuild)
