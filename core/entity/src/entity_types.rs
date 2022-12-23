@@ -28,6 +28,8 @@ pub fn init_entity_type<T: EntityType + 'static>(app: &mut App) {
 }
 #[cfg(any(feature = "client", feature = "server"))]
 pub(crate) fn finalize_register_entity_types(mut types: ResMut<EntityTypes>) {
+    use bevy::prelude::info;
+
     types.startup_types.sort();
     let mut i = 0;
     let list = types.startup_types.clone();
@@ -35,6 +37,7 @@ pub(crate) fn finalize_register_entity_types(mut types: ResMut<EntityTypes>) {
         types.types.insert(i, entity_type.to_string());
         i += 1;
     }
+    info!("Loaded {:?} entity types.", i);
 }
 /// System label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
