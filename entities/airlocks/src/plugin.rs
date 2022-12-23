@@ -7,7 +7,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     spawn::build_base_entities,
 };
-use physics::spawn::build_rigid_boies;
+use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
 use resources::labels::{
     ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels,
@@ -63,18 +63,6 @@ impl Plugin for AirLocksPlugin {
                         .label(PostUpdateLabels::EntityUpdate)
                         .with_system(airlock_update),
                 )
-                .add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-                .add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
-                .add_system((build_rigid_boies::<AirlockType>).after(BuildingLabels::TriggerBuild))
-                .add_system(
-                    (build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild),
-                )
-                .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild))
-                .add_system(
-                    default_build_airlocks
-                        .label(BuildingLabels::DefaultBuild)
-                        .after(BuildingLabels::NormalBuild),
-                )
                 .add_system(
                     health_combat_hit_result_sfx::<Airlock>
                         .after(CombatLabels::FinalizeApplyDamage),
@@ -100,7 +88,16 @@ impl Plugin for AirLocksPlugin {
                         .after(ActionsLabels::Init),
                 );
         }
-
+        app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
+            .add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
+            .add_system((build_rigid_bodies::<AirlockType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild))
+            .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild))
+            .add_system(
+                default_build_airlocks
+                    .label(BuildingLabels::DefaultBuild)
+                    .after(BuildingLabels::NormalBuild),
+            );
         init_entity_type::<AirlockType>(app);
     }
 }

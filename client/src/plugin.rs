@@ -1,5 +1,6 @@
 use crate::client_is_live;
 use actions::plugin::ActionsPlugin;
+use airlocks::plugin::AirLocksPlugin;
 use bevy::{
     prelude::{App, CorePlugin, Plugin, PluginGroup, TaskPoolOptions},
     window::{PresentMode, WindowDescriptor, WindowMode, WindowPlugin, WindowPosition},
@@ -8,16 +9,24 @@ use bevy::{
 };
 use bevy_egui::EguiPlugin;
 use chat::plugin::ChatPlugin;
+use computers::plugin::ComputersPlugin;
 use console_commands::plugins::ConsoleCommandsPlugin;
+use construction_tool_admin::plugin::ConstructionToolAdminPlugin;
 use controller::plugin::ControllerPlugin;
+use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
 use gridmap::plugin::GridmapPlugin;
+use helmet_security::plugin::HelmetsPlugin;
+use human_male::plugin::HumanMalePlugin;
 use inventory::plugin::InventoryPlugin;
+use jumpsuit_security::plugin::JumpsuitsPlugin;
+use line_arrow::plugin::LineArrowPlugin;
 use main_menu::plugin::MainMenuPlugin;
 use map::plugin::MapPlugin;
 use networking::plugin::NetworkingPlugin;
 use pawn::plugin::PawnPlugin;
 use physics::plugin::PhysicsPlugin;
+use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
@@ -90,6 +99,15 @@ impl Plugin for ClientPlugin {
         .add_plugin(PawnPlugin)
         .add_plugin(SfxPlugin)
         .add_plugin(ResourcesPlugin)
+        .add_plugin(HumanMalePlugin)
+        .add_plugin(ConstructionToolAdminPlugin)
+        .add_plugin(AirLocksPlugin)
+        .add_plugin(CounterWindowsPlugin)
+        .add_plugin(ComputersPlugin)
+        .add_plugin(JumpsuitsPlugin)
+        .add_plugin(HelmetsPlugin)
+        .add_plugin(PistolL1Plugin)
+        .add_plugin(LineArrowPlugin)
         .add_plugin(PointLightPlugin)
         .add_startup_system(client_is_live);
     }

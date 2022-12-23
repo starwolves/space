@@ -6,12 +6,57 @@ use const_format::concatcp;
 use entity::{
     entity_data::{CachedBroadcastTransform, EntityData, EntityUpdates, UpdateTransform},
     sensable::Sensable,
+    spawn::EntityType,
 };
 use rand::Rng;
 use resources::content::SF_CONTENT_PREFIX;
 pub const SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sfx");
 pub const AMBIENCE_SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "ambience_sfx");
 pub const REPEATING_SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "repeating_sfx");
+
+pub struct AmbienceSfxEntityType;
+
+impl EntityType for AmbienceSfxEntityType {
+    fn to_string(&self) -> String {
+        AMBIENCE_SFX_ENTITY_NAME.to_string()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        Self
+    }
+}
+
+pub struct RepeatingSfxEntityType;
+
+impl EntityType for RepeatingSfxEntityType {
+    fn to_string(&self) -> String {
+        REPEATING_SFX_ENTITY_NAME.to_string()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        Self
+    }
+}
+pub struct SfxEntityType;
+
+impl EntityType for SfxEntityType {
+    fn to_string(&self) -> String {
+        SFX_ENTITY_NAME.to_string()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        Self
+    }
+}
 
 /// Spawn background sound effect with commands as a function.
 #[cfg(feature = "server")]
@@ -25,7 +70,7 @@ pub fn spawn_ambience_sfx(
     commands.entity(entity).insert((
         rigid_body_position,
         EntityData {
-            entity_type: AMBIENCE_SFX_ENTITY_NAME.to_owned(),
+            entity_type: Box::new(AmbienceSfxEntityType::new()),
             ..Default::default()
         },
         Sensable {
@@ -190,7 +235,7 @@ pub fn repeating_sfx_builder(
     commands.entity(entity).insert((
         rigid_body_position,
         EntityData {
-            entity_type: REPEATING_SFX_ENTITY_NAME.to_owned(),
+            entity_type: Box::new(RepeatingSfxEntityType::new()),
             ..Default::default()
         },
         Sensable {
@@ -214,7 +259,7 @@ pub fn sfx_builder(
     commands.entity(entity).insert((
         rigid_body_position,
         EntityData {
-            entity_type: SFX_ENTITY_NAME.to_owned(),
+            entity_type: Box::new(SfxEntityType::new()),
             ..Default::default()
         },
         Sensable {

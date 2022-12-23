@@ -45,7 +45,7 @@ impl BaseEntityBuilder<NoData> for ComputerType {
                 },
                 ..Default::default()
             },
-            entity_type: BRIDGE_COMPUTER_ENTITY_NAME.to_string(),
+            entity_type: Box::new(ComputerType::new()),
             health: Health {
                 is_combat_obstacle: true,
                 is_reach_obstacle: true,
@@ -76,8 +76,15 @@ impl RigidBodyBuilder<NoData> for ComputerType {
 pub struct ComputerType;
 
 impl EntityType for ComputerType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         BRIDGE_COMPUTER_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        ComputerType
     }
 }
 

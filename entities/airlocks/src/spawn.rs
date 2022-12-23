@@ -80,7 +80,7 @@ impl BaseEntityBuilder<NoData> for AirlockType {
                 assigned_texts: examine_map,
                 ..Default::default()
             },
-            entity_type: spawn_data.entity_type.to_string(),
+            entity_type: Box::new(AirlockType::new()),
             entity_group: EntityGroup::AirLock,
             health: Health {
                 is_combat_obstacle: true,
@@ -115,8 +115,15 @@ impl RigidBodyBuilder<NoData> for AirlockType {
 pub struct AirlockType;
 
 impl EntityType for AirlockType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         AIRLOCK_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        AirlockType
     }
 }
 

@@ -62,7 +62,7 @@ impl BaseEntityBuilder<NoData> for PistolL1Type {
                 },
                 ..Default::default()
             },
-            entity_type: PISTOL_L1_ENTITY_NAME.to_string(),
+            entity_type: Box::new(PistolL1Type::new()),
 
             ..Default::default()
         }
@@ -173,8 +173,15 @@ use super::pistol_l1::PistolL1;
 #[cfg(feature = "server")]
 pub struct PistolL1Type;
 impl EntityType for PistolL1Type {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         PISTOL_L1_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        PistolL1Type
     }
 }
 #[cfg(feature = "server")]

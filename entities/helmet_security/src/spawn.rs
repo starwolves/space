@@ -62,7 +62,7 @@ impl BaseEntityBuilder<NoData> for HelmetType {
                 },
                 ..Default::default()
             },
-            entity_type: HELMET_SECURITY_ENTITY_NAME.to_string(),
+            entity_type: Box::new(HelmetType::new()),
             ..Default::default()
         }
     }
@@ -150,8 +150,15 @@ impl RigidBodyBuilder<NoData> for HelmetType {
 #[cfg(feature = "server")]
 pub struct HelmetType;
 impl EntityType for HelmetType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         HELMET_SECURITY_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        HelmetType
     }
 }
 

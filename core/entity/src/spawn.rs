@@ -1,4 +1,7 @@
-use crate::showcase::{Showcase, ShowcaseData};
+use crate::{
+    entity_data::BoxEntityType,
+    showcase::{Showcase, ShowcaseData},
+};
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform};
 use serde::Deserialize;
 
@@ -14,34 +17,22 @@ use super::entity_data::DefaultMapEntity;
 
 /// A base bundle for the basis of entities. Should be used by almost all entities.
 #[cfg(any(feature = "server", feature = "client"))]
+#[derive(Default)]
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
     pub examinable: Examinable,
-    pub entity_type: String,
+    pub entity_type: BoxEntityType,
     pub health: Health,
     pub entity_group: EntityGroup,
     /// If this entity was spawned by default from map data.
     pub default_map_spawn: bool,
 }
-
-#[cfg(any(feature = "server", feature = "client"))]
-impl Default for BaseEntityBundle {
-    fn default() -> Self {
-        Self {
-            entity_group: EntityGroup::None,
-            default_transform: Transform::default(),
-            examinable: Examinable::default(),
-            entity_type: "".to_string(),
-            health: Health::default(),
-            default_map_spawn: false,
-        }
-    }
-}
 /// Base entity data.
 #[cfg(any(feature = "server", feature = "client"))]
+#[derive(Default)]
 pub struct BaseEntityData {
     /// Entity type ID.
-    pub entity_type: String,
+    pub entity_type: BoxEntityType,
     pub examinable: Examinable,
     pub sensable: Sensable,
     pub health: Health,
@@ -54,29 +45,13 @@ pub struct BaseEntityData {
     pub showcase_handle_option: Option<ShowcaseData>,
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
-impl Default for BaseEntityData {
-    fn default() -> Self {
-        Self {
-            entity_group: EntityGroup::None,
-            entity_type: "".to_string(),
-            examinable: Examinable::default(),
-            sensable: Sensable::default(),
-            health: Health::default(),
-            is_item_in_storage: false,
-            default_map_spawn: false,
-            showcase_handle_option: None,
-        }
-    }
-}
-
 /// Spawn a base entity.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity: Entity) {
     let mut builder = commands.entity(entity);
     builder.insert((
         EntityData {
-            entity_type: data.entity_type.to_string(),
+            entity_type: data.entity_type,
             entity_group: data.entity_group,
         },
         EntityUpdates::default(),
@@ -116,6 +91,9 @@ pub trait BaseEntityBuilder<Y>: Send + Sync {
 use crate::init::RawEntityRon;
 use networking::server::OutgoingReliableServerMessage;
 
+use bevy::prelude::Res;
+
+use crate::entity_types::EntityTypes;
 use crate::net::EntityServerMessage;
 /// Spawn base entity components handler.
 #[cfg(any(feature = "server", feature = "client"))]
@@ -123,16 +101,19 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    types: Res<EntityTypes>,
 ) {
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event
             .builder
             .get_bundle(&spawn_event.spawn_data, NoData);
 
+        let entity_type = base_entity_bundle.entity_type.to_string();
+
         base_entity_builder(
             &mut commands,
             BaseEntityData {
-                entity_type: base_entity_bundle.entity_type.clone(),
+                entity_type: base_entity_bundle.entity_type,
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
@@ -148,7 +129,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        base_entity_bundle.entity_type,
+                        *types.types.get(&entity_type).unwrap(),
                         spawn_event.spawn_data.entity.to_bits(),
                     ),
                 });
@@ -161,7 +142,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
 /// Additional ron properties contained by a raw ron entity.
 #[derive(Deserialize)]
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct ExportDataRaw {
+pub struct RonDataRaw {
     pub data: String,
     pub entity_type: String,
 }
@@ -280,5 +261,8 @@ pub struct NoData;
 #[cfg(any(feature = "server", feature = "client"))]
 pub trait EntityType: Send + Sync {
     /// Persistent string identifier of entity type. Unhygenic.
-    fn to_string() -> String;
+    fn to_string(&self) -> String;
+    fn new() -> Self
+    where
+        Self: Sized;
 }

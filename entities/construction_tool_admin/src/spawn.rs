@@ -46,7 +46,7 @@ impl BaseEntityBuilder<NoData> for ConstructionToolType {
                 },
                 ..Default::default()
             },
-            entity_type: CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
+            entity_type: Box::new(ConstructionToolType::new()),
             ..Default::default()
         }
     }
@@ -125,8 +125,15 @@ impl RigidBodyBuilder<NoData> for ConstructionToolType {
 pub struct ConstructionToolType;
 
 impl EntityType for ConstructionToolType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         CONSTRUCTION_TOOL_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        ConstructionToolType
     }
 }
 

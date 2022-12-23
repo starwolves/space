@@ -29,49 +29,48 @@ pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_event::<DefaultSpawnEvent>()
-                .add_system_set(
-                    SystemSet::new()
-                        .with_run_criteria(
-                            FixedTimestep::step(1. / 2.).with_label(INTERPOLATION_LABEL1),
-                        )
-                        .with_system(broadcast_position_updates),
-                )
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .label(PostUpdateLabels::EntityUpdate)
-                        .with_system(world_mode_update),
-                )
-                .add_system_to_stage(
-                    PostUpdate,
-                    visible_checker
-                        .after(PostUpdateLabels::SendEntityUpdates)
-                        .label(PostUpdateLabels::VisibleChecker),
-                )
-                .add_system_to_stage(
-                    PostUpdate,
-                    despawn_entity.after(PostUpdateLabels::VisibleChecker),
-                )
-                .add_system_to_stage(
-                    PostUpdate,
-                    finalize_examine_entity.before(PostUpdateLabels::EntityUpdate),
-                )
-                .add_system(examine_entity_health.after(ActionsLabels::Action))
-                .init_resource::<ExamineEntityMessages>()
-                .add_system_to_stage(PreUpdate, finalize_entity_examine_input)
-                .add_system(examine_entity.after(ActionsLabels::Action))
-                .add_system_to_stage(PreUpdate, incoming_messages)
-                .add_event::<InputExamineEntity>()
-                .add_system_to_stage(
-                    PostUpdate,
-                    finalize_entity_updates
-                        .after(PostUpdateLabels::EntityUpdate)
-                        .label(PostUpdateLabels::SendEntityUpdates),
-                )
-                .add_system(spawn_entity_for_client)
-                .add_event::<DespawnClientEntity>()
-                .add_event::<SpawnClientEntity>();
+            app.add_system_set(
+                SystemSet::new()
+                    .with_run_criteria(
+                        FixedTimestep::step(1. / 2.).with_label(INTERPOLATION_LABEL1),
+                    )
+                    .with_system(broadcast_position_updates),
+            )
+            .add_system_set_to_stage(
+                PostUpdate,
+                SystemSet::new()
+                    .label(PostUpdateLabels::EntityUpdate)
+                    .with_system(world_mode_update),
+            )
+            .add_system_to_stage(
+                PostUpdate,
+                visible_checker
+                    .after(PostUpdateLabels::SendEntityUpdates)
+                    .label(PostUpdateLabels::VisibleChecker),
+            )
+            .add_system_to_stage(
+                PostUpdate,
+                despawn_entity.after(PostUpdateLabels::VisibleChecker),
+            )
+            .add_system_to_stage(
+                PostUpdate,
+                finalize_examine_entity.before(PostUpdateLabels::EntityUpdate),
+            )
+            .add_system(examine_entity_health.after(ActionsLabels::Action))
+            .init_resource::<ExamineEntityMessages>()
+            .add_system_to_stage(PreUpdate, finalize_entity_examine_input)
+            .add_system(examine_entity.after(ActionsLabels::Action))
+            .add_system_to_stage(PreUpdate, incoming_messages)
+            .add_event::<InputExamineEntity>()
+            .add_system_to_stage(
+                PostUpdate,
+                finalize_entity_updates
+                    .after(PostUpdateLabels::EntityUpdate)
+                    .label(PostUpdateLabels::SendEntityUpdates),
+            )
+            .add_system(spawn_entity_for_client)
+            .add_event::<DespawnClientEntity>()
+            .add_event::<SpawnClientEntity>();
         } else {
             app.add_system(load_entities);
         }
@@ -83,7 +82,8 @@ impl Plugin for EntityPlugin {
                 load_ron_entities
                     .after(StartupLabels::BuildGridmap)
                     .label(StartupLabels::InitEntities),
-            );
+            )
+            .add_event::<DefaultSpawnEvent>();
         init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         init_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
     }

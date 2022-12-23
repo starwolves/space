@@ -15,10 +15,7 @@ use entity::{
     },
 };
 use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
-use humanoid::{
-    humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME},
-    user_name::get_dummy_name,
-};
+use humanoid::humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 use inventory::inventory::{Inventory, Slot, SlotType};
 use inventory::{
     combat::{DamageModel, MeleeCombat},
@@ -30,7 +27,6 @@ use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
-use player::names::UsedNames;
 
 /// Get default transform.
 #[cfg(any(feature = "server", feature = "client"))]
@@ -40,22 +36,20 @@ pub fn get_default_transform() -> Transform {
 
 /// Human male spawn data.
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct HumanMaleBuildData {
-    pub used_names: UsedNames,
-}
+pub struct HumanMaleBuildData;
 
 #[cfg(any(feature = "server", feature = "client"))]
 impl BaseEntityBuilder<HumanMaleBuildData> for HumanMaleType {
     fn get_bundle(
         &self,
         _spawn_data: &EntityBuildData,
-        mut entity_data: HumanMaleBuildData,
+        mut _entity_data: HumanMaleBuildData,
     ) -> BaseEntityBundle {
         let character_name;
 
         match self.spawn_pawn_data.designation {
             PawnDesignation::Dummy => {
-                character_name = get_dummy_name(&mut entity_data.used_names);
+                character_name = "dummy".to_string();
             }
             PawnDesignation::Ai => {
                 character_name = "Ai".to_string();
@@ -77,7 +71,7 @@ impl BaseEntityBuilder<HumanMaleBuildData> for HumanMaleType {
                 },
                 ..Default::default()
             },
-            entity_type: HUMAN_MALE_ENTITY_NAME.to_string(),
+            entity_type: Box::new(HumanMaleType::new()),
             health: Health {
                 health_container: HealthContainer::Humanoid(HumanoidHealth::default()),
                 ..Default::default()
@@ -88,26 +82,26 @@ impl BaseEntityBuilder<HumanMaleBuildData> for HumanMaleType {
 }
 use networking::server::OutgoingReliableServerMessage;
 
+use bevy::prelude::Res;
+use entity::entity_types::EntityTypes;
 use entity::net::EntityServerMessage;
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
-    used_names: ResMut<UsedNames>,
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    types: Res<EntityTypes>,
 ) {
     for spawn_event in spawn_events.iter() {
-        let base_entity_bundle = spawn_event.builder.get_bundle(
-            &spawn_event.spawn_data,
-            HumanMaleBuildData {
-                used_names: used_names.clone(),
-            },
-        );
+        let base_entity_bundle = spawn_event
+            .builder
+            .get_bundle(&spawn_event.spawn_data, HumanMaleBuildData);
+        let entity_type = base_entity_bundle.entity_type.to_string();
         base_entity_builder(
             &mut commands,
             BaseEntityData {
-                entity_type: base_entity_bundle.entity_type.clone(),
+                entity_type: base_entity_bundle.entity_type,
                 examinable: base_entity_bundle.examinable,
                 health: base_entity_bundle.health,
                 entity_group: base_entity_bundle.entity_group,
@@ -123,7 +117,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        base_entity_bundle.entity_type,
+                        *types.types.get(&entity_type).unwrap(),
                         spawn_event.spawn_data.entity.to_bits(),
                     ),
                 });
@@ -135,12 +129,20 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
 
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
+#[derive(Default)]
 pub struct HumanMaleType {
     pub spawn_pawn_data: SpawnPawnData,
 }
 impl EntityType for HumanMaleType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         HUMAN_MALE_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        HumanMaleType::default()
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -390,7 +392,6 @@ pub fn build_human_males<T: HumanMaleBuilder + 'static>(
 pub(crate) fn default_build_human_dummies(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEntity<HumanMaleType>>,
-    mut used_names: ResMut<UsedNames>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event.spawn_data.entity_type == HUMAN_DUMMY_ENTITY_NAME {
@@ -399,7 +400,7 @@ pub(crate) fn default_build_human_dummies(
                 builder: HumanMaleType {
                     spawn_pawn_data: SpawnPawnData {
                         pawn_component: Pawn {
-                            character_name: get_dummy_name(&mut used_names),
+                            character_name: "dummy".to_string(),
                             ..Default::default()
                         },
                         inventory_setup: vec![

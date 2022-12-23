@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     meta::{EntityDataProperties, EntityDataResource},
     sensable::Sensable,
+    spawn::EntityType,
 };
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
@@ -164,26 +165,38 @@ pub fn entity_update_changed_detection(
 }
 
 /// The base entity component holding base entity data.
-#[derive(Component)]
+#[derive(Component, Default)]
 #[cfg(feature = "server")]
 pub struct EntityData {
-    pub entity_type: String,
+    pub entity_type: BoxEntityType,
     pub entity_group: EntityGroup,
 }
 
-#[cfg(feature = "server")]
-impl Default for EntityData {
+pub type BoxEntityType = Box<dyn EntityType + 'static>;
+
+impl Default for BoxEntityType {
     fn default() -> Self {
-        Self {
-            entity_type: "".to_string(),
-            entity_group: EntityGroup::None,
-        }
+        Box::<BlankEntityType>::new(EntityType::new())
+    }
+}
+pub struct BlankEntityType;
+impl EntityType for BlankEntityType {
+    fn to_string(&self) -> String {
+        "Blank".to_string()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        BlankEntityType
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 #[cfg(feature = "server")]
 pub enum EntityGroup {
+    #[default]
     None,
     AirLock,
     CounterWindowSensor,

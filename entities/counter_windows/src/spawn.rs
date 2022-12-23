@@ -58,7 +58,7 @@ impl BaseEntityBuilder<NoData> for CounterWindowType {
                 + "]It is fully operational.[/color][/font]",
         );
         BaseEntityBundle {
-            entity_type: entity_name,
+            entity_type: Box::new(CounterWindowType::new()),
             default_transform: get_default_transform(),
             examinable: Examinable {
                 assigned_texts: examine_map,
@@ -108,8 +108,15 @@ pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 pub struct CounterWindowType;
 
 impl EntityType for CounterWindowType {
-    fn to_string() -> String {
+    fn to_string(&self) -> String {
         COUNTER_WINDOW_ENTITY_NAME.to_owned()
+    }
+
+    fn new() -> Self
+    where
+        Self: Sized,
+    {
+        CounterWindowType
     }
 }
 
@@ -118,6 +125,8 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,
 ) {
+    use entity::entity_data::BlankEntityType;
+
     for spawn_event in spawn_events.iter() {
         commands
             .entity(spawn_event.spawn_data.entity)
@@ -148,7 +157,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
                             parent: spawn_event.spawn_data.entity,
                         },
                         EntityData {
-                            entity_type: "counterWindowSensor".to_string(),
+                            entity_type: Box::new(BlankEntityType),
                             entity_group: EntityGroup::CounterWindowSensor,
                         },
                     ))
