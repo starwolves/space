@@ -16,10 +16,7 @@ use crate::computer::Computer;
 
 use super::{
     computer::computer_added,
-    spawn::{
-        build_computers, build_raw_computers, default_build_computers, ComputerType,
-        BRIDGE_COMPUTER_ENTITY_NAME,
-    },
+    spawn::{build_computers, build_raw_computers, default_build_computers, ComputerType},
 };
 
 pub struct ComputersPlugin;
@@ -48,7 +45,7 @@ impl Plugin for ComputersPlugin {
 #[cfg(feature = "server")]
 fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: BRIDGE_COMPUTER_ENTITY_NAME.to_string(),
+        name: ComputerType::default().identifier,
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

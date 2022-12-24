@@ -7,10 +7,11 @@ use bevy::{
 };
 use entity::{
     entity_data::{WorldMode, WorldModes},
+    entity_types::{BoxedEntityType, EntityType},
     examine::{Examinable, RichName},
     spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType,
-        NoData, SpawnEntity,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        SpawnEntity,
     },
 };
 
@@ -45,13 +46,22 @@ impl BaseEntityBuilder<NoData> for LineArrowType {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Default)]
+#[derive(Clone)]
 pub struct LineArrowType {
     pub duration: f32,
+    pub identifier: String,
+}
+impl Default for LineArrowType {
+    fn default() -> Self {
+        Self {
+            duration: Default::default(),
+            identifier: SF_CONTENT_PREFIX.to_string() + "lineArrow",
+        }
+    }
 }
 impl EntityType for LineArrowType {
     fn to_string(&self) -> String {
-        LINE_ARROW_ENTITY_NAME.to_owned()
+        self.identifier.clone()
     }
 
     fn new() -> Self
@@ -59,6 +69,9 @@ impl EntityType for LineArrowType {
         Self: Sized,
     {
         LineArrowType::default()
+    }
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -94,20 +107,24 @@ pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
 }
 use resources::content::SF_CONTENT_PREFIX;
 #[cfg(any(feature = "server", feature = "client"))]
-pub const LINE_ARROW_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "lineArrow");
-
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn default_build_line_arrows(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEntity<LineArrowType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type == LINE_ARROW_ENTITY_NAME {
+        if spawn_event
+            .spawn_data
+            .entity_type
+            .is_type(Box::new(LineArrowType::default()))
+        {
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
-                builder: LineArrowType { duration: 6000.0 },
+                builder: LineArrowType {
+                    duration: 6000.0,
+                    ..Default::default()
+                },
             });
         }
     }
 }
-use const_format::concatcp;

@@ -3,11 +3,11 @@ use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use entity::entity_data::RawSpawnEvent;
+use entity::entity_types::{BoxedEntityType, EntityType};
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
 use entity::spawn::{
-    BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType, NoData,
-    SpawnEntity,
+    BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
 };
 use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::SlotType;
@@ -15,9 +15,8 @@ use inventory::item::InventoryItem;
 use inventory::spawn_item::{InventoryItemBuilder, InventoryItemBundle};
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
+use resources::content::SF_CONTENT_PREFIX;
 use std::collections::BTreeMap;
-
-use crate::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
 
 use super::construction_tool::ConstructionTool;
 
@@ -122,18 +121,32 @@ impl RigidBodyBuilder<NoData> for ConstructionToolType {
 }
 
 #[cfg(feature = "server")]
-pub struct ConstructionToolType;
+#[derive(Clone)]
+pub struct ConstructionToolType {
+    pub identifier: String,
+}
+
+impl Default for ConstructionToolType {
+    fn default() -> Self {
+        ConstructionToolType {
+            identifier: SF_CONTENT_PREFIX.to_string() + "constructionTool",
+        }
+    }
+}
 
 impl EntityType for ConstructionToolType {
     fn to_string(&self) -> String {
-        CONSTRUCTION_TOOL_ENTITY_NAME.to_owned()
+        self.identifier.clone()
     }
 
     fn new() -> Self
     where
         Self: Sized,
     {
-        ConstructionToolType
+        ConstructionToolType::default()
+    }
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
 
@@ -156,7 +169,7 @@ pub fn build_raw_construction_tools(
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != CONSTRUCTION_TOOL_ENTITY_NAME {
+        if spawn_event.raw_entity.entity_type != ConstructionToolType::default().to_string() {
             continue;
         }
 
@@ -167,12 +180,12 @@ pub fn build_raw_construction_tools(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_type: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: Box::new(ConstructionToolType::default()),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: ConstructionToolType,
+            builder: ConstructionToolType::default(),
         });
     }
 }
@@ -183,12 +196,16 @@ pub fn default_build_construction_tools(
     mut spawner: EventWriter<SpawnEntity<ConstructionToolType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type != CONSTRUCTION_TOOL_ENTITY_NAME {
+        if spawn_event
+            .spawn_data
+            .entity_type
+            .is_type(Box::new(ConstructionToolType::default()))
+        {
             continue;
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: ConstructionToolType,
+            builder: ConstructionToolType::default(),
         });
     }
 }

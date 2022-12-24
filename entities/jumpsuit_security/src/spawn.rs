@@ -7,6 +7,8 @@ use bevy::prelude::EventWriter;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use entity::entity_data::RawSpawnEvent;
+use entity::entity_types::BoxedEntityType;
+use entity::entity_types::EntityType;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
@@ -14,7 +16,6 @@ use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
 use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
-use entity::spawn::EntityType;
 use entity::spawn::NoData;
 use entity::spawn::SpawnEntity;
 use inventory::combat::DamageModel;
@@ -26,10 +27,9 @@ use inventory::spawn_item::InventoryItemBundle;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::RigidBodyBuilder;
 use physics::spawn::RigidBodyBundle;
+use resources::content::SF_CONTENT_PREFIX;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
-
-use crate::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 
 use super::jumpsuit::Jumpsuit;
 
@@ -141,17 +141,30 @@ impl RigidBodyBuilder<NoData> for JumpsuitType {
 }
 
 #[cfg(feature = "server")]
-pub struct JumpsuitType;
+#[derive(Clone)]
+pub struct JumpsuitType {
+    pub identifier: String,
+}
+impl Default for JumpsuitType {
+    fn default() -> Self {
+        Self {
+            identifier: SF_CONTENT_PREFIX.to_string() + "jumpsuitSecurity",
+        }
+    }
+}
 impl EntityType for JumpsuitType {
     fn to_string(&self) -> String {
-        JUMPSUIT_SECURITY_ENTITY_NAME.to_owned()
+        self.identifier.clone()
     }
 
     fn new() -> Self
     where
         Self: Sized,
     {
-        JumpsuitType
+        JumpsuitType::default()
+    }
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
 #[cfg(feature = "server")]
@@ -173,7 +186,7 @@ pub fn build_raw_jumpsuits(
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != JUMPSUIT_SECURITY_ENTITY_NAME {
+        if spawn_event.raw_entity.entity_type != JumpsuitType::default().to_string() {
             continue;
         }
 
@@ -184,12 +197,12 @@ pub fn build_raw_jumpsuits(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_type: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: Box::new(JumpsuitType::default()),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: JumpsuitType,
+            builder: JumpsuitType::default(),
         });
     }
 }
@@ -200,13 +213,17 @@ pub fn default_build_jumpsuits(
     mut spawner: EventWriter<SpawnEntity<JumpsuitType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type != JUMPSUIT_SECURITY_ENTITY_NAME {
+        if spawn_event
+            .spawn_data
+            .entity_type
+            .is_type(Box::new(JumpsuitType::default()))
+        {
             continue;
         }
 
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: JumpsuitType,
+            builder: JumpsuitType::default(),
         });
     }
 }

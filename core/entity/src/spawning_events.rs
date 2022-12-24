@@ -160,7 +160,7 @@ pub(crate) fn spawn_entity_for_client(
                     handle: load_entity_event.loader_handle,
                     message: EntityServerMessage::LoadEntity(
                         *types
-                            .types
+                            .netcode_types
                             .get(&entity_data.entity_type.to_string())
                             .unwrap(),
                         load_entity_event.entity.to_bits(),

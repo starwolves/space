@@ -9,11 +9,12 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use const_format::concatcp;
 use entity::{
     entity_data::{EntityGroup, RawSpawnEvent},
+    entity_types::{BoxedEntityType, EntityType},
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType,
-        NoData, SpawnEntity,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        SpawnEntity,
     },
 };
 use pawn::pawn::ShipAuthorizationEnum;
@@ -31,29 +32,32 @@ impl BaseEntityBuilder<NoData> for AirlockType {
         let description;
         let sub_name;
 
-        if spawn_data.entity_type == SECURITY_AIRLOCK_ENTITY_NAME {
+        if spawn_data.entity_type.to_string() == SECURITY_AIRLOCK_ENTITY_NAME {
             sub_name = "security";
             description = "An air lock with ".to_string()
                 + "security"
                 + " department colors. It will only grant access to security personnel.";
-        } else if spawn_data.entity_type == BRIDGE_AIRLOCK_ENTITY_NAME {
+        } else if spawn_data.entity_type.to_string() == BRIDGE_AIRLOCK_ENTITY_NAME {
             sub_name = "bridge";
             description = "An air lock with ".to_string()
                 + "bridge"
                 + " department colors. It will only grant access to high ranked personnel.";
-        } else if spawn_data.entity_type == GOVERNMENT_AIRLOCK_ENTITY_NAME {
+        } else if spawn_data.entity_type.to_string() == GOVERNMENT_AIRLOCK_ENTITY_NAME {
             sub_name = "government";
 
             description = "An air lock with ".to_string()
                 + "government"
                 + " department colors. It will only grant access to a select few.";
-        } else if spawn_data.entity_type == VACUUM_AIRLOCK_ENTITY_NAME {
+        } else if spawn_data.entity_type.to_string() == VACUUM_AIRLOCK_ENTITY_NAME {
             sub_name = "vacuum";
             description = "An air lock with ".to_string()
                 + "danger markings"
                 + ". On the other side is nothing but space.";
         } else {
-            warn!("Unrecognized airlock sub-type {}", spawn_data.entity_type);
+            warn!(
+                "Unrecognized airlock sub-type {}",
+                spawn_data.entity_type.to_string()
+            );
             sub_name = "ERR";
             description = "ERR ".to_string();
         }
@@ -112,18 +116,32 @@ impl RigidBodyBuilder<NoData> for AirlockType {
 }
 
 #[cfg(feature = "server")]
-pub struct AirlockType;
+#[derive(Clone)]
+pub struct AirlockType {
+    identifier: String,
+}
+impl Default for AirlockType {
+    fn default() -> Self {
+        Self {
+            identifier: SF_CONTENT_PREFIX.to_owned() + "airLock",
+        }
+    }
+}
 
 impl EntityType for AirlockType {
     fn to_string(&self) -> String {
-        AIRLOCK_ENTITY_NAME.to_owned()
+        self.identifier.clone()
     }
 
     fn new() -> Self
     where
         Self: Sized,
     {
-        AirlockType
+        AirlockType::default()
+    }
+
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
 
@@ -147,7 +165,6 @@ pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sec
 pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeAirLock");
 pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "governmentAirLock");
 pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuumAirLock");
-pub const AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "airLock");
 
 #[cfg(feature = "server")]
 pub fn default_build_airlocks(
@@ -155,26 +172,29 @@ pub fn default_build_airlocks(
     mut spawner: EventWriter<SpawnEntity<AirlockType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type != SECURITY_AIRLOCK_ENTITY_NAME
-            || spawn_event.spawn_data.entity_type != BRIDGE_AIRLOCK_ENTITY_NAME
-            || spawn_event.spawn_data.entity_type != GOVERNMENT_AIRLOCK_ENTITY_NAME
-            || spawn_event.spawn_data.entity_type != VACUUM_AIRLOCK_ENTITY_NAME
+        if spawn_event.spawn_data.entity_type.to_string() != SECURITY_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_type.to_string() != BRIDGE_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_type.to_string() != GOVERNMENT_AIRLOCK_ENTITY_NAME
+            || spawn_event.spawn_data.entity_type.to_string() != VACUUM_AIRLOCK_ENTITY_NAME
         {
             continue;
         }
 
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: AirlockType,
+            builder: AirlockType::default(),
         });
     }
 }
 
+use bevy::prelude::Res;
+use entity::entity_types::EntityTypes;
 #[cfg(feature = "server")]
 pub fn build_raw_airlocks(
     mut spawn_events: EventReader<RawSpawnEvent>,
     mut build_airlock: EventWriter<SpawnEntity<AirlockType>>,
     mut commands: Commands,
+    types: Res<EntityTypes>,
 ) {
     for spawn_event in spawn_events.iter() {
         if spawn_event.raw_entity.entity_type != SECURITY_AIRLOCK_ENTITY_NAME
@@ -189,16 +209,27 @@ pub fn build_raw_airlocks(
         entity_transform.rotation = spawn_event.raw_entity.rotation;
         entity_transform.scale = spawn_event.raw_entity.scale;
 
+        let entity_type;
+        match types.types.get(&spawn_event.raw_entity.entity_type) {
+            Some(t) => {
+                entity_type = t;
+            }
+            None => {
+                warn!("Couldnt find type!");
+                continue;
+            }
+        }
+
         build_airlock.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_type: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: entity_type.clone(),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: AirlockType,
+            builder: AirlockType::default(),
         });
     }
 }

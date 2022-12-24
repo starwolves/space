@@ -14,8 +14,12 @@ pub(crate) fn load_entities(
     for message in client.iter() {
         match &message.message {
             EntityServerMessage::LoadEntity(entity_type, entity_id) => {
-                let index = types.types.values().position(|r| r == entity_type).unwrap();
-                let keys: Vec<&String> = types.types.keys().collect();
+                let index = types
+                    .netcode_types
+                    .values()
+                    .position(|r| r == entity_type)
+                    .unwrap();
+                let keys: Vec<&String> = types.netcode_types.keys().collect();
                 info!("{}", keys.get(index).unwrap());
             }
             _ => {}

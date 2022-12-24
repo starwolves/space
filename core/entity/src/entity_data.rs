@@ -8,9 +8,9 @@ use networking::server::{EntityUpdateData, UnreliableServerMessage};
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    entity_types::{BoxedEntityType, EntityType},
     meta::{EntityDataProperties, EntityDataResource},
     sensable::Sensable,
-    spawn::EntityType,
 };
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[cfg(any(feature = "server", feature = "client"))]
@@ -165,31 +165,37 @@ pub fn entity_update_changed_detection(
 }
 
 /// The base entity component holding base entity data.
-#[derive(Component, Default)]
+#[derive(Component)]
 #[cfg(feature = "server")]
 pub struct EntityData {
-    pub entity_type: BoxEntityType,
+    pub entity_type: BoxedEntityType,
     pub entity_group: EntityGroup,
 }
-
-pub type BoxEntityType = Box<dyn EntityType + 'static>;
-
-impl Default for BoxEntityType {
+#[derive(Clone)]
+pub struct BlankEntityType {
+    identifier: String,
+}
+impl Default for BlankEntityType {
     fn default() -> Self {
-        Box::<BlankEntityType>::new(EntityType::new())
+        Self {
+            identifier: "Blank".to_string(),
+        }
     }
 }
-pub struct BlankEntityType;
 impl EntityType for BlankEntityType {
     fn to_string(&self) -> String {
-        "Blank".to_string()
+        self.identifier.clone()
     }
 
     fn new() -> Self
     where
         Self: Sized,
     {
-        BlankEntityType
+        BlankEntityType::default()
+    }
+
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
 

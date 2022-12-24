@@ -5,23 +5,22 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Fricti
 use chat::chat::{Radio, RadioChannel};
 use entity::{
     entity_data::{WorldMode, WorldModes},
+    entity_types::{BoxedEntityType, EntityType},
     examine::{Examinable, RichName},
     health::{DamageFlag, Health, HealthContainer, HumanoidHealth},
     meta::EntityDataResource,
     senser::Senser,
     spawn::{
         base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData,
-        DefaultSpawnEvent, EntityBuildData, EntityType, NoData, SpawnEntity,
+        DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
     },
 };
-use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
-use humanoid::humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
+use humanoid::humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME};
 use inventory::inventory::{Inventory, Slot, SlotType};
 use inventory::{
     combat::{DamageModel, MeleeCombat},
     spawn_item::spawn_held_entity,
 };
-use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
 use map::map::Map;
 use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
@@ -117,7 +116,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        *types.types.get(&entity_type).unwrap(),
+                        *types.netcode_types.get(&entity_type).unwrap(),
                         spawn_event.spawn_data.entity.to_bits(),
                     ),
                 });
@@ -129,13 +128,14 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
 
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct HumanMaleType {
+    pub identifier: String,
     pub spawn_pawn_data: SpawnPawnData,
 }
 impl EntityType for HumanMaleType {
     fn to_string(&self) -> String {
-        HUMAN_MALE_ENTITY_NAME.to_owned()
+        self.identifier.clone()
     }
 
     fn new() -> Self
@@ -143,6 +143,9 @@ impl EntityType for HumanMaleType {
         Self: Sized,
     {
         HumanMaleType::default()
+    }
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -276,7 +279,7 @@ pub fn build_human_males<T: HumanMaleBuilder + 'static>(
             let entity_option;
 
             entity_option = spawn_held_entity(
-                item_name.to_string(),
+                item_name.clone(),
                 &mut commands,
                 spawn_event.spawn_data.entity,
                 spawn_event.spawn_data.showcase_data_option.clone(),
@@ -393,8 +396,11 @@ pub(crate) fn default_build_human_dummies(
     mut default_spawner: EventReader<DefaultSpawnEvent>,
     mut spawner: EventWriter<SpawnEntity<HumanMaleType>>,
 ) {
+    use helmet_security::spawn::HelmetType;
+    use jumpsuit_security::spawn::JumpsuitType;
+
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type == HUMAN_DUMMY_ENTITY_NAME {
+        if spawn_event.spawn_data.entity_type.to_string() == HUMAN_DUMMY_ENTITY_NAME {
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
                 builder: HumanMaleType {
@@ -404,18 +410,13 @@ pub(crate) fn default_build_human_dummies(
                             ..Default::default()
                         },
                         inventory_setup: vec![
-                            (
-                                "jumpsuit".to_string(),
-                                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
-                            ),
-                            (
-                                "helmet".to_string(),
-                                HELMET_SECURITY_ENTITY_NAME.to_string(),
-                            ),
+                            ("jumpsuit".to_string(), Box::new(JumpsuitType::default())),
+                            ("helmet".to_string(), Box::new(HelmetType::default())),
                         ],
                         designation: PawnDesignation::Dummy,
                         connected_player_option: None,
                     },
+                    identifier: HumanMaleType::default().to_string(),
                 },
             });
         }

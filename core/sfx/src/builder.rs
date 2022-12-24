@@ -5,45 +5,78 @@ use bevy::{
 use const_format::concatcp;
 use entity::{
     entity_data::{CachedBroadcastTransform, EntityData, EntityUpdates, UpdateTransform},
+    entity_types::{BoxedEntityType, EntityType},
     sensable::Sensable,
-    spawn::EntityType,
 };
 use rand::Rng;
 use resources::content::SF_CONTENT_PREFIX;
 pub const SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sfx");
-pub const AMBIENCE_SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "ambience_sfx");
-pub const REPEATING_SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "repeating_sfx");
 
-pub struct AmbienceSfxEntityType;
+#[derive(Clone)]
+pub struct AmbienceSfxEntityType {
+    identifier: String,
+}
+impl Default for AmbienceSfxEntityType {
+    fn default() -> Self {
+        Self {
+            identifier: SF_CONTENT_PREFIX.to_string() + "ambience_sfx",
+        }
+    }
+}
 
 impl EntityType for AmbienceSfxEntityType {
     fn to_string(&self) -> String {
-        AMBIENCE_SFX_ENTITY_NAME.to_string()
+        self.identifier.to_string()
     }
-
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
+    }
     fn new() -> Self
     where
         Self: Sized,
     {
-        Self
+        Self::default()
     }
 }
-
-pub struct RepeatingSfxEntityType;
+#[derive(Clone)]
+pub struct RepeatingSfxEntityType {
+    identifier: String,
+}
+impl Default for RepeatingSfxEntityType {
+    fn default() -> Self {
+        Self {
+            identifier: SF_CONTENT_PREFIX.to_string() + "repeating_sfx",
+        }
+    }
+}
 
 impl EntityType for RepeatingSfxEntityType {
     fn to_string(&self) -> String {
-        REPEATING_SFX_ENTITY_NAME.to_string()
+        self.identifier.clone()
     }
 
     fn new() -> Self
     where
         Self: Sized,
     {
-        Self
+        Self::default()
+    }
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
-pub struct SfxEntityType;
+#[derive(Clone)]
+pub struct SfxEntityType {
+    identifier: String,
+}
+
+impl Default for SfxEntityType {
+    fn default() -> Self {
+        Self {
+            identifier: SF_CONTENT_PREFIX.to_string() + "sfx",
+        }
+    }
+}
 
 impl EntityType for SfxEntityType {
     fn to_string(&self) -> String {
@@ -54,9 +87,13 @@ impl EntityType for SfxEntityType {
     where
         Self: Sized,
     {
-        Self
+        Self::default()
+    }
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
+use entity::entity_data::EntityGroup;
 
 /// Spawn background sound effect with commands as a function.
 #[cfg(feature = "server")]
@@ -71,7 +108,7 @@ pub fn spawn_ambience_sfx(
         rigid_body_position,
         EntityData {
             entity_type: Box::new(AmbienceSfxEntityType::new()),
-            ..Default::default()
+            entity_group: EntityGroup::default(),
         },
         Sensable {
             is_audible: true,
@@ -236,7 +273,7 @@ pub fn repeating_sfx_builder(
         rigid_body_position,
         EntityData {
             entity_type: Box::new(RepeatingSfxEntityType::new()),
-            ..Default::default()
+            entity_group: EntityGroup::default(),
         },
         Sensable {
             is_audible: true,
@@ -260,7 +297,7 @@ pub fn sfx_builder(
         rigid_body_position,
         EntityData {
             entity_type: Box::new(SfxEntityType::new()),
-            ..Default::default()
+            entity_group: EntityGroup::default(),
         },
         Sensable {
             is_audible: true,

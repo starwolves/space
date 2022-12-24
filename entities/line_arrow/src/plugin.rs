@@ -16,7 +16,7 @@ use crate::console_command::entity_console_commands;
 
 use super::{
     console_command::expire_point_arrow,
-    spawn::{build_line_arrows, default_build_line_arrows, LineArrowType, LINE_ARROW_ENTITY_NAME},
+    spawn::{build_line_arrows, default_build_line_arrows, LineArrowType},
 };
 
 pub struct LineArrowPlugin;
@@ -69,7 +69,7 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 #[cfg(feature = "server")]
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: LINE_ARROW_ENTITY_NAME.to_string(),
+        name: LineArrowType::default().identifier,
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

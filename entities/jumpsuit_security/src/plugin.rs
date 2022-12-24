@@ -16,7 +16,7 @@ use resources::{
     labels::{BuildingLabels, CombatLabels, StartupLabels},
 };
 
-use crate::jumpsuit::{Jumpsuit, JUMPSUIT_SECURITY_ENTITY_NAME};
+use crate::jumpsuit::Jumpsuit;
 
 use super::spawn::{build_jumpsuits, build_raw_jumpsuits, default_build_jumpsuits, JumpsuitType};
 
@@ -56,7 +56,7 @@ impl Plugin for JumpsuitsPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
+        name: JumpsuitType::default().identifier,
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

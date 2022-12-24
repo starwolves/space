@@ -1,17 +1,14 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, PointLightBundle, Transform};
-use const_format::concatcp;
 use entity::{
-    entity_data::{EntityData, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
+    entity_data::{EntityData, EntityGroup, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
+    entity_types::{BoxedEntityType, EntityType},
     sensable::Sensable,
-    spawn::{EntityBuildData, EntityType, SpawnEntity},
+    spawn::{EntityBuildData, SpawnEntity},
 };
 use resources::content::SF_CONTENT_PREFIX;
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct PointLightBuilderBundle;
-
-#[cfg(any(feature = "server", feature = "client"))]
-pub const POINT_LIGHT_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "PointLight");
 
 #[cfg(any(feature = "server", feature = "client"))]
 impl PointLightBuilderBundle {
@@ -32,7 +29,7 @@ impl PointLightBuilderBundle {
             static_transform_component,
             EntityData {
                 entity_type: Box::new(PointLightType::new()),
-                ..Default::default()
+                entity_group: EntityGroup::default(),
             },
             EntityUpdates::default(),
             WorldMode {
@@ -43,13 +40,22 @@ impl PointLightBuilderBundle {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Default)]
+#[derive(Clone)]
 pub struct PointLightType {
     pub light: PointLight,
+    identifier: String,
+}
+impl Default for PointLightType {
+    fn default() -> Self {
+        Self {
+            light: Default::default(),
+            identifier: SF_CONTENT_PREFIX.to_string() + "PointLight",
+        }
+    }
 }
 impl EntityType for PointLightType {
     fn to_string(&self) -> String {
-        POINT_LIGHT_ENTITY_NAME.to_owned()
+        self.identifier.clone()
     }
 
     fn new() -> Self
@@ -57,6 +63,9 @@ impl EntityType for PointLightType {
         Self: Sized,
     {
         PointLightType::default()
+    }
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -91,7 +100,7 @@ impl PointLightBuilder for PointLightType {
             },
             EntityData {
                 entity_type: Box::new(PointLightType::new()),
-                ..Default::default()
+                entity_group: EntityGroup::default(),
             },
             EntityUpdates::default(),
             WorldMode {
@@ -108,7 +117,7 @@ pub fn build_raw_point_lights(
     mut commands: Commands,
 ) {
     for event in spawn_events.iter() {
-        if event.raw_entity.entity_type == POINT_LIGHT_ENTITY_NAME {
+        if event.raw_entity.entity_type == PointLightType::new().to_string() {
             let mut entity_transform = Transform::from_translation(event.raw_entity.translation);
             entity_transform.rotation = event.raw_entity.rotation;
             entity_transform.scale = event.raw_entity.scale;
@@ -116,12 +125,13 @@ pub fn build_raw_point_lights(
                 spawn_data: EntityBuildData {
                     entity_transform: entity_transform,
                     default_map_spawn: true,
-                    entity_type: event.raw_entity.entity_type.clone(),
+                    entity_type: Box::new(PointLightType::new()),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
                 builder: PointLightType {
                     light: get_default_point_light(),
+                    ..Default::default()
                 },
             });
         }

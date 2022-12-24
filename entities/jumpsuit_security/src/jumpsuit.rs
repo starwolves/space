@@ -4,7 +4,3 @@ use bevy::prelude::Component;
 #[derive(Component)]
 #[cfg(feature = "server")]
 pub struct Jumpsuit;
-#[cfg(feature = "server")]
-pub const JUMPSUIT_SECURITY_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "jumpsuitSecurity");
-use const_format::concatcp;
-use resources::content::SF_CONTENT_PREFIX;

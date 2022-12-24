@@ -5,6 +5,7 @@ use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
 use console_commands::net::ConsoleCommandsServerMessage;
+use entity::entity_types::{BoxedEntityType, EntityTypes};
 use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
 use gridmap::grid::GridmapMain;
 use networking::server::GodotVariantValues;
@@ -20,6 +21,7 @@ pub(crate) fn rcon_entity_console_commands(
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
     mut rcon_spawn_event: EventWriter<RconSpawnEntity>,
+    types: Res<EntityTypes>,
 ) {
     for console_command_event in queue.iter() {
         let player_entity;
@@ -81,8 +83,20 @@ pub(crate) fn rcon_entity_console_commands(
                 }
             }
 
+            let entity_type;
+
+            match types.types.get(entity_name) {
+                Some(t) => {
+                    entity_type = t;
+                }
+                None => {
+                    warn!("Unrecognized entity type!");
+                    continue;
+                }
+            }
+
             rcon_spawn_event.send(RconSpawnEntity {
-                entity_type: entity_name.to_string(),
+                entity_type: entity_type.clone(),
                 target_selector: player_selector.to_string(),
                 spawn_amount: spawn_amount,
                 command_executor_handle_option: console_command_event.handle_option,
@@ -100,7 +114,7 @@ use text_api::core::CONSOLE_ERROR_COLOR;
 
 /// Event for spawning in entities with the rcon command.
 pub struct RconSpawnEntity {
-    pub entity_type: String,
+    pub entity_type: BoxedEntityType,
     pub target_selector: String,
     pub spawn_amount: i64,
     pub command_executor_handle_option: Option<u64>,
@@ -216,7 +230,7 @@ pub(crate) fn rcon_spawn_entity(
                                     "[color=".to_string()
                                         + CONSOLE_ERROR_COLOR
                                         + "]Unknown entity name \""
-                                        + &event.entity_type
+                                        + &event.entity_type.to_string()
                                         + "\" was provided.[/color]",
                                 ),
                             });
@@ -274,6 +288,7 @@ pub(crate) fn rcon_spawn_held_entity(
     mut default_spawner: EventWriter<DefaultSpawnEvent>,
     mut spawn_held_entity_event: EventReader<RconSpawnHeldEntity>,
     mut spawn_entity: EventWriter<RconSpawnEntity>,
+    types: Res<EntityTypes>,
 ) {
     for event in spawn_held_entity_event.iter() {
         for target_entity in player_selector_to_entities(
@@ -341,11 +356,21 @@ pub(crate) fn rcon_spawn_held_entity(
                     available_slot = Some(slot);
                 }
             }
+            let entity_type;
+            match types.types.get(&event.entity_type) {
+                Some(t) => {
+                    entity_type = t;
+                }
+                None => {
+                    warn!("Couldn't find the supplied entity type.");
+                    continue;
+                }
+            }
 
             match available_slot {
                 Some(slot) => {
                     let entity_option = spawn_held_entity(
-                        event.entity_type.clone(),
+                        entity_type.clone(),
                         &mut commands,
                         event.command_executor_entity,
                         None,
@@ -392,7 +417,7 @@ pub(crate) fn rcon_spawn_held_entity(
                 }
                 None => {
                     spawn_entity.send(RconSpawnEntity {
-                        entity_type: event.entity_type.clone(),
+                        entity_type: entity_type.clone(),
                         target_selector: event.target_selector.clone(),
                         spawn_amount: 1,
                         command_executor_handle_option: event.command_executor_handle_option,

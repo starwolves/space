@@ -79,11 +79,12 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
         );
     }
 }
+use entity::entity_types::BoxedEntityType;
 
 /// Function to spawn an entity that is held in someone's hands.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn spawn_held_entity(
-    entity_name: String,
+    entity_type: BoxedEntityType,
     commands: &mut Commands,
     holder_entity: Entity,
     showcase_handle_option: Option<ShowcaseData>,
@@ -92,7 +93,7 @@ pub fn spawn_held_entity(
 ) -> Option<Entity> {
     let return_entity;
 
-    match entity_data.name_to_id.get(&entity_name) {
+    match entity_data.name_to_id.get(&entity_type.to_string()) {
         Some(_id) => {
             return_entity = Some(commands.spawn(()).id());
 
@@ -104,7 +105,7 @@ pub fn spawn_held_entity(
                     default_map_spawn: false,
                     raw_entity_option: None,
                     showcase_data_option: showcase_handle_option,
-                    entity_type: entity_name,
+                    entity_type,
                     entity: return_entity.unwrap(),
                     held_entity_option: return_entity,
                 },
