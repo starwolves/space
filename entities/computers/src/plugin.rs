@@ -1,15 +1,10 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::{
-    entity_data::initialize_entity_data,
-    entity_types::init_entity_type,
-    meta::{EntityDataProperties, EntityDataResource},
-    spawn::build_base_entities,
-};
+use entity::{entity_types::init_entity_type, spawn::build_base_entities};
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    labels::{BuildingLabels, CombatLabels, StartupLabels},
+    labels::{BuildingLabels, CombatLabels},
 };
 
 use crate::computer::Computer;
@@ -29,8 +24,7 @@ impl Plugin for ComputersPlugin {
             );
         }
         init_entity_type::<ComputerType>(app);
-        app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
+        app.add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild))
@@ -40,14 +34,4 @@ impl Plugin for ComputersPlugin {
                     .after(BuildingLabels::NormalBuild),
             );
     }
-}
-
-#[cfg(feature = "server")]
-fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let entity_properties = EntityDataProperties {
-        name: ComputerType::default().identifier,
-        id: entity_data.get_id_inc(),
-        ..Default::default()
-    };
-    initialize_entity_data(&mut entity_data, entity_properties);
 }

@@ -1,11 +1,6 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
-use entity::{
-    entity_data::initialize_entity_data,
-    entity_types::init_entity_type,
-    meta::{EntityDataProperties, EntityDataResource},
-    spawn::build_base_entities,
-};
+use entity::{entity_types::init_entity_type, spawn::build_base_entities};
 use networking::server::GodotVariant;
 use resources::{
     is_server::is_server,
@@ -32,8 +27,7 @@ impl Plugin for LineArrowPlugin {
             .add_system(entity_console_commands.label(BuildingLabels::TriggerBuild));
         }
         init_entity_type::<LineArrowType>(app);
-        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild))
+        app.add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild))
             .add_system(build_line_arrows::<LineArrowType>.after(BuildingLabels::TriggerBuild))
             .add_system(
                 (default_build_line_arrows)
@@ -64,15 +58,4 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
             ("duration".to_string(), GodotVariant::Int),
         ],
     ));
-}
-
-#[cfg(feature = "server")]
-pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let entity_properties = EntityDataProperties {
-        name: LineArrowType::default().identifier,
-        id: entity_data.get_id_inc(),
-        ..Default::default()
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
 }

@@ -1,21 +1,16 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::{
     laser_visuals::projectile_laser_visuals,
     melee_queries::melee_attack_handler,
     projectile_queries::projectile_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{
-    entity_data::initialize_entity_data,
-    entity_types::init_entity_type,
-    meta::{EntityDataProperties, EntityDataResource},
-    spawn::build_base_entities,
-};
+use entity::{entity_types::init_entity_type, spawn::build_base_entities};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    labels::{BuildingLabels, CombatLabels, StartupLabels},
+    labels::{BuildingLabels, CombatLabels},
 };
 
 use crate::pistol_l1::PistolL1;
@@ -50,8 +45,7 @@ impl Plugin for PistolL1Plugin {
             .add_system(projectile_laser_visuals::<PistolL1>.after(CombatLabels::Query));
         }
         init_entity_type::<PistolL1Type>(app);
-        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system((build_base_entities::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
+        app.add_system((build_base_entities::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system((build_inventory_items::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system(build_pistols_l1::<PistolL1Type>.after(BuildingLabels::TriggerBuild))
@@ -62,15 +56,4 @@ impl Plugin for PistolL1Plugin {
                     .after(BuildingLabels::NormalBuild),
             );
     }
-}
-
-#[cfg(feature = "server")]
-pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let entity_properties = EntityDataProperties {
-        name: PistolL1Type::default().identifier,
-        id: entity_data.get_id_inc(),
-        ..Default::default()
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
 }
