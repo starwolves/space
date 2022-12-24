@@ -1,5 +1,6 @@
 use crate::{
-    entity_data::BoxEntityType,
+    entity_data::BlankEntityType,
+    entity_types::{BoxedEntityType, EntityType},
     showcase::{Showcase, ShowcaseData},
 };
 use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform};
@@ -17,22 +18,34 @@ use super::entity_data::DefaultMapEntity;
 
 /// A base bundle for the basis of entities. Should be used by almost all entities.
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Default)]
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
     pub examinable: Examinable,
-    pub entity_type: BoxEntityType,
+    pub entity_type: BoxedEntityType,
     pub health: Health,
     pub entity_group: EntityGroup,
     /// If this entity was spawned by default from map data.
     pub default_map_spawn: bool,
 }
+
+impl Default for BaseEntityBundle {
+    fn default() -> Self {
+        Self {
+            default_transform: Transform::default(),
+            examinable: Examinable::default(),
+            entity_type: Box::<BlankEntityType>::new(EntityType::new()),
+            health: Health::default(),
+            entity_group: EntityGroup::default(),
+            default_map_spawn: bool::default(),
+        }
+    }
+}
+
 /// Base entity data.
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Default)]
 pub struct BaseEntityData {
     /// Entity type ID.
-    pub entity_type: BoxEntityType,
+    pub entity_type: BoxedEntityType,
     pub examinable: Examinable,
     pub sensable: Sensable,
     pub health: Health,
@@ -45,6 +58,20 @@ pub struct BaseEntityData {
     pub showcase_handle_option: Option<ShowcaseData>,
 }
 
+impl Default for BaseEntityData {
+    fn default() -> Self {
+        Self {
+            examinable: Examinable::default(),
+            entity_type: Box::<BlankEntityType>::new(EntityType::new()),
+            health: Health::default(),
+            entity_group: EntityGroup::default(),
+            default_map_spawn: bool::default(),
+            sensable: Sensable::default(),
+            is_item_in_storage: bool::default(),
+            showcase_handle_option: None,
+        }
+    }
+}
 /// Spawn a base entity.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity: Entity) {
@@ -129,7 +156,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
                     message: EntityServerMessage::LoadEntity(
-                        *types.types.get(&entity_type).unwrap(),
+                        *types.netcode_types.get(&entity_type).unwrap(),
                         spawn_event.spawn_data.entity.to_bits(),
                     ),
                 });
@@ -166,9 +193,10 @@ pub struct EntityBuildData {
     /// If the entity is spawned in a showcase find its data here.
     pub showcase_data_option: Option<ShowcaseData>,
     /// Entity type ID.
-    pub entity_type: String,
+    pub entity_type: BoxedEntityType,
     pub entity: Entity,
 }
+
 #[cfg(any(feature = "server", feature = "client"))]
 impl Default for EntityBuildData {
     fn default() -> Self {
@@ -180,7 +208,7 @@ impl Default for EntityBuildData {
             default_map_spawn: false,
             raw_entity_option: None,
             showcase_data_option: None,
-            entity_type: "".to_string(),
+            entity_type: Box::new(BlankEntityType::default()),
             entity: Entity::from_bits(0),
         }
     }
@@ -200,7 +228,7 @@ pub struct SpawnEntity<T> {
 /// A function to spawn an entity.
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn spawn_entity(
-    entity_name: String,
+    entity_type: BoxedEntityType,
     transform: Transform,
     commands: &mut Commands,
     correct_transform: bool,
@@ -212,7 +240,7 @@ pub fn spawn_entity(
 ) -> Option<Entity> {
     let return_entity;
 
-    match entity_data.name_to_id.get(&entity_name) {
+    match entity_data.name_to_id.get(&entity_type.to_string()) {
         Some(_id) => {
             let held;
 
@@ -232,7 +260,7 @@ pub fn spawn_entity(
                     holder_entity_option: held,
                     raw_entity_option: raw_entity_option,
                     showcase_data_option: showcase_handle_option,
-                    entity_type: entity_name,
+                    entity_type,
                     entity: return_entity.unwrap(),
 
                     ..Default::default()
@@ -253,16 +281,3 @@ pub fn spawn_entity(
 }
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct NoData;
-
-/// Each entity type has a type struct. Types are identified using unhygenic strings with prefixes.
-/// String identifiers for entity types are useful for future persistent storage including databases.
-/// A hardcoded string name per entity type makes it so that each entity name keeps the same name at all times despite any amount of code changes.
-/// This way entities stored inside a database will remain identfiable across different codebases.
-#[cfg(any(feature = "server", feature = "client"))]
-pub trait EntityType: Send + Sync {
-    /// Persistent string identifier of entity type. Unhygenic.
-    fn to_string(&self) -> String;
-    fn new() -> Self
-    where
-        Self: Sized;
-}

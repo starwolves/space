@@ -50,6 +50,7 @@ use sounds::{
     },
 };
 
+use entity::entity_types::EntityTypes;
 use networking::server::OutgoingReliableServerMessage;
 use ui::networking::UiServerMessage;
 
@@ -68,6 +69,11 @@ pub(crate) fn construction_tool(
         EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
         EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
     ),
+    queries: (
+        Query<(&mut Senser, &ConnectedPlayer)>,
+        Query<(&Transform, &EntityData), Without<RigidBodyDisabled>>,
+        Query<&Inventory>,
+    ),
     entity_data: Res<EntityDataResource>,
     gridmap_data: Res<GridmapData>,
     mut gridmap_main: ResMut<GridmapMain>,
@@ -84,10 +90,8 @@ pub(crate) fn construction_tool(
     mut commands: Commands,
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut fov_map: ResMut<DoryenMap>,
-    mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
-    rigid_bodies: Query<(&Transform, &EntityData), Without<RigidBodyDisabled>>,
-    inventory_holders: Query<&Inventory>,
+    types: Res<EntityTypes>,
 ) {
     let (
         mut input_construct_event,
@@ -98,6 +102,8 @@ pub(crate) fn construction_tool(
     ) = event_readers;
 
     let (mut default_spawner, mut server, mut server1) = event_writers;
+
+    let (mut sensers, rigid_bodies, inventory_holders) = queries;
 
     // Retreive all construction and complex constructions as a text list and make generic client GUI text list call.
     for event in input_construction_options_event.iter() {
@@ -1111,11 +1117,21 @@ pub(crate) fn construction_tool(
                     .mul_quat(spawn_rotation);
 
                 let new_entity = commands.spawn(()).id();
+                let entity_type;
+                match types.types.get(construction_entity_name) {
+                    Some(t) => {
+                        entity_type = t;
+                    }
+                    None => {
+                        warn!("Entity type not found!");
+                        continue;
+                    }
+                }
 
                 default_spawner.send(DefaultSpawnEvent {
                     spawn_data: EntityBuildData {
                         entity_transform: spawn_transform,
-                        entity_type: construction_entity_name.to_string(),
+                        entity_type: entity_type.clone(),
                         entity: new_entity,
                         ..Default::default()
                     },
@@ -1250,8 +1266,6 @@ pub struct InputDeconstruct {
     /// Entity that requested to deconstruct.
     pub belonging_entity: Entity,
 }
-#[cfg(feature = "server")]
-pub const CONSTRUCTION_TOOL_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "constructionTool");
 /// Client input construction options selection event.
 #[cfg(feature = "server")]
 pub struct InputConstructionOptionsSelection {
@@ -1260,5 +1274,3 @@ pub struct InputConstructionOptionsSelection {
     // Entity has been validated.
     pub entity: Entity,
 }
-use const_format::concatcp;
-use resources::content::SF_CONTENT_PREFIX;

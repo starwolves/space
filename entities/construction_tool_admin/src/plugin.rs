@@ -16,9 +16,7 @@ use crate::action::{
     construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
     text_tree_input_selection,
 };
-use crate::construction_tool::{
-    ConstructionTool, InputConstructionOptionsSelection, CONSTRUCTION_TOOL_ENTITY_NAME,
-};
+use crate::construction_tool::{ConstructionTool, InputConstructionOptionsSelection};
 
 use super::{
     construction_tool::{
@@ -116,7 +114,7 @@ impl Plugin for ConstructionToolAdminPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
+        name: ConstructionToolType::default().identifier,
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

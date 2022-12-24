@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use crate::spawn::ComputerType;
 use bevy::prelude::{Added, Component, Query};
 use entity::{
     entity_data::EntityData,
@@ -7,15 +8,16 @@ use entity::{
 };
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
-use super::spawn::BRIDGE_COMPUTER_ENTITY_NAME;
-
 /// On a computer spawn.
 #[cfg(feature = "server")]
 pub(crate) fn computer_added(
     mut computers: Query<(&EntityData, &mut Examinable), Added<Computer>>,
 ) {
     for (entity_data_component, mut examinable_component) in computers.iter_mut() {
-        if entity_data_component.entity_type.to_string() == BRIDGE_COMPUTER_ENTITY_NAME {
+        if entity_data_component
+            .entity_type
+            .is_type(Box::new(ComputerType::default()))
+        {
             examinable_component.name = RichName {
                 name: "bridge computer".to_string(),
                 n: false,

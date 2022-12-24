@@ -16,7 +16,7 @@ use resources::{
     labels::{BuildingLabels, CombatLabels, StartupLabels},
 };
 
-use crate::helmet::{Helmet, HELMET_SECURITY_ENTITY_NAME};
+use crate::helmet::Helmet;
 
 use super::spawn::{build_helmets, build_raw_helmets, default_build_helmets_security, HelmetType};
 
@@ -56,7 +56,7 @@ impl Plugin for HelmetsPlugin {
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: HELMET_SECURITY_ENTITY_NAME.to_string(),
+        name: HelmetType::default().identifier,
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

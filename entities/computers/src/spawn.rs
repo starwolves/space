@@ -5,11 +5,12 @@ use bevy::{
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use entity::{
     entity_data::RawSpawnEvent,
+    entity_types::{BoxedEntityType, EntityType},
     examine::{Examinable, RichName},
     health::Health,
     spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, EntityType,
-        NoData, SpawnEntity,
+        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
+        SpawnEntity,
     },
 };
 use physics::{
@@ -73,18 +74,30 @@ impl RigidBodyBuilder<NoData> for ComputerType {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct ComputerType;
+#[derive(Clone)]
+pub struct ComputerType {
+    pub identifier: String,
+}
+impl Default for ComputerType {
+    fn default() -> Self {
+        ComputerType {
+            identifier: SF_CONTENT_PREFIX.to_owned() + "bridgeComputer",
+        }
+    }
+}
 
 impl EntityType for ComputerType {
     fn to_string(&self) -> String {
-        BRIDGE_COMPUTER_ENTITY_NAME.to_owned()
+        self.identifier.clone()
     }
-
+    fn is_type(&self, other_type: BoxedEntityType) -> bool {
+        other_type.to_string() == self.identifier
+    }
     fn new() -> Self
     where
         Self: Sized,
     {
-        ComputerType
+        ComputerType::default()
     }
 }
 
@@ -99,11 +112,7 @@ pub fn build_computers<T: Send + Sync + 'static>(
             .insert(Computer);
     }
 }
-use const_format::concatcp;
 use resources::content::SF_CONTENT_PREFIX;
-
-#[cfg(any(feature = "server", feature = "client"))]
-pub const BRIDGE_COMPUTER_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeComputer");
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn build_raw_computers(
@@ -112,7 +121,7 @@ pub fn build_raw_computers(
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != BRIDGE_COMPUTER_ENTITY_NAME {
+        if spawn_event.raw_entity.entity_type != ComputerType::default().identifier {
             continue;
         }
 
@@ -124,12 +133,12 @@ pub fn build_raw_computers(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_type: spawn_event.raw_entity.entity_type.clone(),
+                entity_type: Box::new(ComputerType::default()),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: ComputerType,
+            builder: ComputerType::default(),
         });
     }
 }
@@ -142,12 +151,16 @@ pub fn default_build_computers(
     mut spawner: EventWriter<SpawnEntity<ComputerType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type != BRIDGE_COMPUTER_ENTITY_NAME {
+        if spawn_event
+            .spawn_data
+            .entity_type
+            .is_type(Box::new(ComputerType::default()))
+        {
             continue;
         }
         spawner.send(SpawnEntity {
             spawn_data: spawn_event.spawn_data.clone(),
-            builder: ComputerType,
+            builder: ComputerType::default(),
         });
     }
 }

@@ -9,15 +9,10 @@ use pawn::pawn::Spawning;
 use pawn::pawn::{PawnDesignation, SpawnPawnData};
 use player::account::Accounts;
 
-use construction_tool_admin::construction_tool::CONSTRUCTION_TOOL_ENTITY_NAME;
 use entity::spawn::EntityBuildData;
-use helmet_security::helmet::HELMET_SECURITY_ENTITY_NAME;
-use jumpsuit_security::jumpsuit::JUMPSUIT_SECURITY_ENTITY_NAME;
-use pistol_l1::pistol_l1::PISTOL_L1_ENTITY_NAME;
 use setup_ui::core::SetupUiUserDataSets;
 
 use entity::spawn::SpawnEntity;
-use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 
 use crate::spawn::HumanMaleType;
 use pawn::pawn::Pawn;
@@ -34,20 +29,20 @@ pub(crate) fn spawn_boarding_player(
     setup_ui_datas: Res<SetupUiUserDataSets>,
     mut boarded: EventWriter<PlayerBoarded>,
 ) {
+    use construction_tool_admin::spawn::ConstructionToolType;
+    use entity::entity_types::EntityType;
+    use helmet_security::spawn::HelmetType;
+    use jumpsuit_security::spawn::JumpsuitType;
+    use pistol_l1::spawn::PistolL1Type;
+
     for (entity_id, spawning_component, connected_player_component) in query.iter() {
-        let passed_inventory_setup = vec![
-            (
-                "jumpsuit".to_string(),
-                JUMPSUIT_SECURITY_ENTITY_NAME.to_string(),
-            ),
-            (
-                "helmet".to_string(),
-                HELMET_SECURITY_ENTITY_NAME.to_string(),
-            ),
-            ("holster".to_string(), PISTOL_L1_ENTITY_NAME.to_string()),
+        let passed_inventory_setup: Vec<(String, Box<dyn EntityType>)> = vec![
+            ("jumpsuit".to_string(), Box::new(JumpsuitType::default())),
+            ("helmet".to_string(), Box::new(HelmetType::default())),
+            ("holster".to_string(), Box::new(PistolL1Type::default())),
             (
                 "left_hand".to_string(),
-                CONSTRUCTION_TOOL_ENTITY_NAME.to_string(),
+                Box::new(ConstructionToolType::default()),
             ),
         ];
 
@@ -72,7 +67,7 @@ pub(crate) fn spawn_boarding_player(
             spawn_data: EntityBuildData {
                 entity: new_entity,
                 entity_transform: spawning_component.transform.clone(),
-                entity_type: HUMAN_MALE_ENTITY_NAME.to_string(),
+                entity_type: Box::new(HumanMaleType::default()),
                 ..Default::default()
             },
             builder: HumanMaleType {
@@ -85,6 +80,7 @@ pub(crate) fn spawn_boarding_player(
                     inventory_setup: passed_inventory_setup,
                     designation: PawnDesignation::Player,
                 },
+                identifier: HumanMaleType::default().to_string(),
             },
         });
 

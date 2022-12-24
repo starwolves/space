@@ -18,7 +18,7 @@ use resources::{
     labels::{BuildingLabels, CombatLabels, StartupLabels},
 };
 
-use crate::pistol_l1::{PistolL1, PISTOL_L1_ENTITY_NAME};
+use crate::pistol_l1::PistolL1;
 
 use super::spawn::{
     build_pistols_l1, build_raw_pistols_l1, default_build_pistols_l1, PistolL1Type,
@@ -67,7 +67,7 @@ impl Plugin for PistolL1Plugin {
 #[cfg(feature = "server")]
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: PISTOL_L1_ENTITY_NAME.to_string(),
+        name: PistolL1Type::default().identifier,
         id: entity_data.get_id_inc(),
         ..Default::default()
     };

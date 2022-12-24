@@ -6,10 +6,7 @@ use bevy::{
 use entity::spawn::{EntityBuildData, SpawnEntity};
 use networking::server::GodotVariantValues;
 
-use super::{
-    line_arrow::PointArrow,
-    spawn::{LineArrowType, LINE_ARROW_ENTITY_NAME},
-};
+use super::{line_arrow::PointArrow, spawn::LineArrowType};
 use console_commands::commands::InputConsoleCommand;
 
 /// Perform "pointArrow" command.
@@ -116,12 +113,13 @@ pub(crate) fn entity_console_commands(
                 spawn_data: EntityBuildData {
                     entity_transform: passed_transform,
                     correct_transform: false,
-                    entity_type: LINE_ARROW_ENTITY_NAME.to_string(),
+                    entity_type: Box::new(LineArrowType::default()),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
                 builder: LineArrowType {
                     duration: duration as f32,
+                    ..Default::default()
                 },
             });
         }
