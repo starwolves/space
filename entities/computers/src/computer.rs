@@ -16,7 +16,7 @@ pub(crate) fn computer_added(
     for (entity_data_component, mut examinable_component) in computers.iter_mut() {
         if entity_data_component
             .entity_type
-            .is_type(Box::new(ComputerType::default()))
+            .is_type(ComputerType::default().identifier)
         {
             examinable_component.name = RichName {
                 name: "bridge computer".to_string(),

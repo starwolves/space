@@ -9,13 +9,10 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use const_format::concatcp;
 use entity::{
     entity_data::{EntityGroup, RawSpawnEvent},
-    entity_types::{BoxedEntityType, EntityType},
+    entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
-    spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
-    },
+    spawn::{BaseEntityBuilder, BaseEntityBundle, EntityBuildData, NoData, SpawnEntity},
 };
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
@@ -131,16 +128,14 @@ impl EntityType for AirlockType {
     fn to_string(&self) -> String {
         self.identifier.clone()
     }
-
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
+    }
     fn new() -> Self
     where
         Self: Sized,
     {
         AirlockType::default()
-    }
-
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
     }
 }
 
@@ -164,26 +159,6 @@ pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sec
 pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeAirLock");
 pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "governmentAirLock");
 pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuumAirLock");
-
-#[cfg(feature = "server")]
-pub fn default_build_airlocks(
-    mut default_spawner: EventReader<DefaultSpawnEvent<AirlockType>>,
-    mut spawner: EventWriter<SpawnEntity<AirlockType>>,
-) {
-    for spawn_event in default_spawner.iter() {
-        if spawn_event
-            .builder
-            .is_type(Box::new(AirlockType::default()))
-        {
-            continue;
-        }
-
-        spawner.send(SpawnEntity {
-            spawn_data: spawn_event.spawn_data.clone(),
-            builder: AirlockType::default(),
-        });
-    }
-}
 
 #[cfg(feature = "server")]
 pub fn build_raw_airlocks(
@@ -212,7 +187,7 @@ pub fn build_raw_airlocks(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: AirlockType::default(),
+            entity_type: AirlockType::default(),
         });
     }
 }

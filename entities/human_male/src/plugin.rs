@@ -5,7 +5,7 @@ use entity::{
     meta::{EntityDataProperties, EntityDataResource},
     register::register_entity_type,
 };
-use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
+use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
 
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -17,9 +17,7 @@ use crate::{
     boarding::spawn_boarding_player,
     hands_attack_handler::hands_attack_handler,
     setup_ui_showcase::human_male_setup_ui,
-    spawn::{
-        build_base_human_males, build_human_males, default_build_human_dummies, HumanMaleType,
-    },
+    spawn::{build_base_human_males, build_human_males, HumanMaleType},
 };
 use bevy::app::CoreStage::PostUpdate;
 pub struct HumanMalePlugin;
@@ -46,25 +44,12 @@ impl Plugin for HumanMalePlugin {
             .add_system(
                 (build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild),
             )
-            .add_system((build_rigid_bodies::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
-            .add_system(
-                (default_build_human_dummies)
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
-            );
+            .add_system((build_rigid_bodies::<HumanMaleType>).after(BuildingLabels::TriggerBuild));
     }
 }
 
 #[cfg(feature = "server")]
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let entity_properties = EntityDataProperties {
-        name: HUMAN_DUMMY_ENTITY_NAME.to_string(),
-        id: entity_data.get_id_inc(),
-        ..Default::default()
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
-
     let entity_properties = EntityDataProperties {
         name: HUMAN_MALE_ENTITY_NAME.to_string(),
         id: entity_data.get_id_inc(),

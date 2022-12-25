@@ -2,17 +2,14 @@ use std::collections::BTreeMap;
 
 use super::line_arrow::{LineArrow, PointArrow};
 use bevy::{
-    prelude::{Commands, EventReader, EventWriter, Transform},
+    prelude::{Commands, EventReader, Transform},
     time::Timer,
 };
 use entity::{
     entity_data::{WorldMode, WorldModes},
-    entity_types::{BoxedEntityType, EntityType},
+    entity_types::EntityType,
     examine::{Examinable, RichName},
-    spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
-    },
+    spawn::{BaseEntityBuilder, BaseEntityBundle, EntityBuildData, NoData, SpawnEntity},
 };
 
 #[cfg(any(feature = "server", feature = "client"))]
@@ -70,8 +67,8 @@ impl EntityType for LineArrowType {
     {
         LineArrowType::default()
     }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -97,7 +94,7 @@ pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
             spawn_event.spawn_data.entity_transform,
             LineArrow,
             PointArrow {
-                timer: Timer::from_seconds(spawn_event.builder.get_duration(), TimerMode::Once),
+                timer: Timer::from_seconds(spawn_event.entity_type.get_duration(), TimerMode::Once),
             },
             WorldMode {
                 mode: WorldModes::Static,
@@ -106,19 +103,3 @@ pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
     }
 }
 use resources::content::SF_CONTENT_PREFIX;
-#[cfg(any(feature = "server", feature = "client"))]
-#[cfg(any(feature = "server", feature = "client"))]
-pub fn default_build_line_arrows(
-    mut default_spawner: EventReader<DefaultSpawnEvent<LineArrowType>>,
-    mut spawner: EventWriter<SpawnEntity<LineArrowType>>,
-) {
-    for spawn_event in default_spawner.iter() {
-        spawner.send(SpawnEntity {
-            spawn_data: spawn_event.spawn_data.clone(),
-            builder: LineArrowType {
-                duration: 6000.0,
-                ..Default::default()
-            },
-        });
-    }
-}

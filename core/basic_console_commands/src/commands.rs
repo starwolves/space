@@ -5,7 +5,7 @@ use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
 use console_commands::net::ConsoleCommandsServerMessage;
-use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
+use entity::meta::EntityDataResource;
 use gridmap::grid::GridmapMain;
 use networking::server::GodotVariantValues;
 use networking::server::OutgoingReliableServerMessage;
@@ -111,6 +111,7 @@ pub struct RconSpawnEntity<T: EntityType + Send + Sync + 'static> {
     pub command_executor_entity: Entity,
 }
 use entity::entity_types::EntityType;
+use entity::spawn::SpawnEntity;
 
 /// Process spawning entities via RCON command. Such as commands for spawning entities.
 #[cfg(feature = "server")]
@@ -124,7 +125,7 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
     entity_data: ResMut<EntityDataResource>,
-    mut default_spawner: EventWriter<DefaultSpawnEvent<T>>,
+    mut default_spawner: EventWriter<SpawnEntity<T>>,
 ) {
     for event in rcon_spawn_events.iter() {
         let mut spawn_amount = event.spawn_amount;
@@ -275,7 +276,7 @@ pub fn rcon_spawn_held_entity<T: EntityType + Clone + Default + Send + Sync + 's
     mut player_inventory_query: Query<&mut Inventory>,
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
-    mut default_spawner: EventWriter<DefaultSpawnEvent<T>>,
+    mut default_spawner: EventWriter<SpawnEntity<T>>,
     mut spawn_held_entity_event: EventReader<RconSpawnHeldEntity<T>>,
     mut spawn_entity: EventWriter<RconSpawnEntity<T>>,
 ) {
@@ -352,7 +353,7 @@ pub fn rcon_spawn_held_entity<T: EntityType + Clone + Default + Send + Sync + 's
             match available_slot {
                 Some(slot) => {
                     let return_entity = commands.spawn(()).id();
-                    default_spawner.send(DefaultSpawnEvent {
+                    default_spawner.send(SpawnEntity {
                         spawn_data: EntityBuildData {
                             entity_transform: Transform::IDENTITY,
                             correct_transform: false,
@@ -363,7 +364,7 @@ pub fn rcon_spawn_held_entity<T: EntityType + Clone + Default + Send + Sync + 's
                             entity: return_entity,
                             held_entity_option: Some(return_entity),
                         },
-                        builder: event.entity_type.clone(),
+                        entity_type: event.entity_type.clone(),
                     });
 
                     slot.slot_item = Some(return_entity);

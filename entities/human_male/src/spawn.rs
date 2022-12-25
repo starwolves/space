@@ -5,21 +5,21 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Fricti
 use chat::chat::{Radio, RadioChannel};
 use entity::{
     entity_data::{WorldMode, WorldModes},
-    entity_types::{BoxedEntityType, EntityType},
+    entity_types::EntityType,
     examine::{Examinable, RichName},
     health::{DamageFlag, Health, HealthContainer, HumanoidHealth},
     senser::Senser,
     spawn::{
-        base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData,
-        DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
+        base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData, EntityBuildData,
+        NoData, SpawnEntity,
     },
 };
-use humanoid::humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME};
+use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
 use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::{Inventory, Slot, SlotType};
 use map::map::Map;
 use pawn::pawn::{DataLink, DataLinkType};
-use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
+use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 
@@ -90,7 +90,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
 ) {
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event
-            .builder
+            .entity_type
             .get_bundle(&spawn_event.spawn_data, HumanMaleBuildData);
         let entity_type = base_entity_bundle.entity_type.to_string();
         base_entity_builder(
@@ -124,11 +124,23 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
 
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct HumanMaleType {
     pub identifier: String,
+    pub sub_type: String,
     pub spawn_pawn_data: SpawnPawnData,
 }
+
+impl Default for HumanMaleType {
+    fn default() -> Self {
+        HumanMaleType {
+            identifier: HUMAN_MALE_ENTITY_NAME.to_string(),
+            sub_type: HUMAN_MALE_ENTITY_NAME.to_string(),
+            spawn_pawn_data: SpawnPawnData::default(),
+        }
+    }
+}
+
 impl EntityType for HumanMaleType {
     fn to_string(&self) -> String {
         self.identifier.clone()
@@ -140,8 +152,8 @@ impl EntityType for HumanMaleType {
     {
         HumanMaleType::default()
     }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -178,6 +190,7 @@ impl HumanMaleBuilder for HumanMaleType {
 pub trait HumanMaleBuilder: Send + Sync {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
+use bevy::prelude::Entity;
 use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
@@ -186,16 +199,14 @@ pub fn build_human_males(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
 ) {
-    use bevy::prelude::Entity;
-
     for spawn_event in spawn_events.iter() {
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
-        let spawn_pawn_data = spawn_event.builder.get_spawn_pawn_data();
+        let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
 
         if spawn_event.spawn_data.showcase_data_option.is_none() {
             let pawn_component = spawn_event
-                .builder
+                .entity_type
                 .get_spawn_pawn_data()
                 .pawn_component
                 .clone();
@@ -269,7 +280,7 @@ pub fn build_human_males(
             .insert(Dominance::group(10))
             .insert(LockedAxes::ROTATION_LOCKED);
 
-        let mut slot_entities: HashMap<String, Entity> = HashMap::new();
+        let slot_entities: HashMap<String, Entity> = HashMap::new();
 
         // Inventory spawning no longer happens here.
         /* for (slot_name, item_name) in spawn_pawn_data.inventory_setup.iter() {
@@ -384,37 +395,5 @@ pub fn build_human_males(
             active_slot: "left_hand".to_string(),
             ..Default::default()
         });
-    }
-}
-
-use helmet_security::spawn::HelmetType;
-use jumpsuit_security::spawn::JumpsuitType;
-/// Manage spawning human dummy.
-#[cfg(any(feature = "server", feature = "client"))]
-pub(crate) fn default_build_human_dummies(
-    mut default_spawner: EventReader<DefaultSpawnEvent<HumanMaleType>>,
-    mut spawner: EventWriter<SpawnEntity<HumanMaleType>>,
-) {
-    for spawn_event in default_spawner.iter() {
-        if spawn_event.builder.to_string() == HUMAN_DUMMY_ENTITY_NAME {
-            let inv: Vec<(String, Box<dyn EntityType>)> = vec![
-                ("jumpsuit".to_string(), Box::new(JumpsuitType::default())),
-                ("helmet".to_string(), Box::new(HelmetType::default())),
-            ];
-            spawner.send(SpawnEntity {
-                spawn_data: spawn_event.spawn_data.clone(),
-                builder: HumanMaleType {
-                    spawn_pawn_data: SpawnPawnData {
-                        pawn_component: Pawn {
-                            character_name: "dummy".to_string(),
-                            ..Default::default()
-                        },
-                        designation: PawnDesignation::Dummy,
-                        connected_player_option: None,
-                    },
-                    identifier: HumanMaleType::default().to_string(),
-                },
-            });
-        }
     }
 }

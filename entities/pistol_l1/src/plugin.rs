@@ -19,9 +19,7 @@ use resources::{
 
 use crate::pistol_l1::PistolL1;
 
-use super::spawn::{
-    build_pistols_l1, build_raw_pistols_l1, default_build_pistols_l1, PistolL1Type,
-};
+use super::spawn::{build_pistols_l1, build_raw_pistols_l1, PistolL1Type};
 
 pub struct PistolL1Plugin;
 
@@ -55,11 +53,6 @@ impl Plugin for PistolL1Plugin {
             .add_system((build_rigid_bodies::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system((build_inventory_items::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system(build_pistols_l1::<PistolL1Type>.after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_pistols_l1).after(BuildingLabels::TriggerBuild))
-            .add_system(
-                (default_build_pistols_l1)
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
-            );
+            .add_system((build_raw_pistols_l1).after(BuildingLabels::TriggerBuild));
     }
 }

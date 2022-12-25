@@ -116,7 +116,7 @@ pub(crate) fn entity_console_commands(
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                builder: LineArrowType {
+                entity_type: LineArrowType {
                     duration: duration as f32,
                     ..Default::default()
                 },

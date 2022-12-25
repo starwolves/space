@@ -24,10 +24,7 @@ use super::{
     construction_tool::{
         construction_tool, InputConstruct, InputConstructionOptions, InputDeconstruct,
     },
-    spawn::{
-        build_construction_tools, build_raw_construction_tools, default_build_construction_tools,
-        ConstructionToolType,
-    },
+    spawn::{build_construction_tools, build_raw_construction_tools, ConstructionToolType},
 };
 
 pub struct ConstructionToolAdminPlugin;
@@ -105,11 +102,6 @@ impl Plugin for ConstructionToolAdminPlugin {
         .add_system(
             (build_inventory_items::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
         )
-        .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild))
-        .add_system(
-            (default_build_construction_tools)
-                .label(BuildingLabels::DefaultBuild)
-                .after(BuildingLabels::NormalBuild),
-        );
+        .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild));
     }
 }

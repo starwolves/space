@@ -206,7 +206,7 @@ pub fn build_rigid_bodies<T: RigidBodyBuilder<NoData> + 'static>(
 ) {
     for spawn_event in spawn_events.iter() {
         let rigidbody_bundle = spawn_event
-            .builder
+            .entity_type
             .get_bundle(&spawn_event.spawn_data, NoData);
 
         rigidbody_builder(

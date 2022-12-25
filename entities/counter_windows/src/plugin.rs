@@ -33,10 +33,7 @@ use super::{
     },
     counter_window_tick_timers::counter_window_tick_timers,
     entity_update::counter_window_update,
-    spawn::{
-        build_counter_windows, build_raw_counter_windows, default_build_counter_windows,
-        CounterWindowType, BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME,
-    },
+    spawn::{build_counter_windows, build_raw_counter_windows, CounterWindowType},
 };
 use crate::actions::build_actions;
 use bevy::app::CoreStage::PostUpdate;
@@ -97,12 +94,7 @@ impl Plugin for CounterWindowsPlugin {
             .add_system(
                 (build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
             )
-            .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild))
-            .add_system(
-                (default_build_counter_windows)
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
-            );
+            .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild));
     }
 }
 
@@ -112,26 +104,11 @@ pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
 
     let entity_properties = EntityDataProperties {
-        name: SECURITY_COUNTER_WINDOW_ENTITY_NAME.to_string(),
+        name: CounterWindowType::default().identifier,
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: transform,
             can_be_built_with_grid_item: vec!["securityCounter1".to_string()],
-        }),
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
-
-    let mut transform = Transform::IDENTITY;
-    transform.translation.y = 0.86;
-    transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
-
-    let entity_properties = EntityDataProperties {
-        name: BRIDGE_COUNTER_WINDOW_ENTITY_NAME.to_string(),
-        id: entity_data.get_id_inc(),
-        grid_item: Some(GridItemData {
-            transform_offset: transform,
-            can_be_built_with_grid_item: vec!["bridgeCounter".to_string()],
         }),
     };
 

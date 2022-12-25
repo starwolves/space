@@ -132,7 +132,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
 ) {
     for spawn_event in spawn_events.iter() {
         let base_entity_bundle = spawn_event
-            .builder
+            .entity_type
             .get_bundle(&spawn_event.spawn_data, NoData);
 
         let entity_type = base_entity_bundle.entity_type.to_string();
@@ -210,18 +210,12 @@ impl Default for EntityBuildData {
         }
     }
 }
-/// Default spawn event.
-#[cfg(any(feature = "server", feature = "client"))]
-pub struct DefaultSpawnEvent<T> {
-    pub spawn_data: EntityBuildData,
-    pub builder: T,
-}
 
 /// Standard spawn event.
 #[cfg(any(feature = "server", feature = "client"))]
 pub struct SpawnEntity<T> {
     pub spawn_data: EntityBuildData,
-    pub builder: T,
+    pub entity_type: T,
 }
 /// A function to spawn an entity.
 #[cfg(any(feature = "server", feature = "client"))]
@@ -234,7 +228,7 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
     held_data_option: Option<Entity>,
     raw_entity_option: Option<RawEntityRon>,
     showcase_handle_option: Option<ShowcaseData>,
-    default_spawner: &mut EventWriter<DefaultSpawnEvent<T>>,
+    default_spawner: &mut EventWriter<SpawnEntity<T>>,
 ) -> Option<Entity> {
     let return_entity;
 
@@ -251,7 +245,7 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
                 }
             }
             return_entity = Some(commands.spawn(()).id());
-            default_spawner.send(DefaultSpawnEvent {
+            default_spawner.send(SpawnEntity {
                 spawn_data: EntityBuildData {
                     entity_transform: transform,
                     correct_transform,
@@ -262,7 +256,7 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
 
                     ..Default::default()
                 },
-                builder: entity_type,
+                entity_type,
             });
         }
         None => {

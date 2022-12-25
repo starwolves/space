@@ -17,7 +17,7 @@ use resources::{
 
 use crate::helmet::Helmet;
 
-use super::spawn::{build_helmets, build_raw_helmets, default_build_helmets_security, HelmetType};
+use super::spawn::{build_helmets, build_raw_helmets, HelmetType};
 
 pub struct HelmetsPlugin;
 
@@ -45,11 +45,6 @@ impl Plugin for HelmetsPlugin {
             .add_system((build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<HelmetType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild))
-            .add_system(
-                (default_build_helmets_security)
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
-            );
+            .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild));
     }
 }

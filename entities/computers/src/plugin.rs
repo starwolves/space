@@ -12,7 +12,7 @@ use crate::computer::Computer;
 
 use super::{
     computer::computer_added,
-    spawn::{build_computers, build_raw_computers, default_build_computers, ComputerType},
+    spawn::{build_computers, build_raw_computers, ComputerType},
 };
 
 pub struct ComputersPlugin;
@@ -28,11 +28,6 @@ impl Plugin for ComputersPlugin {
         app.add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild))
-            .add_system(
-                (default_build_computers)
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
-            );
+            .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild));
     }
 }

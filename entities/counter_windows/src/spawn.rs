@@ -8,13 +8,10 @@ use bevy::{
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction, Group};
 use entity::{
     entity_data::{EntityData, EntityGroup, RawSpawnEvent},
-    entity_types::{BoxedEntityType, EntityType},
+    entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
-    spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
-    },
+    spawn::{BaseEntityBuilder, BaseEntityBundle, EntityBuildData, NoData, SpawnEntity},
 };
 use pawn::pawn::ShipAuthorizationEnum;
 use physics::physics::{get_bit_masks, ColliderGroup};
@@ -32,7 +29,7 @@ pub fn get_default_transform() -> Transform {
 #[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for CounterWindowType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
-        let entity_name = self.to_string();
+        let entity_name = self.sub_type.clone();
         let department_name;
 
         if entity_name == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
@@ -110,12 +107,14 @@ pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 #[derive(Clone)]
 pub struct CounterWindowType {
     pub identifier: String,
+    pub sub_type: String,
 }
 
 impl Default for CounterWindowType {
     fn default() -> Self {
         CounterWindowType {
             identifier: SF_CONTENT_PREFIX.to_string() + "counterWindow",
+            sub_type: SECURITY_COUNTER_WINDOW_ENTITY_NAME.to_string(),
         }
     }
 }
@@ -131,8 +130,8 @@ impl EntityType for CounterWindowType {
     {
         CounterWindowType::default()
     }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
     }
 }
 
@@ -224,25 +223,7 @@ pub fn build_raw_counter_windows(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: CounterWindowType::default(),
-        });
-    }
-}
-
-#[cfg(feature = "server")]
-pub fn default_build_counter_windows(
-    mut default_spawner: EventReader<DefaultSpawnEvent<CounterWindowType>>,
-    mut spawner: EventWriter<SpawnEntity<CounterWindowType>>,
-) {
-    for spawn_event in default_spawner.iter() {
-        if spawn_event.builder.to_string() != SECURITY_COUNTER_WINDOW_ENTITY_NAME
-            || spawn_event.builder.to_string() != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
-        {
-            continue;
-        }
-        spawner.send(SpawnEntity {
-            spawn_data: spawn_event.spawn_data.clone(),
-            builder: CounterWindowType::default(),
+            entity_type: CounterWindowType::default(),
         });
     }
 }
