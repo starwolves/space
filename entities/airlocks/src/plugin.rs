@@ -1,6 +1,6 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemLabel, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::register::register_entity_type;
+use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
@@ -23,7 +23,7 @@ use super::{
     airlock_events::airlock_events,
     airlock_tick_timers::airlock_tick_timers,
     entity_update::airlock_update,
-    spawn::{build_airlocks, build_raw_airlocks, AirlockType},
+    spawn::{build_airlocks, AirlockType},
 };
 use bevy::app::CoreStage::PostUpdate;
 
@@ -79,8 +79,7 @@ impl Plugin for AirLocksPlugin {
         }
         app.add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<AirlockType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild));
+            .add_system((build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild));
         register_entity_type::<AirlockType>(app);
     }
 }

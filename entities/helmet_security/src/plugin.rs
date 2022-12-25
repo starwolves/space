@@ -7,7 +7,7 @@ use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{register::register_entity_type, spawn::build_base_entities};
+use entity::{entity_types::register_entity_type, spawn::build_base_entities};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -17,7 +17,7 @@ use resources::{
 
 use crate::helmet::Helmet;
 
-use super::spawn::{build_helmets, build_raw_helmets, HelmetType};
+use super::spawn::{build_helmets, HelmetType};
 
 pub struct HelmetsPlugin;
 
@@ -44,7 +44,6 @@ impl Plugin for HelmetsPlugin {
         app.add_system(build_helmets::<HelmetType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<HelmetType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_helmets).after(BuildingLabels::TriggerBuild));
+            .add_system((build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild));
     }
 }

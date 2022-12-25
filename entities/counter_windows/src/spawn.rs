@@ -3,11 +3,11 @@ use std::collections::BTreeMap;
 use bevy::{
     hierarchy::BuildChildren,
     math::Vec3,
-    prelude::{warn, Commands, EventReader, EventWriter, GlobalTransform, Transform},
+    prelude::{warn, Commands, EventReader, GlobalTransform, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction, Group};
 use entity::{
-    entity_data::{EntityData, EntityGroup, RawSpawnEvent},
+    entity_data::{EntityData, EntityGroup},
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
@@ -198,32 +198,3 @@ pub const SECURITY_COUNTER_WINDOW_ENTITY_NAME: &str =
     concatcp!(SF_CONTENT_PREFIX, "securityCounterWindow");
 pub const BRIDGE_COUNTER_WINDOW_ENTITY_NAME: &str =
     concatcp!(SF_CONTENT_PREFIX, "bridgeCounterWindow");
-
-#[cfg(feature = "server")]
-pub fn build_raw_counter_windows(
-    mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<CounterWindowType>>,
-    mut commands: Commands,
-) {
-    for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != SECURITY_COUNTER_WINDOW_ENTITY_NAME
-            && spawn_event.raw_entity.entity_type != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
-        {
-            continue;
-        }
-
-        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
-        entity_transform.rotation = spawn_event.raw_entity.rotation;
-        entity_transform.scale = spawn_event.raw_entity.scale;
-        builder_computer.send(SpawnEntity {
-            spawn_data: EntityBuildData {
-                entity_transform: entity_transform,
-                default_map_spawn: true,
-                entity: commands.spawn(()).id(),
-                raw_entity_option: Some(spawn_event.raw_entity.clone()),
-                ..Default::default()
-            },
-            entity_type: CounterWindowType::default(),
-        });
-    }
-}

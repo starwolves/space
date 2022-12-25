@@ -1,7 +1,7 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
-use entity::{register::register_entity_type, spawn::build_base_entities};
+use entity::{entity_types::register_entity_type, spawn::build_base_entities};
 use networking::server::GodotVariant;
 use resources::{
     is_server::is_server,

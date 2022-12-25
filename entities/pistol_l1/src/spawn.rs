@@ -3,11 +3,9 @@ use bevy::math::Quat;
 use bevy::math::Vec3;
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
-use bevy::prelude::EventWriter;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
-use entity::entity_data::RawSpawnEvent;
 use entity::entity_types::EntityType;
 use entity::examine::Examinable;
 use entity::examine::RichName;
@@ -204,33 +202,5 @@ pub fn build_pistols_l1<T: Send + Sync + 'static>(
         commands
             .entity(spawn_event.spawn_data.entity)
             .insert(PistolL1);
-    }
-}
-
-#[cfg(feature = "server")]
-pub fn build_raw_pistols_l1(
-    mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<PistolL1Type>>,
-    mut commands: Commands,
-) {
-    for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != PistolL1Type::default().to_string() {
-            continue;
-        }
-
-        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
-        entity_transform.rotation = spawn_event.raw_entity.rotation;
-        entity_transform.scale = spawn_event.raw_entity.scale;
-
-        builder_computer.send(SpawnEntity {
-            spawn_data: EntityBuildData {
-                entity_transform: entity_transform,
-                default_map_spawn: true,
-                entity: commands.spawn(()).id(),
-                raw_entity_option: Some(spawn_event.raw_entity.clone()),
-                ..Default::default()
-            },
-            entity_type: PistolL1Type::default(),
-        });
     }
 }

@@ -7,7 +7,7 @@ use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{register::register_entity_type, spawn::build_base_entities};
+use entity::{entity_types::register_entity_type, spawn::build_base_entities};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -17,7 +17,7 @@ use resources::{
 
 use crate::jumpsuit::Jumpsuit;
 
-use super::spawn::{build_jumpsuits, build_raw_jumpsuits, JumpsuitType};
+use super::spawn::{build_jumpsuits, JumpsuitType};
 
 pub struct JumpsuitsPlugin;
 
@@ -44,7 +44,6 @@ impl Plugin for JumpsuitsPlugin {
         app.add_system(build_jumpsuits::<JumpsuitType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_jumpsuits).after(BuildingLabels::TriggerBuild))
             .add_system(
                 (build_inventory_items::<JumpsuitType>).after(BuildingLabels::TriggerBuild),
             );

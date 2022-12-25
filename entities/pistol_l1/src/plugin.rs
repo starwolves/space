@@ -9,7 +9,7 @@ use combat::{
     projectile_queries::projectile_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{register::register_entity_type, spawn::build_base_entities};
+use entity::{entity_types::register_entity_type, spawn::build_base_entities};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -19,7 +19,7 @@ use resources::{
 
 use crate::pistol_l1::PistolL1;
 
-use super::spawn::{build_pistols_l1, build_raw_pistols_l1, PistolL1Type};
+use super::spawn::{build_pistols_l1, PistolL1Type};
 
 pub struct PistolL1Plugin;
 
@@ -52,7 +52,6 @@ impl Plugin for PistolL1Plugin {
         app.add_system((build_base_entities::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system((build_inventory_items::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
-            .add_system(build_pistols_l1::<PistolL1Type>.after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_pistols_l1).after(BuildingLabels::TriggerBuild));
+            .add_system(build_pistols_l1::<PistolL1Type>.after(BuildingLabels::TriggerBuild));
     }
 }

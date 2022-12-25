@@ -1,10 +1,9 @@
 use bevy::{
     math::{Mat4, Quat, Vec3},
-    prelude::{Commands, EventReader, EventWriter, Transform},
+    prelude::{Commands, EventReader, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use entity::{
-    entity_data::RawSpawnEvent,
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
@@ -110,33 +109,5 @@ pub fn build_computers<T: Send + Sync + 'static>(
     }
 }
 use resources::content::SF_CONTENT_PREFIX;
-
-#[cfg(any(feature = "server", feature = "client"))]
-pub fn build_raw_computers(
-    mut spawn_events: EventReader<RawSpawnEvent>,
-    mut build_computer: EventWriter<SpawnEntity<ComputerType>>,
-    mut commands: Commands,
-) {
-    for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != ComputerType::default().identifier {
-            continue;
-        }
-
-        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
-        entity_transform.rotation = spawn_event.raw_entity.rotation;
-        entity_transform.scale = spawn_event.raw_entity.scale;
-
-        build_computer.send(SpawnEntity {
-            spawn_data: EntityBuildData {
-                entity_transform: entity_transform,
-                default_map_spawn: true,
-                entity: commands.spawn(()).id(),
-                raw_entity_option: Some(spawn_event.raw_entity.clone()),
-                ..Default::default()
-            },
-            entity_type: ComputerType::default(),
-        });
-    }
-}
 
 use super::computer::Computer;

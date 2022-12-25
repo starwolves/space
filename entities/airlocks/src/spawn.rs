@@ -3,12 +3,12 @@ use std::collections::BTreeMap;
 use super::resources::Airlock;
 use bevy::{
     math::Vec3,
-    prelude::{warn, Commands, EventReader, EventWriter, Transform},
+    prelude::{warn, Commands, EventReader, Transform},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use const_format::concatcp;
 use entity::{
-    entity_data::{EntityGroup, RawSpawnEvent},
+    entity_data::EntityGroup,
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
@@ -159,35 +159,3 @@ pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sec
 pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeAirLock");
 pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "governmentAirLock");
 pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuumAirLock");
-
-#[cfg(feature = "server")]
-pub fn build_raw_airlocks(
-    mut spawn_events: EventReader<RawSpawnEvent>,
-    mut build_airlock: EventWriter<SpawnEntity<AirlockType>>,
-    mut commands: Commands,
-) {
-    for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != SECURITY_AIRLOCK_ENTITY_NAME
-            && spawn_event.raw_entity.entity_type != BRIDGE_AIRLOCK_ENTITY_NAME
-            && spawn_event.raw_entity.entity_type != GOVERNMENT_AIRLOCK_ENTITY_NAME
-            && spawn_event.raw_entity.entity_type != VACUUM_AIRLOCK_ENTITY_NAME
-        {
-            continue;
-        }
-
-        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
-        entity_transform.rotation = spawn_event.raw_entity.rotation;
-        entity_transform.scale = spawn_event.raw_entity.scale;
-
-        build_airlock.send(SpawnEntity {
-            spawn_data: EntityBuildData {
-                entity_transform: entity_transform,
-                default_map_spawn: true,
-                entity: commands.spawn(()).id(),
-                raw_entity_option: Some(spawn_event.raw_entity.clone()),
-                ..Default::default()
-            },
-            entity_type: AirlockType::default(),
-        });
-    }
-}

@@ -1,6 +1,6 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::register::register_entity_type;
+use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -12,7 +12,7 @@ use crate::computer::Computer;
 
 use super::{
     computer::computer_added,
-    spawn::{build_computers, build_raw_computers, ComputerType},
+    spawn::{build_computers, ComputerType},
 };
 
 pub struct ComputersPlugin;
@@ -27,7 +27,6 @@ impl Plugin for ComputersPlugin {
         register_entity_type::<ComputerType>(app);
         app.add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_computers).after(BuildingLabels::TriggerBuild));
+            .add_system((build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild));
     }
 }

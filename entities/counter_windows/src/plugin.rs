@@ -1,6 +1,6 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::register::register_entity_type;
+use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -25,7 +25,7 @@ use super::{
     },
     counter_window_tick_timers::counter_window_tick_timers,
     entity_update::counter_window_update,
-    spawn::{build_counter_windows, build_raw_counter_windows, CounterWindowType},
+    spawn::{build_counter_windows, CounterWindowType},
 };
 use crate::actions::build_actions;
 use bevy::app::CoreStage::PostUpdate;
@@ -80,7 +80,6 @@ impl Plugin for CounterWindowsPlugin {
             build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
         )
         .add_system((build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild))
-        .add_system((build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild))
-        .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild));
+        .add_system((build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild));
     }
 }
