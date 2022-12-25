@@ -1,6 +1,6 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use console_commands::commands::ConsoleCommandsLabels;
-use networking::messaging::{init_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{
     is_server::is_server,
     labels::{ActionsLabels, PostUpdateLabels, UpdateLabels},
@@ -76,8 +76,8 @@ impl Plugin for InventoryPlugin {
                 );
         }
 
-        init_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
-        init_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
     }
 }
 use networking::server::GodotVariant;

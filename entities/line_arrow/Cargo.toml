@@ -27,3 +27,5 @@ console_commands = { path = "../../core/console_commands", features = [
 entity = { path = "../../core/entity", features = ["server"] }
 networking = { path = "../../core/networking", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
+basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
+

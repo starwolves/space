@@ -43,7 +43,7 @@ impl PointLightBuilderBundle {
 #[derive(Clone)]
 pub struct PointLightType {
     pub light: PointLight,
-    identifier: String,
+    pub identifier: String,
 }
 impl Default for PointLightType {
     fn default() -> Self {
@@ -125,7 +125,6 @@ pub fn build_raw_point_lights(
                 spawn_data: EntityBuildData {
                     entity_transform: entity_transform,
                     default_map_spawn: true,
-                    entity_type: Box::new(PointLightType::new()),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },

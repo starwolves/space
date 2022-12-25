@@ -1,8 +1,9 @@
+use basic_console_commands::register::register_basic_console_commands_for_type;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
 use entity::{
     entity_data::initialize_entity_data,
-    entity_types::init_entity_type,
     meta::{EntityDataProperties, EntityDataResource},
+    register::register_entity_type,
 };
 use humanoid::humanoid::{HUMAN_DUMMY_ENTITY_NAME, HUMAN_MALE_ENTITY_NAME};
 
@@ -34,10 +35,11 @@ impl Plugin for HumanMalePlugin {
             .add_system(human_male_setup_ui.label(BuildingLabels::TriggerBuild))
             .add_system_to_stage(PostUpdate, spawn_boarding_player);
         }
-        init_entity_type::<HumanMaleType>(app);
+        register_entity_type::<HumanMaleType>(app);
+        register_basic_console_commands_for_type::<HumanMaleType>(app);
         app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
             .add_system(
-                build_human_males::<HumanMaleType>
+                build_human_males
                     .before(BuildingLabels::TriggerBuild)
                     .label(BuildingLabels::NormalBuild),
             )

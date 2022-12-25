@@ -12,7 +12,9 @@ use bevy::{
     time::FixedTimestep,
 };
 
-use networking::messaging::{init_reliable_message, init_unreliable_message, MessageSender};
+use networking::messaging::{
+    register_reliable_message, register_unreliable_message, MessageSender,
+};
 use player::boarding::BoardingPlayer;
 use player::plugin::ConfigurationLabel;
 use resources::is_server::is_server;
@@ -67,7 +69,10 @@ impl Plugin for ControllerPlugin {
             );
         }
 
-        init_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
-        init_unreliable_message::<ControllerUnreliableClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<ControllerClientMessage>(app, MessageSender::Client);
+        register_unreliable_message::<ControllerUnreliableClientMessage>(
+            app,
+            MessageSender::Client,
+        );
     }
 }

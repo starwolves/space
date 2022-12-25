@@ -2,16 +2,11 @@ use bevy::{
     prelude::{App, Plugin, SystemSet},
     time::FixedTimestep,
 };
-use entity::{entity_data::INTERPOLATION_LABEL1, entity_types::init_entity_type};
-use networking::messaging::{init_reliable_message, MessageSender};
+use entity::entity_data::INTERPOLATION_LABEL1;
+use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::PostUpdateLabels};
 
-use crate::{
-    builder::{AmbienceSfxEntityType, RepeatingSfxEntityType, SfxEntityType},
-    entity_update::SfxAutoDestroyTimers,
-    net::SfxServerMessage,
-    timers::free_sfx,
-};
+use crate::{entity_update::SfxAutoDestroyTimers, net::SfxServerMessage, timers::free_sfx};
 
 use super::{
     entity_update::{repeating_sfx_update, sfx_update},
@@ -41,9 +36,6 @@ impl Plugin for SfxPlugin {
             .add_system(free_sfx)
             .init_resource::<SfxAutoDestroyTimers>();
         }
-        init_reliable_message::<SfxServerMessage>(app, MessageSender::Server);
-        init_entity_type::<SfxEntityType>(app);
-        init_entity_type::<RepeatingSfxEntityType>(app);
-        init_entity_type::<AmbienceSfxEntityType>(app);
+        register_reliable_message::<SfxServerMessage>(app, MessageSender::Server);
     }
 }

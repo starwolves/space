@@ -39,3 +39,5 @@ resources = { path = "../../core/resources", features = ["server"] }
 math = { path = "../../core/math", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }
 inventory = { path = "../../core/inventory", features = ["server"] }
+basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
+

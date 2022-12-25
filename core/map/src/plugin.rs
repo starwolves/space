@@ -1,5 +1,7 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use networking::messaging::{init_reliable_message, init_unreliable_message, MessageSender};
+use networking::messaging::{
+    register_reliable_message, register_unreliable_message, MessageSender,
+};
 use player::plugin::ConfigurationLabel;
 use resources::{is_server::is_server, labels::MapLabels};
 
@@ -37,8 +39,8 @@ impl Plugin for MapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         }
-        init_reliable_message::<MapServerMessage>(app, MessageSender::Server);
-        init_unreliable_message::<MapUnreliableClientMessage>(app, MessageSender::Client);
-        init_reliable_message::<MapReliableClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<MapServerMessage>(app, MessageSender::Server);
+        register_unreliable_message::<MapUnreliableClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<MapReliableClientMessage>(app, MessageSender::Client);
     }
 }

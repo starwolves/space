@@ -34,14 +34,14 @@ impl Plugin for HumanoidPlugin {
             )
             .add_system(toggle_combat_mode)
             .add_system(examine_entity.after(ActionsLabels::Action))
-            .init_resource::<UsedNames>()
             .add_system(
                 health_combat_hit_result_sfx::<Humanoid>.after(CombatLabels::FinalizeApplyDamage),
             )
             .add_system(attacked_by_chat::<Humanoid>.after(CombatLabels::Query))
             .add_system(mouse_direction_update.before(UpdateLabels::StandardCharacters))
             .add_system(humanoid_controller_input.before(UpdateLabels::StandardCharacters))
-            .add_system(thrown_item_adjust_facingdirection);
+            .add_system(thrown_item_adjust_facingdirection)
+            .init_resource::<UsedNames>();
         }
     }
 }

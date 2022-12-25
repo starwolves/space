@@ -23,3 +23,4 @@ const_format = "0.2.30"
 
 entity = { path = "../../core/entity", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
+

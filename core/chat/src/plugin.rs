@@ -1,5 +1,5 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use networking::messaging::{init_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender};
 
 use crate::{
     chat::{
@@ -23,6 +23,6 @@ impl Plugin for ChatPlugin {
                 .add_system(chat_message);
         }
 
-        init_reliable_message::<ChatClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<ChatClientMessage>(app, MessageSender::Client);
     }
 }

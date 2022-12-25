@@ -1,3 +1,7 @@
+use basic_console_commands::register::{
+    register_basic_console_commands_for_inventory_item_type,
+    register_basic_console_commands_for_type,
+};
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::{
     laser_visuals::projectile_laser_visuals,
@@ -5,7 +9,7 @@ use combat::{
     projectile_queries::projectile_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{entity_types::init_entity_type, spawn::build_base_entities};
+use entity::{register::register_entity_type, spawn::build_base_entities};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -44,7 +48,9 @@ impl Plugin for PistolL1Plugin {
             )
             .add_system(projectile_laser_visuals::<PistolL1>.after(CombatLabels::Query));
         }
-        init_entity_type::<PistolL1Type>(app);
+        register_entity_type::<PistolL1Type>(app);
+        register_basic_console_commands_for_type::<PistolL1Type>(app);
+        register_basic_console_commands_for_inventory_item_type::<PistolL1Type>(app);
         app.add_system((build_base_entities::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<PistolL1Type>).after(BuildingLabels::TriggerBuild))
             .add_system((build_inventory_items::<PistolL1Type>).after(BuildingLabels::TriggerBuild))

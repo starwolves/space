@@ -1,9 +1,5 @@
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform};
-use entity::showcase::ShowcaseData;
-use entity::{
-    meta::EntityDataResource,
-    spawn::{DefaultSpawnEvent, EntityBuildData, SpawnEntity},
-};
+use bevy::prelude::{Commands, Entity, EventReader};
+use entity::spawn::{EntityBuildData, SpawnEntity};
 
 use crate::combat::{MeleeCombat, ProjectileCombat};
 
@@ -79,17 +75,16 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
         );
     }
 }
-use entity::entity_types::BoxedEntityType;
-
+/*
 /// Function to spawn an entity that is held in someone's hands.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn spawn_held_entity(
-    entity_type: BoxedEntityType,
+pub fn spawn_held_entity<T: EntityType + Send + Sync + 'static>(
+    entity_type: T,
     commands: &mut Commands,
     holder_entity: Entity,
     showcase_handle_option: Option<ShowcaseData>,
     entity_data: &ResMut<EntityDataResource>,
-    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent<T>>,
 ) -> Option<Entity> {
     let return_entity;
 
@@ -105,10 +100,10 @@ pub fn spawn_held_entity(
                     default_map_spawn: false,
                     raw_entity_option: None,
                     showcase_data_option: showcase_handle_option,
-                    entity_type,
                     entity: return_entity.unwrap(),
                     held_entity_option: return_entity,
                 },
+                builder: entity_type,
             });
         }
         None => {
@@ -118,3 +113,4 @@ pub fn spawn_held_entity(
 
     return_entity
 }
+*/

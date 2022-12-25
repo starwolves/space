@@ -173,7 +173,7 @@ pub struct EntityData {
 }
 #[derive(Clone)]
 pub struct BlankEntityType {
-    identifier: String,
+    pub identifier: String,
 }
 impl Default for BlankEntityType {
     fn default() -> Self {

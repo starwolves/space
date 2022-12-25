@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform, Vec3};
+use bevy::prelude::{Commands, EventReader, EventWriter, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
 use entity::{
@@ -8,7 +8,6 @@ use entity::{
     entity_types::{BoxedEntityType, EntityType},
     examine::{Examinable, RichName},
     health::{DamageFlag, Health, HealthContainer, HumanoidHealth},
-    meta::EntityDataResource,
     senser::Senser,
     spawn::{
         base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData,
@@ -16,11 +15,8 @@ use entity::{
     },
 };
 use humanoid::humanoid::{Humanoid, HUMAN_DUMMY_ENTITY_NAME};
+use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::{Inventory, Slot, SlotType};
-use inventory::{
-    combat::{DamageModel, MeleeCombat},
-    spawn_item::spawn_held_entity,
-};
 use map::map::Map;
 use pawn::pawn::{DataLink, DataLinkType};
 use pawn::pawn::{Pawn, PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
@@ -186,12 +182,12 @@ use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn build_human_males<T: HumanMaleBuilder + 'static>(
+pub fn build_human_males(
     mut commands: Commands,
-    mut spawn_events: EventReader<SpawnEntity<T>>,
-    mut default_spawner: EventWriter<DefaultSpawnEvent>,
-    entity_data: ResMut<EntityDataResource>,
+    mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
 ) {
+    use bevy::prelude::Entity;
+
     for spawn_event in spawn_events.iter() {
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
@@ -275,25 +271,26 @@ pub fn build_human_males<T: HumanMaleBuilder + 'static>(
 
         let mut slot_entities: HashMap<String, Entity> = HashMap::new();
 
-        for (slot_name, item_name) in spawn_pawn_data.inventory_setup.iter() {
+        // Inventory spawning no longer happens here.
+        /* for (slot_name, item_name) in spawn_pawn_data.inventory_setup.iter() {
             let entity_option;
 
-            entity_option = spawn_held_entity(
-                item_name.clone(),
-                &mut commands,
-                spawn_event.spawn_data.entity,
-                spawn_event.spawn_data.showcase_data_option.clone(),
-                &entity_data,
-                &mut default_spawner,
-            );
-
-            match entity_option {
-                Some(entity) => {
-                    slot_entities.insert(slot_name.to_string(), entity);
-                }
-                None => {}
-            }
-        }
+            let return_entity = commands.spawn(()).id();
+            default_spawner.send(DefaultSpawnEvent {
+                spawn_data: EntityBuildData {
+                    entity_transform: Transform::IDENTITY,
+                    correct_transform: false,
+                    holder_entity_option: Some(spawn_event.spawn_data.entity),
+                    default_map_spawn: false,
+                    raw_entity_option: None,
+                    showcase_data_option: spawn_event.spawn_data.showcase_data_option.clone(),
+                    entity: return_entity,
+                    held_entity_option: Some(return_entity),
+                },
+                builder: item_name.clone(),
+            });
+            slot_entities.insert(slot_name.to_string(), return_entity);
+        }*/
 
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
@@ -390,17 +387,20 @@ pub fn build_human_males<T: HumanMaleBuilder + 'static>(
     }
 }
 
+use helmet_security::spawn::HelmetType;
+use jumpsuit_security::spawn::JumpsuitType;
 /// Manage spawning human dummy.
 #[cfg(any(feature = "server", feature = "client"))]
 pub(crate) fn default_build_human_dummies(
-    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut default_spawner: EventReader<DefaultSpawnEvent<HumanMaleType>>,
     mut spawner: EventWriter<SpawnEntity<HumanMaleType>>,
 ) {
-    use helmet_security::spawn::HelmetType;
-    use jumpsuit_security::spawn::JumpsuitType;
-
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type.to_string() == HUMAN_DUMMY_ENTITY_NAME {
+        if spawn_event.builder.to_string() == HUMAN_DUMMY_ENTITY_NAME {
+            let inv: Vec<(String, Box<dyn EntityType>)> = vec![
+                ("jumpsuit".to_string(), Box::new(JumpsuitType::default())),
+                ("helmet".to_string(), Box::new(HelmetType::default())),
+            ];
             spawner.send(SpawnEntity {
                 spawn_data: spawn_event.spawn_data.clone(),
                 builder: HumanMaleType {
@@ -409,10 +409,6 @@ pub(crate) fn default_build_human_dummies(
                             character_name: "dummy".to_string(),
                             ..Default::default()
                         },
-                        inventory_setup: vec![
-                            ("jumpsuit".to_string(), Box::new(JumpsuitType::default())),
-                            ("helmet".to_string(), Box::new(HelmetType::default())),
-                        ],
                         designation: PawnDesignation::Dummy,
                         connected_player_option: None,
                     },

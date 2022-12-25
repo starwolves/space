@@ -3,12 +3,13 @@ use bevy::{
     prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet, Transform},
 };
 use combat::sfx::health_combat_hit_result_sfx;
+use entity::meta::GridItemData;
+use entity::register::register_entity_type;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
     spawn::build_base_entities,
 };
-use entity::{entity_types::init_entity_type, meta::GridItemData};
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
@@ -85,7 +86,7 @@ impl Plugin for CounterWindowsPlugin {
                         .after(ActionsLabels::Init),
                 );
         }
-        init_entity_type::<CounterWindowType>(app);
+        register_entity_type::<CounterWindowType>(app);
         app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
             .add_system(
                 build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),

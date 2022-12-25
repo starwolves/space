@@ -67,7 +67,6 @@ pub(crate) fn spawn_boarding_player(
             spawn_data: EntityBuildData {
                 entity: new_entity,
                 entity_transform: spawning_component.transform.clone(),
-                entity_type: Box::new(HumanMaleType::default()),
                 ..Default::default()
             },
             builder: HumanMaleType {
@@ -77,7 +76,6 @@ pub(crate) fn spawn_boarding_player(
                         ..Default::default()
                     },
                     connected_player_option: Some(connected_player_component.clone()),
-                    inventory_setup: passed_inventory_setup,
                     designation: PawnDesignation::Player,
                 },
                 identifier: HumanMaleType::default().to_string(),

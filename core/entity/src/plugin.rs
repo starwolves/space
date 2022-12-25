@@ -1,6 +1,6 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use bevy::time::FixedTimestep;
-use networking::messaging::{init_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender};
 use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
 
@@ -15,7 +15,6 @@ use crate::init::load_ron_entities;
 use crate::loading::load_entities;
 use crate::meta::EntityDataResource;
 use crate::net::{EntityClientMessage, EntityServerMessage};
-use crate::spawn::DefaultSpawnEvent;
 use crate::spawning_events::{
     despawn_entity, spawn_entity_for_client, DespawnClientEntity, SpawnClientEntity,
 };
@@ -82,9 +81,8 @@ impl Plugin for EntityPlugin {
                 load_ron_entities
                     .after(StartupLabels::BuildGridmap)
                     .label(StartupLabels::InitEntities),
-            )
-            .add_event::<DefaultSpawnEvent>();
-        init_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
-        init_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
+            );
+        register_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<EntityClientMessage>(app, MessageSender::Client);
     }
 }

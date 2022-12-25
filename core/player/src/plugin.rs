@@ -13,7 +13,7 @@ use crate::{
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::{App, Plugin, SystemLabel};
 use networking::{
-    messaging::{init_reliable_message, MessageSender},
+    messaging::{register_reliable_message, MessageSender},
     server::HandleToEntity,
 };
 use resources::is_server::is_server;
@@ -55,6 +55,6 @@ impl Plugin for PlayerPlugin {
                 .add_system(spawn_debug_camera);
         }
         app.init_resource::<SpawnPoints>();
-        init_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);
     }
 }

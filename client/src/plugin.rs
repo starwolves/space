@@ -32,6 +32,7 @@ use point_light::plugin::PointLightPlugin;
 use resources::{core::ClientInformation, plugin::ResourcesPlugin};
 use setup_ui::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
+use sounds::plugin::SoundsPlugin;
 use ui::plugin::UiPlugin;
 /// The main plugin to add to execute the client.
 pub struct ClientPlugin {
@@ -109,6 +110,7 @@ impl Plugin for ClientPlugin {
         .add_plugin(PistolL1Plugin)
         .add_plugin(LineArrowPlugin)
         .add_plugin(PointLightPlugin)
+        .add_plugin(SoundsPlugin)
         .add_startup_system(client_is_live);
     }
 }

@@ -3,7 +3,7 @@ use controller::networking::InputUIInput;
 use iyes_loopless::prelude::IntoConditionalSystem;
 use networking::{
     client::is_client_connected,
-    messaging::{init_reliable_message, MessageSender},
+    messaging::{register_reliable_message, MessageSender},
 };
 use player::plugin::ConfigurationLabel;
 use resources::{is_server::is_server, labels::BuildingLabels};
@@ -38,7 +38,7 @@ impl Plugin for SetupUiPlugin {
             app.add_system(client_setup_ui.run_if(is_client_connected));
         }
 
-        init_reliable_message::<SetupUiServerMessage>(app, MessageSender::Server);
-        init_reliable_message::<SetupUiClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<SetupUiServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<SetupUiClientMessage>(app, MessageSender::Client);
     }
 }
