@@ -3,14 +3,13 @@ use crate::{
     entity_types::{BoxedEntityType, EntityType},
     showcase::{Showcase, ShowcaseData},
 };
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, ResMut, Transform};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Transform};
 use serde::Deserialize;
 
 use crate::{
     entity_data::{CachedBroadcastTransform, EntityData, EntityGroup, EntityUpdates},
     examine::Examinable,
     health::{Health, HealthComponent},
-    meta::EntityDataResource,
     sensable::Sensable,
 };
 
@@ -224,50 +223,37 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
     transform: Transform,
     commands: &mut Commands,
     correct_transform: bool,
-    entity_data: &ResMut<EntityDataResource>,
     held_data_option: Option<Entity>,
     raw_entity_option: Option<RawEntityRon>,
     showcase_handle_option: Option<ShowcaseData>,
     default_spawner: &mut EventWriter<SpawnEntity<T>>,
-) -> Option<Entity> {
+) -> Entity {
     let return_entity;
 
-    match entity_data.name_to_id.get(&entity_type.to_string()) {
-        Some(_id) => {
-            let held;
+    let held;
 
-            match held_data_option {
-                Some(entity) => {
-                    held = Some(entity);
-                }
-                None => {
-                    held = None;
-                }
-            }
-            return_entity = Some(commands.spawn(()).id());
-            default_spawner.send(SpawnEntity {
-                spawn_data: EntityBuildData {
-                    entity_transform: transform,
-                    correct_transform,
-                    holder_entity_option: held,
-                    raw_entity_option: raw_entity_option,
-                    showcase_data_option: showcase_handle_option,
-                    entity: return_entity.unwrap(),
-
-                    ..Default::default()
-                },
-                entity_type,
-            });
+    match held_data_option {
+        Some(entity) => {
+            held = Some(entity);
         }
         None => {
-            return_entity = None;
+            held = None;
         }
-    };
-
-    match return_entity {
-        Some(_entity) => {}
-        None => {}
     }
+    return_entity = commands.spawn(()).id();
+    default_spawner.send(SpawnEntity {
+        spawn_data: EntityBuildData {
+            entity_transform: transform,
+            correct_transform,
+            holder_entity_option: held,
+            raw_entity_option: raw_entity_option,
+            showcase_data_option: showcase_handle_option,
+            entity: return_entity,
+
+            ..Default::default()
+        },
+        entity_type,
+    });
 
     return_entity
 }

@@ -1,19 +1,11 @@
-use bevy::{
-    math::Quat,
-    prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemSet, Transform},
-};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::meta::GridItemData;
 use entity::register::register_entity_type;
-use entity::{
-    entity_data::initialize_entity_data,
-    meta::{EntityDataProperties, EntityDataResource},
-    spawn::build_base_entities,
-};
+use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels},
+    labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels},
 };
 
 use crate::{
@@ -84,33 +76,11 @@ impl Plugin for CounterWindowsPlugin {
                 );
         }
         register_entity_type::<CounterWindowType>(app);
-        app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(
-                build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
-            )
-            .add_system(
-                (build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
-            )
-            .add_system(
-                (build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
-            )
-            .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild));
+        app.add_system(
+            build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
+        )
+        .add_system((build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild))
+        .add_system((build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild))
+        .add_system((build_raw_counter_windows).after(BuildingLabels::TriggerBuild));
     }
-}
-
-pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let mut transform = Transform::IDENTITY;
-    transform.translation.y = 0.86;
-    transform.rotation = Quat::from_xyzw(0., 0.707, 0., 0.707);
-
-    let entity_properties = EntityDataProperties {
-        name: CounterWindowType::default().identifier,
-        id: entity_data.get_id_inc(),
-        grid_item: Some(GridItemData {
-            transform_offset: transform,
-            can_be_built_with_grid_item: vec!["securityCounter1".to_string()],
-        }),
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
 }

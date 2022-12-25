@@ -21,9 +21,7 @@ use crate::action::{
 use crate::construction_tool::{ConstructionTool, InputConstructionOptionsSelection};
 
 use super::{
-    construction_tool::{
-        construction_tool, InputConstruct, InputConstructionOptions, InputDeconstruct,
-    },
+    construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct},
     spawn::{build_construction_tools, build_raw_construction_tools, ConstructionToolType},
 };
 
@@ -36,11 +34,11 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()
                 .add_event::<InputConstructionOptionsSelection>()
-                .add_system(
+                /*.add_system(
                     construction_tool
                         .after(UpdateLabels::TextTreeInputSelection)
                         .before(UpdateLabels::DeconstructCell),
-                )
+                )*/
                 .add_system(
                     melee_attack_handler::<ConstructionTool>
                         .label(CombatLabels::WeaponHandler)

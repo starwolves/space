@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{warn, Changed, Component, Entity, EventWriter, Query, Res, ResMut, Transform},
+    prelude::{warn, Changed, Component, Entity, EventWriter, Query, Res, Transform},
     time::{FixedTimesteps, Time},
 };
 use networking::server::{EntityUpdateData, UnreliableServerMessage};
@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     entity_types::{BoxedEntityType, EntityType},
-    meta::{EntityDataProperties, EntityDataResource},
     sensable::Sensable,
 };
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -19,20 +18,6 @@ pub enum EntityWorldType {
     HealthUI,
 }
 
-/// Initialize meta-data for an entity as a function.
-#[cfg(feature = "server")]
-pub fn initialize_entity_data(
-    entity_data: &mut ResMut<EntityDataResource>,
-    entity_properties: EntityDataProperties,
-) {
-    entity_data
-        .id_to_name
-        .insert(entity_properties.id, entity_properties.name.clone());
-    entity_data
-        .name_to_id
-        .insert(entity_properties.name.clone(), entity_properties.id);
-    entity_data.data.push(entity_properties);
-}
 use crate::init::RawEntityRon;
 use networking::server::HandleToEntity;
 use networking::server::OutgoingUnreliableServerMessage;
@@ -482,4 +467,16 @@ pub(crate) fn world_mode_update(
             .updates_difference
             .push(difference_updates);
     }
+}
+
+/// For entities that are also registered with the gridmap.
+#[cfg(feature = "server")]
+pub struct GridItemData {
+    pub transform_offset: Transform,
+    /// So this entity can be built on a cell when another item is already present on that cell.
+    pub can_be_built_with_grid_item: Vec<String>,
+}
+
+pub trait GridEntity {
+    fn get_grid_item_data() -> GridItemData;
 }
