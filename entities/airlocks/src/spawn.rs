@@ -9,6 +9,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use const_format::concatcp;
 use entity::{
     entity_data::EntityGroup,
+    entity_macros::Identity,
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
@@ -110,7 +111,7 @@ impl RigidBodyBuilder<NoData> for AirlockType {
 }
 
 #[cfg(feature = "server")]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct AirlockType {
     pub identifier: String,
     pub sub_type: String,
@@ -121,21 +122,6 @@ impl Default for AirlockType {
             identifier: SF_CONTENT_PREFIX.to_owned() + "airLock",
             sub_type: VACUUM_AIRLOCK_ENTITY_NAME.to_owned(),
         }
-    }
-}
-
-impl EntityType for AirlockType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        AirlockType::default()
     }
 }
 

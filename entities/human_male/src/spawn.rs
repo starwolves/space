@@ -5,6 +5,7 @@ use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Fricti
 use chat::chat::{Radio, RadioChannel};
 use entity::{
     entity_data::{WorldMode, WorldModes},
+    entity_macros::Identity,
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::{DamageFlag, Health, HealthContainer, HumanoidHealth},
@@ -124,7 +125,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
 
 /// Human male spawner.
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct HumanMaleType {
     pub identifier: String,
     pub sub_type: String,
@@ -141,21 +142,6 @@ impl Default for HumanMaleType {
     }
 }
 
-impl EntityType for HumanMaleType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        HumanMaleType::default()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-}
 #[cfg(any(feature = "server", feature = "client"))]
 pub const R: f32 = 0.5;
 

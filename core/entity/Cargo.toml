@@ -29,3 +29,4 @@ networking = { path = "../networking", features = ["server"] }
 math = { path = "../math", features = ["server"] }
 resources = { path = "../resources", features = ["server"] }
 text_api = { path = "../text_api", features = ["server"] }
+entity_macros = { path = "../entity_macros" }

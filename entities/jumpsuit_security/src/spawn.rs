@@ -5,6 +5,7 @@ use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use entity::entity_macros::Identity;
 use entity::entity_types::EntityType;
 use entity::examine::Examinable;
 use entity::examine::RichName;
@@ -137,7 +138,7 @@ impl RigidBodyBuilder<NoData> for JumpsuitType {
 }
 
 #[cfg(feature = "server")]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct JumpsuitType {
     pub identifier: String,
 }
@@ -146,21 +147,6 @@ impl Default for JumpsuitType {
         Self {
             identifier: SF_CONTENT_PREFIX.to_string() + "jumpsuitSecurity",
         }
-    }
-}
-impl EntityType for JumpsuitType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        JumpsuitType::default()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
     }
 }
 #[cfg(feature = "server")]

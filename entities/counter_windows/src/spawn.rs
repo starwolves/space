@@ -8,6 +8,7 @@ use bevy::{
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction, Group};
 use entity::{
     entity_data::{EntityData, EntityGroup},
+    entity_macros::Identity,
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
@@ -104,7 +105,7 @@ use bevy_rapier3d::prelude::{ActiveEvents, CollisionGroups, RigidBody, Sensor};
 pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
 #[cfg(feature = "server")]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct CounterWindowType {
     pub identifier: String,
     pub sub_type: String,
@@ -116,22 +117,6 @@ impl Default for CounterWindowType {
             identifier: SF_CONTENT_PREFIX.to_string() + "counterWindow",
             sub_type: SECURITY_COUNTER_WINDOW_ENTITY_NAME.to_string(),
         }
-    }
-}
-
-impl EntityType for CounterWindowType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        CounterWindowType::default()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
     }
 }
 

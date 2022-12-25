@@ -4,6 +4,7 @@ use bevy::{
     prelude::{warn, Changed, Component, Entity, EventWriter, Query, Res, Transform},
     time::{FixedTimesteps, Time},
 };
+use entity_macros::Identity;
 use networking::server::{EntityUpdateData, UnreliableServerMessage};
 use serde::{Deserialize, Serialize};
 
@@ -156,7 +157,7 @@ pub struct EntityData {
     pub entity_type: BoxedEntityType,
     pub entity_group: EntityGroup,
 }
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct BlankEntityType {
     pub identifier: String,
 }
@@ -165,20 +166,6 @@ impl Default for BlankEntityType {
         Self {
             identifier: "Blank".to_string(),
         }
-    }
-}
-impl EntityType for BlankEntityType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        BlankEntityType::default()
     }
 }
 

@@ -1,6 +1,7 @@
 use bevy::prelude::{Commands, EventReader, PointLight, PointLightBundle, Transform};
 use entity::{
     entity_data::{EntityData, EntityGroup, EntityUpdates, WorldMode, WorldModes},
+    entity_macros::Identity,
     entity_types::EntityType,
     sensable::Sensable,
     spawn::{EntityBuildData, SpawnEntity},
@@ -40,7 +41,7 @@ impl PointLightBuilderBundle {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct PointLightType {
     pub light: PointLight,
     pub identifier: String,
@@ -51,20 +52,6 @@ impl Default for PointLightType {
             light: Default::default(),
             identifier: SF_CONTENT_PREFIX.to_string() + "PointLight",
         }
-    }
-}
-impl EntityType for PointLightType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        PointLightType::default()
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
