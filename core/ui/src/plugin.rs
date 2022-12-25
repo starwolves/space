@@ -1,5 +1,5 @@
 use bevy::prelude::{App, Plugin};
-use networking::messaging::{init_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender};
 
 use crate::{
     button::button_hover_visuals,
@@ -36,7 +36,7 @@ impl Plugin for UiPlugin {
                 .add_system(set_text_input_node_text);
         }
 
-        init_reliable_message::<UiClientMessage>(app, MessageSender::Client);
-        init_reliable_message::<UiServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<UiClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<UiServerMessage>(app, MessageSender::Server);
     }
 }

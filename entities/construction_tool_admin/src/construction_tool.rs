@@ -15,7 +15,6 @@ use entity::{
     meta::EntityDataResource,
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
-    spawn::{DefaultSpawnEvent, EntityBuildData},
 };
 use gridmap::{
     build::spawn_main_cell,
@@ -50,7 +49,6 @@ use sounds::{
     },
 };
 
-use entity::entity_types::EntityTypes;
 use networking::server::OutgoingReliableServerMessage;
 use ui::networking::UiServerMessage;
 
@@ -65,7 +63,7 @@ pub(crate) fn construction_tool(
         EventWriter<RemoveCell>,
     ),
     event_writers: (
-        EventWriter<DefaultSpawnEvent>,
+        //  EventWriter<DefaultSpawnEvent>,
         EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
         EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
     ),
@@ -91,7 +89,6 @@ pub(crate) fn construction_tool(
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut fov_map: ResMut<DoryenMap>,
     mut atmospherics_resource: ResMut<AtmosphericsResource>,
-    types: Res<EntityTypes>,
 ) {
     let (
         mut input_construct_event,
@@ -101,7 +98,7 @@ pub(crate) fn construction_tool(
         mut remove_cell_events,
     ) = event_readers;
 
-    let (mut default_spawner, mut server, mut server1) = event_writers;
+    let (/*mut default_spawner,*/ mut server, mut server1) = event_writers;
 
     let (mut sensers, rigid_bodies, inventory_holders) = queries;
 
@@ -1117,17 +1114,7 @@ pub(crate) fn construction_tool(
                     .mul_quat(spawn_rotation);
 
                 let new_entity = commands.spawn(()).id();
-                let entity_type;
-                match types.types.get(construction_entity_name) {
-                    Some(t) => {
-                        entity_type = t;
-                    }
-                    None => {
-                        warn!("Entity type not found!");
-                        continue;
-                    }
-                }
-
+                /*
                 default_spawner.send(DefaultSpawnEvent {
                     spawn_data: EntityBuildData {
                         entity_transform: spawn_transform,
@@ -1135,7 +1122,9 @@ pub(crate) fn construction_tool(
                         entity: new_entity,
                         ..Default::default()
                     },
+                    builder:
                 });
+                */
 
                 gridmap_main.entity_data.insert(
                     target_cell_id,

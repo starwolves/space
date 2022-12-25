@@ -3,7 +3,7 @@ use bevy::{
     time::FixedTimestep,
 };
 use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
-use networking::messaging::{init_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
     is_server::is_server,
@@ -111,7 +111,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<GridmapMain>()
             .init_resource::<DoryenMap>();
 
-        init_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
-        init_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
     }
 }

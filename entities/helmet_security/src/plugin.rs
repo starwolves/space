@@ -1,9 +1,13 @@
+use basic_console_commands::register::{
+    register_basic_console_commands_for_inventory_item_type,
+    register_basic_console_commands_for_type,
+};
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
 };
-use entity::{entity_types::init_entity_type, spawn::build_base_entities};
+use entity::{register::register_entity_type, spawn::build_base_entities};
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::{
@@ -34,7 +38,9 @@ impl Plugin for HelmetsPlugin {
                 health_combat_hit_result_sfx::<Helmet>.after(CombatLabels::FinalizeApplyDamage),
             );
         }
-        init_entity_type::<HelmetType>(app);
+        register_entity_type::<HelmetType>(app);
+        register_basic_console_commands_for_type::<HelmetType>(app);
+        register_basic_console_commands_for_inventory_item_type::<HelmetType>(app);
         app.add_system(build_helmets::<HelmetType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<HelmetType>).after(BuildingLabels::TriggerBuild))

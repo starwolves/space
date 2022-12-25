@@ -109,22 +109,16 @@ use resources::content::SF_CONTENT_PREFIX;
 #[cfg(any(feature = "server", feature = "client"))]
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn default_build_line_arrows(
-    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut default_spawner: EventReader<DefaultSpawnEvent<LineArrowType>>,
     mut spawner: EventWriter<SpawnEntity<LineArrowType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event
-            .spawn_data
-            .entity_type
-            .is_type(Box::new(LineArrowType::default()))
-        {
-            spawner.send(SpawnEntity {
-                spawn_data: spawn_event.spawn_data.clone(),
-                builder: LineArrowType {
-                    duration: 6000.0,
-                    ..Default::default()
-                },
-            });
-        }
+        spawner.send(SpawnEntity {
+            spawn_data: spawn_event.spawn_data.clone(),
+            builder: LineArrowType {
+                duration: 6000.0,
+                ..Default::default()
+            },
+        });
     }
 }

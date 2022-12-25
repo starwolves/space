@@ -33,14 +33,12 @@ pub(crate) fn human_male_setup_ui(
                 showcase_data_option: Some(ShowcaseData {
                     handle: connected_player_component.handle,
                 }),
-                entity_type: Box::new(HumanMaleType::default()),
                 ..Default::default()
             },
             builder: HumanMaleType {
                 spawn_pawn_data: SpawnPawnData {
                     pawn_component: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),
-                    inventory_setup: passed_inventory_setup,
                     designation: PawnDesignation::Showcase,
                 },
                 identifier: HumanMaleType::default().to_string(),

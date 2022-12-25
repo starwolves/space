@@ -1,7 +1,11 @@
+use basic_console_commands::register::{
+    register_basic_console_commands_for_inventory_item_type,
+    register_basic_console_commands_for_type,
+};
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
-use entity::entity_types::init_entity_type;
+use entity::register::register_entity_type;
 use entity::spawn::build_base_entities;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
@@ -86,7 +90,9 @@ impl Plugin for ConstructionToolAdminPlugin {
                 )
                 .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection));
         }
-        init_entity_type::<ConstructionToolType>(app);
+        register_entity_type::<ConstructionToolType>(app);
+        register_basic_console_commands_for_type::<ConstructionToolType>(app);
+        register_basic_console_commands_for_inventory_item_type::<ConstructionToolType>(app);
         app.add_system(
             build_construction_tools::<ConstructionToolType>.after(BuildingLabels::TriggerBuild),
         )

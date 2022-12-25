@@ -12,7 +12,7 @@ use crate::{
         IncomingRawUnreliableServerMessage,
     },
     messaging::{
-        generate_typenames, init_reliable_message, init_unreliable_message, MessageSender,
+        generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
         Typenames, TypenamesLabel,
     },
     server::{
@@ -68,10 +68,10 @@ impl Plugin for NetworkingPlugin {
 
         app.init_resource::<Typenames>()
             .add_startup_system(generate_typenames.after(TypenamesLabel::Generate));
-        init_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
-        init_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
-        init_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);
-        init_reliable_message::<NetworkingServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
+        register_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<NetworkingServerMessage>(app, MessageSender::Server);
     }
 }
 

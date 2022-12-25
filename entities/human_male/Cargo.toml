@@ -40,3 +40,5 @@ construction_tool_admin = { path = "../construction_tool_admin", features = [
 ] }
 setup_ui = { path = "../../core/setup_ui", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }
+basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
+

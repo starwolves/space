@@ -133,7 +133,6 @@ pub fn build_raw_computers(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_type: Box::new(ComputerType::default()),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
@@ -147,13 +146,12 @@ use super::computer::Computer;
 
 #[cfg(any(feature = "server", feature = "client"))]
 pub fn default_build_computers(
-    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut default_spawner: EventReader<DefaultSpawnEvent<ComputerType>>,
     mut spawner: EventWriter<SpawnEntity<ComputerType>>,
 ) {
     for spawn_event in default_spawner.iter() {
         if spawn_event
-            .spawn_data
-            .entity_type
+            .builder
             .is_type(Box::new(ComputerType::default()))
         {
             continue;

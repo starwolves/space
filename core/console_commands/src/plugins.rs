@@ -1,5 +1,5 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use networking::messaging::{init_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
     is_server::is_server,
@@ -41,7 +41,7 @@ impl Plugin for ConsoleCommandsPlugin {
                 );
         }
 
-        init_reliable_message::<ConsoleCommandsClientMessage>(app, MessageSender::Client);
-        init_reliable_message::<ConsoleCommandsServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<ConsoleCommandsClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<ConsoleCommandsServerMessage>(app, MessageSender::Server);
     }
 }

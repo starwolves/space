@@ -31,8 +31,8 @@ pub fn get_default_transform() -> Transform {
 
 #[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for CounterWindowType {
-    fn get_bundle(&self, spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
-        let entity_name = spawn_data.entity_type.to_string();
+    fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
+        let entity_name = self.to_string();
         let department_name;
 
         if entity_name == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
@@ -109,7 +109,7 @@ pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 #[cfg(feature = "server")]
 #[derive(Clone)]
 pub struct CounterWindowType {
-    identifier: String,
+    pub identifier: String,
 }
 
 impl Default for CounterWindowType {
@@ -220,7 +220,6 @@ pub fn build_raw_counter_windows(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_type: Box::new(CounterWindowType::default()),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
@@ -232,12 +231,12 @@ pub fn build_raw_counter_windows(
 
 #[cfg(feature = "server")]
 pub fn default_build_counter_windows(
-    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut default_spawner: EventReader<DefaultSpawnEvent<CounterWindowType>>,
     mut spawner: EventWriter<SpawnEntity<CounterWindowType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event.spawn_data.entity_type.to_string() != SECURITY_COUNTER_WINDOW_ENTITY_NAME
-            || spawn_event.spawn_data.entity_type.to_string() != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
+        if spawn_event.builder.to_string() != SECURITY_COUNTER_WINDOW_ENTITY_NAME
+            || spawn_event.builder.to_string() != BRIDGE_COUNTER_WINDOW_ENTITY_NAME
         {
             continue;
         }

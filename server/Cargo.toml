@@ -20,6 +20,7 @@ combat = { path = "../core/combat", features = ["server"] }
 controller = { path = "../core/controller", features = ["server"] }
 console_commands = { path = "../core/console_commands", features = ["server"] }
 gridmap = { path = "../core/gridmap", features = ["server"] }
+
 humanoid = { path = "../core/humanoid", features = ["server"] }
 networking = { path = "../core/networking", features = ["server"] }
 actions = { path = "../core/actions", features = ["server"] }

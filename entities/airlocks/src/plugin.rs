@@ -1,7 +1,7 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemLabel, SystemSet, Transform};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::entity_types::init_entity_type;
 use entity::meta::GridItemData;
+use entity::register::register_entity_type;
 use entity::{
     entity_data::initialize_entity_data,
     meta::{EntityDataProperties, EntityDataResource},
@@ -98,7 +98,7 @@ impl Plugin for AirLocksPlugin {
                     .label(BuildingLabels::DefaultBuild)
                     .after(BuildingLabels::NormalBuild),
             );
-        init_entity_type::<AirlockType>(app);
+        register_entity_type::<AirlockType>(app);
     }
 }
 

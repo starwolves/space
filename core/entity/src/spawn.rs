@@ -192,8 +192,6 @@ pub struct EntityBuildData {
     pub raw_entity_option: Option<RawEntityRon>,
     /// If the entity is spawned in a showcase find its data here.
     pub showcase_data_option: Option<ShowcaseData>,
-    /// Entity type ID.
-    pub entity_type: BoxedEntityType,
     pub entity: Entity,
 }
 
@@ -208,15 +206,15 @@ impl Default for EntityBuildData {
             default_map_spawn: false,
             raw_entity_option: None,
             showcase_data_option: None,
-            entity_type: Box::new(BlankEntityType::default()),
             entity: Entity::from_bits(0),
         }
     }
 }
 /// Default spawn event.
 #[cfg(any(feature = "server", feature = "client"))]
-pub struct DefaultSpawnEvent {
+pub struct DefaultSpawnEvent<T> {
     pub spawn_data: EntityBuildData,
+    pub builder: T,
 }
 
 /// Standard spawn event.
@@ -227,8 +225,8 @@ pub struct SpawnEntity<T> {
 }
 /// A function to spawn an entity.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn spawn_entity(
-    entity_type: BoxedEntityType,
+pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
+    entity_type: T,
     transform: Transform,
     commands: &mut Commands,
     correct_transform: bool,
@@ -236,7 +234,7 @@ pub fn spawn_entity(
     held_data_option: Option<Entity>,
     raw_entity_option: Option<RawEntityRon>,
     showcase_handle_option: Option<ShowcaseData>,
-    default_spawner: &mut EventWriter<DefaultSpawnEvent>,
+    default_spawner: &mut EventWriter<DefaultSpawnEvent<T>>,
 ) -> Option<Entity> {
     let return_entity;
 
@@ -260,11 +258,11 @@ pub fn spawn_entity(
                     holder_entity_option: held,
                     raw_entity_option: raw_entity_option,
                     showcase_data_option: showcase_handle_option,
-                    entity_type,
                     entity: return_entity.unwrap(),
 
                     ..Default::default()
                 },
+                builder: entity_type,
             });
         }
         None => {

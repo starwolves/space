@@ -205,7 +205,6 @@ pub fn build_raw_helmets(
             spawn_data: EntityBuildData {
                 entity_transform: entity_transform,
                 default_map_spawn: true,
-                entity_type: Box::new(HelmetType::default()),
                 entity: commands.spawn(()).id(),
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
@@ -217,15 +216,11 @@ pub fn build_raw_helmets(
 
 #[cfg(feature = "server")]
 pub fn default_build_helmets_security(
-    mut default_spawner: EventReader<DefaultSpawnEvent>,
+    mut default_spawner: EventReader<DefaultSpawnEvent<HelmetType>>,
     mut spawner: EventWriter<SpawnEntity<HelmetType>>,
 ) {
     for spawn_event in default_spawner.iter() {
-        if spawn_event
-            .spawn_data
-            .entity_type
-            .is_type(Box::new(HelmetType::default()))
-        {
+        if spawn_event.builder.is_type(Box::new(HelmetType::default())) {
             continue;
         }
         spawner.send(SpawnEntity {

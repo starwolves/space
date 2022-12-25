@@ -14,7 +14,7 @@ pub const SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sfx");
 
 #[derive(Clone)]
 pub struct AmbienceSfxEntityType {
-    identifier: String,
+    pub identifier: String,
 }
 impl Default for AmbienceSfxEntityType {
     fn default() -> Self {
@@ -40,7 +40,7 @@ impl EntityType for AmbienceSfxEntityType {
 }
 #[derive(Clone)]
 pub struct RepeatingSfxEntityType {
-    identifier: String,
+    pub identifier: String,
 }
 impl Default for RepeatingSfxEntityType {
     fn default() -> Self {
@@ -67,7 +67,7 @@ impl EntityType for RepeatingSfxEntityType {
 }
 #[derive(Clone)]
 pub struct SfxEntityType {
-    identifier: String,
+    pub identifier: String,
 }
 
 impl Default for SfxEntityType {

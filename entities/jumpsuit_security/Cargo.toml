@@ -27,3 +27,5 @@ combat = { path = "../../core/combat", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }
 inventory = { path = "../../core/inventory", features = ["server"] }
+basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
+

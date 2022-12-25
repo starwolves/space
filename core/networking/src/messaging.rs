@@ -86,7 +86,7 @@ use bevy::app::CoreStage::PreUpdate;
 use iyes_loopless::prelude::IntoConditionalSystem;
 /// All reliable networking messages must be registered with this system.
 #[cfg(any(feature = "server", feature = "client"))]
-pub fn init_reliable_message<
+pub fn register_reliable_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
     app: &mut App,
@@ -142,7 +142,7 @@ use resources::is_server::is_server;
 
 #[cfg(any(feature = "server", feature = "client"))]
 /// All unreliable networking messages must be registered with this system.
-pub fn init_unreliable_message<
+pub fn register_unreliable_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
     app: &mut App,

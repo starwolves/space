@@ -113,7 +113,6 @@ pub(crate) fn entity_console_commands(
                 spawn_data: EntityBuildData {
                     entity_transform: passed_transform,
                     correct_transform: false,
-                    entity_type: Box::new(LineArrowType::default()),
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },

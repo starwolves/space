@@ -1,5 +1,5 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use networking::messaging::{init_reliable_message, MessageSender};
+use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::ActionsLabels};
 
 use crate::{
@@ -41,7 +41,7 @@ impl Plugin for ActionsPlugin {
                 .add_event::<InputAction>();
         }
 
-        init_reliable_message::<ActionsClientMessage>(app, MessageSender::Client);
-        init_reliable_message::<ActionsServerMessage>(app, MessageSender::Server);
+        register_reliable_message::<ActionsClientMessage>(app, MessageSender::Client);
+        register_reliable_message::<ActionsServerMessage>(app, MessageSender::Server);
     }
 }

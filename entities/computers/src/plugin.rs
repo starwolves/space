@@ -1,6 +1,7 @@
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::{entity_types::init_entity_type, spawn::build_base_entities};
+use entity::register::register_entity_type;
+use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
@@ -23,7 +24,7 @@ impl Plugin for ComputersPlugin {
                 health_combat_hit_result_sfx::<Computer>.after(CombatLabels::FinalizeApplyDamage),
             );
         }
-        init_entity_type::<ComputerType>(app);
+        register_entity_type::<ComputerType>(app);
         app.add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild))

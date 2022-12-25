@@ -72,7 +72,6 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
     }
 }
 use bevy_rapier3d::na::Quaternion;
-use entity::entity_types::EntityType;
 use networking::server::ConnectedPlayer;
 
 #[cfg(feature = "server")]
@@ -122,7 +121,6 @@ pub const REACH_DISTANCE: f32 = 3.;
 pub struct SpawnPawnData {
     pub pawn_component: Pawn,
     pub connected_player_option: Option<ConnectedPlayer>,
-    pub inventory_setup: Vec<(String, Box<dyn EntityType>)>,
     pub designation: PawnDesignation,
 }
 

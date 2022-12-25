@@ -26,6 +26,7 @@ pub mod meta;
 pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
+pub mod register;
 /// Entity that can be sensed, heard or seen by other sensers.
 pub mod sensable;
 /// Entity that can sense entities that are sensable.

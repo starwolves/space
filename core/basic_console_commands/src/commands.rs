@@ -5,7 +5,6 @@ use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
 use console_commands::net::ConsoleCommandsServerMessage;
-use entity::entity_types::{BoxedEntityType, EntityTypes};
 use entity::{meta::EntityDataResource, spawn::DefaultSpawnEvent};
 use gridmap::grid::GridmapMain;
 use networking::server::GodotVariantValues;
@@ -16,12 +15,11 @@ use player::names::UsedNames;
 
 /// Perform entity console commands.
 #[cfg(feature = "server")]
-pub(crate) fn rcon_entity_console_commands(
+pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'static>(
     mut queue: EventReader<InputConsoleCommand>,
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
-    mut rcon_spawn_event: EventWriter<RconSpawnEntity>,
-    types: Res<EntityTypes>,
+    mut rcon_spawn_event: EventWriter<RconSpawnEntity<T>>,
 ) {
     for console_command_event in queue.iter() {
         let player_entity;
@@ -61,6 +59,10 @@ pub(crate) fn rcon_entity_console_commands(
                 }
             }
 
+            if entity_name != &T::default().to_string() {
+                continue;
+            }
+
             let spawn_amount;
 
             match &console_command_event.command_arguments[1] {
@@ -83,20 +85,8 @@ pub(crate) fn rcon_entity_console_commands(
                 }
             }
 
-            let entity_type;
-
-            match types.types.get(entity_name) {
-                Some(t) => {
-                    entity_type = t;
-                }
-                None => {
-                    warn!("Unrecognized entity type!");
-                    continue;
-                }
-            }
-
             rcon_spawn_event.send(RconSpawnEntity {
-                entity_type: entity_type.clone(),
+                entity_type: T::default(),
                 target_selector: player_selector.to_string(),
                 spawn_amount: spawn_amount,
                 command_executor_handle_option: console_command_event.handle_option,
@@ -113,18 +103,19 @@ use gridmap::get_spawn_position::entity_spawn_position_for_player;
 use text_api::core::CONSOLE_ERROR_COLOR;
 
 /// Event for spawning in entities with the rcon command.
-pub struct RconSpawnEntity {
-    pub entity_type: BoxedEntityType,
+pub struct RconSpawnEntity<T: EntityType + Send + Sync + 'static> {
+    pub entity_type: T,
     pub target_selector: String,
     pub spawn_amount: i64,
     pub command_executor_handle_option: Option<u64>,
     pub command_executor_entity: Entity,
 }
+use entity::entity_types::EntityType;
 
 /// Process spawning entities via RCON command. Such as commands for spawning entities.
 #[cfg(feature = "server")]
-pub(crate) fn rcon_spawn_entity(
-    mut rcon_spawn_events: EventReader<RconSpawnEntity>,
+pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
+    mut rcon_spawn_events: EventReader<RconSpawnEntity<T>>,
     mut commands: Commands,
     rigid_body_positions: Query<(&Transform, &Pawn)>,
     mut server_1: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
@@ -133,7 +124,7 @@ pub(crate) fn rcon_spawn_entity(
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
     entity_data: ResMut<EntityDataResource>,
-    mut default_spawner: EventWriter<DefaultSpawnEvent>,
+    mut default_spawner: EventWriter<DefaultSpawnEvent<T>>,
 ) {
     for event in rcon_spawn_events.iter() {
         let mut spawn_amount = event.spawn_amount;
@@ -266,17 +257,17 @@ use bevy::prelude::warn;
 use networking::server::NetworkingChatServerMessage;
 
 /// Event for spawning in entities with the rcon command.
-pub struct RconSpawnHeldEntity {
-    pub entity_type: String,
+pub struct RconSpawnHeldEntity<T> {
+    pub entity_type: T,
     pub target_selector: String,
     pub command_executor_handle_option: Option<u64>,
     pub command_executor_entity: Entity,
 }
-use inventory::spawn_item::spawn_held_entity;
+use entity::spawn::EntityBuildData;
 
 /// Function to spawn an entity in another entity's inventory through an RCON command.
 #[cfg(feature = "server")]
-pub(crate) fn rcon_spawn_held_entity(
+pub fn rcon_spawn_held_entity<T: EntityType + Clone + Default + Send + Sync + 'static>(
     mut commands: Commands,
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     mut server1: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
@@ -284,13 +275,14 @@ pub(crate) fn rcon_spawn_held_entity(
     mut player_inventory_query: Query<&mut Inventory>,
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
-    entity_data: ResMut<EntityDataResource>,
-    mut default_spawner: EventWriter<DefaultSpawnEvent>,
-    mut spawn_held_entity_event: EventReader<RconSpawnHeldEntity>,
-    mut spawn_entity: EventWriter<RconSpawnEntity>,
-    types: Res<EntityTypes>,
+    mut default_spawner: EventWriter<DefaultSpawnEvent<T>>,
+    mut spawn_held_entity_event: EventReader<RconSpawnHeldEntity<T>>,
+    mut spawn_entity: EventWriter<RconSpawnEntity<T>>,
 ) {
     for event in spawn_held_entity_event.iter() {
+        if event.entity_type.to_string() != T::default().to_string() {
+            continue;
+        }
         for target_entity in player_selector_to_entities(
             event.command_executor_entity,
             event.command_executor_handle_option,
@@ -356,68 +348,45 @@ pub(crate) fn rcon_spawn_held_entity(
                     available_slot = Some(slot);
                 }
             }
-            let entity_type;
-            match types.types.get(&event.entity_type) {
-                Some(t) => {
-                    entity_type = t;
-                }
-                None => {
-                    warn!("Couldn't find the supplied entity type.");
-                    continue;
-                }
-            }
 
             match available_slot {
                 Some(slot) => {
-                    let entity_option = spawn_held_entity(
-                        entity_type.clone(),
-                        &mut commands,
-                        event.command_executor_entity,
-                        None,
-                        &entity_data,
-                        &mut default_spawner,
-                    );
-
-                    match entity_option {
-                        Some(entity) => {
-                            slot.slot_item = Some(entity);
-
-                            server1.send(OutgoingReliableServerMessage {
-                                handle: player_handle,
-                                message: InventoryServerMessage::PickedUpItem(
-                                    event.entity_type.clone(),
-                                    entity.to_bits(),
-                                    slot.slot_name.clone(),
-                                ),
-                            });
-
-                            server2.send(OutgoingReliableServerMessage {
-                                handle: player_handle,
-                                message: NetworkingChatServerMessage::ChatMessage(
-                                    "A new entity has appeared in your hand.".to_string(),
-                                ),
-                            });
-                        }
-                        None => match event.command_executor_handle_option {
-                            Some(t) => {
-                                server.send(OutgoingReliableServerMessage {
-                                    handle: t,
-                                    message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                                        "[color=".to_string()
-                                            + CONSOLE_ERROR_COLOR
-                                            + "]Unknown entity name \""
-                                            + &event.entity_type
-                                            + "\" was provided.[/color]",
-                                    ),
-                                });
-                            }
-                            None => {}
+                    let return_entity = commands.spawn(()).id();
+                    default_spawner.send(DefaultSpawnEvent {
+                        spawn_data: EntityBuildData {
+                            entity_transform: Transform::IDENTITY,
+                            correct_transform: false,
+                            holder_entity_option: Some(event.command_executor_entity),
+                            default_map_spawn: false,
+                            raw_entity_option: None,
+                            showcase_data_option: None,
+                            entity: return_entity,
+                            held_entity_option: Some(return_entity),
                         },
-                    }
+                        builder: event.entity_type.clone(),
+                    });
+
+                    slot.slot_item = Some(return_entity);
+
+                    server1.send(OutgoingReliableServerMessage {
+                        handle: player_handle,
+                        message: InventoryServerMessage::PickedUpItem(
+                            event.entity_type.to_string(),
+                            return_entity.to_bits(),
+                            slot.slot_name.clone(),
+                        ),
+                    });
+
+                    server2.send(OutgoingReliableServerMessage {
+                        handle: player_handle,
+                        message: NetworkingChatServerMessage::ChatMessage(
+                            "A new entity has appeared in your hand.".to_string(),
+                        ),
+                    });
                 }
                 None => {
                     spawn_entity.send(RconSpawnEntity {
-                        entity_type: entity_type.clone(),
+                        entity_type: event.entity_type.clone(),
                         target_selector: event.target_selector.clone(),
                         spawn_amount: 1,
                         command_executor_handle_option: event.command_executor_handle_option,
@@ -433,11 +402,11 @@ use inventory::inventory::Inventory;
 
 /// Manage inventory item console commands.
 #[cfg(feature = "server")]
-pub(crate) fn inventory_item_console_commands(
+pub fn inventory_item_console_commands<T: EntityType + Default + Send + Sync + 'static>(
     mut queue: EventReader<InputConsoleCommand>,
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
-    mut spawn_entity: EventWriter<RconSpawnHeldEntity>,
+    mut spawn_entity: EventWriter<RconSpawnHeldEntity<T>>,
 ) {
     for console_command_event in queue.iter() {
         let player_entity;
@@ -489,12 +458,14 @@ pub(crate) fn inventory_item_console_commands(
                 }
             }
 
-            spawn_entity.send(RconSpawnHeldEntity {
-                entity_type: entity_name.to_string(),
-                target_selector: player_selector.to_string(),
-                command_executor_handle_option: console_command_event.handle_option,
-                command_executor_entity: console_command_event.entity,
-            });
+            if entity_name == &T::default().to_string() {
+                spawn_entity.send(RconSpawnHeldEntity {
+                    entity_type: T::default(),
+                    target_selector: player_selector.to_string(),
+                    command_executor_handle_option: console_command_event.handle_option,
+                    command_executor_entity: console_command_event.entity,
+                });
+            }
         }
     }
 }
