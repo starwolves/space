@@ -13,7 +13,6 @@ use crate::examine::{
 use crate::finalize_entity_updates::finalize_entity_updates;
 use crate::init::load_ron_entities;
 use crate::loading::load_entities;
-use crate::meta::EntityDataResource;
 use crate::net::{EntityClientMessage, EntityServerMessage};
 use crate::spawning_events::{
     despawn_entity, spawn_entity_for_client, DespawnClientEntity, SpawnClientEntity,
@@ -74,7 +73,6 @@ impl Plugin for EntityPlugin {
             app.add_system(load_entities);
         }
         app.add_event::<RawSpawnEvent>()
-            .init_resource::<EntityDataResource>()
             .init_resource::<EntityTypes>()
             .add_startup_system(finalize_register_entity_types.after(EntityTypeLabel::Register))
             .add_startup_system(

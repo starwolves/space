@@ -1,16 +1,11 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
-use entity::{
-    entity_data::initialize_entity_data,
-    meta::{EntityDataProperties, EntityDataResource},
-    register::register_entity_type,
-};
-use humanoid::humanoid::HUMAN_MALE_ENTITY_NAME;
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use entity::register::register_entity_type;
 
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    labels::{BuildingLabels, CombatLabels, StartupLabels},
+    labels::{BuildingLabels, CombatLabels},
 };
 
 use crate::{
@@ -35,26 +30,12 @@ impl Plugin for HumanMalePlugin {
         }
         register_entity_type::<HumanMaleType>(app);
         register_basic_console_commands_for_type::<HumanMaleType>(app);
-        app.add_startup_system(content_initialization.before(StartupLabels::InitEntities))
-            .add_system(
-                build_human_males
-                    .before(BuildingLabels::TriggerBuild)
-                    .label(BuildingLabels::NormalBuild),
-            )
-            .add_system(
-                (build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild),
-            )
-            .add_system((build_rigid_bodies::<HumanMaleType>).after(BuildingLabels::TriggerBuild));
+        app.add_system(
+            build_human_males
+                .before(BuildingLabels::TriggerBuild)
+                .label(BuildingLabels::NormalBuild),
+        )
+        .add_system((build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
+        .add_system((build_rigid_bodies::<HumanMaleType>).after(BuildingLabels::TriggerBuild));
     }
-}
-
-#[cfg(feature = "server")]
-pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let entity_properties = EntityDataProperties {
-        name: HUMAN_MALE_ENTITY_NAME.to_string(),
-        id: entity_data.get_id_inc(),
-        ..Default::default()
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
 }

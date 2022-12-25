@@ -18,18 +18,6 @@ pub fn store_entity_type<T: EntityType + 'static>(mut types: ResMut<EntityTypes>
     types.startup_types.push(T::new().to_string());
     types.types.insert(T::new().to_string(), Box::new(T::new()));
 }
-use crate::entity_data::initialize_entity_data;
-use crate::meta::{EntityDataProperties, EntityDataResource};
-
-#[cfg(feature = "server")]
-pub fn content_initialization<T: EntityType>(mut entity_data: ResMut<EntityDataResource>) {
-    let entity_properties = EntityDataProperties {
-        name: T::new().to_string(),
-        id: entity_data.get_id_inc(),
-        ..Default::default()
-    };
-    initialize_entity_data(&mut entity_data, entity_properties);
-}
 
 use bevy::prelude::info;
 

@@ -1,17 +1,10 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut, SystemLabel, SystemSet, Transform};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemLabel, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
-use entity::meta::GridItemData;
 use entity::register::register_entity_type;
-use entity::{
-    entity_data::initialize_entity_data,
-    meta::{EntityDataProperties, EntityDataResource},
-    spawn::build_base_entities,
-};
+use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
-use resources::labels::{
-    ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels, StartupLabels,
-};
+use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels};
 
 use crate::{
     actions::{
@@ -84,24 +77,10 @@ impl Plugin for AirLocksPlugin {
                         .after(ActionsLabels::Init),
                 );
         }
-        app.add_startup_system(content_initialization.before(StartupLabels::BuildGridmap))
-            .add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
+        app.add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<AirlockType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild));
         register_entity_type::<AirlockType>(app);
     }
-}
-
-pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
-    let entity_properties = EntityDataProperties {
-        name: AirlockType::default().identifier,
-        id: entity_data.get_id_inc(),
-        grid_item: Some(GridItemData {
-            transform_offset: Transform::IDENTITY,
-            can_be_built_with_grid_item: vec![],
-        }),
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
 }

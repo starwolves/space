@@ -5,7 +5,6 @@ use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
 use console_commands::net::ConsoleCommandsServerMessage;
-use entity::meta::EntityDataResource;
 use gridmap::grid::GridmapMain;
 use networking::server::GodotVariantValues;
 use networking::server::OutgoingReliableServerMessage;
@@ -124,7 +123,6 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
     gridmap_main: Res<GridmapMain>,
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
-    entity_data: ResMut<EntityDataResource>,
     mut default_spawner: EventWriter<SpawnEntity<T>>,
 ) {
     for event in rcon_spawn_events.iter() {
@@ -185,17 +183,14 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
                 &gridmap_main,
             );
 
-            let mut final_result = None;
-
             let mut individual_transform = spawn_position.0.clone();
 
             for _i in 0..spawn_amount {
-                final_result = spawn_entity(
+                spawn_entity(
                     event.entity_type.clone(),
                     individual_transform,
                     &mut commands,
                     true,
-                    &entity_data,
                     None,
                     None,
                     None,
@@ -209,27 +204,6 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
                     &gridmap_main,
                 )
                 .0;
-            }
-
-            if spawn_amount > 0 {
-                match final_result {
-                    Some(_) => {}
-                    None => match event.command_executor_handle_option {
-                        Some(t) => {
-                            server_1.send(OutgoingReliableServerMessage {
-                                handle: t,
-                                message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                                    "[color=".to_string()
-                                        + CONSOLE_ERROR_COLOR
-                                        + "]Unknown entity name \""
-                                        + &event.entity_type.to_string()
-                                        + "\" was provided.[/color]",
-                                ),
-                            });
-                        }
-                        None => {}
-                    },
-                }
             }
 
             if player_handle.is_some() {

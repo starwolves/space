@@ -20,8 +20,6 @@ pub mod init;
 /// For example based on whether entities are inside the FOV of a player the server may request to (un)load them on the client-side.
 /// Entity loading and unloading is just replicated client-side spawning and despawning.
 pub mod loading;
-/// Meta resources for entities.
-pub mod meta;
 /// The networking module of this crate.
 pub mod net;
 /// The Bevy plugin of this crate.

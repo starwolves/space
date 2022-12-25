@@ -1,4 +1,8 @@
-use std::collections::HashMap;
+use bevy::prelude::{Component, Entity};
+use math::grid::Vec3Int;
+use networking::server::GridMapLayer;
+
+/*use std::collections::HashMap;
 
 use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource, EffectType};
 use bevy::{
@@ -12,7 +16,6 @@ use doryen_fov::FovAlgorithm;
 use entity::{
     entity_data::EntityData,
     health::{Health, HealthContainer, StructureHealth},
-    meta::EntityDataResource,
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
 };
@@ -1218,7 +1221,7 @@ pub(crate) fn construction_tool(
         sfx_auto_destroy(sfx_entity, &mut sfx_auto_destroy_timers);
     }
 }
-
+*/
 /// The component.
 #[derive(Component, Default)]
 #[cfg(feature = "server")]
