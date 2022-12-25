@@ -2,6 +2,7 @@ use bevy::math::{Mat4, Quat, Vec3};
 use bevy::prelude::{Commands, EventReader, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
+use entity::entity_macros::Identity;
 use entity::entity_types::EntityType;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
@@ -118,7 +119,7 @@ impl RigidBodyBuilder<NoData> for ConstructionToolType {
 }
 
 #[cfg(feature = "server")]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct ConstructionToolType {
     pub identifier: String,
 }
@@ -128,22 +129,6 @@ impl Default for ConstructionToolType {
         ConstructionToolType {
             identifier: SF_CONTENT_PREFIX.to_string() + "constructionTool",
         }
-    }
-}
-
-impl EntityType for ConstructionToolType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        ConstructionToolType::default()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
     }
 }
 

@@ -7,6 +7,7 @@ use bevy::{
 };
 use entity::{
     entity_data::{WorldMode, WorldModes},
+    entity_macros::Identity,
     entity_types::EntityType,
     examine::{Examinable, RichName},
     spawn::{BaseEntityBuilder, BaseEntityBundle, EntityBuildData, NoData, SpawnEntity},
@@ -43,7 +44,7 @@ impl BaseEntityBuilder<NoData> for LineArrowType {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct LineArrowType {
     pub duration: f32,
     pub identifier: String,
@@ -54,21 +55,6 @@ impl Default for LineArrowType {
             duration: Default::default(),
             identifier: SF_CONTENT_PREFIX.to_string() + "lineArrow",
         }
-    }
-}
-impl EntityType for LineArrowType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        LineArrowType::default()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]

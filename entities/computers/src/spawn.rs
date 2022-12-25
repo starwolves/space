@@ -4,6 +4,7 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use entity::{
+    entity_macros::Identity,
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
@@ -70,7 +71,7 @@ impl RigidBodyBuilder<NoData> for ComputerType {
 }
 
 #[cfg(any(feature = "server", feature = "client"))]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct ComputerType {
     pub identifier: String,
 }
@@ -79,21 +80,6 @@ impl Default for ComputerType {
         ComputerType {
             identifier: SF_CONTENT_PREFIX.to_owned() + "bridgeComputer",
         }
-    }
-}
-
-impl EntityType for ComputerType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        ComputerType::default()
     }
 }
 

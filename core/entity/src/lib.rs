@@ -7,6 +7,7 @@
 
 /// Manage base entity data.
 pub mod entity_data;
+pub use entity_macros;
 pub mod entity_types;
 /// Resources for the ability to examine entities as an action.
 pub mod examine;

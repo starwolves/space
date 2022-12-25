@@ -6,6 +6,7 @@ use bevy::prelude::EventReader;
 use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
+use entity::entity_macros::Identity;
 use entity::entity_types::EntityType;
 use entity::examine::Examinable;
 use entity::examine::RichName;
@@ -167,7 +168,7 @@ impl RigidBodyBuilder<NoData> for PistolL1Type {
 use super::pistol_l1::PistolL1;
 
 #[cfg(feature = "server")]
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct PistolL1Type {
     pub identifier: String,
 }
@@ -176,21 +177,6 @@ impl Default for PistolL1Type {
         PistolL1Type {
             identifier: SF_CONTENT_PREFIX.to_owned() + "pistolL1",
         }
-    }
-}
-impl EntityType for PistolL1Type {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        PistolL1Type::default()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
     }
 }
 #[cfg(feature = "server")]

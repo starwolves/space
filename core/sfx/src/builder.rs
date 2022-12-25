@@ -5,6 +5,7 @@ use bevy::{
 use const_format::concatcp;
 use entity::{
     entity_data::{CachedBroadcastTransform, EntityData, EntityUpdates, UpdateTransform},
+    entity_macros::Identity,
     entity_types::EntityType,
     sensable::Sensable,
 };
@@ -12,7 +13,7 @@ use rand::Rng;
 use resources::content::SF_CONTENT_PREFIX;
 pub const SFX_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "sfx");
 
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct AmbienceSfxEntityType {
     pub identifier: String,
 }
@@ -23,22 +24,7 @@ impl Default for AmbienceSfxEntityType {
         }
     }
 }
-
-impl EntityType for AmbienceSfxEntityType {
-    fn to_string(&self) -> String {
-        self.identifier.to_string()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        Self::default()
-    }
-}
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct RepeatingSfxEntityType {
     pub identifier: String,
 }
@@ -50,21 +36,7 @@ impl Default for RepeatingSfxEntityType {
     }
 }
 
-impl EntityType for RepeatingSfxEntityType {
-    fn to_string(&self) -> String {
-        self.identifier.clone()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        Self::default()
-    }
-}
-#[derive(Clone)]
+#[derive(Clone, Identity)]
 pub struct SfxEntityType {
     pub identifier: String,
 }
@@ -77,20 +49,6 @@ impl Default for SfxEntityType {
     }
 }
 
-impl EntityType for SfxEntityType {
-    fn to_string(&self) -> String {
-        SFX_ENTITY_NAME.to_string()
-    }
-    fn is_type(&self, identifier: String) -> bool {
-        self.identifier == identifier
-    }
-    fn new() -> Self
-    where
-        Self: Sized,
-    {
-        Self::default()
-    }
-}
 use entity::entity_data::EntityGroup;
 
 /// Spawn background sound effect with commands as a function.
