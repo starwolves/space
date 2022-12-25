@@ -1,6 +1,6 @@
-use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, PointLightBundle, Transform};
+use bevy::prelude::{Commands, EventReader, PointLight, PointLightBundle, Transform};
 use entity::{
-    entity_data::{EntityData, EntityGroup, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
+    entity_data::{EntityData, EntityGroup, EntityUpdates, WorldMode, WorldModes},
     entity_types::EntityType,
     sensable::Sensable,
     spawn::{EntityBuildData, SpawnEntity},
@@ -106,33 +106,6 @@ impl PointLightBuilder for PointLightType {
                 mode: WorldModes::Static,
             },
         ));
-    }
-}
-
-#[cfg(any(feature = "server", feature = "client"))]
-pub fn build_raw_point_lights(
-    mut spawn_events: EventReader<RawSpawnEvent>,
-    mut build_point_light: EventWriter<SpawnEntity<PointLightType>>,
-    mut commands: Commands,
-) {
-    for event in spawn_events.iter() {
-        if event.raw_entity.entity_type == PointLightType::new().to_string() {
-            let mut entity_transform = Transform::from_translation(event.raw_entity.translation);
-            entity_transform.rotation = event.raw_entity.rotation;
-            entity_transform.scale = event.raw_entity.scale;
-            build_point_light.send(SpawnEntity {
-                spawn_data: EntityBuildData {
-                    entity_transform: entity_transform,
-                    default_map_spawn: true,
-                    entity: commands.spawn(()).id(),
-                    ..Default::default()
-                },
-                entity_type: PointLightType {
-                    light: get_default_point_light(),
-                    ..Default::default()
-                },
-            });
-        }
     }
 }
 

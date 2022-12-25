@@ -55,3 +55,47 @@ pub trait EntityType: Send + Sync + DynClone {
 dyn_clone::clone_trait_object!(EntityType);
 
 pub type BoxedEntityType = Box<dyn EntityType>;
+use crate::spawn::SpawnEntity;
+use bevy::prelude::App;
+use bevy::prelude::IntoSystemDescriptor;
+use resources::labels::BuildingLabels;
+
+#[cfg(any(feature = "client", feature = "server"))]
+pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut App) {
+    app.add_startup_system(store_entity_type::<T>.label(EntityTypeLabel::Register))
+        .add_event::<SpawnEntity<T>>()
+        .add_system((build_raw_entities::<T>).after(BuildingLabels::TriggerBuild));
+}
+
+use bevy::prelude::{Commands, EventReader, EventWriter};
+
+use bevy::prelude::Transform;
+
+use crate::entity_data::RawSpawnEvent;
+use crate::spawn::EntityBuildData;
+#[cfg(feature = "server")]
+pub fn build_raw_entities<T: EntityType + Default + Send + Sync + 'static>(
+    mut spawn_events: EventReader<RawSpawnEvent>,
+    mut builder_computer: EventWriter<SpawnEntity<T>>,
+    mut commands: Commands,
+) {
+    for spawn_event in spawn_events.iter() {
+        if spawn_event.raw_entity.entity_type != T::default().to_string() {
+            continue;
+        }
+
+        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
+        entity_transform.rotation = spawn_event.raw_entity.rotation;
+        entity_transform.scale = spawn_event.raw_entity.scale;
+        builder_computer.send(SpawnEntity {
+            spawn_data: EntityBuildData {
+                entity_transform: entity_transform,
+                default_map_spawn: true,
+                entity: commands.spawn(()).id(),
+                raw_entity_option: Some(spawn_event.raw_entity.clone()),
+                ..Default::default()
+            },
+            entity_type: T::default(),
+        });
+    }
+}

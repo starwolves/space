@@ -5,7 +5,7 @@ use basic_console_commands::register::{
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
-use entity::register::register_entity_type;
+use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
@@ -22,7 +22,7 @@ use crate::construction_tool::{ConstructionTool, InputConstructionOptionsSelecti
 
 use super::{
     construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct},
-    spawn::{build_construction_tools, build_raw_construction_tools, ConstructionToolType},
+    spawn::{build_construction_tools, ConstructionToolType},
 };
 
 pub struct ConstructionToolAdminPlugin;
@@ -99,7 +99,6 @@ impl Plugin for ConstructionToolAdminPlugin {
         )
         .add_system(
             (build_inventory_items::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
-        )
-        .add_system((build_raw_construction_tools).after(BuildingLabels::TriggerBuild));
+        );
     }
 }

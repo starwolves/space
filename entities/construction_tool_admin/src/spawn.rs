@@ -1,8 +1,7 @@
 use bevy::math::{Mat4, Quat, Vec3};
-use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
+use bevy::prelude::{Commands, EventReader, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
-use entity::entity_data::RawSpawnEvent;
 use entity::entity_types::EntityType;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
@@ -157,32 +156,5 @@ pub fn build_construction_tools<T: Send + Sync + 'static>(
         commands
             .entity(spawn_event.spawn_data.entity)
             .insert(ConstructionTool::default());
-    }
-}
-
-#[cfg(feature = "server")]
-pub fn build_raw_construction_tools(
-    mut spawn_events: EventReader<RawSpawnEvent>,
-    mut builder_computer: EventWriter<SpawnEntity<ConstructionToolType>>,
-    mut commands: Commands,
-) {
-    for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != ConstructionToolType::default().to_string() {
-            continue;
-        }
-
-        let mut entity_transform = Transform::from_translation(spawn_event.raw_entity.translation);
-        entity_transform.rotation = spawn_event.raw_entity.rotation;
-        entity_transform.scale = spawn_event.raw_entity.scale;
-        builder_computer.send(SpawnEntity {
-            spawn_data: EntityBuildData {
-                entity_transform: entity_transform,
-                default_map_spawn: true,
-                entity: commands.spawn(()).id(),
-                raw_entity_option: Some(spawn_event.raw_entity.clone()),
-                ..Default::default()
-            },
-            entity_type: ConstructionToolType::default(),
-        });
     }
 }

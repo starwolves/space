@@ -1,6 +1,6 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use entity::register::register_entity_type;
+use entity::entity_types::register_entity_type;
 
 use physics::spawn::build_rigid_bodies;
 use resources::{
