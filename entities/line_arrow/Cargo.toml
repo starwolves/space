@@ -19,7 +19,6 @@ version = "0.9.1"
 default-features = false
 
 [dependencies]
-const_format = "0.2.30"
 
 console_commands = { path = "../../core/console_commands", features = [
     "server",

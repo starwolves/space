@@ -32,12 +32,6 @@ networking = { path = "../../core/networking", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
 humanoid = { path = "../../core/humanoid", features = ["server"] }
 pawn = { path = "../../core/pawn", features = ["server"] }
-jumpsuit_security = { path = "../jumpsuit_security", features = ["server"] }
-helmet_security = { path = "../helmet_security", features = ["server"] }
-pistol_l1 = { path = "../pistol_l1", features = ["server"] }
-construction_tool_admin = { path = "../construction_tool_admin", features = [
-    "server",
-] }
 setup_ui = { path = "../../core/setup_ui", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }
 basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
