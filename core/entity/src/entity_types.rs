@@ -59,7 +59,7 @@ pub enum EntityTypeLabel {
 pub trait EntityType: Send + Sync + DynClone {
     /// Persistent string identifier of entity type. Unhygenic.
     fn to_string(&self) -> String;
-    fn is_type(&self, other_type: BoxedEntityType) -> bool;
+    fn is_type(&self, identifier: String) -> bool;
     fn new() -> Self
     where
         Self: Sized;

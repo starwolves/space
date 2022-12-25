@@ -3,12 +3,10 @@ use bevy::prelude::{Commands, EventReader, EventWriter, Transform};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use entity::entity_data::RawSpawnEvent;
-use entity::entity_types::{BoxedEntityType, EntityType};
+use entity::entity_types::EntityType;
 use entity::examine::{Examinable, RichName};
 use entity::health::DamageFlag;
-use entity::spawn::{
-    BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData, SpawnEntity,
-};
+use entity::spawn::{BaseEntityBuilder, BaseEntityBundle, EntityBuildData, NoData, SpawnEntity};
 use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
@@ -145,8 +143,8 @@ impl EntityType for ConstructionToolType {
     {
         ConstructionToolType::default()
     }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
     }
 }
 
@@ -184,26 +182,7 @@ pub fn build_raw_construction_tools(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: ConstructionToolType::default(),
-        });
-    }
-}
-
-#[cfg(feature = "server")]
-pub fn default_build_construction_tools(
-    mut default_spawner: EventReader<DefaultSpawnEvent<ConstructionToolType>>,
-    mut spawner: EventWriter<SpawnEntity<ConstructionToolType>>,
-) {
-    for spawn_event in default_spawner.iter() {
-        if spawn_event
-            .builder
-            .is_type(Box::new(ConstructionToolType::default()))
-        {
-            continue;
-        }
-        spawner.send(SpawnEntity {
-            spawn_data: spawn_event.spawn_data.clone(),
-            builder: ConstructionToolType::default(),
+            entity_type: ConstructionToolType::default(),
         });
     }
 }

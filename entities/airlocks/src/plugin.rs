@@ -30,11 +30,7 @@ use super::{
     airlock_events::airlock_events,
     airlock_tick_timers::airlock_tick_timers,
     entity_update::airlock_update,
-    spawn::{
-        build_airlocks, build_raw_airlocks, default_build_airlocks, AirlockType,
-        BRIDGE_AIRLOCK_ENTITY_NAME, GOVERNMENT_AIRLOCK_ENTITY_NAME, SECURITY_AIRLOCK_ENTITY_NAME,
-        VACUUM_AIRLOCK_ENTITY_NAME,
-    },
+    spawn::{build_airlocks, build_raw_airlocks, AirlockType},
 };
 use bevy::app::CoreStage::PostUpdate;
 
@@ -92,52 +88,14 @@ impl Plugin for AirLocksPlugin {
             .add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<AirlockType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild))
-            .add_system(
-                default_build_airlocks
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
-            );
+            .add_system((build_raw_airlocks).after(BuildingLabels::TriggerBuild));
         register_entity_type::<AirlockType>(app);
     }
 }
 
 pub fn content_initialization(mut entity_data: ResMut<EntityDataResource>) {
     let entity_properties = EntityDataProperties {
-        name: SECURITY_AIRLOCK_ENTITY_NAME.to_string(),
-        id: entity_data.get_id_inc(),
-        grid_item: Some(GridItemData {
-            transform_offset: Transform::IDENTITY,
-            can_be_built_with_grid_item: vec![],
-        }),
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
-
-    let entity_properties = EntityDataProperties {
-        name: VACUUM_AIRLOCK_ENTITY_NAME.to_string(),
-        id: entity_data.get_id_inc(),
-        grid_item: Some(GridItemData {
-            transform_offset: Transform::IDENTITY,
-            can_be_built_with_grid_item: vec![],
-        }),
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
-
-    let entity_properties = EntityDataProperties {
-        name: GOVERNMENT_AIRLOCK_ENTITY_NAME.to_string(),
-        id: entity_data.get_id_inc(),
-        grid_item: Some(GridItemData {
-            transform_offset: Transform::IDENTITY,
-            can_be_built_with_grid_item: vec![],
-        }),
-    };
-
-    initialize_entity_data(&mut entity_data, entity_properties);
-
-    let entity_properties = EntityDataProperties {
-        name: BRIDGE_AIRLOCK_ENTITY_NAME.to_string(),
+        name: AirlockType::default().identifier,
         id: entity_data.get_id_inc(),
         grid_item: Some(GridItemData {
             transform_offset: Transform::IDENTITY,

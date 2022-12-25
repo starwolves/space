@@ -12,7 +12,7 @@ use crate::console_command::entity_console_commands;
 
 use super::{
     console_command::expire_point_arrow,
-    spawn::{build_line_arrows, default_build_line_arrows, LineArrowType},
+    spawn::{build_line_arrows, LineArrowType},
 };
 
 pub struct LineArrowPlugin;
@@ -30,12 +30,7 @@ impl Plugin for LineArrowPlugin {
         register_entity_type::<LineArrowType>(app);
         register_basic_console_commands_for_type::<LineArrowType>(app);
         app.add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild))
-            .add_system(build_line_arrows::<LineArrowType>.after(BuildingLabels::TriggerBuild))
-            .add_system(
-                (default_build_line_arrows)
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
-            );
+            .add_system(build_line_arrows::<LineArrowType>.after(BuildingLabels::TriggerBuild));
     }
 }
 

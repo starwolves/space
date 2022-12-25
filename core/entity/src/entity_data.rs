@@ -186,16 +186,14 @@ impl EntityType for BlankEntityType {
     fn to_string(&self) -> String {
         self.identifier.clone()
     }
-
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
+    }
     fn new() -> Self
     where
         Self: Sized,
     {
         BlankEntityType::default()
-    }
-
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
     }
 }
 

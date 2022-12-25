@@ -17,7 +17,7 @@ use resources::{
 
 use crate::jumpsuit::Jumpsuit;
 
-use super::spawn::{build_jumpsuits, build_raw_jumpsuits, default_build_jumpsuits, JumpsuitType};
+use super::spawn::{build_jumpsuits, build_raw_jumpsuits, JumpsuitType};
 
 pub struct JumpsuitsPlugin;
 
@@ -45,11 +45,8 @@ impl Plugin for JumpsuitsPlugin {
             .add_system((build_base_entities::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_rigid_bodies::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
             .add_system((build_raw_jumpsuits).after(BuildingLabels::TriggerBuild))
-            .add_system((build_inventory_items::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
             .add_system(
-                (default_build_jumpsuits)
-                    .label(BuildingLabels::DefaultBuild)
-                    .after(BuildingLabels::NormalBuild),
+                (build_inventory_items::<JumpsuitType>).after(BuildingLabels::TriggerBuild),
             );
     }
 }

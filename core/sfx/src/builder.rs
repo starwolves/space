@@ -5,7 +5,7 @@ use bevy::{
 use const_format::concatcp;
 use entity::{
     entity_data::{CachedBroadcastTransform, EntityData, EntityUpdates, UpdateTransform},
-    entity_types::{BoxedEntityType, EntityType},
+    entity_types::EntityType,
     sensable::Sensable,
 };
 use rand::Rng;
@@ -28,8 +28,8 @@ impl EntityType for AmbienceSfxEntityType {
     fn to_string(&self) -> String {
         self.identifier.to_string()
     }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
     }
     fn new() -> Self
     where
@@ -54,15 +54,14 @@ impl EntityType for RepeatingSfxEntityType {
     fn to_string(&self) -> String {
         self.identifier.clone()
     }
-
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
+    }
     fn new() -> Self
     where
         Self: Sized,
     {
         Self::default()
-    }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
     }
 }
 #[derive(Clone)]
@@ -82,15 +81,14 @@ impl EntityType for SfxEntityType {
     fn to_string(&self) -> String {
         SFX_ENTITY_NAME.to_string()
     }
-
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
+    }
     fn new() -> Self
     where
         Self: Sized,
     {
         Self::default()
-    }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
     }
 }
 use entity::entity_data::EntityGroup;

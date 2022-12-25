@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, EventReader, EventWriter, PointLight, PointLightBundle, Transform};
 use entity::{
     entity_data::{EntityData, EntityGroup, EntityUpdates, RawSpawnEvent, WorldMode, WorldModes},
-    entity_types::{BoxedEntityType, EntityType},
+    entity_types::EntityType,
     sensable::Sensable,
     spawn::{EntityBuildData, SpawnEntity},
 };
@@ -57,15 +57,14 @@ impl EntityType for PointLightType {
     fn to_string(&self) -> String {
         self.identifier.clone()
     }
-
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
+    }
     fn new() -> Self
     where
         Self: Sized,
     {
         PointLightType::default()
-    }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
     }
 }
 #[cfg(any(feature = "server", feature = "client"))]
@@ -75,7 +74,7 @@ pub fn build_point_lights<T: PointLightBuilder + 'static>(
 ) {
     for spawn_event in spawn_events.iter() {
         spawn_event
-            .builder
+            .entity_type
             .spawn(&spawn_event.spawn_data, &mut commands);
     }
 }
@@ -128,7 +127,7 @@ pub fn build_raw_point_lights(
                     entity: commands.spawn(()).id(),
                     ..Default::default()
                 },
-                builder: PointLightType {
+                entity_type: PointLightType {
                     light: get_default_point_light(),
                     ..Default::default()
                 },

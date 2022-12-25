@@ -8,14 +8,12 @@ use bevy::prelude::Transform;
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use entity::entity_data::RawSpawnEvent;
-use entity::entity_types::BoxedEntityType;
 use entity::entity_types::EntityType;
 use entity::examine::Examinable;
 use entity::examine::RichName;
 use entity::health::DamageFlag;
 use entity::spawn::BaseEntityBuilder;
 use entity::spawn::BaseEntityBundle;
-use entity::spawn::DefaultSpawnEvent;
 use entity::spawn::EntityBuildData;
 use entity::spawn::NoData;
 use entity::spawn::SpawnEntity;
@@ -193,8 +191,8 @@ impl EntityType for PistolL1Type {
     {
         PistolL1Type::default()
     }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
     }
 }
 #[cfg(feature = "server")]
@@ -232,26 +230,7 @@ pub fn build_raw_pistols_l1(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: PistolL1Type::default(),
-        });
-    }
-}
-
-#[cfg(feature = "server")]
-pub fn default_build_pistols_l1(
-    mut default_spawner: EventReader<DefaultSpawnEvent<PistolL1Type>>,
-    mut spawner: EventWriter<SpawnEntity<PistolL1Type>>,
-) {
-    for spawn_event in default_spawner.iter() {
-        if spawn_event
-            .builder
-            .is_type(Box::new(PistolL1Type::default()))
-        {
-            continue;
-        }
-        spawner.send(SpawnEntity {
-            spawn_data: spawn_event.spawn_data.clone(),
-            builder: PistolL1Type::default(),
+            entity_type: PistolL1Type::default(),
         });
     }
 }

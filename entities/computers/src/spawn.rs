@@ -5,13 +5,10 @@ use bevy::{
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
 use entity::{
     entity_data::RawSpawnEvent,
-    entity_types::{BoxedEntityType, EntityType},
+    entity_types::EntityType,
     examine::{Examinable, RichName},
     health::Health,
-    spawn::{
-        BaseEntityBuilder, BaseEntityBundle, DefaultSpawnEvent, EntityBuildData, NoData,
-        SpawnEntity,
-    },
+    spawn::{BaseEntityBuilder, BaseEntityBundle, EntityBuildData, NoData, SpawnEntity},
 };
 use physics::{
     rigid_body::STANDARD_BODY_FRICTION,
@@ -90,8 +87,8 @@ impl EntityType for ComputerType {
     fn to_string(&self) -> String {
         self.identifier.clone()
     }
-    fn is_type(&self, other_type: BoxedEntityType) -> bool {
-        other_type.to_string() == self.identifier
+    fn is_type(&self, identifier: String) -> bool {
+        self.identifier == identifier
     }
     fn new() -> Self
     where
@@ -137,28 +134,9 @@ pub fn build_raw_computers(
                 raw_entity_option: Some(spawn_event.raw_entity.clone()),
                 ..Default::default()
             },
-            builder: ComputerType::default(),
+            entity_type: ComputerType::default(),
         });
     }
 }
 
 use super::computer::Computer;
-
-#[cfg(any(feature = "server", feature = "client"))]
-pub fn default_build_computers(
-    mut default_spawner: EventReader<DefaultSpawnEvent<ComputerType>>,
-    mut spawner: EventWriter<SpawnEntity<ComputerType>>,
-) {
-    for spawn_event in default_spawner.iter() {
-        if spawn_event
-            .builder
-            .is_type(Box::new(ComputerType::default()))
-        {
-            continue;
-        }
-        spawner.send(SpawnEntity {
-            spawn_data: spawn_event.spawn_data.clone(),
-            builder: ComputerType::default(),
-        });
-    }
-}
