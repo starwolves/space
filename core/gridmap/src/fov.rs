@@ -226,9 +226,6 @@ pub(crate) fn senser_update_fov(
         {
             senser_component.cell_id = senser_cell_id;
 
-            // 240000 ns. 1/4th of a ms. 4x/ms (expensive.)
-            // Will need a faster replacement at some point. Because scales bad with huge maps. Capped to 500x500 tiles (1kmx1km) for time being.
-            // Max map size support is around 4kmx4km but will need a faster FOV algorithm for that.
             senser_component.fov.clear_fov();
             let coords = to_doryen_coordinates(senser_cell_id.x, senser_cell_id.y);
             senser_component

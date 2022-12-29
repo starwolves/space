@@ -35,9 +35,6 @@ impl Default for Senser {
 }
 
 /// Turning up these values drastically increases fov calculation time.
-/// The largest maps we can support with f32 accuracy is a 2000x2000 tiled map.
-/// FOV calculation time will take 10x-15x slower, up to 2-3ms for just a single player calculation.
-/// For bigger maps than 500x500 gridmaps we need a new and better FOV algorithm.
 /// Dividible by 2.
 #[cfg(feature = "server")]
 pub const WORLD_WIDTH_CELLS: usize = 500;
