@@ -42,7 +42,7 @@ use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
 use resources::{labels::StartupLabels, plugin::ResourcesPlugin};
-use setup_menu::plugin::SetupUiPlugin;
+use setup_menu::plugin::SetupMenuPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use ui::plugin::UiPlugin;
@@ -134,7 +134,7 @@ impl Plugin for ServerPlugin {
             .add_plugin(ChatPlugin)
             .add_plugin(UiPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(SetupUiPlugin)
+            .add_plugin(SetupMenuPlugin)
             .add_plugin(PhysicsPlugin)
             .add_plugin(PointLightPlugin)
             .add_plugin(BasicConsoleCommandsPlugin {
