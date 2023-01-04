@@ -10,7 +10,7 @@ use pawn::pawn::{PawnDesignation, SpawnPawnData};
 use player::account::Accounts;
 
 use entity::spawn::EntityBuildData;
-use setup_ui::core::SetupUiUserDataSets;
+use setup_menu::core::SetupUiUserDataSets;
 
 use entity::spawn::SpawnEntity;
 

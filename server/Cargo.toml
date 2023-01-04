@@ -39,7 +39,7 @@ basic_console_commands = { path = "../core/basic_console_commands", features = [
 ] }
 physics = { path = "../core/physics", features = ["server"] }
 
-setup_ui = { path = "../core/setup_ui", features = ["server"] }
+setup_menu = { path = "../core/setup_menu", features = ["server"] }
 
 sounds = { path = "../entities/sounds", features = ["server"] }
 asana = { path = "../entities/asana", features = ["server"] }

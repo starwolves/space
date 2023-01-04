@@ -1,4 +1,4 @@
-//! The character setup ui.
+//! The player character setup menu.
 
 // The Bevy ECS plugin of this crate.
 pub mod core;

@@ -42,7 +42,7 @@ use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
 use resources::{labels::StartupLabels, plugin::ResourcesPlugin};
-use setup_ui::plugin::SetupUiPlugin;
+use setup_menu::plugin::SetupUiPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use ui::plugin::UiPlugin;
