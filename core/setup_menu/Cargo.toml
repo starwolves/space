@@ -1,5 +1,5 @@
 [package]
-name = "setup_ui"
+name = "setup_menu"
 version = "0.0.3-snap8-dev"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "Text character setup ui."

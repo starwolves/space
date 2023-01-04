@@ -21,7 +21,7 @@ networking = { path = "../core/networking", features = ["client"] }
 main_menu = { path = "../core/main_menu", features = ["client"] }
 resources = { path = "../core/resources", features = ["client"] }
 ui = { path = "../core/ui", features = ["client"] }
-setup_ui = { path = "../core/setup_ui", features = ["client"] }
+setup_menu = { path = "../core/setup_menu", features = ["client"] }
 player = { path = "../core/player", features = ["client"] }
 actions = { path = "../core/actions", features = ["client"] }
 chat = { path = "../core/chat", features = ["client"] }

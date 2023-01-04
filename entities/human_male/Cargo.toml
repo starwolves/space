@@ -32,7 +32,7 @@ networking = { path = "../../core/networking", features = ["server"] }
 resources = { path = "../../core/resources", features = ["server"] }
 humanoid = { path = "../../core/humanoid", features = ["server"] }
 pawn = { path = "../../core/pawn", features = ["server"] }
-setup_ui = { path = "../../core/setup_ui", features = ["server"] }
+setup_menu = { path = "../../core/setup_menu", features = ["server"] }
 physics = { path = "../../core/physics", features = ["server"] }
 basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
 
