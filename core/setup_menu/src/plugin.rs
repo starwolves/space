@@ -16,9 +16,9 @@ use crate::{
     },
     net::{SetupUiClientMessage, SetupUiServerMessage},
 };
-pub struct SetupUiPlugin;
+pub struct SetupMenuPlugin;
 
-impl Plugin for SetupUiPlugin {
+impl Plugin for SetupMenuPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_system(ui_input_boarding)
