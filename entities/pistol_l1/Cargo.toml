@@ -10,9 +10,7 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -21,11 +19,11 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.19.0"
 
-entity = { path = "../../core/entity", features = ["server"] }
-text_api = { path = "../../core/text_api", features = ["server"] }
-combat = { path = "../../core/combat", features = ["server"] }
-resources = { path = "../../core/resources", features = ["server"] }
-physics = { path = "../../core/physics", features = ["server"] }
-inventory = { path = "../../core/inventory", features = ["server"] }
-basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
+entity = { path = "../../core/entity" }
+text_api = { path = "../../core/text_api"}
+combat = { path = "../../core/combat"}
+resources = { path = "../../core/resources" }
+physics = { path = "../../core/physics" }
+inventory = { path = "../../core/inventory" }
+basic_console_commands = { path = "../../core/basic_console_commands" }
 

@@ -4,7 +4,7 @@ use pawn::pawn::FacingDirection;
 
 /// Controller input component.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct ControllerInput {
     pub movement_vector: Vec2,
     pub sprinting: bool,

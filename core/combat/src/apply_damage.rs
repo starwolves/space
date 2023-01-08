@@ -10,21 +10,21 @@ use crate::{
 };
 
 /// Entity hits from [HealthCombatHitResult].
-#[cfg(feature = "server")]
+
 pub struct EntityHit {
     pub entity: Entity,
     pub hit_result: HitResult,
     pub limb_hit: String,
 }
 /// Cell hits from [HealthCombatHitResult].
-#[cfg(feature = "server")]
+
 pub struct CellHit {
     pub cell_id: Vec3Int,
     pub hit_result: HitResult,
 }
 
 /// Event with combat results for health processing.
-#[cfg(feature = "server")]
+
 pub struct HealthCombatHitResult {
     pub incremented_id: u64,
     pub entities_hits: Vec<EntityHit>,
@@ -33,13 +33,13 @@ pub struct HealthCombatHitResult {
 
 /// Resource with active damage applyers for health processing.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct ActiveApplyDamage {
     pub list: Vec<DamageApplyer>,
 }
 
 /// A health damage application event.
-#[cfg(feature = "server")]
+
 pub struct DamageApplyer {
     /// Attack id.
     pub incremented_id: u64,
@@ -48,7 +48,7 @@ pub struct DamageApplyer {
 }
 
 /// Information about a damage model contained by [DamageApplyer].
-#[cfg(feature = "server")]
+
 pub struct ApplyDamageModel {
     pub damage_model: DamageModel,
     /// Damage applyer type, "main" most of the time.
@@ -56,7 +56,7 @@ pub struct ApplyDamageModel {
 }
 
 /// Multiply damage data contained by [DamageApplyer].
-#[cfg(feature = "server")]
+
 pub struct DamageMultiplier {
     pub brute: f32,
     pub burn: f32,
@@ -66,7 +66,7 @@ pub struct DamageMultiplier {
 }
 
 /// Initiate damage applying.
-#[cfg(feature = "server")]
+
 pub(crate) fn start_apply_damage(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     combat_storage: Res<ActiveAttacks>,
@@ -155,7 +155,7 @@ pub(crate) fn start_apply_damage(
 }
 
 /// Finalize damage applying.
-#[cfg(feature = "server")]
+
 pub(crate) fn finalize_apply_damage(
     combat_storage: Res<ActiveAttacks>,
     mut health_entities: Query<&mut HealthComponent>,

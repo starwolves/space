@@ -11,7 +11,7 @@ use bevy_renet::renet::{
 use crate::server::PROTOCOL_ID;
 
 /// Resource containing needed for the server.
-#[cfg(feature = "client")]
+
 #[derive(Default, Resource)]
 pub struct ConnectionPreferences {
     pub account_name: String,
@@ -19,7 +19,7 @@ pub struct ConnectionPreferences {
 }
 
 /// Event that triggers a new server connection.
-#[cfg(feature = "client")]
+
 pub struct ConnectToServer;
 
 use crate::server::SERVER_PORT;
@@ -35,7 +35,7 @@ use bevy::prelude::ResMut;
 use bevy_renet::renet::ConnectToken;
 
 use crate::server::PRIV_KEY;
-#[cfg(feature = "client")]
+
 pub(crate) fn connect_to_server(
     mut event: EventReader<ConnectToServer>,
     mut commands: Commands,
@@ -159,13 +159,11 @@ pub(crate) fn connect_to_server(
     }
 }
 
-#[cfg(feature = "client")]
 #[derive(Default, Resource)]
 pub struct Connection {
     pub status: ConnectionStatus,
 }
 
-#[cfg(feature = "client")]
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
 pub enum ConnectionStatus {
     #[default]
@@ -177,13 +175,13 @@ pub enum ConnectionStatus {
 use bevy::prelude::EventWriter;
 
 /// System run run_if with iyes_loopless
-#[cfg(feature = "client")]
+
 pub fn connected(connection: Res<Connection>) -> bool {
     matches!(connection.status, ConnectionStatus::Connected)
 }
 /// System run run_if with iyes_loopless. The earliest server messages (for setup_ui, boarding etc.)
 /// come in while in the connecting stage.
-#[cfg(feature = "client")]
+
 pub fn is_client_connected(connection: Res<Connection>) -> bool {
     matches!(connection.status, ConnectionStatus::Connecting)
         || matches!(connection.status, ConnectionStatus::Connected)
@@ -195,7 +193,6 @@ use crate::plugin::RENET_RELIABLE_CHANNEL_ID;
 use serde::Serialize;
 use typename::TypeName;
 /// Serializes and sends the outgoing reliable client messages.
-#[cfg(any(feature = "client"))]
 pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingReliableClientMessage<T>>,
     mut client: ResMut<RenetClient>,
@@ -243,7 +240,6 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
 use crate::messaging::UnreliableMessage;
 
 /// Serializes and sends the outgoing unreliable client messages.
-#[cfg(any(feature = "client"))]
 pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingUnreliableClientMessage<T>>,
     mut client: ResMut<RenetClient>,
@@ -290,7 +286,6 @@ pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync
 }
 use serde::Deserialize;
 
-#[cfg(feature = "client")]
 pub(crate) fn deserialize_incoming_unreliable_server_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -313,7 +308,6 @@ pub(crate) fn deserialize_incoming_unreliable_server_message<
 }
 use crate::messaging::get_reliable_message;
 
-#[cfg(feature = "client")]
 pub(crate) fn deserialize_incoming_reliable_server_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -335,19 +329,19 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
     }
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[cfg(feature = "client")]
+
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[cfg(feature = "client")]
+
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
 }
 use crate::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 
 /// Dezerializes incoming server messages and writes to event.
-#[cfg(feature = "client")]
+
 pub(crate) fn receive_incoming_unreliable_server_messages(
     mut events: EventWriter<IncomingRawUnreliableServerMessage>,
     mut client: ResMut<RenetClient>,
@@ -365,7 +359,7 @@ pub(crate) fn receive_incoming_unreliable_server_messages(
 }
 
 /// Deserializes incoming server messages and writes to event.
-#[cfg(feature = "client")]
+
 pub(crate) fn receive_incoming_reliable_server_messages(
     mut events: EventWriter<IncomingRawReliableServerMessage>,
     mut client: ResMut<RenetClient>,
@@ -383,32 +377,30 @@ pub(crate) fn receive_incoming_reliable_server_messages(
 }
 
 /// Event to send unreliable messages from client to server.
-#[cfg(feature = "client")]
+
 pub struct OutgoingUnreliableClientMessage<T: TypeName + Send + Sync + 'static> {
     pub message: T,
 }
 /// Event to send reliable messages from client to server.
-#[cfg(feature = "client")]
+
 pub struct OutgoingReliableClientMessage<T: TypeName + Send + Sync + 'static> {
     pub message: T,
 }
 
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
 
-#[cfg(feature = "client")]
 pub(crate) struct IncomingRawReliableServerMessage {
     pub message: ReliableMessage,
 }
 
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
 
-#[cfg(feature = "client")]
 pub(crate) struct IncomingRawUnreliableServerMessage {
     pub message: UnreliableMessage,
 }
 
 /// Returns an option containing the desired unreliable netcode message.
-#[cfg(feature = "client")]
+
 pub fn get_unreliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>(
     typenames: &Res<Typenames>,
     identifier: u8,
@@ -437,7 +429,7 @@ pub fn get_unreliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>
 use crate::server::NetworkingServerMessage;
 
 /// Confirms connection with server.
-#[cfg(feature = "client")]
+
 pub(crate) fn confirm_connection(
     mut client1: EventReader<IncomingReliableServerMessage<NetworkingServerMessage>>,
     mut connected_state: ResMut<Connection>,
@@ -453,7 +445,6 @@ pub(crate) fn confirm_connection(
     }
 }
 
-#[cfg(feature = "client")]
 pub(crate) fn on_disconnect(
     client: Res<RenetClient>,
     mut connected_state: ResMut<Connection>,

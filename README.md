@@ -74,21 +74,21 @@ There is community sovereignty, integrity, values and strong personalities toget
 To compile and run Space Frontiers:
 
 * Select latest versioned branch (not master) from this repository and clone it.
-* In your terminal navigate to the project folder you have just obtained and run:
+* In your terminal navigate to the project folder you have just obtained.
 
 To start the server run:
 
 ```bash
-cargo run --bin server
+cargo run server
 ```
 
-To start the new client run:
+To start the new Bevy client run:
 
 ```bash
-cargo run --bin client
+cargo run
 ```
 
-To run Space Frontiers at maximum performance you should add the following flag to the run command:
+To run Space Frontiers at maximum performance with a slower compile time add the following flag to the run command:
 
 ```bash
 --release
@@ -103,7 +103,7 @@ The prototype client is built on top of a Godot 3.4 release.
 
 ### The new Bevy client
 
-Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are just getting started and it will be a while before it is of any use. The new Bevy client is integrated in the same repository.
+Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are just getting started and it will be a while before it is of any use. The new Bevy client is developed open-source in this repository.
 
 ## Documentation
 

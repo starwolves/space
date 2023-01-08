@@ -2,7 +2,7 @@ use std::path::Path;
 
 use bevy::{prelude::NonSend, window::WindowId, winit::WinitWindows};
 use winit::window::Icon;
-#[cfg(feature = "client")]
+
 pub(crate) fn set_window_icon(
     // we have to use `NonSend` here
     windows: NonSend<WinitWindows>,

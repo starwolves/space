@@ -19,7 +19,7 @@ use crate::diffusion::{get_atmos_index, AtmosphericsResource, DIFFUSION_STEP};
 use super::diffusion::RigidBodyForcesAccumulation;
 
 /// Apply accumulated atmospherics forces to the rigid bodies of the entities.
-#[cfg(feature = "server")]
+
 pub(crate) fn rigidbody_forces_physics(
     mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,
     mut rigidbodies: Query<&mut ExternalForce, Without<RigidBodyDisabled>>,
@@ -43,29 +43,29 @@ pub(crate) fn rigidbody_forces_physics(
 }
 
 /// Impacts how intensely pawns get impacted by atmospherics forces.
-#[cfg(feature = "server")]
+
 const ATMOSPHERICS_FORCES_SENSITIVITY_PAWN: f32 = 100.;
 /// Decides how fast pawns accelerate by atmospherics forces.
-#[cfg(feature = "server")]
+
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX_PAWN: f32 = 1250.;
 
 /// Impacts how intensely entities get impacted by atmospherics forces.
-#[cfg(feature = "server")]
+
 const ATMOSPHERICS_FORCES_SENSITIVITY: f32 = 2.;
 /// Decides how fast entities accelerate by atmospherics forces.
-#[cfg(feature = "server")]
+
 const ATMOSPHERICS_FORCES_ACCELERATION_MAX: f32 = 16.;
 
 /// Max velocity when players are subjugated by atmospherics forces.
-#[cfg(feature = "server")]
+
 const ATMOSHPERICS_MAX_VELOCITY: f32 = 10.;
 
 /// Force multiplier for tiles that have an upward pushing force.
-#[cfg(feature = "server")]
+
 const ATMOSPHERICS_PUSHING_UP_FORCE: f32 = 2.;
 
 /// Apply accumulated forces to rigid bodies of pawns.
-#[cfg(feature = "server")]
+
 pub(crate) fn rigidbody_pawn_forces_accumulation(
     mut rigid_bodies: Query<
         (Entity, &Transform, &ExternalForce, Option<&Pawn>, &Velocity),

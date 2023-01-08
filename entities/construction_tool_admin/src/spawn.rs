@@ -18,12 +18,10 @@ use std::collections::BTreeMap;
 
 use super::construction_tool::ConstructionTool;
 
-#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::IDENTITY
 }
 
-#[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for ConstructionToolType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
@@ -50,7 +48,6 @@ impl BaseEntityBuilder<NoData> for ConstructionToolType {
 }
 use std::collections::HashMap;
 
-#[cfg(feature = "server")]
 impl InventoryItemBuilder for ConstructionToolType {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
@@ -103,7 +100,6 @@ impl InventoryItemBuilder for ConstructionToolType {
     }
 }
 
-#[cfg(feature = "server")]
 impl RigidBodyBuilder<NoData> for ConstructionToolType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -118,7 +114,6 @@ impl RigidBodyBuilder<NoData> for ConstructionToolType {
     }
 }
 
-#[cfg(feature = "server")]
 #[derive(Clone, Identity)]
 pub struct ConstructionToolType {
     pub identifier: String,
@@ -132,7 +127,6 @@ impl Default for ConstructionToolType {
     }
 }
 
-#[cfg(feature = "server")]
 pub fn build_construction_tools<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,

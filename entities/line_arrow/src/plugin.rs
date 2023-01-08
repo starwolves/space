@@ -38,12 +38,14 @@ pub struct PointArrowPlugin;
 
 impl Plugin for PointArrowPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(expire_point_arrow)
-            .add_system((build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild));
+        if is_server() {
+            app.add_system(expire_point_arrow).add_system(
+                (build_base_entities::<LineArrowType>).after(BuildingLabels::TriggerBuild),
+            );
+        }
     }
 }
 
-#[cfg(feature = "server")]
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "pointArrow".to_string(),

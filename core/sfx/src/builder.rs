@@ -52,7 +52,7 @@ impl Default for SfxEntityType {
 use entity::entity_data::EntityGroup;
 
 /// Spawn background sound effect with commands as a function.
-#[cfg(feature = "server")]
+
 pub fn spawn_ambience_sfx(
     commands: &mut Commands,
     rigid_body_position: Transform,
@@ -79,17 +79,17 @@ pub fn spawn_ambience_sfx(
 
 /// Component for repeating sfx for sprinting footsteps.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct FootstepsSprinting;
 
 /// Component for repeating sfx for walking footsteps.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct FootstepsWalking;
 
 /// Component for repeating sfx.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct RepeatingSfx {
     pub area_mask: u8,
     pub attenuation_filter_cutoff_hz: f32,
@@ -114,7 +114,6 @@ pub struct RepeatingSfx {
     pub repeat_time: f32,
 }
 
-#[cfg(feature = "server")]
 impl Default for RepeatingSfx {
     fn default() -> Self {
         Self {
@@ -145,7 +144,7 @@ impl Default for RepeatingSfx {
 
 /// Component for SFX.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct Sfx {
     pub area_mask: u8,
     pub attenuation_filter_cutoff_hz: f32,
@@ -173,13 +172,12 @@ pub struct Sfx {
 }
 
 /// Get an acceptable randomly variating pitch.
-#[cfg(feature = "server")]
+
 pub fn get_random_pitch_scale(input_scale: f32) -> f32 {
     let mut rng = rand::thread_rng();
     input_scale + rng.gen_range(-0.2..0.2)
 }
 
-#[cfg(feature = "server")]
 impl Default for Sfx {
     fn default() -> Self {
         Self {
@@ -212,13 +210,13 @@ impl Default for Sfx {
 
 /// Replay timer for ambience SFX.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct AmbienceSfxTimer {
     pub timer: Timer,
 }
 
 /// Function that spawns a repeating sound effect with commands.
-#[cfg(feature = "server")]
+
 pub fn repeating_sfx_builder(
     commands: &mut Commands,
     rigid_body_position: Transform,
@@ -242,7 +240,7 @@ pub fn repeating_sfx_builder(
     entity
 }
 /// Function that builds a sound effect.
-#[cfg(feature = "server")]
+
 pub fn sfx_builder(
     commands: &mut Commands,
     rigid_body_position: Transform,

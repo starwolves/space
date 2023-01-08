@@ -6,7 +6,7 @@ use typename::TypeName;
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum InventoryClientMessage {
     UseWorldItem(u64),
     DropCurrentItem(Option<Vec3>),
@@ -18,7 +18,7 @@ pub enum InventoryClientMessage {
 
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum InventoryServerMessage {
     PickedUpItem(String, u64, String),
     DropItem(String),

@@ -13,17 +13,17 @@ use bevy_renet::renet::{
 };
 
 /// The network port the server will listen use for connections.
-#[cfg(feature = "server")]
+
 pub const SERVER_PORT: u16 = 57713;
 
 /// Network protocol ID.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) const PROTOCOL_ID: u64 = 7;
 
 pub(crate) const PRIV_KEY: [u8; 32] = *b"(=^.^=)(=^.^=)(=^.^=)(=^.^=)(=^.";
 
 /// Start server and open and listen to port.
-#[cfg(feature = "server")]
+
 pub(crate) fn startup_server_listen_connections() -> RenetServer {
     let server_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
         .parse()
@@ -70,7 +70,7 @@ use bevy::prelude::EventReader;
 use crate::messaging::{ReliableMessage, UnreliableMessage};
 
 /// Obtain player souls, mwahahhaa. (=^.^=)
-#[cfg(feature = "server")]
+
 pub(crate) fn souls(
     mut server: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
 ) {
@@ -87,7 +87,7 @@ pub(crate) fn souls(
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
-#[cfg(feature = "server")]
+
 pub enum GridMapLayer {
     Main,
     Details1,
@@ -95,7 +95,7 @@ pub enum GridMapLayer {
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum NetworkingClientMessage {
     HeartBeat,
     Account(String),
@@ -103,14 +103,14 @@ pub enum NetworkingClientMessage {
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum NetworkingServerMessage {
     Awoo,
 }
 
 /// This message gets sent at high intervals.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum UnreliableServerMessage {
     TransformUpdate(u64, Vec3, Quat, Option<Vec3>, u64, u8),
     PositionUpdate(u64, Vec3, u64),
@@ -118,7 +118,7 @@ pub enum UnreliableServerMessage {
 
 /// Variants for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum GodotVariantValues {
     Int(i64),
     String(String),
@@ -127,7 +127,7 @@ pub enum GodotVariantValues {
 }
 /// Variant types for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum GodotVariant {
     Int,
     String,
@@ -136,20 +136,20 @@ pub enum GodotVariant {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum UIInputAction {
     Pressed,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum TextTreeBit {
     Final(Vec<String>),
     Bit(HashMap<String, TextTreeBit>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum EntityUpdateData {
     Int(i64),
     UInt8(u8),
@@ -168,7 +168,7 @@ pub enum EntityUpdateData {
 
 /// A resource that links entities to their appropiate connection handles for connected players.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct HandleToEntity {
     pub map: HashMap<u64, Entity>,
     pub inv_map: HashMap<Entity, u64>,
@@ -176,14 +176,14 @@ pub struct HandleToEntity {
 
 /// The component for an entity controlled by a connected player.
 #[derive(Component, Clone)]
-#[cfg(feature = "server")]
+
 pub struct ConnectedPlayer {
     pub handle: u64,
     pub authid: u16,
     pub rcon: bool,
     pub connected: bool,
 }
-#[cfg(feature = "server")]
+
 impl Default for ConnectedPlayer {
     fn default() -> Self {
         Self {
@@ -198,7 +198,7 @@ impl Default for ConnectedPlayer {
 /// Gets serialized and sent over the net, this is the server message.
 /// This should be inside core/chat/ but this causes cyclic dependency for the time being.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum NetworkingChatServerMessage {
     ChatMessage(String),
 }
@@ -207,7 +207,6 @@ use bevy::prelude::warn;
 
 use crate::plugin::RENET_UNRELIABLE_CHANNEL_ID;
 /// Serializes and sends the outgoing unreliable server messages.
-#[cfg(any(feature = "server"))]
 pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingUnreliableServerMessage<T>>,
     mut server: ResMut<RenetServer>,
@@ -257,7 +256,6 @@ use bevy::prelude::{Res, ResMut};
 
 use crate::messaging::Typenames;
 /// Serializes and sends the outgoing reliable server messages.
-#[cfg(any(feature = "server"))]
 pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingReliableServerMessage<T>>,
     mut server: ResMut<RenetServer>,
@@ -308,7 +306,6 @@ pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync +
 use crate::client::get_unreliable_message;
 use bevy::prelude::EventWriter;
 
-#[cfg(feature = "server")]
 pub(crate) fn deserialize_incoming_unreliable_client_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -334,7 +331,6 @@ pub(crate) fn deserialize_incoming_unreliable_client_message<
 }
 use crate::messaging::get_reliable_message;
 
-#[cfg(feature = "server")]
 pub(crate) fn deserialize_incoming_reliable_client_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -359,20 +355,20 @@ pub(crate) fn deserialize_incoming_reliable_client_message<
     }
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[cfg(feature = "server")]
+
 pub struct IncomingReliableClientMessage<T: TypeName + Send + Sync + Serialize> {
     pub handle: u64,
     pub message: T,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[cfg(feature = "server")]
+
 pub struct IncomingUnreliableClientMessage<T: TypeName + Send + Sync + Serialize> {
     pub handle: u64,
     pub message: T,
 }
 
 /// Deserializes header of incoming client messages and writes to event.
-#[cfg(feature = "server")]
+
 pub(crate) fn receive_incoming_unreliable_client_messages(
     mut events: EventWriter<IncomingRawUnreliableClientMessage>,
     mut server: ResMut<RenetServer>,
@@ -396,7 +392,7 @@ pub(crate) fn receive_incoming_unreliable_client_messages(
 use crate::plugin::RENET_RELIABLE_CHANNEL_ID;
 
 /// Deserializes header of incoming client messages and writes to event.
-#[cfg(feature = "server")]
+
 pub(crate) fn receive_incoming_reliable_client_messages(
     mut events: EventWriter<IncomingRawReliableClientMessage>,
     mut server: ResMut<RenetServer>,
@@ -419,26 +415,26 @@ pub(crate) fn receive_incoming_reliable_client_messages(
 }
 
 /// Event to send reliable messages from server to client. Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[cfg(feature = "server")]
+
 pub struct OutgoingReliableServerMessage<T: TypeName + Send + Sync + 'static> {
     pub handle: u64,
     pub message: T,
 }
 
 /// Event to send unreliable messages from server to client. Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[cfg(feature = "server")]
+
 pub struct OutgoingUnreliableServerMessage<T: TypeName + Send + Sync + 'static> {
     pub handle: u64,
     pub message: T,
 }
 /// Event to when received reliable message from client.  Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-#[cfg(feature = "server")]
+
 pub(crate) struct IncomingRawReliableClientMessage {
     pub handle: u64,
     pub message: ReliableMessage,
 }
 /// Event to when received reliable message from client.  Messages that you use with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-#[cfg(feature = "server")]
+
 pub(crate) struct IncomingRawUnreliableClientMessage {
     pub handle: u64,
     pub message: UnreliableMessage,

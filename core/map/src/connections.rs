@@ -5,7 +5,7 @@ use player::connections::SendServerConfiguration;
 
 use crate::net::MapServerMessage;
 use bevy::prelude::EventWriter;
-#[cfg(feature = "server")]
+
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
     map_data: Res<MapData>,

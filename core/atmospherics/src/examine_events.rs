@@ -9,7 +9,7 @@ use text_api::core::FURTHER_ITALIC_FONT;
 use gridmap::examine::GridmapExamineMessages;
 
 /// Examine text with data for cells with atmospherics.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_map_atmos(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     senser_entities: Query<&Senser>,

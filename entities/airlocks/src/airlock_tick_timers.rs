@@ -6,7 +6,7 @@ use bevy::{
 use super::resources::Airlock;
 
 /// Air lock tick timers.
-#[cfg(feature = "server")]
+
 pub(crate) fn airlock_tick_timers(time: Res<Time>, mut airlocks: Query<&mut Airlock>) {
     for mut airlock_component in airlocks.iter_mut() {
         match airlock_component.denied_timer_option.as_mut() {

@@ -16,7 +16,7 @@ use super::map_events::{
 
 /// Resource with atmospherics notices that warn players when they are under certain atmospherics conditions like unlivable atmospherics conditions.
 #[derive(Default)]
-#[cfg(feature = "server")]
+
 pub struct AtmosphericsNotices {
     cache: HashMap<Entity, Vec<String>>,
 }
@@ -27,7 +27,7 @@ use ui::networking::UiServerMessage;
 
 use bevy::prelude::EventWriter;
 /// Manage visible atmospherics notices for clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn atmospherics_notices(
     mut server: EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
     atmospherics_resource: Res<AtmosphericsResource>,

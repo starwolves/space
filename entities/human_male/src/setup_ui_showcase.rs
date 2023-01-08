@@ -10,7 +10,7 @@ use pawn::pawn::SpawnPawnData;
 use player::connections::SetupPhase;
 
 /// Initialize the setup UI by spawning in showcase entities etc.
-#[cfg(feature = "server")]
+
 pub(crate) fn human_male_setup_ui(
     query: Query<(&ConnectedPlayer, &Pawn), Added<SetupPhase>>,
     mut spawn_human_male: EventWriter<SpawnEntity<HumanMaleType>>,

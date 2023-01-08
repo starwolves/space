@@ -21,13 +21,13 @@ use networking::server::HandleToEntity;
 use player::boarding::InputUIInputTransmitText;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum UIInputNodeClass {
     Button,
 }
 
 /// Event as client input , interaction with UI.
-#[cfg(feature = "server")]
+
 pub struct InputUIInput {
     /// Handle of the connection that input this.
     pub handle: u64,
@@ -46,7 +46,7 @@ use bevy::prelude::EventReader;
 use networking::server::{IncomingReliableClientMessage, IncomingUnreliableClientMessage};
 
 /// Manage incoming network messages from clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<ControllerClientMessage>>,
     mut u_server: EventReader<IncomingUnreliableClientMessage<ControllerUnreliableClientMessage>>,

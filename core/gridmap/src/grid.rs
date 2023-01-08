@@ -8,7 +8,7 @@ use networking::server::GridMapLayer;
 
 /// Gridmap meta-data resource.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct GridmapData {
     pub non_fov_blocking_cells_list: Vec<i64>,
     pub non_combat_obstacle_cells_list: Vec<i64>,
@@ -30,7 +30,7 @@ pub struct GridmapData {
 }
 /// Gridmap meta-data set.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub struct MainCellProperties {
     pub id: i64,
     pub name: RichName,
@@ -49,7 +49,7 @@ pub struct MainCellProperties {
     pub friction: f32,
     pub combine_rule: CoefficientCombineRule,
 }
-#[cfg(feature = "server")]
+
 impl Default for MainCellProperties {
     fn default() -> Self {
         Self {
@@ -73,7 +73,6 @@ impl Default for MainCellProperties {
     }
 }
 
-#[cfg(feature = "server")]
 pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<GridmapData>) -> String {
     gridmap_data
         .main_text_names
@@ -84,7 +83,7 @@ pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<GridmapData>) ->
 
 /// Data stored in a resource of a cell instead of each cell having their own entity with components.
 #[derive(Clone, Default)]
-#[cfg(feature = "server")]
+
 pub struct CellData {
     /// Cell item id.
     pub item: i64,
@@ -98,7 +97,7 @@ pub struct CellData {
 
 /// Stores the details 1 gridmap layer, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct GridmapDetails1 {
     pub grid_data: HashMap<Vec3Int, CellData>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
@@ -107,7 +106,7 @@ pub struct GridmapDetails1 {
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 /// The hashmaps should probably be turned into arrays by converting Vec3Int into an index for performance reasons.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct GridmapMain {
     pub grid_data: HashMap<Vec3Int, CellData>,
     pub entity_data: HashMap<Vec3Int, EntityGridData>,
@@ -115,19 +114,18 @@ pub struct GridmapMain {
 }
 
 /// For entities that are also registered in the gridmap. (entity tiles)
-#[cfg(feature = "server")]
+
 pub struct EntityGridData {
     pub entity: Entity,
     pub entity_type: String,
 }
 /// Directional rotations alongside their "orientation" value used for Godot gridmaps.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub struct GridDirectionRotations {
     pub data: HashMap<AdjacentTileDirection, u8>,
 }
 
-#[cfg(feature = "server")]
 impl GridDirectionRotations {
     pub fn default_wall_rotations() -> Self {
         let mut data = HashMap::new();
@@ -139,18 +137,18 @@ impl GridDirectionRotations {
     }
 }
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
-#[cfg(feature = "server")]
+
 pub enum AdjacentTileDirection {
     Up,
     Down,
     Left,
     Right,
 }
-#[cfg(feature = "server")]
+
 const Y_CENTER_OFFSET: f32 = 1.;
 
 /// From tile id to world position.
-#[cfg(feature = "server")]
+
 pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
     let mut world_position: Vec3 = Vec3::ZERO;
 
@@ -162,7 +160,7 @@ pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
 }
 
 /// Remove gridmap cell event.
-#[cfg(feature = "server")]
+
 pub struct RemoveCell {
     pub handle_option: Option<u64>,
     pub gridmap_type: GridMapLayer,
@@ -171,7 +169,7 @@ pub struct RemoveCell {
 }
 
 /// A pending cell update like a cell construction.
-#[cfg(feature = "server")]
+
 pub struct CellUpdate {
     pub entities_received: Vec<Entity>,
     pub cell_data: CellData,

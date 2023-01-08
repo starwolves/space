@@ -3,7 +3,7 @@ use entity::senser::{Senser, SensingAbility};
 use pawn::pawn::{DataLink, DataLinkType};
 
 /// Allow players to examine the gridmap and get cell information.
-#[cfg(feature = "server")]
+
 pub(crate) fn gridmap_sensing_ability(
     mut data_linked: Query<(&DataLink, &mut Senser), Changed<DataLink>>,
 ) {

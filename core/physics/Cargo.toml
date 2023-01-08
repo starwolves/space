@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -20,7 +18,7 @@ default-features = false
 [dependencies]
 bevy_rapier3d = "0.19.0"
 
-entity = { path = "../entity", features = ["server"] }
-math = { path = "../math", features = ["server"] }
-networking = { path = "../networking", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
+entity = { path = "../entity"}
+math = { path = "../math" }
+networking = { path = "../networking" }
+resources = { path = "../resources"}

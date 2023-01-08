@@ -10,7 +10,7 @@ use networking::server::HandleToEntity;
 use super::construction_tool::InputConstruct;
 
 /// Manage construction actions.
-#[cfg(feature = "server")]
+
 pub(crate) fn construction_tool_actions(
     building_action_data: Res<BuildingActions>,
     handle_to_entity: Res<HandleToEntity>,
@@ -89,7 +89,6 @@ pub(crate) fn construction_tool_actions(
     }
 }
 
-#[cfg(feature = "server")]
 pub fn construct_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     gridmap_main: Res<GridmapMain>,
@@ -124,7 +123,6 @@ pub fn construct_action_prequisite_check(
     }
 }
 
-#[cfg(feature = "server")]
 pub(crate) fn deconstruct_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     gridmap_main: Res<GridmapMain>,
@@ -159,7 +157,6 @@ pub(crate) fn deconstruct_action_prequisite_check(
     }
 }
 
-#[cfg(feature = "server")]
 pub(crate) fn construction_tool_search_distance_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
@@ -209,7 +206,6 @@ pub(crate) fn construction_tool_search_distance_prequisite_check(
     }
 }
 
-#[cfg(feature = "server")]
 pub(crate) fn construction_tool_is_holding_item_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     inventory_holders: Query<&Inventory>,
@@ -246,7 +242,6 @@ pub(crate) fn construction_tool_is_holding_item_prequisite_check(
     }
 }
 
-#[cfg(feature = "server")]
 pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
     for building_action in building_action_data.list.iter_mut() {
         match &building_action.target_cell_option {
@@ -287,7 +282,6 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
 use crate::construction_tool::InputConstructionOptionsSelection;
 use ui::text_input::TextTreeInputSelection;
 
-#[cfg(feature = "server")]
 pub(crate) fn text_tree_input_selection(
     mut input_events: EventReader<TextTreeInputSelection>,
     mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,

@@ -8,7 +8,7 @@ use bevy::prelude::{EventReader, EventWriter};
 
 /// Player accounts stored with handles.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct Accounts {
     pub list: HashMap<u64, String>,
 }
@@ -19,7 +19,7 @@ use bevy::prelude::ResMut;
 use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage};
 
 /// Client account verification.
-#[cfg(feature = "server")]
+
 pub(crate) fn account_verification(
     mut incoming: EventReader<IncomingReliableClientMessage<NetworkingClientMessage>>,
     mut outgoing: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,

@@ -6,7 +6,7 @@ pub const HOVERED_BUTTON: Color = INPUT_TEXT_BG;
 pub const PRESSED_BUTTON: Color = Color::rgb(0.49, 0.73, 0.91);
 
 /// Component for button visuals.
-#[cfg(feature = "client")]
+
 #[derive(Component)]
 pub struct ButtonVisuals {
     pub hovered_color: Color,
@@ -35,7 +35,6 @@ use bevy::{
     ui::Interaction,
 };
 
-#[cfg(feature = "client")]
 pub(crate) fn button_hover_visuals(
     mut interaction_query: Query<
         (Entity, &Interaction, &Parent, &ButtonVisuals),

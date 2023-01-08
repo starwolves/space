@@ -23,14 +23,14 @@ use crate::{
 };
 
 /// Physics friction on placeable item surfaces.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub const PLACEABLE_SURFACE_FRICTION: f32 = 0.2;
 /// Physics coefficient combiner of placeable item surfaces.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
 /// Initiate map resource meta-data.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<GridmapData>) {
     gridmap_data.blackcell_blocking_id = *gridmap_data
         .main_name_id_map
@@ -764,7 +764,7 @@ pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<GridmapData>)
 use player::spawn_points::SpawnPointRon;
 
 /// Initiate other gridmap meta-datas from ron.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) fn startup_misc_resources(
     mut gridmap_data: ResMut<GridmapData>,
     mut spawn_points_res: ResMut<SpawnPoints>,
@@ -841,7 +841,7 @@ pub(crate) fn startup_misc_resources(
 }
 
 /// Build the gridmaps in their own resources from ron.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) fn load_ron_gridmap(
     mut gridmap_main: ResMut<GridmapMain>,
     mut gridmap_details1: ResMut<GridmapDetails1>,
@@ -892,7 +892,7 @@ pub(crate) fn load_ron_gridmap(
 
 use player::boarding::{SpawnPoint, SpawnPointRaw, SpawnPoints};
 use serde::{Deserialize, Serialize};
-#[cfg(any(feature = "server", feature = "client"))]
+
 #[derive(Serialize, Deserialize)]
 pub struct CellDataRon {
     pub id: Vec3Int,
@@ -903,7 +903,7 @@ pub struct CellDataRon {
 }
 
 /// Convert old Godot json files to new Bevy ron files.
-#[cfg(any(feature = "server", feature = "client"))]
+
 #[allow(dead_code)]
 pub fn json_map() {
     // Load map json data into real static bodies.
@@ -943,7 +943,7 @@ pub fn json_map() {
 }
 
 /// Convert old Godot json to new Bevy ron.
-#[cfg(any(feature = "server", feature = "client"))]
+
 #[allow(dead_code)]
 pub fn json_ordered() {
     let details1ordered_cells_json = Path::new("data")
@@ -964,7 +964,7 @@ pub fn json_ordered() {
 }
 
 /// Convert old Godot json to new Bevy ron.
-#[cfg(any(feature = "server", feature = "client"))]
+
 #[allow(dead_code)]
 pub fn json_spawnpoints() {
     let spawnpoints_json = Path::new("data")

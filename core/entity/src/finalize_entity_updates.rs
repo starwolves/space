@@ -14,7 +14,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use crate::net::EntityServerMessage;
 /// Finalize entity updates of this frame and send them to Godot clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn finalize_entity_updates(
     mut updated_entity_updates: Query<
         (

@@ -22,7 +22,7 @@ use physics::physics::ReachResult;
 use physics::physics::{get_bit_masks, ColliderGroup};
 
 /// Check if entity can be reached by another entity with nothing in between to block it as a function.
-#[cfg(feature = "server")]
+
 pub fn can_reach_entity(
     query_pipeline: &bevy::prelude::Res<RapierContext>,
 

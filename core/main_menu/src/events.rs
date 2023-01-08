@@ -21,7 +21,6 @@ pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR: Color = Color::rgb(0.46 * 1.6, 0.5 
 pub const SPACE_FRONTIERS_HEADER_TEXT_COLOR_HOVERED: Color =
     Color::rgb(0.46 * 1.9, 0.5 * 1.9, 0.69 * 1.9);
 
-#[cfg(feature = "client")]
 pub(crate) fn space_frontiers_link(
     mut interaction_query: Query<
         (&Interaction, &mut Text),
@@ -61,7 +60,6 @@ pub(crate) fn space_frontiers_link(
     }
 }
 
-#[cfg(feature = "client")]
 pub(crate) fn starwolves_link(
     mut interaction_query: Query<
         (&Interaction, &mut Text),
@@ -104,7 +102,6 @@ pub(crate) fn starwolves_link(
 /// Manages text input UI nodes.
 use bevy::app::AppExit;
 
-#[cfg(feature = "client")]
 pub(crate) fn button_presses(
     play_button_query: Query<
         (&Interaction, &MainMenuPlayButton),
@@ -155,7 +152,7 @@ use bevy::prelude::ResMut;
 use networking::client::ConnectionPreferences;
 
 use crate::build::IpAddressInput;
-#[cfg(feature = "client")]
+
 pub(crate) fn connect_to_server_button(
     button_query: Query<(&ConnectToServerButton, &Interaction), Changed<Interaction>>,
     mut connect: EventWriter<ConnectToServer>,

@@ -5,20 +5,20 @@ use networking::server::GodotVariantValues;
 
 /// Resource containing all registered custom console commands.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct AllConsoleCommands {
     pub list: Vec<(String, String, Vec<(String, GodotVariant)>)>,
 }
 
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(feature = "server")]
+
 pub enum ConsoleCommandsLabels {
     Finalize,
 }
 
 /// Client input console command message event.
-#[cfg(feature = "server")]
+
 pub struct InputConsoleCommand {
     /// The connection handle tied to the entity performing the command.
     pub handle_option: Option<u64>,

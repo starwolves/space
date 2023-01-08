@@ -1,10 +1,8 @@
 use bevy::prelude::{Commands, Entity};
 use sfx::builder::{get_random_pitch_scale, FootstepsWalking, RepeatingSfx};
 
-#[cfg(feature = "server")]
 pub struct FootstepsWalkingSfxBundle;
 
-#[cfg(feature = "server")]
 impl FootstepsWalkingSfxBundle {
     pub fn new(commands: &mut Commands) -> Entity {
         commands

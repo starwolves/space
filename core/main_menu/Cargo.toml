@@ -9,8 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -19,7 +18,7 @@ version = "0.9.1"
 open = "3.2.0"
 local_ipaddress = "0.1.3"
 
-resources = { path = "../resources", features = ["client"] }
-ui = { path = "../ui", features = ["client"] }
-networking = { path = "../networking", features = ["client"] }
-player = { path = "../player", features = ["client"] }
+resources = { path = "../resources"}
+ui = { path = "../ui"}
+networking = { path = "../networking" }
+player = { path = "../player" }

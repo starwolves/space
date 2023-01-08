@@ -56,7 +56,7 @@ use networking::server::OutgoingReliableServerMessage;
 use ui::networking::UiServerMessage;
 
 /// Core construction tool system.
-#[cfg(feature = "server")]
+
 pub(crate) fn construction_tool(
     event_readers: (
         EventReader<InputConstruct>,
@@ -1224,14 +1224,14 @@ pub(crate) fn construction_tool(
 */
 /// The component.
 #[derive(Component, Default)]
-#[cfg(feature = "server")]
+
 pub struct ConstructionTool {
     /// Currently selected construction cell option.
     pub construction_option: Option<String>,
 }
 
 /// Player requested input event.
-#[cfg(feature = "server")]
+
 pub struct InputConstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -1241,7 +1241,7 @@ pub struct InputConstruct {
     pub belonging_entity: Entity,
 }
 /// Player requested input event.
-#[cfg(feature = "server")]
+
 pub struct InputConstructionOptions {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -1249,7 +1249,7 @@ pub struct InputConstructionOptions {
     pub belonging_entity: Entity,
 }
 /// Player requested input event.
-#[cfg(feature = "server")]
+
 pub struct InputDeconstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -1259,7 +1259,7 @@ pub struct InputDeconstruct {
     pub belonging_entity: Entity,
 }
 /// Client input construction options selection event.
-#[cfg(feature = "server")]
+
 pub struct InputConstructionOptionsSelection {
     pub handle_option: Option<u64>,
     pub menu_selection: String,

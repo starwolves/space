@@ -26,7 +26,7 @@ use crate::{
 };
 
 /// The projectile attack physics query.
-#[cfg(feature = "server")]
+
 pub struct ProjectileQuery {
     /// Entity id of the attacker.
     pub attacker_entity: Entity,
@@ -46,7 +46,7 @@ pub struct ProjectileQuery {
 use physics::physics::{get_bit_masks, ColliderGroup};
 
 /// Perform a projectile attack physics query by reading event [ProjectileQuery].
-#[cfg(feature = "server")]
+
 pub(crate) fn projectile_attack(
     mut projectile_events: EventReader<ProjectileQuery>,
     attacker_entities: Query<&Transform>,
@@ -403,7 +403,7 @@ pub(crate) fn projectile_attack(
 }
 
 /// In case projectile hit nothing as an event.
-#[cfg(feature = "server")]
+
 pub struct ProjectileBlank {
     /// Hit point location.
     pub hit_point: Vec3,
@@ -412,7 +412,7 @@ pub struct ProjectileBlank {
 }
 
 /// Perform projectile attack handler logic.
-#[cfg(feature = "server")]
+
 pub fn projectile_attack_handler<T: Component>(
     weapon_entities: Query<&ProjectileCombat, With<T>>,
     mut attacks: EventReader<Attack>,

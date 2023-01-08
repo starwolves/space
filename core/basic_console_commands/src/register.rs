@@ -1,11 +1,10 @@
 use resources::is_server::is_server;
-#[cfg(any(feature = "client", feature = "server"))]
 pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default + 'static>(
     app: &mut App,
 ) {
     if is_server() {
         app.add_event::<RconSpawnEntity<T>>()
-            .add_system(rcon_entity_console_commands::<T>.after(BuildingLabels::DefaultBuild));
+            .add_system(rcon_entity_console_commands::<T>);
     }
 }
 use bevy::prelude::App;
@@ -18,7 +17,6 @@ use crate::commands::{
 };
 use bevy::prelude::IntoSystemDescriptor;
 
-#[cfg(any(feature = "client", feature = "server"))]
 pub fn register_basic_console_commands_for_inventory_item_type<
     T: EntityType + Clone + Default + 'static,
 >(
@@ -26,7 +24,7 @@ pub fn register_basic_console_commands_for_inventory_item_type<
 ) {
     if is_server() {
         app.add_event::<RconSpawnEntity<T>>()
-            .add_system(rcon_entity_console_commands::<T>.after(BuildingLabels::DefaultBuild))
+            .add_system(rcon_entity_console_commands::<T>)
             .add_system(rcon_spawn_entity::<T>)
             .add_system(rcon_spawn_held_entity::<T>)
             .add_system(

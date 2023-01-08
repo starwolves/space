@@ -5,7 +5,7 @@ use crate::map::{Map, MapHolders};
 use crate::map_input::InputMapChangeDisplayMode;
 
 /// Change map overlay.
-#[cfg(feature = "server")]
+
 pub(crate) fn change_map_overlay(
     mut input_display_mode_changes: EventReader<InputMapChangeDisplayMode>,
     mut map_holders: Query<(&mut Map, &DataLink)>,

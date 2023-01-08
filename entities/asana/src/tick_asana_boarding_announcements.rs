@@ -6,7 +6,7 @@ use chat::chat::NewChatMessage;
 
 use player::boarding::BoardingAnnouncements;
 /// Manage asana boarding announcements.
-#[cfg(feature = "server")]
+
 pub(crate) fn tick_asana_boarding_announcements(
     mut net_new_chat_message_event: EventWriter<NewChatMessage>,
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,

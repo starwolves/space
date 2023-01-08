@@ -6,7 +6,7 @@ use pawn::pawn::ARMS_REACH;
 use text_api::core::Color;
 /// The component for items that can be used to perform melee attacks with. Should be used in combination with handlers.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct MeleeCombat {
     pub combat_melee_damage_model: DamageModel,
     pub melee_attack_range: f32,
@@ -17,7 +17,6 @@ pub struct MeleeCombat {
     pub trigger_melee_text_set: Vec<String>,
 }
 
-#[cfg(feature = "server")]
 impl Default for MeleeCombat {
     fn default() -> Self {
         Self {
@@ -32,7 +31,7 @@ impl Default for MeleeCombat {
 
 /// The component for items that can be used to perform projectile attacks with. Should be used in combination with handlers.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct ProjectileCombat {
     pub combat_projectile_damage_model: DamageModel,
     /// For laser project visuals.
@@ -49,7 +48,6 @@ pub struct ProjectileCombat {
     pub trigger_projectile_text_set: Vec<String>,
 }
 
-#[cfg(feature = "server")]
 impl Default for ProjectileCombat {
     fn default() -> Self {
         Self {
@@ -66,7 +64,7 @@ impl Default for ProjectileCombat {
 
 /// Contains the modularly built damage data of the attack.
 #[derive(Clone, Default)]
-#[cfg(feature = "server")]
+
 pub struct DamageModel {
     pub brute: f32,
     pub burn: f32,
@@ -74,7 +72,6 @@ pub struct DamageModel {
     pub damage_flags: HashMap<u32, DamageFlag>,
 }
 
-#[cfg(feature = "server")]
 pub fn get_default_strike_words() -> Vec<String> {
     vec![
         "hit".to_string(),
@@ -82,23 +79,23 @@ pub fn get_default_strike_words() -> Vec<String> {
         "striked".to_string(),
     ]
 }
-#[cfg(feature = "server")]
+
 pub fn get_default_laser_words() -> Vec<String> {
     vec!["shot".to_string(), "hit".to_string(), "beamed".to_string()]
 }
-#[cfg(feature = "server")]
+
 pub fn get_default_trigger_weapon_words() -> Vec<String> {
     vec!["fired".to_string(), "shot".to_string()]
 }
-#[cfg(feature = "server")]
+
 pub fn get_default_trigger_fists_words() -> Vec<String> {
     vec!["swung".to_string(), "thrown".to_string()]
 }
-#[cfg(feature = "server")]
+
 pub fn get_default_trigger_melee_words() -> Vec<String> {
     vec!["swung".to_string()]
 }
-#[cfg(feature = "server")]
+
 pub fn get_default_fists_words() -> Vec<String> {
     vec![
         "punched".to_string(),
@@ -108,7 +105,7 @@ pub fn get_default_fists_words() -> Vec<String> {
 }
 
 /// Humanoid animations for combat.
-#[cfg(feature = "server")]
+
 pub enum CombatAttackAnimation {
     OneHandedMeleePunch,
     PistolShot,

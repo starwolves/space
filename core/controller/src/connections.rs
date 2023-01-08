@@ -2,7 +2,6 @@ use crate::controller::ControllerInput;
 use bevy::prelude::{EventReader, Res};
 use player::connections::SendServerConfiguration;
 
-#[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
     handle_to_entity: Res<HandleToEntity>,
@@ -27,7 +26,7 @@ use combat::health_ui::ClientHealthUICache;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 
 /// Manage client connection events.
-#[cfg(feature = "server")]
+
 pub(crate) fn connections(
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut reader: EventReader<ServerEvent>,

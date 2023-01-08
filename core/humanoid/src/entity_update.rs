@@ -24,7 +24,7 @@ use controller::controller::ControllerInput;
 use networking::server::ConnectedPlayer;
 
 /// All the core humanoid entity updates for the Godot client.
-#[cfg(feature = "server")]
+
 pub(crate) fn humanoid_core_entity_updates(
     mut updated_humans: Query<
         (

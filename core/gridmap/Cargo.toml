@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -25,12 +23,12 @@ typename = "0.1.2"
 ron = "0.8.0"
 
 doryen_fov = { path = "../doryen_fov" }
-networking = { path = "../networking", features = ["server"] }
-entity = { path = "../entity", features = ["server"] }
-actions = { path = "../actions", features = ["server"] }
-pawn = { path = "../pawn", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
-math = { path = "../math", features = ["server"] }
-text_api = { path = "../text_api", features = ["server"] }
-player = { path = "../player", features = ["server"] }
-physics = { path = "../physics", features = ["server"] }
+networking = { path = "../networking" }
+entity = { path = "../entity" }
+actions = { path = "../actions" }
+pawn = { path = "../pawn" }
+resources = { path = "../resources" }
+math = { path = "../math" }
+text_api = { path = "../text_api" }
+player = { path = "../player" }
+physics = { path = "../physics" }

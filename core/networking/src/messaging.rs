@@ -5,7 +5,7 @@ use bevy::prelude::{ResMut, Resource};
 use typename::TypeName;
 
 /// Resource containing typenames and smaller 16-bit netcode representations. Needed to identify Rust types sent over the net.
-#[cfg(any(feature = "server", feature = "client"))]
+
 #[derive(Resource, Default)]
 pub struct Typenames {
     pub reliable_incremental_id: u16,
@@ -19,19 +19,19 @@ pub struct Typenames {
 use bevy::prelude::warn;
 
 /// Generic startup system that registers reliable netcode message types. All reliable netcode types sent over the net must be registered with this system.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) fn reliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
     typenames.reliable_types.push(T::type_name());
 }
 /// Generic startup system that registers unreliable netcode message types. All unreliable netcode types sent over the net must be registered with this system.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) fn unreliable_message<T: TypeName>(mut typenames: ResMut<Typenames>) {
     typenames.unreliable_types.push(T::type_name());
 }
 use bevy::prelude::info;
 
 /// Order and generate typenames.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn generate_typenames(mut typenames: ResMut<Typenames>) {
     let mut r_iter = typenames.reliable_types.clone();
     r_iter.sort();
@@ -85,7 +85,7 @@ use crate::{
 use bevy::app::CoreStage::PreUpdate;
 use iyes_loopless::prelude::IntoConditionalSystem;
 /// All reliable networking messages must be registered with this system.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn register_reliable_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
 >(
@@ -140,7 +140,6 @@ pub fn register_reliable_message<
 }
 use resources::is_server::is_server;
 
-#[cfg(any(feature = "server", feature = "client"))]
 /// All unreliable networking messages must be registered with this system.
 pub fn register_unreliable_message<
     T: TypeName + Send + Sync + Serialize + for<'a> Deserialize<'a> + 'static,
@@ -208,21 +207,20 @@ pub fn register_unreliable_message<
 
 /// Wrapper for reliable messages.
 #[derive(Serialize, Deserialize)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) struct ReliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u16,
 }
 /// Wrapper for unreliable messages.
 #[derive(Serialize, Deserialize)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) struct UnreliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u8,
 }
 
 /// Returns an option containing the desired reliable netcode message.
-#[cfg(any(feature = "client", feature = "server"))]
 pub(crate) fn get_reliable_message<T: TypeName + Serialize + for<'a> Deserialize<'a>>(
     typenames: &Res<Typenames>,
     identifier: u16,
@@ -252,7 +250,7 @@ use bevy::prelude::Res;
 use serde::{Deserialize, Serialize};
 
 /// Typenames systems ordering label.
-#[cfg(any(feature = "server", feature = "client"))]
+
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum TypenamesLabel {
     Generate,

@@ -10,7 +10,7 @@ use super::{line_arrow::PointArrow, spawn::LineArrowType};
 use console_commands::commands::InputConsoleCommand;
 
 /// Perform "pointArrow" command.
-#[cfg(feature = "server")]
+
 pub(crate) fn entity_console_commands(
     mut queue: EventReader<InputConsoleCommand>,
     mut commands: Commands,
@@ -127,7 +127,7 @@ pub(crate) fn entity_console_commands(
 use entity::spawning_events::DespawnClientEntity;
 
 /// Despawn point arrows after duration.
-#[cfg(feature = "server")]
+
 pub(crate) fn expire_point_arrow(
     mut point_arrows: Query<(Entity, &mut PointArrow)>,
     time: Res<Time>,

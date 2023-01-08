@@ -10,7 +10,7 @@ use crate::net::EntityServerMessage;
 use crate::sensable::Sensable;
 
 ///Despawn sensable component event.
-#[cfg(feature = "server")]
+
 pub struct DespawnClientEntity {
     pub entity: Entity,
 }
@@ -23,7 +23,7 @@ pub struct SpawnClientEntity {
 }
 /// Executes despawn logic for Sensable components.
 /// Shouldn't be called from the same stage visible_checker.system() runs in.
-#[cfg(feature = "server")]
+
 pub(crate) fn despawn_entity(
     mut despawn_event: EventReader<DespawnClientEntity>,
     handle_to_entity: Res<HandleToEntity>,
@@ -67,7 +67,7 @@ use std::collections::HashMap;
 use crate::entity_data::{EntityData, EntityUpdates, WorldMode};
 use networking::server::EntityUpdateData;
 /// Load an entity in for the client.
-#[cfg(feature = "server")]
+
 pub(crate) fn spawn_entity_for_client(
     entity_query: Query<(
         &EntityData,

@@ -7,7 +7,7 @@ use networking::server::EntityUpdateData;
 use super::resources::{AccessLightsStatus, Airlock, AirlockStatus};
 
 /// Air lock entity update for Godot clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn airlock_update(
     mut updated_airlocks: Query<(&Airlock, &mut EntityUpdates), Changed<Airlock>>,
 ) {

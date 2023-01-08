@@ -6,7 +6,7 @@ use networking::server::OutgoingReliableServerMessage;
 use crate::net::InventoryServerMessage;
 use bevy::prelude::EventWriter;
 /// From client input change active hand.
-#[cfg(feature = "server")]
+
 pub(crate) fn switch_hands(
     mut switch_hands_events: EventReader<InputSwitchHands>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -47,7 +47,7 @@ pub(crate) fn switch_hands(
 }
 
 /// Client input switch hands event.
-#[cfg(feature = "server")]
+
 pub struct InputSwitchHands {
     pub entity: Entity,
 }

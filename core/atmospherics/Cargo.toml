@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -21,14 +19,14 @@ default-features = false
 bevy_rapier3d = "0.19.0"
 iyes_loopless = "0.9.1"
 
-networking = { path = "../networking", features = ["server"] }
+networking = { path = "../networking"}
 
-pawn = { path = "../pawn", features = ["server"] }
-text_api = { path = "../text_api", features = ["server"] }
-map = { path = "../map", features = ["server"] }
-gridmap = { path = "../gridmap", features = ["server"] }
-entity = { path = "../entity", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
-math = { path = "../math", features = ["server"] }
-ui = { path = "../ui", features = ["server"] }
-physics = { path = "../physics", features = ["server"] }
+pawn = { path = "../pawn"}
+text_api = { path = "../text_api"}
+map = { path = "../map"}
+gridmap = { path = "../gridmap"}
+entity = { path = "../entity"}
+resources = { path = "../resources"}
+math = { path = "../math"}
+ui = { path = "../ui" }
+physics = { path = "../physics" }

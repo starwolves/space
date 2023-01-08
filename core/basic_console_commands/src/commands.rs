@@ -13,7 +13,7 @@ use pawn::pawn::Pawn;
 use player::names::UsedNames;
 
 /// Perform entity console commands.
-#[cfg(feature = "server")]
+
 pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'static>(
     mut queue: EventReader<InputConsoleCommand>,
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
@@ -113,7 +113,7 @@ use entity::entity_types::EntityType;
 use entity::spawn::SpawnEntity;
 
 /// Process spawning entities via RCON command. Such as commands for spawning entities.
-#[cfg(feature = "server")]
+
 pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
     mut rcon_spawn_events: EventReader<RconSpawnEntity<T>>,
     mut commands: Commands,
@@ -241,7 +241,7 @@ pub struct RconSpawnHeldEntity<T> {
 use entity::spawn::EntityBuildData;
 
 /// Function to spawn an entity in another entity's inventory through an RCON command.
-#[cfg(feature = "server")]
+
 pub fn rcon_spawn_held_entity<T: EntityType + Clone + Default + Send + Sync + 'static>(
     mut commands: Commands,
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
@@ -376,7 +376,7 @@ pub fn rcon_spawn_held_entity<T: EntityType + Clone + Default + Send + Sync + 's
 use inventory::inventory::Inventory;
 
 /// Manage inventory item console commands.
-#[cfg(feature = "server")]
+
 pub fn inventory_item_console_commands<T: EntityType + Default + Send + Sync + 'static>(
     mut queue: EventReader<InputConsoleCommand>,
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
@@ -447,7 +447,7 @@ pub fn inventory_item_console_commands<T: EntityType + Default + Send + Sync + '
 use bevy::prelude::Local;
 
 /// Perform RCON console commands.
-#[cfg(feature = "server")]
+
 pub(crate) fn rcon_console_commands(
     mut console_commands_events: EventReader<InputConsoleCommand>,
     mut rcon_bruteforce_protection: Local<BruteforceProtection>,
@@ -485,7 +485,7 @@ pub(crate) fn rcon_console_commands(
 }
 
 /// Perform RCON authorization.
-#[cfg(feature = "server")]
+
 pub(crate) fn rcon_authorization(
     bruteforce_protection: &mut Local<BruteforceProtection>,
     connected_players: &mut Query<&mut ConnectedPlayer>,
@@ -549,7 +549,7 @@ pub(crate) fn rcon_authorization(
 use text_api::core::CONSOLE_SUCCESS_COLOR;
 
 /// Manage requests for RCON permission status.
-#[cfg(feature = "server")]
+
 pub(crate) fn rcon_status(
     connected_players: &mut Query<&mut ConnectedPlayer>,
     client_handle: u64,
@@ -585,7 +585,7 @@ pub(crate) fn rcon_status(
 }
 /// Resource with the configuration whether new players should be given RCON upon connection.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct GiveAllRCON {
     pub give: bool,
 }

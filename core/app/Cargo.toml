@@ -1,0 +1,58 @@
+[package]
+name = "app"
+version = "0.0.3-snap8-dev"
+authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
+description = "Initializes and starts the application."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
+edition = "2021"
+
+
+
+[dependencies.bevy]
+version = "0.9.1"
+default-features = false
+
+[dependencies]
+bevy_egui = { version = "0.18.0", default-features = false, features = ["manage_clipboard"]}
+bevy_rapier3d = "0.19.0"
+iyes_loopless = "0.9.1"
+atmospherics = { path = "../atmospherics" }
+combat = { path = "../combat" }
+controller = { path = "../controller" }
+console_commands = { path = "../console_commands" }
+gridmap = { path = "../gridmap" }
+main_menu = { path = "../main_menu" }
+humanoid = { path = "../humanoid" }
+networking = { path = "../networking" }
+actions = { path = "../actions" }
+pawn = { path = "../pawn" }
+sfx = { path = "../sfx" }
+entity = { path = "../entity" }
+map = { path = "../map" }
+inventory = { path = "../inventory" }
+chat = { path = "../chat" }
+motd = { path = "../motd" }
+resources = { path = "../resources" }
+ui = { path = "../ui" }
+player = { path = "../player" }
+basic_console_commands = { path = "../basic_console_commands" }
+physics = { path = "../physics" }
+
+setup_menu = { path = "../setup_menu" }
+
+sounds = { path = "../../entities/sounds" }
+asana = { path = "../../entities/asana" }
+
+airlocks = { path = "../../entities/airlocks" }
+computers = { path = "../../entities/computers" }
+construction_tool_admin = { path = "../../entities/construction_tool_admin" }
+counter_windows = { path = "../../entities/counter_windows"}
+helmet_security = { path = "../../entities/helmet_security"}
+human_male = { path = "../../entities/human_male" }
+jumpsuit_security = { path = "../../entities/jumpsuit_security" }
+line_arrow = { path = "../../entities/line_arrow" }
+pistol_l1 = { path = "../../entities/pistol_l1" }
+point_light = { path = "../../entities/point_light" }

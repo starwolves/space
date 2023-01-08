@@ -3,7 +3,7 @@ use bevy::prelude::{warn, Res, ResMut};
 use entity::examine::ExamineEntityMessages;
 
 /// Pawn examine action prerequisite check.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_prerequisite_check(mut building_action_data: ResMut<BuildingActions>) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
@@ -17,7 +17,7 @@ use entity::examine::InputExamineEntity;
 use networking::server::HandleToEntity;
 
 /// Examine.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine(
     building_action_data: Res<BuildingActions>,
     mut examine_entity_messages: ResMut<ExamineEntityMessages>,
@@ -64,7 +64,7 @@ use bevy::prelude::Query;
 use entity::examine::Examinable;
 
 /// Build examine action.
-#[cfg(feature = "server")]
+
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     examinable_items: Query<&Examinable>,

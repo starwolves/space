@@ -32,7 +32,6 @@ use resources::content::SF_CONTENT_PREFIX;
 use std::collections::BTreeMap;
 use text_api::core::Color;
 
-#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -41,7 +40,6 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
-#[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for PistolL1Type {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
@@ -69,10 +67,8 @@ impl BaseEntityBuilder<NoData> for PistolL1Type {
 }
 use std::collections::HashMap;
 
-#[cfg(feature = "server")]
 pub const PISTOL_L1_PROJECTILE_RANGE: f32 = 50.;
 
-#[cfg(feature = "server")]
 impl InventoryItemBuilder for PistolL1Type {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
@@ -149,7 +145,6 @@ impl InventoryItemBuilder for PistolL1Type {
     }
 }
 
-#[cfg(feature = "server")]
 impl RigidBodyBuilder<NoData> for PistolL1Type {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -167,7 +162,6 @@ impl RigidBodyBuilder<NoData> for PistolL1Type {
 
 use super::pistol_l1::PistolL1;
 
-#[cfg(feature = "server")]
 #[derive(Clone, Identity)]
 pub struct PistolL1Type {
     pub identifier: String,
@@ -179,7 +173,7 @@ impl Default for PistolL1Type {
         }
     }
 }
-#[cfg(feature = "server")]
+
 pub fn build_pistols_l1<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,

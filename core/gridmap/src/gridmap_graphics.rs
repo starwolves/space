@@ -15,7 +15,7 @@ use player::net::PlayerServerMessage;
 
 use crate::grid::GridmapMain;
 /// Spawn 3D debug camera on boarding.
-#[cfg(feature = "client")]
+
 pub(crate) fn spawn_cubes(
     gridmap_main: Res<GridmapMain>,
     gridmap_data: Res<GridmapData>,

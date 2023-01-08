@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -22,9 +20,9 @@ iyes_loopless = "0.9.1"
 serde = "1.0.150"
 typename = "0.1.2"
 
-networking = { path = "../networking", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
-player = { path = "../player", features = ["server"] }
-motd = { path = "../motd", features = ["server"] }
-text_api = { path = "../text_api", features = ["server"] }
-controller = { path = "../controller", features = ["server"] }
+networking = { path = "../networking" }
+resources = { path = "../resources" }
+player = { path = "../player" }
+motd = { path = "../motd" }
+text_api = { path = "../text_api" }
+controller = { path = "../controller" }

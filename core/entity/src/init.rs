@@ -4,7 +4,7 @@ use bevy::prelude::info;
 use serde::{Deserialize, Serialize};
 /// ron entity.
 #[derive(Serialize, Deserialize, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct RawEntityRon {
     pub entity_type: String,
     pub translation: Vec3,
@@ -20,7 +20,7 @@ use std::fs;
 use crate::entity_data::RawSpawnEvent;
 
 /// Build the entities from ron.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) fn load_ron_entities(mut raw_spawner: EventWriter<RawSpawnEvent>) {
     let entities_ron = Path::new("data")
         .join("maps")

@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -23,7 +21,7 @@ rand = "0.8.5"
 bevy_renet = "0.0.6"
 typename = "0.1.2"
 
-networking = { path = "../networking", features = ["server"] }
-text_api = { path = "../text_api", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
-pawn = { path = "../pawn", features = ["server"] }
+networking = { path = "../networking" }
+text_api = { path = "../text_api" }
+resources = { path = "../resources" }
+pawn = { path = "../pawn" }

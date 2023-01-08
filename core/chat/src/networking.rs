@@ -9,7 +9,7 @@ use networking::server::IncomingReliableClientMessage;
 
 use bevy::prelude::EventReader;
 /// Manage incoming network messages from clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<ChatClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,

@@ -13,7 +13,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use crate::net::EntityServerMessage;
 /// Perform FOV checks to see what is and what isn't visible.
-#[cfg(feature = "server")]
+
 pub(crate) fn visible_checker(
     mut query_visible_entities: Query<(Entity, &mut Sensable, &Transform)>,
     mut query_visible_checker_entities_rigid: Query<(
@@ -180,7 +180,6 @@ pub(crate) fn visible_checker(
     }
 }
 
-#[cfg(feature = "server")]
 const HEAR_DISTANCE: f32 = 60.;
-#[cfg(feature = "server")]
+
 const LIGHT_DISTANCE: f32 = 60.;

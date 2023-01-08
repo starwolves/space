@@ -16,7 +16,6 @@ use physics::{
 };
 use std::collections::BTreeMap;
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -25,7 +24,6 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl BaseEntityBuilder<NoData> for ComputerType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text = "A computer used by bridge personnel.".to_string();
@@ -54,7 +52,6 @@ impl BaseEntityBuilder<NoData> for ComputerType {
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl RigidBodyBuilder<NoData> for ComputerType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -70,7 +67,6 @@ impl RigidBodyBuilder<NoData> for ComputerType {
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 #[derive(Clone, Identity)]
 pub struct ComputerType {
     pub identifier: String,
@@ -83,7 +79,6 @@ impl Default for ComputerType {
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub fn build_computers<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,

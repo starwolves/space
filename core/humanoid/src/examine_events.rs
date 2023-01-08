@@ -9,7 +9,7 @@ use pawn::pawn::Pawn;
 use text_api::core::FURTHER_NORMAL_FONT;
 
 /// Examine a humanoid entity.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     criteria_query: Query<&Senser>,

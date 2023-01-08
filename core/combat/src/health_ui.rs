@@ -22,12 +22,12 @@ const HEAVY_UI_BLUE: f32 = 60.;
 
 /// Resource with all client health UI caches.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct ClientHealthUICache {
     pub cache: HashMap<Entity, ClientHealthUI>,
 }
 /// Client health UI cache.
-#[cfg(feature = "server")]
+
 pub struct ClientHealthUI {
     pub head_damage: UIDamageType,
     pub torso_damage: UIDamageType,
@@ -37,7 +37,7 @@ pub struct ClientHealthUI {
     pub right_leg_damage: UIDamageType,
 }
 /// All UI damage types.
-#[cfg(feature = "server")]
+
 pub enum UIDamageType {
     None,
     Light,
@@ -54,7 +54,7 @@ use networking::server::OutgoingReliableServerMessage;
 use bevy::prelude::EventWriter;
 use entity::net::EntityServerMessage;
 /// Manage sending UI health updates to Godot client.
-#[cfg(feature = "server")]
+
 pub(crate) fn health_ui_update(
     mut updated_player_health_entities: Query<
         (Entity, &ConnectedPlayer, &HealthComponent),

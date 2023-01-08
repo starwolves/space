@@ -8,7 +8,7 @@ use crate::{
 };
 
 /// Manage laser projectile visuals that are integrated with FOV checks with [ProjectileFOV].
-#[cfg(feature = "server")]
+
 pub fn projectile_laser_visuals<T: Component>(
     mut blanks: EventReader<ProjectileBlank>,
     mut hits: EventReader<QueryCombatHitResult>,

@@ -18,7 +18,7 @@ use crate::{
 };
 
 /// Manage examining the gridmap.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     gridmap_main: Res<GridmapMain>,
@@ -89,7 +89,7 @@ pub(crate) fn examine_map(
 }
 
 /// Set examine action header name.
-#[cfg(feature = "server")]
+
 pub(crate) fn set_action_header_name(
     mut building_action_data: ResMut<BuildingActions>,
     examinables: Query<&Examinable>,
@@ -155,7 +155,7 @@ pub(crate) fn set_action_header_name(
 }
 
 /// Examine a ship cell's health.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_map_health(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     gridmap_main: Res<GridmapMain>,
@@ -283,7 +283,7 @@ pub(crate) fn examine_map_health(
 }
 
 /// Examine gridmap.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_map_abilities(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     senser_entities: Query<&Senser>,
@@ -329,7 +329,6 @@ pub(crate) fn examine_map_abilities(
     }
 }
 
-#[cfg(feature = "server")]
 pub fn finalize_grid_examine_input(
     mut gridmap_messages: ResMut<GridmapExamineMessages>,
     mut gridmap_examine_input: EventReader<InputExamineMap>,
@@ -340,7 +339,7 @@ pub fn finalize_grid_examine_input(
 }
 /// Examine map message event.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub struct InputExamineMap {
     pub handle: u64,
     pub entity: Entity,
@@ -349,7 +348,7 @@ pub struct InputExamineMap {
     /// Map examine message being built and sent back to the player.
     pub message: String,
 }
-#[cfg(feature = "server")]
+
 impl Default for InputExamineMap {
     fn default() -> Self {
         Self {
@@ -364,7 +363,7 @@ impl Default for InputExamineMap {
 
 /// Stores examine messages being built this frame for gridmap examination.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct GridmapExamineMessages {
     pub messages: Vec<InputExamineMap>,
 }
@@ -375,7 +374,7 @@ use text_api::core::END_ASTRIX;
 
 use bevy::prelude::EventWriter;
 /// Finalize examining the ship gridmap.
-#[cfg(feature = "server")]
+
 pub(crate) fn finalize_examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
@@ -396,7 +395,7 @@ use actions::core::ActionRequests;
 use networking::server::HandleToEntity;
 
 /// Examine.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_grid(
     building_action_data: Res<BuildingActions>,
     mut examine_map_messages: ResMut<GridmapExamineMessages>,
@@ -443,7 +442,7 @@ use networking::server::IncomingReliableClientMessage;
 
 use crate::net::GridmapClientMessage;
 /// Manage incoming network messages from clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<GridmapClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,

@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -23,6 +21,6 @@ serde = "1.0.150"
 typename = "0.1.2"
 const_format = "0.2.30"
 
-entity = { path = "../entity", features = ["server"] }
-networking = { path = "../networking", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
+entity = { path = "../entity" }
+networking = { path = "../networking" }
+resources = { path = "../resources" }

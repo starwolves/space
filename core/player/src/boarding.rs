@@ -5,7 +5,7 @@ use bevy::{
 };
 
 /// Component with boarding data.
-#[cfg(feature = "server")]
+
 pub struct BoardingPlayer {
     pub player_handle: u64,
     pub player_character_name: String,
@@ -13,7 +13,7 @@ pub struct BoardingPlayer {
 }
 /// Resource for slightly delayed boarding announcements.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct BoardingAnnouncements {
     pub announcements: Vec<(String, Timer)>,
 }
@@ -26,7 +26,7 @@ use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
 use pawn::pawn::Spawning;
 use text_api::core::get_talk_spaces;
-#[cfg(feature = "server")]
+
 /// Event that fires when a player has successfully boarded.
 pub struct PlayerBoarded {
     pub handle: u64,
@@ -37,7 +37,7 @@ pub struct PlayerBoarded {
 use bevy::prelude::info;
 
 /// Do some logic when a player has successfully boarded.
-#[cfg(feature = "server")]
+
 pub(crate) fn player_boarded(
     mut events: EventReader<PlayerBoarded>,
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
@@ -63,7 +63,7 @@ pub(crate) fn player_boarded(
 }
 
 /// Perform initialization of spawning player.
-#[cfg(feature = "server")]
+
 pub(crate) fn done_boarding(
     mut spawn_points: ResMut<SpawnPoints>,
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
@@ -115,11 +115,11 @@ pub(crate) fn done_boarding(
 
 /// The component for players that haven't yet boarded.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct SoftPlayer;
 
 /// Client input submitting text event.
-#[cfg(feature = "server")]
+
 pub struct InputUIInputTransmitText {
     /// Handle of the connection that input this.
     pub handle: u64,
@@ -132,12 +132,12 @@ pub struct InputUIInputTransmitText {
 }
 
 /// A spawn point in which players will spawn.
-#[cfg(feature = "server")]
+
 pub struct SpawnPoint {
     pub point_type: String,
     pub transform: Transform,
 }
-#[cfg(feature = "server")]
+
 impl SpawnPoint {
     pub fn new(&self) -> SpawnPoint {
         let mut this_transform = self.transform.clone();
@@ -152,7 +152,7 @@ impl SpawnPoint {
         }
     }
 }
-#[cfg(feature = "server")]
+
 impl SpawnPointRon {
     pub fn new(&self) -> SpawnPoint {
         let mut this_transform = Transform::from_translation(self.translation);
@@ -170,7 +170,7 @@ impl SpawnPointRon {
 
 /// Resource containing all available spawn points for players.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct SpawnPoints {
     pub list: Vec<SpawnPoint>,
     pub i: usize,
@@ -178,7 +178,7 @@ pub struct SpawnPoints {
 use serde::Deserialize;
 /// Raw json.
 #[derive(Deserialize)]
-#[cfg(feature = "server")]
+
 pub struct SpawnPointRaw {
     pub point_type: String,
     pub transform: String,

@@ -4,7 +4,7 @@ use bevy::prelude::Component;
 
 /// The data for entities and gridmap cells that have health.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub struct Health {
     /// The health container.
     pub health_container: HealthContainer,
@@ -24,7 +24,7 @@ pub struct Health {
 
 /// For sound effects.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub enum HitSoundSurface {
     Soft,
     Metaloid,
@@ -33,7 +33,7 @@ pub enum HitSoundSurface {
 /// All potential damage flags.
 #[allow(dead_code)]
 #[derive(PartialEq, Clone)]
-#[cfg(feature = "server")]
+
 pub enum DamageFlag {
     SoftDamage, //Ie fists.
     WeakLethalLaser,
@@ -43,7 +43,7 @@ pub enum DamageFlag {
 /// Health flags acting as damage amplifiers or negators. Such as the armour plating flag.
 #[allow(dead_code)]
 #[derive(PartialEq, Clone)]
-#[cfg(feature = "server")]
+
 pub enum HealthFlag {
     ArmourPlated,
     HeadBruteDefence(f32),
@@ -52,12 +52,11 @@ pub enum HealthFlag {
 
 /// The health component as a container.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct HealthComponent {
     pub health: Health,
 }
 
-#[cfg(feature = "server")]
 impl Default for Health {
     fn default() -> Self {
         Self {
@@ -74,7 +73,7 @@ impl Default for Health {
 
 /// Health for each limb of a humanoid entity.
 #[derive(Debug, Default, Clone)]
-#[cfg(feature = "server")]
+
 pub struct HumanoidHealth {
     pub head_brute: f32,
     pub head_burn: f32,
@@ -103,7 +102,7 @@ pub struct HumanoidHealth {
 
 /// Contains health data of the entity.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub enum HealthContainer {
     Humanoid(HumanoidHealth),
     Entity(EntityContainer),
@@ -111,7 +110,7 @@ pub enum HealthContainer {
 }
 /// Health data for structures like gridmap cells.
 #[derive(Clone, Default)]
-#[cfg(feature = "server")]
+
 pub struct StructureHealth {
     pub brute: f32,
     pub burn: f32,
@@ -120,7 +119,7 @@ pub struct StructureHealth {
 
 /// The health data for entities.
 #[derive(Default, Clone)]
-#[cfg(feature = "server")]
+
 pub struct EntityContainer {
     pub brute: f32,
     pub burn: f32,

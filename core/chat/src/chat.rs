@@ -62,7 +62,7 @@ use text_api::core::{
 use voca_rs::*;
 
 /// Radio component for entities that can hear or speak through radios.
-#[cfg(feature = "server")]
+
 #[derive(Component)]
 pub struct Radio {
     pub listen_access: Vec<RadioChannel>,
@@ -70,7 +70,7 @@ pub struct Radio {
 }
 
 /// All available chat channels.
-#[cfg(feature = "server")]
+
 #[derive(PartialEq, Debug, Clone)]
 pub enum RadioChannel {
     Proximity,
@@ -87,7 +87,7 @@ use networking::server::ConnectedPlayer;
 use player::boarding::SoftPlayer;
 
 /// Chat distance. Impacts font size.
-#[cfg(feature = "server")]
+
 enum Distance {
     Nearby,
     Further,
@@ -95,7 +95,7 @@ enum Distance {
 }
 
 /// Chat talk style variant.
-#[cfg(feature = "server")]
+
 enum TalkStyleVariant {
     Standard,
     Shouts,
@@ -104,7 +104,7 @@ enum TalkStyleVariant {
 }
 
 /// Check if a message has a shouting intend as a function.
-#[cfg(feature = "server")]
+
 fn is_shouting(message: &str) -> bool {
     message.ends_with("!!!")
         || message.ends_with("!!?")
@@ -118,13 +118,13 @@ fn is_shouting(message: &str) -> bool {
 }
 
 /// Check if a message has a questioning intend as a function.
-#[cfg(feature = "server")]
+
 fn is_asking(message: &str) -> bool {
     message.ends_with("?") || message.ends_with("??") || message.ends_with("?!")
 }
 
 /// Process chat prefixes which act as flags as a function.
-#[cfg(feature = "server")]
+
 fn get_talk_space(message: String) -> (RadioChannel, String, bool, bool) {
     let radio_channel;
     let content;
@@ -159,7 +159,7 @@ fn get_talk_space(message: String) -> (RadioChannel, String, bool, bool) {
     (radio_channel, content, exclusive_proximity, is_emote)
 }
 /// Parts of the chat and radio channels can and can't they access depend on it.
-#[cfg(feature = "server")]
+
 pub enum MessagingPlayerState {
     SoftConnected,
     Alive,
@@ -185,7 +185,7 @@ use sfx::net::SfxServerMessage;
 
 use bevy::prelude::EventWriter;
 /// It is huge, not-modular and just overall not nice. This will get modularized and rewritten for the Bevy client when it is ready.
-#[cfg(feature = "server")]
+
 pub(crate) fn chat_message(
     mut new_chat_messages: EventReader<NewChatMessage>,
     soft_player_query: Query<&SoftPlayer>,
@@ -1262,7 +1262,7 @@ pub(crate) fn chat_message(
 }
 
 /// Requested proximity message event.
-#[cfg(feature = "server")]
+
 pub struct EntityProximityMessage {
     pub entities: Vec<Entity>,
     pub message: String,
@@ -1270,13 +1270,13 @@ pub struct EntityProximityMessage {
 
 /// Requested entity proximity messages systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(feature = "server")]
+
 pub enum EntityProximityMessages {
     Send,
 }
 
 /// Send entity proximity messages to receivers.
-#[cfg(feature = "server")]
+
 pub(crate) fn send_entity_proximity_messages(
     mut entity_proximity_messages: EventReader<EntityProximityMessage>,
     sensers: Query<(Entity, &Senser)>,
