@@ -12,18 +12,16 @@ edition = "2021"
 version = "0.9.1"
 default-features = false
 
-[features]
-server = []
-client = []
+
 
 [dependencies]
 bevy_renet = "0.0.6"
 serde = "1.0.150"
 typename = "0.1.2"
 
-player = { path = "../player", features = ["server"] }
-networking = { path = "../networking", features = ["server"] }
-pawn = { path = "../pawn", features = ["server"] }
-combat = { path = "../combat", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
-math = { path = "../math", features = ["server"] }
+player = { path = "../player" }
+networking = { path = "../networking" }
+pawn = { path = "../pawn" }
+combat = { path = "../combat"}
+resources = { path = "../resources"}
+math = { path = "../math"}

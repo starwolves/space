@@ -7,7 +7,7 @@ use console_commands::net::ConsoleCommandsServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 
 /// Player selector to entities.
-#[cfg(feature = "server")]
+
 pub(crate) fn player_selector_to_entities(
     command_executor_entity: Entity,
     command_executor_handle_option: Option<u64>,

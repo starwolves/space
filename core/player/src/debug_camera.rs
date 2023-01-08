@@ -6,7 +6,7 @@ use crate::net::PlayerServerMessage;
 use bevy::prelude::Local;
 
 /// Spawn 3D debug camera on boarding.
-#[cfg(feature = "client")]
+
 pub(crate) fn spawn_debug_camera(
     mut commands: Commands,
     mut messages: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,

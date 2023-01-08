@@ -4,7 +4,7 @@ use crate::inventory::SlotType;
 use bevy::prelude::{Component, Entity, Transform};
 
 /// Humanoid animations for combat.
-#[cfg(feature = "server")]
+
 pub enum CombatStandardAnimation {
     StandardStance,
     PistolStance,
@@ -12,7 +12,7 @@ pub enum CombatStandardAnimation {
 
 /// Inventory item component.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct InventoryItem {
     /// Entity that is holding this entity.
     pub in_inventory_of_entity: Option<Entity>,
@@ -29,7 +29,7 @@ pub struct InventoryItem {
     /// The to be played animation when in combat mode whilst holding this item.
     pub combat_standard_animation: CombatStandardAnimation,
 }
-#[cfg(feature = "server")]
+
 impl Default for InventoryItem {
     fn default() -> Self {
         Self {

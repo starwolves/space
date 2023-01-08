@@ -16,7 +16,7 @@ use text_api::core::{ASTRIX, EXAMINATION_EMPTY, FURTHER_NORMAL_FONT};
 use networking::server::HandleToEntity;
 
 /// Manage examining an entity.
-#[cfg(feature = "server")]
+
 pub fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
@@ -71,7 +71,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
 /// Finalize examining an entity.
-#[cfg(feature = "server")]
+
 pub(crate) fn finalize_examine_entity(
     mut examine_map_events: ResMut<ExamineEntityMessages>,
     mut net: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
@@ -90,7 +90,7 @@ pub(crate) fn finalize_examine_entity(
 
 /// Component for entities that can be examined.
 #[derive(Component, Default)]
-#[cfg(feature = "server")]
+
 pub struct Examinable {
     pub assigned_texts: BTreeMap<u32, String>,
     pub name: RichName,
@@ -98,14 +98,13 @@ pub struct Examinable {
 
 /// A rich examinable name for an entity.
 #[derive(Clone, Debug)]
-#[cfg(feature = "server")]
+
 pub struct RichName {
     pub name: String,
     pub n: bool,
     pub the: bool,
 }
 
-#[cfg(feature = "server")]
 impl RichName {
     pub fn get_name(&self) -> &str {
         &self.name
@@ -125,7 +124,6 @@ impl RichName {
     }
 }
 
-#[cfg(feature = "server")]
 impl Default for RichName {
     fn default() -> Self {
         Self {
@@ -138,7 +136,7 @@ impl Default for RichName {
 
 /// System label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(feature = "server")]
+
 pub enum ExamineLabels {
     Start,
     Default,
@@ -146,12 +144,11 @@ pub enum ExamineLabels {
 
 /// Resource with client inputs of examining entity messages.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct ExamineEntityMessages {
     pub messages: Vec<InputExamineEntity>,
 }
 
-#[cfg(feature = "server")]
 pub fn finalize_entity_examine_input(
     mut examine_messages: ResMut<ExamineEntityMessages>,
     mut entity_examine_input: EventReader<InputExamineEntity>,
@@ -162,7 +159,7 @@ pub fn finalize_entity_examine_input(
 }
 
 /// Examine an entity's health.
-#[cfg(feature = "server")]
+
 pub(crate) fn examine_entity_health(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     handle_to_entity: Res<HandleToEntity>,
@@ -589,7 +586,7 @@ pub(crate) fn examine_entity_health(
 
 /// Input examine entity event.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub struct InputExamineEntity {
     pub handle: u64,
     pub examine_entity: Entity,
@@ -598,7 +595,6 @@ pub struct InputExamineEntity {
     pub message: String,
 }
 
-#[cfg(feature = "server")]
 impl Default for InputExamineEntity {
     fn default() -> Self {
         Self {
@@ -614,7 +610,7 @@ use networking::server::IncomingReliableClientMessage;
 
 use crate::net::EntityClientMessage;
 /// Manage incoming network messages from clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<EntityClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,

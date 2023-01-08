@@ -10,15 +10,13 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
 default-features = false
 
 [dependencies]
-chat = { path = "../../core/chat", features = ["server"] }
-player = { path = "../../core/player", features = ["server"] }
-resources = { path = "../../core/resources", features = ["server"] }
+chat = { path = "../../core/chat" }
+player = { path = "../../core/player" }
+resources = { path = "../../core/resources"}

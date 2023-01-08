@@ -2,7 +2,7 @@ use bevy::prelude::Res;
 use rand::seq::SliceRandom;
 
 /// Array containing male first names.
-#[cfg(feature = "server")]
+
 const MALE_FIRST_NAMES: &[&str] = &[
     "Anakin", "Angel", "Abel", "Artemis", "Arthur", "Bastian", "Cullen", "Emmett", "Falkor",
     "Faramir", "Fox", "Gandalf", "Gaius", "Geordi", "Grant", "Han", "Harry", "Hugo", "Idris",
@@ -18,7 +18,7 @@ const MALE_FIRST_NAMES: &[&str] = &[
     "Falco",
 ];
 /// Array containing female first names.
-#[cfg(feature = "server")]
+
 const FEMALE_FIRST_NAMES: &[&str] = &[
     "Aeryn",
     "Amelia",
@@ -84,7 +84,7 @@ const FEMALE_FIRST_NAMES: &[&str] = &[
     "Berenika",
 ];
 /// Array containing last names.
-#[cfg(feature = "server")]
+
 const LAST_NAMES: &[&str] = &[
     "Voight",
     "Barick",
@@ -140,7 +140,7 @@ const LAST_NAMES: &[&str] = &[
 use crate::names::UsedNames;
 
 /// Generate a full name.
-#[cfg(feature = "server")]
+
 pub fn get_full_name(gender: bool, unique: bool, used_names: &Res<UsedNames>) -> String {
     let rng_first = &mut rand::thread_rng();
     let rng_last = &mut rand::thread_rng();

@@ -30,7 +30,6 @@ use std::collections::HashMap;
 
 use super::jumpsuit::Jumpsuit;
 
-#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -39,7 +38,6 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
-#[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for JumpsuitType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
@@ -66,7 +64,6 @@ impl BaseEntityBuilder<NoData> for JumpsuitType {
     }
 }
 
-#[cfg(feature = "server")]
 impl InventoryItemBuilder for JumpsuitType {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
@@ -121,7 +118,6 @@ impl InventoryItemBuilder for JumpsuitType {
     }
 }
 
-#[cfg(feature = "server")]
 impl RigidBodyBuilder<NoData> for JumpsuitType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -137,7 +133,6 @@ impl RigidBodyBuilder<NoData> for JumpsuitType {
     }
 }
 
-#[cfg(feature = "server")]
 #[derive(Clone, Identity)]
 pub struct JumpsuitType {
     pub identifier: String,
@@ -149,7 +144,7 @@ impl Default for JumpsuitType {
         }
     }
 }
-#[cfg(feature = "server")]
+
 pub fn build_jumpsuits<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,

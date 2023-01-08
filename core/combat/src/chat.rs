@@ -27,7 +27,7 @@ use networking::server::NetworkingChatServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 
 /// Chat hooks for entities that got hit by something.
-#[cfg(feature = "server")]
+
 pub fn attacked_by_chat<T: Component>(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -419,7 +419,7 @@ pub fn attacked_by_chat<T: Component>(
 }
 
 /// Chat hooks for when ship cells are hit.
-#[cfg(feature = "server")]
+
 pub fn hit_query_chat_cells(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
     sensers: Query<(Entity, &Senser)>,
@@ -625,7 +625,7 @@ pub fn hit_query_chat_cells(
 }
 
 /// Chat hooks for blanks, when nothing was hit.
-#[cfg(feature = "server")]
+
 pub(crate) fn blanks_chat(
     mut projectile_blanks: EventReader<ProjectileBlank>,
     active_attacks: Res<ActiveAttacks>,

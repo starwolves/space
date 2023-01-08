@@ -10,7 +10,7 @@ use networking::server::{ConnectedPlayer, HandleToEntity};
 use resources::core::TickRate;
 
 /// Send server configuration to a new client that has connected.
-#[cfg(feature = "server")]
+
 pub(crate) fn server_new_client_configuration(
     mut config_events: EventReader<SendServerConfiguration>,
     tick_rate: Res<TickRate>,
@@ -81,7 +81,6 @@ pub(crate) fn server_new_client_configuration(
 use crate::connections::PlayerAwaitingBoarding;
 use networking::client::IncomingReliableServerMessage;
 
-#[cfg(feature = "client")]
 #[derive(Resource, Default)]
 /// Resource stores the server-side entity ID of the players pawn. Useful for the client to store.
 pub struct PawnEntityId {
@@ -89,7 +88,6 @@ pub struct PawnEntityId {
 }
 use bevy::prelude::info;
 
-#[cfg(feature = "client")]
 pub(crate) fn client_receive_pawnid(
     mut client: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     mut id: ResMut<PawnEntityId>,
@@ -104,7 +102,7 @@ pub(crate) fn client_receive_pawnid(
         }
     }
 }
-#[cfg(feature = "server")]
+
 pub(crate) fn finished_configuration(
     mut config_events: EventReader<SendServerConfiguration>,
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,

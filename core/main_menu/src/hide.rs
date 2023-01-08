@@ -6,7 +6,7 @@ use networking::client::IncomingReliableServerMessage;
 use crate::build::{EnableMainMenu, MainMenuState};
 
 /// System that toggles the visiblity of the main menu based on an event.
-#[cfg(feature = "client")]
+
 pub(crate) fn hide_main_menu(
     mut enable_events: EventReader<EnableMainMenu>,
     mut state: ResMut<MainMenuState>,
@@ -28,7 +28,7 @@ pub(crate) fn hide_main_menu(
 use player::net::PlayerServerMessage;
 
 /// Confirms connection with server.
-#[cfg(feature = "client")]
+
 pub(crate) fn confirm_connection(
     mut client2: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     mut enable_menu_events: EventWriter<EnableMainMenu>,

@@ -9,7 +9,7 @@ use math::grid::Vec2Int;
 
 /// Mini-map overlay tile color.
 #[derive(Clone, PartialEq)]
-#[cfg(feature = "server")]
+
 pub enum OverlayTile {
     Green,
     Yellow,
@@ -18,7 +18,7 @@ pub enum OverlayTile {
 }
 
 /// Get overlay tile priority as a function.
-#[cfg(feature = "server")]
+
 pub fn get_overlay_tile_priority(tile: &OverlayTile) -> u8 {
     match tile {
         OverlayTile::Green => 0,
@@ -29,7 +29,7 @@ pub fn get_overlay_tile_priority(tile: &OverlayTile) -> u8 {
 }
 
 /// Get overlay tile item as a function.
-#[cfg(feature = "server")]
+
 pub fn get_overlay_tile_item(tile: &OverlayTile) -> i16 {
     match tile {
         OverlayTile::Green => 0,
@@ -40,7 +40,7 @@ pub fn get_overlay_tile_item(tile: &OverlayTile) -> i16 {
 }
 /// Cache atmospherics mini-map overlay.
 #[derive(Clone, Default)]
-#[cfg(feature = "server")]
+
 pub struct AtmosphericsCache {
     pub tile_color: Option<OverlayTile>,
 }
@@ -49,7 +49,7 @@ pub const GREEN_MAP_TILE_ENTRANCE: i16 = 3;
 pub const GREEN_MAP_TILE_COUNTER: i16 = 4;
 
 /// Data regarding an entity that has a mini-map.
-#[cfg(feature = "server")]
+
 pub struct MapHolderData {
     /// Start increment of the next batch.
     pub batch_i: usize,
@@ -67,12 +67,11 @@ pub struct MapHolderData {
 
 /// Resource containing all mini-map states of entities.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct MapHolders {
     pub holders: HashMap<Entity, MapHolderData>,
 }
 
-#[cfg(feature = "server")]
 impl Default for MapHolderData {
     fn default() -> Self {
         Self {
@@ -88,7 +87,7 @@ impl Default for MapHolderData {
 
 /// The Mini-map component belonging to a player.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct Map {
     /// Currently active display overlay.
     pub display_mode: Option<String>,
@@ -101,7 +100,7 @@ pub struct Map {
     /// Selected mouse cell.
     pub passed_mouse_cell: Option<(i16, i16)>,
 }
-#[cfg(feature = "server")]
+
 impl Default for Map {
     fn default() -> Self {
         Self {

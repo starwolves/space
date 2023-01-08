@@ -6,7 +6,7 @@ use crate::combat::{MeleeCombat, ProjectileCombat};
 use super::item::InventoryItem;
 
 /// Inventory item bundle.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct InventoryItemBundle {
     pub inventory_item: InventoryItem,
     pub melee_combat: MeleeCombat,
@@ -14,7 +14,7 @@ pub struct InventoryItemBundle {
 }
 
 /// Inventory item builder data.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct InventoryBuilderData {
     pub inventory_item: InventoryItem,
     pub holder_entity_option: Option<Entity>,
@@ -24,7 +24,7 @@ pub struct InventoryBuilderData {
 use physics::physics::RigidBodyLinkTransform;
 
 /// Build inventory item at building stage.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub(crate) fn inventory_item_builder(
     commands: &mut Commands,
     entity: Entity,
@@ -49,13 +49,13 @@ pub(crate) fn inventory_item_builder(
     }
 }
 /// Inventory item buildable.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub trait InventoryItemBuilder: Send + Sync {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle;
 }
 
 /// Inventory item spawn handler.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
@@ -77,7 +77,7 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
 }
 /*
 /// Function to spawn an entity that is held in someone's hands.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn spawn_held_entity<T: EntityType + Send + Sync + 'static>(
     entity_type: T,
     commands: &mut Commands,

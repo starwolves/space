@@ -6,7 +6,7 @@ use crate::net::GridmapServerMessage;
 use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
-#[cfg(feature = "server")]
+
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
     mut server: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,

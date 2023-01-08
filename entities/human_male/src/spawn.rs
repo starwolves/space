@@ -25,16 +25,15 @@ use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 
 /// Get default transform.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn get_default_transform() -> Transform {
     Transform::IDENTITY
 }
 
 /// Human male spawn data.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct HumanMaleBuildData;
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl BaseEntityBuilder<HumanMaleBuildData> for HumanMaleType {
     fn get_bundle(
         &self,
@@ -82,7 +81,7 @@ use bevy::prelude::Res;
 use entity::entity_types::EntityTypes;
 use entity::net::EntityServerMessage;
 /// Human male spawner.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
@@ -124,7 +123,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
 }
 
 /// Human male spawner.
-#[cfg(any(feature = "server", feature = "client"))]
+
 #[derive(Clone, Identity)]
 pub struct HumanMaleType {
     pub identifier: String,
@@ -142,10 +141,8 @@ impl Default for HumanMaleType {
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub const R: f32 = 0.5;
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl RigidBodyBuilder<NoData> for HumanMaleType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(CHARACTER_FLOOR_FRICTION);
@@ -165,14 +162,12 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl HumanMaleBuilder for HumanMaleType {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData {
         self.spawn_pawn_data.clone()
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub trait HumanMaleBuilder: Send + Sync {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }
@@ -180,7 +175,7 @@ use bevy::prelude::Entity;
 use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn build_human_males(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,

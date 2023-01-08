@@ -8,7 +8,7 @@ use crate::diffusion::{
 };
 
 /// Initialize atmospherics as a startup system.
-#[cfg(feature = "server")]
+
 pub(crate) fn startup_atmospherics(
     gridmap_main: Res<GridmapMain>,
     mut atmospherics: ResMut<AtmosphericsResource>,

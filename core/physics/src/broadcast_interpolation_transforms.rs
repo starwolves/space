@@ -8,7 +8,7 @@ use networking::server::UnreliableServerMessage;
 /// All transform interpolation rates.
 #[derive(Debug)]
 #[allow(dead_code)]
-#[cfg(feature = "server")]
+
 enum InterpolationPriorityRates {
     T4,
     T8,
@@ -18,7 +18,7 @@ enum InterpolationPriorityRates {
 
 /// Resource with interpolation frame.
 #[derive(Default)]
-#[cfg(feature = "server")]
+
 pub(crate) struct InterpolationFrame {
     pub i: u8,
 }
@@ -34,7 +34,7 @@ use networking::server::OutgoingUnreliableServerMessage;
 use bevy_rapier3d::prelude::RigidBody;
 use networking::server::ConnectedPlayer;
 /// Broadcast transforms.
-#[cfg(feature = "server")]
+
 pub(crate) fn broadcast_interpolation_transforms(
     time: Res<Time>,
 
@@ -169,7 +169,7 @@ pub(crate) fn broadcast_interpolation_transforms(
 }
 
 /// Check if this is the frame for interpolation as a function.
-#[cfg(feature = "server")]
+
 fn is_interpolation_frame(
     entity_tick_rate: &InterpolationPriorityRates,
     current_frame: u8,

@@ -9,6 +9,4 @@ documentation="https://docs.sf.starwolves.io"
 license-file="LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+

@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(feature = "client")]
+
 pub enum StartupLabel {
     Live,
 }

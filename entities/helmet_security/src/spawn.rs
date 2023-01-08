@@ -31,7 +31,6 @@ use resources::content::SF_CONTENT_PREFIX;
 
 use super::helmet::Helmet;
 
-#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::from_matrix(Mat4::from_scale_rotation_translation(
         Vec3::new(1., 1., 1.),
@@ -40,7 +39,6 @@ pub fn get_default_transform() -> Transform {
     ))
 }
 
-#[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for HelmetType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let mut examine_map = BTreeMap::new();
@@ -66,7 +64,6 @@ impl BaseEntityBuilder<NoData> for HelmetType {
 }
 use std::collections::HashMap;
 
-#[cfg(feature = "server")]
 impl InventoryItemBuilder for HelmetType {
     fn get_bundle(&self, spawn_data: &EntityBuildData) -> InventoryItemBundle {
         let mut attachment_transforms = HashMap::new();
@@ -128,7 +125,7 @@ impl InventoryItemBuilder for HelmetType {
         }
     }
 }
-#[cfg(feature = "server")]
+
 impl RigidBodyBuilder<NoData> for HelmetType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
@@ -144,7 +141,6 @@ impl RigidBodyBuilder<NoData> for HelmetType {
     }
 }
 
-#[cfg(feature = "server")]
 #[derive(Clone, Identity)]
 pub struct HelmetType {
     pub identifier: String,
@@ -157,7 +153,6 @@ impl Default for HelmetType {
     }
 }
 
-#[cfg(feature = "server")]
 pub fn build_helmets<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,

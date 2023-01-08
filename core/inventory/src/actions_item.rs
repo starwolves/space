@@ -4,7 +4,7 @@ use bevy::prelude::{Query, ResMut};
 use crate::item::InventoryItem;
 
 /// Build inventory item actions like pickup.
-#[cfg(feature = "server")]
+
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     inventory_items: Query<&InventoryItem>,
@@ -35,7 +35,7 @@ use bevy::prelude::{warn, EventWriter};
 use crate::net::InventoryClientMessage;
 
 /// Manage incoming network messages from clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<InventoryClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,

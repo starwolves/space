@@ -6,7 +6,7 @@ use bevy::prelude::Res;
 
 use crate::entity_types::EntityTypes;
 use crate::net::EntityServerMessage;
-#[cfg(feature = "client")]
+
 pub(crate) fn load_entities(
     mut client: EventReader<IncomingReliableServerMessage<EntityServerMessage>>,
     types: Res<EntityTypes>,

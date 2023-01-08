@@ -19,7 +19,7 @@ use pawn::pawn::Pawn;
 use player::boarding::PlayerBoarded;
 
 /// Spawn player as human male with preset inventory.
-#[cfg(feature = "server")]
+
 pub(crate) fn spawn_boarding_player(
     query: Query<(Entity, &Spawning, &ConnectedPlayer), Added<Spawning>>,
     mut commands: Commands,

@@ -22,12 +22,10 @@ use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 use super::counter_window_events::{CounterWindow, CounterWindowSensor};
 
-#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::IDENTITY
 }
 
-#[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for CounterWindowType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let entity_name = self.sub_type.clone();
@@ -79,7 +77,7 @@ impl BaseEntityBuilder<NoData> for CounterWindowType {
         }
     }
 }
-#[cfg(feature = "server")]
+
 impl RigidBodyBuilder<NoData> for CounterWindowType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
@@ -101,10 +99,8 @@ impl RigidBodyBuilder<NoData> for CounterWindowType {
 
 use bevy_rapier3d::prelude::{ActiveEvents, CollisionGroups, RigidBody, Sensor};
 
-#[cfg(feature = "server")]
 pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
-#[cfg(feature = "server")]
 #[derive(Clone, Identity)]
 pub struct CounterWindowType {
     pub identifier: String,
@@ -120,7 +116,6 @@ impl Default for CounterWindowType {
     }
 }
 
-#[cfg(feature = "server")]
 pub fn build_counter_windows<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,

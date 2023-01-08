@@ -10,7 +10,7 @@ pub const INPUT_TEXT_BG_HOVER: Color = Color::rgb(0.26, 0.3, 0.79);
 pub const INPUT_TEXT_BG_FOCUSED: Color = Color::rgb(0.46, 0.5, 0.79);
 
 /// The component for text input UI nodes.
-#[cfg(feature = "client")]
+
 #[derive(Component, Default)]
 pub struct TextInputNode {
     /// The text the input node currently holds.
@@ -28,13 +28,12 @@ pub enum CharacterFilter {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(feature = "client")]
+
 pub enum TextInputLabel {
     UiEvents,
     MousePressUnfocus,
 }
 
-#[cfg(feature = "client")]
 #[derive(Default, Resource)]
 pub struct TextInput {
     pub focused_input: Option<Entity>,
@@ -44,7 +43,7 @@ use bevy::prelude::With;
 use bevy::ui::BackgroundColor;
 
 /// UI event visuals.
-#[cfg(feature = "client")]
+
 pub(crate) fn ui_events(
     mut interaction_query: Query<
         (Entity, &Interaction, &mut BackgroundColor),
@@ -89,19 +88,19 @@ use bevy::text::Text;
 use bevy::{prelude::EventReader, window::ReceivedCharacter};
 
 /// Event to unfocus the currently focused text input.
-#[cfg(feature = "client")]
+
 pub struct UnfocusTextInput {
     pub entity_option: Option<Entity>,
 }
 
 /// Event to focus a new text input.
-#[cfg(feature = "client")]
+
 pub struct FocusTextInput {
     pub entity: Entity,
 }
 
 /// Manages focus of text input.
-#[cfg(feature = "client")]
+
 pub(crate) fn focus_events(
     mut focus_events: EventReader<FocusTextInput>,
     mut unfocus_events: EventReader<UnfocusTextInput>,
@@ -208,7 +207,7 @@ pub(crate) fn focus_events(
 use bevy::prelude::EventWriter;
 
 /// Manages focus of text input.
-#[cfg(feature = "client")]
+
 pub(crate) fn input_mouse_press_unfocus(
     buttons: Res<Input<MouseButton>>,
     text_input: Res<TextInput>,
@@ -232,7 +231,7 @@ use bevy_egui::EguiClipboard;
 use std::time::Duration;
 
 /// Register characters input and output as displayed text inside input node. Also manages ctrl+v paste.
-#[cfg(feature = "client")]
+
 pub(crate) fn input_characters(
     text_input: Res<TextInput>,
     mut backspace_timer: Local<Timer>,
@@ -403,13 +402,13 @@ pub(crate) fn input_characters(
 }
 
 /// Event that sets the content of the given TextInputNode
-#[cfg(feature = "client")]
+
 pub struct SetText {
     pub entity: Entity,
     pub text: String,
 }
 /// Processes [TextInputNode].
-#[cfg(feature = "client")]
+
 pub(crate) fn set_text_input_node_text(
     mut events: EventReader<SetText>,
     mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
@@ -460,7 +459,7 @@ use networking::server::IncomingReliableClientMessage;
 
 use crate::networking::UiClientMessage;
 /// Manage incoming network messages from clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<UiClientMessage>>,
     mut text_tree_input_selection: EventWriter<TextTreeInputSelection>,
@@ -487,7 +486,7 @@ pub(crate) fn incoming_messages(
     }
 }
 /// Client text tree input selection event.
-#[cfg(feature = "server")]
+
 pub struct TextTreeInputSelection {
     /// Handle of the submitter of the selection.
     pub handle: u64,

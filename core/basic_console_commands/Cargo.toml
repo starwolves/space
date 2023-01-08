@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -19,13 +17,13 @@ default-features = false
 
 [dependencies]
 
-console_commands = { path = "../console_commands", features = ["server"] }
-gridmap = { path = "../gridmap", features = ["server"] }
-player = { path = "../player", features = ["server"] }
-pawn = { path = "../pawn", features = ["server"] }
-networking = { path = "../networking", features = ["server"] }
+console_commands = { path = "../console_commands"}
+gridmap = { path = "../gridmap"}
+player = { path = "../player"}
+pawn = { path = "../pawn"}
+networking = { path = "../networking"}
 
-entity = { path = "../entity", features = ["server"] }
-text_api = { path = "../text_api", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
-inventory = { path = "../inventory", features = ["server"] }
+entity = { path = "../entity"}
+text_api = { path = "../text_api"}
+resources = { path = "../resources" }
+inventory = { path = "../inventory" }

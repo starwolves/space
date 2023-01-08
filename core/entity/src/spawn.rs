@@ -16,7 +16,7 @@ use crate::{
 use super::entity_data::DefaultMapEntity;
 
 /// A base bundle for the basis of entities. Should be used by almost all entities.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct BaseEntityBundle {
     pub default_transform: Transform,
     pub examinable: Examinable,
@@ -41,7 +41,7 @@ impl Default for BaseEntityBundle {
 }
 
 /// Base entity data.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct BaseEntityData {
     /// Entity type ID.
     pub entity_type: BoxedEntityType,
@@ -72,7 +72,7 @@ impl Default for BaseEntityData {
     }
 }
 /// Spawn a base entity.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity: Entity) {
     let mut builder = commands.entity(entity);
     builder.insert((
@@ -110,7 +110,7 @@ pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity
 }
 
 /// BaseEntity trait.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub trait BaseEntityBuilder<Y>: Send + Sync {
     fn get_bundle(&self, spawn_data: &EntityBuildData, entity_data_option: Y) -> BaseEntityBundle;
 }
@@ -122,7 +122,7 @@ use bevy::prelude::Res;
 use crate::entity_types::EntityTypes;
 use crate::net::EntityServerMessage;
 /// Spawn base entity components handler.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
@@ -167,7 +167,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
 
 /// Additional ron properties contained by a raw ron entity.
 #[derive(Deserialize)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct RonDataRaw {
     pub data: String,
     pub entity_type: String,
@@ -175,7 +175,7 @@ pub struct RonDataRaw {
 
 /// Spawn data used to spawn in entities.
 #[derive(Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct EntityBuildData {
     /// Transform of the to be spawned entity.
     pub entity_transform: Transform,
@@ -194,7 +194,6 @@ pub struct EntityBuildData {
     pub entity: Entity,
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl Default for EntityBuildData {
     fn default() -> Self {
         Self {
@@ -211,13 +210,13 @@ impl Default for EntityBuildData {
 }
 
 /// Standard spawn event.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct SpawnEntity<T> {
     pub spawn_data: EntityBuildData,
     pub entity_type: T,
 }
 /// A function to spawn an entity.
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
     entity_type: T,
     transform: Transform,
@@ -257,5 +256,5 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
 
     return_entity
 }
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub struct NoData;

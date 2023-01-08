@@ -18,7 +18,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use networking::server::ConnectedPlayer;
 /// Initialize the setup UI by spawning in showcase entities etc.
-#[cfg(feature = "server")]
+
 pub(crate) fn initialize_setupui(
     used_names: Res<UsedNames>,
     query: Query<&ConnectedPlayer, Added<SetupPhase>>,
@@ -50,18 +50,16 @@ use player::boarding::BoardingPlayer;
 
 use bevy::prelude::ResMut;
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 /// Each stored [SetupUiState] for the connected handles.
 pub struct SetupUiUserDataSets {
     pub list: HashMap<u64, SetupUiUserData>,
 }
 
-#[cfg(feature = "server")]
 pub struct SetupUiUserData {
     pub character_name: String,
 }
 
-#[cfg(feature = "server")]
 pub(crate) fn receive_input_character_name(
     mut server: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
     mut datas: ResMut<SetupUiUserDataSets>,
@@ -84,7 +82,7 @@ pub(crate) fn receive_input_character_name(
 }
 
 /// Recieve boarding UI input.
-#[cfg(feature = "server")]
+
 pub(crate) fn ui_input_boarding(
     mut event: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
     mut boarding_player_event: EventWriter<BoardingPlayer>,
@@ -130,7 +128,7 @@ pub(crate) fn ui_input_boarding(
 }
 
 /// Sets radio channel list for clients in setup UI to only show global chat availability as a function.
-#[cfg(feature = "server")]
+
 pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
     use text_api::core::TALK_SPACE_GLOBAL_CHATPREFIX;
 
@@ -143,7 +141,6 @@ pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
 use player::connections::SendServerConfiguration;
 use player::net::PlayerServerMessage;
 
-#[cfg(feature = "server")]
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
@@ -164,14 +161,14 @@ pub(crate) fn configure(
 }
 
 /// Setup ui state resource.
-#[cfg(feature = "server")]
+
 #[derive(Resource, Default)]
 pub struct SetupUiState {
     pub enabled: HashMap<u64, bool>,
 }
 
 /// Show setup_ui to newly connected clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn new_clients_enable_setupui(
     mut player_awaiting_boarding: EventReader<PlayerAwaitingBoarding>,
     mut state: ResMut<SetupUiState>,
@@ -187,7 +184,7 @@ use networking::client::IncomingReliableServerMessage;
 use networking::client::OutgoingReliableClientMessage;
 
 /// Receive message from server to initialize setup ui.
-#[cfg(feature = "client")]
+
 pub(crate) fn client_setup_ui(
     mut incoming_setupui_messages: EventReader<IncomingReliableServerMessage<SetupUiServerMessage>>,
     mut outgoing_setupui_messages: EventWriter<OutgoingReliableClientMessage<SetupUiClientMessage>>,
@@ -215,7 +212,7 @@ use crate::net::SetupUiClientMessage;
 
 use networking::server::IncomingReliableClientMessage;
 /// Manage when client has finished loading in a scene.
-#[cfg(feature = "server")]
+
 pub fn setupui_loaded(
     mut event: EventReader<IncomingReliableClientMessage<SetupUiClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,

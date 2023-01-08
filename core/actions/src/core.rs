@@ -6,25 +6,25 @@ use math::grid::Vec3Int;
 use networking::server::GridMapLayer;
 
 /// Resource with a list of actions being built this frame.
-#[cfg(feature = "server")]
+
 #[derive(Default, Resource)]
 pub struct BuildingActions {
     pub list: Vec<BuildingAction>,
 }
 /// Resource with requests to execute actions which will go through prerequisite checking this frame.
-#[cfg(feature = "server")]
+
 #[derive(Default, Resource)]
 pub struct ActionRequests {
     pub list: HashMap<u64, ActionRequest>,
 }
 
 /// A request to execute a request.
-#[cfg(feature = "server")]
+
 pub struct ActionRequest {
     /// Action identifier.
     id: String,
 }
-#[cfg(feature = "server")]
+
 impl ActionRequest {
     /// Get action identifier.
     pub fn get_id(&self) -> &str {
@@ -39,7 +39,7 @@ impl ActionRequest {
         self.id = new_id;
     }
 }
-#[cfg(feature = "server")]
+
 /// A request to build a list of available actions.
 pub struct BuildingAction {
     /// Available to-be-approved actions
@@ -53,7 +53,7 @@ pub struct BuildingAction {
     /// The ship cell targetted in the action.
     pub target_cell_option: Option<(Vec3Int, GridMapLayer)>,
 }
-#[cfg(feature = "server")]
+
 /// Data related to an individual action.
 pub struct ActionData {
     /// The action.
@@ -61,7 +61,7 @@ pub struct ActionData {
     /// Whether the action is approved or not by a prerequisite checker.
     pub approved: Option<bool>,
 }
-#[cfg(feature = "server")]
+
 impl ActionData {
     /// Approve action, typically performed by prerequisite checks.
     pub fn approve(&mut self) {
@@ -95,7 +95,7 @@ use networking::server::OutgoingReliableServerMessage;
 use bevy::prelude::EventWriter;
 
 use crate::net::ActionsServerMessage;
-#[cfg(feature = "server")]
+
 /// Send lists of approved actions back to player.
 pub(crate) fn list_action_data_finalizer(
     building_actions: Res<BuildingActions>,
@@ -156,7 +156,7 @@ pub(crate) fn list_action_data_finalizer(
         }
     }
 }
-#[cfg(feature = "server")]
+
 /// Append actions found in [Actions] component of entities to their list.
 pub(crate) fn list_action_data_from_actions_component(
     examinable_query: Query<&Actions>,
@@ -178,12 +178,12 @@ pub(crate) fn list_action_data_from_actions_component(
 }
 
 /// A resource storing the current uniquely iterated identifier of action requests.
-#[cfg(feature = "server")]
+
 #[derive(Default, Resource)]
 pub(crate) struct ActionIncremented {
     i: u64,
 }
-#[cfg(feature = "server")]
+
 impl ActionIncremented {
     /// Get i with iteration.
     pub fn get_i_it(&mut self) -> u64 {
@@ -201,14 +201,14 @@ impl ActionIncremented {
 }
 
 /// Resource with a request list of available actions for entity with prerequisite checking of this frame.
-#[cfg(feature = "server")]
+
 #[derive(Default, Resource)]
 pub struct ListActionDataRequests {
     pub list: HashMap<u64, ActionRequest>,
 }
 
 /// Initialize listing action requests from input events.
-#[cfg(feature = "server")]
+
 pub(crate) fn init_action_data_listing(
     mut entity_events: EventReader<InputListActionsEntity>,
     mut map_events: EventReader<InputListActionsMap>,
@@ -245,7 +245,7 @@ pub(crate) fn init_action_data_listing(
 }
 
 /// An individual action.
-#[cfg(feature = "server")]
+
 #[derive(Clone)]
 pub struct Action {
     /// Action identifier.
@@ -257,12 +257,12 @@ pub struct Action {
 }
 
 /// A component for entities with a list of actions available to them.
-#[cfg(feature = "server")]
+
 #[derive(Component, Default)]
 pub struct Actions {
     pub actions: Vec<Action>,
 }
-#[cfg(feature = "server")]
+
 impl Action {
     /// Convert action into a new struct with data suitable to be sent over the net.
     pub fn into_net(
@@ -291,7 +291,7 @@ impl Action {
 }
 
 /// Clears all actions for the next tick.
-#[cfg(feature = "server")]
+
 pub(crate) fn clear_action_building(
     mut action_data_requests: ResMut<ListActionDataRequests>,
     mut action_requests: ResMut<ActionRequests>,
@@ -303,7 +303,7 @@ pub(crate) fn clear_action_building(
 }
 
 /// Initialize action (list) requests.
-#[cfg(feature = "server")]
+
 pub(crate) fn init_action_request_building(
     mut building_actions: ResMut<BuildingActions>,
     mut action_events: EventReader<InputAction>,
@@ -336,7 +336,7 @@ pub(crate) fn init_action_request_building(
 
 /// Client input list actions map event.
 #[derive(Debug, Clone)]
-#[cfg(feature = "server")]
+
 pub struct InputListActionsMap {
     pub requested_by_entity: Entity,
     pub gridmap_type: GridMapLayer,
@@ -347,7 +347,7 @@ pub struct InputListActionsMap {
 
 /// Client input list actions entity event.
 #[derive(Clone)]
-#[cfg(feature = "server")]
+
 pub struct InputListActionsEntity {
     pub requested_by_entity: Entity,
     /// Targetted entity.
@@ -357,7 +357,7 @@ pub struct InputListActionsEntity {
 }
 
 /// Client initiates execution of an action event.
-#[cfg(feature = "server")]
+
 pub struct InputAction {
     /// Action ID.
     pub fired_action_id: String,

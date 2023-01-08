@@ -9,9 +9,7 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -23,18 +21,18 @@ vector2math = "0.13.0"
 bevy_renet = "0.0.6"
 const_format = "0.2.30"
 
-networking = { path = "../networking", features = ["server"] }
-sounds = { path = "../../entities/sounds", features = ["server"] }
-pawn = { path = "../pawn", features = ["server"] }
-combat = { path = "../combat", features = ["server"] }
-sfx = { path = "../sfx", features = ["server"] }
-entity = { path = "../entity", features = ["server"] }
-gridmap = { path = "../gridmap", features = ["server"] }
-resources = { path = "../resources", features = ["server"] }
-atmospherics = { path = "../atmospherics", features = ["server"] }
-math = { path = "../math", features = ["server"] }
-text_api = { path = "../text_api", features = ["server"] }
-controller = { path = "../controller", features = ["server"] }
-player = { path = "../player", features = ["server"] }
-physics = { path = "../physics", features = ["server"] }
-inventory = { path = "../inventory", features = ["server"] }
+networking = { path = "../networking" }
+sounds = { path = "../../entities/sounds" }
+pawn = { path = "../pawn" }
+combat = { path = "../combat" }
+sfx = { path = "../sfx" }
+entity = { path = "../entity" }
+gridmap = { path = "../gridmap" }
+resources = { path = "../resources" }
+atmospherics = { path = "../atmospherics" }
+math = { path = "../math" }
+text_api = { path = "../text_api"}
+controller = { path = "../controller" }
+player = { path = "../player" }
+physics = { path = "../physics" }
+inventory = { path = "../inventory" }

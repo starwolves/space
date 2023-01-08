@@ -8,10 +8,8 @@ use entity::{
 };
 use resources::content::SF_CONTENT_PREFIX;
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub struct PointLightBuilderBundle;
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl PointLightBuilderBundle {
     pub fn spawn(
         entity_transform: Transform,
@@ -40,7 +38,6 @@ impl PointLightBuilderBundle {
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 #[derive(Clone, Identity)]
 pub struct PointLightType {
     pub light: PointLight,
@@ -54,7 +51,7 @@ impl Default for PointLightType {
         }
     }
 }
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub fn build_point_lights<T: PointLightBuilder + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
@@ -66,12 +63,10 @@ pub fn build_point_lights<T: PointLightBuilder + 'static>(
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub trait PointLightBuilder: Send + Sync {
     fn spawn(&self, spawn_data: &EntityBuildData, commands: &mut Commands);
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl PointLightBuilder for PointLightType {
     fn spawn(&self, spawn_data: &EntityBuildData, commands: &mut Commands) {
         commands.spawn((

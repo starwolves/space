@@ -3,7 +3,7 @@ use entity::senser::{Senser, SensingAbility};
 use pawn::pawn::{DataLink, DataLinkType};
 
 /// Sensing ability allows players to obtain atmospherics data of a tile by examining it.
-#[cfg(feature = "server")]
+
 pub(crate) fn atmospherics_sensing_ability(
     mut data_linked: Query<(&DataLink, &mut Senser), Changed<DataLink>>,
 ) {

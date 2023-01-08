@@ -5,7 +5,7 @@ use networking::server::EntityUpdateData;
 use crate::item::InventoryItem;
 
 /// Inventory item update for 3d Godot attachments.
-#[cfg(feature = "server")]
+
 pub(crate) fn inventory_item_update(
     mut updated_entities: Query<(&InventoryItem, &mut EntityUpdates), Changed<InventoryItem>>,
 ) {

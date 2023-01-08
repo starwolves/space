@@ -8,7 +8,6 @@ use super::counter_window_events::{
     CounterWindow, CounterWindowAccessLightsStatus, CounterWindowStatus,
 };
 
-#[cfg(feature = "server")]
 pub(crate) fn counter_window_update(
     mut updated_counter_windows: Query<
         (&CounterWindow, &mut EntityUpdates),

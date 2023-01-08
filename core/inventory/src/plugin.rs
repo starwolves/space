@@ -84,7 +84,7 @@ use networking::server::GodotVariant;
 
 use bevy::prelude::ResMut;
 use console_commands::commands::AllConsoleCommands;
-#[cfg(feature = "server")]
+
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "spawnHeld".to_string(),

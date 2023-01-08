@@ -10,14 +10,14 @@ use crate::entity_data::EntityWorldType;
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum EntityClientMessage {
     ExamineEntity(u64),
 }
 
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum EntityServerMessage {
     EntityUpdate(
         u64,

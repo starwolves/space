@@ -10,14 +10,14 @@ use bevy::{
 use resources::core::ClientInformation;
 
 /// Event.
-#[cfg(feature = "client")]
+
 pub struct EnableMainMenu {
     pub enable: bool,
 }
 
 /// Resource containing the main menu state.
 #[derive(Default, Resource)]
-#[cfg(feature = "client")]
+
 pub struct MainMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
@@ -26,13 +26,13 @@ pub struct MainMenuState {
 
 /// Labels for system ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-#[cfg(feature = "client")]
+
 pub enum MainMenuLabel {
     BuildMainMenu,
 }
 
 /// Shows main menu when the client starts.
-#[cfg(feature = "client")]
+
 pub(crate) fn startup_show_menu(mut enable_events: EventWriter<EnableMainMenu>) {
     enable_events.send(EnableMainMenu { enable: true });
 }
@@ -46,21 +46,21 @@ pub const TEXT_INPUT_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
 pub const MAIN_BG_COLOR: Color = Color::DARK_GRAY;
 
 #[derive(Component)]
-#[cfg(feature = "client")]
+
 pub(crate) struct MainMenuPlayButton;
 #[derive(Component)]
-#[cfg(feature = "client")]
+
 pub(crate) struct MainMenuSettingsButton;
 #[derive(Component)]
-#[cfg(feature = "client")]
+
 pub(crate) struct MainMenuExitButton;
 
 #[derive(Component)]
-#[cfg(feature = "client")]
+
 pub(crate) struct SpaceFrontiersHeader;
 use crate::events::SPACE_FRONTIERS_HEADER_TEXT_COLOR;
 use ui::button::ButtonVisuals;
-#[cfg(feature = "client")]
+
 pub(crate) fn on_submenu_connect_creation(
     query: Query<Entity, Added<IpAddressInput>>,
     mut fill_connect_menu: EventWriter<AutoFillConnectSubMenu>,
@@ -71,7 +71,7 @@ pub(crate) fn on_submenu_connect_creation(
 }
 
 /// System that toggles the base visiblity of the main menu.
-#[cfg(feature = "client")]
+
 pub(crate) fn show_main_menu(
     mut enable_events: EventReader<EnableMainMenu>,
     mut state: ResMut<MainMenuState>,
@@ -453,22 +453,22 @@ pub(crate) fn show_main_menu(
 pub const SUB_MENU_HEADER_COLOR: Color = INPUT_TEXT_BG;
 
 #[derive(Component)]
-#[cfg(feature = "client")]
+
 pub struct MainMenuStarWolvesLink;
 
 #[derive(Component)]
-#[cfg(feature = "client")]
+
 pub struct MainMainMenuRoot;
 
 /// Event that enables play menu belonging to the main menu.
-#[cfg(feature = "client")]
+
 pub struct EnablePlayMenu {
     pub enable: bool,
 }
 
 /// Play menu state.
 #[derive(Default, Resource)]
-#[cfg(feature = "client")]
+
 pub struct PlayMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
@@ -483,7 +483,7 @@ use ui::button::HOVERED_BUTTON;
 use ui::text_input::{CharacterFilter, SetText, TextInputNode, INPUT_TEXT_BG, INPUT_TEXT_BG_HOVER};
 
 /// Displays play menu
-#[cfg(feature = "client")]
+
 pub(crate) fn show_play_menu(
     mut show_events: EventReader<EnablePlayMenu>,
     mut state: ResMut<PlayMenuState>,
@@ -883,21 +883,19 @@ pub(crate) fn show_play_menu(
     }
 }
 
-#[cfg(feature = "client")]
 #[derive(Component)]
 pub struct AccountNameInput;
-#[cfg(feature = "client")]
+
 #[derive(Component)]
 pub struct IpAddressInput;
-#[cfg(feature = "client")]
+
 #[derive(Component)]
 pub struct ConnectToServerButton;
 
 /// Event that triggers auto fill.
-#[cfg(feature = "client")]
+
 pub struct AutoFillConnectSubMenu;
 
-#[cfg(feature = "client")]
 pub(crate) fn auto_fill_connect_menu(
     mut events: EventReader<AutoFillConnectSubMenu>,
     mut set_text: EventWriter<SetText>,

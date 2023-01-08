@@ -8,7 +8,7 @@ use math::grid::Vec2Int;
 
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.
-#[cfg(feature = "server")]
+
 pub(crate) fn map_input(
     mut input_view_range_change_events: EventReader<InputMap>,
     mut map_holders: Query<&mut Map>,
@@ -41,7 +41,7 @@ use networking::server::OutgoingReliableServerMessage;
 
 use crate::net::MapServerMessage;
 /// Request available map overlays.
-#[cfg(feature = "server")]
+
 pub(crate) fn request_map_overlay(
     mut events: EventReader<InputMapRequestOverlay>,
     map_holders: Query<&Map>,
@@ -70,11 +70,11 @@ pub(crate) fn request_map_overlay(
 
 /// Mini-map data resource.
 #[derive(Default, Resource)]
-#[cfg(feature = "server")]
+
 pub struct MapData {
     pub data: HashMap<Vec2Int, i16>,
 }
-#[cfg(feature = "server")]
+
 impl MapData {
     pub fn to_net(&self) -> Vec<(i16, i16, i16)> {
         let mut net_data = vec![];
@@ -88,7 +88,7 @@ impl MapData {
 }
 
 /// Client input change display mode mini-map event.
-#[cfg(feature = "server")]
+
 pub struct InputMapChangeDisplayMode {
     pub handle: u64,
     pub entity: Entity,
@@ -96,7 +96,7 @@ pub struct InputMapChangeDisplayMode {
 }
 
 /// Client map input.
-#[cfg(feature = "server")]
+
 pub enum MapInput {
     Range(f32),
     Position(Vec2),
@@ -104,7 +104,7 @@ pub enum MapInput {
 }
 
 /// Client map input event.
-#[cfg(feature = "server")]
+
 pub struct InputMap {
     pub handle: u64,
     pub entity: Entity,
@@ -112,7 +112,7 @@ pub struct InputMap {
 }
 
 /// Client map request display modes event.
-#[cfg(feature = "server")]
+
 pub struct InputMapRequestOverlay {
     pub handle: u64,
     pub entity: Entity,
@@ -120,7 +120,7 @@ pub struct InputMapRequestOverlay {
 use crate::net::{MapReliableClientMessage, MapUnreliableClientMessage};
 
 /// Manage incoming network messages from clients.
-#[cfg(feature = "server")]
+
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<MapReliableClientMessage>>,
     mut u_server: EventReader<IncomingUnreliableClientMessage<MapUnreliableClientMessage>>,

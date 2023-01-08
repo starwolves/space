@@ -11,7 +11,6 @@ use super::counter_window_events::{
     InputCounterWindowToggleOpen,
 };
 
-#[cfg(feature = "server")]
 pub(crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
@@ -77,7 +76,6 @@ pub(crate) fn toggle_open_action_prequisite_check(
 }
 use networking::server::HandleToEntity;
 
-#[cfg(feature = "server")]
 pub(crate) fn counter_window_actions(
     building_action_data: Res<BuildingActions>,
     mut counter_window_lock_open_event: EventWriter<CounterWindowLockOpen>,
@@ -175,7 +173,6 @@ pub(crate) fn counter_window_actions(
     }
 }
 
-#[cfg(feature = "server")]
 pub(crate) fn lock_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     examiner: Query<(&Transform, &DataLink)>,
@@ -247,7 +244,6 @@ pub(crate) fn lock_open_action_prequisite_check(
     }
 }
 
-#[cfg(feature = "server")]
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     counter_windows: Query<&CounterWindow>,

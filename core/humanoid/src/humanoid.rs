@@ -37,20 +37,20 @@ use std::time::Duration;
 
 /// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub(crate) struct LinkedFootstepsSprinting {
     pub entity: Entity,
 }
 
 /// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub(crate) struct LinkedFootstepsWalking {
     pub entity: Entity,
 }
 
 /// Humanoid character animation state.
-#[cfg(feature = "server")]
+
 pub enum CharacterAnimationState {
     Idle,
     Jogging,
@@ -61,7 +61,7 @@ const FIRST_MELEE_TIME: u64 = 433;
 
 /// The humanoid component.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct Humanoid {
     /// Lower body blended animation state of humanoid.
     pub current_lower_animation_state: CharacterAnimationState,
@@ -75,7 +75,6 @@ pub struct Humanoid {
     pub next_attack_timer: Timer,
 }
 
-#[cfg(feature = "server")]
 impl Default for Humanoid {
     fn default() -> Self {
         let mut t = Timer::new(Duration::from_millis(FIRST_MELEE_TIME), TimerMode::Once);
@@ -94,7 +93,7 @@ impl Default for Humanoid {
 use controller::input::InputToggleCombatMode;
 
 /// Toggle combat mode. Ie from melee to projectile.
-#[cfg(feature = "server")]
+
 pub(crate) fn toggle_combat_mode(
     mut toggle_combat_mode_events: EventReader<InputToggleCombatMode>,
     mut standard_character_query: Query<&mut Humanoid>,
@@ -109,23 +108,20 @@ pub(crate) fn toggle_combat_mode(
     }
 }
 
-#[cfg(feature = "server")]
 const JOG_SPEED: f32 = 3031.44;
-#[cfg(feature = "server")]
+
 const RUN_SPEED: f32 = 3031.44;
 
-#[cfg(feature = "server")]
 const MAX_JOG_SPEED: f32 = 10.;
-#[cfg(feature = "server")]
+
 const MAX_RUN_SPEED: f32 = 14.;
 
-#[cfg(feature = "server")]
 const COMBAT_ROTATION_SPEED: f32 = 18.;
-#[cfg(feature = "server")]
+
 const DOWN_FORCE: f32 = -1.0;
 
 /// Animation movement state.
-#[cfg(feature = "server")]
+
 enum CharacterMovementState {
     None,
     Jogging,
@@ -137,7 +133,7 @@ use networking::server::HandleToEntity;
 use physics::rigid_body::RigidBodyData;
 
 /// Core humanoid logic. Will get granularized into more systems in the future.
-#[cfg(feature = "server")]
+
 pub(crate) fn humanoid_core(
     mut humanoids_query: Query<
         (
@@ -912,9 +908,9 @@ pub(crate) fn humanoid_core(
 }
 use const_format::concatcp;
 use resources::content::SF_CONTENT_PREFIX;
-#[cfg(feature = "server")]
+
 pub const HUMAN_DUMMY_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "humanDummy");
-#[cfg(feature = "server")]
+
 pub const HUMAN_MALE_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "humanMale");
 use controller::input::InputAltItemAttack;
 use controller::input::InputAttackCell;
@@ -924,7 +920,7 @@ use controller::input::InputSelectBodyPart;
 use controller::input::InputToggleAutoMove;
 
 /// Manage controller input for humanoid. The controller can be controlled by a player or AI.
-#[cfg(feature = "server")]
+
 pub(crate) fn humanoid_controller_input(
     mut alternative_item_attack_events: EventReader<InputAltItemAttack>,
     mut input_attack_entity: EventReader<InputAttackEntity>,
@@ -1011,7 +1007,7 @@ pub(crate) fn humanoid_controller_input(
 use bevy_renet::renet::ServerEvent;
 
 /// On player disconnect as a function.
-#[cfg(feature = "server")]
+
 pub fn on_player_disconnect(
     mut humanoids: Query<&mut Humanoid>,
     handle_to_entity: ResMut<HandleToEntity>,
@@ -1041,14 +1037,14 @@ use bevy::prelude::Local;
 
 /// Used to calculate ping for client.
 #[derive(Default)]
-#[cfg(feature = "server")]
+
 pub(crate) struct TimeStampPerEntity {
     pub data: HashMap<Entity, u64>,
 }
 use controller::input::InputMouseDirectionUpdate;
 
 /// Manage mouse direction updates.
-#[cfg(feature = "server")]
+
 pub(crate) fn mouse_direction_update(
     mut update_events: EventReader<InputMouseDirectionUpdate>,
     mut standard_characters: Query<&mut Humanoid>,

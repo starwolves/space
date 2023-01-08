@@ -6,7 +6,7 @@ use networking::server::GridMapLayer;
 use crate::diffusion::{get_atmos_index, AtmosphericsResource, EffectType, VACUUM_ATMOSEFFECT};
 
 /// When a cell gets removed, ie deconstruct event on floor or wall tile, update atmospherics.
-#[cfg(feature = "server")]
+
 pub(crate) fn remove_cell_atmos_event(
     mut deconstruct_cell_events: EventReader<RemoveCell>,
     gridmap_main: Res<GridmapMain>,

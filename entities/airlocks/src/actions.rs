@@ -10,7 +10,7 @@ use crate::{
 };
 
 /// Action prerequite check.
-#[cfg(feature = "server")]
+
 pub(crate) fn toggle_open_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     transforms: Query<&Transform>,
@@ -77,7 +77,7 @@ pub(crate) fn toggle_open_action_prequisite_check(
 use networking::server::HandleToEntity;
 
 /// Manage air lock actions.
-#[cfg(feature = "server")]
+
 pub(crate) fn airlock_actions(
     building_action: Res<BuildingActions>,
     mut airlock_lock_open_event: EventWriter<AirLockLockOpen>,
@@ -179,7 +179,7 @@ pub(crate) fn airlock_actions(
 }
 
 /// Prerequisite check of locking an airlock.
-#[cfg(feature = "server")]
+
 pub(crate) fn lock_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     examiner: Query<(&Transform, &DataLink)>,
@@ -252,7 +252,7 @@ pub(crate) fn lock_action_prequisite_check(
 }
 
 /// Build air lock actions.
-#[cfg(feature = "server")]
+
 pub(crate) fn build_actions(
     mut building_action_data: ResMut<BuildingActions>,
     airlocks: Query<&Airlock>,

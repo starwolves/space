@@ -5,7 +5,7 @@ use networking::server::GodotVariant;
 use crate::commands::AllConsoleCommands;
 
 /// Initialize console commands.
-#[cfg(feature = "server")]
+
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "rcon".to_string(),
@@ -25,7 +25,7 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 }
 
 /// Initialize console commands.
-#[cfg(feature = "server")]
+
 pub(crate) fn initialize_console_commands_2(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push((
         "spawn".to_string(),

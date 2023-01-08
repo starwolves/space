@@ -13,7 +13,7 @@ use crate::{
     sensable::Sensable,
 };
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[cfg(any(feature = "server", feature = "client"))]
+
 pub enum EntityWorldType {
     Main,
     HealthUI,
@@ -24,7 +24,7 @@ use networking::server::HandleToEntity;
 use networking::server::OutgoingUnreliableServerMessage;
 
 /// Broadcast transforms of entities to players for interpolation.
-#[cfg(feature = "server")]
+
 pub(crate) fn broadcast_position_updates(
     time: Res<Time>,
     fixed_timesteps: Res<FixedTimesteps>,
@@ -88,22 +88,22 @@ pub(crate) fn broadcast_position_updates(
         }
     }
 }
-#[cfg(feature = "server")]
+
 pub const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
 
 /// Component for entities that were included and spawned with the map itself.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct DefaultMapEntity;
 
 /// Event about spawning entities from ron.
-#[cfg(feature = "server")]
+
 pub struct RawSpawnEvent {
     pub raw_entity: RawEntityRon,
 }
 /// ron entity.
 #[derive(Deserialize, Clone)]
-#[cfg(feature = "server")]
+
 pub struct RawEntity {
     pub entity_type: String,
     pub transform: String,
@@ -112,21 +112,21 @@ pub struct RawEntity {
 
 /// Component with the cache of the latest broadcasted transforms for its entity.
 #[derive(Component, Default)]
-#[cfg(feature = "server")]
+
 pub struct CachedBroadcastTransform {
     pub transform: Transform,
     pub is_active: bool,
 }
 /// Component with transform for sound effects.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct UpdateTransform;
 /// The NodePath to the node to spawn entities in on the Godot clients.
-#[cfg(feature = "server")]
+
 pub const ENTITY_SPAWN_PARENT : &str = "ColorRect/background/VBoxContainer/HBoxContainer/3dviewportPopup/Control/TabContainer/3D Viewport/Control/ViewportContainer/Viewport/Spatial";
 
 /// Check if entity updates for a player has changed. Old Godot netcode.
-#[cfg(feature = "server")]
+
 pub fn entity_update_changed_detection(
     changed_parameters: &mut Vec<String>,
     entity_updates: &mut HashMap<String, EntityUpdateData>,
@@ -152,7 +152,7 @@ pub fn entity_update_changed_detection(
 
 /// The base entity component holding base entity data.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct EntityData {
     pub entity_type: BoxedEntityType,
     pub entity_group: EntityGroup,
@@ -170,7 +170,7 @@ impl Default for BlankEntityType {
 }
 
 #[derive(Copy, Clone, Default)]
-#[cfg(feature = "server")]
+
 pub enum EntityGroup {
     #[default]
     None,
@@ -181,7 +181,7 @@ pub enum EntityGroup {
 
 /// Entity update component containing Godot node related updates for clients for visual changes. Old Godot netcode.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct EntityUpdates {
     pub updates: HashMap<String, HashMap<String, EntityUpdateData>>,
     pub updates_difference: Vec<HashMap<String, HashMap<String, EntityUpdateData>>>,
@@ -189,7 +189,6 @@ pub struct EntityUpdates {
     pub excluded_handles: HashMap<String, Vec<u64>>,
 }
 
-#[cfg(feature = "server")]
 impl Default for EntityUpdates {
     fn default() -> Self {
         let mut entity_updates_map = HashMap::new();
@@ -204,7 +203,7 @@ impl Default for EntityUpdates {
 }
 
 /// Match entity data as a function. Old Godot netcode.
-#[cfg(feature = "server")]
+
 pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateData) -> bool {
     let mut is_not_matching = true;
 
@@ -319,7 +318,7 @@ pub fn entity_data_is_matching(data1: &EntityUpdateData, data2: &EntityUpdateDat
 }
 
 /// Personalise entity update set.
-#[cfg(feature = "server")]
+
 pub fn personalise(
     updates_data: &mut HashMap<String, HashMap<String, EntityUpdateData>>,
     player_handle: u64,
@@ -339,7 +338,7 @@ pub fn personalise(
 }
 
 /// Get difference between this frame and last's frame entity updates per player. Old Godot netcode.
-#[cfg(feature = "server")]
+
 pub fn get_entity_update_difference(
     old_data: HashMap<String, HashMap<String, EntityUpdateData>>,
     new_data: &HashMap<String, HashMap<String, EntityUpdateData>>,
@@ -393,14 +392,14 @@ pub fn get_entity_update_difference(
 
 /// World mode component.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct WorldMode {
     pub mode: WorldModes,
 }
 
 /// All world modes.
 #[derive(Debug)]
-#[cfg(feature = "server")]
+
 pub enum WorldModes {
     Static,
     Kinematic,
@@ -410,7 +409,7 @@ pub enum WorldModes {
 }
 
 /// Physics entity change world mode for Godot client.
-#[cfg(feature = "server")]
+
 pub(crate) fn world_mode_update(
     mut updated_entities: Query<(&WorldMode, &mut EntityUpdates), Changed<WorldMode>>,
 ) {
@@ -457,7 +456,7 @@ pub(crate) fn world_mode_update(
 }
 
 /// For entities that are also registered with the gridmap.
-#[cfg(feature = "server")]
+
 pub struct GridItemData {
     pub transform_offset: Transform,
     /// So this entity can be built on a cell when another item is already present on that cell.

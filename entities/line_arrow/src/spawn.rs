@@ -13,12 +13,10 @@ use entity::{
     spawn::{BaseEntityBuilder, BaseEntityBundle, EntityBuildData, NoData, SpawnEntity},
 };
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub fn get_default_transform() -> Transform {
     Transform::IDENTITY
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 impl BaseEntityBuilder<NoData> for LineArrowType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let template_examine_text =
@@ -43,7 +41,6 @@ impl BaseEntityBuilder<NoData> for LineArrowType {
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 #[derive(Clone, Identity)]
 pub struct LineArrowType {
     pub duration: f32,
@@ -57,20 +54,18 @@ impl Default for LineArrowType {
         }
     }
 }
-#[cfg(any(feature = "server", feature = "client"))]
+
 impl LinerArrowBuilder for LineArrowType {
     fn get_duration(&self) -> f32 {
         self.duration
     }
 }
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub trait LinerArrowBuilder: Send + Sync {
     fn get_duration(&self) -> f32;
 }
 use bevy::time::TimerMode;
 
-#[cfg(any(feature = "server", feature = "client"))]
 pub fn build_line_arrows<T: LinerArrowBuilder + 'static>(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<T>>,

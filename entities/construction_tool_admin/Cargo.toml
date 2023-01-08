@@ -10,9 +10,7 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-[features]
-server = []
-client = []
+
 
 [dependencies.bevy]
 version = "0.9.1"
@@ -22,21 +20,21 @@ default-features = false
 rand = "0.8.5"
 bevy_rapier3d = "0.19.0"
 
-entity = { path = "../../core/entity", features = ["server"] }
-gridmap = { path = "../../core/gridmap", features = ["server"] }
-networking = { path = "../../core/networking", features = ["server"] }
+entity = { path = "../../core/entity" }
+gridmap = { path = "../../core/gridmap" }
+networking = { path = "../../core/networking"}
 doryen_fov = { path = "../../core/doryen_fov" }
-pawn = { path = "../../core/pawn", features = ["server"] }
-combat = { path = "../../core/combat", features = ["server"] }
-atmospherics = { path = "../../core/atmospherics", features = ["server"] }
-sfx = { path = "../../core/sfx", features = ["server"] }
-sounds = { path = "../sounds", features = ["server"] }
-text_api = { path = "../../core/text_api", features = ["server"] }
-actions = { path = "../../core/actions", features = ["server"] }
-ui = { path = "../../core/ui", features = ["server"] }
-resources = { path = "../../core/resources", features = ["server"] }
-math = { path = "../../core/math", features = ["server"] }
-physics = { path = "../../core/physics", features = ["server"] }
-inventory = { path = "../../core/inventory", features = ["server"] }
-basic_console_commands = { path = "../../core/basic_console_commands", features = ["server"] }
+pawn = { path = "../../core/pawn" }
+combat = { path = "../../core/combat" }
+atmospherics = { path = "../../core/atmospherics" }
+sfx = { path = "../../core/sfx"}
+sounds = { path = "../sounds" }
+text_api = { path = "../../core/text_api" }
+actions = { path = "../../core/actions" }
+ui = { path = "../../core/ui" }
+resources = { path = "../../core/resources" }
+math = { path = "../../core/math" }
+physics = { path = "../../core/physics" }
+inventory = { path = "../../core/inventory" }
+basic_console_commands = { path = "../../core/basic_console_commands"}
 

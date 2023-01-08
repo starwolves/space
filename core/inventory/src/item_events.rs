@@ -44,7 +44,7 @@ use sounds::{
 };
 
 /// Perform drop current item action.
-#[cfg(feature = "server")]
+
 pub(crate) fn drop_current_item(
     mut drop_current_item_events: EventReader<InputDropCurrentItem>,
     mut rigidbody_positions: Query<&mut Transform>,
@@ -327,7 +327,7 @@ pub(crate) fn drop_current_item(
 }
 
 /// Register approved pickup action and fire as new event.
-#[cfg(feature = "server")]
+
 pub(crate) fn pickup_world_item_action(
     building_action_data: Res<BuildingActions>,
     mut use_world_item_events: EventWriter<InputUseWorldItem>,
@@ -361,7 +361,7 @@ pub(crate) fn pickup_world_item_action(
 use crate::net::InventoryServerMessage;
 
 /// Perform items picking up action.
-#[cfg(feature = "server")]
+
 pub(crate) fn pickup_world_item(
     mut use_world_item_events: EventReader<InputUseWorldItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -552,7 +552,7 @@ pub(crate) fn pickup_world_item(
 }
 
 /// Perform taking off/unequiping action.
-#[cfg(feature = "server")]
+
 pub(crate) fn take_off_item(
     mut take_off_item_events: EventReader<InputTakeOffItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -650,7 +650,7 @@ pub struct ThrownItem {
 }
 
 /// Perform throwing item action.
-#[cfg(feature = "server")]
+
 pub(crate) fn throw_item(
     mut throw_item_events: EventReader<InputThrowItem>,
     mut rigidbody_positions: Query<&mut Transform>,
@@ -953,7 +953,7 @@ pub(crate) fn throw_item(
 }
 
 /// Perform wearing item action.
-#[cfg(feature = "server")]
+
 pub(crate) fn wear_item(
     mut wear_item_events: EventReader<InputWearItem>,
     mut inventory_entities: Query<&mut Inventory>,
@@ -1059,7 +1059,7 @@ pub(crate) fn wear_item(
 }
 
 /// Client input drop current item event.
-#[cfg(feature = "server")]
+
 pub struct InputDropCurrentItem {
     pub pickuper_entity: Entity,
     /// Drop item on position, for placeable item surfaces.
@@ -1067,7 +1067,7 @@ pub struct InputDropCurrentItem {
 }
 
 /// Client input throw item event.
-#[cfg(feature = "server")]
+
 pub struct InputThrowItem {
     pub entity: Entity,
     pub position: Vec3,
@@ -1075,21 +1075,21 @@ pub struct InputThrowItem {
 }
 
 /// Client input take off item event.
-#[cfg(feature = "server")]
+
 pub struct InputTakeOffItem {
     pub entity: Entity,
     pub slot_name: String,
 }
 
 /// Client input use world item event.
-#[cfg(feature = "server")]
+
 pub struct InputUseWorldItem {
     pub using_entity: Entity,
     pub used_entity: Entity,
 }
 
 /// Client input wear item event.
-#[cfg(feature = "server")]
+
 pub struct InputWearItem {
     pub wearer_entity: Entity,
     pub worn_entity_bits: u64,

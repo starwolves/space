@@ -19,12 +19,10 @@ use pawn::pawn::ShipAuthorizationEnum;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
-#[cfg(feature = "server")]
 pub fn get_default_transform() -> Transform {
     Transform::IDENTITY
 }
 
-#[cfg(feature = "server")]
 impl BaseEntityBuilder<NoData> for AirlockType {
     fn get_bundle(&self, spawn_data: &EntityBuildData, _entity_data: NoData) -> BaseEntityBundle {
         let description;
@@ -91,10 +89,8 @@ impl BaseEntityBuilder<NoData> for AirlockType {
     }
 }
 
-#[cfg(feature = "server")]
 pub const DEFAULT_AIRLOCK_Y: f32 = 1.;
 
-#[cfg(feature = "server")]
 impl RigidBodyBuilder<NoData> for AirlockType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
         let mut friction = Friction::coefficient(0.);
@@ -110,7 +106,6 @@ impl RigidBodyBuilder<NoData> for AirlockType {
     }
 }
 
-#[cfg(feature = "server")]
 #[derive(Clone, Identity)]
 pub struct AirlockType {
     pub identifier: String,
@@ -125,7 +120,6 @@ impl Default for AirlockType {
     }
 }
 
-#[cfg(feature = "server")]
 pub fn build_airlocks<T: Send + Sync + 'static>(
     mut commands: Commands,
     mut airlock_spawns: EventReader<SpawnEntity<T>>,

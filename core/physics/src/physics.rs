@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::{CollisionGroups, Damping, GravityScale, Group, Slee
 use math::grid::Vec3Int;
 
 /// Get a desired bit mask as a function.
-#[cfg(feature = "server")]
+
 pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
     match group {
         ColliderGroup::Standard => (
@@ -20,22 +20,22 @@ pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
 }
 
 /// Collider groups.
-#[cfg(feature = "server")]
+
 pub enum ColliderGroup {
     NoCollision,
     Standard,
 }
 
 /// Character floor physics friction.
-#[cfg(feature = "server")]
+
 pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
 
 /// Component, an entity has this when its physics is disabled.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct RigidBodyDisabled;
 /// Disable a rigidbody as a function.
-#[cfg(feature = "server")]
+
 pub fn disable_rigidbody(
     rigidbody_activation: &mut Sleeping,
     collider_flags: &mut CollisionGroups,
@@ -59,7 +59,7 @@ pub fn disable_rigidbody(
 }
 
 /// Enable a rigidbody as a function.
-#[cfg(feature = "server")]
+
 pub fn enable_rigidbody(
     rigidbody_activation: &mut Sleeping,
     collider_flags: &mut CollisionGroups,
@@ -86,7 +86,7 @@ pub fn enable_rigidbody(
 }
 
 /// Reach result.
-#[cfg(feature = "server")]
+
 pub struct ReachResult {
     pub distance: f32,
     pub hit_entity: Option<(Entity, bool)>,
@@ -94,12 +94,12 @@ pub struct ReachResult {
 }
 /// The component that links and stores rigid body transform.
 #[derive(Component)]
-#[cfg(feature = "server")]
+
 pub struct RigidBodyLinkTransform {
     pub follow_entity: Entity,
     pub active: bool,
 }
-#[cfg(feature = "server")]
+
 impl Default for RigidBodyLinkTransform {
     fn default() -> Self {
         Self {
