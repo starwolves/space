@@ -73,7 +73,7 @@ There is community sovereignty, integrity, values and strong personalities toget
 
 To compile and run Space Frontiers:
 
-* Select latest versioned branch (not master) from this repository and clone it.
+* Select latest versioned branch from this repository and clone it.
 * In your terminal navigate to the project folder you have just obtained.
 
 To start the server run:
