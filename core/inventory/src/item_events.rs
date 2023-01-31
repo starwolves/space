@@ -24,14 +24,13 @@ use entity::{
     sensable::Sensable,
 };
 use gridmap::{
-    can_reach_entity::can_reach_entity,
-    events::Cell,
-    get_spawn_position::entity_spawn_position_for_player,
-    grid::{GridmapData, GridmapMain},
+    can_reach_entity::can_reach_entity, events::Cell,
+    get_spawn_position::entity_spawn_position_for_player, grid::Gridmap,
 };
 use networking::server::EntityUpdateData;
 use rand::Rng;
 
+use entity::entity_data::EntityWorldType;
 use entity::net::EntityServerMessage;
 use networking::server::HandleToEntity;
 use networking::server::OutgoingReliableServerMessage;
@@ -68,12 +67,9 @@ pub(crate) fn drop_current_item(
     mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
     mut server1: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
     handle_to_entity: Res<HandleToEntity>,
-    gridmap_main: Res<GridmapMain>,
-    gridmap_data: Res<GridmapData>,
+    gridmap_main: Res<Gridmap>,
     query_pipeline: Res<RapierContext>,
 ) {
-    use entity::entity_data::EntityWorldType;
-
     for event in drop_current_item_events.iter() {
         let pickuper_components_option = inventory_entities.get_mut(event.pickuper_entity);
         let pickuper_components;
@@ -192,7 +188,6 @@ pub(crate) fn drop_current_item(
                 &health_query,
                 &cell_query,
                 &gridmap_main,
-                &gridmap_data,
                 true,
                 &colliders,
             ) {
@@ -383,8 +378,7 @@ pub(crate) fn pickup_world_item(
     mut server: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
     query_pipeline: Res<RapierContext>,
     handle_to_entity: Res<HandleToEntity>,
-    gridmap_main: Res<GridmapMain>,
-    gridmap_data: Res<GridmapData>,
+    gridmap_main: Res<Gridmap>,
     cell_query: Query<&Cell>,
 ) {
     for event in use_world_item_events.iter() {
@@ -453,7 +447,6 @@ pub(crate) fn pickup_world_item(
             &health_query,
             &cell_query,
             &gridmap_main,
-            &gridmap_data,
             false,
             &colliders,
         ) {
@@ -680,13 +673,11 @@ pub(crate) fn throw_item(
     mut server1: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
     mut server2: EventWriter<OutgoingReliableServerMessage<InventoryServerMessage>>,
 
-    gridmap_main: Res<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
     handle_to_entity: Res<HandleToEntity>,
     mut sfx_auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut thrown_event: EventWriter<ThrownItem>,
 ) {
-    use entity::entity_data::EntityWorldType;
-
     for event in throw_item_events.iter() {
         let pickuper_components_option = inventory_entities.get_mut(event.entity);
         let pickuper_components;

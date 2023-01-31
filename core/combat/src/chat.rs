@@ -5,8 +5,7 @@ use entity::health::HealthComponent;
 use entity::health::HealthContainer;
 use entity::senser::to_doryen_coordinates;
 use entity::senser::Senser;
-use gridmap::grid::GridmapData;
-use gridmap::grid::GridmapMain;
+use gridmap::grid::Gridmap;
 use inventory::combat::get_default_fists_words;
 use inventory::combat::get_default_trigger_fists_words;
 use inventory::combat::get_default_trigger_melee_words;
@@ -432,8 +431,7 @@ pub fn hit_query_chat_cells(
         &MeleeCombat,
         Option<&ProjectileCombat>,
     )>,
-    gridmap_main: Res<GridmapMain>,
-    gridmap_data: Res<GridmapData>,
+    gridmap_main: Res<Gridmap>,
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
 ) {
     for query_hit_result in query_hit_results.iter() {
@@ -531,7 +529,7 @@ pub fn hit_query_chat_cells(
 
             let cell_data;
 
-            match gridmap_main.grid_data.get(&attacked_cell_id.cell) {
+            match gridmap_main.get_cell(attacked_cell_id.cell) {
                 Some(c) => {
                     cell_data = c;
                 }
@@ -541,9 +539,9 @@ pub fn hit_query_chat_cells(
                 }
             }
 
-            let cell_name = gridmap_data
+            let cell_name = gridmap_main
                 .main_text_names
-                .get(&cell_data.item)
+                .get(&cell_data.item_0)
                 .unwrap()
                 .clone();
 

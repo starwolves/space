@@ -13,7 +13,7 @@ use bevy::{
 use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
 use entity::showcase::Showcase;
 use entity::{examine::Examinable, health::DamageFlag};
-use gridmap::grid::GridmapMain;
+use gridmap::grid::Gridmap;
 use inventory::inventory::Inventory;
 use inventory::{
     combat::{MeleeCombat, ProjectileCombat},
@@ -166,7 +166,7 @@ pub(crate) fn humanoid_core(
     tick_rate: Res<TickRate>,
     mut attack_event_writer: EventWriter<Attack>,
     mut net_unload_entity: EventWriter<DespawnClientEntity>,
-    gridmap_main: Res<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
     mut attack_events: ResMut<ActiveAttackIncrement>,
 ) {
     for (
@@ -827,7 +827,7 @@ pub(crate) fn humanoid_core(
                         adjacent_cell_id.z += 1;
                     }
 
-                    match gridmap_main.grid_data.get(&adjacent_cell_id) {
+                    match gridmap_main.get_cell(adjacent_cell_id) {
                         Some(_) => {
                             bordering_wall = true;
                             break;

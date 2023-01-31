@@ -1,6 +1,6 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
-use gridmap::grid::{cell_id_to_world, GridmapMain};
+use gridmap::grid::{cell_id_to_world, Gridmap};
 use inventory::inventory::Inventory;
 use pawn::pawn::REACH_DISTANCE;
 
@@ -91,16 +91,16 @@ pub(crate) fn construction_tool_actions(
 
 pub fn construct_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
-    gridmap_main: Res<GridmapMain>,
+    _gridmap_main: Res<Gridmap>,
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
             if action.data.id == "action::construction_tool_admin/construct" {
-                let cell_id;
+                /*let cell_id;
 
                 match building.target_cell_option.clone() {
                     Some(c) => {
-                        cell_id = c.0;
+                        cell_id = c;
                     }
                     None => {
                         warn!("couldnt find examined cell.");
@@ -117,7 +117,7 @@ pub fn construct_action_prequisite_check(
                     false => {
                         action.do_not_approve();
                     }
-                }
+                }*/
             }
         }
     }
@@ -125,7 +125,7 @@ pub fn construct_action_prequisite_check(
 
 pub(crate) fn deconstruct_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
-    gridmap_main: Res<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
@@ -134,7 +134,7 @@ pub(crate) fn deconstruct_action_prequisite_check(
 
                 match building.target_cell_option.clone() {
                     Some(c) => {
-                        cell_id = c.0;
+                        cell_id = c;
                     }
                     None => {
                         warn!("got entity with cell action.");
@@ -142,7 +142,7 @@ pub(crate) fn deconstruct_action_prequisite_check(
                     }
                 }
 
-                let cell_option = gridmap_main.grid_data.get(&cell_id);
+                let cell_option = gridmap_main.get_cell(cell_id);
 
                 match building.target_cell_option.is_some() && cell_option.is_some() {
                     true => {
@@ -185,7 +185,7 @@ pub(crate) fn construction_tool_search_distance_prequisite_check(
 
                 match building.target_cell_option.clone() {
                     Some(c) => {
-                        cell_id = c.0;
+                        cell_id = c;
                         start_pos = cell_id_to_world(cell_id);
                     }
                     None => {

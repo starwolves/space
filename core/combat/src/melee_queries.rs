@@ -14,7 +14,7 @@ use bevy_rapier3d::{
 use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::{
     events::Cell,
-    grid::{cell_id_to_world, GridmapData, GridmapMain},
+    grid::{cell_id_to_world, Gridmap},
 };
 use inventory::combat::{MeleeCombat, ProjectileCombat};
 use math::grid::Vec3Int;
@@ -83,8 +83,7 @@ pub(crate) fn melee_direct(
     colliders: Query<&Parent, With<Collider>>,
     mut rigidbody_query: Query<(&mut HealthComponent, &Examinable, &Transform)>,
     physics_cells: Query<&Cell>,
-    mut world_cells: ResMut<GridmapMain>,
-    gridmap_data: Res<GridmapData>,
+    world_cells: Res<Gridmap>,
     mut query_hit_result: EventWriter<QueryCombatHitResult>,
     mut cached_attacks: ResMut<ActiveAttacks>,
     mut blank: EventWriter<MeleeBlank>,
@@ -188,7 +187,7 @@ pub(crate) fn melee_direct(
                     Ok(cell_component) => {
                         let position = cell_id_to_world(cell_component.id);
 
-                        let cell_data = world_cells.grid_data.get_mut(&cell_component.id).unwrap();
+                        let cell_data = world_cells.get_cell(cell_component.id).unwrap();
 
                         hit_entities.push(AttackResult {
                             entity_option: None,
@@ -196,12 +195,12 @@ pub(crate) fn melee_direct(
                             distance: attacker_transform.translation.distance(position),
                             hit_point: position,
                             collider_handle: collider_entity,
-                            is_combat_obstacle: !gridmap_data
+                            is_combat_obstacle: !world_cells
                                 .non_combat_obstacle_cells_list
-                                .contains(&cell_data.item),
-                            is_laser_obstacle: !gridmap_data
+                                .contains(&cell_data.item_0),
+                            is_laser_obstacle: !world_cells
                                 .non_laser_obstacle_cells_list
-                                .contains(&cell_data.item),
+                                .contains(&cell_data.item_0),
                         });
                     }
                     Err(_rr) => {}

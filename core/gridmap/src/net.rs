@@ -1,27 +1,28 @@
 use bevy::prelude::Vec3;
-use networking::server::GridMapLayer;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
+
+use crate::grid::Orientation;
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum GridmapClientMessage {
-    ExamineMap(GridMapLayer, i16, i16, i16),
+    ExamineMap(i16, i16, i16),
 }
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum GridmapServerMessage {
-    RemoveCell(i16, i16, i16, GridMapLayer),
-    AddCell(i16, i16, i16, i64, i64, GridMapLayer),
+    RemoveCell(i16, i16, i16),
+    AddCell(i16, i16, i16, u16, Orientation),
     FireProjectile(ProjectileData),
-    ConfigBlackCellID(i64, i64),
+    ConfigBlackCellID(u16, u16),
     ConfigOrderedCellsMain(Vec<String>),
     ConfigOrderedCellsDetails1(Vec<String>),
-    ConfigPlaceableItemsSurfaces(Vec<i64>),
-    ConfigNonBlockingCells(Vec<i64>),
+    ConfigPlaceableItemsSurfaces(Vec<u16>),
+    ConfigNonBlockingCells(Vec<u16>),
 }
 
 /// Contains information about the projectile and its visual graphics.

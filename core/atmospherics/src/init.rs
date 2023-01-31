@@ -1,6 +1,6 @@
 use bevy::prelude::{info, Res, ResMut};
 use entity::senser::WORLD_WIDTH_CELLS;
-use gridmap::grid::{GridmapData, GridmapMain};
+use gridmap::grid::Gridmap;
 use math::grid::{Vec2Int, Vec3Int};
 
 use crate::diffusion::{
@@ -10,9 +10,9 @@ use crate::diffusion::{
 /// Initialize atmospherics as a startup system.
 
 pub(crate) fn startup_atmospherics(
-    gridmap_main: Res<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
     mut atmospherics: ResMut<AtmosphericsResource>,
-    gridmap_main_data: Res<GridmapData>,
+    gridmap_main_data: Res<Gridmap>,
 ) {
     let default_x = WORLD_WIDTH_CELLS as i16 / 2;
     let default_z = WORLD_WIDTH_CELLS as i16 / 2;
@@ -35,7 +35,7 @@ pub(crate) fn startup_atmospherics(
         let blocked;
         let push_up;
 
-        match gridmap_main.grid_data.get(&Vec3Int {
+        match gridmap_main.get_cell(Vec3Int {
             x: current_cell_id.x,
             y: 0,
             z: current_cell_id.y,
@@ -43,7 +43,7 @@ pub(crate) fn startup_atmospherics(
             Some(cell_data) => {
                 let properties = gridmap_main_data
                     .main_cell_properties
-                    .get(&cell_data.item)
+                    .get(&cell_data.item_0)
                     .unwrap();
                 blocked = properties.atmospherics_blocker;
                 push_up = properties.atmospherics_pushes_up;
@@ -56,7 +56,7 @@ pub(crate) fn startup_atmospherics(
 
         let internal;
 
-        match gridmap_main.grid_data.get(&Vec3Int {
+        match gridmap_main.get_cell(Vec3Int {
             x: current_cell_id.x,
             y: -1,
             z: current_cell_id.y,

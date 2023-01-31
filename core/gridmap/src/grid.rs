@@ -1,38 +1,28 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Entity, Res, Resource, Transform, Vec3};
+use bevy::prelude::{warn, Entity, Res, Resource, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
 use entity::{examine::RichName, health::Health};
 use math::grid::{Vec3Int, CELL_SIZE};
-use networking::server::GridMapLayer;
+use serde::{Deserialize, Serialize};
 
-/// Gridmap meta-data resource.
-#[derive(Default, Resource)]
-
-pub struct GridmapData {
-    pub non_fov_blocking_cells_list: Vec<i64>,
-    pub non_combat_obstacle_cells_list: Vec<i64>,
-    pub non_laser_obstacle_cells_list: Vec<i64>,
-    pub placeable_items_cells_list: Vec<i64>,
-    pub ordered_main_names: Vec<String>,
-    pub ordered_details1_names: Vec<String>,
-    pub main_name_id_map: HashMap<String, i64>,
-    pub main_id_name_map: HashMap<i64, String>,
-    pub details1_name_id_map: HashMap<String, i64>,
-    pub details1_id_name_map: HashMap<i64, String>,
-    pub main_text_names: HashMap<i64, RichName>,
-    pub details1_text_names: HashMap<i64, RichName>,
-    pub main_text_examine_desc: HashMap<i64, String>,
-    pub details1_text_examine_desc: HashMap<i64, String>,
-    pub blackcell_id: i64,
-    pub blackcell_blocking_id: i64,
-    pub main_cell_properties: HashMap<i64, MainCellProperties>,
+/// Gridmap maximum limits as cube dimensions in chunks.
+pub struct MapLimits {
+    /// Full length of the cube as chunks.
+    pub length: u16,
 }
+
+impl Default for MapLimits {
+    fn default() -> Self {
+        Self { length: 22 }
+    }
+}
+
 /// Gridmap meta-data set.
 #[derive(Clone)]
 
 pub struct MainCellProperties {
-    pub id: i64,
+    pub id: u16,
     pub name: RichName,
     pub description: String,
     pub non_fov_blocker: bool,
@@ -73,44 +63,216 @@ impl Default for MainCellProperties {
     }
 }
 
-pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<GridmapData>) -> String {
+pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> String {
     gridmap_data
         .main_text_names
-        .get(&ship_cell.item)
+        .get(&ship_cell.item_0)
         .unwrap()
         .get_a_name()
+}
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
+pub enum Orientation {
+    #[default]
+    FrontFacing,
+    BackFacing,
+    RightFacing,
+    LeftFacing,
 }
 
 /// Data stored in a resource of a cell instead of each cell having their own entity with components.
 #[derive(Clone, Default)]
 
 pub struct CellData {
-    /// Cell item id.
-    pub item: i64,
+    /// Cell item ids. Two ids for two faces.
+    pub item_0: u16,
+    pub item_1: u16,
     /// Cell rotation.
-    pub orientation: i64,
+    pub orientation: Orientation,
     /// The health of the cell.
     pub health: Health,
     /// Entity id if cell is an entity.
-    pub entity: Option<Entity>,
+    pub entity_option: Option<Entity>,
 }
 
-/// Stores the details 1 gridmap layer, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
-#[derive(Default, Resource)]
+/// Maximum amount of available map chunks. 22 by 22 by 22 (1 cubic kilometer).
+pub const GRID_CHUNK_AMOUNT: usize = 10648;
+/// The amount of tiles a chunk stores. 24 by 24 by 24.
+pub const GRID_CHUNK_TILES_AMOUNT: usize = 13824;
+/// The length of the cubic chunk in tiles.
+pub const CHUNK_LENGTH: u16 = 24;
 
-pub struct GridmapDetails1 {
-    pub grid_data: HashMap<Vec3Int, CellData>,
-    pub updates: HashMap<Vec3Int, CellUpdate>,
+/// A chunk of the gridmap.
+#[derive(Clone)]
+pub struct GridmapChunk {
+    pub cells: Vec<Option<CellData>>,
+}
+
+const DEFAULT_CELL_DATA: Option<CellData> = None;
+
+impl Default for GridmapChunk {
+    fn default() -> Self {
+        Self {
+            cells: vec![DEFAULT_CELL_DATA; GRID_CHUNK_TILES_AMOUNT],
+        }
+    }
 }
 
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 /// The hashmaps should probably be turned into arrays by converting Vec3Int into an index for performance reasons.
-#[derive(Default, Resource)]
+#[derive(Resource)]
 
-pub struct GridmapMain {
-    pub grid_data: HashMap<Vec3Int, CellData>,
-    pub entity_data: HashMap<Vec3Int, EntityGridData>,
+pub struct Gridmap {
+    pub grid_data: Vec<Option<GridmapChunk>>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
+    pub non_fov_blocking_cells_list: Vec<u16>,
+    pub non_combat_obstacle_cells_list: Vec<u16>,
+    pub non_laser_obstacle_cells_list: Vec<u16>,
+    pub placeable_items_cells_list: Vec<u16>,
+    pub ordered_main_names: Vec<String>,
+    pub ordered_details1_names: Vec<String>,
+    pub main_name_id_map: HashMap<String, u16>,
+    pub main_id_name_map: HashMap<u16, String>,
+    pub details1_name_id_map: HashMap<String, u16>,
+    pub details1_id_name_map: HashMap<u16, String>,
+    pub main_text_names: HashMap<u16, RichName>,
+    pub details1_text_names: HashMap<u16, RichName>,
+    pub main_text_examine_desc: HashMap<u16, String>,
+    pub details1_text_examine_desc: HashMap<u16, String>,
+    pub blackcell_id: u16,
+    pub blackcell_blocking_id: u16,
+    pub main_cell_properties: HashMap<u16, MainCellProperties>,
+    pub map_length_limit: MapLimits,
+}
+
+const EMPTY_CHUNK: Option<GridmapChunk> = None;
+
+impl Default for Gridmap {
+    fn default() -> Self {
+        Self {
+            grid_data: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
+            updates: HashMap::default(),
+            non_fov_blocking_cells_list: vec![],
+            non_combat_obstacle_cells_list: vec![],
+            non_laser_obstacle_cells_list: vec![],
+            placeable_items_cells_list: vec![],
+            ordered_main_names: vec![],
+            ordered_details1_names: vec![],
+            main_name_id_map: HashMap::default(),
+            main_id_name_map: HashMap::default(),
+            details1_name_id_map: HashMap::default(),
+            details1_id_name_map: HashMap::default(),
+            main_text_names: HashMap::default(),
+            details1_text_names: HashMap::default(),
+            main_text_examine_desc: HashMap::default(),
+            details1_text_examine_desc: HashMap::default(),
+            blackcell_id: 0,
+            blackcell_blocking_id: 0,
+            main_cell_properties: HashMap::default(),
+            map_length_limit: MapLimits::default(),
+        }
+    }
+}
+/// Result for [get_indexes].
+#[derive(Clone, Copy)]
+pub struct CellIndexes {
+    pub chunk: usize,
+    pub cell: usize,
+}
+
+impl Gridmap {
+    pub fn get_indexes(&self, id: Vec3Int) -> Option<CellIndexes> {
+        let map_half_length =
+            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5) as i32;
+
+        let x_id = (id.x as i32 + map_half_length) as u16;
+        let x_chunk_coord = (x_id as f32 / (CHUNK_LENGTH) as f32).floor() as u16;
+
+        let y_id = (id.y as i32 + map_half_length) as u16;
+        let y_chunk_coord = (y_id as f32 / (CHUNK_LENGTH) as f32).floor() as u16;
+
+        let z_id = (id.z as i32 + map_half_length) as u16;
+        let z_chunk_coord = (z_id as f32 / (CHUNK_LENGTH) as f32).floor() as u16;
+
+        let x_offset = x_chunk_coord;
+        let z_offset = z_chunk_coord * self.map_length_limit.length;
+        let y_offset =
+            y_chunk_coord * (self.map_length_limit.length * self.map_length_limit.length);
+
+        let chunk_index = x_offset + z_offset + y_offset;
+
+        let x_cell_id = x_id - (x_chunk_coord * CHUNK_LENGTH);
+        let y_cell_id = y_id - (y_chunk_coord * CHUNK_LENGTH);
+        let z_cell_id = z_id - (z_chunk_coord * CHUNK_LENGTH);
+
+        let x_offset = x_cell_id;
+        let z_offset = z_cell_id * self.map_length_limit.length;
+        let y_offset = y_cell_id * (self.map_length_limit.length * self.map_length_limit.length);
+
+        let cell_index = x_offset + z_offset + y_offset;
+
+        Some(CellIndexes {
+            chunk: chunk_index as usize,
+            cell: cell_index as usize,
+        })
+    }
+    pub fn get_id(&self, indexes: CellIndexes) -> Option<Vec3Int> {
+        let chunk_y_id = (indexes.chunk as f32
+            / (self.map_length_limit.length * self.map_length_limit.length) as f32)
+            .floor() as i32;
+
+        let remainder_xz = indexes.chunk
+            - (chunk_y_id as usize
+                * (self.map_length_limit.length * self.map_length_limit.length) as usize);
+
+        let chunk_z_id = (remainder_xz as f32 / self.map_length_limit.length as f32).floor() as i32;
+
+        let chunk_x_id =
+            remainder_xz - (chunk_z_id as usize * self.map_length_limit.length as usize);
+
+        let cell_y_id = (indexes.cell as f32 / (CHUNK_LENGTH * CHUNK_LENGTH) as f32).floor() as i32;
+
+        let remainder_xz =
+            indexes.cell - (cell_y_id as usize * (CHUNK_LENGTH * CHUNK_LENGTH) as usize);
+
+        let cell_z_id = (remainder_xz as f32 / CHUNK_LENGTH as f32).floor() as i32;
+
+        let cell_x_id = remainder_xz - (cell_z_id as usize * CHUNK_LENGTH as usize);
+
+        let map_half_length =
+            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5) as i32;
+
+        Some(Vec3Int {
+            x: ((chunk_x_id as i32 * CHUNK_LENGTH as i32 + cell_x_id as i32) - map_half_length)
+                as i16,
+            y: ((chunk_y_id as i32 * CHUNK_LENGTH as i32 + cell_y_id as i32) - map_half_length)
+                as i16,
+            z: ((chunk_z_id as i32 * CHUNK_LENGTH as i32 + cell_z_id as i32) - map_half_length)
+                as i16,
+        })
+    }
+    pub fn get_cell(&self, id: Vec3Int) -> Option<CellData> {
+        let indexes;
+        match self.get_indexes(id) {
+            Some(i) => {
+                indexes = i;
+            }
+            None => {
+                warn!("Couldnt get index.");
+                return None;
+            }
+        }
+
+        match self.grid_data.get(indexes.chunk) {
+            Some(chunk_option) => match chunk_option {
+                Some(chunk) => match chunk.cells.get(indexes.cell) {
+                    Some(cell_data) => cell_data.clone(),
+                    None => None,
+                },
+                None => None,
+            },
+            None => None,
+        }
+    }
 }
 
 /// For entities that are also registered in the gridmap. (entity tiles)
@@ -163,7 +325,6 @@ pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
 
 pub struct RemoveCell {
     pub handle_option: Option<u64>,
-    pub gridmap_type: GridMapLayer,
     pub id: Vec3Int,
     pub cell_data: CellData,
 }

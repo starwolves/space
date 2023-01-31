@@ -1,4 +1,3 @@
-use networking::server::GridMapLayer;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
@@ -14,11 +13,6 @@ pub enum ActionsServerMessage {
 
 pub enum ActionsClientMessage {
     TabDataEntity(u64),
-    TabDataMap(GridMapLayer, i16, i16, i16),
-    TabPressed(
-        String,
-        Option<u64>,
-        Option<(GridMapLayer, i16, i16, i16)>,
-        Option<u64>,
-    ),
+    TabDataMap(i16, i16, i16),
+    TabPressed(String, Option<u64>, Option<(i16, i16, i16)>, Option<u64>),
 }

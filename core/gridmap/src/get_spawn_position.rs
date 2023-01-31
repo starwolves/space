@@ -7,7 +7,7 @@ use bevy::{
 use math::grid::world_to_cell_id;
 use pawn::pawn::FacingDirection;
 
-use crate::grid::GridmapMain;
+use crate::grid::Gridmap;
 
 /// Get a position to spawn an entity on around a player.
 
@@ -15,7 +15,7 @@ pub fn entity_spawn_position_for_player(
     player_transform: Transform,
     player_facing_direction_option: Option<&FacingDirection>,
     angle_option: Option<f32>,
-    gridmap_main: &Res<GridmapMain>,
+    gridmap_main: &Res<Gridmap>,
 ) -> (Transform, FacingDirection) {
     let mut original_transform = player_transform.clone();
 
@@ -58,9 +58,9 @@ pub fn entity_spawn_position_for_player(
 
     let cell_id = world_to_cell_id(new_transform.translation);
 
-    match gridmap_main.grid_data.get(&cell_id) {
+    match gridmap_main.get_cell(cell_id) {
         Some(cell_data) => {
-            if cell_data.item != -1 {
+            if cell_data.item_0 != 0 {
                 let mut found_correct_spawn = false;
 
                 for i in 0..8 {
@@ -90,9 +90,9 @@ pub fn entity_spawn_position_for_player(
 
                     let cell_id = world_to_cell_id(new_transform.translation);
 
-                    match gridmap_main.grid_data.get(&cell_id) {
+                    match gridmap_main.get_cell(cell_id) {
                         Some(cell_data) => {
-                            if cell_data.item == -1 {
+                            if cell_data.item_0 == 0 {
                                 new_transform = original_transform.clone();
                                 new_transform.translation +=
                                     get_offset(&this_direction, OFFSET_FROM_PLAYER);

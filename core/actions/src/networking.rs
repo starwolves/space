@@ -1,4 +1,3 @@
-use networking::server::GridMapLayer;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -45,12 +44,11 @@ pub(crate) fn incoming_messages(
                 }
             }
 
-            ActionsClientMessage::TabDataMap(gridmap_type, idx, idy, idz) => {
+            ActionsClientMessage::TabDataMap(idx, idy, idz) => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         action_data_map.send(InputListActionsMap {
                             requested_by_entity: *player_entity,
-                            gridmap_type: gridmap_type,
                             gridmap_cell_id: Vec3Int {
                                 x: idx,
                                 y: idy,
@@ -88,14 +86,11 @@ pub(crate) fn incoming_messages(
 
                 match cell_option {
                     Some(c) => {
-                        cell_option_op = Some((
-                            c.0,
-                            Vec3Int {
-                                x: c.1,
-                                y: c.2,
-                                z: c.3,
-                            },
-                        ));
+                        cell_option_op = Some(Vec3Int {
+                            x: c.0,
+                            y: c.1,
+                            z: c.2,
+                        });
                     }
                     None => {}
                 }
@@ -120,5 +115,5 @@ pub struct NetAction {
     pub item_name: String,
     pub entity_option: Option<u64>,
     pub belonging_entity: Option<u64>,
-    pub cell_option: Option<(GridMapLayer, i16, i16, i16)>,
+    pub cell_option: Option<(i16, i16, i16)>,
 }

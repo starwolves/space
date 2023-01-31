@@ -13,7 +13,7 @@ pub(crate) fn load_entities(
 ) {
     for message in client.iter() {
         match &message.message {
-            EntityServerMessage::LoadEntity(entity_type, entity_id) => {
+            EntityServerMessage::LoadEntity(entity_type, entity) => {
                 let index = types
                     .netcode_types
                     .values()

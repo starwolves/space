@@ -4,7 +4,7 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::ExternalForce;
 use entity::senser::WORLD_WIDTH_CELLS;
-use gridmap::grid::{AdjacentTileDirection, GridmapMain};
+use gridmap::grid::{AdjacentTileDirection, Gridmap};
 use math::grid::{world_to_cell_id, Vec2Int};
 use pawn::pawn::Pawn;
 use resources::core::TickRate;
@@ -73,7 +73,7 @@ pub(crate) fn rigidbody_pawn_forces_accumulation(
     >,
     atmospherics_resource: Res<AtmosphericsResource>,
     mut forces_accumulation: ResMut<RigidBodyForcesAccumulation>,
-    gridmap_main: Res<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
     tick_rate: Res<TickRate>,
 ) {
     for (
@@ -186,7 +186,7 @@ pub(crate) fn rigidbody_pawn_forces_accumulation(
         let mut floor_tile = cell_id.clone();
         floor_tile.y = -1;
 
-        match gridmap_main.grid_data.get(&floor_tile) {
+        match gridmap_main.get_cell(floor_tile) {
             Some(_) => {}
             None => {
                 push_up = false;

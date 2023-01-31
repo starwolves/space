@@ -6,25 +6,19 @@ use entity::{
     senser::{to_doryen_coordinates, Senser, SensingAbility},
 };
 use math::grid::Vec3Int;
-use networking::server::GridMapLayer;
 use text_api::core::{
     get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
     HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 
-use crate::{
-    events::examine_ship_cell,
-    grid::{GridmapData, GridmapDetails1, GridmapMain},
-};
+use crate::{events::examine_ship_cell, grid::Gridmap};
 
 /// Manage examining the gridmap.
 
 pub(crate) fn examine_map(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
-    gridmap_main: Res<GridmapMain>,
-    gridmap_details1: Res<GridmapDetails1>,
+    gridmap_main: Res<Gridmap>,
     senser_entities: Query<&Senser>,
-    gridmap_data: Res<GridmapData>,
 ) {
     for examine_event in examine_map_events.messages.iter_mut() {
         let examiner_senser_component;
@@ -48,38 +42,14 @@ pub(crate) fn examine_map(
         if !examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
             examine_text = get_empty_cell_message();
         } else {
-            let gridmap_type = &examine_event.gridmap_type;
-
-            let gridmap_result;
-
-            match examine_event.gridmap_type {
-                GridMapLayer::Main => {
-                    gridmap_result = gridmap_main.grid_data.get(&examine_event.gridmap_cell_id);
-                }
-                GridMapLayer::Details1 => {
-                    gridmap_result = gridmap_details1
-                        .grid_data
-                        .get(&examine_event.gridmap_cell_id);
-                }
-            }
-
-            let ship_cell_option;
-
-            match gridmap_result {
-                Some(gridmap_cell) => ship_cell_option = Some(gridmap_cell),
-                None => {
-                    ship_cell_option = None;
-                }
-            }
-
-            match ship_cell_option {
+            match gridmap_main.get_cell(examine_event.gridmap_cell_id) {
                 Some(ship_cell) => {
-                    examine_text = examine_ship_cell(ship_cell, gridmap_type, &gridmap_data);
+                    examine_text = examine_ship_cell(&ship_cell, &gridmap_main);
                 }
                 None => {
                     examine_text = get_space_message();
                 }
-            }
+            };
         }
 
         examine_text = examine_text + "\n";
@@ -93,9 +63,7 @@ pub(crate) fn examine_map(
 pub(crate) fn set_action_header_name(
     mut building_action_data: ResMut<BuildingActions>,
     examinables: Query<&Examinable>,
-    gridmap_data: Res<GridmapData>,
-    gridmap_main: Res<GridmapMain>,
-    gridmap_details1: Res<GridmapDetails1>,
+    gridmap_main: Res<Gridmap>,
     mut action_data_requests: ResMut<ListActionDataRequests>,
 ) {
     for building in building_action_data.list.iter_mut() {
@@ -123,24 +91,14 @@ pub(crate) fn set_action_header_name(
                 let gridmap = building.target_cell_option.clone().unwrap();
 
                 let names;
-                let cell_data;
 
-                match gridmap.1 {
-                    GridMapLayer::Main => {
-                        names = gridmap_data.main_text_names.clone();
-                        cell_data = gridmap_main.grid_data.clone();
-                    }
-                    GridMapLayer::Details1 => {
-                        names = gridmap_data.details1_text_names.clone();
-                        cell_data = gridmap_details1.grid_data.clone();
-                    }
-                }
+                names = gridmap_main.main_text_names.clone();
 
                 let item_id;
 
-                match cell_data.get(&gridmap.0) {
+                match gridmap_main.get_cell(gridmap) {
                     Some(data) => {
-                        item_id = data.item;
+                        item_id = data.item_0;
                     }
                     None => {
                         warn!("Couldnt find item_id!");
@@ -158,8 +116,7 @@ pub(crate) fn set_action_header_name(
 
 pub(crate) fn examine_map_health(
     mut examine_map_events: ResMut<GridmapExamineMessages>,
-    gridmap_main: Res<GridmapMain>,
-    gridmap_details1: Res<GridmapDetails1>,
+    gridmap_main: Res<Gridmap>,
     senser_entities: Query<&Senser>,
 ) {
     for examine_event in examine_map_events.messages.iter_mut() {
@@ -177,16 +134,7 @@ pub(crate) fn examine_map_health(
 
         let gridmap_result;
 
-        match examine_event.gridmap_type {
-            GridMapLayer::Main => {
-                gridmap_result = gridmap_main.grid_data.get(&examine_event.gridmap_cell_id);
-            }
-            GridMapLayer::Details1 => {
-                gridmap_result = gridmap_details1
-                    .grid_data
-                    .get(&examine_event.gridmap_cell_id);
-            }
-        }
+        gridmap_result = gridmap_main.get_cell(examine_event.gridmap_cell_id);
 
         let ship_cell_option;
 
@@ -343,7 +291,6 @@ pub fn finalize_grid_examine_input(
 pub struct InputExamineMap {
     pub handle: u64,
     pub entity: Entity,
-    pub gridmap_type: GridMapLayer,
     pub gridmap_cell_id: Vec3Int,
     /// Map examine message being built and sent back to the player.
     pub message: String,
@@ -354,7 +301,6 @@ impl Default for InputExamineMap {
         Self {
             handle: 0,
             entity: Entity::from_bits(0),
-            gridmap_type: GridMapLayer::Main,
             gridmap_cell_id: Vec3Int::default(),
             message: ASTRIX.to_string(),
         }
@@ -424,8 +370,7 @@ pub(crate) fn examine_grid(
                         examine_map_messages.messages.push(InputExamineMap {
                             handle: *handle,
                             entity: building.action_taker,
-                            gridmap_type: c.1,
-                            gridmap_cell_id: c.0,
+                            gridmap_cell_id: c,
                             ..Default::default()
                         });
                     }
@@ -452,13 +397,12 @@ pub(crate) fn incoming_messages(
         let client_message = message.message.clone();
 
         match client_message {
-            GridmapClientMessage::ExamineMap(grid_map_type, cell_id_x, cell_id_y, cell_id_z) => {
+            GridmapClientMessage::ExamineMap(cell_id_x, cell_id_y, cell_id_z) => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         input_examine_map.send(InputExamineMap {
                             handle: message.handle,
                             entity: *player_entity,
-                            gridmap_type: grid_map_type,
                             gridmap_cell_id: Vec3Int {
                                 x: cell_id_x,
                                 y: cell_id_y,

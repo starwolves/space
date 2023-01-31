@@ -12,13 +12,14 @@ use resources::{
 
 use crate::{
     connections::configure,
+    events::{set_cell, SetCell},
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
         finalize_grid_examine_input, incoming_messages, set_action_header_name,
         GridmapExamineMessages, InputExamineMap,
     },
     fov::ProjectileFOV,
-    grid::{GridmapData, GridmapDetails1, GridmapMain, RemoveCell},
+    grid::{Gridmap, RemoveCell},
     gridmap_graphics::spawn_cubes,
     init::{load_ron_gridmap, startup_map_cell_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
@@ -33,7 +34,7 @@ use super::{
 
 #[allow(dead_code)]
 pub struct Details1CellProperties {
-    pub id: i64,
+    pub id: u16,
     pub name: RichName,
     pub description: String,
 }
@@ -57,7 +58,6 @@ impl Plugin for GridmapPlugin {
                 .add_system(projectile_fov)
                 .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
                 .add_event::<RemoveCell>()
-                .init_resource::<GridmapDetails1>()
                 .add_system_set(
                     SystemSet::new()
                         .with_run_criteria(
@@ -106,10 +106,10 @@ impl Plugin for GridmapPlugin {
                     .label(StartupLabels::BuildGridmap)
                     .after(StartupLabels::InitDefaultGridmapData),
             )
-            .init_resource::<GridmapData>()
-            .init_resource::<GridmapDetails1>()
-            .init_resource::<GridmapMain>()
-            .init_resource::<DoryenMap>();
+            .init_resource::<Gridmap>()
+            .init_resource::<DoryenMap>()
+            .add_system(set_cell)
+            .add_event::<SetCell>();
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);

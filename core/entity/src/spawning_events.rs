@@ -1,3 +1,4 @@
+use bevy::prelude::info;
 use bevy::prelude::Commands;
 use bevy::prelude::Entity;
 use bevy::prelude::EventReader;
@@ -156,6 +157,7 @@ pub(crate) fn spawn_entity_for_client(
                         }
                     }
                 }
+                info!("{}", entity_data.entity_type.to_string());
                 server.send(OutgoingReliableServerMessage {
                     handle: load_entity_event.loader_handle,
                     message: EntityServerMessage::LoadEntity(
