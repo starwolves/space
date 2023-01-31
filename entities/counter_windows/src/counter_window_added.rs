@@ -6,7 +6,7 @@ use entity::{
     entity_data::{DefaultMapEntity, EntityData},
     examine::{Examinable, RichName},
 };
-use gridmap::grid::{EntityGridData, GridmapMain};
+use gridmap::grid::Gridmap;
 use map::{map::GREEN_MAP_TILE_COUNTER, map_input::MapData};
 use math::grid::{world_to_cell_id, Vec2Int};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
@@ -55,10 +55,10 @@ pub(crate) fn counter_window_default_map_added(
         Added<CounterWindow>,
     >,
     mut map_data: ResMut<MapData>,
-    mut gridmap_main: ResMut<GridmapMain>,
+    mut _gridmap_main: ResMut<Gridmap>,
 ) {
     for (
-        counter_window_entity,
+        _counter_window_entity,
         rigid_body_position_component,
         _,
         entity_data_component,
@@ -72,13 +72,13 @@ pub(crate) fn counter_window_default_map_added(
         };
         map_data.data.insert(cell_id2, GREEN_MAP_TILE_COUNTER);
 
-        gridmap_main.entity_data.insert(
+        /*gridmap_main.entity_data.insert(
             cell_id,
             EntityGridData {
                 entity: counter_window_entity,
                 entity_type: entity_data_component.entity_type.to_string(),
             },
-        );
+        );*/
 
         if entity_data_component.entity_type.to_string() == SECURITY_COUNTER_WINDOW_ENTITY_NAME {
             examinable_component.name = RichName {

@@ -1,5 +1,5 @@
 use bevy::math::{Quat, Vec3};
-use bevy::prelude::info;
+use bevy::prelude::{info, warn};
 
 use serde::{Deserialize, Serialize};
 /// ron entity.
@@ -28,6 +28,12 @@ pub(crate) fn load_ron_entities(mut raw_spawner: EventWriter<RawSpawnEvent>) {
         .join("entities.ron");
     let current_map_entities_raw_ron: String =
         fs::read_to_string(entities_ron).expect("Error reading map entities.ron file from drive.");
+
+    if current_map_entities_raw_ron.len() == 0 {
+        warn!("Empty entities.ron map file.");
+        return;
+    }
+
     let current_map_entities_data: Vec<RawEntityRon> = ron::from_str(&current_map_entities_raw_ron)
         .expect("Error parsing map entities.ron String.");
 

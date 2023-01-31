@@ -1,7 +1,7 @@
 use bevy::{
     hierarchy::BuildChildren,
     math::Vec3,
-    prelude::{warn, Commands, Entity, GlobalTransform, ResMut, Transform},
+    prelude::{warn, Commands, Entity, EventWriter, GlobalTransform, ResMut, Transform},
 };
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, RigidBody,
@@ -14,11 +14,11 @@ use math::grid::Vec3Int;
 
 use std::collections::HashMap;
 
-use crate::init::CellDataRon;
 use crate::{
-    events::Cell,
-    grid::{cell_id_to_world, CellData, GridmapData, GridmapDetails1, GridmapMain},
+    events::{Cell, SetCell},
+    grid::{cell_id_to_world, CellData, Gridmap},
 };
+use crate::{grid::Orientation, init::CellDataRon};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::physics::{get_bit_masks, ColliderGroup};
 
@@ -80,9 +80,9 @@ pub(crate) fn build_gridmap_floor_and_roof(commands: &mut Commands) {
 pub(crate) fn build_main_gridmap(
     current_map_main_data: &Vec<CellDataRon>,
     mut commands: &mut Commands,
-    gridmap_main: &mut ResMut<GridmapMain>,
     fov_map: &mut ResMut<DoryenMap>,
-    gridmap_data: &mut ResMut<GridmapData>,
+    gridmap_data: &mut ResMut<Gridmap>,
+    set_cell: &mut EventWriter<SetCell>,
 ) {
     let mut health_flags = HashMap::new();
 
@@ -113,19 +113,20 @@ pub(crate) fn build_main_gridmap(
             }
         } else {
             // Floor cells dont have collision. Don't need to be an entity at this moment either.
-            gridmap_main.grid_data.insert(
-                cell_data.id,
-                CellData {
-                    item: cell_item_id,
-                    orientation: cell_data.orientation,
+            set_cell.send(SetCell {
+                id: cell_data.id,
+                data: CellData {
+                    item_0: cell_item_id,
+                    orientation: cell_data.orientation.clone(),
                     health: Health {
                         health_flags: health_flags.clone(),
                         health_container: HealthContainer::Structure(StructureHealth::default()),
                         ..Default::default()
                     },
-                    entity: None,
+                    entity_option: None,
+                    item_1: cell_item_id,
                 },
-            );
+            });
             continue;
         }
 
@@ -133,55 +134,24 @@ pub(crate) fn build_main_gridmap(
             &mut commands,
             cell_data.id,
             cell_item_id,
-            cell_data.orientation,
+            &cell_data.orientation,
             &gridmap_data,
         );
 
-        gridmap_main.grid_data.insert(
-            cell_data.id,
-            CellData {
-                item: cell_item_id,
-                orientation: cell_data.orientation,
+        set_cell.send(SetCell {
+            id: cell_data.id,
+            data: CellData {
+                item_0: cell_item_id,
+                orientation: cell_data.orientation.clone(),
                 health: Health {
                     health_flags: health_flags.clone(),
                     health_container: HealthContainer::Structure(StructureHealth::default()),
                     ..Default::default()
                 },
-                entity: Some(entity_op),
+                entity_option: Some(entity_op),
+                item_1: cell_item_id,
             },
-        );
-    }
-}
-
-/// Build details 1 from scratch from exported (json) data.
-
-pub(crate) fn build_details1_gridmap(
-    current_map_details1_data: &Vec<CellDataRon>,
-    gridmap_details1: &mut ResMut<GridmapDetails1>,
-    gridmap_data: &mut ResMut<GridmapData>,
-) {
-    for cell_data in current_map_details1_data.iter() {
-        let cell_id_int = Vec3Int {
-            x: cell_data.id.x,
-            y: cell_data.id.y,
-            z: cell_data.id.z,
-        };
-
-        gridmap_details1.grid_data.insert(
-            cell_id_int,
-            CellData {
-                item: *gridmap_data
-                    .details1_name_id_map
-                    .get(&cell_data.item)
-                    .unwrap(),
-                orientation: cell_data.orientation,
-                health: Health {
-                    health_container: HealthContainer::Structure(StructureHealth::default()),
-                    ..Default::default()
-                },
-                entity: None,
-            },
-        );
+        });
     }
 }
 
@@ -190,9 +160,9 @@ pub(crate) fn build_details1_gridmap(
 pub fn spawn_main_cell(
     commands: &mut Commands,
     cell_id: Vec3Int,
-    cell_item_id: i64,
-    _cell_rotation: i64,
-    gridmap_data: &GridmapData,
+    cell_item_id: u16,
+    _cell_rotation: &Orientation,
+    gridmap_data: &Gridmap,
 ) -> Entity {
     let cell_properties;
     match gridmap_data.main_cell_properties.get(&cell_item_id) {

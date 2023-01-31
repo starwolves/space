@@ -5,7 +5,7 @@ use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
 use console_commands::net::ConsoleCommandsServerMessage;
-use gridmap::grid::GridmapMain;
+use gridmap::grid::Gridmap;
 use networking::server::GodotVariantValues;
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
@@ -120,7 +120,7 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
     rigid_body_positions: Query<(&Transform, &Pawn)>,
     mut server_1: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     mut server_2: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
-    gridmap_main: Res<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
     mut default_spawner: EventWriter<SpawnEntity<T>>,

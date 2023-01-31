@@ -8,10 +8,7 @@ use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, WORLD_WIDTH_CELLS};
 use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
 
-use crate::{
-    grid::{GridmapData, GridmapMain},
-    net::ProjectileData,
-};
+use crate::{grid::Gridmap, net::ProjectileData};
 
 pub const FOV_DISTANCE: usize = 23;
 
@@ -32,8 +29,7 @@ pub(crate) fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
     mut server: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
-    gridmap_main: Res<GridmapMain>,
-    non_blocking_cells_list: Res<GridmapData>,
+    gridmap_main: Res<Gridmap>,
 ) {
     let mut cell_ids_with_projectiles: HashMap<Vec3Int, Vec<(usize, Vec3, f32, Vec3)>> =
         HashMap::new();
@@ -123,11 +119,11 @@ pub(crate) fn projectile_fov(
                             let coords = to_doryen_coordinates(cell_id.x, cell_id.z);
 
                             if !too_far {
-                                match gridmap_main.grid_data.get(&cell_id) {
+                                match gridmap_main.get_cell(cell_id) {
                                     Some(cell_data) => {
-                                        if non_blocking_cells_list
+                                        if gridmap_main
                                             .non_fov_blocking_cells_list
-                                            .contains(&cell_data.item)
+                                            .contains(&cell_data.item_0)
                                         {
                                             cell_is_blocked = false;
                                         } else {

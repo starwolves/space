@@ -12,10 +12,7 @@ use bevy_rapier3d::{
 use entity::health::HealthComponent;
 use pawn::pawn::REACH_DISTANCE;
 
-use crate::{
-    events::Cell,
-    grid::{GridmapData, GridmapMain},
-};
+use crate::{events::Cell, grid::Gridmap};
 
 use bevy_rapier3d::rapier::geometry::Group;
 use physics::physics::ReachResult;
@@ -32,8 +29,7 @@ pub fn can_reach_entity(
     reacher_entity: &Entity,
     health_entities_query: &Query<&HealthComponent>,
     cells_query: &Query<&Cell>,
-    _world_cells: &Res<GridmapMain>,
-    _gridmap_data: &Res<GridmapData>,
+    _world_cells: &Res<Gridmap>,
     no_result_is_valid: bool,
     collider_parents: &Query<&Parent, With<Collider>>,
 ) -> bool {

@@ -6,7 +6,7 @@ use entity::{
     entity_data::{DefaultMapEntity, EntityData},
     examine::{Examinable, RichName},
 };
-use gridmap::grid::{EntityGridData, GridmapMain};
+use gridmap::grid::Gridmap;
 use map::{map::GREEN_MAP_TILE_ENTRANCE, map_input::MapData};
 use math::grid::{world_to_cell_id, Vec2Int};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
@@ -136,9 +136,9 @@ pub(crate) fn airlock_added(
 pub(crate) fn airlock_default_map_added(
     airlock_windows: Query<(Entity, &Transform, &DefaultMapEntity, &EntityData), Added<Airlock>>,
     mut map_data: ResMut<MapData>,
-    mut gridmap_main: ResMut<GridmapMain>,
+    mut _gridmap_main: ResMut<Gridmap>,
 ) {
-    for (airlock_entity, rigid_body_position_component, _, entity_data_component) in
+    for (_airlock_entity, rigid_body_position_component, _, _entity_data_component) in
         airlock_windows.iter()
     {
         let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
@@ -148,12 +148,12 @@ pub(crate) fn airlock_default_map_added(
         };
         map_data.data.insert(cell_id2, GREEN_MAP_TILE_ENTRANCE);
 
-        gridmap_main.entity_data.insert(
+        /*gridmap_main.entity_data.insert(
             cell_id,
             EntityGridData {
                 entity: airlock_entity,
                 entity_type: entity_data_component.entity_type.to_string(),
             },
-        );
+        );*/
     }
 }

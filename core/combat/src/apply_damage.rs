@@ -1,6 +1,6 @@
 use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Resource};
 use entity::health::{HealthComponent, HealthContainer};
-use gridmap::grid::GridmapMain;
+use gridmap::{events::SetCell, grid::Gridmap};
 use inventory::combat::{DamageModel, MeleeCombat, ProjectileCombat};
 use math::grid::Vec3Int;
 
@@ -160,8 +160,9 @@ pub(crate) fn finalize_apply_damage(
     combat_storage: Res<ActiveAttacks>,
     mut health_entities: Query<&mut HealthComponent>,
     mut health_combat_hit_result: EventWriter<HealthCombatHitResult>,
-    mut gridmap_main: ResMut<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
     mut active_applydamage: ResMut<ActiveApplyDamage>,
+    mut set_cell: EventWriter<SetCell>,
 ) {
     for damage_appler in active_applydamage.list.iter() {
         let attack_cache;
@@ -276,9 +277,9 @@ pub(crate) fn finalize_apply_damage(
             }
 
             for cell_id in hit_result.cell_hits.iter() {
-                match gridmap_main.grid_data.get_mut(&cell_id.cell) {
-                    Some(cell_data) => match &mut cell_data.health.health_container {
-                        HealthContainer::Structure(struct_health) => {
+                match gridmap_main.get_cell(cell_id.cell) {
+                    Some(cell_data) => match cell_data.clone().health.health_container {
+                        HealthContainer::Structure(_) => {
                             let (brute_damage, burn_damage, toxin_damage, hit_result) =
                                 calculate_damage(
                                     &cell_data.health.health_flags,
@@ -288,9 +289,21 @@ pub(crate) fn finalize_apply_damage(
                                     &apply_damage_model.damage_model.toxin,
                                 );
 
-                            struct_health.brute += brute_damage;
-                            struct_health.burn += burn_damage;
-                            struct_health.toxin += toxin_damage;
+                            let mut new_cell_data = cell_data.clone();
+                            match &mut new_cell_data.health.health_container {
+                                HealthContainer::Structure(cont) => {
+                                    cont.brute += brute_damage;
+                                    cont.burn += burn_damage;
+                                    cont.toxin += toxin_damage;
+                                }
+                                _ => (),
+                            }
+
+                            set_cell.send(SetCell {
+                                id: cell_id.cell,
+                                data: new_cell_data,
+                            });
+
                             if apply_damage_model.signature == "main" {
                                 cell_hits.push(CellHit {
                                     cell_id: cell_id.cell,

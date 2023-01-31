@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use bevy::prelude::Resource;
 use bevy::prelude::{warn, Component, Entity, EventReader, Query, Res, ResMut};
 use math::grid::Vec3Int;
-use networking::server::GridMapLayer;
 
 /// Resource with a list of actions being built this frame.
 
@@ -51,7 +50,7 @@ pub struct BuildingAction {
     /// The entity targetted in the action.
     pub target_entity_option: Option<Entity>,
     /// The ship cell targetted in the action.
-    pub target_cell_option: Option<(Vec3Int, GridMapLayer)>,
+    pub target_cell_option: Option<Vec3Int>,
 }
 
 /// Data related to an individual action.
@@ -125,7 +124,7 @@ pub(crate) fn list_action_data_finalizer(
 
                         match action_data.target_cell_option.clone() {
                             Some(c) => {
-                                cell_option = Some((c.1, c.0.x, c.0.y, c.0.z));
+                                cell_option = Some((c.x, c.y, c.z));
                             }
                             None => {}
                         }
@@ -235,7 +234,7 @@ pub(crate) fn init_action_data_listing(
             actions: vec![],
             action_taker: event.requested_by_entity,
             target_entity_option: None,
-            target_cell_option: Some((event.gridmap_cell_id, event.gridmap_type.clone())),
+            target_cell_option: Some(event.gridmap_cell_id),
         });
         action_data_requests.list.insert(
             action_data_i.get_i(),
@@ -269,7 +268,7 @@ impl Action {
         &self,
         item_name: &str,
         examined_entity_option: Option<Entity>,
-        examined_cell_option: Option<(GridMapLayer, i16, i16, i16)>,
+        examined_cell_option: Option<(i16, i16, i16)>,
         examiner_entity: Entity,
     ) -> NetAction {
         let mut new_entity_option = None;
@@ -315,7 +314,7 @@ pub(crate) fn init_action_request_building(
 
         match event.target_cell_option.clone() {
             Some(ya) => {
-                examined_cell = Some((ya.1, ya.0));
+                examined_cell = Some(ya);
             }
             None => {}
         }
@@ -339,7 +338,6 @@ pub(crate) fn init_action_request_building(
 
 pub struct InputListActionsMap {
     pub requested_by_entity: Entity,
-    pub gridmap_type: GridMapLayer,
     pub gridmap_cell_id: Vec3Int,
     /// Show UI to entity that we check for.
     pub with_ui: bool,
@@ -363,5 +361,5 @@ pub struct InputAction {
     pub fired_action_id: String,
     pub action_taker: Entity,
     pub target_entity_option: Option<Entity>,
-    pub target_cell_option: Option<(GridMapLayer, Vec3Int)>,
+    pub target_cell_option: Option<Vec3Int>,
 }

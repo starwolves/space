@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy::prelude::{info, Commands, Res, ResMut, Transform};
+use bevy::prelude::{info, warn, Commands, EventWriter, Res, ResMut, Transform};
 use bevy_rapier3d::{
     plugin::{RapierConfiguration, TimestepMode},
     prelude::{CoefficientCombineRule, Collider},
@@ -12,12 +12,11 @@ use resources::core::TickRate;
 use text_api::core::EXAMINATION_EMPTY;
 
 use crate::{
-    build::{build_details1_gridmap, build_gridmap_floor_and_roof, build_main_gridmap},
-    events::CellDataWID,
+    build::{build_gridmap_floor_and_roof, build_main_gridmap},
+    events::{CellDataWID, SetCell},
     fov::DoryenMap,
     grid::{
-        AdjacentTileDirection, GridDirectionRotations, GridmapData, GridmapDetails1, GridmapMain,
-        MainCellProperties,
+        AdjacentTileDirection, GridDirectionRotations, Gridmap, MainCellProperties, Orientation,
     },
     plugin::Details1CellProperties,
 };
@@ -31,7 +30,7 @@ pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::M
 
 /// Initiate map resource meta-data.
 
-pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<GridmapData>) {
+pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<Gridmap>) {
     gridmap_data.blackcell_blocking_id = *gridmap_data
         .main_name_id_map
         .get("blackCellBlocking")
@@ -476,7 +475,7 @@ pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<GridmapData>)
         ..Default::default()
     });
 
-    gridmap_data.non_fov_blocking_cells_list.push(-1);
+    gridmap_data.non_fov_blocking_cells_list.push(0);
 
     for cell_properties in main_cells_data.iter() {
         gridmap_data
@@ -766,7 +765,7 @@ use player::spawn_points::SpawnPointRon;
 /// Initiate other gridmap meta-datas from ron.
 
 pub(crate) fn startup_misc_resources(
-    mut gridmap_data: ResMut<GridmapData>,
+    mut gridmap_data: ResMut<Gridmap>,
     mut spawn_points_res: ResMut<SpawnPoints>,
     mut rapier_configuration: ResMut<RapierConfiguration>,
     tick_rate: Res<TickRate>,
@@ -803,19 +802,19 @@ pub(crate) fn startup_misc_resources(
     for (i, name) in current_map_mainordered_cells.iter().rev().enumerate() {
         gridmap_data
             .main_name_id_map
-            .insert(name.to_string(), i as i64);
+            .insert(name.to_string(), i as u16);
         gridmap_data
             .main_id_name_map
-            .insert(i as i64, name.to_string());
+            .insert(i as u16, name.to_string());
     }
 
     for (i, name) in current_map_details1ordered_cells.iter().rev().enumerate() {
         gridmap_data
             .details1_name_id_map
-            .insert(name.to_string(), i as i64);
+            .insert(name.to_string(), i as u16);
         gridmap_data
             .details1_id_name_map
-            .insert(i as i64, name.to_string());
+            .insert(i as u16, name.to_string());
     }
 
     gridmap_data.ordered_main_names = current_map_mainordered_cells;
@@ -843,11 +842,10 @@ pub(crate) fn startup_misc_resources(
 /// Build the gridmaps in their own resources from ron.
 
 pub(crate) fn load_ron_gridmap(
-    mut gridmap_main: ResMut<GridmapMain>,
-    mut gridmap_details1: ResMut<GridmapDetails1>,
-    mut gridmap_data: ResMut<GridmapData>,
+    mut gridmap_data: ResMut<Gridmap>,
     mut fov_map: ResMut<DoryenMap>,
     mut commands: Commands,
+    mut set_cell: EventWriter<SetCell>,
 ) {
     // Load map json data into real static bodies.
     let main_ron = Path::new("data")
@@ -856,6 +854,12 @@ pub(crate) fn load_ron_gridmap(
         .join("main.ron");
     let current_map_main_raw_ron: String = fs::read_to_string(main_ron)
         .expect("startup_build_map() Error reading map main.ron file from drive.");
+
+    if current_map_main_raw_ron.len() == 0 {
+        warn!("Empty main.ron map file.");
+        return;
+    }
+
     let current_map_main_data: Vec<CellDataRon> = ron::from_str(&current_map_main_raw_ron)
         .expect("startup_build_map() Error parsing map main.ron String.");
 
@@ -864,9 +868,9 @@ pub(crate) fn load_ron_gridmap(
     build_main_gridmap(
         &current_map_main_data,
         &mut commands,
-        &mut gridmap_main,
         &mut fov_map,
         &mut gridmap_data,
+        &mut set_cell,
     );
 
     let details1_ron_path = Path::new("data")
@@ -881,8 +885,6 @@ pub(crate) fn load_ron_gridmap(
     let details1_ron: Vec<CellDataRon> = ron::from_str(&current_map_details1_raw_ron).expect(
         &format!("startup_build_map() Error reading {:?}", details1_ron_path),
     );
-
-    build_details1_gridmap(&details1_ron, &mut gridmap_details1, &mut gridmap_data);
 
     info!(
         "Spawned {} map cells.",
@@ -899,7 +901,7 @@ pub struct CellDataRon {
     /// Cell item id.
     pub item: String,
     /// Cell rotation.
-    pub orientation: i64,
+    pub orientation: Orientation,
 }
 
 /// Convert old Godot json files to new Bevy ron files.

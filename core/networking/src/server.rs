@@ -86,13 +86,6 @@ pub(crate) fn souls(
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
-
-pub enum GridMapLayer {
-    Main,
-    Details1,
-}
-
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 

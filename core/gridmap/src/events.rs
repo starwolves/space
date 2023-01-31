@@ -7,15 +7,11 @@ use bevy_rapier3d::prelude::RigidBody;
 use doryen_fov::FovAlgorithm;
 use text_api::core::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT};
 
-use entity::{
-    health::{Health, HealthContainer, StructureHealth},
-    senser::{to_doryen_coordinates, Senser},
-};
+use entity::senser::{to_doryen_coordinates, Senser};
 use math::grid::Vec3Int;
-use networking::server::GridMapLayer;
 use serde::Deserialize;
 
-use crate::grid::{CellData, CellUpdate, GridmapData, GridmapDetails1, GridmapMain, RemoveCell};
+use crate::grid::{CellData, CellUpdate, Gridmap, GridmapChunk, Orientation, RemoveCell};
 
 use super::fov::{DoryenMap, FOV_DISTANCE};
 use networking::server::ConnectedPlayer;
@@ -28,8 +24,7 @@ use bevy::prelude::EventWriter;
 /// Manage gridmap update events such as adding and removing cells.
 
 pub(crate) fn gridmap_updates_manager(
-    mut gridmap_main: ResMut<GridmapMain>,
-    mut gridmap_details1: ResMut<GridmapDetails1>,
+    mut gridmap_main: ResMut<Gridmap>,
     sensers: Query<(Entity, &Senser, &ConnectedPlayer)>,
     mut server: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
 ) {
@@ -41,63 +36,21 @@ pub(crate) fn gridmap_updates_manager(
                 && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1)
             {
                 cell_update.entities_received.push(senser_entity);
-                if cell_update.cell_data.item != -1 {
+                if cell_update.cell_data.item_0 != 0 {
                     server.send(OutgoingReliableServerMessage {
                         handle: connected_player_component.handle,
                         message: GridmapServerMessage::AddCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
-                            cell_update.cell_data.item,
-                            cell_update.cell_data.orientation,
-                            GridMapLayer::Main,
+                            cell_update.cell_data.item_0,
+                            cell_update.cell_data.orientation.clone(),
                         ),
                     });
                 } else {
                     server.send(OutgoingReliableServerMessage {
                         handle: connected_player_component.handle,
-                        message: GridmapServerMessage::RemoveCell(
-                            cell_id.x,
-                            cell_id.y,
-                            cell_id.z,
-                            GridMapLayer::Main,
-                        ),
-                    });
-                }
-            }
-        }
-    }
-
-    for (cell_id, cell_update) in gridmap_details1.updates.iter_mut() {
-        let cell_coords = to_doryen_coordinates(cell_id.x, cell_id.z);
-
-        for (senser_entity, senser_component, connected_player_component) in sensers.iter() {
-            if connected_player_component.connected
-                && !cell_update.entities_received.contains(&senser_entity)
-                && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1)
-            {
-                cell_update.entities_received.push(senser_entity);
-                if cell_update.cell_data.item != -1 {
-                    server.send(OutgoingReliableServerMessage {
-                        handle: connected_player_component.handle,
-                        message: GridmapServerMessage::AddCell(
-                            cell_id.x,
-                            cell_id.y,
-                            cell_id.z,
-                            cell_update.cell_data.item,
-                            cell_update.cell_data.orientation,
-                            GridMapLayer::Details1,
-                        ),
-                    });
-                } else {
-                    server.send(OutgoingReliableServerMessage {
-                        handle: connected_player_component.handle,
-                        message: GridmapServerMessage::RemoveCell(
-                            cell_id.x,
-                            cell_id.y,
-                            cell_id.z,
-                            GridMapLayer::Details1,
-                        ),
+                        message: GridmapServerMessage::RemoveCell(cell_id.x, cell_id.y, cell_id.z),
                     });
                 }
             }
@@ -107,11 +60,7 @@ pub(crate) fn gridmap_updates_manager(
 
 /// Examine a ship/gridmap cell and add the text as a function.
 
-pub fn examine_ship_cell(
-    ship_cell: &CellData,
-    gridmap_type: &GridMapLayer,
-    gridmap_data: &Res<GridmapData>,
-) -> String {
+pub fn examine_ship_cell(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> String {
     let examine_text: &str;
     let mut message = "\n".to_owned();
     message = message
@@ -121,26 +70,16 @@ pub fn examine_ship_cell(
         + "You examine the "
         + &gridmap_data
             .main_text_names
-            .get(&ship_cell.item)
+            .get(&ship_cell.item_0)
             .unwrap()
             .get_name()
         + ".[/font]\n";
 
-    if ship_cell.item != -1 {
-        match gridmap_type {
-            GridMapLayer::Main => {
-                examine_text = gridmap_data
-                    .main_text_examine_desc
-                    .get(&ship_cell.item)
-                    .unwrap();
-            }
-            GridMapLayer::Details1 => {
-                examine_text = gridmap_data
-                    .details1_text_examine_desc
-                    .get(&ship_cell.item)
-                    .unwrap();
-            }
-        }
+    if ship_cell.item_0 != 0 {
+        examine_text = gridmap_data
+            .main_text_examine_desc
+            .get(&ship_cell.item_0)
+            .unwrap();
     } else {
         examine_text = EXAMINATION_EMPTY;
     }
@@ -150,109 +89,140 @@ pub fn examine_ship_cell(
     message
 }
 
-/// Remove a ship/gridmap cell.
+/// Event to set a gridmap cell.
+pub struct SetCell {
+    pub id: Vec3Int,
+    pub data: CellData,
+}
 
+/// Set a gridmap cell.
+pub(crate) fn set_cell(mut events: EventReader<SetCell>, mut gridmap_main: ResMut<Gridmap>) {
+    for event in events.iter() {
+        match gridmap_main.get_indexes(event.id) {
+            Some(indexes) => match gridmap_main.grid_data.get_mut(indexes.chunk) {
+                Some(chunk_option) => {
+                    match chunk_option {
+                        Some(_) => {}
+                        None => {
+                            *chunk_option = Some(GridmapChunk::default());
+                        }
+                    }
+                    match chunk_option {
+                        Some(chunk) => {
+                            chunk.cells[indexes.cell] = Some(event.data.clone());
+                        }
+                        None => {
+                            warn!("No chunk option");
+                            continue;
+                        }
+                    }
+                }
+                None => {
+                    warn!("set_cell couldn't find chunk.");
+                }
+            },
+            None => {
+                warn!("set_cell couldn't get cell indexes.");
+            }
+        }
+    }
+}
+
+/// Remove a ship/gridmap cell.
 pub(crate) fn remove_cell(
     mut deconstruct_cell_events: EventReader<RemoveCell>,
-    mut gridmap_main: ResMut<GridmapMain>,
-    mut gridmap_details1: ResMut<GridmapDetails1>,
+    mut gridmap_main: ResMut<Gridmap>,
     mut fov_map: ResMut<DoryenMap>,
     mut commands: Commands,
     mut sensers: Query<(&mut Senser, &ConnectedPlayer)>,
     rigid_bodies: Query<&Children, With<RigidBody>>,
 ) {
     for event in deconstruct_cell_events.iter() {
-        match event.gridmap_type {
-            GridMapLayer::Main => {
-                let coords = to_doryen_coordinates(event.id.x, event.id.z);
+        let coords = to_doryen_coordinates(event.id.x, event.id.z);
 
-                if event.id.y == 0 {
-                    // Wall
-                    let cell_entity = gridmap_main
-                        .grid_data
-                        .get(&event.id)
-                        .unwrap()
-                        .entity
-                        .unwrap();
+        if event.id.y == 0 {
+            // Wall
 
-                    match rigid_bodies.get(cell_entity) {
-                        Ok(children) => {
-                            for child in children.iter() {
-                                commands.entity(*child).despawn();
-                            }
-                        }
-                        Err(_rr) => {
-                            warn!("Couldnt find rigidbody beloning to cell!");
-                        }
+            let cell_entity;
+            match gridmap_main.get_cell(event.id) {
+                Some(cell_data) => match cell_data.entity_option {
+                    Some(ent) => {
+                        cell_entity = ent;
                     }
-
-                    commands.entity(cell_entity).despawn();
-                    fov_map.map.set_transparent(coords.0, coords.1, true);
-                }
-
-                match gridmap_details1.grid_data.get(&event.id) {
-                    Some(_cell_data) => {
-                        let mut local_copy = event.cell_data.clone();
-                        local_copy.item = -1;
-
-                        gridmap_details1.updates.insert(
-                            event.id,
-                            CellUpdate {
-                                entities_received: vec![],
-                                cell_data: local_copy,
-                            },
-                        );
+                    None => {
+                        warn!("remove_cell couldn't get entity.");
+                        continue;
                     }
-                    None => {}
+                },
+                None => {
+                    warn!("remove_cell couldn't find cell data.");
+                    continue;
                 }
-
-                for (mut senser_component, _connected_player_component) in sensers.iter_mut() {
-                    if senser_component.fov.is_in_fov(coords.0, coords.1) {
-                        senser_component.fov.clear_fov();
-                        let coords = to_doryen_coordinates(
-                            senser_component.cell_id.x,
-                            senser_component.cell_id.y,
-                        );
-                        senser_component.fov.compute_fov(
-                            &mut fov_map.map,
-                            coords.0,
-                            coords.1,
-                            FOV_DISTANCE,
-                            true,
-                        );
-
-                        gridmap_main.updates.insert(
-                            event.id,
-                            CellUpdate {
-                                entities_received: vec![],
-                                cell_data: event.cell_data.clone(),
-                            },
-                        );
-                    }
-                }
-
-                gridmap_main.grid_data.remove(&event.id);
             }
-            GridMapLayer::Details1 => {
-                gridmap_details1.updates.insert(
+
+            match rigid_bodies.get(cell_entity) {
+                Ok(children) => {
+                    for child in children.iter() {
+                        commands.entity(*child).despawn();
+                    }
+                }
+                Err(_rr) => {
+                    warn!("Couldnt find rigidbody beloning to cell!");
+                }
+            }
+
+            commands.entity(cell_entity).despawn();
+            fov_map.map.set_transparent(coords.0, coords.1, true);
+        }
+
+        for (mut senser_component, _connected_player_component) in sensers.iter_mut() {
+            if senser_component.fov.is_in_fov(coords.0, coords.1) {
+                senser_component.fov.clear_fov();
+                let coords =
+                    to_doryen_coordinates(senser_component.cell_id.x, senser_component.cell_id.y);
+                senser_component.fov.compute_fov(
+                    &mut fov_map.map,
+                    coords.0,
+                    coords.1,
+                    FOV_DISTANCE,
+                    true,
+                );
+
+                gridmap_main.updates.insert(
                     event.id,
                     CellUpdate {
                         entities_received: vec![],
-                        cell_data: CellData {
-                            item: -1,
-                            orientation: 0,
-                            health: Health {
-                                health_container: HealthContainer::Structure(
-                                    StructureHealth::default(),
-                                ),
-                                ..Default::default()
-                            },
-                            entity: None,
-                        },
+                        cell_data: event.cell_data.clone(),
                     },
                 );
             }
         }
+
+        let cell_indexes;
+
+        match gridmap_main.get_indexes(event.id) {
+            Some(i) => {
+                cell_indexes = i;
+            }
+            None => {
+                warn!("remove_cell couldn't get cell index.");
+                continue;
+            }
+        }
+
+        match gridmap_main.grid_data.get_mut(cell_indexes.chunk) {
+            Some(chunk_option) => match chunk_option {
+                Some(chunk) => {
+                    chunk.cells[cell_indexes.cell] = None;
+                }
+                None => {
+                    warn!("Chunk {} not found", cell_indexes.chunk);
+                }
+            },
+            None => {
+                warn!("Tried to update a non-existing chunk");
+            }
+        };
     }
 }
 
@@ -277,5 +247,5 @@ impl Default for Cell {
 pub(crate) struct CellDataWID {
     pub id: String,
     pub item: String,
-    pub orientation: i64,
+    pub orientation: Orientation,
 }

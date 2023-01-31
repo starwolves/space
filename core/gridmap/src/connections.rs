@@ -1,8 +1,7 @@
-use crate::grid::GridmapData;
 use bevy::prelude::{EventReader, Res};
 use player::connections::SendServerConfiguration;
 
-use crate::net::GridmapServerMessage;
+use crate::{grid::Gridmap, net::GridmapServerMessage};
 use networking::server::OutgoingReliableServerMessage;
 
 use bevy::prelude::EventWriter;
@@ -10,7 +9,7 @@ use bevy::prelude::EventWriter;
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
     mut server: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
-    gridmap_data: Res<GridmapData>,
+    gridmap_data: Res<Gridmap>,
 ) {
     for event in config_events.iter() {
         server.send(OutgoingReliableServerMessage {

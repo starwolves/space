@@ -53,9 +53,9 @@ pub(crate) fn pickup_prerequisite_check(
                             }
                         }
                         start_pos = cell_id_to_world(Vec3Int {
-                            x: cell_data.0.x,
-                            y: cell_data.0.y,
-                            z: cell_data.0.z,
+                            x: cell_data.x,
+                            y: cell_data.y,
+                            z: cell_data.z,
                         });
                     }
                 }

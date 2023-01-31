@@ -14,7 +14,7 @@ use bevy_rapier3d::{
 use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::{
     events::Cell,
-    grid::{cell_id_to_world, GridmapData, GridmapMain},
+    grid::{cell_id_to_world, Gridmap},
 };
 use inventory::combat::ProjectileCombat;
 use math::grid::Vec3Int;
@@ -54,8 +54,7 @@ pub(crate) fn projectile_attack(
     colliders: Query<&Parent, With<Collider>>,
     mut rigidbody_query: Query<(&mut HealthComponent, &Examinable, &Transform)>,
     physics_cells: Query<&Cell>,
-    gridmap_data: Res<GridmapData>,
-    mut world_cells: ResMut<GridmapMain>,
+    world_cells: Res<Gridmap>,
     mut query_hit_result: EventWriter<QueryCombatHitResult>,
     mut cached_attacks: ResMut<ActiveAttacks>,
     mut blank_writer: EventWriter<ProjectileBlank>,
@@ -243,7 +242,7 @@ pub(crate) fn projectile_attack(
 
                         sound_transform.translation = position;
 
-                        let cell_data = world_cells.grid_data.get_mut(&cell_component.id).unwrap();
+                        let cell_data = world_cells.get_cell(cell_component.id).unwrap();
 
                         let r = AttackResult {
                             entity_option: None,
@@ -251,12 +250,12 @@ pub(crate) fn projectile_attack(
                             distance: attacker_transform.translation.distance(position),
                             hit_point: hit_point,
                             collider_handle: collider_entity,
-                            is_combat_obstacle: !gridmap_data
+                            is_combat_obstacle: !world_cells
                                 .non_combat_obstacle_cells_list
-                                .contains(&cell_data.item),
-                            is_laser_obstacle: !gridmap_data
+                                .contains(&cell_data.item_0),
+                            is_laser_obstacle: !world_cells
                                 .non_laser_obstacle_cells_list
-                                .contains(&cell_data.item),
+                                .contains(&cell_data.item_0),
                         };
 
                         hit_entities_query.push(r);

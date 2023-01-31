@@ -3,7 +3,7 @@ use bevy::{
     prelude::{warn, Commands, Component, Entity, Query, Res, Transform, With},
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
-use gridmap::grid::GridmapMain;
+use gridmap::grid::Gridmap;
 use math::grid::world_to_cell_id;
 use physics::rigid_body::RigidBodyData;
 
@@ -18,7 +18,7 @@ pub(crate) fn zero_gravity(
         &RigidBodyData,
     )>,
     mut colliders: Query<&mut Friction, With<Collider>>,
-    gridmap_main: Res<GridmapMain>,
+    gridmap_main: Res<Gridmap>,
     mut commands: Commands,
 ) {
     for (
@@ -56,8 +56,7 @@ pub(crate) fn zero_gravity(
         let mut cell_id = world_to_cell_id(rigidbody_position_component.translation.into());
 
         cell_id.y = -1;
-
-        match gridmap_main.grid_data.get(&cell_id) {
+        match gridmap_main.get_cell(cell_id) {
             Some(_) => {
                 if zero_gravity_component_option.is_some() {
                     collider_material_component.coefficient = rigidbody_data_component.friction;
