@@ -101,9 +101,9 @@ Ensure your server has the right git branch with the same version as the obtaine
 
 The prototype client is built on top of a Godot 3.4 release.
 
-### The new Bevy client
+### The new 1st person Bevy client
 
-Currently there is full focus on recreating the client in Bevy ECS. This is the main priority and we are just getting started and it will be a while before it is of any use. The new Bevy client is developed open-source in this repository.
+Currently there is full focus on recreating the client in Bevy ECS. The new Bevy client is developed open-source in this repository.
 
 ## Documentation
 
