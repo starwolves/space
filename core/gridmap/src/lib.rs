@@ -24,7 +24,7 @@ pub mod get_spawn_position;
 /// Core gridmap resources.
 pub mod grid;
 /// Client-side graphics handling, such as loading and spawning meshes and textures for gridmap items.
-pub mod gridmap_graphics;
+pub mod graphics;
 /// Initialize gridmap meta data.
 mod init;
 pub mod net;

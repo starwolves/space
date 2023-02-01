@@ -19,8 +19,8 @@ use crate::{
         GridmapExamineMessages, InputExamineMap,
     },
     fov::ProjectileFOV,
+    graphics::spawn_map_graphics,
     grid::{Gridmap, RemoveCell},
-    gridmap_graphics::spawn_cubes,
     init::{load_ron_gridmap, startup_map_cell_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
 };
@@ -91,7 +91,7 @@ impl Plugin for GridmapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         } else {
-            app.add_system(spawn_cubes);
+            app.add_system(spawn_map_graphics);
         }
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))

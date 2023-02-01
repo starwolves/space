@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 /// Gridmap maximum limits as cube dimensions in chunks.
 pub struct MapLimits {
     /// Full length of the cube as chunks.
-    pub length: u16,
+    pub length: i16,
 }
 
 impl Default for MapLimits {
@@ -99,7 +99,7 @@ pub const GRID_CHUNK_AMOUNT: usize = 10648;
 /// The amount of tiles a chunk stores. 24 by 24 by 24.
 pub const GRID_CHUNK_TILES_AMOUNT: usize = 13824;
 /// The length of the cubic chunk in tiles.
-pub const CHUNK_LENGTH: u16 = 24;
+pub const CHUNK_LENGTH: i16 = 24;
 
 /// A chunk of the gridmap.
 #[derive(Clone)]
@@ -173,7 +173,7 @@ impl Default for Gridmap {
     }
 }
 /// Result for [get_indexes].
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct CellIndexes {
     pub chunk: usize,
     pub cell: usize,
@@ -182,33 +182,42 @@ pub struct CellIndexes {
 impl Gridmap {
     pub fn get_indexes(&self, id: Vec3Int) -> Option<CellIndexes> {
         let map_half_length =
-            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5) as i32;
+            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5).floor() as i16;
 
-        let x_id = (id.x as i32 + map_half_length) as u16;
-        let x_chunk_coord = (x_id as f32 / (CHUNK_LENGTH) as f32).floor() as u16;
+        let x_id = id.x + map_half_length;
+        let x_chunk_index = (x_id as f32 / (CHUNK_LENGTH) as f32).floor() as i16;
 
-        let y_id = (id.y as i32 + map_half_length) as u16;
-        let y_chunk_coord = (y_id as f32 / (CHUNK_LENGTH) as f32).floor() as u16;
+        let y_id = id.y + map_half_length;
+        let y_chunk_index = (y_id as f32 / (CHUNK_LENGTH) as f32).floor() as i16;
 
-        let z_id = (id.z as i32 + map_half_length) as u16;
-        let z_chunk_coord = (z_id as f32 / (CHUNK_LENGTH) as f32).floor() as u16;
+        let z_id = id.z + map_half_length;
+        let z_chunk_index = (z_id as f32 / (CHUNK_LENGTH) as f32).floor() as i16;
 
-        let x_offset = x_chunk_coord;
-        let z_offset = z_chunk_coord * self.map_length_limit.length;
-        let y_offset =
-            y_chunk_coord * (self.map_length_limit.length * self.map_length_limit.length);
+        let chunk_x_offset = x_chunk_index;
+        let chunk_z_offset = z_chunk_index * self.map_length_limit.length;
+        let chunk_y_offset =
+            y_chunk_index * (self.map_length_limit.length * self.map_length_limit.length);
 
-        let chunk_index = x_offset + z_offset + y_offset;
+        let chunk_index = chunk_x_offset + chunk_z_offset + chunk_y_offset;
 
-        let x_cell_id = x_id - (x_chunk_coord * CHUNK_LENGTH);
-        let y_cell_id = y_id - (y_chunk_coord * CHUNK_LENGTH);
-        let z_cell_id = z_id - (z_chunk_coord * CHUNK_LENGTH);
+        let x_cell_id = x_id - (x_chunk_index * CHUNK_LENGTH);
+        let y_cell_id = y_id - (y_chunk_index * CHUNK_LENGTH);
+        let z_cell_id = z_id - (z_chunk_index * CHUNK_LENGTH);
 
         let x_offset = x_cell_id;
         let z_offset = z_cell_id * self.map_length_limit.length;
         let y_offset = y_cell_id * (self.map_length_limit.length * self.map_length_limit.length);
 
         let cell_index = x_offset + z_offset + y_offset;
+
+        println!(
+            "get_indexes() id:{:?} -> indexes:{:?}",
+            id,
+            CellIndexes {
+                chunk: chunk_index as usize,
+                cell: cell_index as usize,
+            }
+        );
 
         Some(CellIndexes {
             chunk: chunk_index as usize,
@@ -218,37 +227,38 @@ impl Gridmap {
     pub fn get_id(&self, indexes: CellIndexes) -> Option<Vec3Int> {
         let chunk_y_id = (indexes.chunk as f32
             / (self.map_length_limit.length * self.map_length_limit.length) as f32)
-            .floor() as i32;
+            .floor() as i16;
 
-        let remainder_xz = indexes.chunk
-            - (chunk_y_id as usize
-                * (self.map_length_limit.length * self.map_length_limit.length) as usize);
+        let remainder_xz = indexes.chunk as i16
+            - (chunk_y_id * (self.map_length_limit.length * self.map_length_limit.length));
 
-        let chunk_z_id = (remainder_xz as f32 / self.map_length_limit.length as f32).floor() as i32;
+        let chunk_z_id = (remainder_xz as f32 / self.map_length_limit.length as f32).floor() as i16;
 
-        let chunk_x_id =
-            remainder_xz - (chunk_z_id as usize * self.map_length_limit.length as usize);
+        let chunk_x_id = remainder_xz - (chunk_z_id * self.map_length_limit.length);
 
-        let cell_y_id = (indexes.cell as f32 / (CHUNK_LENGTH * CHUNK_LENGTH) as f32).floor() as i32;
+        let cell_y_id = (indexes.cell as f32 / (CHUNK_LENGTH * CHUNK_LENGTH) as f32).floor() as i16;
 
-        let remainder_xz =
-            indexes.cell - (cell_y_id as usize * (CHUNK_LENGTH * CHUNK_LENGTH) as usize);
+        let remainder_xz = indexes.cell as i16 - (cell_y_id * (CHUNK_LENGTH * CHUNK_LENGTH));
 
-        let cell_z_id = (remainder_xz as f32 / CHUNK_LENGTH as f32).floor() as i32;
+        let cell_z_id = (remainder_xz as f32 / CHUNK_LENGTH as f32).floor() as i16;
 
-        let cell_x_id = remainder_xz - (cell_z_id as usize * CHUNK_LENGTH as usize);
+        let cell_x_id = remainder_xz - (cell_z_id * CHUNK_LENGTH);
 
         let map_half_length =
-            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5) as i32;
+            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5).floor() as i16;
 
-        Some(Vec3Int {
-            x: ((chunk_x_id as i32 * CHUNK_LENGTH as i32 + cell_x_id as i32) - map_half_length)
-                as i16,
-            y: ((chunk_y_id as i32 * CHUNK_LENGTH as i32 + cell_y_id as i32) - map_half_length)
-                as i16,
-            z: ((chunk_z_id as i32 * CHUNK_LENGTH as i32 + cell_z_id as i32) - map_half_length)
-                as i16,
-        })
+        let id = Vec3Int {
+            x: (chunk_x_id * CHUNK_LENGTH + cell_x_id) - map_half_length,
+            y: (chunk_y_id * CHUNK_LENGTH + cell_y_id) - map_half_length,
+            z: (chunk_z_id * CHUNK_LENGTH + cell_z_id) - map_half_length,
+        };
+
+        println!(
+            "get_id() indexes:{:?} -> id:{:?} ,chunk_x:{},chunk_y:{},chunk_z{},cell_x:{},cell_y:{},cell_z:{}",
+            indexes, id,chunk_x_id, chunk_y_id, chunk_z_id, cell_x_id, cell_y_id, cell_z_id
+        );
+
+        Some(id)
     }
     pub fn get_cell(&self, id: Vec3Int) -> Option<CellData> {
         let indexes;
