@@ -77,7 +77,8 @@ pub(crate) fn done_boarding(
         let player_handle = boarding_player.player_handle;
         let entity_id = boarding_player.entity;
 
-        let mut assigned_spawn_transform = spawn_points.list[spawn_points.i].transform;
+        //let mut assigned_spawn_transform = spawn_points.list[spawn_points.i].transform;
+        let mut assigned_spawn_transform = Transform::IDENTITY;
         assigned_spawn_transform.translation.y = 0.;
         commands
             .entity(entity_id)

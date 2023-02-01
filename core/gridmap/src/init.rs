@@ -895,7 +895,7 @@ pub(crate) fn load_ron_gridmap(
 use player::boarding::{SpawnPoint, SpawnPointRaw, SpawnPoints};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct CellDataRon {
     pub id: Vec3Int,
     /// Cell item id.
