@@ -17,6 +17,8 @@ use networking::{
     server::HandleToEntity,
 };
 use resources::is_server::is_server;
+use smooth_bevy_cameras::controllers::fps::FpsCameraPlugin;
+use smooth_bevy_cameras::LookTransformPlugin;
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -52,7 +54,9 @@ impl Plugin for PlayerPlugin {
         } else {
             app.add_system(client_receive_pawnid)
                 .init_resource::<PawnEntityId>()
-                .add_system(spawn_debug_camera);
+                .add_system(spawn_debug_camera)
+                .add_plugin(LookTransformPlugin)
+                .add_plugin(FpsCameraPlugin::default());
         }
         app.init_resource::<SpawnPoints>();
         register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);
