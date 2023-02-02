@@ -1,6 +1,7 @@
-use bevy::prelude::{Camera3dBundle, Commands, EventReader, Transform, Vec3};
+use bevy::prelude::{Camera3dBundle, Commands, EventReader, Vec3};
 
 use networking::client::IncomingReliableServerMessage;
+use smooth_bevy_cameras::controllers::fps::{FpsCameraBundle, FpsCameraController};
 
 use crate::net::PlayerServerMessage;
 use bevy::prelude::Local;
@@ -15,11 +16,14 @@ pub(crate) fn spawn_debug_camera(
     // Skip one frame to prevent camera ambiguity.
     if *spawning {
         *spawning = false;
-        commands.spawn(Camera3dBundle {
-            transform: Transform::from_xyz(0., 1.8, 0.)
-                .looking_at(Vec3::new(0., 1.8, -2.), Vec3::Y),
-            ..Default::default()
-        });
+        commands
+            .spawn(Camera3dBundle::default())
+            .insert(FpsCameraBundle::new(
+                FpsCameraController::default(),
+                Vec3::new(0., 1.8, 0.),
+                Vec3::new(0., 1.8, -2.),
+                Vec3::Y,
+            ));
     }
 
     for message in messages.iter() {
