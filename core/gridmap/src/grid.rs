@@ -185,13 +185,13 @@ impl Gridmap {
             ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5).floor() as i16;
 
         let x_id = id.x + map_half_length;
-        let x_chunk_index = (x_id as f32 / (CHUNK_LENGTH) as f32).floor() as i16;
+        let x_chunk_index = (x_id as f32 / CHUNK_LENGTH as f32).floor() as i16;
 
         let y_id = id.y + map_half_length;
-        let y_chunk_index = (y_id as f32 / (CHUNK_LENGTH) as f32).floor() as i16;
+        let y_chunk_index = (y_id as f32 / CHUNK_LENGTH as f32).floor() as i16;
 
         let z_id = id.z + map_half_length;
-        let z_chunk_index = (z_id as f32 / (CHUNK_LENGTH) as f32).floor() as i16;
+        let z_chunk_index = (z_id as f32 / CHUNK_LENGTH as f32).floor() as i16;
 
         let chunk_x_offset = x_chunk_index;
         let chunk_z_offset = z_chunk_index * self.map_length_limit.length;
@@ -205,20 +205,10 @@ impl Gridmap {
         let z_cell_id = z_id - (z_chunk_index * CHUNK_LENGTH);
 
         let x_offset = x_cell_id;
-        let z_offset = z_cell_id * self.map_length_limit.length;
-        let y_offset = y_cell_id * (self.map_length_limit.length * self.map_length_limit.length);
+        let z_offset = z_cell_id * CHUNK_LENGTH;
+        let y_offset = y_cell_id * (CHUNK_LENGTH * CHUNK_LENGTH);
 
         let cell_index = x_offset + z_offset + y_offset;
-
-        println!(
-            "get_indexes() id:{:?} -> indexes:{:?}",
-            id,
-            CellIndexes {
-                chunk: chunk_index as usize,
-                cell: cell_index as usize,
-            }
-        );
-
         Some(CellIndexes {
             chunk: chunk_index as usize,
             cell: cell_index as usize,
@@ -252,11 +242,6 @@ impl Gridmap {
             y: (chunk_y_id * CHUNK_LENGTH + cell_y_id) - map_half_length,
             z: (chunk_z_id * CHUNK_LENGTH + cell_z_id) - map_half_length,
         };
-
-        println!(
-            "get_id() indexes:{:?} -> id:{:?} ,chunk_x:{},chunk_y:{},chunk_z{},cell_x:{},cell_y:{},cell_z:{}",
-            indexes, id,chunk_x_id, chunk_y_id, chunk_z_id, cell_x_id, cell_y_id, cell_z_id
-        );
 
         Some(id)
     }
