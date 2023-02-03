@@ -2,7 +2,7 @@ use bevy::{
     prelude::{App, IntoSystemDescriptor, Plugin, SystemSet},
     time::FixedTimestep,
 };
-use entity::{entity_data::INTERPOLATION_LABEL1, examine::RichName};
+use entity::entity_data::INTERPOLATION_LABEL1;
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
@@ -31,23 +31,6 @@ use super::{
     fov::{projectile_fov, senser_update_fov, DoryenMap},
     sensing_ability::gridmap_sensing_ability,
 };
-
-#[allow(dead_code)]
-pub struct Details1CellProperties {
-    pub id: u16,
-    pub name: RichName,
-    pub description: String,
-}
-
-impl Default for Details1CellProperties {
-    fn default() -> Self {
-        Self {
-            id: 0,
-            name: Default::default(),
-            description: "".to_string(),
-        }
-    }
-}
 
 pub struct GridmapPlugin;
 

@@ -18,7 +18,6 @@ use crate::{
     grid::{
         AdjacentTileDirection, GridDirectionRotations, Gridmap, MainCellProperties, Orientation,
     },
-    plugin::Details1CellProperties,
 };
 
 /// Physics friction on placeable item surfaces.
@@ -514,251 +513,249 @@ pub(crate) fn startup_map_cell_properties(mut gridmap_data: ResMut<Gridmap>) {
             .insert(cell_properties.id, cell_properties.clone());
     }
 
-    let mut details1_cells_data = vec![];
+    /*
+            let mut details1_cells_data = vec![];
 
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("starboyPoster1").unwrap(),
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("starboyPoster1").unwrap(),
+                name: RichName {
+                    name: "pop poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A well-preserved ancient collectible pop music poster, it must be at least a thousand years old. \n\"Starboy\"".to_string()
+            }
+        );
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("apc").unwrap(),
+                name: RichName {
+                    name: "APC".to_string() ,
+                    n: true,
+                    the: false,
+                },
+                description: "An administrative personal computer (APC). Authorized personnel can use these computers to check on the status of the sub-systems this room utilises.".to_string()
+            }
+        );
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data.details1_name_id_map.get("airExhaust").unwrap(),
             name: RichName {
-                name: "pop poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A well-preserved ancient collectible pop music poster, it must be at least a thousand years old. \n\"Starboy\"".to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("apc").unwrap(),
-            name: RichName {
-                name: "APC".to_string() ,
+                name: "air exhaust".to_string(),
                 n: true,
                 the: false,
             },
-            description: "An administrative personal computer (APC). Authorized personnel can use these computers to check on the status of the sub-systems this room utilises.".to_string()
-        }
-    );
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data.details1_name_id_map.get("airExhaust").unwrap(),
-        name: RichName {
-            name: "air exhaust".to_string(),
-            n: true,
-            the: false,
-        },
-        description:
-            "An air exhaust. Here to ventilate and circulate oxygen throughout the spaceship."
+            description:
+                "An air exhaust. Here to ventilate and circulate oxygen throughout the spaceship."
+                    .to_string(),
+        });
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("liquidDrain").unwrap(),
+                name: RichName {
+                    name: "liquid drain".to_string() ,
+                    n: true,
+                    the: false,
+                },
+                description: "A liquid drain. It transports liquids through dedicated piping to a different destination.".to_string()
+            }
+        );
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster6").unwrap(),
+                name: RichName {
+                    name: "security poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A Red Dragon poster. Here to remind you that the nation's surveillance systems have never been as effective and important as it is now. \n\"Always\nWatchful\"".to_string()
+            }
+        );
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data.details1_name_id_map.get("EMPTY0").unwrap(),
+            name: RichName {
+                name: "INVISIBLEDCELL1".to_string(),
+                n: true,
+                the: false,
+            },
+            description: EXAMINATION_EMPTY.to_string(),
+        });
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data
+                .details1_name_id_map
+                .get("redDragonSecurityPoster4")
+                .unwrap(),
+            name: RichName {
+                name: "security poster".to_string(),
+                n: false,
+                the: false,
+            },
+            description: "A Red Dragon poster for security personnel. \n\"I\nServe\"".to_string(),
+        });
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data
+                .details1_name_id_map
+                .get("redDragonPoster2")
+                .unwrap(),
+            name: RichName {
+                name: "poster".to_string(),
+                n: false,
+                the: false,
+            },
+            description: "A poster. \n \"Colonise\nSpace\"".to_string(),
+        });
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data
+                .details1_name_id_map
+                .get("redDragonPoster1")
+                .unwrap(),
+            name: RichName {
+                name: "poster".to_string(),
+                n: false,
+                the: false,
+            },
+            description: "A glorious Red Dragon poster. \n\"Hail our\nRed\nNation\"".to_string(),
+        });
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster3").unwrap(),
+                name: RichName {
+                    name: "security poster".to_string() ,
+                    n: true,
+                    the: false,
+                },
+                description: "A glorious Red Dragon poster for security personnel. This one has a famous picture printed on it from hundreds of years ago, the start of the great nation captured in a single picture. \n\"We\nRose\"".to_string()
+            }
+        );
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster2").unwrap(),
+                name: RichName {
+                    name: "security poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A glorious Red Dragon poster for security personnel. A nation to look up to with pride. \n\"Our\nFather\"".to_string()
+            }
+        );
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster1").unwrap(),
+                name: RichName {
+                    name: "security poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A glorious Red Dragon poster for security personnel to remind you of the collective's might. \n\"Protect\nControl\nPrevent\nSecure\"".to_string()
+            }
+        );
+
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data
+                .details1_name_id_map
+                .get("redDragonBridgePoster1")
+                .unwrap(),
+            name: RichName {
+                name: "bridge poster".to_string(),
+                n: false,
+                the: false,
+            },
+            description: "A poster for bridge personnel to remind you to lead. \n\"Take Charge\""
                 .to_string(),
-    });
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("liquidDrain").unwrap(),
+        });
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data
+                .details1_name_id_map
+                .get("redDragonBridgePoster2")
+                .unwrap(),
             name: RichName {
-                name: "liquid drain".to_string() ,
+                name: "bridge poster".to_string(),
+                n: false,
+                the: false,
+            },
+            description: "A poster for bridge personnel showing artwork of the moon from back home."
+                .to_string(),
+        });
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster3").unwrap(),
+                name: RichName {
+                    name: "bridge poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A poster for bridge personnel to showcase the utmost importance of sharing data. \n\"Broadcast\nStream\"".to_string()
+            }
+        );
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster4").unwrap(),
+                name: RichName {
+                    name: "bridge poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A poster for bridge personnel showing a brand new space fighter, usually carried on-board of large flagships. \n\"Vigilant\"".to_string()
+            }
+        );
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster5").unwrap(),
+                name: RichName {
+                    name: "bridge poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A poster for bridge personnel reminding the importance of the connectivity of technology. The logo disturbingly reminds you of chains. \n\"Connect\"".to_string()
+            }
+        );
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data
+                .details1_name_id_map
+                .get("redDragonBridgePoster6")
+                .unwrap(),
+            name: RichName {
+                name: "bridge poster".to_string(),
+                n: false,
+                the: false,
+            },
+            description: "A poster for bridge personnel. \n\"Remotely connected\"".to_string(),
+        });
+        details1_cells_data.push(
+            Details1CellProperties{
+                id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster7").unwrap(),
+                name: RichName {
+                    name: "bridge poster".to_string() ,
+                    n: false,
+                    the: false,
+                },
+                description: "A poster for bridge personnel promoting its staff to be watchful with the help of security cameras installed around the ship. \n\"Watchful\"".to_string()
+            }
+        );
+
+        details1_cells_data.push(Details1CellProperties {
+            id: *gridmap_data
+                .details1_name_id_map
+                .get("floorLight1")
+                .unwrap(),
+            name: RichName {
+                name: "fluorescent floor light".to_string(),
                 n: true,
                 the: false,
             },
-            description: "A liquid drain. It transports liquids through dedicated piping to a different destination.".to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster6").unwrap(),
-            name: RichName {
-                name: "security poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A Red Dragon poster. Here to remind you that the nation's surveillance systems have never been as effective and important as it is now. \n\"Always\nWatchful\"".to_string()
-        }
-    );
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data.details1_name_id_map.get("EMPTY0").unwrap(),
-        name: RichName {
-            name: "INVISIBLEDCELL1".to_string(),
-            n: true,
-            the: false,
-        },
-        description: EXAMINATION_EMPTY.to_string(),
-    });
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data
-            .details1_name_id_map
-            .get("redDragonSecurityPoster4")
-            .unwrap(),
-        name: RichName {
-            name: "security poster".to_string(),
-            n: false,
-            the: false,
-        },
-        description: "A Red Dragon poster for security personnel. \n\"I\nServe\"".to_string(),
-    });
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data
-            .details1_name_id_map
-            .get("redDragonPoster2")
-            .unwrap(),
-        name: RichName {
-            name: "poster".to_string(),
-            n: false,
-            the: false,
-        },
-        description: "A poster. \n \"Colonise\nSpace\"".to_string(),
-    });
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data
-            .details1_name_id_map
-            .get("redDragonPoster1")
-            .unwrap(),
-        name: RichName {
-            name: "poster".to_string(),
-            n: false,
-            the: false,
-        },
-        description: "A glorious Red Dragon poster. \n\"Hail our\nRed\nNation\"".to_string(),
-    });
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster3").unwrap(),
-            name: RichName {
-                name: "security poster".to_string() ,
-                n: true,
-                the: false,
-            },
-            description: "A glorious Red Dragon poster for security personnel. This one has a famous picture printed on it from hundreds of years ago, the start of the great nation captured in a single picture. \n\"We\nRose\"".to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster2").unwrap(),
-            name: RichName {
-                name: "security poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A glorious Red Dragon poster for security personnel. A nation to look up to with pride. \n\"Our\nFather\"".to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonSecurityPoster1").unwrap(),
-            name: RichName {
-                name: "security poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A glorious Red Dragon poster for security personnel to remind you of the collective's might. \n\"Protect\nControl\nPrevent\nSecure\"".to_string()
-        }
-    );
+            description: "A fluorescent floor light.".to_string(),
+        });
 
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data
-            .details1_name_id_map
-            .get("redDragonBridgePoster1")
-            .unwrap(),
-        name: RichName {
-            name: "bridge poster".to_string(),
-            n: false,
-            the: false,
-        },
-        description: "A poster for bridge personnel to remind you to lead. \n\"Take Charge\""
-            .to_string(),
-    });
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data
-            .details1_name_id_map
-            .get("redDragonBridgePoster2")
-            .unwrap(),
-        name: RichName {
-            name: "bridge poster".to_string(),
-            n: false,
-            the: false,
-        },
-        description: "A poster for bridge personnel showing artwork of the moon from back home."
-            .to_string(),
-    });
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster3").unwrap(),
-            name: RichName {
-                name: "bridge poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A poster for bridge personnel to showcase the utmost importance of sharing data. \n\"Broadcast\nStream\"".to_string()
+        for cell_properties in details1_cells_data.iter() {
+            gridmap_data
+                .details1_text_names
+                .insert(cell_properties.id, cell_properties.name.clone());
+            gridmap_data
+                .details1_text_examine_desc
+                .insert(cell_properties.id, cell_properties.description.clone());
         }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster4").unwrap(),
-            name: RichName {
-                name: "bridge poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A poster for bridge personnel showing a brand new space fighter, usually carried on-board of large flagships. \n\"Vigilant\"".to_string()
-        }
-    );
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster5").unwrap(),
-            name: RichName {
-                name: "bridge poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A poster for bridge personnel reminding the importance of the connectivity of technology. The logo disturbingly reminds you of chains. \n\"Connect\"".to_string()
-        }
-    );
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data
-            .details1_name_id_map
-            .get("redDragonBridgePoster6")
-            .unwrap(),
-        name: RichName {
-            name: "bridge poster".to_string(),
-            n: false,
-            the: false,
-        },
-        description: "A poster for bridge personnel. \n\"Remotely connected\"".to_string(),
-    });
-    details1_cells_data.push(
-        Details1CellProperties{
-            id: *gridmap_data.details1_name_id_map.get("redDragonBridgePoster7").unwrap(),
-            name: RichName {
-                name: "bridge poster".to_string() ,
-                n: false,
-                the: false,
-            },
-            description: "A poster for bridge personnel promoting its staff to be watchful with the help of security cameras installed around the ship. \n\"Watchful\"".to_string()
-        }
-    );
-
-    details1_cells_data.push(Details1CellProperties {
-        id: *gridmap_data
-            .details1_name_id_map
-            .get("floorLight1")
-            .unwrap(),
-        name: RichName {
-            name: "fluorescent floor light".to_string(),
-            n: true,
-            the: false,
-        },
-        description: "A fluorescent floor light.".to_string(),
-    });
-
-    for cell_properties in details1_cells_data.iter() {
-        gridmap_data
-            .details1_text_names
-            .insert(cell_properties.id, cell_properties.name.clone());
-        gridmap_data
-            .details1_text_examine_desc
-            .insert(cell_properties.id, cell_properties.description.clone());
-    }
-
-    info!(
-        "Loaded {} gridmap cell types.",
-        main_cells_data.len() + details1_cells_data.len()
-    );
+    */
+    info!("Loaded {} gridmap cell types.", main_cells_data.len());
 }
 use player::spawn_points::SpawnPointRon;
 
@@ -788,17 +785,6 @@ pub(crate) fn startup_misc_resources(
         ron::from_str(&current_map_mainordered_cells_raw_ron)
             .expect("Error parsing map mainordered.ron String.");
 
-    let details1ordered_cells_ron = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("details1ordered.ron");
-    let current_map_details1ordered_cells_raw_ron: String =
-        fs::read_to_string(details1ordered_cells_ron)
-            .expect("Error reading map details1ordered.ron drive.");
-    let current_map_details1ordered_cells: Vec<String> =
-        ron::from_str(&current_map_details1ordered_cells_raw_ron)
-            .expect("Error parsing map details1ordered.ron String.");
-
     for (i, name) in current_map_mainordered_cells.iter().rev().enumerate() {
         gridmap_data
             .main_name_id_map
@@ -808,17 +794,7 @@ pub(crate) fn startup_misc_resources(
             .insert(i as u16, name.to_string());
     }
 
-    for (i, name) in current_map_details1ordered_cells.iter().rev().enumerate() {
-        gridmap_data
-            .details1_name_id_map
-            .insert(name.to_string(), i as u16);
-        gridmap_data
-            .details1_id_name_map
-            .insert(i as u16, name.to_string());
-    }
-
     gridmap_data.ordered_main_names = current_map_mainordered_cells;
-    gridmap_data.ordered_details1_names = current_map_details1ordered_cells;
 
     let spawnpoints_ron = Path::new("data")
         .join("maps")
@@ -873,23 +849,7 @@ pub(crate) fn load_ron_gridmap(
         &mut set_cell,
     );
 
-    let details1_ron_path = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("details1.ron");
-    let current_map_details1_raw_ron: String = fs::read_to_string(details1_ron_path.clone())
-        .expect(&format!(
-            "startup_build_map() Error reading map {:?} file from drive.",
-            details1_ron_path.clone(),
-        ));
-    let details1_ron: Vec<CellDataRon> = ron::from_str(&current_map_details1_raw_ron).expect(
-        &format!("startup_build_map() Error reading {:?}", details1_ron_path),
-    );
-
-    info!(
-        "Spawned {} map cells.",
-        current_map_main_data.len() + details1_ron.len()
-    );
+    info!("Spawned {} map cells.", current_map_main_data.len());
 }
 
 use player::boarding::{SpawnPoint, SpawnPointRaw, SpawnPoints};
