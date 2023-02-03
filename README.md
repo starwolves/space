@@ -18,15 +18,15 @@
 
 ## Description
 
-*Space Frontiers is a next-generation online community multiplayer game in which players find themselves within a galaxy consisting of multiple sectors and spaceships. Active co-operative and PVP gameplay takes place in and around manned spaceships. Players have to work together to run and maintain a spaceship or a fleet of spaceships. Crew members are assigned different roles with different levels of responsibilities and authorization. The manned spaceships will be tasked to jump from sector to sector which can also trigger random events; events will include player antagonists, traitor roles, alien infestations and more. Events can be customized or steered by admins and events. Therefore player communication is key, putting emphasis on the chat with optional roleplay features. A wide variety of simulated spaceship and gameplay elements will be included to ensure these scenarios will be as fun as possible.*
+*Space Frontiers is a next-generation online community multiplayer game in which players find themselves within a galaxy consisting of multiple sectors and spaceships. Active co-operative and PVP gameplay takes place in and around manned spaceships together with a strong foundation of social community-oriented gameplay features. Developed as a sandbox, shaped by the players.*
 
-*Space frontiers seeks to deliver an experience that offers very high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
+*Space frontiers seeks to deliver an experience that offers high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
 **There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
 
 ### Technology
 
-The repository contains both the server and client. Both are entirely written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. Space Frontiers is designed from the ground up to support modern CPUs to efficiently take advantage of any amount of available threads without increasing code complexity and without chances of data races. The old prototype client is made with Godot 3.
+The repository contains both the server and client. Both are entirely written in Rust with the [Bevy ECS](https://bevyengine.org/) game engine. The technology stack is cutting-edge and will serve next-generation video-games well. Space Frontiers is designed from the ground up to support modern CPUs to efficiently take advantage of any amount of available CPU cores without increasing code complexity and without chances of data races. The old prototype client is made with Godot 3.
 
 ### Community
 
