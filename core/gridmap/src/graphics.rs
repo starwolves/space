@@ -24,8 +24,8 @@ pub(crate) fn spawn_map_graphics(
     for message in messages.iter() {
         match message.message {
             PlayerServerMessage::Boarded => {
-                let wall_asset = assets.load("models/floor/floor.glb#Scene0");
-                let floor_asset = assets.load("models/wall/wall.glb#Scene0");
+                let floor_asset = assets.load("models/floor/floor.glb#Scene0");
+                let wall_asset = assets.load("models/wall/wall.glb#Scene0");
 
                 let mut spawned_i = 0;
                 let mut chunk_i = 0;
