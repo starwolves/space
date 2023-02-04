@@ -4,7 +4,6 @@ use actions::core::{ActionRequests, BuildingActions};
 
 use crate::inventory::Inventory;
 use crate::item::InventoryItem;
-use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
     hierarchy::{Children, Parent},
     math::Vec3,
@@ -648,13 +647,7 @@ pub(crate) fn throw_item(
     mut throw_item_events: EventReader<InputThrowItem>,
     mut rigidbody_positions: Query<&mut Transform>,
     examinables: Query<&Examinable>,
-    mut inventory_entities: Query<(
-        &mut Inventory,
-        &Sensable,
-        &mut Pawn,
-        Option<&ZeroGravity>,
-        Entity,
-    )>,
+    mut inventory_entities: Query<(&mut Inventory, &Sensable, &mut Pawn, Entity)>,
     mut pickupable_entities: Query<(
         Entity,
         &mut InventoryItem,
@@ -817,7 +810,7 @@ pub(crate) fn throw_item(
 
         let thrower_vec3: Vec3;
 
-        match rigidbody_positions.get(pickuper_components.4) {
+        match rigidbody_positions.get(pickuper_components.3) {
             Ok(pos) => {
                 thrower_vec3 = pos.translation.into();
             }
@@ -856,15 +849,15 @@ pub(crate) fn throw_item(
             Err(_rr) => {}
         }
 
-        if pickuper_components.3.is_some() {
+        /*if pickuper_components.3.is_some() {
             // Thrower has zerogravity, apply inverse impulse energy.
-            match external_impulses.get_mut(pickuper_components.4) {
+            match external_impulses.get_mut(pickuper_components.3) {
                 Ok(mut s) => {
                     s.impulse = -impulse_absolute;
                 }
                 Err(_rr) => {}
             }
-        }
+        }*/
 
         match &drop_slot.slot_attachment {
             Some(attachment_path) => {

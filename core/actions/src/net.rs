@@ -1,7 +1,8 @@
+use resources::grid::CellFace;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
-use crate::networking::NetAction;
+use crate::{core::TargetCell, networking::NetAction};
 
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
@@ -13,6 +14,6 @@ pub enum ActionsServerMessage {
 
 pub enum ActionsClientMessage {
     TabDataEntity(u64),
-    TabDataMap(i16, i16, i16),
-    TabPressed(String, Option<u64>, Option<(i16, i16, i16)>, Option<u64>),
+    TabDataMap(i16, i16, i16, CellFace),
+    TabPressed(String, Option<u64>, Option<TargetCell>, Option<u64>),
 }

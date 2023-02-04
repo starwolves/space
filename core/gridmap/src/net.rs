@@ -16,7 +16,7 @@ pub enum GridmapClientMessage {
 
 pub enum GridmapServerMessage {
     RemoveCell(i16, i16, i16),
-    AddCell(i16, i16, i16, u16, Orientation),
+    AddCell(i16, i16, i16, u16, Option<Orientation>),
     FireProjectile(ProjectileData),
     ConfigBlackCellID(u16, u16),
     ConfigOrderedCellsMain(Vec<String>),

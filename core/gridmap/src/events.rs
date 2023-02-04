@@ -1,19 +1,13 @@
-use bevy::{
-    hierarchy::Children,
-    prelude::{warn, Commands, Component, Entity, EventReader, Query, Res, ResMut, With},
-};
+use bevy::prelude::{warn, Component, Entity, EventReader, Query, Res, ResMut};
 
-use bevy_rapier3d::prelude::RigidBody;
-use doryen_fov::FovAlgorithm;
+use resources::grid::CellFace;
 use text_api::core::{EXAMINATION_EMPTY, FURTHER_ITALIC_FONT};
 
 use entity::senser::{to_doryen_coordinates, Senser};
 use math::grid::Vec3Int;
-use serde::Deserialize;
 
-use crate::grid::{CellData, CellUpdate, Gridmap, GridmapChunk, Orientation, RemoveCell};
+use crate::grid::{CellData, GridItems, Gridmap, GridmapChunk};
 
-use super::fov::{DoryenMap, FOV_DISTANCE};
 use networking::server::ConnectedPlayer;
 
 use crate::net::GridmapServerMessage;
@@ -36,15 +30,15 @@ pub(crate) fn gridmap_updates_manager(
                 && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1)
             {
                 cell_update.entities_received.push(senser_entity);
-                if cell_update.cell_data.item_0 != 0 {
+                if cell_update.cell_data.item_0.id != 0 {
                     server.send(OutgoingReliableServerMessage {
                         handle: connected_player_component.handle,
                         message: GridmapServerMessage::AddCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
-                            cell_update.cell_data.item_0,
-                            cell_update.cell_data.orientation.clone(),
+                            cell_update.cell_data.item_0.id,
+                            cell_update.cell_data.item_0.orientation.clone(),
                         ),
                     });
                 } else {
@@ -70,15 +64,15 @@ pub fn examine_ship_cell(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> S
         + "You examine the "
         + &gridmap_data
             .main_text_names
-            .get(&ship_cell.item_0)
+            .get(&ship_cell.item_0.id)
             .unwrap()
             .get_name()
         + ".[/font]\n";
 
-    if ship_cell.item_0 != 0 {
+    if ship_cell.item_0.id != 0 {
         examine_text = gridmap_data
             .main_text_examine_desc
-            .get(&ship_cell.item_0)
+            .get(&ship_cell.item_0.id)
             .unwrap();
     } else {
         examine_text = EXAMINATION_EMPTY;
@@ -93,11 +87,14 @@ pub fn examine_ship_cell(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> S
 pub struct SetCell {
     pub id: Vec3Int,
     pub data: CellData,
+    pub face: CellFace,
 }
 
 /// Set a gridmap cell.
 pub(crate) fn set_cell(mut events: EventReader<SetCell>, mut gridmap_main: ResMut<Gridmap>) {
     for event in events.iter() {
+        let strict = gridmap_main.get_strict_cell(event.id, event.face.clone());
+
         match gridmap_main.get_indexes(event.id) {
             Some(indexes) => match gridmap_main.grid_data.get_mut(indexes.chunk) {
                 Some(chunk_option) => {
@@ -109,7 +106,43 @@ pub(crate) fn set_cell(mut events: EventReader<SetCell>, mut gridmap_main: ResMu
                     }
                     match chunk_option {
                         Some(chunk) => {
-                            chunk.cells[indexes.cell] = Some(event.data.clone());
+                            let found;
+                            match chunk.cells.get(indexes.cell) {
+                                Some(_) => {
+                                    found = true;
+                                }
+                                None => {
+                                    found = false;
+                                }
+                            }
+
+                            if !found {
+                                chunk.cells[indexes.cell] = Some(GridItems::default());
+                            }
+
+                            let mut y = chunk.cells.get_mut(indexes.cell);
+                            let x = y.as_mut().unwrap();
+
+                            match x {
+                                Some(_) => {}
+                                None => {
+                                    **x = Some(GridItems::default());
+                                }
+                            }
+
+                            let mut grid_items = x.as_mut().unwrap();
+
+                            match strict.face {
+                                crate::grid::StrictCellFace::FrontWall => {
+                                    grid_items.front_wall = Some(event.data.clone());
+                                }
+                                crate::grid::StrictCellFace::RightWall => {
+                                    grid_items.right_wall = Some(event.data.clone());
+                                }
+                                crate::grid::StrictCellFace::Floor => {
+                                    grid_items.floor = Some(event.data.clone());
+                                }
+                            }
                         }
                         None => {
                             warn!("No chunk option");
@@ -129,6 +162,7 @@ pub(crate) fn set_cell(mut events: EventReader<SetCell>, mut gridmap_main: ResMu
 }
 
 /// Remove a ship/gridmap cell.
+/*
 pub(crate) fn remove_cell(
     mut deconstruct_cell_events: EventReader<RemoveCell>,
     mut gridmap_main: ResMut<Gridmap>,
@@ -144,7 +178,7 @@ pub(crate) fn remove_cell(
             // Wall
 
             let cell_entity;
-            match gridmap_main.get_cell(event.id) {
+            match gridmap_main.get_cell(event.id, event.face) {
                 Some(cell_data) => match cell_data.entity_option {
                     Some(ent) => {
                         cell_entity = ent;
@@ -225,6 +259,7 @@ pub(crate) fn remove_cell(
         };
     }
 }
+*/
 
 /// Component that represents a cell.
 #[derive(Component)]
@@ -239,13 +274,4 @@ impl Default for Cell {
             id: Vec3Int { x: 0, y: 0, z: 0 },
         }
     }
-}
-
-/// Represents a cell with some additional data.
-#[derive(Deserialize)]
-
-pub(crate) struct CellDataWID {
-    pub id: String,
-    pub item: String,
-    pub orientation: Orientation,
 }

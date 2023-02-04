@@ -54,7 +54,7 @@ pub(crate) fn projectile_attack(
     colliders: Query<&Parent, With<Collider>>,
     mut rigidbody_query: Query<(&mut HealthComponent, &Examinable, &Transform)>,
     physics_cells: Query<&Cell>,
-    world_cells: Res<Gridmap>,
+    _world_cells: Res<Gridmap>,
     mut query_hit_result: EventWriter<QueryCombatHitResult>,
     mut cached_attacks: ResMut<ActiveAttacks>,
     mut blank_writer: EventWriter<ProjectileBlank>,
@@ -212,7 +212,7 @@ pub(crate) fn projectile_attack(
                         );
                         let max_toi = distance * 1.2;
 
-                        let hit_point: Vec3;
+                        let _hit_point: Vec3;
 
                         if let Some((_hit_collider_handle, hit_toi)) = rapier_context.cast_ray(
                             ray.origin.into(),
@@ -235,14 +235,14 @@ pub(crate) fn projectile_attack(
                                 },
                             ),
                         ) {
-                            hit_point = ray.point_at(hit_toi).into();
+                            _hit_point = ray.point_at(hit_toi).into();
                         } else {
-                            hit_point = position;
+                            _hit_point = position;
                         };
 
                         sound_transform.translation = position;
 
-                        let cell_data = world_cells.get_cell(cell_component.id).unwrap();
+                        /*let cell_data = world_cells.get_cell(cell_component.id).unwrap();
 
                         let r = AttackResult {
                             entity_option: None,
@@ -252,13 +252,13 @@ pub(crate) fn projectile_attack(
                             collider_handle: collider_entity,
                             is_combat_obstacle: !world_cells
                                 .non_combat_obstacle_cells_list
-                                .contains(&cell_data.item_0),
+                                .contains(&cell_data.item_0.id),
                             is_laser_obstacle: !world_cells
                                 .non_laser_obstacle_cells_list
-                                .contains(&cell_data.item_0),
+                                .contains(&cell_data.item_0.id),
                         };
 
-                        hit_entities_query.push(r);
+                        hit_entities_query.push(r);*/
                     }
                     Err(_rr) => {}
                 }

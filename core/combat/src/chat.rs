@@ -421,18 +421,18 @@ pub fn attacked_by_chat<T: Component>(
 
 pub fn hit_query_chat_cells(
     mut query_hit_results: EventReader<QueryCombatHitResult>,
-    sensers: Query<(Entity, &Senser)>,
+    _sensers: Query<(Entity, &Senser)>,
     attackers: Query<(&Transform, &Examinable)>,
     cached_attacks: Res<ActiveAttacks>,
-    handle_to_entity: Res<HandleToEntity>,
+    _handle_to_entity: Res<HandleToEntity>,
     inventory_items_query: Query<(
         &InventoryItem,
         &Examinable,
         &MeleeCombat,
         Option<&ProjectileCombat>,
     )>,
-    gridmap_main: Res<Gridmap>,
-    mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
+    _gridmap_main: Res<Gridmap>,
+    mut _server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
 ) {
     for query_hit_result in query_hit_results.iter() {
         let attack_cache;
@@ -462,12 +462,12 @@ pub fn hit_query_chat_cells(
         }
 
         let attacker_transform;
-        let attacker_examinable_component;
+        let _attacker_examinable_component;
 
         match attackers.get(attack_cache.attack.attacker) {
             Ok((t, e)) => {
                 attacker_transform = t;
-                attacker_examinable_component = e;
+                _attacker_examinable_component = e;
             }
             Err(_rr) => {
                 warn!("Cell attack text couldnt find attacker entity.");
@@ -475,11 +475,11 @@ pub fn hit_query_chat_cells(
             }
         }
 
-        let mut weapon_name = "his fists".to_string();
-        let mut weapon_a_name = "his fists".to_string();
+        let mut _weapon_name = "his fists".to_string();
+        let mut _weapon_a_name = "his fists".to_string();
 
-        let offense_words;
-        let trigger_words;
+        let _offense_words;
+        let _trigger_words;
 
         match attack_cache.attack.weapon_option {
             Some(weapon_entity) => match inventory_items_query.get(weapon_entity) {
@@ -489,19 +489,19 @@ pub fn hit_query_chat_cells(
                     melee_combat_component,
                     projectile_combat_component,
                 )) => {
-                    weapon_a_name = examinable_component.name.get_a_name().clone();
-                    weapon_name = examinable_component.name.get_name().to_owned();
+                    _weapon_a_name = examinable_component.name.get_a_name().clone();
+                    _weapon_name = examinable_component.name.get_name().to_owned();
                     match melee {
                         true => {
-                            offense_words = melee_combat_component.combat_melee_text_set.clone();
-                            trigger_words = melee_combat_component.trigger_melee_text_set.clone();
+                            _offense_words = melee_combat_component.combat_melee_text_set.clone();
+                            _trigger_words = melee_combat_component.trigger_melee_text_set.clone();
                         }
                         false => {
-                            offense_words = projectile_combat_component
+                            _offense_words = projectile_combat_component
                                 .unwrap()
                                 .combat_projectile_text_set
                                 .clone();
-                            trigger_words = projectile_combat_component
+                            _trigger_words = projectile_combat_component
                                 .unwrap()
                                 .trigger_projectile_text_set
                                 .clone();
@@ -514,16 +514,17 @@ pub fn hit_query_chat_cells(
                 }
             },
             None => {
-                offense_words = get_default_fists_words();
-                trigger_words = get_default_trigger_fists_words();
+                _offense_words = get_default_fists_words();
+                _trigger_words = get_default_trigger_fists_words();
             }
         }
 
         let attacker_cell_id = world_to_cell_id(attacker_transform.translation);
 
-        let attacker_cell_id_doryen = to_doryen_coordinates(attacker_cell_id.x, attacker_cell_id.z);
+        let _attacker_cell_id_doryen =
+            to_doryen_coordinates(attacker_cell_id.x, attacker_cell_id.z);
 
-        for attacked_cell_id in query_hit_result.cell_hits.iter() {
+        /*for attacked_cell_id in query_hit_result.cell_hits.iter() {
             let attacked_cell_id_doryen =
                 to_doryen_coordinates(attacked_cell_id.cell.x, attacked_cell_id.cell.z);
 
@@ -618,7 +619,7 @@ pub fn hit_query_chat_cells(
                     }
                 }
             }
-        }
+        }*/
     }
 }
 

@@ -10,7 +10,6 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-
 [dependencies.bevy]
 version = "0.9.1"
 default-features = false
@@ -23,13 +22,12 @@ typename = "0.1.2"
 
 networking = { path = "../networking" }
 sounds = { path = "../../entities/sounds" }
-pawn = { path = "../pawn"}
+pawn = { path = "../pawn" }
 sfx = { path = "../sfx" }
 gridmap = { path = "../gridmap" }
 actions = { path = "../actions" }
 entity = { path = "../entity" }
 resources = { path = "../resources" }
-atmospherics = { path = "../atmospherics" }
 math = { path = "../math" }
 physics = { path = "../physics" }
 text_api = { path = "../text_api" }

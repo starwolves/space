@@ -18,7 +18,7 @@ use crate::{
 };
 
 use super::{
-    counter_window_added::{counter_window_added, counter_window_default_map_added},
+    counter_window_added::counter_window_default_map_added,
     counter_window_events::{
         counter_window_events, CounterWindowLockClosed, CounterWindowLockOpen,
         CounterWindowSensorCollision, CounterWindowUnlock, InputCounterWindowToggleOpen,
@@ -37,7 +37,6 @@ impl Plugin for CounterWindowsPlugin {
             app.add_event::<CounterWindowSensorCollision>()
                 .add_system(counter_window_tick_timers)
                 .add_system(counter_window_events)
-                .add_system(counter_window_added)
                 .add_system(counter_window_default_map_added)
                 .add_system(physics_events)
                 .add_event::<InputCounterWindowToggleOpen>()

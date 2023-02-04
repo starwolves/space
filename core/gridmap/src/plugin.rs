@@ -7,7 +7,7 @@ use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
     is_server::is_server,
-    labels::{ActionsLabels, BuildingLabels, PostUpdateLabels, StartupLabels, UpdateLabels},
+    labels::{ActionsLabels, BuildingLabels, PostUpdateLabels, StartupLabels},
 };
 
 use crate::{
@@ -27,8 +27,8 @@ use crate::{
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
 use super::{
-    events::{gridmap_updates_manager, remove_cell},
-    fov::{projectile_fov, senser_update_fov, DoryenMap},
+    events::gridmap_updates_manager,
+    fov::{senser_update_fov, DoryenMap},
     sensing_ability::gridmap_sensing_ability,
 };
 
@@ -38,8 +38,8 @@ impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_system(senser_update_fov)
-                .add_system(projectile_fov)
-                .add_system(remove_cell.label(UpdateLabels::DeconstructCell))
+                //.add_system(projectile_fov)
+                //.add_system(remove_cell.label(UpdateLabels::DeconstructCell))
                 .add_event::<RemoveCell>()
                 .add_system_set(
                     SystemSet::new()

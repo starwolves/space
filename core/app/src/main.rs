@@ -3,7 +3,6 @@
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
-use atmospherics::plugin::AtmosphericsPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::diagnostic::DiagnosticsPlugin;
@@ -136,7 +135,6 @@ pub(crate) fn configure_and_start() {
         .add_plugin(HumanMalePlugin)
         .add_plugin(SfxPlugin)
         .add_plugin(EntityPlugin)
-        .add_plugin(AtmosphericsPlugin)
         .add_plugin(ConsoleCommandsPlugin)
         .add_plugin(ConstructionToolAdminPlugin)
         .add_plugin(ActionsPlugin)

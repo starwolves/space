@@ -6,6 +6,7 @@ use entity::{
     senser::{to_doryen_coordinates, Senser, SensingAbility},
 };
 use math::grid::Vec3Int;
+use resources::grid::CellFace;
 use text_api::core::{
     get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
     HEALTHY_COLOR, UNHEALTHY_COLOR,
@@ -42,7 +43,7 @@ pub(crate) fn examine_map(
         if !examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
             examine_text = get_empty_cell_message();
         } else {
-            match gridmap_main.get_cell(examine_event.gridmap_cell_id) {
+            match gridmap_main.get_cell(examine_event.gridmap_cell_id, examine_event.face.clone()) {
                 Some(ship_cell) => {
                     examine_text = examine_ship_cell(&ship_cell, &gridmap_main);
                 }
@@ -96,7 +97,7 @@ pub(crate) fn set_action_header_name(
 
                 let item_id;
 
-                match gridmap_main.get_cell(gridmap) {
+                match gridmap_main.get_cell(gridmap.id, gridmap.face) {
                     Some(data) => {
                         item_id = data.item_0;
                     }
@@ -106,7 +107,7 @@ pub(crate) fn set_action_header_name(
                     }
                 }
 
-                action_data_request.set_id(names.get(&item_id).unwrap().get_name().to_string());
+                action_data_request.set_id(names.get(&item_id.id).unwrap().get_name().to_string());
             }
         }
     }
@@ -134,7 +135,8 @@ pub(crate) fn examine_map_health(
 
         let gridmap_result;
 
-        gridmap_result = gridmap_main.get_cell(examine_event.gridmap_cell_id);
+        gridmap_result =
+            gridmap_main.get_cell(examine_event.gridmap_cell_id, examine_event.face.clone());
 
         let ship_cell_option;
 
@@ -292,6 +294,7 @@ pub struct InputExamineMap {
     pub handle: u64,
     pub entity: Entity,
     pub gridmap_cell_id: Vec3Int,
+    pub face: CellFace,
     /// Map examine message being built and sent back to the player.
     pub message: String,
 }
@@ -303,6 +306,7 @@ impl Default for InputExamineMap {
             entity: Entity::from_bits(0),
             gridmap_cell_id: Vec3Int::default(),
             message: ASTRIX.to_string(),
+            face: CellFace::default(),
         }
     }
 }
@@ -370,7 +374,7 @@ pub(crate) fn examine_grid(
                         examine_map_messages.messages.push(InputExamineMap {
                             handle: *handle,
                             entity: building.action_taker,
-                            gridmap_cell_id: c,
+                            gridmap_cell_id: c.id,
                             ..Default::default()
                         });
                     }
