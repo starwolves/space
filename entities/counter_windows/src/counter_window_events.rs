@@ -1,5 +1,4 @@
 use airlocks::airlock_events::{AirlockCloseRequest, LockedStatus};
-use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::{
     hierarchy::Children,
     prelude::{
@@ -9,7 +8,6 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::{Collider, CollisionGroups, Group};
 use entity::{entity_data::EntityGroup, examine::Examinable};
-use math::grid::{world_to_cell_id, Vec2Int};
 use networking::server::NetworkingChatServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
 use physics::physics::{get_bit_masks, ColliderGroup};
@@ -50,7 +48,6 @@ pub(crate) fn counter_window_events(
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
-    mut atmospherics_resource: ResMut<AtmosphericsResource>,
     mut counter_window_lock_open_events: EventReader<CounterWindowLockOpen>,
     mut counter_window_lock_close_events: EventReader<CounterWindowLockClosed>,
     mut unlock_events: EventReader<CounterWindowUnlock>,
@@ -527,27 +524,6 @@ pub(crate) fn counter_window_events(
                 sfx_auto_destroy(sfx_entity, &mut auto_destroy_timers);
             }
 
-            let cell_id = world_to_cell_id(
-                counter_window_rigid_body_position_component
-                    .translation
-                    .into(),
-            );
-            let cell_id2 = Vec2Int {
-                x: cell_id.x,
-                y: cell_id.z,
-            };
-            if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                continue;
-            }
-            let atmos_id = get_atmos_index(cell_id2);
-            let atmospherics = atmospherics_resource
-                .atmospherics
-                .get_mut(atmos_id)
-                .unwrap();
-
-            atmospherics.blocked = false;
-            atmospherics.forces_push_up = true;
-
             counter_window_component.status = CounterWindowStatus::Open;
             counter_window_component.access_lights = CounterWindowAccessLightsStatus::Granted;
 
@@ -575,7 +551,7 @@ pub(crate) fn counter_window_events(
         match counter_window_query.get_mut(request.interacted) {
             Ok((
                 mut counter_window_component,
-                rigid_body_position_component,
+                _rigid_body_position_component,
                 _counter_window_entity,
                 _children_component,
                 _examinable_component,
@@ -626,23 +602,6 @@ pub(crate) fn counter_window_events(
                 }
 
                 counter_window_component.status = CounterWindowStatus::Closed;
-
-                let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
-                let cell_id2 = Vec2Int {
-                    x: cell_id.x,
-                    y: cell_id.z,
-                };
-                if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                    continue;
-                }
-                let atmos_id = get_atmos_index(cell_id2);
-                let atmospherics = atmospherics_resource
-                    .atmospherics
-                    .get_mut(atmos_id)
-                    .unwrap();
-
-                atmospherics.blocked = true;
-                atmospherics.forces_push_up = false;
 
                 counter_window_component.closed_timer = Some(close_timer());
             }

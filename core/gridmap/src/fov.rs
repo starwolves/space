@@ -1,14 +1,9 @@
-use std::collections::HashMap;
-
-use bevy::{
-    math::Vec3,
-    prelude::{EventReader, Query, Res, ResMut, Resource, Transform},
-};
+use bevy::prelude::{Query, ResMut, Resource, Transform};
 use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, WORLD_WIDTH_CELLS};
-use math::grid::{world_to_cell_id, Vec2Int, Vec3Int};
+use math::grid::{world_to_cell_id, Vec2Int};
 
-use crate::{grid::Gridmap, net::ProjectileData};
+use crate::net::ProjectileData;
 
 pub const FOV_DISTANCE: usize = 23;
 
@@ -17,14 +12,8 @@ pub const FOV_DISTANCE: usize = 23;
 pub struct ProjectileFOV {
     pub laser_projectile: ProjectileData,
 }
-use networking::server::ConnectedPlayer;
-
-use bevy::prelude::EventWriter;
-use networking::server::OutgoingReliableServerMessage;
-
-use crate::net::GridmapServerMessage;
 /// Manage projectiles existing in this frame, calculate the FOV of their trajectories and visually spawn in projectiles on all clients that see them.
-
+/*
 pub(crate) fn projectile_fov(
     mut projectile_fov_events: EventReader<ProjectileFOV>,
     sensers: Query<(&Senser, &ConnectedPlayer)>,
@@ -183,7 +172,7 @@ pub(crate) fn projectile_fov(
         }
     }
 }
-
+*/
 /// The resource with FOV data.
 
 #[derive(Resource)]

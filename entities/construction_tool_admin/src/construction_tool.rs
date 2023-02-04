@@ -1,5 +1,5 @@
+use actions::core::TargetCell;
 use bevy::prelude::{Component, Entity};
-use math::grid::Vec3Int;
 
 /*use std::collections::HashMap;
 
@@ -1235,7 +1235,7 @@ pub struct InputConstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
     /// Build on gridmap cell:
-    pub target_cell: Vec3Int,
+    pub target_cell: TargetCell,
     /// Entity that requested to construct.
     pub belonging_entity: Entity,
 }
@@ -1252,7 +1252,7 @@ pub struct InputConstructionOptions {
 pub struct InputDeconstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
-    pub target_cell_option: Option<Vec3Int>,
+    pub target_cell_option: Option<TargetCell>,
     pub target_entity_option: Option<Entity>,
     /// Entity that requested to deconstruct.
     pub belonging_entity: Entity,

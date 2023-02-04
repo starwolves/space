@@ -142,7 +142,7 @@ pub(crate) fn deconstruct_action_prequisite_check(
                     }
                 }
 
-                let cell_option = gridmap_main.get_cell(cell_id);
+                let cell_option = gridmap_main.get_cell(cell_id.id, cell_id.face);
 
                 match building.target_cell_option.is_some() && cell_option.is_some() {
                     true => {
@@ -186,7 +186,7 @@ pub(crate) fn construction_tool_search_distance_prequisite_check(
                 match building.target_cell_option.clone() {
                     Some(c) => {
                         cell_id = c;
-                        start_pos = cell_id_to_world(cell_id);
+                        start_pos = cell_id_to_world(cell_id.id);
                     }
                     None => {
                         warn!("got entity with cell action.");

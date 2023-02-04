@@ -44,7 +44,7 @@ pub(crate) fn incoming_messages(
                 }
             }
 
-            ActionsClientMessage::TabDataMap(idx, idy, idz) => {
+            ActionsClientMessage::TabDataMap(idx, idy, idz, face) => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         action_data_map.send(InputListActionsMap {
@@ -55,6 +55,7 @@ pub(crate) fn incoming_messages(
                                 z: idz,
                             },
                             with_ui: true,
+                            face,
                         });
                     }
                     None => {
@@ -82,23 +83,10 @@ pub(crate) fn incoming_messages(
                     }
                 }
 
-                let mut cell_option_op = None;
-
-                match cell_option {
-                    Some(c) => {
-                        cell_option_op = Some(Vec3Int {
-                            x: c.0,
-                            y: c.1,
-                            z: c.2,
-                        });
-                    }
-                    None => {}
-                }
-
                 input_action.send(InputAction {
                     fired_action_id: id,
                     target_entity_option: entity_p_op,
-                    target_cell_option: cell_option_op,
+                    target_cell_option: cell_option,
                     action_taker: entity_b_op,
                 });
             }

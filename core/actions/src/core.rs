@@ -38,6 +38,11 @@ impl ActionRequest {
         self.id = new_id;
     }
 }
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TargetCell {
+    pub id: Vec3Int,
+    pub face: CellFace,
+}
 
 /// A request to build a list of available actions.
 pub struct BuildingAction {
@@ -50,7 +55,7 @@ pub struct BuildingAction {
     /// The entity targetted in the action.
     pub target_entity_option: Option<Entity>,
     /// The ship cell targetted in the action.
-    pub target_cell_option: Option<Vec3Int>,
+    pub target_cell_option: Option<TargetCell>,
 }
 
 /// Data related to an individual action.
@@ -87,6 +92,8 @@ impl ActionData {
     }
 }
 use networking::server::HandleToEntity;
+use resources::grid::CellFace;
+use serde::{Deserialize, Serialize};
 
 use crate::networking::NetAction;
 use networking::server::OutgoingReliableServerMessage;
@@ -124,7 +131,7 @@ pub(crate) fn list_action_data_finalizer(
 
                         match action_data.target_cell_option.clone() {
                             Some(c) => {
-                                cell_option = Some((c.x, c.y, c.z));
+                                cell_option = Some((c.id.x, c.id.y, c.id.z));
                             }
                             None => {}
                         }
@@ -234,7 +241,10 @@ pub(crate) fn init_action_data_listing(
             actions: vec![],
             action_taker: event.requested_by_entity,
             target_entity_option: None,
-            target_cell_option: Some(event.gridmap_cell_id),
+            target_cell_option: Some(TargetCell {
+                id: event.gridmap_cell_id,
+                face: event.face.clone(),
+            }),
         });
         action_data_requests.list.insert(
             action_data_i.get_i(),
@@ -335,17 +345,16 @@ pub(crate) fn init_action_request_building(
 
 /// Client input list actions map event.
 #[derive(Debug, Clone)]
-
 pub struct InputListActionsMap {
     pub requested_by_entity: Entity,
     pub gridmap_cell_id: Vec3Int,
+    pub face: CellFace,
     /// Show UI to entity that we check for.
     pub with_ui: bool,
 }
 
 /// Client input list actions entity event.
 #[derive(Clone)]
-
 pub struct InputListActionsEntity {
     pub requested_by_entity: Entity,
     /// Targetted entity.
@@ -361,5 +370,5 @@ pub struct InputAction {
     pub fired_action_id: String,
     pub action_taker: Entity,
     pub target_entity_option: Option<Entity>,
-    pub target_cell_option: Option<Vec3Int>,
+    pub target_cell_option: Option<TargetCell>,
 }

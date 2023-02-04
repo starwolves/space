@@ -36,7 +36,39 @@ pub(crate) fn spawn_map_graphics(
                             for tile_option in chunk.cells.iter() {
                                 match tile_option {
                                     Some(tile) => {
-                                        match gridmap_main.main_id_name_map.get(&tile.item_0) {
+                                        let mut cell_data_option = None;
+                                        match &tile.floor {
+                                            Some(data) => {
+                                                cell_data_option = Some(data);
+                                            }
+                                            None => {}
+                                        }
+                                        match &tile.front_wall {
+                                            Some(data) => {
+                                                cell_data_option = Some(data);
+                                            }
+                                            None => {}
+                                        }
+                                        match &tile.right_wall {
+                                            Some(data) => {
+                                                cell_data_option = Some(data);
+                                            }
+                                            None => {}
+                                        }
+                                        let cell_data;
+                                        match cell_data_option {
+                                            Some(data) => {
+                                                cell_data = data;
+                                            }
+                                            None => {
+                                                continue;
+                                            }
+                                        }
+
+                                        match gridmap_main
+                                            .main_id_name_map
+                                            .get(&cell_data.item_0.id)
+                                        {
                                             Some(gridmap_cell_name) => {
                                                 if gridmap_cell_name.contains("Floor")
                                                     || gridmap_cell_name.contains("Wall")

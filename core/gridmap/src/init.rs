@@ -7,13 +7,12 @@ use bevy_rapier3d::{
 };
 use entity::examine::RichName;
 use math::grid::Vec3Int;
-use resources::converters::string_vec3_to_vec3;
-use resources::core::TickRate;
+use resources::{core::TickRate, grid::CellFace};
 use text_api::core::EXAMINATION_EMPTY;
 
 use crate::{
     build::{build_gridmap_floor_and_roof, build_main_gridmap},
-    events::{CellDataWID, SetCell},
+    events::SetCell,
     fov::DoryenMap,
     grid::{
         AdjacentTileDirection, GridDirectionRotations, Gridmap, MainCellProperties, Orientation,
@@ -836,6 +835,17 @@ pub(crate) fn load_ron_gridmap(
         return;
     }
 
+    info!(
+        "{}",
+        ron::to_string(&CellDataRon {
+            id: Vec3Int::default(),
+            item: "testItem".to_string(),
+            orientation: Some(Orientation::default()),
+            face: CellFace::default()
+        })
+        .unwrap()
+    );
+
     let current_map_main_data: Vec<CellDataRon> = ron::from_str(&current_map_main_raw_ron)
         .expect("startup_build_map() Error parsing map main.ron String.");
 
@@ -852,7 +862,7 @@ pub(crate) fn load_ron_gridmap(
     info!("Spawned {} map cells.", current_map_main_data.len());
 }
 
-use player::boarding::{SpawnPoint, SpawnPointRaw, SpawnPoints};
+use player::boarding::{SpawnPoint, SpawnPoints};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
@@ -861,93 +871,6 @@ pub struct CellDataRon {
     /// Cell item id.
     pub item: String,
     /// Cell rotation.
-    pub orientation: Orientation,
-}
-
-/// Convert old Godot json files to new Bevy ron files.
-
-#[allow(dead_code)]
-pub fn json_map() {
-    // Load map json data into real static bodies.
-    let main_json = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("main.json");
-
-    let current_map_main_raw_json: String = fs::read_to_string(main_json).unwrap();
-    let current_map_main_data: Vec<CellDataWID> =
-        serde_json::from_str(&current_map_main_raw_json).unwrap();
-
-    let mut ron_data = vec![];
-
-    for raw_data in current_map_main_data {
-        let cell_id = string_vec3_to_vec3(&raw_data.id);
-
-        let cell_id_int = Vec3Int {
-            x: cell_id.x as i16,
-            y: cell_id.y as i16,
-            z: cell_id.z as i16,
-        };
-
-        ron_data.push(CellDataRon {
-            id: cell_id_int,
-            item: raw_data.item,
-            orientation: raw_data.orientation,
-        });
-    }
-
-    let raw_ron = ron::to_string::<Vec<CellDataRon>>(&ron_data).unwrap();
-    let path = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("main.ron");
-    fs::write(path, raw_ron).unwrap();
-}
-
-/// Convert old Godot json to new Bevy ron.
-
-#[allow(dead_code)]
-pub fn json_ordered() {
-    let details1ordered_cells_json = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("mainordered.json");
-    let current_map_details1ordered_cells_raw_json: String =
-        fs::read_to_string(details1ordered_cells_json).unwrap();
-    let current_map_details1ordered_cells: Vec<String> =
-        serde_json::from_str(&current_map_details1ordered_cells_raw_json).unwrap();
-
-    let raw_ron = ron::to_string::<Vec<String>>(&current_map_details1ordered_cells).unwrap();
-    let path = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("mainordered.ron");
-    fs::write(path, raw_ron).unwrap();
-}
-
-/// Convert old Godot json to new Bevy ron.
-
-#[allow(dead_code)]
-pub fn json_spawnpoints() {
-    let spawnpoints_json = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("spawnpoints.json");
-    let current_map_spawn_points_raw_json: String = fs::read_to_string(spawnpoints_json)
-        .expect("main.rs main() Error reading map spawnpoints.json from drive.");
-    let _current_map_spawn_points_raw: Vec<SpawnPointRaw> =
-        serde_json::from_str(&current_map_spawn_points_raw_json)
-            .expect("main.rs main() Error parsing map spawnpoints.json String.");
-    let current_map_spawn_points: Vec<SpawnPointRon> = vec![];
-
-    /*for raw_point in current_map_spawn_points_raw.iter() {
-        current_map_spawn_points.push(SpawnPoint::new(raw_point));
-    }*/
-
-    let raw_ron = ron::to_string::<Vec<SpawnPointRon>>(&current_map_spawn_points).unwrap();
-    let path = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("spawnpoints.ron");
-    fs::write(path, raw_ron).unwrap();
+    pub orientation: Option<Orientation>,
+    pub face: CellFace,
 }

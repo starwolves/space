@@ -82,8 +82,8 @@ pub(crate) fn melee_direct(
     rapier_context: Res<RapierContext>,
     colliders: Query<&Parent, With<Collider>>,
     mut rigidbody_query: Query<(&mut HealthComponent, &Examinable, &Transform)>,
-    physics_cells: Query<&Cell>,
-    world_cells: Res<Gridmap>,
+    _physics_cells: Query<&Cell>,
+    _world_cells: Res<Gridmap>,
     mut query_hit_result: EventWriter<QueryCombatHitResult>,
     mut cached_attacks: ResMut<ActiveAttacks>,
     mut blank: EventWriter<MeleeBlank>,
@@ -183,7 +183,7 @@ pub(crate) fn melee_direct(
                     Err(_rr) => {}
                 }
 
-                match physics_cells.get(collider_entity) {
+                /*match physics_cells.get(collider_entity) {
                     Ok(cell_component) => {
                         let position = cell_id_to_world(cell_component.id);
 
@@ -204,7 +204,7 @@ pub(crate) fn melee_direct(
                         });
                     }
                     Err(_rr) => {}
-                }
+                }*/
 
                 true
             },

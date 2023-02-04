@@ -1,10 +1,7 @@
-use std::f32::consts::PI;
-
 use bevy::{
     math::Vec3,
     prelude::{Res, Transform},
 };
-use math::grid::world_to_cell_id;
 use pawn::pawn::FacingDirection;
 
 use crate::grid::Gridmap;
@@ -12,11 +9,12 @@ use crate::grid::Gridmap;
 /// Get a position to spawn an entity on around a player.
 
 pub fn entity_spawn_position_for_player(
-    player_transform: Transform,
-    player_facing_direction_option: Option<&FacingDirection>,
-    angle_option: Option<f32>,
-    gridmap_main: &Res<Gridmap>,
+    _player_transform: Transform,
+    _player_facing_direction_option: Option<&FacingDirection>,
+    _angle_option: Option<f32>,
+    _gridmap_main: &Res<Gridmap>,
 ) -> (Transform, FacingDirection) {
+    /*
     let mut original_transform = player_transform.clone();
 
     if original_transform.translation.y < 0.1 {
@@ -124,11 +122,13 @@ pub fn entity_spawn_position_for_player(
     }
 
     (new_transform, facing_direction.clone())
+    */
+    (Transform::default(), FacingDirection::default())
 }
 
 /// Get facing direction offset as a function.
 
-fn get_offset(player_facing_direction: &FacingDirection, offset: f32) -> Vec3 {
+fn _get_offset(player_facing_direction: &FacingDirection, offset: f32) -> Vec3 {
     match player_facing_direction {
         FacingDirection::UpLeft => Vec3::new(offset, 0., offset),
         FacingDirection::Up => Vec3::new(0., 0., offset),
@@ -140,7 +140,3 @@ fn get_offset(player_facing_direction: &FacingDirection, offset: f32) -> Vec3 {
         FacingDirection::Left => Vec3::new(offset, 0., 0.),
     }
 }
-
-const OFFSET_FROM_PLAYER: f32 = 1.;
-
-const OFFSET_CHECK: f32 = 1.80;

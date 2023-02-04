@@ -4,6 +4,7 @@ use bevy::prelude::{warn, Entity, Res, Resource, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
 use entity::{examine::RichName, health::Health};
 use math::grid::{Vec3Int, CELL_SIZE};
+use resources::grid::CellFace;
 use serde::{Deserialize, Serialize};
 
 /// Gridmap maximum limits as cube dimensions in chunks.
@@ -66,7 +67,7 @@ impl Default for MainCellProperties {
 pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> String {
     gridmap_data
         .main_text_names
-        .get(&ship_cell.item_0)
+        .get(&ship_cell.item_0.id)
         .unwrap()
         .get_a_name()
 }
@@ -78,20 +79,42 @@ pub enum Orientation {
     RightFacing,
     LeftFacing,
 }
+#[derive(Clone, Default)]
+pub struct GridItems {
+    pub floor: Option<CellData>,
+    pub front_wall: Option<CellData>,
+    pub right_wall: Option<CellData>,
+    /// Fixed grid entities in this cell separated from the gridmap ship construction.
+    pub entities: Vec<Entity>,
+}
+
+impl GridItems {
+    pub fn get_item(&self, strict_face: StrictCellFace) -> Option<CellData> {
+        match strict_face {
+            StrictCellFace::FrontWall => self.front_wall.clone(),
+            StrictCellFace::RightWall => self.right_wall.clone(),
+            StrictCellFace::Floor => self.floor.clone(),
+        }
+    }
+}
 
 /// Data stored in a resource of a cell instead of each cell having their own entity with components.
 #[derive(Clone, Default)]
-
 pub struct CellData {
-    /// Cell item ids. Two ids for two faces.
-    pub item_0: u16,
-    pub item_1: u16,
-    /// Cell rotation.
-    pub orientation: Orientation,
-    /// The health of the cell.
+    /// Item id.
+    pub item_0: Item,
+    pub item_1: Item,
+    /// Health of this tile.
     pub health: Health,
-    /// Entity id if cell is an entity.
-    pub entity_option: Option<Entity>,
+}
+#[derive(Clone, Default)]
+pub struct Item {
+    /// Id of item type.
+    pub id: u16,
+    /// Cell rotation.
+    pub orientation: Option<Orientation>,
+    /// Entity belonging to item.
+    pub entity: Option<Entity>,
 }
 
 /// Maximum amount of available map chunks. 22 by 22 by 22 (1 cubic kilometer).
@@ -104,10 +127,10 @@ pub const CHUNK_LENGTH: i16 = 24;
 /// A chunk of the gridmap.
 #[derive(Clone)]
 pub struct GridmapChunk {
-    pub cells: Vec<Option<CellData>>,
+    pub cells: Vec<Option<GridItems>>,
 }
 
-const DEFAULT_CELL_DATA: Option<CellData> = None;
+const DEFAULT_CELL_DATA: Option<GridItems> = None;
 
 impl Default for GridmapChunk {
     fn default() -> Self {
@@ -179,6 +202,19 @@ pub struct CellIndexes {
     pub cell: usize,
 }
 
+#[derive(Serialize, Deserialize, Default)]
+pub enum StrictCellFace {
+    #[default]
+    FrontWall,
+    RightWall,
+    Floor,
+}
+
+pub struct StrictCell {
+    pub face: StrictCellFace,
+    pub id: Vec3Int,
+}
+
 impl Gridmap {
     pub fn get_indexes(&self, id: Vec3Int) -> Option<CellIndexes> {
         let map_half_length =
@@ -245,9 +281,43 @@ impl Gridmap {
 
         Some(id)
     }
-    pub fn get_cell(&self, id: Vec3Int) -> Option<CellData> {
+    pub fn get_strict_cell(&self, id: Vec3Int, face: CellFace) -> StrictCell {
+        let mut adjusted_id = id.clone();
+        let adjusted_face;
+
+        match face {
+            CellFace::BackWall => {
+                adjusted_id.z -= 1;
+                adjusted_face = StrictCellFace::FrontWall;
+            }
+            CellFace::LeftWall => {
+                adjusted_id.x -= 1;
+                adjusted_face = StrictCellFace::RightWall;
+            }
+            CellFace::Ceiling => {
+                adjusted_id.y += 1;
+                adjusted_face = StrictCellFace::Floor;
+            }
+            CellFace::FrontWall => {
+                adjusted_face = StrictCellFace::FrontWall;
+            }
+            CellFace::RightWall => {
+                adjusted_face = StrictCellFace::RightWall;
+            }
+            CellFace::Floor => {
+                adjusted_face = StrictCellFace::Floor;
+            }
+        }
+        StrictCell {
+            face: adjusted_face,
+            id: adjusted_id,
+        }
+    }
+    pub fn get_cell(&self, id: Vec3Int, face: CellFace) -> Option<CellData> {
+        let strict = self.get_strict_cell(id, face);
+
         let indexes;
-        match self.get_indexes(id) {
+        match self.get_indexes(strict.id) {
             Some(i) => {
                 indexes = i;
             }
@@ -260,7 +330,10 @@ impl Gridmap {
         match self.grid_data.get(indexes.chunk) {
             Some(chunk_option) => match chunk_option {
                 Some(chunk) => match chunk.cells.get(indexes.cell) {
-                    Some(cell_data) => cell_data.clone(),
+                    Some(cell_data_option) => match cell_data_option {
+                        Some(items) => items.get_item(strict.face),
+                        None => None,
+                    },
                     None => None,
                 },
                 None => None,
@@ -321,7 +394,7 @@ pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
 pub struct RemoveCell {
     pub handle_option: Option<u64>,
     pub id: Vec3Int,
-    pub cell_data: CellData,
+    pub face: CellFace,
 }
 
 /// A pending cell update like a cell construction.

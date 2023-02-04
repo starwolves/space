@@ -10,7 +10,6 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-
 [dependencies.bevy]
 version = "0.9.1"
 default-features = false
@@ -29,9 +28,8 @@ sfx = { path = "../sfx" }
 entity = { path = "../entity" }
 gridmap = { path = "../gridmap" }
 resources = { path = "../resources" }
-atmospherics = { path = "../atmospherics" }
 math = { path = "../math" }
-text_api = { path = "../text_api"}
+text_api = { path = "../text_api" }
 controller = { path = "../controller" }
 player = { path = "../player" }
 physics = { path = "../physics" }

@@ -1,4 +1,3 @@
-use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::{
     hierarchy::Children,
     prelude::{warn, Commands, Entity, EventReader, Query, ResMut, Transform},
@@ -43,7 +42,6 @@ pub(crate) fn airlock_events(
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
     mut commands: Commands,
-    mut atmospherics_resource: ResMut<AtmosphericsResource>,
     mut airlock_lock_open_event: EventReader<AirLockLockOpen>,
     mut airlock_lock_close_event: EventReader<AirlockLockClosed>,
     mut unlock_events: EventReader<AirlockUnlock>,
@@ -400,20 +398,10 @@ pub(crate) fn airlock_events(
 
         if pawn_has_permission == true {
             let cell_id = world_to_cell_id(collision_transform_component.translation);
-            let cell_id2 = Vec2Int {
+            let _cell_id2 = Vec2Int {
                 x: cell_id.x,
                 y: cell_id.z,
             };
-            if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                continue;
-            }
-            let atmos_id = get_atmos_index(cell_id2);
-            let atmospherics = atmospherics_resource
-                .atmospherics
-                .get_mut(atmos_id)
-                .unwrap();
-
-            atmospherics.blocked = false;
             airlock_component.status = AirlockStatus::Open;
             airlock_component.access_lights = AccessLightsStatus::Granted;
 
@@ -525,20 +513,10 @@ pub(crate) fn airlock_events(
                 }
 
                 let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
-                let cell_id2 = Vec2Int {
+                let _cell_id2 = Vec2Int {
                     x: cell_id.x,
                     y: cell_id.z,
                 };
-                if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-                    continue;
-                }
-                let atmos_id = get_atmos_index(cell_id2);
-                let atmospherics = atmospherics_resource
-                    .atmospherics
-                    .get_mut(atmos_id)
-                    .unwrap();
-
-                atmospherics.blocked = true;
                 airlock_component.status = AirlockStatus::Closed;
 
                 airlock_component.closed_timer_option = Some(closed_timer());

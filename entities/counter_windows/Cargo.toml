@@ -10,8 +10,6 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-
-
 [dependencies.bevy]
 version = "0.9.1"
 default-features = false
@@ -20,9 +18,8 @@ default-features = false
 bevy_rapier3d = "0.19.0"
 const_format = "0.2.30"
 
-entity = { path = "../../core/entity"}
+entity = { path = "../../core/entity" }
 networking = { path = "../../core/networking" }
-atmospherics = { path = "../../core/atmospherics" }
 map = { path = "../../core/map" }
 pawn = { path = "../../core/pawn" }
 sfx = { path = "../../core/sfx" }
@@ -35,4 +32,3 @@ resources = { path = "../../core/resources" }
 math = { path = "../../core/math" }
 airlocks = { path = "../airlocks" }
 physics = { path = "../../core/physics" }
-

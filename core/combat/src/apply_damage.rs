@@ -1,4 +1,4 @@
-use bevy::prelude::{info, warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Resource};
+use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Resource};
 use entity::health::{HealthComponent, HealthContainer};
 use gridmap::{events::SetCell, grid::Gridmap};
 use inventory::combat::{DamageModel, MeleeCombat, ProjectileCombat};
@@ -160,9 +160,9 @@ pub(crate) fn finalize_apply_damage(
     combat_storage: Res<ActiveAttacks>,
     mut health_entities: Query<&mut HealthComponent>,
     mut health_combat_hit_result: EventWriter<HealthCombatHitResult>,
-    gridmap_main: Res<Gridmap>,
+    _gridmap_main: Res<Gridmap>,
     mut active_applydamage: ResMut<ActiveApplyDamage>,
-    mut set_cell: EventWriter<SetCell>,
+    mut _set_cell: EventWriter<SetCell>,
 ) {
     for damage_appler in active_applydamage.list.iter() {
         let attack_cache;
@@ -193,7 +193,7 @@ pub(crate) fn finalize_apply_damage(
         }
 
         let mut entity_hits = vec![];
-        let mut cell_hits = vec![];
+        let cell_hits = vec![];
 
         let mut brute_multiplier = 1.;
         let mut burn_multiplier = 1.;
@@ -275,7 +275,7 @@ pub(crate) fn finalize_apply_damage(
                     }
                 }
             }
-
+            /*
             for cell_id in hit_result.cell_hits.iter() {
                 match gridmap_main.get_cell(cell_id.cell) {
                     Some(cell_data) => match cell_data.clone().health.health_container {
@@ -323,7 +323,7 @@ pub(crate) fn finalize_apply_damage(
                         continue;
                     }
                 }
-            }
+            }*/
         }
 
         health_combat_hit_result.send(HealthCombatHitResult {

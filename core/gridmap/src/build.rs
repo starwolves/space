@@ -11,12 +11,13 @@ use entity::{
     senser::to_doryen_coordinates,
 };
 use math::grid::Vec3Int;
+use resources::grid::CellFace;
 
 use std::collections::HashMap;
 
 use crate::{
     events::{Cell, SetCell},
-    grid::{cell_id_to_world, CellData, Gridmap},
+    grid::{cell_id_to_world, CellData, Gridmap, Item},
 };
 use crate::{grid::Orientation, init::CellDataRon};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
@@ -101,7 +102,7 @@ pub(crate) fn build_main_gridmap(
             }
         };
 
-        if cell_data.id.y == 0 {
+        if matches!(cell_data.face, CellFace::Floor) == false {
             // Wall
 
             if !gridmap_data
@@ -113,44 +114,55 @@ pub(crate) fn build_main_gridmap(
             }
         } else {
             // Floor cells dont have collision. Don't need to be an entity at this moment either.
+
+            let item = Item {
+                id: cell_item_id,
+                orientation: cell_data.orientation.clone(),
+                entity: None,
+            };
+
             set_cell.send(SetCell {
                 id: cell_data.id,
                 data: CellData {
-                    item_0: cell_item_id,
-                    orientation: cell_data.orientation.clone(),
+                    item_0: item.clone(),
+                    item_1: item,
                     health: Health {
                         health_flags: health_flags.clone(),
                         health_container: HealthContainer::Structure(StructureHealth::default()),
                         ..Default::default()
                     },
-                    entity_option: None,
-                    item_1: cell_item_id,
                 },
+                face: cell_data.face.clone(),
             });
             continue;
         }
-
+        if matches!(cell_data.face, CellFace::Floor) == false {}
         let entity_op = spawn_main_cell(
             &mut commands,
             cell_data.id,
             cell_item_id,
-            &cell_data.orientation,
+            &cell_data.orientation.clone(),
             &gridmap_data,
         );
+
+        let item = Item {
+            id: cell_item_id,
+            orientation: cell_data.orientation.clone(),
+            entity: Some(entity_op),
+        };
 
         set_cell.send(SetCell {
             id: cell_data.id,
             data: CellData {
-                item_0: cell_item_id,
-                orientation: cell_data.orientation.clone(),
+                item_0: item.clone(),
+                item_1: item,
                 health: Health {
                     health_flags: health_flags.clone(),
                     health_container: HealthContainer::Structure(StructureHealth::default()),
                     ..Default::default()
                 },
-                entity_option: Some(entity_op),
-                item_1: cell_item_id,
             },
+            face: cell_data.face.clone(),
         });
     }
 }
@@ -161,7 +173,7 @@ pub fn spawn_main_cell(
     commands: &mut Commands,
     cell_id: Vec3Int,
     cell_item_id: u16,
-    _cell_rotation: &Orientation,
+    _cell_rotation: &Option<Orientation>,
     gridmap_data: &Gridmap,
 ) -> Entity {
     let cell_properties;

@@ -10,8 +10,6 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-
-
 [dependencies.bevy]
 version = "0.9.1"
 default-features = false
@@ -22,12 +20,11 @@ bevy_rapier3d = "0.19.0"
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }
-networking = { path = "../../core/networking"}
+networking = { path = "../../core/networking" }
 doryen_fov = { path = "../../core/doryen_fov" }
 pawn = { path = "../../core/pawn" }
 combat = { path = "../../core/combat" }
-atmospherics = { path = "../../core/atmospherics" }
-sfx = { path = "../../core/sfx"}
+sfx = { path = "../../core/sfx" }
 sounds = { path = "../sounds" }
 text_api = { path = "../../core/text_api" }
 actions = { path = "../../core/actions" }
@@ -36,5 +33,4 @@ resources = { path = "../../core/resources" }
 math = { path = "../../core/math" }
 physics = { path = "../../core/physics" }
 inventory = { path = "../../core/inventory" }
-basic_console_commands = { path = "../../core/basic_console_commands"}
-
+basic_console_commands = { path = "../../core/basic_console_commands" }

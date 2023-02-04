@@ -1,37 +1,10 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use atmospherics::zero_gravity::ZeroGravity;
 use bevy::{
-    hierarchy::Children,
-    math::{Quat, Vec2, Vec3},
-    prelude::{
-        warn, Commands, Component, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform,
-        With, Without,
-    },
-    time::{Time, Timer, TimerMode},
+    prelude::{warn, Component, Entity, EventReader, Query, ResMut},
+    time::{Timer, TimerMode},
 };
-use combat::{active_attacks::ActiveAttackIncrement, attack::Attack};
-use entity::showcase::Showcase;
-use entity::{examine::Examinable, health::DamageFlag};
-use gridmap::grid::Gridmap;
-use inventory::inventory::Inventory;
-use inventory::{
-    combat::{MeleeCombat, ProjectileCombat},
-    item::{CombatStandardAnimation, InventoryItem},
-};
-use math::grid::world_to_cell_id;
-use pawn::pawn::{facing_direction_to_direction, FacingDirection, Pawn, PawnYAxisRotations};
-use resources::core::TickRate;
-use sfx::builder::repeating_sfx_builder;
-use sounds::actions::{
-    footsteps_sprinting_sfx::FootstepsSprintingSfxBundle,
-    footsteps_walking_sfx::FootstepsWalkingSfxBundle,
-};
-
-use bevy_rapier3d::{
-    na::UnitQuaternion,
-    prelude::{CoefficientCombineRule, Collider, Dominance, ExternalForce, Friction, Velocity},
-};
+use entity::health::DamageFlag;
 
 use std::time::Duration;
 
@@ -39,14 +12,14 @@ use std::time::Duration;
 #[derive(Component)]
 
 pub(crate) struct LinkedFootstepsSprinting {
-    pub entity: Entity,
+    pub _entity: Entity,
 }
 
 /// Component link repeated footstep sfx with an entity.
 #[derive(Component)]
 
 pub(crate) struct LinkedFootstepsWalking {
-    pub entity: Entity,
+    pub _entity: Entity,
 }
 
 /// Humanoid character animation state.
@@ -108,32 +81,30 @@ pub(crate) fn toggle_combat_mode(
     }
 }
 
-const JOG_SPEED: f32 = 3031.44;
+const _JOG_SPEED: f32 = 3031.44;
 
-const RUN_SPEED: f32 = 3031.44;
+const _RUN_SPEED: f32 = 3031.44;
 
-const MAX_JOG_SPEED: f32 = 10.;
+const _MAX_JOG_SPEED: f32 = 10.;
 
-const MAX_RUN_SPEED: f32 = 14.;
+const _MAX_RUN_SPEED: f32 = 14.;
 
-const COMBAT_ROTATION_SPEED: f32 = 18.;
+const _COMBAT_ROTATION_SPEED: f32 = 18.;
 
-const DOWN_FORCE: f32 = -1.0;
+const _DOWN_FORCE: f32 = -1.0;
 
 /// Animation movement state.
-
+/*
 enum CharacterMovementState {
     None,
     Jogging,
     Sprinting,
-}
+}*/
 use controller::controller::ControllerInput;
-use entity::spawning_events::DespawnClientEntity;
 use networking::server::HandleToEntity;
-use physics::rigid_body::RigidBodyData;
 
 /// Core humanoid logic. Will get granularized into more systems in the future.
-
+/*
 pub(crate) fn humanoid_core(
     mut humanoids_query: Query<
         (
@@ -905,7 +876,7 @@ pub(crate) fn humanoid_core(
             }
         }
     }
-}
+}*/
 use const_format::concatcp;
 use resources::content::SF_CONTENT_PREFIX;
 

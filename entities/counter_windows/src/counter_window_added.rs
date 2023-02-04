@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use atmospherics::diffusion::{get_atmos_index, AtmosphericsResource};
 use bevy::prelude::{Added, Entity, Query, ResMut, Transform};
 use entity::{
     entity_data::{DefaultMapEntity, EntityData},
@@ -15,31 +14,6 @@ use super::{
     counter_window_events::CounterWindow,
     spawn::{BRIDGE_COUNTER_WINDOW_ENTITY_NAME, SECURITY_COUNTER_WINDOW_ENTITY_NAME},
 };
-
-/// On counter window spawn.
-
-pub(crate) fn counter_window_added(
-    counter_windows: Query<(Entity, &Transform), Added<CounterWindow>>,
-    mut atmospherics_resource: ResMut<AtmosphericsResource>,
-) {
-    for (_airlock_entity, rigid_body_position_component) in counter_windows.iter() {
-        let cell_id = world_to_cell_id(rigid_body_position_component.translation.into());
-        let cell_id2 = Vec2Int {
-            x: cell_id.x,
-            y: cell_id.z,
-        };
-        if AtmosphericsResource::is_id_out_of_range(cell_id2) {
-            continue;
-        }
-        let atmos_id = get_atmos_index(cell_id2);
-        let atmospherics = atmospherics_resource
-            .atmospherics
-            .get_mut(atmos_id)
-            .unwrap();
-
-        atmospherics.blocked = true;
-    }
-}
 
 /// On default map counter window spawn.
 

@@ -10,16 +10,16 @@ license-file = "LICENSE"
 edition = "2021"
 
 
-
 [dependencies.bevy]
 version = "0.9.1"
 default-features = false
 
 [dependencies]
-bevy_egui = { version = "0.18.0", default-features = false, features = ["manage_clipboard"]}
+bevy_egui = { version = "0.18.0", default-features = false, features = [
+    "manage_clipboard",
+] }
 bevy_rapier3d = "0.19.0"
 iyes_loopless = "0.9.1"
-atmospherics = { path = "../atmospherics" }
 combat = { path = "../combat" }
 controller = { path = "../controller" }
 console_commands = { path = "../console_commands" }
@@ -49,8 +49,8 @@ asana = { path = "../../entities/asana" }
 airlocks = { path = "../../entities/airlocks" }
 computers = { path = "../../entities/computers" }
 construction_tool_admin = { path = "../../entities/construction_tool_admin" }
-counter_windows = { path = "../../entities/counter_windows"}
-helmet_security = { path = "../../entities/helmet_security"}
+counter_windows = { path = "../../entities/counter_windows" }
+helmet_security = { path = "../../entities/helmet_security" }
 human_male = { path = "../../entities/human_male" }
 jumpsuit_security = { path = "../../entities/jumpsuit_security" }
 line_arrow = { path = "../../entities/line_arrow" }

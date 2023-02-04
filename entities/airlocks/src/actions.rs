@@ -53,9 +53,9 @@ pub(crate) fn toggle_open_action_prequisite_check(
                             }
                         }
                         start_pos = cell_id_to_world(Vec3Int {
-                            x: cell_data.x,
-                            y: cell_data.y,
-                            z: cell_data.z,
+                            x: cell_data.id.x,
+                            y: cell_data.id.y,
+                            z: cell_data.id.z,
                         });
                     }
                 }
@@ -228,9 +228,9 @@ pub(crate) fn lock_action_prequisite_check(
                             }
                         }
                         start_pos = cell_id_to_world(Vec3Int {
-                            x: cell_data.x,
-                            y: cell_data.y,
-                            z: cell_data.z,
+                            x: cell_data.id.x,
+                            y: cell_data.id.y,
+                            z: cell_data.id.z,
                         });
                     }
                 }
