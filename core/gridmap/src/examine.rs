@@ -8,11 +8,11 @@ use entity::{
 use math::grid::Vec3Int;
 use resources::grid::CellFace;
 use text_api::core::{
-    get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, FURTHER_ITALIC_FONT,
-    HEALTHY_COLOR, UNHEALTHY_COLOR,
+    get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, EXAMINATION_EMPTY,
+    FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 
-use crate::{events::examine_ship_cell, grid::Gridmap};
+use crate::grid::{CellData, Gridmap};
 
 /// Manage examining the gridmap.
 
@@ -422,4 +422,35 @@ pub(crate) fn incoming_messages(
             }
         }
     }
+}
+
+/// Examine a ship/gridmap cell and add the text as a function.
+
+pub fn examine_ship_cell(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> String {
+    let examine_text: &str;
+    let mut message = "\n".to_owned();
+    message = message
+        + "[font="
+        + FURTHER_ITALIC_FONT
+        + "]"
+        + "You examine the "
+        + &gridmap_data
+            .main_text_names
+            .get(&ship_cell.item_0.id)
+            .unwrap()
+            .get_name()
+        + ".[/font]\n";
+
+    if ship_cell.item_0.id != 0 {
+        examine_text = gridmap_data
+            .main_text_examine_desc
+            .get(&ship_cell.item_0.id)
+            .unwrap();
+    } else {
+        examine_text = EXAMINATION_EMPTY;
+    }
+
+    message = message + "[font=" + FURTHER_ITALIC_FONT + "]" + examine_text + ".[/font]";
+
+    message
 }

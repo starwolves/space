@@ -12,7 +12,7 @@ use bevy_rapier3d::{
 use entity::health::HealthComponent;
 use pawn::pawn::REACH_DISTANCE;
 
-use crate::{events::Cell, grid::Gridmap};
+use crate::grid::{Cell, Gridmap};
 
 use bevy_rapier3d::rapier::geometry::Group;
 use physics::physics::ReachResult;

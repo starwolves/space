@@ -12,24 +12,24 @@ use resources::{
 
 use crate::{
     connections::configure,
-    events::{set_cell, SetCell},
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
         finalize_grid_examine_input, incoming_messages, set_action_header_name,
         GridmapExamineMessages, InputExamineMap,
     },
     fov::ProjectileFOV,
-    graphics::spawn_map_graphics,
+    graphics::set_cell_graphics,
     grid::{Gridmap, RemoveCell},
     init::{load_ron_gridmap, startup_map_cell_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
+    set_cell::{set_cell, SetCell},
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
 use super::{
-    events::gridmap_updates_manager,
     fov::{senser_update_fov, DoryenMap},
     sensing_ability::gridmap_sensing_ability,
+    updates::gridmap_updates_manager,
 };
 
 pub struct GridmapPlugin;
@@ -74,7 +74,7 @@ impl Plugin for GridmapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         } else {
-            app.add_system(spawn_map_graphics);
+            app.add_system(set_cell_graphics);
         }
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
