@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{warn, Entity, Res, Resource, Transform, Vec3};
+use bevy::{
+    prelude::{warn, Component, Entity, Handle, Res, Resource, Transform, Vec3},
+    scene::Scene,
+};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
 use entity::{examine::RichName, health::Health};
 use math::grid::{Vec3Int, CELL_SIZE};
@@ -22,7 +25,7 @@ impl Default for MapLimits {
 /// Gridmap meta-data set.
 #[derive(Clone)]
 
-pub struct MainCellProperties {
+pub struct CellTileProperties {
     pub id: u16,
     pub name: RichName,
     pub description: String,
@@ -39,9 +42,11 @@ pub struct MainCellProperties {
     pub direction_rotations: GridDirectionRotations,
     pub friction: f32,
     pub combine_rule: CoefficientCombineRule,
+    /// Always available on client. Never available on server.
+    pub mesh_option: Option<Handle<Scene>>,
 }
 
-impl Default for MainCellProperties {
+impl Default for CellTileProperties {
     fn default() -> Self {
         Self {
             id: 0,
@@ -60,6 +65,7 @@ impl Default for MainCellProperties {
             direction_rotations: GridDirectionRotations::default_wall_rotations(),
             friction: 0.,
             combine_rule: CoefficientCombineRule::Min,
+            mesh_option: None,
         }
     }
 }
@@ -163,7 +169,7 @@ pub struct Gridmap {
     pub details1_text_examine_desc: HashMap<u16, String>,
     pub blackcell_id: u16,
     pub blackcell_blocking_id: u16,
-    pub main_cell_properties: HashMap<u16, MainCellProperties>,
+    pub main_cell_properties: HashMap<u16, CellTileProperties>,
     pub map_length_limit: MapLimits,
 }
 
@@ -402,4 +408,19 @@ pub struct RemoveCell {
 pub struct CellUpdate {
     pub entities_received: Vec<Entity>,
     pub cell_data: CellData,
+}
+
+/// Component that represents a cell.
+#[derive(Component)]
+
+pub struct Cell {
+    pub id: Vec3Int,
+}
+
+impl Default for Cell {
+    fn default() -> Self {
+        Self {
+            id: Vec3Int { x: 0, y: 0, z: 0 },
+        }
+    }
 }

@@ -23,8 +23,9 @@ use entity::{
     sensable::Sensable,
 };
 use gridmap::{
-    can_reach_entity::can_reach_entity, events::Cell,
-    get_spawn_position::entity_spawn_position_for_player, grid::Gridmap,
+    can_reach_entity::can_reach_entity,
+    get_spawn_position::entity_spawn_position_for_player,
+    grid::{Cell, Gridmap},
 };
 use networking::server::EntityUpdateData;
 use rand::Rng;

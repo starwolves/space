@@ -13,18 +13,16 @@ pub mod build;
 pub mod can_reach_entity;
 /// Configuration to send to newly connected clients.
 pub mod connections;
-/// Manage gridmap events.
-pub mod events;
 /// Manage gridmap exmination.
 pub mod examine;
 /// Manage gridmap FOV.
 pub mod fov;
 /// Get a spawn position for an item that is free.
 pub mod get_spawn_position;
-/// Core gridmap resources.
-pub mod grid;
 /// Client-side graphics handling, such as loading and spawning meshes and textures for gridmap items.
 pub mod graphics;
+/// Core gridmap resources.
+pub mod grid;
 /// Initialize gridmap meta data.
 mod init;
 pub mod net;
@@ -32,3 +30,7 @@ pub mod net;
 pub mod plugin;
 /// Manage sensing authorization for gridmap examining.
 mod sensing_ability;
+/// Event API to set and create cells in the gridmap.
+pub mod set_cell;
+/// Manage gridmap updates.
+pub mod updates;

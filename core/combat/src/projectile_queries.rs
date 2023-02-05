@@ -12,10 +12,7 @@ use bevy_rapier3d::{
     rapier::prelude::{Group, Ray},
 };
 use entity::{examine::Examinable, health::HealthComponent};
-use gridmap::{
-    events::Cell,
-    grid::{cell_id_to_world, Gridmap},
-};
+use gridmap::grid::{cell_id_to_world, Cell, Gridmap};
 use inventory::combat::ProjectileCombat;
 use math::grid::Vec3Int;
 

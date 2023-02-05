@@ -16,10 +16,13 @@ use resources::grid::CellFace;
 use std::collections::HashMap;
 
 use crate::{
-    events::{Cell, SetCell},
     grid::{cell_id_to_world, CellData, Gridmap, Item},
+    set_cell::SetCell,
 };
-use crate::{grid::Orientation, init::CellDataRon};
+use crate::{
+    grid::{Cell, Orientation},
+    init::CellDataRon,
+};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::physics::{get_bit_masks, ColliderGroup};
 
