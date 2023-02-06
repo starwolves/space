@@ -47,7 +47,7 @@ impl Default for PointLightType {
     fn default() -> Self {
         Self {
             light: Default::default(),
-            identifier: SF_CONTENT_PREFIX.to_string() + "PointLight",
+            identifier: SF_CONTENT_PREFIX.to_string() + "point_light",
         }
     }
 }
@@ -93,8 +93,8 @@ impl PointLightBuilder for PointLightType {
 
 pub fn get_default_point_light() -> PointLight {
     PointLight {
-        intensity: 1500.,
-        range: 10.,
+        intensity: 250.,
+        range: 16.,
         shadows_enabled: true,
         ..Default::default()
     }
