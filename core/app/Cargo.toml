@@ -40,6 +40,7 @@ ui = { path = "../ui" }
 player = { path = "../player" }
 basic_console_commands = { path = "../basic_console_commands" }
 physics = { path = "../physics" }
+world = { path = "../world" }
 
 setup_menu = { path = "../setup_menu" }
 

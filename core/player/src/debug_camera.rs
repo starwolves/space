@@ -1,5 +1,6 @@
 use bevy::prelude::{Camera3dBundle, Commands, EventReader, Vec3};
 
+use bevy_atmosphere::prelude::AtmosphereCamera;
 use networking::client::IncomingReliableServerMessage;
 use smooth_bevy_cameras::controllers::fps::{FpsCameraBundle, FpsCameraController};
 
@@ -23,7 +24,8 @@ pub(crate) fn spawn_debug_camera(
                 Vec3::new(0., 1.8, 0.),
                 Vec3::new(0., 1.8, -2.),
                 Vec3::Y,
-            ));
+            ))
+            .insert(AtmosphereCamera::default());
     }
 
     for message in messages.iter() {
