@@ -1,6 +1,6 @@
 [package]
 name = "asana"
-version = "0.0.3-snap8-dev"
+version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "Automated Space Announcements."
 homepage = "https://starwolves.io"

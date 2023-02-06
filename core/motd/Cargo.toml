@@ -1,6 +1,6 @@
 [package]
 name = "motd"
-version = "0.0.3-snap8-dev"
+version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "Message of the day visible to players upon connecting."
 homepage = "https://starwolves.io"

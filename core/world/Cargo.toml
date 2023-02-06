@@ -1,6 +1,6 @@
 [package]
 name = "world"
-version = "0.0.3-snap8-dev"
+version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "World elements."
 homepage = "https://starwolves.io"
