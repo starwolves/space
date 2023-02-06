@@ -193,17 +193,6 @@ pub(crate) fn load_ron_gridmap(
         return;
     }
 
-    info!(
-        "{}",
-        ron::to_string(&CellDataRon {
-            id: Vec3Int::default(),
-            item: "testItem".to_string(),
-            orientation: Some(Orientation::default()),
-            face: CellFace::default()
-        })
-        .unwrap()
-    );
-
     let current_map_main_data: Vec<CellDataRon> = ron::from_str(&current_map_main_raw_ron)
         .expect("startup_build_map() Error parsing map main.ron String.");
 

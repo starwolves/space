@@ -1,6 +1,9 @@
+use std::f32::consts::PI;
+
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 
+use bevy::prelude::Quat;
 use bevy::scene::SceneBundle;
 
 use crate::grid::cell_id_to_world;
@@ -22,9 +25,42 @@ pub(crate) fn set_cell_graphics(
             .get(&set_cell.data.item_0.id)
         {
             Some(properties) => {
+                let strict = gridmap_main.get_strict_cell(set_cell.id, set_cell.face.clone());
+
+                let mut transform = Transform::from_translation(cell_id_to_world(strict.id));
+                match strict.face {
+                    crate::grid::StrictCellFace::FrontWall => {
+                        transform.translation.z += 1.2;
+                        transform.rotation = Quat::from_rotation_y(1. * PI);
+                    }
+                    crate::grid::StrictCellFace::RightWall => {
+                        transform.translation.x += 1.2;
+                        transform.rotation = Quat::from_rotation_y(0.5 * PI);
+                    }
+                    crate::grid::StrictCellFace::Floor => {}
+                }
+
+                match &set_cell.data.orientation {
+                    Some(rotation) => match rotation {
+                        crate::grid::Orientation::FrontFacing => {
+                            transform.rotation = Quat::from_rotation_y(0.);
+                        }
+                        crate::grid::Orientation::BackFacing => {
+                            transform.rotation = Quat::from_rotation_y(PI);
+                        }
+                        crate::grid::Orientation::RightFacing => {
+                            transform.rotation = Quat::from_rotation_y(0.5 * PI);
+                        }
+                        crate::grid::Orientation::LeftFacing => {
+                            transform.rotation = Quat::from_rotation_y(1.5 * PI);
+                        }
+                    },
+                    None => {}
+                }
+
                 commands.spawn(SceneBundle {
                     scene: properties.mesh_option.clone().unwrap(),
-                    transform: Transform::from_translation(cell_id_to_world(set_cell.id)),
+                    transform,
                     ..Default::default()
                 });
             }

@@ -120,7 +120,6 @@ pub(crate) fn build_main_gridmap(
 
             let item = Item {
                 id: cell_item_id,
-                orientation: cell_data.orientation.clone(),
                 entity: None,
             };
 
@@ -134,12 +133,12 @@ pub(crate) fn build_main_gridmap(
                         health_container: HealthContainer::Structure(StructureHealth::default()),
                         ..Default::default()
                     },
+                    orientation: cell_data.orientation.clone(),
                 },
                 face: cell_data.face.clone(),
             });
             continue;
         }
-        if matches!(cell_data.face, CellFace::Floor) == false {}
         let entity_op = spawn_main_cell(
             &mut commands,
             cell_data.id,
@@ -150,7 +149,6 @@ pub(crate) fn build_main_gridmap(
 
         let item = Item {
             id: cell_item_id,
-            orientation: cell_data.orientation.clone(),
             entity: Some(entity_op),
         };
 
@@ -164,7 +162,9 @@ pub(crate) fn build_main_gridmap(
                     health_container: HealthContainer::Structure(StructureHealth::default()),
                     ..Default::default()
                 },
+                orientation: cell_data.orientation.clone(),
             },
+
             face: cell_data.face.clone(),
         });
     }
