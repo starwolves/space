@@ -1,6 +1,6 @@
 [package]
 name = "jumpsuit_security"
-version = "0.0.3-snap8-dev"
+version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "A wearable jumpsuit."
 homepage = "https://starwolves.io"

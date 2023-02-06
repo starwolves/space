@@ -1,6 +1,6 @@
 [package]
 name = "line_arrow"
-version = "0.0.3-snap8-dev"
+version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "An arrow for pin pointing locations."
 homepage = "https://starwolves.io"

@@ -1,6 +1,6 @@
 [package]
 name = "airlocks"
-version = "0.0.3-snap8-dev"
+version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "Airlocks with authentication systems."
 homepage = "https://starwolves.io"
