@@ -61,6 +61,7 @@ use setup_menu::plugin::SetupMenuPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use ui::plugin::UiPlugin;
+use world::plugin::WorldPlugin;
 
 /// The function that launches the server on application start.
 fn main() {
@@ -168,5 +169,6 @@ pub(crate) fn configure_and_start() {
         .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
         .add_plugin(MainMenuPlugin)
         .add_plugin(ControllerPlugin::default())
+        .add_plugin(WorldPlugin)
         .run();
 }
