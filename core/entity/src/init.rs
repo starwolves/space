@@ -20,7 +20,6 @@ use std::fs;
 use crate::entity_data::RawSpawnEvent;
 
 /// Build the entities from ron.
-
 pub(crate) fn load_ron_entities(mut raw_spawner: EventWriter<RawSpawnEvent>) {
     let entities_ron = Path::new("data")
         .join("maps")
