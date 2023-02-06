@@ -112,13 +112,13 @@ pub struct CellData {
     pub item_1: Item,
     /// Health of this tile.
     pub health: Health,
+    /// Cell rotation.
+    pub orientation: Option<Orientation>,
 }
 #[derive(Clone, Default)]
 pub struct Item {
     /// Id of item type.
     pub id: u16,
-    /// Cell rotation.
-    pub orientation: Option<Orientation>,
     /// Entity belonging to item.
     pub entity: Option<Entity>,
 }
