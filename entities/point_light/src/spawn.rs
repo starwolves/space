@@ -93,7 +93,7 @@ impl PointLightBuilder for PointLightType {
 
 pub fn get_default_point_light() -> PointLight {
     PointLight {
-        intensity: 250.,
+        intensity: 1.,
         range: 16.,
         shadows_enabled: true,
         ..Default::default()
