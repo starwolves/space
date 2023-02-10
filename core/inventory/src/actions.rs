@@ -1,8 +1,7 @@
 use crate::inventory::Inventory;
 use actions::core::BuildingActions;
 use bevy::prelude::{warn, Query, ResMut, Transform};
-use gridmap::grid::cell_id_to_world;
-use math::grid::Vec3Int;
+use math::grid::{cell_id_to_world, Vec3Int};
 use pawn::pawn::REACH_DISTANCE;
 
 /// Inventory item action prerequisite check for pickup action.

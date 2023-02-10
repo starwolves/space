@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{warn, Component, Entity, Handle, Res, Resource, Transform, Vec3},
+    prelude::{warn, Component, Entity, Handle, Res, Resource, Transform},
     scene::Scene,
 };
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
 use entity::{examine::RichName, health::Health};
-use math::grid::{Vec3Int, CELL_SIZE};
+use math::grid::Vec3Int;
 use resources::grid::CellFace;
 use serde::{Deserialize, Serialize};
 
@@ -18,7 +18,7 @@ pub struct MapLimits {
 
 impl Default for MapLimits {
     fn default() -> Self {
-        Self { length: 22 }
+        Self { length: 32 }
     }
 }
 
@@ -123,12 +123,12 @@ pub struct Item {
     pub entity: Option<Entity>,
 }
 
-/// Maximum amount of available map chunks. 22 by 22 by 22 (1 cubic kilometer).
-pub const GRID_CHUNK_AMOUNT: usize = 10648;
-/// The amount of tiles a chunk stores. 24 by 24 by 24.
-pub const GRID_CHUNK_TILES_AMOUNT: usize = 13824;
+/// Maximum amount of available map chunks. 32 by 32 by 32 (cubic length of 1024 meters).
+pub const GRID_CHUNK_AMOUNT: usize = 32768;
+/// The amount of tiles a chunk stores. 32 by 32 by 32.
+pub const GRID_CHUNK_TILES_AMOUNT: usize = 32768;
 /// The length of the cubic chunk in tiles.
-pub const CHUNK_LENGTH: i16 = 24;
+pub const CHUNK_CUBIC_LENGTH: i16 = 32;
 
 /// A chunk of the gridmap.
 #[derive(Clone)]
@@ -149,7 +149,6 @@ impl Default for GridmapChunk {
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 /// The hashmaps should probably be turned into arrays by converting Vec3Int into an index for performance reasons.
 #[derive(Resource)]
-
 pub struct Gridmap {
     pub grid_data: Vec<Option<GridmapChunk>>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
@@ -223,17 +222,18 @@ pub struct StrictCell {
 
 impl Gridmap {
     pub fn get_indexes(&self, id: Vec3Int) -> Option<CellIndexes> {
-        let map_half_length =
-            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5).floor() as i16;
+        let map_half_length = ((self.map_length_limit.length as f32 * CHUNK_CUBIC_LENGTH as f32)
+            * 0.5)
+            .floor() as i16;
 
         let x_id = id.x + map_half_length;
-        let x_chunk_index = (x_id as f32 / CHUNK_LENGTH as f32).floor() as i16;
+        let x_chunk_index = (x_id as f32 / CHUNK_CUBIC_LENGTH as f32).floor() as i16;
 
         let y_id = id.y + map_half_length;
-        let y_chunk_index = (y_id as f32 / CHUNK_LENGTH as f32).floor() as i16;
+        let y_chunk_index = (y_id as f32 / CHUNK_CUBIC_LENGTH as f32).floor() as i16;
 
         let z_id = id.z + map_half_length;
-        let z_chunk_index = (z_id as f32 / CHUNK_LENGTH as f32).floor() as i16;
+        let z_chunk_index = (z_id as f32 / CHUNK_CUBIC_LENGTH as f32).floor() as i16;
 
         let chunk_x_offset = x_chunk_index;
         let chunk_z_offset = z_chunk_index * self.map_length_limit.length;
@@ -242,13 +242,13 @@ impl Gridmap {
 
         let chunk_index = chunk_x_offset + chunk_z_offset + chunk_y_offset;
 
-        let x_cell_id = x_id - (x_chunk_index * CHUNK_LENGTH);
-        let y_cell_id = y_id - (y_chunk_index * CHUNK_LENGTH);
-        let z_cell_id = z_id - (z_chunk_index * CHUNK_LENGTH);
+        let x_cell_id = x_id - (x_chunk_index * CHUNK_CUBIC_LENGTH);
+        let y_cell_id = y_id - (y_chunk_index * CHUNK_CUBIC_LENGTH);
+        let z_cell_id = z_id - (z_chunk_index * CHUNK_CUBIC_LENGTH);
 
         let x_offset = x_cell_id;
-        let z_offset = z_cell_id * CHUNK_LENGTH;
-        let y_offset = y_cell_id * (CHUNK_LENGTH * CHUNK_LENGTH);
+        let z_offset = z_cell_id * CHUNK_CUBIC_LENGTH;
+        let y_offset = y_cell_id * (CHUNK_CUBIC_LENGTH * CHUNK_CUBIC_LENGTH);
 
         let cell_index = x_offset + z_offset + y_offset;
         Some(CellIndexes {
@@ -268,21 +268,24 @@ impl Gridmap {
 
         let chunk_x_id = remainder_xz - (chunk_z_id * self.map_length_limit.length);
 
-        let cell_y_id = (indexes.cell as f32 / (CHUNK_LENGTH * CHUNK_LENGTH) as f32).floor() as i16;
+        let cell_y_id =
+            (indexes.cell as f32 / (CHUNK_CUBIC_LENGTH * CHUNK_CUBIC_LENGTH) as f32).floor() as i16;
 
-        let remainder_xz = indexes.cell as i16 - (cell_y_id * (CHUNK_LENGTH * CHUNK_LENGTH));
+        let remainder_xz =
+            indexes.cell as i16 - (cell_y_id * (CHUNK_CUBIC_LENGTH * CHUNK_CUBIC_LENGTH));
 
-        let cell_z_id = (remainder_xz as f32 / CHUNK_LENGTH as f32).floor() as i16;
+        let cell_z_id = (remainder_xz as f32 / CHUNK_CUBIC_LENGTH as f32).floor() as i16;
 
-        let cell_x_id = remainder_xz - (cell_z_id * CHUNK_LENGTH);
+        let cell_x_id = remainder_xz - (cell_z_id * CHUNK_CUBIC_LENGTH);
 
-        let map_half_length =
-            ((self.map_length_limit.length as f32 * CHUNK_LENGTH as f32) * 0.5).floor() as i16;
+        let map_half_length = ((self.map_length_limit.length as f32 * CHUNK_CUBIC_LENGTH as f32)
+            * 0.5)
+            .floor() as i16;
 
         let id = Vec3Int {
-            x: (chunk_x_id * CHUNK_LENGTH + cell_x_id) - map_half_length,
-            y: (chunk_y_id * CHUNK_LENGTH + cell_y_id) - map_half_length,
-            z: (chunk_z_id * CHUNK_LENGTH + cell_z_id) - map_half_length,
+            x: (chunk_x_id * CHUNK_CUBIC_LENGTH + cell_x_id) - map_half_length,
+            y: (chunk_y_id * CHUNK_CUBIC_LENGTH + cell_y_id) - map_half_length,
+            z: (chunk_z_id * CHUNK_CUBIC_LENGTH + cell_z_id) - map_half_length,
         };
 
         Some(id)
@@ -379,20 +382,6 @@ pub enum AdjacentTileDirection {
     Down,
     Left,
     Right,
-}
-
-const Y_CENTER_OFFSET: f32 = 1.;
-
-/// From tile id to world position.
-
-pub fn cell_id_to_world(cell_id: Vec3Int) -> Vec3 {
-    let mut world_position: Vec3 = Vec3::ZERO;
-
-    world_position.x = (cell_id.x as f32 * CELL_SIZE) + Y_CENTER_OFFSET;
-    world_position.y = (cell_id.y as f32 * CELL_SIZE) + Y_CENTER_OFFSET;
-    world_position.z = (cell_id.z as f32 * CELL_SIZE) + Y_CENTER_OFFSET;
-
-    world_position
 }
 
 /// Remove gridmap cell event.

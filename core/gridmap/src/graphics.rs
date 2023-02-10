@@ -5,8 +5,8 @@ use bevy::prelude::EventReader;
 
 use bevy::prelude::Quat;
 use bevy::scene::SceneBundle;
+use math::grid::cell_id_to_world;
 
-use crate::grid::cell_id_to_world;
 use crate::set_cell::SetCell;
 use bevy::prelude::warn;
 use bevy::prelude::Res;
@@ -30,11 +30,11 @@ pub(crate) fn set_cell_graphics(
                 let mut transform = Transform::from_translation(cell_id_to_world(strict.id));
                 match strict.face {
                     crate::grid::StrictCellFace::FrontWall => {
-                        transform.translation.z += 1.2;
+                        transform.translation.z += 0.6;
                         transform.rotation = Quat::from_rotation_y(1. * PI);
                     }
                     crate::grid::StrictCellFace::RightWall => {
-                        transform.translation.x += 1.2;
+                        transform.translation.x += 0.6;
                         transform.rotation = Quat::from_rotation_y(0.5 * PI);
                     }
                     crate::grid::StrictCellFace::Floor => {}

@@ -12,9 +12,9 @@ use bevy_rapier3d::{
     rapier::prelude::Group,
 };
 use entity::{examine::Examinable, health::HealthComponent};
-use gridmap::grid::{cell_id_to_world, Cell, Gridmap};
+use gridmap::grid::{Cell, Gridmap};
 use inventory::combat::{MeleeCombat, ProjectileCombat};
-use math::grid::Vec3Int;
+use math::grid::{cell_id_to_world, Vec3Int};
 
 use crate::{
     active_attacks::ActiveAttacks,

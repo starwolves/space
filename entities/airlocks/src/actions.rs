@@ -1,7 +1,6 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, EventWriter, Query, Res, ResMut, Transform};
-use gridmap::grid::cell_id_to_world;
-use math::grid::Vec3Int;
+use math::grid::{cell_id_to_world, Vec3Int};
 use pawn::pawn::{DataLink, DataLinkType};
 
 use crate::{

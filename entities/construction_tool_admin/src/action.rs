@@ -1,7 +1,8 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
-use gridmap::grid::{cell_id_to_world, Gridmap};
+use gridmap::grid::Gridmap;
 use inventory::inventory::Inventory;
+use math::grid::cell_id_to_world;
 use pawn::pawn::REACH_DISTANCE;
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};

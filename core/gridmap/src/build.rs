@@ -10,18 +10,18 @@ use entity::{
     health::{Health, HealthContainer, HealthFlag, StructureHealth},
     senser::to_doryen_coordinates,
 };
-use math::grid::Vec3Int;
+use math::grid::{cell_id_to_world, Vec3Int};
 use resources::grid::CellFace;
 
 use std::collections::HashMap;
 
 use crate::{
-    grid::{cell_id_to_world, CellData, Gridmap, Item},
-    set_cell::SetCell,
-};
-use crate::{
     grid::{Cell, Orientation},
     init::CellDataRon,
+};
+use crate::{
+    grid::{CellData, Gridmap, Item},
+    set_cell::SetCell,
 };
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::physics::{get_bit_masks, ColliderGroup};
