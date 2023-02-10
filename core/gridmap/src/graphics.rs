@@ -22,7 +22,7 @@ pub(crate) fn set_cell_graphics(
     for set_cell in events.iter() {
         match gridmap_main
             .main_cell_properties
-            .get(&set_cell.data.item_0.id)
+            .get(&set_cell.data.item.id)
         {
             Some(properties) => {
                 let strict = gridmap_main.get_strict_cell(set_cell.id, set_cell.face.clone());

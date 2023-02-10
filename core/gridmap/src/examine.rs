@@ -99,7 +99,7 @@ pub(crate) fn set_action_header_name(
 
                 match gridmap_main.get_cell(gridmap.id, gridmap.face) {
                     Some(data) => {
-                        item_id = data.item_0;
+                        item_id = data.item;
                     }
                     None => {
                         warn!("Couldnt find item_id!");
@@ -436,15 +436,15 @@ pub fn examine_ship_cell(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> S
         + "You examine the "
         + &gridmap_data
             .main_text_names
-            .get(&ship_cell.item_0.id)
+            .get(&ship_cell.item.id)
             .unwrap()
             .get_name()
         + ".[/font]\n";
 
-    if ship_cell.item_0.id != 0 {
+    if ship_cell.item.id != 0 {
         examine_text = gridmap_data
             .main_text_examine_desc
-            .get(&ship_cell.item_0.id)
+            .get(&ship_cell.item.id)
             .unwrap();
     } else {
         examine_text = EXAMINATION_EMPTY;

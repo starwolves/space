@@ -73,7 +73,7 @@ impl Default for CellTileProperties {
 pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> String {
     gridmap_data
         .main_text_names
-        .get(&ship_cell.item_0.id)
+        .get(&ship_cell.item.id)
         .unwrap()
         .get_a_name()
 }
@@ -108,8 +108,7 @@ impl GridItems {
 #[derive(Clone, Default)]
 pub struct CellData {
     /// Item id.
-    pub item_0: Item,
-    pub item_1: Item,
+    pub item: Item,
     /// Health of this tile.
     pub health: Health,
     /// Cell rotation.
