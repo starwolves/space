@@ -126,8 +126,7 @@ pub(crate) fn build_main_gridmap(
             set_cell.send(SetCell {
                 id: cell_data.id,
                 data: CellData {
-                    item_0: item.clone(),
-                    item_1: item,
+                    item: item,
                     health: Health {
                         health_flags: health_flags.clone(),
                         health_container: HealthContainer::Structure(StructureHealth::default()),
@@ -155,8 +154,7 @@ pub(crate) fn build_main_gridmap(
         set_cell.send(SetCell {
             id: cell_data.id,
             data: CellData {
-                item_0: item.clone(),
-                item_1: item,
+                item: item,
                 health: Health {
                     health_flags: health_flags.clone(),
                     health_container: HealthContainer::Structure(StructureHealth::default()),
