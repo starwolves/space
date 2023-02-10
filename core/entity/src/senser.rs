@@ -36,7 +36,7 @@ impl Default for Senser {
 /// Turning up these values drastically increases fov calculation time.
 /// Dividible by 2.
 
-pub const WORLD_WIDTH_CELLS: usize = 500;
+pub const WORLD_WIDTH_CELLS: usize = 1024;
 
 /// Use this to use the Doryen FOV algorithm.
 
