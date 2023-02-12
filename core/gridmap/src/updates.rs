@@ -26,15 +26,15 @@ pub(crate) fn gridmap_updates_manager(
                 && senser_component.fov.is_in_fov(cell_coords.0, cell_coords.1)
             {
                 cell_update.entities_received.push(senser_entity);
-                if cell_update.cell_data.item.id != 0 {
+                if cell_update.cell_data.tile_type != 0 {
                     server.send(OutgoingReliableServerMessage {
                         handle: connected_player_component.handle,
                         message: GridmapServerMessage::AddCell(
                             cell_id.x,
                             cell_id.y,
                             cell_id.z,
-                            cell_update.cell_data.item.id,
-                            cell_update.cell_data.orientation.clone(),
+                            cell_update.cell_data.tile_type,
+                            Some(cell_update.cell_data.orientation.clone()),
                         ),
                     });
                 } else {

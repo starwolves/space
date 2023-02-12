@@ -17,12 +17,13 @@ use crate::{
         finalize_grid_examine_input, incoming_messages, set_action_header_name,
         GridmapExamineMessages, InputExamineMap,
     },
+    floor::{add_floor_tile, AddTile},
     fov::ProjectileFOV,
     graphics::set_cell_graphics,
     grid::{Gridmap, RemoveCell},
     init::{load_ron_gridmap, startup_map_cell_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
-    set_cell::{set_cell, SetCell},
+    wall::add_wall_tile,
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
@@ -38,8 +39,6 @@ impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_system(senser_update_fov)
-                //.add_system(projectile_fov)
-                //.add_system(remove_cell.label(UpdateLabels::DeconstructCell))
                 .add_event::<RemoveCell>()
                 .add_system_set(
                     SystemSet::new()
@@ -91,8 +90,9 @@ impl Plugin for GridmapPlugin {
             )
             .init_resource::<Gridmap>()
             .init_resource::<DoryenMap>()
-            .add_system(set_cell)
-            .add_event::<SetCell>();
+            .add_system(add_wall_tile)
+            .add_system(add_floor_tile)
+            .add_event::<AddTile>();
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);

@@ -1,16 +1,14 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::{info, warn, AssetServer, Commands, EventWriter, Res, ResMut, Transform};
+use bevy::prelude::{info, warn, AssetServer, EventWriter, Res, ResMut, Transform};
 use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
 use entity::examine::RichName;
 use math::grid::Vec3Int;
 use resources::{core::TickRate, grid::CellFace, is_server::is_server};
 
 use crate::{
-    build::{build_gridmap_floor_and_roof, build_main_gridmap},
-    fov::DoryenMap,
+    floor::AddTile,
     grid::{CellTileProperties, Gridmap, Orientation},
-    set_cell::SetCell,
 };
 
 /// Physics friction on placeable item surfaces.
@@ -174,12 +172,7 @@ pub(crate) fn startup_misc_resources(
 
 /// Build the gridmaps in their own resources from ron.
 
-pub(crate) fn load_ron_gridmap(
-    mut gridmap_data: ResMut<Gridmap>,
-    mut fov_map: ResMut<DoryenMap>,
-    mut commands: Commands,
-    mut set_cell: EventWriter<SetCell>,
-) {
+pub(crate) fn load_ron_gridmap(gridmap_data: Res<Gridmap>, mut set_cell: EventWriter<AddTile>) {
     // Load map json data into real static bodies.
     let main_ron = Path::new("data")
         .join("maps")
@@ -196,15 +189,36 @@ pub(crate) fn load_ron_gridmap(
     let current_map_main_data: Vec<CellDataRon> = ron::from_str(&current_map_main_raw_ron)
         .expect("startup_build_map() Error parsing map main.ron String.");
 
-    build_gridmap_floor_and_roof(&mut commands);
+    for cell_data in current_map_main_data.iter() {
+        let cell_item_id;
 
-    build_main_gridmap(
-        &current_map_main_data,
-        &mut commands,
-        &mut fov_map,
-        &mut gridmap_data,
-        &mut set_cell,
-    );
+        match gridmap_data.main_name_id_map.get(&cell_data.item) {
+            Some(x) => {
+                cell_item_id = *x;
+            }
+            None => {
+                warn!("Couldnt find item {}", cell_data.item);
+                break;
+            }
+        };
+
+        let orientation;
+        match cell_data.orientation.clone() {
+            Some(o) => {
+                orientation = o;
+            }
+            None => {
+                orientation = Orientation::default();
+            }
+        }
+
+        set_cell.send(AddTile {
+            id: cell_data.id,
+            face: cell_data.face.clone(),
+            orientation: orientation.clone(),
+            tile_type: cell_item_id,
+        });
+    }
 
     info!("Spawned {} map cells.", current_map_main_data.len());
 }
