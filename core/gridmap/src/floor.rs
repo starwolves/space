@@ -2,21 +2,8 @@ use std::collections::HashMap;
 
 use bevy::prelude::{warn, EventReader, ResMut};
 use entity::health::{Health, HealthContainer, HealthFlag, StructureHealth};
-use math::grid::Vec3Int;
-use resources::grid::CellFace;
 
-use crate::grid::{CellItem, GridCell, Gridmap, GridmapChunk, Orientation};
-
-/// Event to add a gridmap tile.
-#[derive(Default)]
-pub struct AddTile {
-    pub id: Vec3Int,
-    /// Id of tile type.
-    pub tile_type: u16,
-    /// Rotation.
-    pub orientation: Orientation,
-    pub face: CellFace,
-}
+use crate::grid::{AddTile, CellItem, GridCell, Gridmap, GridmapChunk};
 
 pub(crate) fn add_floor_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMut<Gridmap>) {
     for add_tile_event in events.iter() {
@@ -77,7 +64,7 @@ pub(crate) fn add_floor_tile(mut events: EventReader<AddTile>, mut gridmap_main:
                                             ..Default::default()
                                         },
                                         orientation: add_tile_event.orientation.clone(),
-                                        group_id: None,
+                                        group_instance_id_option: None,
                                     });
                                 }
                                 _ => (),

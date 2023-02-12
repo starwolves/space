@@ -25,7 +25,7 @@ impl Default for MapLimits {
 /// Gridmap meta-data set.
 #[derive(Clone)]
 
-pub struct CellTileProperties {
+pub struct TileProperties {
     pub id: u16,
     pub name: RichName,
     pub description: String,
@@ -46,7 +46,7 @@ pub struct CellTileProperties {
     pub mesh_option: Option<Handle<Scene>>,
 }
 
-impl Default for CellTileProperties {
+impl Default for TileProperties {
     fn default() -> Self {
         Self {
             id: 0,
@@ -107,8 +107,8 @@ impl GridCell {
 pub struct CellItem {
     /// Id of tile type.
     pub tile_type: u16,
-    /// Tile set id.
-    pub group_id: Option<u32>,
+    /// Instance id of gridmap group.
+    pub group_instance_id_option: Option<u32>,
     /// Entity belonging to item.
     pub entity: Option<Entity>,
     /// Shared group entity for tile.
@@ -156,6 +156,8 @@ pub struct Gridmap {
     pub ordered_details1_names: Vec<String>,
     pub main_name_id_map: HashMap<String, u16>,
     pub main_id_name_map: HashMap<u16, String>,
+    pub group_id_map: HashMap<String, u16>,
+    pub id_group_map: HashMap<u16, String>,
     pub details1_name_id_map: HashMap<String, u16>,
     pub details1_id_name_map: HashMap<u16, String>,
     pub main_text_names: HashMap<u16, RichName>,
@@ -164,8 +166,10 @@ pub struct Gridmap {
     pub details1_text_examine_desc: HashMap<u16, String>,
     pub blackcell_id: u16,
     pub blackcell_blocking_id: u16,
-    pub main_cell_properties: HashMap<u16, CellTileProperties>,
+    pub main_cell_properties: HashMap<u16, TileProperties>,
     pub map_length_limit: MapLimits,
+    pub groups: Vec<HashMap<Vec3Int, u16>>,
+    pub group_instance_incremental: u32,
 }
 
 const EMPTY_CHUNK: Option<GridmapChunk> = None;
@@ -193,6 +197,10 @@ impl Default for Gridmap {
             blackcell_blocking_id: 0,
             main_cell_properties: HashMap::default(),
             map_length_limit: MapLimits::default(),
+            groups: vec![],
+            group_id_map: HashMap::default(),
+            id_group_map: HashMap::default(),
+            group_instance_incremental: 0,
         }
     }
 }
@@ -416,4 +424,27 @@ impl Default for Cell {
             id: Vec3Int { x: 0, y: 0, z: 0 },
         }
     }
+}
+
+/// Event to add a gridmap tile.
+#[derive(Default)]
+pub struct AddTile {
+    pub id: Vec3Int,
+    /// Id of tile type.
+    pub tile_type: u16,
+    /// Rotation.
+    pub orientation: Orientation,
+    pub face: CellFace,
+    pub group_instance_id_option: Option<u32>,
+}
+
+/// Event to add a group of gridmap tiles.
+#[derive(Default)]
+pub struct AddGroup {
+    pub id: Vec3Int,
+    /// Group id.
+    pub group_id: u16,
+    /// Rotation.
+    pub orientation: Orientation,
+    pub face: CellFace,
 }

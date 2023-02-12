@@ -17,13 +17,13 @@ use crate::{
         finalize_grid_examine_input, incoming_messages, set_action_header_name,
         GridmapExamineMessages, InputExamineMap,
     },
-    floor::{add_floor_tile, AddTile},
+    floor::add_floor_tile,
     fov::ProjectileFOV,
     graphics::set_cell_graphics,
-    grid::{Gridmap, RemoveCell},
-    init::{load_ron_gridmap, startup_map_cell_properties, startup_misc_resources},
+    grid::{AddGroup, AddTile, Gridmap, RemoveCell},
+    init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
-    wall::add_wall_tile,
+    wall::{add_wall_group, add_wall_tile},
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
@@ -78,7 +78,7 @@ impl Plugin for GridmapPlugin {
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
             .add_startup_system(
-                startup_map_cell_properties
+                startup_map_tile_properties
                     .label(StartupLabels::InitDefaultGridmapData)
                     .label(BuildingLabels::TriggerBuild)
                     .after(StartupLabels::MiscResources),
@@ -92,7 +92,9 @@ impl Plugin for GridmapPlugin {
             .init_resource::<DoryenMap>()
             .add_system(add_wall_tile)
             .add_system(add_floor_tile)
-            .add_event::<AddTile>();
+            .add_event::<AddTile>()
+            .add_event::<AddGroup>()
+            .add_system(add_wall_group);
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
