@@ -15,6 +15,7 @@ pub mod can_reach_entity;
 pub mod connections;
 /// Manage gridmap exmination.
 pub mod examine;
+pub mod floor;
 /// Manage gridmap FOV.
 pub mod fov;
 /// Get a spawn position for an item that is free.
@@ -30,7 +31,6 @@ pub mod net;
 pub mod plugin;
 /// Manage sensing authorization for gridmap examining.
 mod sensing_ability;
-/// Event API to set and create cells in the gridmap.
-pub mod set_cell;
 /// Manage gridmap updates.
 pub mod updates;
+pub mod wall;

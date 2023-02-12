@@ -1,23 +1,29 @@
+use std::collections::HashMap;
+
 use bevy::prelude::{warn, EventReader, ResMut};
+use entity::health::{Health, HealthContainer, HealthFlag, StructureHealth};
 use math::grid::Vec3Int;
 use resources::grid::CellFace;
 
-use crate::grid::{CellData, GridItems, Gridmap, GridmapChunk};
+use crate::grid::{CellItem, GridCell, Gridmap, GridmapChunk, Orientation};
 
-/// Event to set a gridmap cell.
-pub struct SetCell {
+/// Event to add a gridmap tile.
+#[derive(Default)]
+pub struct AddTile {
     pub id: Vec3Int,
-    pub data: CellData,
+    /// Id of tile type.
+    pub tile_type: u16,
+    /// Rotation.
+    pub orientation: Orientation,
     pub face: CellFace,
 }
 
-/// Set a gridmap cell.
-pub(crate) fn set_cell(mut events: EventReader<SetCell>, mut gridmap_main: ResMut<Gridmap>) {
-    for event in events.iter() {
-        let strict = gridmap_main.get_strict_cell(event.id, event.face.clone());
+pub(crate) fn add_floor_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMut<Gridmap>) {
+    for add_tile_event in events.iter() {
+        let strict = gridmap_main.get_strict_cell(add_tile_event.id, add_tile_event.face.clone());
 
-        match gridmap_main.get_indexes(event.id) {
-            Some(indexes) => match gridmap_main.grid_data.get_mut(indexes.chunk) {
+        match gridmap_main.get_indexes(add_tile_event.id) {
+            Some(indexes) => match gridmap_main.grid.get_mut(indexes.chunk) {
                 Some(chunk_option) => {
                     match chunk_option {
                         Some(_) => {}
@@ -38,7 +44,7 @@ pub(crate) fn set_cell(mut events: EventReader<SetCell>, mut gridmap_main: ResMu
                             }
 
                             if !found {
-                                chunk.cells[indexes.cell] = Some(GridItems::default());
+                                chunk.cells[indexes.cell] = Some(GridCell::default());
                             }
 
                             let mut y = chunk.cells.get_mut(indexes.cell);
@@ -47,22 +53,34 @@ pub(crate) fn set_cell(mut events: EventReader<SetCell>, mut gridmap_main: ResMu
                             match x {
                                 Some(_) => {}
                                 None => {
-                                    **x = Some(GridItems::default());
+                                    **x = Some(GridCell::default());
                                 }
                             }
 
                             let mut grid_items = x.as_mut().unwrap();
 
+                            let mut health_flags = HashMap::new();
+
+                            health_flags.insert(0, HealthFlag::ArmourPlated);
+
                             match strict.face {
-                                crate::grid::StrictCellFace::FrontWall => {
-                                    grid_items.front_wall = Some(event.data.clone());
-                                }
-                                crate::grid::StrictCellFace::RightWall => {
-                                    grid_items.right_wall = Some(event.data.clone());
-                                }
                                 crate::grid::StrictCellFace::Floor => {
-                                    grid_items.floor = Some(event.data.clone());
+                                    grid_items.floor = Some(CellItem {
+                                        tile_type: add_tile_event.tile_type,
+                                        entity: None,
+                                        group_entity: None,
+                                        health: Health {
+                                            health_flags: health_flags.clone(),
+                                            health_container: HealthContainer::Structure(
+                                                StructureHealth::default(),
+                                            ),
+                                            ..Default::default()
+                                        },
+                                        orientation: add_tile_event.orientation.clone(),
+                                        group_id: None,
+                                    });
                                 }
+                                _ => (),
                             }
                         }
                         None => {

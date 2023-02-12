@@ -70,10 +70,10 @@ impl Default for CellTileProperties {
     }
 }
 
-pub fn get_cell_a_name(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> String {
+pub fn get_cell_a_name(ship_cell: &CellItem, gridmap_data: &Res<Gridmap>) -> String {
     gridmap_data
         .main_text_names
-        .get(&ship_cell.item.id)
+        .get(&ship_cell.tile_type)
         .unwrap()
         .get_a_name()
 }
@@ -86,16 +86,14 @@ pub enum Orientation {
     LeftFacing,
 }
 #[derive(Clone, Default)]
-pub struct GridItems {
-    pub floor: Option<CellData>,
-    pub front_wall: Option<CellData>,
-    pub right_wall: Option<CellData>,
-    /// Fixed grid entities in this cell separated from the gridmap ship construction.
-    pub entities: Vec<Entity>,
+pub struct GridCell {
+    pub floor: Option<CellItem>,
+    pub front_wall: Option<CellItem>,
+    pub right_wall: Option<CellItem>,
 }
 
-impl GridItems {
-    pub fn get_item(&self, strict_face: StrictCellFace) -> Option<CellData> {
+impl GridCell {
+    pub fn get_item(&self, strict_face: StrictCellFace) -> Option<CellItem> {
         match strict_face {
             StrictCellFace::FrontWall => self.front_wall.clone(),
             StrictCellFace::RightWall => self.right_wall.clone(),
@@ -106,20 +104,19 @@ impl GridItems {
 
 /// Data stored in a resource of a cell instead of each cell having their own entity with components.
 #[derive(Clone, Default)]
-pub struct CellData {
-    /// Item id.
-    pub item: Item,
-    /// Health of this tile.
-    pub health: Health,
-    /// Cell rotation.
-    pub orientation: Option<Orientation>,
-}
-#[derive(Clone, Default)]
-pub struct Item {
-    /// Id of item type.
-    pub id: u16,
+pub struct CellItem {
+    /// Id of tile type.
+    pub tile_type: u16,
+    /// Tile set id.
+    pub group_id: Option<u32>,
     /// Entity belonging to item.
     pub entity: Option<Entity>,
+    /// Shared group entity for tile.
+    pub group_entity: Option<Entity>,
+    /// Health of this tile.
+    pub health: Health,
+    /// Rotation.
+    pub orientation: Orientation,
 }
 
 /// Maximum amount of available map chunks. 32 by 32 by 32 (cubic length of 1024 meters).
@@ -132,10 +129,10 @@ pub const CHUNK_CUBIC_LENGTH: i16 = 32;
 /// A chunk of the gridmap.
 #[derive(Clone)]
 pub struct GridmapChunk {
-    pub cells: Vec<Option<GridItems>>,
+    pub cells: Vec<Option<GridCell>>,
 }
 
-const DEFAULT_CELL_DATA: Option<GridItems> = None;
+const DEFAULT_CELL_DATA: Option<GridCell> = None;
 
 impl Default for GridmapChunk {
     fn default() -> Self {
@@ -149,7 +146,7 @@ impl Default for GridmapChunk {
 /// The hashmaps should probably be turned into arrays by converting Vec3Int into an index for performance reasons.
 #[derive(Resource)]
 pub struct Gridmap {
-    pub grid_data: Vec<Option<GridmapChunk>>,
+    pub grid: Vec<Option<GridmapChunk>>,
     pub updates: HashMap<Vec3Int, CellUpdate>,
     pub non_fov_blocking_cells_list: Vec<u16>,
     pub non_combat_obstacle_cells_list: Vec<u16>,
@@ -176,7 +173,7 @@ const EMPTY_CHUNK: Option<GridmapChunk> = None;
 impl Default for Gridmap {
     fn default() -> Self {
         Self {
-            grid_data: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
+            grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
             updates: HashMap::default(),
             non_fov_blocking_cells_list: vec![],
             non_combat_obstacle_cells_list: vec![],
@@ -217,6 +214,14 @@ pub enum StrictCellFace {
 pub struct StrictCell {
     pub face: StrictCellFace,
     pub id: Vec3Int,
+}
+
+/// Event to add a gridmap tile that can cover multiple cells.
+pub struct SetCell {
+    pub id: Vec3Int,
+    pub orientation: Orientation,
+    pub tile_id: u16,
+    pub face: CellFace,
 }
 
 impl Gridmap {
@@ -321,7 +326,7 @@ impl Gridmap {
             id: adjusted_id,
         }
     }
-    pub fn get_cell(&self, id: Vec3Int, face: CellFace) -> Option<CellData> {
+    pub fn get_cell(&self, id: Vec3Int, face: CellFace) -> Option<CellItem> {
         let strict = self.get_strict_cell(id, face);
 
         let indexes;
@@ -335,7 +340,7 @@ impl Gridmap {
             }
         }
 
-        match self.grid_data.get(indexes.chunk) {
+        match self.grid.get(indexes.chunk) {
             Some(chunk_option) => match chunk_option {
                 Some(chunk) => match chunk.cells.get(indexes.cell) {
                     Some(cell_data_option) => match cell_data_option {
@@ -395,7 +400,7 @@ pub struct RemoveCell {
 
 pub struct CellUpdate {
     pub entities_received: Vec<Entity>,
-    pub cell_data: CellData,
+    pub cell_data: CellItem,
 }
 
 /// Component that represents a cell.

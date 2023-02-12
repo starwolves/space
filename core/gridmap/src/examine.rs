@@ -12,7 +12,7 @@ use text_api::core::{
     FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 
-use crate::grid::{CellData, Gridmap};
+use crate::grid::{CellItem, Gridmap};
 
 /// Manage examining the gridmap.
 
@@ -99,7 +99,7 @@ pub(crate) fn set_action_header_name(
 
                 match gridmap_main.get_cell(gridmap.id, gridmap.face) {
                     Some(data) => {
-                        item_id = data.item;
+                        item_id = data.tile_type;
                     }
                     None => {
                         warn!("Couldnt find item_id!");
@@ -107,7 +107,7 @@ pub(crate) fn set_action_header_name(
                     }
                 }
 
-                action_data_request.set_id(names.get(&item_id.id).unwrap().get_name().to_string());
+                action_data_request.set_id(names.get(&item_id).unwrap().get_name().to_string());
             }
         }
     }
@@ -426,7 +426,7 @@ pub(crate) fn incoming_messages(
 
 /// Examine a ship/gridmap cell and add the text as a function.
 
-pub fn examine_ship_cell(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> String {
+pub fn examine_ship_cell(ship_cell: &CellItem, gridmap_data: &Res<Gridmap>) -> String {
     let examine_text: &str;
     let mut message = "\n".to_owned();
     message = message
@@ -436,15 +436,15 @@ pub fn examine_ship_cell(ship_cell: &CellData, gridmap_data: &Res<Gridmap>) -> S
         + "You examine the "
         + &gridmap_data
             .main_text_names
-            .get(&ship_cell.item.id)
+            .get(&ship_cell.tile_type)
             .unwrap()
             .get_name()
         + ".[/font]\n";
 
-    if ship_cell.item.id != 0 {
+    if ship_cell.tile_type != 0 {
         examine_text = gridmap_data
             .main_text_examine_desc
-            .get(&ship_cell.item.id)
+            .get(&ship_cell.tile_type)
             .unwrap();
     } else {
         examine_text = EXAMINATION_EMPTY;
