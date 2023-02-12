@@ -11,7 +11,7 @@ use bevy::prelude::warn;
 use bevy::prelude::Res;
 use bevy::prelude::Transform;
 
-use crate::floor::AddTile;
+use crate::grid::AddTile;
 use crate::grid::Gridmap;
 
 pub(crate) fn set_cell_graphics(

@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{collections::HashMap, fs, path::Path};
 
 use bevy::prelude::{info, warn, AssetServer, EventWriter, Res, ResMut, Transform};
 use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
@@ -6,10 +6,7 @@ use entity::examine::RichName;
 use math::grid::Vec3Int;
 use resources::{core::TickRate, grid::CellFace, is_server::is_server};
 
-use crate::{
-    floor::AddTile,
-    grid::{CellTileProperties, Gridmap, Orientation},
-};
+use crate::grid::{AddGroup, AddTile, Gridmap, Orientation, TileProperties};
 
 /// Physics friction on placeable item surfaces.
 
@@ -20,7 +17,7 @@ use crate::{
 
 /// Initiate map resource meta-data.
 
-pub(crate) fn startup_map_cell_properties(
+pub(crate) fn startup_map_tile_properties(
     mut gridmap_data: ResMut<Gridmap>,
     assets: Res<AssetServer>,
 ) {
@@ -36,7 +33,7 @@ pub(crate) fn startup_map_cell_properties(
     } else {
         mesh_option = None;
     }
-    main_cells_data.push(CellTileProperties {
+    main_cells_data.push(TileProperties {
         id: *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
         name: RichName {
             name: "aluminum wall".to_string(),
@@ -48,13 +45,29 @@ pub(crate) fn startup_map_cell_properties(
         mesh_option,
         ..Default::default()
     });
+    let mut wall_group = HashMap::new();
+    wall_group.insert(
+        Vec3Int { x: 0, y: 0, z: 0 },
+        *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
+    );
+    wall_group.insert(
+        Vec3Int { x: 0, y: 1, z: 0 },
+        *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
+    );
+    gridmap_data.groups.push(wall_group);
+    gridmap_data
+        .group_id_map
+        .insert("generic_wall_group_1".to_string(), 0);
+    gridmap_data
+        .id_group_map
+        .insert(0, "generic_wall_group_1".to_string());
     let mesh_option;
     if !is_server() {
         mesh_option = Some(assets.load("models/floor/floor.glb#Scene0"));
     } else {
         mesh_option = None;
     }
-    main_cells_data.push(CellTileProperties {
+    main_cells_data.push(TileProperties {
         id: *gridmap_data
             .main_name_id_map
             .get("generic_floor_1")
@@ -172,7 +185,11 @@ pub(crate) fn startup_misc_resources(
 
 /// Build the gridmaps in their own resources from ron.
 
-pub(crate) fn load_ron_gridmap(gridmap_data: Res<Gridmap>, mut set_cell: EventWriter<AddTile>) {
+pub(crate) fn load_ron_gridmap(
+    gridmap_data: Res<Gridmap>,
+    mut set_cell: EventWriter<AddTile>,
+    mut set_group: EventWriter<AddGroup>,
+) {
     // Load map json data into real static bodies.
     let main_ron = Path::new("data")
         .join("maps")
@@ -190,18 +207,6 @@ pub(crate) fn load_ron_gridmap(gridmap_data: Res<Gridmap>, mut set_cell: EventWr
         .expect("startup_build_map() Error parsing map main.ron String.");
 
     for cell_data in current_map_main_data.iter() {
-        let cell_item_id;
-
-        match gridmap_data.main_name_id_map.get(&cell_data.item) {
-            Some(x) => {
-                cell_item_id = *x;
-            }
-            None => {
-                warn!("Couldnt find item {}", cell_data.item);
-                break;
-            }
-        };
-
         let orientation;
         match cell_data.orientation.clone() {
             Some(o) => {
@@ -211,13 +216,49 @@ pub(crate) fn load_ron_gridmap(gridmap_data: Res<Gridmap>, mut set_cell: EventWr
                 orientation = Orientation::default();
             }
         }
+        match &cell_data.item {
+            RonItem::Cell(item) => {
+                let cell_item_id;
 
-        set_cell.send(AddTile {
-            id: cell_data.id,
-            face: cell_data.face.clone(),
-            orientation: orientation.clone(),
-            tile_type: cell_item_id,
-        });
+                match gridmap_data.main_name_id_map.get(item) {
+                    Some(x) => {
+                        cell_item_id = *x;
+                    }
+                    None => {
+                        warn!("Couldnt find item {}", item);
+                        break;
+                    }
+                };
+
+                set_cell.send(AddTile {
+                    id: cell_data.id,
+                    face: cell_data.face.clone(),
+                    orientation: orientation.clone(),
+                    tile_type: cell_item_id,
+                    group_instance_id_option: None,
+                });
+            }
+            RonItem::Group(item) => {
+                let group_item_id;
+
+                match gridmap_data.group_id_map.get(item) {
+                    Some(x) => {
+                        group_item_id = *x;
+                    }
+                    None => {
+                        warn!("Couldnt find item {}", item);
+                        break;
+                    }
+                };
+
+                set_group.send(AddGroup {
+                    id: cell_data.id,
+                    group_id: group_item_id,
+                    orientation: orientation.clone(),
+                    face: cell_data.face.clone(),
+                });
+            }
+        }
     }
 
     info!("Spawned {} map cells.", current_map_main_data.len());
@@ -226,12 +267,18 @@ pub(crate) fn load_ron_gridmap(gridmap_data: Res<Gridmap>, mut set_cell: EventWr
 use player::boarding::{SpawnPoint, SpawnPoints};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize)]
 pub struct CellDataRon {
     pub id: Vec3Int,
     /// Cell item id.
-    pub item: String,
+    pub item: RonItem,
     /// Cell rotation.
     pub orientation: Option<Orientation>,
     pub face: CellFace,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum RonItem {
+    Cell(String),
+    Group(String),
 }
