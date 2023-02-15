@@ -116,7 +116,7 @@ pub struct CellItem {
     /// Health of this tile.
     pub health: Health,
     /// Rotation.
-    pub orientation: Orientation,
+    pub orientation: Option<Orientation>,
 }
 
 /// Maximum amount of available map chunks. 32 by 32 by 32 (cubic length of 1024 meters).
@@ -433,7 +433,7 @@ pub struct AddTile {
     /// Id of tile type.
     pub tile_type: u16,
     /// Rotation.
-    pub orientation: Orientation,
+    pub orientation_option: Option<Orientation>,
     pub face: CellFace,
     pub group_instance_id_option: Option<u32>,
 }
@@ -445,6 +445,6 @@ pub struct AddGroup {
     /// Group id.
     pub group_id: u16,
     /// Rotation.
-    pub orientation: Orientation,
+    pub orientation: Option<Orientation>,
     pub face: CellFace,
 }

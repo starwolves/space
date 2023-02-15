@@ -207,15 +207,6 @@ pub(crate) fn load_ron_gridmap(
         .expect("startup_build_map() Error parsing map main.ron String.");
 
     for cell_data in current_map_main_data.iter() {
-        let orientation;
-        match cell_data.orientation.clone() {
-            Some(o) => {
-                orientation = o;
-            }
-            None => {
-                orientation = Orientation::default();
-            }
-        }
         match &cell_data.item {
             RonItem::Cell(item) => {
                 let cell_item_id;
@@ -233,7 +224,7 @@ pub(crate) fn load_ron_gridmap(
                 set_cell.send(AddTile {
                     id: cell_data.id,
                     face: cell_data.face.clone(),
-                    orientation: orientation.clone(),
+                    orientation_option: cell_data.orientation.clone(),
                     tile_type: cell_item_id,
                     group_instance_id_option: None,
                 });
@@ -254,7 +245,7 @@ pub(crate) fn load_ron_gridmap(
                 set_group.send(AddGroup {
                     id: cell_data.id,
                     group_id: group_item_id,
-                    orientation: orientation.clone(),
+                    orientation: cell_data.orientation.clone(),
                     face: cell_data.face.clone(),
                 });
             }

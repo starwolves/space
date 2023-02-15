@@ -61,7 +61,7 @@ pub(crate) fn add_wall_tile(mut events: EventReader<AddTile>, mut gridmap_main: 
                                     ),
                                     ..Default::default()
                                 },
-                                orientation: add_tile_event.orientation.clone(),
+                                orientation: add_tile_event.orientation_option.clone(),
                                 group_instance_id_option: add_tile_event.group_instance_id_option,
                             };
 
@@ -106,7 +106,7 @@ pub(crate) fn add_wall_group(
         set_tile.send(AddTile {
             id: add_group_event.id,
             tile_type: wall_id,
-            orientation: add_group_event.orientation.clone(),
+            orientation_option: add_group_event.orientation.clone(),
             face: add_group_event.face.clone(),
             group_instance_id_option: Some(group_instance_id),
         });
@@ -115,7 +115,7 @@ pub(crate) fn add_wall_group(
         set_tile.send(AddTile {
             id: high_id,
             tile_type: wall_id,
-            orientation: add_group_event.orientation.clone(),
+            orientation_option: add_group_event.orientation.clone(),
             face: add_group_event.face.clone(),
             group_instance_id_option: Some(group_instance_id),
         });

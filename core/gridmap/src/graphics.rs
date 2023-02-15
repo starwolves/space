@@ -37,19 +37,22 @@ pub(crate) fn set_cell_graphics(
                     crate::grid::StrictCellFace::Floor => {}
                 }
 
-                match &set_cell.orientation {
-                    crate::grid::Orientation::FrontFacing => {
-                        transform.rotation = Quat::from_rotation_y(0.);
-                    }
-                    crate::grid::Orientation::BackFacing => {
-                        transform.rotation = Quat::from_rotation_y(PI);
-                    }
-                    crate::grid::Orientation::RightFacing => {
-                        transform.rotation = Quat::from_rotation_y(0.5 * PI);
-                    }
-                    crate::grid::Orientation::LeftFacing => {
-                        transform.rotation = Quat::from_rotation_y(1.5 * PI);
-                    }
+                match &set_cell.orientation_option {
+                    Some(orientation) => match orientation {
+                        crate::grid::Orientation::FrontFacing => {
+                            transform.rotation = Quat::from_rotation_y(0.);
+                        }
+                        crate::grid::Orientation::BackFacing => {
+                            transform.rotation = Quat::from_rotation_y(PI);
+                        }
+                        crate::grid::Orientation::RightFacing => {
+                            transform.rotation = Quat::from_rotation_y(0.5 * PI);
+                        }
+                        crate::grid::Orientation::LeftFacing => {
+                            transform.rotation = Quat::from_rotation_y(1.5 * PI);
+                        }
+                    },
+                    None => {}
                 }
 
                 commands.spawn(SceneBundle {
