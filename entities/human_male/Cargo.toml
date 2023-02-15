@@ -33,4 +33,4 @@ pawn = { path = "../../core/pawn" }
 setup_menu = { path = "../../core/setup_menu"}
 physics = { path = "../../core/physics"}
 basic_console_commands = { path = "../../core/basic_console_commands" }
-
+construction_tool_admin = { path = "../construction_tool_admin" }

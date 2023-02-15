@@ -1,5 +1,7 @@
 use bevy::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
 
+use construction_tool_admin::spawn::ConstructionToolType;
+use entity::entity_types::EntityType;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use player::names::UsedNames;
 
@@ -48,6 +50,16 @@ pub(crate) fn spawn_boarding_player(
 
         let new_human_entity = commands.spawn(()).id();
 
+        let passed_inventory_setup: Vec<(String, Box<dyn EntityType>)> = vec![
+            //("jumpsuit".to_string(), Box::new(JumpsuitType::default())),
+            //("helmet".to_string(), Box::new(HelmetType::default())),
+            //("holster".to_string(), Box::new(PistolL1Type::default())),
+            (
+                "left_hand".to_string(),
+                Box::new(ConstructionToolType::default()),
+            ),
+        ];
+
         spawn_human.send(SpawnEntity {
             spawn_data: EntityBuildData {
                 entity: new_human_entity,
@@ -62,20 +74,11 @@ pub(crate) fn spawn_boarding_player(
                     },
                     connected_player_option: Some(connected_player_component.clone()),
                     designation: PawnDesignation::Player,
+                    inventory_setup: passed_inventory_setup,
                 },
                 ..Default::default()
             },
         });
-
-        /*let passed_inventory_setup: Vec<(String, Box<dyn EntityType>)> = vec![
-            ("jumpsuit".to_string(), Box::new(JumpsuitType::default())),
-            ("helmet".to_string(), Box::new(HelmetType::default())),
-            ("holster".to_string(), Box::new(PistolL1Type::default())),
-            (
-                "left_hand".to_string(),
-                Box::new(ConstructionToolType::default()),
-            ),
-        ];*/
 
         let handle;
 
