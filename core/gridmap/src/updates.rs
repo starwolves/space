@@ -34,7 +34,7 @@ pub(crate) fn gridmap_updates_manager(
                             cell_id.y,
                             cell_id.z,
                             cell_update.cell_data.tile_type,
-                            Some(cell_update.cell_data.orientation.clone()),
+                            cell_update.cell_data.orientation.clone(),
                         ),
                     });
                 } else {

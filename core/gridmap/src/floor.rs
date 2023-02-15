@@ -63,7 +63,7 @@ pub(crate) fn add_floor_tile(mut events: EventReader<AddTile>, mut gridmap_main:
                                             ),
                                             ..Default::default()
                                         },
-                                        orientation: add_tile_event.orientation.clone(),
+                                        orientation: add_tile_event.orientation_option.clone(),
                                         group_instance_id_option: None,
                                     });
                                 }
