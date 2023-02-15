@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{Commands, EventReader, EventWriter, Transform, Vec3};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
 use entity::{
@@ -16,10 +16,12 @@ use entity::{
     },
 };
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
-use inventory::combat::{DamageModel, MeleeCombat};
-use inventory::inventory::{Inventory, Slot, SlotType};
+use inventory::{
+    combat::{DamageModel, MeleeCombat},
+    inventory::{Inventory, Slot, SlotType},
+};
 use map::map::Map;
-use pawn::pawn::{DataLink, DataLinkType};
+use pawn::pawn::{DataLink, DataLinkType, PawnBuilder};
 use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
@@ -162,16 +164,12 @@ impl RigidBodyBuilder<NoData> for HumanMaleType {
     }
 }
 
-impl HumanMaleBuilder for HumanMaleType {
+impl PawnBuilder for HumanMaleType {
     fn get_spawn_pawn_data(&self) -> SpawnPawnData {
         self.spawn_pawn_data.clone()
     }
 }
 
-pub trait HumanMaleBuilder: Send + Sync {
-    fn get_spawn_pawn_data(&self) -> SpawnPawnData;
-}
-use bevy::prelude::Entity;
 use controller::controller::ControllerInput;
 
 /// human-male specific spawn components and bundles.
@@ -260,15 +258,22 @@ pub fn build_human_males(
         spawner
             .insert(Dominance::group(10))
             .insert(LockedAxes::ROTATION_LOCKED);
+    }
+}
 
-        let slot_entities: HashMap<String, Entity> = HashMap::new();
+pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
+    mut commands: Commands,
+    mut default_spawner: EventWriter<SpawnEntity<T>>,
+    mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
+) {
+    for spawn_event in spawn_events.iter() {
+        let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
 
-        // Inventory spawning no longer happens here.
-        /* for (slot_name, item_name) in spawn_pawn_data.inventory_setup.iter() {
-            let entity_option;
+        let mut slot_entities: HashMap<String, Entity> = HashMap::new();
 
+        for (slot_name, _item_name) in spawn_pawn_data.inventory_setup.iter() {
             let return_entity = commands.spawn(()).id();
-            default_spawner.send(DefaultSpawnEvent {
+            default_spawner.send(SpawnEntity {
                 spawn_data: EntityBuildData {
                     entity_transform: Transform::IDENTITY,
                     correct_transform: false,
@@ -279,10 +284,10 @@ pub fn build_human_males(
                     entity: return_entity,
                     held_entity_option: Some(return_entity),
                 },
-                builder: item_name.clone(),
+                entity_type: T::default(),
             });
             slot_entities.insert(slot_name.to_string(), return_entity);
-        }*/
+        }
 
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 

@@ -37,6 +37,7 @@ pub(crate) fn human_male_setup_ui(
                     pawn_component: persistent_player_data_component.clone(),
                     connected_player_option: Some(connected_player_component.clone()),
                     designation: PawnDesignation::Showcase,
+                    ..Default::default()
                 },
                 ..Default::default()
             },

@@ -15,7 +15,6 @@ pub mod can_reach_entity;
 pub mod connections;
 /// Manage gridmap exmination.
 pub mod examine;
-pub mod floor;
 /// Manage gridmap FOV.
 pub mod fov;
 /// Get a spawn position for an item that is free.

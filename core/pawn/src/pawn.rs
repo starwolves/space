@@ -72,6 +72,7 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
     }
 }
 use bevy_rapier3d::na::Quaternion;
+use entity::entity_types::EntityType;
 use networking::server::ConnectedPlayer;
 
 pub struct PawnYAxisRotations;
@@ -120,6 +121,7 @@ pub struct SpawnPawnData {
     pub pawn_component: Pawn,
     pub connected_player_option: Option<ConnectedPlayer>,
     pub designation: PawnDesignation,
+    pub inventory_setup: Vec<(String, Box<dyn EntityType>)>,
 }
 
 #[derive(Clone, Default)]
@@ -155,4 +157,7 @@ pub enum DataLinkType {
     FullAtmospherics,
     RemoteLock,
     ShipEngineeringKnowledge,
+}
+pub trait PawnBuilder: Send + Sync {
+    fn get_spawn_pawn_data(&self) -> SpawnPawnData;
 }

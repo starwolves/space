@@ -18,8 +18,6 @@ default-features = false
 bevy_egui = { version = "0.18.0", default-features = false, features = [
     "manage_clipboard",
 ] }
-bevy_rapier3d = "0.19.0"
-iyes_loopless = "0.9.1"
 combat = { path = "../combat" }
 controller = { path = "../controller" }
 console_commands = { path = "../console_commands" }
