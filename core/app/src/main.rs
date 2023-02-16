@@ -38,6 +38,7 @@ use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
 use gridmap::plugin::GridmapPlugin;
 use helmet_security::plugin::HelmetsPlugin;
+use hud::plugin::HudPlugin;
 use human_male::plugin::HumanMalePlugin;
 use humanoid::plugin::HumanoidPlugin;
 use inventory::plugin::InventoryPlugin;
@@ -170,5 +171,6 @@ pub(crate) fn configure_and_start() {
         .add_plugin(MainMenuPlugin)
         .add_plugin(ControllerPlugin::default())
         .add_plugin(WorldPlugin)
+        .add_plugin(HudPlugin)
         .run();
 }

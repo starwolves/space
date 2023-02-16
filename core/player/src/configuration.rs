@@ -88,9 +88,15 @@ pub struct PawnEntityId {
 }
 use bevy::prelude::info;
 
+#[derive(Resource,Default)]
+pub struct Boarded {
+    pub boarded : bool,
+}
+
 pub(crate) fn client_receive_pawnid(
     mut client: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     mut id: ResMut<PawnEntityId>,
+    mut boarded : ResMut<Boarded>,
 ) {
     for message in client.iter() {
         match message.message {
@@ -98,7 +104,11 @@ pub(crate) fn client_receive_pawnid(
                 id.option = Some(Entity::from_bits(entity_bits));
                 info!("Server assigned entity {:?}.", id.option.unwrap());
             }
-            _ => (),
+            PlayerServerMessage::Boarded => {
+                info!("Boarded!");
+                boarded.boarded=true;
+            }
+            _ => {},
         }
     }
 }
