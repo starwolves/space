@@ -23,6 +23,7 @@ controller = { path = "../controller" }
 console_commands = { path = "../console_commands" }
 gridmap = { path = "../gridmap" }
 main_menu = { path = "../main_menu" }
+hud = { path = "../hud" }
 humanoid = { path = "../humanoid" }
 networking = { path = "../networking" }
 actions = { path = "../actions" }
