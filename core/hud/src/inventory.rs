@@ -21,7 +21,7 @@ pub (crate) fn create_inventory_hud(mut commands : Commands, hud_state : Res<Hud
             PlayerServerMessage::Boarded => {
 
                 let entity_id = commands.spawn(InventoryHudRootNode).id();
-                commands.entity(hud_state.center_node).add_child(entity_id);
+                commands.entity(hud_state.center_content_node).add_child(entity_id);
                 let mut builder = commands.entity(entity_id);
             
                 builder
