@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+/*use std::collections::HashMap;
 
 use crate::inventory::Inventory;
 use crate::item::InventoryItem;
@@ -18,7 +18,7 @@ pub(crate) fn inventory_update(
         for slot in &inventory_component.slots {
             let attachment_slot;
 
-            match &slot.slot_attachment {
+            match &slot.attachment {
                 Some(attachment) => {
                     attachment_slot = attachment;
                 }
@@ -27,7 +27,7 @@ pub(crate) fn inventory_update(
                 }
             }
 
-            match slot.slot_item {
+            match slot.item_option {
                 Some(item) => {
                     let pickupable_components = pickupables.get(item)
                     .expect("inventory_update.rs couldn't find pickupable entity in query that is in inventory slot.");
@@ -37,7 +37,7 @@ pub(crate) fn inventory_update(
                     let attachment_transform_option = pickupable_components
                         .0
                         .attachment_transforms
-                        .get(&slot.slot_name);
+                        .get(&slot.id);
 
                     match attachment_transform_option {
                         Some(attachment_transform) => {
@@ -54,7 +54,7 @@ pub(crate) fn inventory_update(
                             update_map.insert(
                                 "wornItems".to_string(),
                                 EntityUpdateData::WornItem(
-                                    slot.slot_name.clone(),
+                                    slot.id.clone(),
                                     item.to_bits(),
                                     pickupable_components.1.entity_type.to_string(),
                                     attachment_transform.translation,
@@ -70,7 +70,7 @@ pub(crate) fn inventory_update(
                                 update_map.insert(
                                     "wornItems".to_string(),
                                     EntityUpdateData::WornItemNotAttached(
-                                        slot.slot_name.clone(),
+                                        slot.id.clone(),
                                         item.to_bits(),
                                         pickupable_components.1.entity_type.to_string(),
                                     ),
@@ -97,3 +97,4 @@ pub(crate) fn inventory_update(
             .push(difference_updates);
     }
 }
+*/

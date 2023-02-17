@@ -3,63 +3,21 @@ use console_commands::commands::ConsoleCommandsLabels;
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{
     is_server::is_server,
-    labels::{ActionsLabels, PostUpdateLabels, UpdateLabels},
+    labels::{PostUpdateLabels},
 };
 
 use crate::{
-    actions::pickup_prerequisite_check,
-    actions_item::{build_actions, incoming_messages},
     entity_update_item::inventory_item_update,
-    item_events::{
-        pickup_world_item_action, InputDropCurrentItem, InputTakeOffItem, InputThrowItem,
-        InputUseWorldItem, InputWearItem, ThrownItem,
-    },
-    net::{InventoryClientMessage, InventoryServerMessage},
-    switch_hands::InputSwitchHands,
+    net::{InventoryClientMessage, InventoryServerMessage}, inventory::{AddItemToSlot, add_item_to_slot, SpawnItemLabel, ItemAddedToSlot, added_item_to_slot, client_item_added_to_slot},
 };
 
-use super::{
-    entity_update::inventory_update,
-    item_events::{drop_current_item, pickup_world_item, take_off_item, throw_item, wear_item},
-    switch_hands::switch_hands,
-};
 use bevy::app::CoreStage::PostUpdate;
-use bevy::app::CoreStage::PreUpdate;
 pub struct InventoryPlugin;
 
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(pickup_world_item)
-                .add_system(switch_hands)
-                .add_system(wear_item)
-                .add_system(take_off_item)
-                .add_system(throw_item)
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .label(PostUpdateLabels::EntityUpdate)
-                        .with_system(inventory_update),
-                )
-                .add_system(drop_current_item.label(UpdateLabels::DropCurrentItem))
-                .add_system(
-                    pickup_prerequisite_check
-                        .label(ActionsLabels::Approve)
-                        .after(ActionsLabels::Init),
-                )
-                .add_system(
-                    pickup_world_item_action
-                        .label(ActionsLabels::Action)
-                        .after(ActionsLabels::Approve),
-                )
-                .add_system_to_stage(PreUpdate, incoming_messages)
-                .add_event::<InputDropCurrentItem>()
-                .add_event::<InputThrowItem>()
-                .add_event::<InputSwitchHands>()
-                .add_event::<InputTakeOffItem>()
-                .add_event::<InputUseWorldItem>()
-                .add_event::<InputWearItem>()
-                .add_event::<ThrownItem>()
+            app
                 .add_system_set_to_stage(
                     PostUpdate,
                     SystemSet::new()
@@ -69,13 +27,13 @@ impl Plugin for InventoryPlugin {
                 .add_startup_system(
                     initialize_console_commands.before(ConsoleCommandsLabels::Finalize),
                 )
-                .add_system(
-                    build_actions
-                        .label(ActionsLabels::Build)
-                        .after(ActionsLabels::Init),
-                );
+                .add_system(add_item_to_slot.before(SpawnItemLabel::SpawnHeldItem))
+                .add_event::<ItemAddedToSlot>()
+                .add_system(added_item_to_slot);
+        } else {
+            app.add_system(client_item_added_to_slot);
         }
-
+        app.add_event::<AddItemToSlot>();
         register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
         register_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
     }

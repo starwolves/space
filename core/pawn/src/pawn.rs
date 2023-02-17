@@ -121,7 +121,7 @@ pub struct SpawnPawnData {
     pub pawn_component: Pawn,
     pub connected_player_option: Option<ConnectedPlayer>,
     pub designation: PawnDesignation,
-    pub inventory_setup: Vec<(String, Box<dyn EntityType>)>,
+    pub inventory_setup: Vec<Box<dyn EntityType>>,
 }
 
 #[derive(Clone, Default)]

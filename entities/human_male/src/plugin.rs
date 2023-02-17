@@ -3,6 +3,7 @@ use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use construction_tool_admin::spawn::ConstructionToolType;
 use entity::entity_types::register_entity_type;
 
+use inventory::inventory::SpawnItemLabel;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
@@ -38,6 +39,6 @@ impl Plugin for HumanMalePlugin {
         )
         .add_system((build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
         .add_system((build_rigid_bodies::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
-        .add_system(spawn_held_item::<ConstructionToolType>);
+        .add_system(spawn_held_item::<ConstructionToolType>.label(SpawnItemLabel::SpawnHeldItem));
     }
 }

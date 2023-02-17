@@ -11,6 +11,7 @@ use inventory::combat::{DamageModel, MeleeCombat};
 use inventory::inventory::SlotType;
 use inventory::item::InventoryItem;
 use inventory::spawn_item::{InventoryItemBuilder, InventoryItemBundle};
+use math::grid::Vec2Int;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use resources::content::SF_CONTENT_PREFIX;
@@ -85,6 +86,7 @@ impl InventoryItemBuilder for ConstructionToolType {
                 drop_transform: get_default_transform(),
                 attachment_transforms: attachment_transforms.clone(),
                 slot_type: SlotType::Holster,
+                slot_size: Vec2Int { x: 2, y: 2 },
                 ..Default::default()
             },
             melee_combat: MeleeCombat {

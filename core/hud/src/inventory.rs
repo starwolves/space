@@ -27,7 +27,7 @@ pub (crate) fn create_inventory_hud(mut commands : Commands, hud_state : Res<Hud
                 builder
                 .insert(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(60.0)),
+                        size: Size::new(Val::Percent(100.0), Val::Percent(90.0)),
                         ..Default::default()
                     },
                     visibility: Visibility {
@@ -37,7 +37,7 @@ pub (crate) fn create_inventory_hud(mut commands : Commands, hud_state : Res<Hud
                     background_color: Color::DARK_GRAY.into(),
                     ..Default::default()
                 })
-                .with_children(|parent| {
+                .with_children(|_parent| {
             
                 });
             

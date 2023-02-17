@@ -14,7 +14,7 @@ pub(crate) fn examine_entity(
     mut examine_entity_events: ResMut<ExamineEntityMessages>,
     criteria_query: Query<&Senser>,
     q1: Query<(&Examinable, &Sensable, &HealthComponent, &Inventory, &Pawn)>,
-    q2: Query<&Examinable>,
+    _q2: Query<&Examinable>,
 ) {
     for examine_event in examine_entity_events.messages.iter_mut() {
         let entity_reference = examine_event.examine_entity;
@@ -32,7 +32,7 @@ pub(crate) fn examine_entity(
                 _examinable_component,
                 _sensable_component,
                 _health_component,
-                inventory_component,
+                _inventory_component,
                 standard_character_component,
             )) => {
                 let mut text = "[font=".to_owned()
@@ -46,33 +46,34 @@ pub(crate) fn examine_entity(
                 let mut examine_text = "".to_string();
 
                 examine_text = examine_text + "\n";
+                /*
                 for slot in inventory_component.slots.iter() {
-                    match slot.slot_item {
-                        Some(slot_item_entity) => {
+                    match slot.space {
+                        Some(_slot_item_entity) => {
                             let examinable = q2.get(slot_item_entity)
                                         .expect("inventory_update.rs::generate_human_examine_text couldn't find inventory_item_component of an item from passed inventory.");
 
-                            if slot.slot_name == "left_hand" {
+                            if slot.id == "left_hand" {
                                 examine_text = examine_text
                                     + "He is holding "
                                     + &examinable.name.get_a_name()
                                     + " in his left hand.\n";
-                            } else if slot.slot_name == "right_hand" {
+                            } else if slot.id == "right_hand" {
                                 examine_text = examine_text
                                     + "He is holding "
                                     + &examinable.name.get_a_name()
                                     + " in his right hand.\n";
-                            } else if slot.slot_name == "helmet" {
+                            } else if slot.id == "helmet" {
                                 examine_text = examine_text
                                     + "He is wearing "
                                     + &examinable.name.get_a_name()
                                     + " on his head.\n";
-                            } else if slot.slot_name == "jumpsuit" {
+                            } else if slot.id == "jumpsuit" {
                                 examine_text = examine_text
                                     + "He is wearing "
                                     + &examinable.name.get_a_name()
                                     + " on his body.\n";
-                            } else if slot.slot_name == "holster" {
+                            } else if slot.id == "holster" {
                                 examine_text = examine_text
                                     + &examinable.name.get_a_name()
                                     + " is attached to his holster.\n";
@@ -85,7 +86,7 @@ pub(crate) fn examine_entity(
                         }
                         None => {}
                     }
-                }
+                }*/
 
                 text = text + &examine_text;
 

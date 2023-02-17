@@ -1,11 +1,10 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
 use gridmap::grid::Gridmap;
-use inventory::inventory::Inventory;
 use math::grid::cell_id_to_world;
 use pawn::pawn::REACH_DISTANCE;
 
-use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
+use crate::construction_tool::{InputConstructionOptions, InputDeconstruct};
 use networking::server::HandleToEntity;
 
 use super::construction_tool::InputConstruct;
@@ -198,42 +197,6 @@ pub(crate) fn construction_tool_search_distance_prequisite_check(
                 let distance = start_pos.distance(end_pos);
 
                 if distance < REACH_DISTANCE {
-                    action.approve();
-                } else {
-                    action.do_not_approve();
-                }
-            }
-        }
-    }
-}
-
-pub(crate) fn construction_tool_is_holding_item_prequisite_check(
-    mut building_action_data: ResMut<BuildingActions>,
-    inventory_holders: Query<&Inventory>,
-    construction_tools: Query<&ConstructionTool>,
-) {
-    for building in building_action_data.list.iter_mut() {
-        for action in building.actions.iter_mut() {
-            if action.data.id.contains("action::construction_tool_admin") {
-                let mut passed = false;
-
-                match inventory_holders.get(building.action_taker) {
-                    Ok(i) => {
-                        let active_slot = i.get_slot(&i.active_slot);
-                        match active_slot.slot_item {
-                            Some(e) => {
-                                passed = construction_tools.get(e).is_ok();
-                            }
-                            None => {}
-                        }
-                    }
-                    Err(_) => {
-                        warn!("checker wasnt inventory holder.");
-                        continue;
-                    }
-                }
-
-                if passed {
                     action.approve();
                 } else {
                     action.do_not_approve();

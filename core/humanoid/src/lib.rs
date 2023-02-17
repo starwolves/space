@@ -11,6 +11,5 @@ mod examine_events;
 pub mod humanoid;
 /// The Bevy plugin of this crate.
 pub mod plugin;
-pub mod thrown_item;
 /// Manage humanoid user names.
 pub mod user_name;
