@@ -18,7 +18,7 @@ use entity::{
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
 use inventory::{
     combat::{DamageModel, MeleeCombat},
-    inventory::{Inventory, Slot, AddItemToSlot},
+    inventory::{Inventory, Slot, AddItemToSlot, AddSlot},
 };
 use map::map::Map;
 use math::grid::Vec2Int;
@@ -267,6 +267,7 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
     mut default_spawner: EventWriter<SpawnEntity<T>>,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
     mut add_slot_item : EventWriter<AddItemToSlot>,
+    mut add_slot : EventWriter<AddSlot>,
 ) {
     for spawn_event in spawn_events.iter() {
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
@@ -297,13 +298,12 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
         test_slot.name = "Test Slot".to_string();
         test_slot.size = Vec2Int { x: 16, y: 8 };
 
-        let mut slot_map = HashMap::new();
-        slot_map.insert(0, test_slot);
-
-        spawner.insert(Inventory {
-            slots: slot_map,
-            active_item: None,
+        add_slot.send(AddSlot {
+            inventory_entity: spawn_event.spawn_data.entity,
+            slot:test_slot,
         });
+
+        spawner.insert(Inventory::default());
 
         for item in slot_entities {
             add_slot_item.send(AddItemToSlot { slot_id: 0, inventory_entity: spawn_event.spawn_data.entity, item_entity: item });
