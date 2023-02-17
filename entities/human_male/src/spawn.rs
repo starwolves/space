@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Transform, Vec3};
+use bevy::prelude::{Commands, EventReader, EventWriter, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
 use entity::{
@@ -18,9 +18,10 @@ use entity::{
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
 use inventory::{
     combat::{DamageModel, MeleeCombat},
-    inventory::{Inventory, Slot, SlotType},
+    inventory::{Inventory, Slot, AddItemToSlot},
 };
 use map::map::Map;
+use math::grid::Vec2Int;
 use pawn::pawn::{DataLink, DataLinkType, PawnBuilder};
 use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
@@ -265,13 +266,14 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
     mut commands: Commands,
     mut default_spawner: EventWriter<SpawnEntity<T>>,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
+    mut add_slot_item : EventWriter<AddItemToSlot>,
 ) {
     for spawn_event in spawn_events.iter() {
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
 
-        let mut slot_entities: HashMap<String, Entity> = HashMap::new();
+        let mut slot_entities = vec![];
 
-        for (slot_name, _item_name) in spawn_pawn_data.inventory_setup.iter() {
+        for  _item_name in spawn_pawn_data.inventory_setup.iter() {
             let return_entity = commands.spawn(()).id();
             default_spawner.send(SpawnEntity {
                 spawn_data: EntityBuildData {
@@ -286,100 +288,26 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                 },
                 entity_type: T::default(),
             });
-            slot_entities.insert(slot_name.to_string(), return_entity);
+            slot_entities.push(return_entity);
         }
-
+        
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
-        let left_hand_item;
-        match slot_entities.get(&"left_hand".to_string()) {
-            Some(entity) => {
-                left_hand_item = Some(*entity);
-            }
-            None => {
-                left_hand_item = None;
-            }
-        }
-        let right_hand_item;
-        match slot_entities.get(&"right_hand".to_string()) {
-            Some(entity) => {
-                right_hand_item = Some(*entity);
-            }
-            None => {
-                right_hand_item = None;
-            }
-        }
-        let helmet_hand_item;
-        match slot_entities.get(&"helmet".to_string()) {
-            Some(entity) => {
-                helmet_hand_item = Some(*entity);
-            }
-            None => {
-                helmet_hand_item = None;
-            }
-        }
-        let jumpsuit_hand_item;
-        match slot_entities.get(&"jumpsuit".to_string()) {
-            Some(entity) => {
-                jumpsuit_hand_item = Some(*entity);
-            }
-            None => {
-                jumpsuit_hand_item = None;
-            }
-        }
-        let holster_hand_item;
-        match slot_entities.get(&"holster".to_string()) {
-            Some(entity) => {
-                holster_hand_item = Some(*entity);
-            }
-            None => {
-                holster_hand_item = None;
-            }
-        }
+        let mut test_slot = Slot::default();
+        test_slot.name = "Test Slot".to_string();
+        test_slot.size = Vec2Int { x: 16, y: 8 };
+
+        let mut slot_map = HashMap::new();
+        slot_map.insert(0, test_slot);
 
         spawner.insert(Inventory {
-            slots: vec![
-                Slot {
-                    slot_type: SlotType::Generic,
-                    slot_name: "left_hand".to_string(),
-                    slot_item: left_hand_item,
-                    slot_attachment: Some(
-                        "Smoothing/pawn/humanMale/rig/leftHand/Position3D".to_string(),
-                    ),
-                },
-                Slot {
-                    slot_type: SlotType::Generic,
-                    slot_name: "right_hand".to_string(),
-                    slot_item: right_hand_item,
-                    slot_attachment: Some(
-                        "Smoothing/pawn/humanMale/rig/rightHand/Position3D".to_string(),
-                    ),
-                },
-                Slot {
-                    slot_type: SlotType::Helmet,
-                    slot_name: "helmet".to_string(),
-                    slot_item: helmet_hand_item,
-                    slot_attachment: Some(
-                        "Smoothing/pawn/humanMale/rig/head/Position3D".to_string(),
-                    ),
-                },
-                Slot {
-                    slot_type: SlotType::Jumpsuit,
-                    slot_name: "jumpsuit".to_string(),
-                    slot_item: jumpsuit_hand_item,
-                    slot_attachment: Some("Smoothing/pawn/humanMale/rig/humanMale".to_string()),
-                },
-                Slot {
-                    slot_type: SlotType::Holster,
-                    slot_name: "holster".to_string(),
-                    slot_item: holster_hand_item,
-                    slot_attachment: Some(
-                        "Smoothing/pawn/humanMale/rig/holster/Position3D".to_string(),
-                    ),
-                },
-            ],
-            active_slot: "left_hand".to_string(),
-            ..Default::default()
+            slots: slot_map,
+            active_item: None,
         });
+
+        for item in slot_entities {
+            add_slot_item.send(AddItemToSlot { slot_id: 0, inventory_entity: spawn_event.spawn_data.entity, item_entity: item });
+        }
+
     }
 }

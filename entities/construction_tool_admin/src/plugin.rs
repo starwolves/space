@@ -7,6 +7,7 @@ use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
+use inventory::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
@@ -14,7 +15,6 @@ use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateLabel
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
-    construction_tool_is_holding_item_prequisite_check,
     construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
     text_tree_input_selection,
 };
@@ -52,11 +52,6 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_system(
                     health_combat_hit_result_sfx::<ConstructionTool>
                         .after(CombatLabels::FinalizeApplyDamage),
-                )
-                .add_system(
-                    construction_tool_is_holding_item_prequisite_check
-                        .label(ActionsLabels::Approve)
-                        .after(ActionsLabels::Build),
                 )
                 .add_system(
                     construction_tool_search_distance_prequisite_check
@@ -98,7 +93,7 @@ impl Plugin for ConstructionToolAdminPlugin {
             (build_rigid_bodies::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
         )
         .add_system(
-            (build_inventory_items::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
+            (build_inventory_items::<ConstructionToolType>).after(BuildingLabels::TriggerBuild).after(SpawnItemLabel::SpawnHeldItem).label(SpawnItemLabel::AddingComponent),
         );
     }
 }

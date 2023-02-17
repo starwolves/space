@@ -1,7 +1,7 @@
 use bevy::prelude::Vec3;
 use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug, Default)]
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Vec2Int {
     pub x: i16,
     pub y: i16,

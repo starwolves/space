@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::inventory::SlotType;
 use bevy::prelude::{Component, Entity, Transform};
+use math::grid::Vec2Int;
 
 /// Humanoid animations for combat.
 
@@ -28,6 +29,7 @@ pub struct InventoryItem {
     pub throw_force_factor: f32,
     /// The to be played animation when in combat mode whilst holding this item.
     pub combat_standard_animation: CombatStandardAnimation,
+    pub slot_size : Vec2Int,
 }
 
 impl Default for InventoryItem {
@@ -40,6 +42,7 @@ impl Default for InventoryItem {
             is_attached_when_worn: true,
             combat_standard_animation: CombatStandardAnimation::StandardStance,
             throw_force_factor: 1.,
+            slot_size: Vec2Int{ x: 3, y: 3 },
         }
     }
 }

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, f32::consts::PI};
+/*use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::{
     math::Vec2,
@@ -92,8 +92,8 @@ pub(crate) fn humanoid_core_entity_updates(
         let mut inventory_item_components_option = None;
 
         for slot in inventory_component.slots.iter() {
-            if slot.slot_name == inventory_component.active_slot {
-                active_item_entity = slot.slot_item;
+            if slot.id == inventory_component.active_slot {
+                active_item_entity = slot.item_option;
                 match active_item_entity {
                     Some(ent) => {
                         inventory_item_components_option = Some(inventory_items.get(ent).unwrap());
@@ -411,3 +411,4 @@ pub(crate) fn humanoid_core_entity_updates(
             .push(difference_updates);
     }
 }
+*/

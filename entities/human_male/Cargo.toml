@@ -24,6 +24,7 @@ player = { path = "../../core/player"}
 entity = { path = "../../core/entity" }
 chat = { path = "../../core/chat" }
 map = { path = "../../core/map" }
+math = { path = "../../core/math" }
 controller = { path = "../../core/controller" }
 combat = { path = "../../core/combat"}
 networking = { path = "../../core/networking" }
