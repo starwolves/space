@@ -8,7 +8,7 @@ use resources::{
 
 use crate::{
     entity_update_item::inventory_item_update,
-    net::{InventoryClientMessage, InventoryServerMessage}, inventory::{AddItemToSlot, add_item_to_slot, SpawnItemLabel, ItemAddedToSlot, added_item_to_slot, client_item_added_to_slot},
+    net::{InventoryClientMessage, InventoryServerMessage}, inventory::{AddItemToSlot, add_item_to_slot, SpawnItemLabel, ItemAddedToSlot, added_item_to_slot, client_item_added_to_slot, Inventory, AddSlot, add_slot_to_inventory, client_slot_added, ClientBuildInventoryLabel},
 };
 
 use bevy::app::CoreStage::PostUpdate;
@@ -29,11 +29,15 @@ impl Plugin for InventoryPlugin {
                 )
                 .add_system(add_item_to_slot.before(SpawnItemLabel::SpawnHeldItem))
                 .add_event::<ItemAddedToSlot>()
-                .add_system(added_item_to_slot);
+                .add_system(added_item_to_slot)
+                .add_system(add_slot_to_inventory);
         } else {
-            app.add_system(client_item_added_to_slot);
+            app.add_system(client_item_added_to_slot.after(ClientBuildInventoryLabel::AddSlot))
+            .add_system(client_slot_added.label(ClientBuildInventoryLabel::AddSlot))
+            .init_resource::<Inventory>();
         }
-        app.add_event::<AddItemToSlot>();
+        app.add_event::<AddItemToSlot>()
+        .add_event::<AddSlot>();
         register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
         register_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
     }
