@@ -7,9 +7,10 @@ use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
-use hud::inventory::{
-    update_inventory_hud_add_item_to_slot, InventoryHudLabels, InventoryHudState,
-};
+
+use hud::inventory::build::InventoryHudState;
+use hud::inventory::items::update_inventory_hud_add_item_to_slot;
+use hud::inventory::slots::InventoryHudLabels;
 use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use iyes_loopless::prelude::IntoConditionalSystem;

@@ -6,10 +6,16 @@ use crate::{
     expand::{expand_hud, ExpandHud},
     hud::{create_hud, HudState},
     inventory::{
-        create_inventory_hud, inventory_hud_key_press, inventory_net_updates, open_inventory_hud,
-        queue_inventory_updates, requeue_hud_add_item_to_slot, update_inventory_hud_slot,
-        HudAddInventorySlot, HudAddItemToSlot, InventoryHudLabels, InventoryHudState,
-        InventoryUpdatesQueue, OpenInventoryHud, RequeueHudAddItemToSlot,
+        build::{
+            create_inventory_hud, inventory_hud_key_press, open_inventory_hud, InventoryHudState,
+            OpenInventoryHud,
+        },
+        items::{requeue_hud_add_item_to_slot, HudAddItemToSlot},
+        queue::{
+            inventory_net_updates, queue_inventory_updates, InventoryUpdatesQueue,
+            RequeueHudAddItemToSlot,
+        },
+        slots::{update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
     },
 };
 
