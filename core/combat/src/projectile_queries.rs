@@ -13,7 +13,7 @@ use bevy_rapier3d::{
 };
 use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::grid::{Cell, Gridmap};
-use inventory::combat::ProjectileCombat;
+use inventory::server::combat::ProjectileCombat;
 use math::grid::{cell_id_to_world, Vec3Int};
 
 use crate::{

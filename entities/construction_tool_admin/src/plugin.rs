@@ -10,7 +10,7 @@ use entity::spawn::build_base_entities;
 use hud::inventory::{
     update_inventory_hud_add_item_to_slot, InventoryHudLabels, InventoryHudState,
 };
-use inventory::inventory::SpawnItemLabel;
+use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use iyes_loopless::prelude::IntoConditionalSystem;
 use physics::spawn::build_rigid_bodies;

@@ -3,7 +3,7 @@ use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use construction_tool_admin::spawn::ConstructionToolType;
 use entity::entity_types::register_entity_type;
 
-use inventory::inventory::SpawnItemLabel;
+use inventory::server::inventory::SpawnItemLabel;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,

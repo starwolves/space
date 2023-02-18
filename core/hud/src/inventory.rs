@@ -14,8 +14,7 @@ use entity::{
     spawn::EntityBuildData,
 };
 use inventory::{
-    inventory::{AddedSlot, ItemAddedToSlot},
-    net::InventoryServerMessage,
+    client::slots::AddedSlot, net::InventoryServerMessage, server::inventory::ItemAddedToSlot,
     spawn_item::InventoryItemBuilder,
 };
 use networking::client::IncomingReliableServerMessage;
