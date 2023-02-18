@@ -26,4 +26,3 @@ networking = { path = "../networking"}
 entity = { path = "../entity"}
 text_api = { path = "../text_api"}
 resources = { path = "../resources" }
-inventory = { path = "../inventory" }
