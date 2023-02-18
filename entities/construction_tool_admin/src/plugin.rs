@@ -7,8 +7,12 @@ use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
+use hud::inventory::{
+    update_inventory_hud_add_item_to_slot, InventoryHudLabels, InventoryHudState,
+};
 use inventory::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
+use iyes_loopless::prelude::IntoConditionalSystem;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateLabels};
@@ -34,11 +38,6 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()
                 .add_event::<InputConstructionOptionsSelection>()
-                /*.add_system(
-                    construction_tool
-                        .after(UpdateLabels::TextTreeInputSelection)
-                        .before(UpdateLabels::DeconstructCell),
-                )*/
                 .add_system(
                     melee_attack_handler::<ConstructionTool>
                         .label(CombatLabels::WeaponHandler)
@@ -79,6 +78,13 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .after(ActionsLabels::Init),
                 )
                 .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection));
+        } else {
+            app.add_system(
+                update_inventory_hud_add_item_to_slot::<ConstructionToolType>
+                    .run_if_resource_exists::<InventoryHudState>()
+                    .after(InventoryHudLabels::UpdateSlot)
+                    .label(InventoryHudLabels::QueueUpdate),
+            );
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);

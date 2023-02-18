@@ -5,7 +5,7 @@ use entity::senser::WORLD_WIDTH_CELLS;
 
 /// Check if rigidbody is out of bounds if so teleport on the mirrored side.
 
-pub(crate) fn out_of_bounds_tp(
+pub(crate) fn _out_of_bounds_tp(
     mut rigid_bodies: Query<(Entity, &EntityData, &mut Transform), (Without<RigidBodyDisabled>,)>,
 ) {
     let max = WORLD_WIDTH_CELLS as f32 * 0.5 * 2.;

@@ -29,6 +29,7 @@ pub struct InventoryItem {
     pub throw_force_factor: f32,
     /// The to be played animation when in combat mode whilst holding this item.
     pub combat_standard_animation: CombatStandardAnimation,
+    //16 by 16 max.
     pub slot_size: Vec2Int,
 }
 

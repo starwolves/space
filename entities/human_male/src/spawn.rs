@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{Commands, EventReader, EventWriter, Transform, Vec3};
+use bevy::prelude::{warn, Commands, EventReader, EventWriter, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
 use chat::chat::{Radio, RadioChannel};
 use entity::{
@@ -268,13 +268,14 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
     mut add_slot_item: EventWriter<AddItemToSlot>,
     mut add_slot: EventWriter<AddSlot>,
+    types: Res<EntityTypes>,
 ) {
     for spawn_event in spawn_events.iter() {
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
 
         let mut slot_entities = vec![];
 
-        for _item_name in spawn_pawn_data.inventory_setup.iter() {
+        for item_name in spawn_pawn_data.inventory_setup.iter() {
             let return_entity = commands.spawn(()).id();
             default_spawner.send(SpawnEntity {
                 spawn_data: EntityBuildData {
@@ -289,13 +290,13 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                 },
                 entity_type: T::default(),
             });
-            slot_entities.push(return_entity);
+            slot_entities.push((return_entity, item_name.to_string()));
         }
 
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
         let mut test_slot = Slot::default();
-        test_slot.name = "Test Slot".to_string();
+        test_slot.name = "Backpack".to_string();
         test_slot.size = Vec2Int { x: 16, y: 8 };
 
         add_slot.send(AddSlot {
@@ -305,11 +306,22 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
 
         spawner.insert(Inventory::default());
 
-        for item in slot_entities {
+        for (item, identity) in slot_entities {
+            let net_type;
+            match types.netcode_types.get(&identity) {
+                Some(t) => {
+                    net_type = *t;
+                }
+                None => {
+                    warn!("Coudlnt find entity ttype");
+                    continue;
+                }
+            }
             add_slot_item.send(AddItemToSlot {
                 slot_id: 0,
                 inventory_entity: spawn_event.spawn_data.entity,
                 item_entity: item,
+                item_type_id: net_type,
             });
         }
     }
