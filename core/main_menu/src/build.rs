@@ -564,12 +564,9 @@ pub(crate) fn show_play_menu(
                                 parent
                                     .spawn(NodeBundle {
                                         style: Style {
-                                            align_items: AlignItems::FlexEnd,
-                                            align_content: AlignContent::FlexEnd,
-                                            flex_wrap: FlexWrap::Wrap,
                                             justify_content: JustifyContent::Center,
 
-                                            flex_direction: FlexDirection::ColumnReverse,
+                                            flex_direction: FlexDirection::Column,
                                             size: Size::new(Val::Percent(100.), Val::Percent(100.)),
                                             ..Default::default()
                                         },
@@ -578,19 +575,20 @@ pub(crate) fn show_play_menu(
                                     })
                                     // Menu elements.
                                     .with_children(|parent| {
-                                        // Connect button.
+                                        // Label account name.
                                         parent
                                             .spawn(NodeBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
                                                     margin: UiRect::new(
                                                         Val::Undefined,
                                                         Val::Undefined,
-                                                        Val::Percent(15.),
-                                                        Val::Percent(10.),
+                                                        Val::Undefined,
+                                                        Val::Percent(1.),
+                                                    ),
+
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(5.),
                                                     ),
                                                     justify_content: JustifyContent::Center,
                                                     ..Default::default()
@@ -600,10 +598,52 @@ pub(crate) fn show_play_menu(
                                             })
                                             .with_children(|parent| {
                                                 parent
-                                                    .spawn(ButtonBundle {
+                                                    .spawn(NodeBundle {
+                                                        style: Style {
+                                                            margin: UiRect::new(
+                                                                Val::Undefined,
+                                                                Val::Undefined,
+                                                                Val::Undefined,
+                                                                Val::Percent(1.),
+                                                            ),
+                                                            justify_content: JustifyContent::Center,
+                                                            ..Default::default()
+                                                        },
+                                                        background_color: SIDEBAR_COLOR.into(),
+                                                        ..Default::default()
+                                                    })
+                                                    .with_children(|parent| {
+                                                        parent.spawn(TextBundle::from_section(
+                                                            "Account name:",
+                                                            TextStyle {
+                                                                font: arizone_font.clone(),
+                                                                font_size: 12.0,
+                                                                color: TEXT_COLOR,
+                                                            },
+                                                        ));
+                                                    });
+                                            });
+                                        // Input account name.
+                                        parent
+                                            .spawn(NodeBundle {
+                                                style: Style {
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(5.),
+                                                    ),
+                                                    justify_content: JustifyContent::Center,
+                                                    ..Default::default()
+                                                },
+                                                background_color: SIDEBAR_COLOR.into(),
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                let text = "Enter username..";
+                                                parent
+                                                    .spawn(NodeBundle {
                                                         style: Style {
                                                             size: Size::new(
-                                                                Val::Percent(100.),
+                                                                Val::Percent(25.),
                                                                 Val::Percent(100.),
                                                             ),
                                                             justify_content: JustifyContent::Center,
@@ -611,28 +651,72 @@ pub(crate) fn show_play_menu(
                                                             flex_wrap: FlexWrap::Wrap,
                                                             ..Default::default()
                                                         },
+                                                        background_color: INPUT_TEXT_BG.into(),
                                                         ..Default::default()
                                                     })
                                                     .insert((
-                                                        ButtonVisuals {
-                                                            pressed_color: Color::BLUE,
-                                                            default_color_option: Some(
-                                                                HOVERED_BUTTON,
+                                                        TextInputNode {
+                                                            placeholder_active: true,
+                                                            character_filter_option: Some(
+                                                                CharacterFilter::AccountName,
                                                             ),
-                                                            default_parent_color: HOVERED_BUTTON,
-                                                            hovered_color: INPUT_TEXT_BG_HOVER,
-                                                            color_parent: false,
+                                                            placeholder_text_option: Some(
+                                                                text.to_owned(),
+                                                            ),
                                                             ..Default::default()
                                                         },
-                                                        ConnectToServerButton,
+                                                        AccountNameInput,
+                                                        Interaction::default(),
                                                     ))
                                                     .with_children(|parent| {
                                                         parent.spawn(TextBundle::from_section(
-                                                            "Connect",
+                                                            text,
                                                             TextStyle {
                                                                 font: arizone_font.clone(),
                                                                 font_size: 10.,
                                                                 color: TEXT_INPUT_COLOR,
+                                                            },
+                                                        ));
+                                                    });
+                                            });
+
+                                        // Label server ip.
+                                        parent
+                                            .spawn(NodeBundle {
+                                                style: Style {
+                                                    margin: UiRect::new(
+                                                        Val::Undefined,
+                                                        Val::Undefined,
+                                                        Val::Percent(3.),
+                                                        Val::Percent(1.),
+                                                    ),
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(5.),
+                                                    ),
+                                                    justify_content: JustifyContent::Center,
+                                                    ..Default::default()
+                                                },
+                                                background_color: SIDEBAR_COLOR.into(),
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
+                                                parent
+                                                    .spawn(NodeBundle {
+                                                        style: Style {
+                                                            justify_content: JustifyContent::Center,
+                                                            ..Default::default()
+                                                        },
+                                                        background_color: SIDEBAR_COLOR.into(),
+                                                        ..Default::default()
+                                                    })
+                                                    .with_children(|parent| {
+                                                        parent.spawn(TextBundle::from_section(
+                                                            "IP address:",
+                                                            TextStyle {
+                                                                font: arizone_font.clone(),
+                                                                font_size: 12.0,
+                                                                color: TEXT_COLOR,
                                                             },
                                                         ));
                                                     });
@@ -699,19 +783,19 @@ pub(crate) fn show_play_menu(
                                                         ));
                                                     });
                                             });
-                                        // Label server ip.
+                                        // Connect button.
                                         parent
                                             .spawn(NodeBundle {
                                                 style: Style {
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(5.),
+                                                    ),
                                                     margin: UiRect::new(
                                                         Val::Undefined,
                                                         Val::Undefined,
-                                                        Val::Percent(3.),
-                                                        Val::Percent(1.),
-                                                    ),
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
+                                                        Val::Undefined,
+                                                        Val::Percent(10.),
                                                     ),
                                                     justify_content: JustifyContent::Center,
                                                     ..Default::default()
@@ -721,46 +805,10 @@ pub(crate) fn show_play_menu(
                                             })
                                             .with_children(|parent| {
                                                 parent
-                                                    .spawn(NodeBundle {
-                                                        style: Style {
-                                                            justify_content: JustifyContent::Center,
-                                                            ..Default::default()
-                                                        },
-                                                        background_color: SIDEBAR_COLOR.into(),
-                                                        ..Default::default()
-                                                    })
-                                                    .with_children(|parent| {
-                                                        parent.spawn(TextBundle::from_section(
-                                                            "IP address:",
-                                                            TextStyle {
-                                                                font: arizone_font.clone(),
-                                                                font_size: 12.0,
-                                                                color: TEXT_COLOR,
-                                                            },
-                                                        ));
-                                                    });
-                                            });
-                                        // Input account name.
-                                        parent
-                                            .spawn(NodeBundle {
-                                                style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
-                                                    justify_content: JustifyContent::Center,
-                                                    ..Default::default()
-                                                },
-                                                background_color: SIDEBAR_COLOR.into(),
-                                                ..Default::default()
-                                            })
-                                            .with_children(|parent| {
-                                                let text = "Enter username..";
-                                                parent
-                                                    .spawn(NodeBundle {
+                                                    .spawn(ButtonBundle {
                                                         style: Style {
                                                             size: Size::new(
-                                                                Val::Percent(25.),
+                                                                Val::Percent(100.),
                                                                 Val::Percent(100.),
                                                             ),
                                                             justify_content: JustifyContent::Center,
@@ -768,78 +816,28 @@ pub(crate) fn show_play_menu(
                                                             flex_wrap: FlexWrap::Wrap,
                                                             ..Default::default()
                                                         },
-                                                        background_color: INPUT_TEXT_BG.into(),
                                                         ..Default::default()
                                                     })
                                                     .insert((
-                                                        TextInputNode {
-                                                            placeholder_active: true,
-                                                            character_filter_option: Some(
-                                                                CharacterFilter::AccountName,
+                                                        ButtonVisuals {
+                                                            pressed_color: Color::BLUE,
+                                                            default_color_option: Some(
+                                                                HOVERED_BUTTON,
                                                             ),
-                                                            placeholder_text_option: Some(
-                                                                text.to_owned(),
-                                                            ),
+                                                            default_parent_color: HOVERED_BUTTON,
+                                                            hovered_color: INPUT_TEXT_BG_HOVER,
+                                                            color_parent: false,
                                                             ..Default::default()
                                                         },
-                                                        AccountNameInput,
-                                                        Interaction::default(),
+                                                        ConnectToServerButton,
                                                     ))
                                                     .with_children(|parent| {
                                                         parent.spawn(TextBundle::from_section(
-                                                            text,
+                                                            "Connect",
                                                             TextStyle {
                                                                 font: arizone_font.clone(),
                                                                 font_size: 10.,
                                                                 color: TEXT_INPUT_COLOR,
-                                                            },
-                                                        ));
-                                                    });
-                                            });
-                                        // Label account name.
-                                        parent
-                                            .spawn(NodeBundle {
-                                                style: Style {
-                                                    margin: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Percent(1.),
-                                                    ),
-
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
-                                                    justify_content: JustifyContent::Center,
-                                                    ..Default::default()
-                                                },
-                                                background_color: SIDEBAR_COLOR.into(),
-                                                ..Default::default()
-                                            })
-                                            .with_children(|parent| {
-                                                parent
-                                                    .spawn(NodeBundle {
-                                                        style: Style {
-                                                            margin: UiRect::new(
-                                                                Val::Undefined,
-                                                                Val::Undefined,
-                                                                Val::Undefined,
-                                                                Val::Percent(1.),
-                                                            ),
-                                                            justify_content: JustifyContent::Center,
-                                                            ..Default::default()
-                                                        },
-                                                        background_color: SIDEBAR_COLOR.into(),
-                                                        ..Default::default()
-                                                    })
-                                                    .with_children(|parent| {
-                                                        parent.spawn(TextBundle::from_section(
-                                                            "Account name:",
-                                                            TextStyle {
-                                                                font: arizone_font.clone(),
-                                                                font_size: 12.0,
-                                                                color: TEXT_COLOR,
                                                             },
                                                         ));
                                                     });

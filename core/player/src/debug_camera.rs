@@ -1,8 +1,8 @@
 use bevy::prelude::{Camera3dBundle, Commands, EventReader, Vec3};
 
 use bevy_atmosphere::prelude::AtmosphereCamera;
+use cameras::controllers::fps::{FpsCameraBundle, FpsCameraController};
 use networking::client::IncomingReliableServerMessage;
-use smooth_bevy_cameras::controllers::fps::{FpsCameraBundle, FpsCameraController};
 
 use crate::net::PlayerServerMessage;
 use bevy::prelude::Local;

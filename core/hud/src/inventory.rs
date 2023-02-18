@@ -1,9 +1,11 @@
 use bevy::{
     prelude::{
-        warn, BuildChildren, Color, Commands, Component, Entity, EventReader, EventWriter, Input,
-        KeyCode, NodeBundle, Query, Res, ResMut, Resource, Visibility, With,
+        warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
+        EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
+        Visibility, With,
     },
-    ui::{Size, Style, Val},
+    text::{Text, TextStyle},
+    ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
 use inventory::{
     inventory::{Inventory, ItemAddedToSlot, Slot},
@@ -12,7 +14,7 @@ use inventory::{
 use networking::client::IncomingReliableServerMessage;
 use player::{configuration::Boarded, net::PlayerServerMessage};
 
-use crate::hud::HudState;
+use crate::{expand::ExpandHud, hud::HudState};
 
 pub struct OpenInventoryHud {
     pub open: bool,
@@ -21,39 +23,114 @@ pub struct OpenInventoryHud {
 #[derive(Resource)]
 pub struct InventoryState {
     pub open: bool,
-    pub entity: Entity,
+    pub root_node: Entity,
+    pub slots_node: Entity,
 }
+
+#[derive(Component)]
+pub struct InventorySlotsNode;
 
 pub(crate) fn create_inventory_hud(
     mut commands: Commands,
     hud_state: Res<HudState>,
     mut client: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
+    asset_server: Res<AssetServer>,
 ) {
     for message in client.iter() {
+        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
+
         match message.message {
             PlayerServerMessage::Boarded => {
                 let entity_id = commands.spawn(InventoryHudRootNode).id();
                 commands
                     .entity(hud_state.center_content_node)
                     .add_child(entity_id);
-                let mut builder = commands.entity(entity_id);
+                let mut root_builder = commands.entity(entity_id);
 
-                builder
+                let mut slots_node = Entity::from_bits(0);
+
+                root_builder
                     .insert(NodeBundle {
                         style: Style {
                             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
                             ..Default::default()
                         },
                         visibility: Visibility { is_visible: false },
-
-                        background_color: Color::DARK_GRAY.into(),
+                        background_color: Color::MIDNIGHT_BLUE.into(),
                         ..Default::default()
                     })
-                    .with_children(|_parent| {});
+                    .with_children(|parent| {
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(100.0), Val::Percent(3.0)),
+                                    justify_content: JustifyContent::Center,
+                                    ..Default::default()
+                                },
+                                background_color: Color::MIDNIGHT_BLUE.into(),
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn(NodeBundle {
+                                        style: Style {
+                                            align_items: AlignItems::Center,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn(TextBundle {
+                                            text: Text::from_section(
+                                                "Inventory".to_string(),
+                                                TextStyle {
+                                                    font: arizone_font,
+                                                    font_size: 13.,
+                                                    color: Color::WHITE,
+                                                },
+                                            ),
+                                            ..Default::default()
+                                        });
+                                    });
+                            });
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(97.5), Val::Percent(95.75)),
+                                    justify_content: JustifyContent::Center,
+                                    padding: UiRect::new(
+                                        Val::Undefined,
+                                        Val::Undefined,
+                                        Val::Percent(1.25),
+                                        Val::Undefined,
+                                    ),
+                                    ..Default::default()
+                                },
+                                background_color: Color::DARK_GRAY.into(),
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                slots_node = parent
+                                    .spawn(NodeBundle {
+                                        style: Style {
+                                            size: Size::new(Val::Percent(97.5), Val::Percent(100.)),
+
+                                            ..Default::default()
+                                        },
+                                        background_color: Color::DARK_GRAY.into(),
+                                        ..Default::default()
+                                    })
+                                    .insert(InventorySlotsNode)
+                                    .id();
+                            });
+                    });
 
                 commands.insert_resource(InventoryState {
                     open: false,
-                    entity: entity_id,
+                    root_node: entity_id,
+                    slots_node,
                 });
             }
             _ => {}
@@ -69,6 +146,7 @@ pub(crate) fn open_inventory_hud(
     mut events: EventReader<OpenInventoryHud>,
     mut state: ResMut<InventoryState>,
     mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
+    mut expand: EventWriter<ExpandHud>,
 ) {
     for event in events.iter() {
         if !boarded.boarded {
@@ -76,7 +154,7 @@ pub(crate) fn open_inventory_hud(
         }
 
         state.open = event.open;
-        match root_node.get_mut(state.entity) {
+        match root_node.get_mut(state.root_node) {
             Ok(mut root) => {
                 root.is_visible = state.open;
             }
@@ -84,6 +162,7 @@ pub(crate) fn open_inventory_hud(
                 warn!("Couldnt toggle open inventory , couldnt find root node.");
             }
         }
+        expand.send(ExpandHud { expand: state.open });
     }
 }
 
@@ -168,4 +247,24 @@ pub(crate) fn update_inventory_hud(
     mut update_item: EventReader<HudAddItemToSlot>,
     mut commands: Commands,
 ) {
+    for event in update_slot.iter() {
+        let width = (event.slot.size.x as f32 / 16.) * 100.;
+        let height = (event.slot.size.y as f32 / 16.) * 100.;
+
+        let slot_node = commands
+            .spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(width), Val::Percent(height * 0.5)),
+                    flex_direction: FlexDirection::Column,
+                    ..Default::default()
+                },
+                background_color: Color::GRAY.into(),
+                ..Default::default()
+            })
+            .with_children(|parent| {})
+            .id();
+
+        let mut slots_node = commands.entity(state.slots_node);
+        slots_node.add_child(slot_node);
+    }
 }

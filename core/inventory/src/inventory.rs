@@ -29,7 +29,7 @@ pub struct Slot {
     pub slot_type: SlotType,
     pub space: HashMap<Vec2Int, Entity>,
     pub items: Vec<SlotItem>,
-    // Dividable by two.
+    // Dividable by two. 16 by 16 max.
     pub size: Vec2Int,
 }
 /// Event that adds an inventory item entity to an inventory slot.
