@@ -93,7 +93,10 @@ impl Plugin for ConstructionToolAdminPlugin {
             (build_rigid_bodies::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
         )
         .add_system(
-            (build_inventory_items::<ConstructionToolType>).after(BuildingLabels::TriggerBuild).after(SpawnItemLabel::SpawnHeldItem).label(SpawnItemLabel::AddingComponent),
+            (build_inventory_items::<ConstructionToolType>)
+                .after(BuildingLabels::TriggerBuild)
+                .after(SpawnItemLabel::SpawnHeldItem)
+                .label(SpawnItemLabel::AddingComponent),
         );
     }
 }

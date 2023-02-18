@@ -11,8 +11,7 @@ use bevy::prelude::App;
 use entity::entity_types::EntityType;
 
 use crate::commands::{
-     rcon_entity_console_commands, rcon_spawn_entity,
-     RconSpawnEntity, RconSpawnHeldEntity,
+    rcon_entity_console_commands, rcon_spawn_entity, RconSpawnEntity, RconSpawnHeldEntity,
 };
 
 pub fn register_basic_console_commands_for_inventory_item_type<
