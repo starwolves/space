@@ -22,3 +22,4 @@ resources = { path = "../resources"}
 player = { path = "../player"}
 networking = { path = "../networking"}
 inventory = { path = "../inventory"}
+cameras = { path = "../cameras"}

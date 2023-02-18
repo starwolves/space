@@ -1,0 +1,17 @@
+[package]
+name = "cameras"
+description = "Bevy camera controllers with buttery, exponential smoothing."
+version = "0.7.0"
+repository = "https://github.com/bonsairobo/smooth-bevy-cameras"
+authors = ["Duncan <bonsairobo@gmail.com>"]
+keywords = ["bevy", "camera"]
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+approx = "0.5.1"
+serde = "1.0"
+
+[dependencies.bevy]
+version = "0.9"
+default-features = false

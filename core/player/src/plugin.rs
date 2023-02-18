@@ -13,13 +13,13 @@ use crate::{
 };
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::{App, Plugin, SystemLabel};
+use cameras::controllers::fps::FpsCameraPlugin;
+use cameras::LookTransformPlugin;
 use networking::{
     messaging::{register_reliable_message, MessageSender},
     server::HandleToEntity,
 };
 use resources::is_server::is_server;
-use smooth_bevy_cameras::controllers::fps::FpsCameraPlugin;
-use smooth_bevy_cameras::LookTransformPlugin;
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
