@@ -4,13 +4,18 @@ use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::PostUpdateLabels};
 
 use crate::{
-    entity_update_item::inventory_item_update,
-    inventory::{
-        add_item_to_slot, add_slot_to_inventory, added_item_to_slot, client_item_added_to_slot,
-        client_slot_added, AddItemToSlot, AddSlot, AddedSlot, ClientBuildInventoryLabel, Inventory,
-        InventorySlotLabel, ItemAddedToSlot, SpawnItemLabel,
+    client::{
+        items::{client_item_added_to_slot, ClientBuildInventoryLabel},
+        slots::{client_slot_added, AddedSlot},
     },
     net::{InventoryClientMessage, InventoryServerMessage},
+    server::{
+        entity_update_item::inventory_item_update,
+        inventory::{
+            add_item_to_slot, add_slot_to_inventory, added_item_to_slot, AddItemToSlot, AddSlot,
+            Inventory, InventorySlotLabel, ItemAddedToSlot, SpawnItemLabel,
+        },
+    },
 };
 
 use bevy::app::CoreStage::PostUpdate;

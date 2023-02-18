@@ -1,7 +1,7 @@
 use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Resource};
 use entity::health::{HealthComponent, HealthContainer};
 use gridmap::grid::{AddTile, Gridmap};
-use inventory::combat::{DamageModel, MeleeCombat, ProjectileCombat};
+use inventory::server::combat::{DamageModel, MeleeCombat, ProjectileCombat};
 use math::grid::Vec3Int;
 
 use crate::{

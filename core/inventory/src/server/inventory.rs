@@ -1,13 +1,10 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{
-    warn, Component, Entity, EventReader, EventWriter, Query, ResMut, Resource, SystemLabel,
+    warn, Component, Entity, EventReader, EventWriter, Query, Resource, SystemLabel,
 };
 use math::grid::Vec2Int;
-use networking::{
-    client::IncomingReliableServerMessage,
-    server::{ConnectedPlayer, OutgoingReliableServerMessage},
-};
+use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use serde::{Deserialize, Serialize};
 
 use crate::{item::InventoryItem, net::InventoryServerMessage};
@@ -119,7 +116,6 @@ pub(crate) fn add_item_to_slot(
         match inventory_item_query.get(event.item_entity) {
             Ok(inventory_item_component) => match inventory_query.get_mut(event.inventory_entity) {
                 Ok(mut inventory_component) => {
-                    // inventory_component.slots is still zero ;(
                     for (id, slot) in inventory_component.slots.iter_mut() {
                         if id == &event.slot_id {
                             let start_x = -(slot.size.x / 2);
@@ -251,61 +247,6 @@ pub(crate) fn added_item_to_slot(
                 });
             }
             Err(_) => {}
-        }
-    }
-}
-
-pub(crate) fn client_item_added_to_slot(
-    mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
-    mut inventory: ResMut<Inventory>,
-) {
-    for message in net.iter() {
-        match &message.message {
-            InventoryServerMessage::ItemAddedToSlot(event) => {
-                match inventory.slots.get_mut(&event.slot_id) {
-                    Some(slot) => {
-                        slot.items.push(SlotItem {
-                            entity: event.item_entity,
-                            position: event.position,
-                        });
-                    }
-                    None => {
-                        warn!("couldnt find slot to add to.");
-                    }
-                }
-            }
-            _ => (),
-        }
-    }
-}
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-
-pub enum ClientBuildInventoryLabel {
-    AddSlot,
-}
-
-#[derive(Clone)]
-pub struct AddedSlot {
-    pub slot: Slot,
-    pub id: u8,
-}
-
-pub(crate) fn client_slot_added(
-    mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
-    mut inventory: ResMut<Inventory>,
-    mut event: EventWriter<AddedSlot>,
-) {
-    for message in net.iter() {
-        match &message.message {
-            InventoryServerMessage::AddedSlot(slot) => {
-                let index = inventory.slots.len();
-                inventory.slots.insert(index as u8, slot.clone());
-                event.send(AddedSlot {
-                    slot: slot.clone(),
-                    id: index as u8,
-                });
-            }
-            _ => (),
         }
     }
 }

@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
-use crate::inventory::SlotType;
 use bevy::prelude::{Component, Entity, Transform};
 use math::grid::Vec2Int;
+
+use crate::server::inventory::SlotType;
 
 /// Humanoid animations for combat.
 

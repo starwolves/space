@@ -1,7 +1,7 @@
 use bevy::prelude::{Commands, Entity, EventReader};
 use entity::spawn::{EntityBuildData, SpawnEntity};
 
-use crate::combat::{MeleeCombat, ProjectileCombat};
+use crate::server::combat::{MeleeCombat, ProjectileCombat};
 
 use super::item::InventoryItem;
 

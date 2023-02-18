@@ -16,7 +16,7 @@ use entity::{
     },
 };
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
-use inventory::{
+use inventory::server::{
     combat::{DamageModel, MeleeCombat},
     inventory::{AddItemToSlot, AddSlot, Inventory, Slot},
 };
