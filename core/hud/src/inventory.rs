@@ -208,15 +208,20 @@ pub(crate) fn inventory_net_updates(
     mut item_event: EventWriter<HudAddItemToSlot>,
     mut added_slot_events: EventReader<AddedSlot>,
 ) {
+    let mut to_be_added_slot_ids = vec![];
+    let mut to_be_added_items = vec![];
+
     if queue.flushed == false {
         queue.flushed = true;
 
         for slot in queue.slot_updates.clone() {
-            slot_event.send(HudAddInventorySlot { slot });
+            slot_event.send(HudAddInventorySlot { slot: slot.clone() });
+            to_be_added_slot_ids.push(slot.id);
         }
 
         for item in queue.item_updates.clone() {
-            item_event.send(HudAddItemToSlot { item });
+            item_event.send(HudAddItemToSlot { item: item.clone() });
+            to_be_added_items.push((item.item_entity, item.slot_id));
         }
 
         queue.item_updates.clear();
@@ -224,6 +229,9 @@ pub(crate) fn inventory_net_updates(
     }
 
     for event in added_slot_events.iter() {
+        if to_be_added_slot_ids.contains(&event.id) {
+            continue;
+        }
         slot_event.send(HudAddInventorySlot {
             slot: event.clone(),
         });
@@ -232,6 +240,16 @@ pub(crate) fn inventory_net_updates(
     for message in net.iter() {
         match &message.message {
             InventoryServerMessage::ItemAddedToSlot(item) => {
+                let mut found = false;
+                for (entity, slot_id) in to_be_added_items.iter() {
+                    if entity == &item.item_entity && slot_id == &item.slot_id {
+                        found = true;
+                        break;
+                    }
+                }
+                if found {
+                    continue;
+                }
                 item_event.send(HudAddItemToSlot { item: item.clone() });
             }
             _ => (),
@@ -276,8 +294,6 @@ pub(crate) fn update_inventory_hud_slot(
         let width = (event.slot.slot.size.x as f32 / 16.) * 100.;
         let height = (event.slot.slot.size.y as f32 / 16.) * 100.;
         let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
-
-        info!("Adding hud slot.");
 
         commands.entity(state.slots_node).with_children(|parent| {
             parent
