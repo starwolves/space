@@ -50,7 +50,8 @@ pub(crate) fn spawn_boarding_player(
 
         let new_human_entity = commands.spawn(()).id();
 
-        let passed_inventory_setup: Vec<Box<dyn EntityType>> = vec![Box::new(ConstructionToolType::default())];
+        let passed_inventory_setup: Vec<Box<dyn EntityType>> =
+            vec![Box::new(ConstructionToolType::default())];
 
         spawn_human.send(SpawnEntity {
             spawn_data: EntityBuildData {

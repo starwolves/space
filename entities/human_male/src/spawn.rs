@@ -18,7 +18,7 @@ use entity::{
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
 use inventory::{
     combat::{DamageModel, MeleeCombat},
-    inventory::{Inventory, Slot, AddItemToSlot, AddSlot},
+    inventory::{AddItemToSlot, AddSlot, Inventory, Slot},
 };
 use map::map::Map;
 use math::grid::Vec2Int;
@@ -266,15 +266,15 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
     mut commands: Commands,
     mut default_spawner: EventWriter<SpawnEntity<T>>,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
-    mut add_slot_item : EventWriter<AddItemToSlot>,
-    mut add_slot : EventWriter<AddSlot>,
+    mut add_slot_item: EventWriter<AddItemToSlot>,
+    mut add_slot: EventWriter<AddSlot>,
 ) {
     for spawn_event in spawn_events.iter() {
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
 
         let mut slot_entities = vec![];
 
-        for  _item_name in spawn_pawn_data.inventory_setup.iter() {
+        for _item_name in spawn_pawn_data.inventory_setup.iter() {
             let return_entity = commands.spawn(()).id();
             default_spawner.send(SpawnEntity {
                 spawn_data: EntityBuildData {
@@ -291,7 +291,7 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
             });
             slot_entities.push(return_entity);
         }
-        
+
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
         let mut test_slot = Slot::default();
@@ -300,14 +300,17 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
 
         add_slot.send(AddSlot {
             inventory_entity: spawn_event.spawn_data.entity,
-            slot:test_slot,
+            slot: test_slot,
         });
 
         spawner.insert(Inventory::default());
 
         for item in slot_entities {
-            add_slot_item.send(AddItemToSlot { slot_id: 0, inventory_entity: spawn_event.spawn_data.entity, item_entity: item });
+            add_slot_item.send(AddItemToSlot {
+                slot_id: 0,
+                inventory_entity: spawn_event.spawn_data.entity,
+                item_entity: item,
+            });
         }
-
     }
 }

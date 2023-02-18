@@ -21,3 +21,4 @@ iyes_loopless = "0.9.1"
 resources = { path = "../resources"}
 player = { path = "../player"}
 networking = { path = "../networking"}
+inventory = { path = "../inventory"}
