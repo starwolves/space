@@ -80,7 +80,7 @@ pub fn update_inventory_hud_add_item_to_slot<
                 slot = s;
             }
             None => {
-                warn!("Couldnt fgind slot!");
+                warn!("Couldnt find slot!");
                 continue;
             }
         }

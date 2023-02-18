@@ -24,3 +24,4 @@ networking = { path = "../networking"}
 inventory = { path = "../inventory"}
 cameras = { path = "../cameras"}
 entity = { path = "../entity"}
+math = { path = "../math"}
