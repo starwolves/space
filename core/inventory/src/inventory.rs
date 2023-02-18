@@ -37,6 +37,7 @@ pub struct AddItemToSlot {
     pub slot_id: u8,
     pub inventory_entity: Entity,
     pub item_entity: Entity,
+    pub item_type_id: u16,
 }
 
 /// Adds a slot to an inventory.
@@ -73,6 +74,12 @@ pub struct ItemAddedToSlot {
     pub inventory_entity: Entity,
     pub item_entity: Entity,
     pub position: Vec2Int,
+    pub item_type_id: u16,
+}
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+
+pub enum InventorySlotLabel {
+    AddSlotToInventory,
 }
 
 pub(crate) fn add_slot_to_inventory(
@@ -112,6 +119,7 @@ pub(crate) fn add_item_to_slot(
         match inventory_item_query.get(event.item_entity) {
             Ok(inventory_item_component) => match inventory_query.get_mut(event.inventory_entity) {
                 Ok(mut inventory_component) => {
+                    // inventory_component.slots is still zero ;(
                     for (id, slot) in inventory_component.slots.iter_mut() {
                         if id == &event.slot_id {
                             let start_x = -(slot.size.x / 2);
@@ -213,6 +221,7 @@ pub(crate) fn add_item_to_slot(
                                 inventory_entity: event.inventory_entity,
                                 item_entity: event.item_entity,
                                 position: slot_start_position,
+                                item_type_id: event.item_type_id,
                             });
                         }
                     }
@@ -275,15 +284,26 @@ pub enum ClientBuildInventoryLabel {
     AddSlot,
 }
 
+#[derive(Clone)]
+pub struct AddedSlot {
+    pub slot: Slot,
+    pub id: u8,
+}
+
 pub(crate) fn client_slot_added(
     mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
     mut inventory: ResMut<Inventory>,
+    mut event: EventWriter<AddedSlot>,
 ) {
     for message in net.iter() {
         match &message.message {
             InventoryServerMessage::AddedSlot(slot) => {
                 let index = inventory.slots.len();
                 inventory.slots.insert(index as u8, slot.clone());
+                event.send(AddedSlot {
+                    slot: slot.clone(),
+                    id: index as u8,
+                });
             }
             _ => (),
         }

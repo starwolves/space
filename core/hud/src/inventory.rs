@@ -1,15 +1,22 @@
+use std::collections::HashMap;
+
 use bevy::{
     prelude::{
-        warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
-        EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
-        Visibility, With,
+        info, warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
+        EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, SystemLabel,
+        TextBundle, Visibility, With,
     },
     text::{Text, TextStyle},
     ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
+use entity::{
+    entity_types::{EntityType, EntityTypes},
+    spawn::EntityBuildData,
+};
 use inventory::{
-    inventory::{Inventory, ItemAddedToSlot, Slot},
+    inventory::{AddedSlot, ItemAddedToSlot},
     net::InventoryServerMessage,
+    spawn_item::InventoryItemBuilder,
 };
 use networking::client::IncomingReliableServerMessage;
 use player::{configuration::Boarded, net::PlayerServerMessage};
@@ -21,10 +28,11 @@ pub struct OpenInventoryHud {
 }
 
 #[derive(Resource)]
-pub struct InventoryState {
+pub struct InventoryHudState {
     pub open: bool,
     pub root_node: Entity,
     pub slots_node: Entity,
+    pub slots: HashMap<u8, Entity>,
 }
 
 #[derive(Component)]
@@ -127,10 +135,11 @@ pub(crate) fn create_inventory_hud(
                             });
                     });
 
-                commands.insert_resource(InventoryState {
+                commands.insert_resource(InventoryHudState {
                     open: false,
                     root_node: entity_id,
                     slots_node,
+                    slots: HashMap::new(),
                 });
             }
             _ => {}
@@ -144,7 +153,7 @@ pub struct InventoryHudRootNode;
 pub(crate) fn open_inventory_hud(
     boarded: Res<Boarded>,
     mut events: EventReader<OpenInventoryHud>,
-    mut state: ResMut<InventoryState>,
+    mut state: ResMut<InventoryHudState>,
     mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
     mut expand: EventWriter<ExpandHud>,
 ) {
@@ -169,7 +178,7 @@ pub(crate) fn open_inventory_hud(
 pub(crate) fn inventory_hud_key_press(
     keys: Res<Input<KeyCode>>,
     mut event: EventWriter<OpenInventoryHud>,
-    state: Res<InventoryState>,
+    state: Res<InventoryHudState>,
 ) {
     if keys.just_pressed(KeyCode::I) {
         event.send(OpenInventoryHud { open: !state.open });
@@ -177,16 +186,17 @@ pub(crate) fn inventory_hud_key_press(
 }
 
 /// Resource that queues inventory updates. For when we receive them before the client has fully initialized the inventory and UI.
-#[derive(Resource, Default)]
+#[derive(Resource, Clone, Default)]
 pub struct InventoryUpdatesQueue {
     pub flushed: bool,
     pub item_updates: Vec<ItemAddedToSlot>,
-    pub slot_updates: Vec<Slot>,
+    pub slot_updates: Vec<AddedSlot>,
 }
 
 pub struct HudAddInventorySlot {
-    pub slot: Slot,
+    pub slot: AddedSlot,
 }
+#[derive(Clone)]
 pub struct HudAddItemToSlot {
     pub item: ItemAddedToSlot,
 }
@@ -196,6 +206,7 @@ pub(crate) fn inventory_net_updates(
     mut queue: ResMut<InventoryUpdatesQueue>,
     mut slot_event: EventWriter<HudAddInventorySlot>,
     mut item_event: EventWriter<HudAddItemToSlot>,
+    mut added_slot_events: EventReader<AddedSlot>,
 ) {
     if queue.flushed == false {
         queue.flushed = true;
@@ -212,14 +223,18 @@ pub(crate) fn inventory_net_updates(
         queue.slot_updates.clear();
     }
 
+    for event in added_slot_events.iter() {
+        slot_event.send(HudAddInventorySlot {
+            slot: event.clone(),
+        });
+    }
+
     for message in net.iter() {
         match &message.message {
             InventoryServerMessage::ItemAddedToSlot(item) => {
                 item_event.send(HudAddItemToSlot { item: item.clone() });
             }
-            InventoryServerMessage::AddedSlot(slot) => {
-                slot_event.send(HudAddInventorySlot { slot: slot.clone() });
-            }
+            _ => (),
         }
     }
 }
@@ -227,44 +242,164 @@ pub(crate) fn inventory_net_updates(
 pub(crate) fn queue_inventory_updates(
     mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
     mut queue: ResMut<InventoryUpdatesQueue>,
+    mut added_slot_events: EventReader<AddedSlot>,
 ) {
+    for event in added_slot_events.iter() {
+        queue.slot_updates.push(event.clone());
+    }
     for message in net.iter() {
         match &message.message {
             InventoryServerMessage::ItemAddedToSlot(item) => {
                 queue.item_updates.push(item.clone());
             }
-            InventoryServerMessage::AddedSlot(slot) => {
-                queue.slot_updates.push(slot.clone());
-            }
+            _ => (),
         }
     }
 }
+#[derive(Component)]
+pub struct SlotHud;
 
-pub(crate) fn update_inventory_hud(
-    state: Res<InventoryState>,
-    inventory: Res<Inventory>,
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+
+pub enum InventoryHudLabels {
+    UpdateSlot,
+    QueueUpdate,
+}
+
+pub(crate) fn update_inventory_hud_slot(
+    mut state: ResMut<InventoryHudState>,
     mut update_slot: EventReader<HudAddInventorySlot>,
-    mut update_item: EventReader<HudAddItemToSlot>,
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
 ) {
     for event in update_slot.iter() {
-        let width = (event.slot.size.x as f32 / 16.) * 100.;
-        let height = (event.slot.size.y as f32 / 16.) * 100.;
+        let width = (event.slot.slot.size.x as f32 / 16.) * 100.;
+        let height = (event.slot.slot.size.y as f32 / 16.) * 100.;
+        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
 
-        let slot_node = commands
-            .spawn(NodeBundle {
+        info!("Adding hud slot.");
+
+        commands.entity(state.slots_node).with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Percent(width), Val::Percent((height * 0.5) + 10.)),
+                        flex_direction: FlexDirection::Column,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                event.slot.slot.name.clone() + ":",
+                                TextStyle {
+                                    font: arizone_font.clone(),
+                                    font_size: 12.0,
+                                    color: Color::WHITE,
+                                },
+                            ));
+                        });
+                    // The inventory grid space.
+                    let slot_entity = parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.), Val::Percent(90.)),
+                                ..Default::default()
+                            },
+                            background_color: Color::GRAY.into(),
+                            ..Default::default()
+                        })
+                        .insert(SlotHud)
+                        .id();
+                    state.slots.insert(event.slot.id, slot_entity);
+                });
+        });
+    }
+}
+
+pub struct RequeueHudAddItemToSlot {
+    pub queued: HudAddItemToSlot,
+}
+
+pub(crate) fn requeue_hud_add_item_to_slot(
+    mut i_events: EventReader<RequeueHudAddItemToSlot>,
+    mut o_events: EventWriter<HudAddItemToSlot>,
+) {
+    for event in i_events.iter() {
+        o_events.send(event.queued.clone());
+    }
+}
+
+pub fn update_inventory_hud_add_item_to_slot<
+    T: InventoryItemBuilder + EntityType + Default + Send + Sync + 'static,
+>(
+    mut update_item: EventReader<HudAddItemToSlot>,
+    mut queue: EventWriter<RequeueHudAddItemToSlot>,
+    mut commands: Commands,
+    state: Res<InventoryHudState>,
+    types: Res<EntityTypes>,
+) {
+    for event in update_item.iter() {
+        let slot_entity;
+        match state.slots.get(&event.item.slot_id) {
+            Some(ent) => {
+                slot_entity = *ent;
+            }
+            None => {
+                info!("Queueing HudAddItemToSlot..");
+                queue.send(RequeueHudAddItemToSlot {
+                    queued: event.clone(),
+                });
+                continue;
+            }
+        }
+        let mut type_id_option = None;
+        for (id, n) in types.netcode_types.iter() {
+            if &event.item.item_type_id == n {
+                type_id_option = Some(id.clone());
+                break;
+            }
+        }
+        let item_type_identity;
+        match type_id_option {
+            Some(i) => {
+                item_type_identity = i;
+            }
+            None => {
+                warn!("Couldnt find entity id from netcode type.");
+                continue;
+            }
+        }
+
+        let identity = T::default();
+
+        if item_type_identity != identity.to_string() {
+            continue;
+        }
+
+        let inventory_item_bundle = T::default().get_bundle(&EntityBuildData::default());
+
+        let width = (inventory_item_bundle.inventory_item.slot_size.x as f32 / 16.) * 100.;
+        let height = (inventory_item_bundle.inventory_item.slot_size.y as f32 / 16.) * 100.;
+
+        commands.entity(slot_entity).with_children(|parent| {
+            parent.spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(width), Val::Percent(height * 0.5)),
-                    flex_direction: FlexDirection::Column,
+                    size: Size::new(Val::Percent(width), Val::Percent(height)),
                     ..Default::default()
                 },
-                background_color: Color::GRAY.into(),
+                background_color: Color::BEIGE.into(),
                 ..Default::default()
-            })
-            .with_children(|parent| {})
-            .id();
-
-        let mut slots_node = commands.entity(state.slots_node);
-        slots_node.add_child(slot_node);
+            });
+        });
     }
 }

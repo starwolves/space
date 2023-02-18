@@ -476,7 +476,6 @@ pub struct PlayMenuState {
 use bevy::prelude::With;
 use bevy::prelude::{warn, Resource};
 use bevy::prelude::{Added, Query};
-use bevy::ui::AlignContent;
 use bevy::ui::Interaction;
 
 use ui::button::HOVERED_BUTTON;
