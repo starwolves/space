@@ -15,7 +15,7 @@ use crate::{
             inventory_net_updates, queue_inventory_updates, InventoryUpdatesQueue,
             RequeueHudAddItemToSlot,
         },
-        slots::{update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
+        slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
     },
 };
 
@@ -44,7 +44,8 @@ impl Plugin for HudPlugin {
                 .add_event::<HudAddInventorySlot>()
                 .init_resource::<InventoryUpdatesQueue>()
                 .add_system(requeue_hud_add_item_to_slot.after(InventoryHudLabels::QueueUpdate))
-                .add_event::<RequeueHudAddItemToSlot>();
+                .add_event::<RequeueHudAddItemToSlot>()
+                .add_system(scale_slots.run_if_resource_exists::<InventoryHudState>());
         }
     }
 }
