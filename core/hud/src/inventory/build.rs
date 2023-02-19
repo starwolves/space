@@ -26,7 +26,7 @@ pub(crate) fn create_inventory_hud(
         let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
 
         let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
-        inventory_hud_color.set_a(0.5);
+        inventory_hud_color.set_a(0.9);
 
         match message.message {
             PlayerServerMessage::Boarded => {
@@ -84,6 +84,8 @@ pub(crate) fn create_inventory_hud(
                                         });
                                     });
                             });
+                        let mut dark_gray = Color::DARK_GRAY;
+                        dark_gray.set_a(0.9);
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
@@ -97,7 +99,7 @@ pub(crate) fn create_inventory_hud(
                                     ),
                                     ..Default::default()
                                 },
-                                background_color: Color::DARK_GRAY.into(),
+                                background_color: dark_gray.into(),
                                 ..Default::default()
                             })
                             .with_children(|parent| {
@@ -108,7 +110,6 @@ pub(crate) fn create_inventory_hud(
 
                                             ..Default::default()
                                         },
-                                        background_color: Color::DARK_GRAY.into(),
                                         ..Default::default()
                                     })
                                     .insert(InventorySlotsNode)

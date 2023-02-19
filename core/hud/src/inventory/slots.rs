@@ -98,6 +98,8 @@ pub(crate) fn update_inventory_hud_slot(
                             ));
                         });
                     // The inventory grid space.
+                    let mut gray = Color::GRAY;
+                    gray.set_a(0.7);
                     let slot_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
@@ -105,7 +107,7 @@ pub(crate) fn update_inventory_hud_slot(
 
                                 ..Default::default()
                             },
-                            background_color: Color::GRAY.into(),
+                            background_color: gray.into(),
                             ..Default::default()
                         })
                         .insert(SlotHud {
