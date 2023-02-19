@@ -86,7 +86,7 @@ impl InventoryItemBuilder for ConstructionToolType {
                 drop_transform: get_default_transform(),
                 attachment_transforms: attachment_transforms.clone(),
                 slot_type: SlotType::Holster,
-                slot_size: Vec2Int { x: 2, y: 2 },
+                slot_size: Vec2Int { x: 2, y: 3 },
                 ..Default::default()
             },
             melee_combat: MeleeCombat {
@@ -124,7 +124,7 @@ pub struct ConstructionToolType {
 impl Default for ConstructionToolType {
     fn default() -> Self {
         ConstructionToolType {
-            identifier: SF_CONTENT_PREFIX.to_string() + "constructionTool",
+            identifier: SF_CONTENT_PREFIX.to_string() + "construction_tool",
         }
     }
 }

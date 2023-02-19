@@ -140,7 +140,7 @@ pub struct JumpsuitType {
 impl Default for JumpsuitType {
     fn default() -> Self {
         Self {
-            identifier: SF_CONTENT_PREFIX.to_string() + "jumpsuitSecurity",
+            identifier: SF_CONTENT_PREFIX.to_string() + "jumpsuit_security",
         }
     }
 }

@@ -157,13 +157,13 @@ pub(crate) fn spawn_entity_for_client(
                         }
                     }
                 }
-                info!("{}", entity_data.entity_type.to_string());
+                info!("{}", entity_data.entity_type.get_identity());
                 server.send(OutgoingReliableServerMessage {
                     handle: load_entity_event.loader_handle,
                     message: EntityServerMessage::LoadEntity(
                         *types
                             .netcode_types
-                            .get(&entity_data.entity_type.to_string())
+                            .get(&entity_data.entity_type.get_identity())
                             .unwrap(),
                         load_entity_event.entity.to_bits(),
                     ),

@@ -32,7 +32,7 @@ use chat::plugin::ChatPlugin;
 use combat::plugin::CombatPlugin;
 use computers::plugin::ComputersPlugin;
 use console_commands::plugins::ConsoleCommandsPlugin;
-use construction_tool_admin::plugin::ConstructionToolAdminPlugin;
+use construction_tool::plugin::ConstructionToolAdminPlugin;
 use controller::plugin::ControllerPlugin;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;

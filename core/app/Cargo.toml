@@ -48,7 +48,7 @@ asana = { path = "../../entities/asana" }
 
 airlocks = { path = "../../entities/airlocks" }
 computers = { path = "../../entities/computers" }
-construction_tool_admin = { path = "../../entities/construction_tool_admin" }
+construction_tool = { path = "../../entities/construction_tool" }
 counter_windows = { path = "../../entities/counter_windows" }
 helmet_security = { path = "../../entities/helmet_security" }
 human_male = { path = "../../entities/human_male" }

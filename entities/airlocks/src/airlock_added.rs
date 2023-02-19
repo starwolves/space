@@ -34,7 +34,7 @@ pub(crate) fn airlock_added(
             y: cell_id.z,
         };
 
-        if entity_data_component.entity_type.to_string() == BRIDGE_AIRLOCK_ENTITY_NAME {
+        if entity_data_component.entity_type.get_identity() == BRIDGE_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "bridge airlock".to_string(),
                 n: false,
@@ -55,7 +55,8 @@ pub(crate) fn airlock_added(
                     + "]It is fully operational.[/color][/font]",
             );
             examinable_component.assigned_texts = examine_map;
-        } else if entity_data_component.entity_type.to_string() == GOVERNMENT_AIRLOCK_ENTITY_NAME {
+        } else if entity_data_component.entity_type.get_identity() == GOVERNMENT_AIRLOCK_ENTITY_NAME
+        {
             examinable_component.name = RichName {
                 name: "government airlock".to_string(),
                 n: false,
@@ -75,7 +76,7 @@ pub(crate) fn airlock_added(
                     + HEALTHY_COLOR
                     + "]It is fully operational.[/color][/font]",
             );
-        } else if entity_data_component.entity_type.to_string() == "securityAirlock" {
+        } else if entity_data_component.entity_type.get_identity() == "securityAirlock" {
             examinable_component.name = RichName {
                 name: "security airlock".to_string(),
                 n: false,
@@ -95,7 +96,7 @@ pub(crate) fn airlock_added(
                     + HEALTHY_COLOR
                     + "]It is fully operational.[/color][/font]",
             );
-        } else if entity_data_component.entity_type.to_string() == VACUUM_AIRLOCK_ENTITY_NAME {
+        } else if entity_data_component.entity_type.get_identity() == VACUUM_AIRLOCK_ENTITY_NAME {
             examinable_component.name = RichName {
                 name: "vacuum airlock".to_string(),
                 n: false,

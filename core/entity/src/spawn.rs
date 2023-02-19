@@ -134,7 +134,7 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
             .entity_type
             .get_bundle(&spawn_event.spawn_data, NoData);
 
-        let entity_type = base_entity_bundle.entity_type.to_string();
+        let entity_type = base_entity_bundle.entity_type.get_identity();
 
         base_entity_builder(
             &mut commands,

@@ -110,7 +110,7 @@ pub struct CounterWindowType {
 impl Default for CounterWindowType {
     fn default() -> Self {
         CounterWindowType {
-            identifier: SF_CONTENT_PREFIX.to_string() + "counterWindow",
+            identifier: SF_CONTENT_PREFIX.to_string() + "counter_window",
             sub_type: SECURITY_COUNTER_WINDOW_ENTITY_NAME.to_string(),
         }
     }

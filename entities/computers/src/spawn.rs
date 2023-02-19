@@ -74,7 +74,7 @@ pub struct ComputerType {
 impl Default for ComputerType {
     fn default() -> Self {
         ComputerType {
-            identifier: SF_CONTENT_PREFIX.to_owned() + "bridgeComputer",
+            identifier: SF_CONTENT_PREFIX.to_owned() + "bridge_computer",
         }
     }
 }
