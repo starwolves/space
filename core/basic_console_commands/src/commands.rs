@@ -58,7 +58,7 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
                 }
             }
 
-            if entity_name != &T::default().to_string() {
+            if entity_name != &T::default().get_identity() {
                 continue;
             }
 

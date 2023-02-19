@@ -13,8 +13,10 @@ use bevy::prelude::ResMut;
 use dyn_clone::DynClone;
 
 pub fn store_entity_type<T: EntityType + 'static>(mut types: ResMut<EntityTypes>) {
-    types.startup_types.push(T::new().to_string());
-    types.types.insert(T::new().to_string(), Box::new(T::new()));
+    types.startup_types.push(T::new().get_identity());
+    types
+        .types
+        .insert(T::new().get_identity(), Box::new(T::new()));
 }
 
 use bevy::prelude::info;
@@ -42,7 +44,8 @@ pub enum EntityTypeLabel {
 
 pub trait EntityType: Send + Sync + DynClone {
     /// Persistent string identifier of entity type. Unhygenic.
-    fn to_string(&self) -> String;
+    fn get_identity(&self) -> String;
+    fn get_clean_identity(&self) -> String;
     fn is_type(&self, identifier: String) -> bool;
     fn new() -> Self
     where
@@ -75,7 +78,7 @@ pub fn build_raw_entities<T: EntityType + Default + Send + Sync + 'static>(
     mut commands: Commands,
 ) {
     for spawn_event in spawn_events.iter() {
-        if spawn_event.raw_entity.entity_type != T::default().to_string() {
+        if spawn_event.raw_entity.entity_type != T::default().get_identity() {
             continue;
         }
 

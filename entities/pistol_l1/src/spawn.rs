@@ -169,7 +169,7 @@ pub struct PistolL1Type {
 impl Default for PistolL1Type {
     fn default() -> Self {
         PistolL1Type {
-            identifier: SF_CONTENT_PREFIX.to_owned() + "pistolL1",
+            identifier: SF_CONTENT_PREFIX.to_owned() + "pistol_l1",
         }
     }
 }

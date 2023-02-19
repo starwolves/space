@@ -148,7 +148,7 @@ pub struct HelmetType {
 impl Default for HelmetType {
     fn default() -> Self {
         Self {
-            identifier: SF_CONTENT_PREFIX.to_string() + "helmetSecurity",
+            identifier: SF_CONTENT_PREFIX.to_string() + "helmet_security",
         }
     }
 }

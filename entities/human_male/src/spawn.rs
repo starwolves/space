@@ -95,7 +95,7 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
         let base_entity_bundle = spawn_event
             .entity_type
             .get_bundle(&spawn_event.spawn_data, HumanMaleBuildData);
-        let entity_type = base_entity_bundle.entity_type.to_string();
+        let entity_type = base_entity_bundle.entity_type.get_identity();
         base_entity_builder(
             &mut commands,
             BaseEntityData {
@@ -290,7 +290,7 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                 },
                 entity_type: T::default(),
             });
-            slot_entities.push((return_entity, item_name.to_string()));
+            slot_entities.push((return_entity, item_name.get_identity()));
         }
 
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);

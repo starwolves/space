@@ -50,7 +50,7 @@ impl Default for LineArrowType {
     fn default() -> Self {
         Self {
             duration: Default::default(),
-            identifier: SF_CONTENT_PREFIX.to_string() + "lineArrow",
+            identifier: SF_CONTENT_PREFIX.to_string() + "line_arrow",
         }
     }
 }

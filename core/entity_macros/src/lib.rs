@@ -8,10 +8,15 @@ pub fn derive_entity_type(item: TokenStream) -> TokenStream {
     let struct_name = &ast.ident;
     format!(
         "impl EntityType for {} {{
-    fn to_string(&self) -> String {{
+    fn get_identity(&self) -> String {{
         self.identifier.clone()
     }}
-
+    fn get_clean_identity(&self) -> String {{
+        match self.identifier.rsplit_once(\":\") {{
+            Some(s) => s.1.to_string(),
+            None => self.identifier.clone()
+        }}
+    }}
     fn new() -> Self
     where
         Self: Sized,

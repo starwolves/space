@@ -1,5 +1,5 @@
 [package]
-name = "construction_tool_admin"
+name = "construction_tool"
 version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
 description = "Admin construction tool."

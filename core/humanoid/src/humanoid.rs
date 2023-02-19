@@ -880,9 +880,9 @@ pub(crate) fn humanoid_core(
 use const_format::concatcp;
 use resources::content::SF_CONTENT_PREFIX;
 
-pub const HUMAN_DUMMY_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "humanDummy");
+pub const HUMAN_DUMMY_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "human_dummy");
 
-pub const HUMAN_MALE_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "humanMale");
+pub const HUMAN_MALE_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "human_male");
 use controller::input::InputAltItemAttack;
 use controller::input::InputAttackCell;
 use controller::input::InputAttackEntity;

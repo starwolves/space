@@ -25,6 +25,9 @@ pub(crate) fn create_inventory_hud(
     for message in client.iter() {
         let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
 
+        let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
+        inventory_hud_color.set_a(0.5);
+
         match message.message {
             PlayerServerMessage::Boarded => {
                 let entity_id = commands.spawn(InventoryHudRootNode).id();
@@ -44,7 +47,7 @@ pub(crate) fn create_inventory_hud(
                             ..Default::default()
                         },
                         visibility: Visibility { is_visible: false },
-                        background_color: Color::MIDNIGHT_BLUE.into(),
+                        background_color: inventory_hud_color.into(),
                         ..Default::default()
                     })
                     .with_children(|parent| {
@@ -55,7 +58,6 @@ pub(crate) fn create_inventory_hud(
                                     justify_content: JustifyContent::Center,
                                     ..Default::default()
                                 },
-                                background_color: Color::MIDNIGHT_BLUE.into(),
                                 ..Default::default()
                             })
                             .with_children(|parent| {
@@ -63,6 +65,7 @@ pub(crate) fn create_inventory_hud(
                                     .spawn(NodeBundle {
                                         style: Style {
                                             align_items: AlignItems::Center,
+
                                             ..Default::default()
                                         },
                                         ..Default::default()

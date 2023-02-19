@@ -1,6 +1,6 @@
 use bevy::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
 
-use construction_tool_admin::spawn::ConstructionToolType;
+use construction_tool::spawn::ConstructionToolType;
 use entity::entity_types::EntityType;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use player::names::UsedNames;

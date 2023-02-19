@@ -114,7 +114,7 @@ pub struct AirlockType {
 impl Default for AirlockType {
     fn default() -> Self {
         Self {
-            identifier: SF_CONTENT_PREFIX.to_owned() + "airLock",
+            identifier: SF_CONTENT_PREFIX.to_owned() + "airlock",
             sub_type: VACUUM_AIRLOCK_ENTITY_NAME.to_owned(),
         }
     }
@@ -135,7 +135,7 @@ pub fn build_airlocks<T: Send + Sync + 'static>(
 }
 use resources::content::SF_CONTENT_PREFIX;
 
-pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "securityAirLock1");
-pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridgeAirLock");
-pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "governmentAirLock");
-pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuumAirLock");
+pub const SECURITY_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "security_airlock1");
+pub const BRIDGE_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "bridge_airlock");
+pub const GOVERNMENT_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "government_airLock");
+pub const VACUUM_AIRLOCK_ENTITY_NAME: &str = concatcp!(SF_CONTENT_PREFIX, "vacuum_airLock");

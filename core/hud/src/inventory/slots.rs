@@ -12,7 +12,9 @@ use math::grid::Vec2Int;
 use super::build::{InventoryHudRootNode, InventoryHudState};
 
 #[derive(Component)]
-pub struct SlotHud;
+pub struct SlotHud {
+    pub size: Vec2Int,
+}
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 
@@ -106,7 +108,9 @@ pub(crate) fn update_inventory_hud_slot(
                             background_color: Color::GRAY.into(),
                             ..Default::default()
                         })
-                        .insert(SlotHud)
+                        .insert(SlotHud {
+                            size: event.slot.slot.size,
+                        })
                         .id();
                     state.slots.insert(event.slot.id, slot_entity);
                 });
