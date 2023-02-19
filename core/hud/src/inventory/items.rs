@@ -113,7 +113,7 @@ pub fn update_inventory_hud_add_item_to_slot<
         let item_image = asset_server
             .load("entities/".to_string() + &entity_type.get_clean_identity() + "/item.png");
 
-        let item_space_color = Color::rgb(60. / 255., 0., 226. / 255.);
+        let item_space_color = Color::rgba(60. / 255., 0., 226. / 255., 0.7);
 
         commands.entity(slot_entity).with_children(|parent| {
             parent
