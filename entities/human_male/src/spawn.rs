@@ -9,6 +9,7 @@ use entity::{
     entity_types::EntityType,
     examine::{Examinable, RichName},
     health::{DamageFlag, Health, HealthContainer, HumanoidHealth},
+    net::LoadEntity,
     senser::Senser,
     spawn::{
         base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData, EntityBuildData,
@@ -114,10 +115,14 @@ pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static
             Some(showcase_data) => {
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
-                    message: EntityServerMessage::LoadEntity(
-                        *types.netcode_types.get(&entity_type).unwrap(),
-                        spawn_event.spawn_data.entity.to_bits(),
-                    ),
+                    message: EntityServerMessage::LoadEntity(LoadEntity {
+                        type_id: *types.netcode_types.get(&entity_type).unwrap(),
+                        entity: spawn_event.spawn_data.entity,
+                        translation: spawn_event.spawn_data.entity_transform.translation,
+                        scale: spawn_event.spawn_data.entity_transform.scale,
+                        rotation: spawn_event.spawn_data.entity_transform.rotation,
+                        holder_entity: spawn_event.spawn_data.holder_entity_option,
+                    }),
                 });
             }
             None => {}

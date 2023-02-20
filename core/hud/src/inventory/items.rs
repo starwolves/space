@@ -1,19 +1,22 @@
 use bevy::{
     prelude::{
-        info, warn, AssetServer, BuildChildren, Color, Commands, Component, EventReader,
-        EventWriter, ImageBundle, NodeBundle, Res,
+        info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
+        Component, Entity, EventReader, EventWriter, ImageBundle, NodeBundle, Query, Res, ResMut,
+        With,
     },
-    ui::{PositionType, Size, Style, UiImage, UiRect, Val},
+    ui::{BackgroundColor, Interaction, PositionType, Size, Style, UiImage, UiRect, Val},
 };
 use entity::{
     entity_types::{EntityType, EntityTypes},
     spawn::EntityBuildData,
 };
 use inventory::{
+    net::{InventoryClientMessage, InventoryServerMessage},
     server::inventory::{Inventory, ItemAddedToSlot},
     spawn_item::InventoryItemBuilder,
 };
 use math::grid::Vec2Int;
+use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 
 use crate::inventory::queue::RequeueHudAddItemToSlot;
 
@@ -28,10 +31,16 @@ pub(crate) fn requeue_hud_add_item_to_slot(
     }
 }
 
+pub const ITEM_SPACE_BG_ALPHA: f32 = 0.7;
+pub const ITEM_SPACE_BG_COLOR: Color =
+    Color::rgba(60. / 255., 0., 226. / 255., ITEM_SPACE_BG_ALPHA);
+pub const ACTIVE_ITEM_SPACE_BG_COLOR: Color = Color::WHITE;
+
 #[derive(Component)]
-pub struct SlotItemHudPositioner {
+pub struct SlotItemHud {
     pub position: Vec2Int,
     pub slot_id: u8,
+    pub entity: Entity,
 }
 
 pub fn update_inventory_hud_add_item_to_slot<
@@ -40,7 +49,7 @@ pub fn update_inventory_hud_add_item_to_slot<
     mut update_item: EventReader<HudAddItemToSlot>,
     mut queue: EventWriter<RequeueHudAddItemToSlot>,
     mut commands: Commands,
-    state: Res<InventoryHudState>,
+    mut state: ResMut<InventoryHudState>,
     types: Res<EntityTypes>,
     inventory: Res<Inventory>,
     asset_server: Res<AssetServer>,
@@ -113,38 +122,56 @@ pub fn update_inventory_hud_add_item_to_slot<
         let item_image = asset_server
             .load("entities/".to_string() + &entity_type.get_clean_identity() + "/item.png");
 
-        let item_space_color = Color::rgba(60. / 255., 0., 226. / 255., 0.7);
-
         commands.entity(slot_entity).with_children(|parent| {
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(width), Val::Percent(height)),
-                        position_type: PositionType::Absolute,
-                        position: UiRect::new(
-                            Val::Percent(x),
-                            Val::Undefined,
-                            Val::Undefined,
-                            Val::Percent(y),
-                        ),
-                        ..Default::default()
-                    },
-                    background_color: item_space_color.into(),
+            let mut builder = parent.spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(width), Val::Percent(height)),
+                    position_type: PositionType::Absolute,
+                    position: UiRect::new(
+                        Val::Percent(x),
+                        Val::Undefined,
+                        Val::Undefined,
+                        Val::Percent(y),
+                    ),
                     ..Default::default()
-                })
-                .insert(SlotItemHudPositioner {
+                },
+                background_color: ITEM_SPACE_BG_COLOR.into(),
+                ..Default::default()
+            });
+            let data_parent = builder.id();
+            state
+                .item_to_node
+                .insert(event.item.item_entity, data_parent);
+            builder
+                .insert(SlotItemHud {
                     position: event.item.position.clone(),
                     slot_id: event.item.slot_id,
+                    entity: event.item.item_entity,
                 })
                 .with_children(|parent| {
-                    parent.spawn(ImageBundle {
-                        style: Style {
-                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                    let mut empty_color = Color::BLACK;
+                    empty_color.set_a(0.);
+                    parent
+                        .spawn(ImageBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                ..Default::default()
+                            },
+                            image: UiImage::from(item_image),
                             ..Default::default()
-                        },
-                        image: UiImage::from(item_image),
-                        ..Default::default()
-                    });
+                        })
+                        .with_children(|parent| {
+                            parent
+                                .spawn(ButtonBundle {
+                                    style: Style {
+                                        size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                        ..Default::default()
+                                    },
+                                    background_color: empty_color.into(),
+                                    ..Default::default()
+                                })
+                                .insert(SlotItemButtonHud { data_parent });
+                        });
                 });
         });
     }
@@ -152,4 +179,94 @@ pub fn update_inventory_hud_add_item_to_slot<
 #[derive(Clone)]
 pub struct HudAddItemToSlot {
     pub item: ItemAddedToSlot,
+}
+
+#[derive(Component)]
+pub struct SlotItemButtonHud {
+    pub data_parent: Entity,
+}
+
+pub(crate) fn slot_item_button_events(
+    interaction_query: Query<
+        (&Interaction, &SlotItemButtonHud),
+        (Changed<Interaction>, With<Button>),
+    >,
+    mut slot_items_query: Query<(&SlotItemHud, &mut BackgroundColor)>,
+    inventory: Res<Inventory>,
+    mut net: EventWriter<OutgoingReliableClientMessage<InventoryClientMessage>>,
+) {
+    for (interaction, component) in interaction_query.iter() {
+        match slot_items_query.get_mut(component.data_parent) {
+            Ok((slot_item_hud, mut background_color)) => match *interaction {
+                Interaction::Clicked => {
+                    match inventory.active_item {
+                        Some(item) => {
+                            if item == slot_item_hud.entity {
+                                continue;
+                            }
+                        }
+                        None => {}
+                    }
+                    net.send(OutgoingReliableClientMessage {
+                        message: InventoryClientMessage::RequestSetActiveItem(slot_item_hud.entity),
+                    });
+                }
+                Interaction::Hovered => {
+                    background_color.0.set_a(1.);
+                }
+                Interaction::None => {
+                    background_color.0.set_a(ITEM_SPACE_BG_ALPHA);
+                }
+            },
+            Err(_) => {
+                warn!("Couldnt find parent entity node.");
+            }
+        }
+    }
+}
+
+/// Chang bg color of active item to white and change color back to old one.
+pub fn change_active_item(
+    mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
+    inventory: Res<InventoryHudState>,
+    mut node_query: Query<&mut BackgroundColor, With<SlotItemHud>>,
+) {
+    for event in net.iter() {
+        match event.message {
+            InventoryServerMessage::SetActiveItem(entity) => {
+                match inventory.active_item {
+                    Some(old_focus) => match inventory.item_to_node.get(&old_focus) {
+                        Some(old_focus_node) => match node_query.get_mut(*old_focus_node) {
+                            Ok(mut bg) => {
+                                bg.0 = ITEM_SPACE_BG_COLOR;
+                            }
+                            Err(_) => {
+                                warn!("Couldnt find old focus node entity.");
+                                continue;
+                            }
+                        },
+                        None => {
+                            warn!("Couldnt find 0ld focus in item_to_node map.");
+                            continue;
+                        }
+                    },
+                    None => {}
+                }
+                match inventory.item_to_node.get(&entity) {
+                    Some(e) => match node_query.get_mut(*e) {
+                        Ok(mut bg) => bg.0 = ACTIVE_ITEM_SPACE_BG_COLOR,
+                        Err(_) => {
+                            warn!("Couldnt find new focus node entity.");
+                            continue;
+                        }
+                    },
+                    None => {
+                        warn!("Couldnt find entity in item_to_node map.");
+                        continue;
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
 }

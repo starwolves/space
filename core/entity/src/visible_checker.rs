@@ -1,11 +1,6 @@
 use bevy::prelude::{Entity, EventWriter, Query, Transform};
 
-use math::grid::world_to_cell_id;
-
-use crate::{
-    sensable::Sensable,
-    senser::{to_doryen_coordinates, Senser},
-};
+use crate::{sensable::Sensable, senser::Senser};
 use networking::server::ConnectedPlayer;
 
 use crate::spawning_events::SpawnClientEntity;
@@ -28,45 +23,14 @@ pub(crate) fn visible_checker(
     for (
         visible_checker_entity_id,
         mut senser_component,
-        visible_checker_rigid_body_position_component,
+        _visible_checker_rigid_body_position_component,
         visible_checker_component_option,
     ) in query_visible_checker_entities_rigid.iter_mut()
     {
-        let visible_checker_translation = visible_checker_rigid_body_position_component.translation;
-
-        for (visible_entity_id, mut sensable_component, visible_transform_component) in
+        for (visible_entity_id, mut sensable_component, _visible_transform_component) in
             query_visible_entities.iter_mut()
         {
-            let visible_entity_transform;
-
-            visible_entity_transform = visible_transform_component;
-
-            let distance =
-                visible_checker_translation.distance(visible_entity_transform.translation);
-
-            let mut is_sensed = false;
-
-            if sensable_component.is_light == false
-                && sensable_component.is_audible == false
-                && sensable_component.always_sensed == false
-            {
-                let visible_entity_cell_id = world_to_cell_id(visible_entity_transform.translation);
-                let coords =
-                    to_doryen_coordinates(visible_entity_cell_id.x, visible_entity_cell_id.z);
-                is_sensed = senser_component.fov.is_in_fov(coords.0, coords.1);
-            }
-
-            if sensable_component.is_light {
-                is_sensed = distance < LIGHT_DISTANCE;
-            } else if sensable_component.is_audible {
-                is_sensed = distance < HEAR_DISTANCE;
-            }
-
-            if sensable_component.always_sensed == true
-                || visible_checker_entity_id == visible_entity_id
-            {
-                is_sensed = true;
-            }
+            let is_sensed = true;
 
             let sensed_by_contains = sensable_component
                 .sensed_by
@@ -79,9 +43,7 @@ pub(crate) fn visible_checker(
                             if visible_checker_component.connected {
                                 server.send(OutgoingReliableServerMessage {
                                     handle: visible_checker_component.handle,
-                                    message: EntityServerMessage::UnloadEntity(
-                                        visible_entity_id.to_bits(),
-                                    ),
+                                    message: EntityServerMessage::UnloadEntity(visible_entity_id),
                                 });
                             }
                         }
@@ -146,7 +108,7 @@ pub(crate) fn visible_checker(
                             Some(connected_component) => {
                                 server.send(OutgoingReliableServerMessage {
                                     handle: connected_component.handle,
-                                    message: EntityServerMessage::UnloadEntity(entity.to_bits()),
+                                    message: EntityServerMessage::UnloadEntity(*entity),
                                 });
                             }
                             None => {}
@@ -179,7 +141,3 @@ pub(crate) fn visible_checker(
         }
     }
 }
-
-const HEAR_DISTANCE: f32 = 60.;
-
-const LIGHT_DISTANCE: f32 = 60.;
