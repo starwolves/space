@@ -4,12 +4,12 @@ use cameras::controllers::fps::CameraMouseInputEnabled;
 use crate::hud::HudState;
 
 /// Event to expand the hud.
-pub struct ExpandHud {
+pub struct ExpandInventoryHud {
     pub expand: bool,
 }
 
 pub(crate) fn expand_hud(
-    mut events: EventReader<ExpandHud>,
+    mut events: EventReader<ExpandInventoryHud>,
     mut state: ResMut<HudState>,
     mut mouse_enabled: ResMut<CameraMouseInputEnabled>,
 ) {

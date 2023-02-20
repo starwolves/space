@@ -3,16 +3,17 @@ use iyes_loopless::prelude::IntoConditionalSystem;
 use resources::is_server::is_server;
 
 use crate::{
-    expand::{expand_hud, ExpandHud},
+    expand::{expand_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, HudLabels},
     inventory::{
+        actions::{hide_actions, slot_item_actions},
         build::{
             create_inventory_hud, inventory_hud_key_press, open_inventory_hud, InventoryHudState,
             OpenInventoryHud,
         },
         items::{
             change_active_item, requeue_hud_add_item_to_slot, right_mouse_click_item,
-            slot_item_actions, slot_item_button_events, HoveringSlotItem, HudAddItemToSlot,
+            slot_item_button_events, HoveringSlotItem, HudAddItemToSlot,
         },
         queue::{
             inventory_net_updates, queue_inventory_updates, InventoryUpdatesQueue,
@@ -27,7 +28,7 @@ pub struct HudPlugin;
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         if !is_server() {
-            app.add_event::<ExpandHud>()
+            app.add_event::<ExpandInventoryHud>()
                 .add_system(expand_hud)
                 .add_startup_system_to_stage(StartupStage::PostStartup, create_inventory_hud)
                 .add_startup_system(create_hud.label(HudLabels::CreateHud))
@@ -50,7 +51,8 @@ impl Plugin for HudPlugin {
                 .init_resource::<HoveringSlotItem>()
                 .add_system(right_mouse_click_item)
                 .add_system(slot_item_actions)
-                .add_system(show_hud);
+                .add_system(show_hud)
+                .add_system(hide_actions);
         }
     }
 }

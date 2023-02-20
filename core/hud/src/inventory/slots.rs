@@ -64,7 +64,7 @@ pub(crate) fn update_inventory_hud_slot(
     asset_server: Res<AssetServer>,
 ) {
     for event in update_slot.iter() {
-        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
+        let empire_font = asset_server.load("fonts/AAbsoluteEmpire.ttf");
 
         commands.entity(state.slots_node).with_children(|parent| {
             parent
@@ -91,7 +91,7 @@ pub(crate) fn update_inventory_hud_slot(
                             parent.spawn(TextBundle::from_section(
                                 event.slot.slot.name.clone() + ":",
                                 TextStyle {
-                                    font: arizone_font.clone(),
+                                    font: empire_font.clone(),
                                     font_size: 12.0,
                                     color: Color::WHITE,
                                 },

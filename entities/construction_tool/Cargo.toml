@@ -2,7 +2,7 @@
 name = "construction_tool"
 version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description = "Admin construction tool."
+description = "Construction tool."
 homepage = "https://starwolves.io"
 repository = "https://gitlab.starwolves.io/starwolves/space"
 documentation = "https://docs.sf.starwolves.io"
@@ -17,7 +17,6 @@ default-features = false
 [dependencies]
 rand = "0.8.5"
 bevy_rapier3d = "0.19.0"
-iyes_loopless = "0.9.1"
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }

@@ -1,4 +1,4 @@
-use actions::net::{ActionsClientMessage, ActionsServerMessage};
+use actions::net::ActionsClientMessage;
 use bevy::{
     prelude::{
         info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
@@ -211,23 +211,6 @@ pub(crate) fn right_mouse_click_item(
                 });
             }
             None => {}
-        }
-    }
-}
-
-pub(crate) fn slot_item_actions(
-    mut net: EventReader<IncomingReliableServerMessage<ActionsServerMessage>>,
-    inventory_state: Res<InventoryHudState>,
-    hud_state: Res<HudState>,
-) {
-    if !inventory_state.open || !hud_state.expanded {
-        return;
-    }
-    for message in net.iter() {
-        match &message.message {
-            ActionsServerMessage::TabData(data) => {
-                info!("{:?}", data);
-            }
         }
     }
 }
