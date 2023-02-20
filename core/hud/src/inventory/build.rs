@@ -9,8 +9,7 @@ use bevy::{
     text::{Text, TextStyle},
     ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
-use networking::client::IncomingReliableServerMessage;
-use player::{configuration::Boarded, net::PlayerServerMessage};
+use player::configuration::Boarded;
 
 use crate::{expand::ExpandHud, hud::HudState};
 
@@ -19,117 +18,109 @@ use super::slots::InventorySlotsNode;
 pub(crate) fn create_inventory_hud(
     mut commands: Commands,
     hud_state: Res<HudState>,
-    mut client: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     asset_server: Res<AssetServer>,
 ) {
-    for message in client.iter() {
-        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
+    let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
 
-        let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
-        inventory_hud_color.set_a(0.9);
+    let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
+    inventory_hud_color.set_a(0.9);
 
-        match message.message {
-            PlayerServerMessage::Boarded => {
-                let entity_id = commands.spawn(InventoryHudRootNode).id();
-                commands
-                    .entity(hud_state.center_content_node)
-                    .add_child(entity_id);
-                let mut root_builder = commands.entity(entity_id);
+    let entity_id = commands.spawn(InventoryHudRootNode).id();
+    commands
+        .entity(hud_state.center_content_node)
+        .add_child(entity_id);
+    let mut root_builder = commands.entity(entity_id);
 
-                let mut slots_node = Entity::from_bits(0);
+    let mut slots_node = Entity::from_bits(0);
 
-                root_builder
-                    .insert(NodeBundle {
-                        style: Style {
-                            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                            flex_direction: FlexDirection::Column,
-                            align_items: AlignItems::Center,
-                            ..Default::default()
-                        },
-                        visibility: Visibility { is_visible: false },
-                        background_color: inventory_hud_color.into(),
+    root_builder
+        .insert(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            visibility: Visibility { is_visible: false },
+            background_color: inventory_hud_color.into(),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Percent(100.0), Val::Percent(3.0)),
+                        justify_content: JustifyContent::Center,
                         ..Default::default()
-                    })
-                    .with_children(|parent| {
-                        parent
-                            .spawn(NodeBundle {
-                                style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Percent(3.0)),
-                                    justify_content: JustifyContent::Center,
-                                    ..Default::default()
-                                },
+                    },
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                align_items: AlignItems::Center,
+
                                 ..Default::default()
-                            })
-                            .with_children(|parent| {
-                                parent
-                                    .spawn(NodeBundle {
-                                        style: Style {
-                                            align_items: AlignItems::Center,
-
-                                            ..Default::default()
-                                        },
-                                        ..Default::default()
-                                    })
-                                    .with_children(|parent| {
-                                        parent.spawn(TextBundle {
-                                            text: Text::from_section(
-                                                "Inventory".to_string(),
-                                                TextStyle {
-                                                    font: arizone_font,
-                                                    font_size: 13.,
-                                                    color: Color::WHITE,
-                                                },
-                                            ),
-                                            ..Default::default()
-                                        });
-                                    });
-                            });
-                        let mut dark_gray = Color::DARK_GRAY;
-                        dark_gray.set_a(0.9);
-                        parent
-                            .spawn(NodeBundle {
-                                style: Style {
-                                    size: Size::new(Val::Percent(97.5), Val::Percent(95.75)),
-                                    justify_content: JustifyContent::Center,
-                                    padding: UiRect::new(
-                                        Val::Undefined,
-                                        Val::Undefined,
-                                        Val::Percent(1.25),
-                                        Val::Undefined,
-                                    ),
-                                    ..Default::default()
-                                },
-                                background_color: dark_gray.into(),
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle {
+                                text: Text::from_section(
+                                    "Inventory".to_string(),
+                                    TextStyle {
+                                        font: arizone_font,
+                                        font_size: 13.,
+                                        color: Color::WHITE,
+                                    },
+                                ),
                                 ..Default::default()
-                            })
-                            .with_children(|parent| {
-                                slots_node = parent
-                                    .spawn(NodeBundle {
-                                        style: Style {
-                                            size: Size::new(Val::Percent(97.5), Val::Percent(100.)),
-
-                                            ..Default::default()
-                                        },
-                                        ..Default::default()
-                                    })
-                                    .insert(InventorySlotsNode)
-                                    .id();
                             });
-                    });
-
-                commands.insert_resource(InventoryHudState {
-                    open: false,
-                    root_node: entity_id,
-                    slots_node,
-                    slots: HashMap::new(),
-
-                    active_item: None,
-                    item_to_node: HashMap::new(),
+                        });
                 });
-            }
-            _ => {}
-        }
-    }
+            let mut dark_gray = Color::DARK_GRAY;
+            dark_gray.set_a(0.9);
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Percent(97.5), Val::Percent(95.75)),
+                        justify_content: JustifyContent::Center,
+                        padding: UiRect::new(
+                            Val::Undefined,
+                            Val::Undefined,
+                            Val::Percent(1.25),
+                            Val::Undefined,
+                        ),
+                        ..Default::default()
+                    },
+                    background_color: dark_gray.into(),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    slots_node = parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(97.5), Val::Percent(100.)),
+
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .insert(InventorySlotsNode)
+                        .id();
+                });
+        });
+
+    commands.insert_resource(InventoryHudState {
+        open: false,
+        root_node: entity_id,
+        slots_node,
+        slots: HashMap::new(),
+
+        active_item: None,
+        item_to_node: HashMap::new(),
+    });
 }
 
 #[derive(Component)]

@@ -1,3 +1,4 @@
+use bevy::prelude::Entity;
 use resources::grid::CellFace;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
@@ -13,7 +14,7 @@ pub enum ActionsServerMessage {
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum ActionsClientMessage {
-    TabDataEntity(u64),
+    TabDataEntity(Entity),
     TabDataMap(i16, i16, i16, CellFace),
-    TabPressed(String, Option<u64>, Option<TargetCell>, Option<u64>),
+    TabPressed(String, Option<Entity>, Option<TargetCell>, Option<Entity>),
 }
