@@ -5,7 +5,9 @@ use resources::{is_server::is_server, labels::PostUpdateLabels};
 
 use crate::{
     client::{
-        items::{client_item_added_to_slot, set_active_item, ClientBuildInventoryLabel},
+        items::{
+            client_item_added_to_slot, set_active_item, ActiveItemCamera, ClientBuildInventoryLabel,
+        },
         slots::{client_slot_added, AddedSlot},
     },
     net::{InventoryClientMessage, InventoryServerMessage},
@@ -48,7 +50,8 @@ impl Plugin for InventoryPlugin {
                 .add_system(client_slot_added.label(ClientBuildInventoryLabel::AddSlot))
                 .init_resource::<Inventory>()
                 .add_event::<AddedSlot>()
-                .add_system(set_active_item);
+                .add_system(set_active_item)
+                .add_event::<ActiveItemCamera>();
         }
         app.add_event::<AddItemToSlot>().add_event::<AddSlot>();
         register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
