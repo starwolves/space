@@ -2,8 +2,6 @@
 
 /// Broadcast unreliable transforms to clients.
 mod broadcast_interpolation_transforms;
-/// Check if entities leave boundaries of physics space.
-mod out_of_bounds_teleportation;
 /// Physics resources.
 pub mod physics;
 pub mod plugin;

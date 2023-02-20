@@ -35,7 +35,7 @@ pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
                 Some(op) => {
                     if spawn.spawn_data.entity == *op {
                         // Own pawn entity.
-                        //visibility.is_visible = false;
+                        visibility.is_visible = false;
                     }
                     match spawn.spawn_data.holder_entity_option {
                         Some(s) => match map.map.get(&s) {

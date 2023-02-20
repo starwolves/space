@@ -267,6 +267,7 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
 pub struct NoData;
 #[derive(Resource, Default)]
 pub struct ClientEntityServerEntity {
+    // Server, Client.
     pub map: HashMap<Entity, Entity>,
 }
 

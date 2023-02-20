@@ -11,11 +11,11 @@ pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app //.add_system(out_of_bounds_tp)
-                .add_system(rigidbody_link_transform)
+            app.add_system(rigidbody_link_transform)
                 .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms);
         }
         app.add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-            .add_system(disable_rigidbodies);
+            .add_system_to_stage(PostUpdate, disable_rigidbodies);
     }
 }
+use bevy::app::CoreStage::PostUpdate;

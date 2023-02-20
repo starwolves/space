@@ -29,8 +29,8 @@ impl Plugin for FpsCameraPlugin {
             .add_system_to_stage(CoreStage::PreUpdate, on_controller_enabled_changed)
             .add_system(control_system)
             .add_event::<ControlEvent>()
-            .init_resource::<CameraMouseInputEnabled>();
-
+            .init_resource::<CameraMouseInputEnabled>()
+            .init_resource::<ActiveCamera>();
         if !self.override_input_system {
             app.add_system(default_input_map);
         }
@@ -141,6 +141,11 @@ impl Default for CameraMouseInputEnabled {
     fn default() -> Self {
         Self { enabled: true }
     }
+}
+
+#[derive(Resource, Default)]
+pub struct ActiveCamera {
+    pub option: Option<Entity>,
 }
 
 pub fn control_system(

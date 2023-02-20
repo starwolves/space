@@ -13,6 +13,7 @@ use entity::spawn::build_base_entities;
 use hud::inventory::build::InventoryHudState;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudLabels;
+use inventory::client::items::active_item_display_camera;
 use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use iyes_loopless::prelude::IntoConditionalSystem;
@@ -89,7 +90,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                     .label(InventoryHudLabels::QueueUpdate),
             )
             .add_system(load_entity::<ConstructionToolType>)
-            .add_system(link_base_mesh::<ConstructionToolType>);
+            .add_system(link_base_mesh::<ConstructionToolType>)
+            .add_system(active_item_display_camera::<ConstructionToolType>);
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);
