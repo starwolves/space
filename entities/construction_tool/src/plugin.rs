@@ -10,13 +10,11 @@ use entity::entity_types::register_entity_type;
 use entity::loading::load_entity;
 use entity::spawn::build_base_entities;
 
-use hud::inventory::build::InventoryHudState;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudLabels;
 use inventory::client::items::active_item_display_camera;
 use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
-use iyes_loopless::prelude::IntoConditionalSystem;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
 use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateLabels};
@@ -85,7 +83,6 @@ impl Plugin for ConstructionToolAdminPlugin {
         } else {
             app.add_system(
                 update_inventory_hud_add_item_to_slot::<ConstructionToolType>
-                    .run_if_resource_exists::<InventoryHudState>()
                     .after(InventoryHudLabels::UpdateSlot)
                     .label(InventoryHudLabels::QueueUpdate),
             )

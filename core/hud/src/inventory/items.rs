@@ -1,8 +1,9 @@
+use actions::net::{ActionsClientMessage, ActionsServerMessage};
 use bevy::{
     prelude::{
         info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
-        Component, Entity, EventReader, EventWriter, ImageBundle, NodeBundle, Query, Res, ResMut,
-        With,
+        Component, Entity, EventReader, EventWriter, ImageBundle, Input, MouseButton, NodeBundle,
+        Query, Res, ResMut, Resource, With,
     },
     ui::{BackgroundColor, Interaction, PositionType, Size, Style, UiImage, UiRect, Val},
 };
@@ -18,7 +19,7 @@ use inventory::{
 use math::grid::Vec2Int;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 
-use crate::inventory::queue::RequeueHudAddItemToSlot;
+use crate::{hud::HudState, inventory::queue::RequeueHudAddItemToSlot};
 
 use super::build::InventoryHudState;
 
@@ -186,6 +187,51 @@ pub struct SlotItemButtonHud {
     pub data_parent: Entity,
 }
 
+#[derive(Default, Resource)]
+pub struct HoveringSlotItem {
+    // Holds server entity of item that is hovered.
+    pub option: Option<Entity>,
+}
+
+pub(crate) fn right_mouse_click_item(
+    buttons: Res<Input<MouseButton>>,
+    state: Res<HoveringSlotItem>,
+    mut actions_net: EventWriter<OutgoingReliableClientMessage<ActionsClientMessage>>,
+    inventory_state: Res<InventoryHudState>,
+    hud_state: Res<HudState>,
+) {
+    if !inventory_state.open || !hud_state.expanded {
+        return;
+    }
+    if buttons.just_pressed(MouseButton::Right) {
+        match state.option {
+            Some(e) => {
+                actions_net.send(OutgoingReliableClientMessage {
+                    message: ActionsClientMessage::TabDataEntity(e),
+                });
+            }
+            None => {}
+        }
+    }
+}
+
+pub(crate) fn slot_item_actions(
+    mut net: EventReader<IncomingReliableServerMessage<ActionsServerMessage>>,
+    inventory_state: Res<InventoryHudState>,
+    hud_state: Res<HudState>,
+) {
+    if !inventory_state.open || !hud_state.expanded {
+        return;
+    }
+    for message in net.iter() {
+        match &message.message {
+            ActionsServerMessage::TabData(data) => {
+                info!("{:?}", data);
+            }
+        }
+    }
+}
+
 pub(crate) fn slot_item_button_events(
     interaction_query: Query<
         (&Interaction, &SlotItemButtonHud),
@@ -193,7 +239,8 @@ pub(crate) fn slot_item_button_events(
     >,
     mut slot_items_query: Query<(&SlotItemHud, &mut BackgroundColor)>,
     inventory: Res<Inventory>,
-    mut net: EventWriter<OutgoingReliableClientMessage<InventoryClientMessage>>,
+    mut inventory_net: EventWriter<OutgoingReliableClientMessage<InventoryClientMessage>>,
+    mut state: ResMut<HoveringSlotItem>,
 ) {
     for (interaction, component) in interaction_query.iter() {
         match slot_items_query.get_mut(component.data_parent) {
@@ -207,14 +254,16 @@ pub(crate) fn slot_item_button_events(
                         }
                         None => {}
                     }
-                    net.send(OutgoingReliableClientMessage {
+                    inventory_net.send(OutgoingReliableClientMessage {
                         message: InventoryClientMessage::RequestSetActiveItem(slot_item_hud.entity),
                     });
                 }
                 Interaction::Hovered => {
+                    state.option = Some(slot_item_hud.entity);
                     background_color.0.set_a(1.);
                 }
                 Interaction::None => {
+                    state.option = None;
                     background_color.0.set_a(ITEM_SPACE_BG_ALPHA);
                 }
             },

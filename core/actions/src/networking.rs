@@ -5,7 +5,6 @@ use crate::core::InputAction;
 use crate::core::InputListActionsEntity;
 use crate::core::InputListActionsMap;
 use bevy::prelude::warn;
-use bevy::prelude::Entity;
 use math::grid::Vec3Int;
 use networking::server::HandleToEntity;
 
@@ -32,7 +31,7 @@ pub(crate) fn incoming_messages(
                     Some(player_entity) => {
                         action_data_entity.send(InputListActionsEntity {
                             requested_by_entity: *player_entity,
-                            targetted_entity: Entity::from_bits(entity_id_bits),
+                            targetted_entity: entity_id_bits,
                             with_ui: true,
                         });
                     }
@@ -68,14 +67,14 @@ pub(crate) fn incoming_messages(
                 let mut entity_p_op = None;
                 match entity_option {
                     Some(s) => {
-                        entity_p_op = Some(Entity::from_bits(s));
+                        entity_p_op = Some(s);
                     }
                     None => {}
                 }
                 let entity_b_op;
                 match belonging_entity {
                     Some(s) => {
-                        entity_b_op = Entity::from_bits(s);
+                        entity_b_op = s;
                     }
                     None => {
                         warn!("no examiner entity passed.");
