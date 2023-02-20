@@ -10,3 +10,7 @@ pub struct RigidBodyData {
     pub friction: f32,
     pub friction_combine_rule: CoefficientCombineRule,
 }
+#[derive(Component)]
+pub struct RigidBodyStatus {
+    pub enabled: bool,
+}

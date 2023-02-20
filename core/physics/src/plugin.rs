@@ -4,7 +4,7 @@ use resources::is_server::is_server;
 
 use crate::{
     broadcast_interpolation_transforms::broadcast_interpolation_transforms,
-    rigidbody_link_transform::rigidbody_link_transform,
+    physics::disable_rigidbodies, rigidbody_link_transform::rigidbody_link_transform,
 };
 
 pub struct PhysicsPlugin;
@@ -15,6 +15,7 @@ impl Plugin for PhysicsPlugin {
                 .add_system(rigidbody_link_transform)
                 .add_system_to_stage(CoreStage::Update, broadcast_interpolation_transforms);
         }
-        app.add_plugin(RapierPhysicsPlugin::<NoUserData>::default());
+        app.add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+            .add_system(disable_rigidbodies);
     }
 }

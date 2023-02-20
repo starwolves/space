@@ -53,7 +53,7 @@ pub(crate) fn player_boarded(
 
         server.send(OutgoingReliableServerMessage {
             handle: boarded_player.handle,
-            message: PlayerServerMessage::PawnId(boarded_player.entity.to_bits()),
+            message: PlayerServerMessage::PawnId(boarded_player.entity),
         });
         server.send(OutgoingReliableServerMessage {
             handle: boarded_player.handle,

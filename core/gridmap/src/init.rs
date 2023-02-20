@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use bevy::prelude::{info, warn, AssetServer, EventWriter, Res, ResMut, Transform};
+use bevy::prelude::{info, warn, AssetServer, Commands, EventWriter, Res, ResMut, Transform};
 use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
 use entity::examine::RichName;
 use math::grid::Vec3Int;
@@ -189,6 +189,7 @@ pub(crate) fn load_ron_gridmap(
     gridmap_data: Res<Gridmap>,
     mut set_cell: EventWriter<AddTile>,
     mut set_group: EventWriter<AddGroup>,
+    mut commands: Commands,
 ) {
     // Load map json data into real static bodies.
     let main_ron = Path::new("data")
@@ -227,6 +228,7 @@ pub(crate) fn load_ron_gridmap(
                     orientation_option: cell_data.orientation.clone(),
                     tile_type: cell_item_id,
                     group_instance_id_option: None,
+                    entity: commands.spawn(()).id(),
                 });
             }
             RonItem::Group(item) => {

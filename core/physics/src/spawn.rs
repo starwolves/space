@@ -1,6 +1,6 @@
 use crate::{
     physics::{get_bit_masks, ColliderGroup},
-    rigid_body::RigidBodyData,
+    rigid_body::{RigidBodyData, RigidBodyStatus},
 };
 use bevy::{
     hierarchy::BuildChildren,
@@ -73,8 +73,6 @@ impl Default for RigidBodyBuildData {
 }
 use entity::entity_data::{WorldMode, WorldModes};
 
-use crate::physics::RigidBodyDisabled;
-
 pub fn rigidbody_builder(
     commands: &mut Commands,
     rigidbody_spawn_data: RigidBodyBuildData,
@@ -134,25 +132,29 @@ pub fn rigidbody_builder(
             friction_combine_rule: rigidbody_spawn_data.collider_friction.combine_rule,
         });
 
-    match rigidbody_spawn_data.entity_is_stored_item {
-        true => builder.insert((
+    let mut rigidbody_enabled = true;
+
+    if rigidbody_spawn_data.entity_is_stored_item {
+        builder.insert((
             GravityScale(0.),
             Sleeping {
                 sleeping: true,
                 ..Default::default()
             },
-            RigidBodyDisabled,
             Damping {
                 linear_damping: 10000.,
                 angular_damping: 10000.,
             },
-        )),
-        false => builder
+        ));
+        rigidbody_enabled = false;
+    } else {
+        builder
             .insert(Sleeping::default())
             .insert(rigidbody_spawn_data.gravity_scale)
-            .insert(Damping::default()),
+            .insert(Damping::default())
+            .insert(RigidBodyStatus { enabled: true });
     }
-    .with_children(|children| {
+    builder.with_children(|children| {
         let mut child_builder = children.spawn(());
         child_builder
             .insert(rigidbody_spawn_data.collider)
@@ -170,12 +172,10 @@ pub fn rigidbody_builder(
 
     match rigidbody_spawn_data.entity_is_stored_item {
         true => {
-            builder.insert((
-                RigidBodyDisabled,
-                WorldMode {
-                    mode: WorldModes::Worn,
-                },
-            ));
+            builder.insert((WorldMode {
+                mode: WorldModes::Worn,
+            },));
+            rigidbody_enabled = false;
         }
         false => match rigidbody_spawn_data.rigidbody_dynamic {
             true => {
@@ -186,6 +186,9 @@ pub fn rigidbody_builder(
             false => {}
         },
     }
+    builder.insert(RigidBodyStatus {
+        enabled: rigidbody_enabled,
+    });
 }
 
 pub trait RigidBodyBuilder<Y>: Send + Sync {

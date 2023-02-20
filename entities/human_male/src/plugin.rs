@@ -1,7 +1,7 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use construction_tool::spawn::ConstructionToolType;
-use entity::entity_types::register_entity_type;
+use entity::{base_mesh::link_base_mesh, entity_types::register_entity_type, loading::load_entity};
 
 use inventory::server::inventory::SpawnItemLabel;
 use physics::spawn::build_rigid_bodies;
@@ -29,6 +29,9 @@ impl Plugin for HumanMalePlugin {
             )
             .add_system(human_male_setup_ui.label(BuildingLabels::TriggerBuild))
             .add_system_to_stage(PostUpdate, spawn_boarding_player);
+        } else {
+            app.add_system(link_base_mesh::<HumanMaleType>)
+                .add_system(load_entity::<HumanMaleType>);
         }
         register_entity_type::<HumanMaleType>(app);
         register_basic_console_commands_for_type::<HumanMaleType>(app);

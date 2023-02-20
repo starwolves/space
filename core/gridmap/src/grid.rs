@@ -1,13 +1,19 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{warn, Component, Entity, Handle, Res, Resource, Transform},
+    prelude::{
+        warn, BuildChildren, Commands, Component, Entity, GlobalTransform, Handle, Res, Resource,
+        Transform,
+    },
     scene::Scene,
 };
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider};
+use bevy_rapier3d::prelude::{
+    CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, RigidBody,
+};
 use entity::{examine::RichName, health::Health};
-use math::grid::Vec3Int;
-use resources::grid::CellFace;
+use math::grid::{cell_id_to_world, Vec3Int};
+use physics::physics::{get_bit_masks, ColliderGroup};
+use resources::{grid::CellFace, is_server::is_server};
 use serde::{Deserialize, Serialize};
 
 /// Gridmap maximum limits as cube dimensions in chunks.
@@ -427,7 +433,6 @@ impl Default for Cell {
 }
 
 /// Event to add a gridmap tile.
-#[derive(Default)]
 pub struct AddTile {
     pub id: Vec3Int,
     /// Id of tile type.
@@ -436,6 +441,20 @@ pub struct AddTile {
     pub orientation_option: Option<Orientation>,
     pub face: CellFace,
     pub group_instance_id_option: Option<u32>,
+    pub entity: Entity,
+}
+
+impl Default for AddTile {
+    fn default() -> Self {
+        Self {
+            id: Vec3Int::default(),
+            tile_type: 0,
+            orientation_option: None,
+            face: CellFace::default(),
+            group_instance_id_option: None,
+            entity: Entity::from_bits(0),
+        }
+    }
 }
 
 /// Event to add a group of gridmap tiles.
@@ -451,6 +470,56 @@ pub struct AddGroup {
 
 use bevy::prelude::{EventReader, ResMut};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
+
+pub(crate) fn add_tile_collision(
+    mut events: EventReader<AddTile>,
+    mut commands: Commands,
+    gridmap_data: Res<Gridmap>,
+) {
+    for event in events.iter() {
+        let cell_properties;
+        match gridmap_data.main_cell_properties.get(&event.tile_type) {
+            Some(x) => {
+                cell_properties = x;
+            }
+            None => {
+                warn!("Unknown cellid {}. Initialization of gridmap cell in startup gridmap systems missing.", event.tile_type);
+                return;
+            }
+        }
+
+        let mut world_position = Transform::from_translation(cell_id_to_world(event.id));
+        world_position.translation += cell_properties.collider_position.translation;
+        world_position.rotation *= cell_properties.collider_position.rotation;
+
+        let mut entity_builder = commands.entity(event.entity);
+        entity_builder
+            .insert(RigidBody::Fixed)
+            .insert(Cell { id: event.id });
+
+        if is_server() {
+            entity_builder
+                .insert(GlobalTransform::default())
+                .insert(world_position);
+        }
+
+        let masks = get_bit_masks(ColliderGroup::Standard);
+
+        let mut friction_component = Friction::coefficient(cell_properties.friction);
+        friction_component.combine_rule = cell_properties.combine_rule;
+
+        entity_builder.with_children(|children| {
+            children
+                .spawn(cell_properties.collider.clone())
+                .insert(Transform::IDENTITY)
+                .insert(friction_component)
+                .insert(CollisionGroups::new(
+                    Group::from_bits(masks.0).unwrap(),
+                    Group::from_bits(masks.1).unwrap(),
+                ));
+        });
+    }
+}
 
 pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMut<Gridmap>) {
     for add_tile_event in events.iter() {

@@ -1,18 +1,22 @@
-use crate::physics::RigidBodyDisabled;
-use bevy::prelude::{warn, Entity, Query, Transform, Without};
+use bevy::prelude::{warn, Entity, Query, Transform};
 use entity::entity_data::EntityData;
 use entity::senser::WORLD_WIDTH_CELLS;
+
+use crate::rigid_body::RigidBodyStatus;
 
 /// Check if rigidbody is out of bounds if so teleport on the mirrored side.
 
 pub(crate) fn _out_of_bounds_tp(
-    mut rigid_bodies: Query<(Entity, &EntityData, &mut Transform), (Without<RigidBodyDisabled>,)>,
+    mut rigid_bodies: Query<(Entity, &EntityData, &mut Transform, &RigidBodyStatus)>,
 ) {
     let max = WORLD_WIDTH_CELLS as f32 * 0.5 * 2.;
 
-    for (rigid_body_entity, entity_data_component, mut rigid_body_position_component) in
+    for (rigid_body_entity, entity_data_component, mut rigid_body_position_component, status) in
         rigid_bodies.iter_mut()
     {
+        if status.enabled == false {
+            continue;
+        }
         if rigid_body_position_component.translation.y > 5.
             || rigid_body_position_component.translation.y < -5.
         {

@@ -211,8 +211,14 @@ pub fn build_human_males(
 
             match spawn_pawn_data.designation {
                 PawnDesignation::Player => {
+                    match spawn_pawn_data.connected_player_option {
+                        Some(c) => {
+                            spawner.insert(c);
+                        }
+                        None => {}
+                    }
+
                     spawner.insert((
-                        spawn_pawn_data.connected_player_option.unwrap(),
                         DataLink {
                             links: vec![
                                 DataLinkType::FullAtmospherics,
