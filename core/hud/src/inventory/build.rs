@@ -11,7 +11,7 @@ use bevy::{
 };
 use player::configuration::Boarded;
 
-use crate::{expand::ExpandHud, hud::HudState};
+use crate::{expand::ExpandInventoryHud, hud::HudState};
 
 use super::slots::InventorySlotsNode;
 
@@ -131,7 +131,7 @@ pub(crate) fn open_inventory_hud(
     mut events: EventReader<OpenInventoryHud>,
     mut state: ResMut<InventoryHudState>,
     mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
-    mut expand: EventWriter<ExpandHud>,
+    mut expand: EventWriter<ExpandInventoryHud>,
 ) {
     for event in events.iter() {
         if !boarded.boarded {
@@ -147,7 +147,7 @@ pub(crate) fn open_inventory_hud(
                 warn!("Couldnt toggle open inventory , couldnt find root node.");
             }
         }
-        expand.send(ExpandHud { expand: state.open });
+        expand.send(ExpandInventoryHud { expand: state.open });
     }
 }
 

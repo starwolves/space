@@ -36,7 +36,7 @@ impl BaseEntityBuilder<NoData> for ConstructionToolType {
             examinable: Examinable {
                 assigned_texts: examine_map,
                 name: RichName {
-                    name: "admin construction tool".to_string(),
+                    name: "construction tool".to_string(),
                     n: true,
                     ..Default::default()
                 },

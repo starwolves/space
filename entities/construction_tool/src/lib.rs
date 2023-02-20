@@ -1,4 +1,4 @@
-//! Admin construction tool.
+//! Construction tool.
 //! Can construct and deconstruct ship cells, interact with the gridmap.
 
 /// Manage construction tool actions.
