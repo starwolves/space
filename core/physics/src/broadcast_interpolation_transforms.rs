@@ -1,6 +1,6 @@
 use bevy::{
     math::Vec3,
-    prelude::{Entity, Local, Query, Res, Transform, With, Without},
+    prelude::{Entity, Local, Query, Res, Transform, With},
     time::Time,
 };
 use networking::server::UnreliableServerMessage;
@@ -25,7 +25,6 @@ pub(crate) struct InterpolationFrame {
 use bevy_rapier3d::prelude::Velocity;
 use networking::server::HandleToEntity;
 
-use crate::physics::RigidBodyDisabled;
 use bevy::prelude::EventWriter;
 use entity::entity_data::CachedBroadcastTransform;
 use entity::sensable::Sensable;
@@ -33,6 +32,8 @@ use networking::server::OutgoingUnreliableServerMessage;
 
 use bevy_rapier3d::prelude::RigidBody;
 use networking::server::ConnectedPlayer;
+
+use crate::rigid_body::RigidBodyStatus;
 /// Broadcast transforms.
 
 pub(crate) fn broadcast_interpolation_transforms(
@@ -48,8 +49,9 @@ pub(crate) fn broadcast_interpolation_transforms(
             &Velocity,
             &mut CachedBroadcastTransform,
             Option<&ConnectedPlayer>,
+            &RigidBodyStatus,
         ),
-        (With<RigidBody>, Without<RigidBodyDisabled>),
+        With<RigidBody>,
     >,
     mut interpolation_frame: Local<InterpolationFrame>,
 ) {
@@ -68,8 +70,12 @@ pub(crate) fn broadcast_interpolation_transforms(
         rigid_body_velocity_component,
         mut cached_transform_component,
         connected_player_component_option,
+        status,
     ) in query_interpolated_entities.iter_mut()
     {
+        if status.enabled == false {
+            continue;
+        }
         let rigid_body_position = rigid_body_position_component;
 
         let rigid_body_translation = rigid_body_position.translation;

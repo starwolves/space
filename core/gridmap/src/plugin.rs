@@ -19,7 +19,7 @@ use crate::{
     },
     fov::ProjectileFOV,
     graphics::set_cell_graphics,
-    grid::{add_tile, AddGroup, AddTile, Gridmap, RemoveCell},
+    grid::{add_tile, add_tile_collision, AddGroup, AddTile, Gridmap, RemoveCell},
     init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
     wall::add_wall_group,
@@ -92,7 +92,8 @@ impl Plugin for GridmapPlugin {
             .add_system(add_tile)
             .add_event::<AddTile>()
             .add_event::<AddGroup>()
-            .add_system(add_wall_group);
+            .add_system(add_wall_group)
+            .add_system(add_tile_collision);
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);

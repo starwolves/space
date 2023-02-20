@@ -1,5 +1,5 @@
 use crate::boarding::SoftPlayer;
-use bevy::prelude::{Commands, Entity, EventReader, Res, ResMut, Resource};
+use bevy::prelude::{Commands, EventReader, Res, ResMut, Resource};
 
 use bevy::prelude::EventWriter;
 use entity::spawn::PawnEntityId;
@@ -97,7 +97,7 @@ pub(crate) fn client_receive_pawnid(
     for message in client.iter() {
         match message.message {
             PlayerServerMessage::PawnId(entity_bits) => {
-                id.option = Some(Entity::from_bits(entity_bits));
+                id.option = Some(entity_bits);
                 info!("Server assigned entity {:?}.", id.option.unwrap());
             }
             PlayerServerMessage::Boarded => {

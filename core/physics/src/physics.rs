@@ -1,6 +1,8 @@
-use bevy::prelude::{Commands, Component, Entity};
+use bevy::prelude::{Changed, Component, Entity, Query};
 use bevy_rapier3d::prelude::{CollisionGroups, Damping, GravityScale, Group, Sleeping};
 use math::grid::Vec3Int;
+
+use crate::rigid_body::RigidBodyStatus;
 
 /// Get a desired bit mask as a function.
 
@@ -30,59 +32,48 @@ pub enum ColliderGroup {
 
 pub const CHARACTER_FLOOR_FRICTION: f32 = 7.2;
 
-/// Component, an entity has this when its physics is disabled.
-#[derive(Component)]
-
-pub struct RigidBodyDisabled;
 /// Disable a rigidbody as a function.
 
-pub fn disable_rigidbody(
-    rigidbody_activation: &mut Sleeping,
-    collider_flags: &mut CollisionGroups,
-    mut gravity: &mut GravityScale,
-    commands: &mut Commands,
-    rigidbody_entity: Entity,
-    damping: &mut Damping,
+pub(crate) fn disable_rigidbodies(
+    mut query: Query<
+        (
+            &mut Sleeping,
+            &mut CollisionGroups,
+            &mut GravityScale,
+            &mut Damping,
+            &RigidBodyStatus,
+        ),
+        Changed<RigidBodyStatus>,
+    >,
 ) {
-    let masks = get_bit_masks(ColliderGroup::NoCollision);
-    collider_flags.memberships = Group::from_bits(masks.0).unwrap();
-    collider_flags.filters = Group::from_bits(masks.1).unwrap();
+    for (mut rigidbody_activation, mut collider_flags, mut gravity, mut damping, status) in
+        query.iter_mut()
+    {
+        if !status.enabled {
+            let masks = get_bit_masks(ColliderGroup::NoCollision);
+            collider_flags.memberships = Group::from_bits(masks.0).unwrap();
+            collider_flags.filters = Group::from_bits(masks.1).unwrap();
 
-    gravity.0 = 0.;
+            gravity.0 = 0.;
 
-    rigidbody_activation.sleeping = true;
+            rigidbody_activation.sleeping = true;
 
-    damping.angular_damping = 10000.;
-    damping.linear_damping = 10000.;
+            damping.angular_damping = 10000.;
+            damping.linear_damping = 10000.;
+        } else {
+            let masks = get_bit_masks(ColliderGroup::Standard);
 
-    commands.entity(rigidbody_entity).insert(RigidBodyDisabled);
-}
+            collider_flags.memberships = Group::from_bits(masks.0).unwrap();
+            collider_flags.filters = Group::from_bits(masks.1).unwrap();
 
-/// Enable a rigidbody as a function.
+            gravity.0 = 1.;
 
-pub fn enable_rigidbody(
-    rigidbody_activation: &mut Sleeping,
-    collider_flags: &mut CollisionGroups,
-    mut gravity: &mut GravityScale,
-    commands: &mut Commands,
-    rigidbody_entity: Entity,
-    damping: &mut Damping,
-) {
-    let masks = get_bit_masks(ColliderGroup::Standard);
+            rigidbody_activation.sleeping = false;
 
-    collider_flags.memberships = Group::from_bits(masks.0).unwrap();
-    collider_flags.filters = Group::from_bits(masks.1).unwrap();
-
-    gravity.0 = 1.;
-
-    rigidbody_activation.sleeping = false;
-
-    damping.angular_damping = 0.;
-    damping.linear_damping = 0.;
-
-    commands
-        .entity(rigidbody_entity)
-        .remove::<RigidBodyDisabled>();
+            damping.angular_damping = 0.;
+            damping.linear_damping = 0.;
+        }
+    }
 }
 
 /// Reach result.

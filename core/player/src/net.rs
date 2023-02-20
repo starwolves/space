@@ -1,3 +1,4 @@
+use bevy::prelude::Entity;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
@@ -8,7 +9,7 @@ pub enum PlayerServerMessage {
     ServerTime,
     ConnectedPlayers(u16),
     ConfigTickRate(u8),
-    PawnId(u64),
+    PawnId(Entity),
     Boarded,
     ConfigRepeatingSFX(String, Vec<String>),
     ConfigFinished,

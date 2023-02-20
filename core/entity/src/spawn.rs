@@ -1,10 +1,12 @@
+use std::collections::HashMap;
+
 use crate::{
     entity_data::BlankEntityType,
     entity_types::{BoxedEntityType, EntityType},
     net::LoadEntity,
     showcase::{Showcase, ShowcaseData},
 };
-use bevy::prelude::{Commands, Component, Entity, EventReader, EventWriter, Resource, Transform};
+use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Resource, Transform};
 use serde::Deserialize;
 
 use crate::{
@@ -263,12 +265,11 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
 }
 
 pub struct NoData;
-
-#[derive(Component)]
-/// To keep client-side entities linked with their server ID.
-pub struct EntityServerLink {
-    pub server_entity: Entity,
+#[derive(Resource, Default)]
+pub struct ClientEntityServerEntity {
+    pub map: HashMap<Entity, Entity>,
 }
+
 #[derive(Resource, Default)]
 /// Resource stores the server-side entity ID of the players pawn. Useful for the client to store.
 pub struct PawnEntityId {
