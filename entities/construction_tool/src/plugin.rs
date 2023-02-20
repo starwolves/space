@@ -5,7 +5,9 @@ use basic_console_commands::register::{
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
+use entity::base_mesh::link_base_mesh;
 use entity::entity_types::register_entity_type;
+use entity::loading::load_entity;
 use entity::spawn::build_base_entities;
 
 use hud::inventory::build::InventoryHudState;
@@ -85,7 +87,9 @@ impl Plugin for ConstructionToolAdminPlugin {
                     .run_if_resource_exists::<InventoryHudState>()
                     .after(InventoryHudLabels::UpdateSlot)
                     .label(InventoryHudLabels::QueueUpdate),
-            );
+            )
+            .add_system(load_entity::<ConstructionToolType>)
+            .add_system(link_base_mesh::<ConstructionToolType>);
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);

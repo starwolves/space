@@ -34,3 +34,17 @@ pub(crate) fn client_item_added_to_slot(
 pub enum ClientBuildInventoryLabel {
     AddSlot,
 }
+
+pub fn set_active_item(
+    mut net: EventReader<IncomingReliableServerMessage<InventoryServerMessage>>,
+    mut inventory: ResMut<Inventory>,
+) {
+    for event in net.iter() {
+        match event.message {
+            InventoryServerMessage::SetActiveItem(entity) => {
+                inventory.active_item = Some(entity);
+            }
+            _ => (),
+        }
+    }
+}

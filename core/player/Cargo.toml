@@ -26,3 +26,4 @@ text_api = { path = "../text_api" }
 resources = { path = "../resources" }
 pawn = { path = "../pawn" }
 cameras = { path = "../cameras" }
+entity = { path = "../entity" }

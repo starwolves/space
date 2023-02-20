@@ -1,5 +1,8 @@
 use bevy::prelude::{Commands, Entity, EventReader};
+use bevy::prelude::{EventWriter, Query, Res};
+use entity::net::{EntityServerMessage, LoadEntity};
 use entity::spawn::{EntityBuildData, SpawnEntity};
+use entity::spawning_events::SpawnClientEntity;
 
 use crate::server::combat::{MeleeCombat, ProjectileCombat};
 
@@ -75,42 +78,136 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
         );
     }
 }
-/*
-/// Function to spawn an entity that is held in someone's hands.
 
-pub fn spawn_held_entity<T: EntityType + Send + Sync + 'static>(
-    entity_type: T,
-    commands: &mut Commands,
-    holder_entity: Entity,
-    showcase_handle_option: Option<ShowcaseData>,
-    entity_data: &ResMut<EntityDataResource>,
-    default_spawner: &mut EventWriter<DefaultSpawnEvent<T>>,
-) -> Option<Entity> {
-    let return_entity;
+use bevy::prelude::warn;
+use bevy::prelude::Transform;
+use bevy_rapier3d::prelude::RigidBody;
+use entity::entity_data::personalise;
+use entity::entity_data::WorldModes;
 
-    match entity_data.name_to_id.get(&entity_type.to_string()) {
-        Some(_id) => {
-            return_entity = Some(commands.spawn(()).id());
+use entity::entity_types::EntityTypes;
+use std::collections::HashMap;
 
-            default_spawner.send(DefaultSpawnEvent {
-                spawn_data: EntityBuildData {
-                    entity_transform: Transform::IDENTITY,
-                    correct_transform: false,
-                    holder_entity_option: Some(holder_entity),
-                    default_map_spawn: false,
-                    raw_entity_option: None,
-                    showcase_data_option: showcase_handle_option,
-                    entity: return_entity.unwrap(),
-                    held_entity_option: return_entity,
-                },
-                builder: entity_type,
-            });
-        }
-        None => {
-            return_entity = None;
+use entity::entity_data::{EntityData, EntityUpdates, WorldMode};
+use networking::server::{EntityUpdateData, OutgoingReliableServerMessage};
+/// Load an entity in for the client. Does not only apply to inventory items or holders.
+/// Belongs in crate/entity but cyclic issues.
+pub(crate) fn spawn_entity_for_client(
+    entity_query: Query<(
+        &EntityData,
+        &EntityUpdates,
+        &Transform,
+        Option<&RigidBody>,
+        Option<&WorldMode>,
+        Option<&InventoryItem>,
+    )>,
+    mut load_entity_events: EventReader<SpawnClientEntity>,
+    mut server: EventWriter<OutgoingReliableServerMessage<EntityServerMessage>>,
+    types: Res<EntityTypes>,
+) {
+    for load_entity_event in load_entity_events.iter() {
+        match entity_query.get(load_entity_event.entity) {
+            Ok((
+                entity_data,
+                entity_update,
+                transform,
+                rigid_body_component_option,
+                entity_world_mode_option,
+                inventory_item_option,
+            )) => {
+                let mut is_interpolated = false;
+
+                match rigid_body_component_option {
+                    Some(rigid_body_component) => match rigid_body_component {
+                        RigidBody::Dynamic => match entity_world_mode_option {
+                            Some(entity_world_mode) => {
+                                if matches!(entity_world_mode.mode, WorldModes::Held)
+                                    || matches!(entity_world_mode.mode, WorldModes::Worn)
+                                {
+                                    is_interpolated = false;
+                                } else {
+                                    is_interpolated = true;
+                                }
+                            }
+                            None => {
+                                is_interpolated = false;
+                            }
+                        },
+                        RigidBody::Fixed => {}
+                        _ => {
+                            warn!("Unexpected rigidbody type.");
+                            continue;
+                        }
+                    },
+                    None => {}
+                }
+
+                let mut hash_map;
+
+                hash_map = entity_update.updates.clone();
+
+                personalise(
+                    &mut hash_map,
+                    load_entity_event.loader_handle,
+                    entity_update,
+                );
+
+                let transform_entity_update = EntityUpdateData::Transform(
+                    transform.translation,
+                    transform.rotation,
+                    transform.scale,
+                );
+
+                match is_interpolated {
+                    true => {
+                        let mut transform_hash_map = HashMap::new();
+                        transform_hash_map.insert("transform".to_string(), transform_entity_update);
+
+                        hash_map.insert("rawTransform".to_string(), transform_hash_map);
+                    }
+                    false => {
+                        let root_map_option = hash_map.get_mut(&".".to_string());
+
+                        match root_map_option {
+                            Some(root_map) => {
+                                root_map.insert("transform".to_string(), transform_entity_update);
+                            }
+                            None => {
+                                let mut transform_hash_map = HashMap::new();
+                                transform_hash_map
+                                    .insert("transform".to_string(), transform_entity_update);
+
+                                hash_map.insert(".".to_string(), transform_hash_map);
+                            }
+                        }
+                    }
+                }
+
+                let mut holder_option = None;
+
+                match inventory_item_option {
+                    Some(t) => holder_option = t.in_inventory_of_entity,
+                    None => {}
+                }
+
+                server.send(OutgoingReliableServerMessage {
+                    handle: load_entity_event.loader_handle,
+                    message: EntityServerMessage::LoadEntity(LoadEntity {
+                        type_id: *types
+                            .netcode_types
+                            .get(&entity_data.entity_type.get_identity())
+                            .unwrap(),
+                        entity: load_entity_event.entity,
+                        translation: transform.translation,
+                        scale: transform.scale,
+                        rotation: transform.rotation,
+                        holder_entity: holder_option,
+                    }),
+                });
+            }
+            Err(_) => {
+                warn!("Couldnt find entity for load entity event.");
+            }
         }
     }
-
-    return_entity
 }
-*/

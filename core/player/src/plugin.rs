@@ -2,7 +2,6 @@ use crate::account::{account_verification, Accounts};
 use crate::boarding::{player_boarded, PlayerBoarded, SpawnPoints};
 use crate::configuration::{
     client_receive_pawnid, finished_configuration, server_new_client_configuration, Boarded,
-    PawnEntityId,
 };
 use crate::connections::{AuthidI, SendServerConfiguration};
 use crate::debug_camera::spawn_debug_camera;
@@ -54,7 +53,6 @@ impl Plugin for PlayerPlugin {
                 .add_system(player_boarded);
         } else {
             app.add_system(client_receive_pawnid)
-                .init_resource::<PawnEntityId>()
                 .add_system(spawn_debug_camera)
                 .add_plugin(LookTransformPlugin)
                 .add_plugin(FpsCameraPlugin::default())

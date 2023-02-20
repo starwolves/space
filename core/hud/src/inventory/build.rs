@@ -122,6 +122,9 @@ pub(crate) fn create_inventory_hud(
                     root_node: entity_id,
                     slots_node,
                     slots: HashMap::new(),
+
+                    active_item: None,
+                    item_to_node: HashMap::new(),
                 });
             }
             _ => {}
@@ -177,4 +180,7 @@ pub struct InventoryHudState {
     pub root_node: Entity,
     pub slots_node: Entity,
     pub slots: HashMap<u8, Entity>,
+
+    pub active_item: Option<Entity>,
+    pub item_to_node: HashMap<Entity, Entity>,
 }

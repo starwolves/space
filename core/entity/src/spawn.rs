@@ -1,9 +1,10 @@
 use crate::{
     entity_data::BlankEntityType,
     entity_types::{BoxedEntityType, EntityType},
+    net::LoadEntity,
     showcase::{Showcase, ShowcaseData},
 };
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Transform};
+use bevy::prelude::{Commands, Component, Entity, EventReader, EventWriter, Resource, Transform};
 use serde::Deserialize;
 
 use crate::{
@@ -154,10 +155,14 @@ pub fn build_base_entities<T: BaseEntityBuilder<NoData> + 'static>(
             Some(showcase_data) => {
                 server.send(OutgoingReliableServerMessage {
                     handle: showcase_data.handle,
-                    message: EntityServerMessage::LoadEntity(
-                        *types.netcode_types.get(&entity_type).unwrap(),
-                        spawn_event.spawn_data.entity.to_bits(),
-                    ),
+                    message: EntityServerMessage::LoadEntity(LoadEntity {
+                        type_id: *types.netcode_types.get(&entity_type).unwrap(),
+                        entity: spawn_event.spawn_data.entity,
+                        translation: spawn_event.spawn_data.entity_transform.translation,
+                        scale: spawn_event.spawn_data.entity_transform.scale,
+                        rotation: spawn_event.spawn_data.entity_transform.rotation,
+                        holder_entity: spawn_event.spawn_data.holder_entity_option,
+                    }),
                 });
             }
             None => {}
@@ -258,3 +263,14 @@ pub fn spawn_entity<T: EntityType + Send + Sync + 'static>(
 }
 
 pub struct NoData;
+
+#[derive(Component)]
+/// To keep client-side entities linked with their server ID.
+pub struct EntityServerLink {
+    pub server_entity: Entity,
+}
+#[derive(Resource, Default)]
+/// Resource stores the server-side entity ID of the players pawn. Useful for the client to store.
+pub struct PawnEntityId {
+    pub option: Option<Entity>,
+}

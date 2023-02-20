@@ -1,3 +1,6 @@
+use bevy::prelude::Entity;
+use bevy::prelude::Quat;
+use bevy::prelude::Vec3;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -25,6 +28,15 @@ pub enum EntityServerMessage {
         bool,
         EntityWorldType,
     ),
-    LoadEntity(u16, u64),
-    UnloadEntity(u64),
+    LoadEntity(LoadEntity),
+    UnloadEntity(Entity),
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoadEntity {
+    pub type_id: u16,
+    pub entity: Entity,
+    pub translation: Vec3,
+    pub scale: Vec3,
+    pub rotation: Quat,
+    pub holder_entity: Option<Entity>,
 }

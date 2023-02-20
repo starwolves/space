@@ -2,6 +2,7 @@ use crate::boarding::SoftPlayer;
 use bevy::prelude::{Commands, Entity, EventReader, Res, ResMut, Resource};
 
 use bevy::prelude::EventWriter;
+use entity::spawn::PawnEntityId;
 
 use crate::connections::{AuthidI, SendServerConfiguration};
 use crate::net::PlayerServerMessage;
@@ -81,11 +82,6 @@ pub(crate) fn server_new_client_configuration(
 use crate::connections::PlayerAwaitingBoarding;
 use networking::client::IncomingReliableServerMessage;
 
-#[derive(Resource, Default)]
-/// Resource stores the server-side entity ID of the players pawn. Useful for the client to store.
-pub struct PawnEntityId {
-    pub option: Option<Entity>,
-}
 use bevy::prelude::info;
 
 #[derive(Resource, Default)]
