@@ -10,6 +10,7 @@ use bevy::{
     ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
 use player::configuration::Boarded;
+use ui::fonts::ARIZONE_FONT;
 
 use crate::{expand::ExpandInventoryHud, hud::HudState};
 
@@ -22,7 +23,7 @@ pub(crate) fn create_inventory_hud(
     hud_state: Res<HudState>,
     asset_server: Res<AssetServer>,
 ) {
-    let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
+    let arizone_font = asset_server.load(ARIZONE_FONT);
 
     let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
     inventory_hud_color.set_a(0.9);

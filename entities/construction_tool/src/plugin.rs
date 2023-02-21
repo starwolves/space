@@ -23,7 +23,7 @@ use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
     construction_tool_inventory_prequisite_check,
     construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
-    text_tree_input_selection,
+    open_input_construction_options_ui, text_tree_input_selection,
 };
 use crate::construction_tool::{ConstructionTool, InputConstructionOptionsSelection};
 
@@ -85,7 +85,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .label(ActionsLabels::Build)
                         .after(ActionsLabels::Init),
                 )
-                .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection));
+                .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
+                .add_system(open_input_construction_options_ui);
         } else {
             app.add_system(
                 update_inventory_hud_add_item_to_slot::<ConstructionToolType>

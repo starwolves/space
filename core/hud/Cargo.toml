@@ -26,3 +26,4 @@ cameras = { path = "../cameras"}
 entity = { path = "../entity"}
 math = { path = "../math"}
 actions = { path = "../actions"}
+ui = { path = "../ui"}

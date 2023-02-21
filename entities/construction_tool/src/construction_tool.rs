@@ -25,7 +25,7 @@ pub struct InputConstructionOptions {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
     /// Entity that requested to select construction option.
-    pub belonging_entity: Entity,
+    pub entity: Entity,
 }
 /// Player requested input event.
 

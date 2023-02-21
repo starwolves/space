@@ -8,6 +8,7 @@ use bevy::{
 };
 use inventory::client::slots::AddedSlot;
 use math::grid::Vec2Int;
+use ui::fonts::EMPIRE_FONT;
 
 use super::build::{InventoryHudRootNode, InventoryHudState};
 
@@ -64,7 +65,7 @@ pub(crate) fn update_inventory_hud_slot(
     asset_server: Res<AssetServer>,
 ) {
     for event in update_slot.iter() {
-        let empire_font = asset_server.load("fonts/AAbsoluteEmpire.ttf");
+        let empire_font = asset_server.load(EMPIRE_FONT);
 
         commands.entity(state.slots_node).with_children(|parent| {
             parent

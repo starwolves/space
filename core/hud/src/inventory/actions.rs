@@ -4,21 +4,22 @@ use actions::{
 };
 use bevy::{
     prelude::{
-        info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Children, Color,
-        Commands, Component, DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res,
+        warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands,
+        Component, DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res,
         TextBundle, With,
     },
     text::TextStyle,
-    ui::{
-        AlignItems, BackgroundColor, FlexDirection, Interaction, JustifyContent, Size, Style, Val,
-    },
+    ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Size, Style, Val},
 };
 use entity::spawn::PawnEntityId;
-use inventory::server::inventory::Inventory;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use player::configuration::Boarded;
+use ui::fonts::{ARIZONE_FONT, EMPIRE_FONT};
 
-use crate::hud::{HudState, LeftContentHud};
+use crate::{
+    hud::{HudState, LeftContentHud},
+    style::button::ButtonSelectionStyle,
+};
 
 use super::build::{InventoryHudState, OpenInventoryHud};
 
@@ -39,8 +40,6 @@ pub(crate) fn slot_item_actions(
     for message in net.iter() {
         match &message.message {
             ActionsServerMessage::TabData(data) => {
-                info!("{:?}", data);
-
                 match children_query.get(hud_state.left_content_node) {
                     Ok(c) => {
                         for child in c.iter() {
@@ -52,8 +51,8 @@ pub(crate) fn slot_item_actions(
 
                 let mut builder = commands.entity(hud_state.left_content_node);
 
-                let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
-                let empire_font = asset_server.load("fonts/AAbsoluteEmpire.ttf");
+                let arizone_font = asset_server.load(ARIZONE_FONT);
+                let empire_font = asset_server.load(EMPIRE_FONT);
 
                 if data.len() == 0 {
                     continue;
@@ -103,7 +102,6 @@ pub(crate) fn slot_item_actions(
                                 },
                                 ..Default::default()
                             });
-                            let actions_bg = ACTIONS_HUD_BG_COLOR;
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
@@ -147,13 +145,15 @@ pub(crate) fn slot_item_actions(
                                                             align_items: AlignItems::Center,
                                                             ..Default::default()
                                                         },
-                                                        background_color: actions_bg.into(),
+                                                        background_color: ACTIONS_HUD_BG_COLOR
+                                                            .into(),
 
                                                         ..Default::default()
                                                     })
                                                     .insert(SlotItemActionButton {
                                                         data: net_action.clone(),
                                                     })
+                                                    .insert(ButtonSelectionStyle)
                                                     .with_children(|parent| {
                                                         parent.spawn(TextBundle::from_section(
                                                             net_action.text.clone(),
@@ -176,42 +176,31 @@ pub(crate) fn slot_item_actions(
 
 pub(crate) fn item_actions_button_events(
     mut interaction_query: Query<
-        (&Interaction, &SlotItemActionButton, &mut BackgroundColor),
+        (&Interaction, &SlotItemActionButton),
         (Changed<Interaction>, With<Button>),
     >,
     mut net: EventWriter<OutgoingReliableClientMessage<ActionsClientMessage>>,
-    state: Res<Inventory>,
     pawn: Res<PawnEntityId>,
 ) {
-    for (interaction, component, mut bg_color) in interaction_query.iter_mut() {
+    for (interaction, component) in interaction_query.iter_mut() {
         match interaction {
             Interaction::Clicked => {
-                let mut midnight = ACTIONS_HUD_BG_COLOR;
-                midnight.set_a(1.);
-                *bg_color = midnight.into();
                 net.send(OutgoingReliableClientMessage {
                     message: ActionsClientMessage::TabPressed(TabPressed {
                         id: component.data.id.clone(),
                         action_taker: pawn.option.expect("Pawn not yet initialized."),
                         target_cell_option: None,
-                        target_entity_option: state.active_item,
+                        target_entity_option: component.data.target_entity_option,
                         action_taker_item: None,
                     }),
                 });
             }
-            Interaction::Hovered => {
-                let gray = Color::GRAY;
-
-                *bg_color = gray.into();
-            }
-            Interaction::None => {
-                let mut gray = INVENTORY_HUD_BG_COLOR;
-                gray.set_a(1.);
-                *bg_color = gray.into();
-            }
+            Interaction::Hovered => {}
+            Interaction::None => {}
         }
     }
 }
+
 #[derive(Component)]
 pub struct SlotItemActionButton {
     pub data: NetAction,

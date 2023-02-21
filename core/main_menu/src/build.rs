@@ -8,6 +8,7 @@ use bevy::{
     ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val},
 };
 use resources::core::ClientInformation;
+use ui::fonts::{ARIZONE_FONT, EMPIRE_FONT, NESATHOBERYL_FONT};
 
 /// Event.
 
@@ -105,9 +106,9 @@ pub(crate) fn show_main_menu(
 
         let entity = builder.id();
 
-        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
-        let empire_font = asset_server.load("fonts/AAbsoluteEmpire.ttf");
-        let nesathoberyl_font = asset_server.load("fonts/Nesathoberyl.ttf");
+        let arizone_font = asset_server.load(ARIZONE_FONT);
+        let empire_font = asset_server.load(EMPIRE_FONT);
+        let nesathoberyl_font = asset_server.load(NESATHOBERYL_FONT);
 
         // Root node.
         builder
@@ -519,7 +520,7 @@ pub(crate) fn show_play_menu(
 
         commands.entity(root_node).add_child(entity);
         let mut builder = commands.entity(entity);
-        let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
+        let arizone_font = asset_server.load(ARIZONE_FONT);
 
         builder
             .insert(NodeBundle {
