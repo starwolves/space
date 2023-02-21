@@ -6,8 +6,7 @@ use crate::{
     core::{
         clear_action_building, init_action_data_listing, init_action_request_building,
         list_action_data_finalizer, list_action_data_from_actions_component, ActionIncremented,
-        ActionRequests, BuildingActions, InputAction, InputListActionsEntity, InputListActionsMap,
-        ListActionDataRequests,
+        ActionRequests, BuildingActions, InputAction, InputListActions, ListActionDataRequests,
     },
     net::{ActionsClientMessage, ActionsServerMessage},
     networking::incoming_messages,
@@ -36,8 +35,7 @@ impl Plugin for ActionsPlugin {
                 )
                 .init_resource::<ActionRequests>()
                 .add_system_to_stage(PreUpdate, incoming_messages)
-                .add_event::<InputListActionsMap>()
-                .add_event::<InputListActionsEntity>()
+                .add_event::<InputListActions>()
                 .add_event::<InputAction>();
         }
 

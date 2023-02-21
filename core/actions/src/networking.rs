@@ -3,11 +3,9 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::core::InputAction;
-use crate::core::InputListActionsEntity;
-use crate::core::InputListActionsMap;
+use crate::core::InputListActions;
 use crate::core::TargetCell;
 use bevy::prelude::warn;
-use math::grid::Vec3Int;
 use networking::server::HandleToEntity;
 
 use crate::net::ActionsClientMessage;
@@ -21,48 +19,27 @@ use networking::server::IncomingReliableClientMessage;
 pub(crate) fn incoming_messages(
     mut server: EventReader<IncomingReliableClientMessage<ActionsClientMessage>>,
     handle_to_entity: Res<HandleToEntity>,
-    mut action_data_entity: EventWriter<InputListActionsEntity>,
-    mut action_data_map: EventWriter<InputListActionsMap>,
+    mut action_data_entity: EventWriter<InputListActions>,
     mut input_action: EventWriter<InputAction>,
 ) {
     for message in server.iter() {
         let client_message = message.message.clone();
         match client_message {
-            ActionsClientMessage::TabDataEntity(entity_id_bits) => {
+            ActionsClientMessage::TabData(tab_data) => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
-                        action_data_entity.send(InputListActionsEntity {
+                        action_data_entity.send(InputListActions {
                             action_taker: *player_entity,
-                            targetted_entity: entity_id_bits,
+                            targetted_entity: tab_data.target_entity_option,
                             with_ui: true,
                             action_taker_item: None,
+                            targetted_cell: tab_data.target_cell_option,
                         });
                     }
                     None => {
                         warn!(
                             "Couldn't find player_entity belonging to TabDataEntity sender handle."
                         );
-                    }
-                }
-            }
-
-            ActionsClientMessage::TabDataMap(idx, idy, idz, face) => {
-                match handle_to_entity.map.get(&message.handle) {
-                    Some(player_entity) => {
-                        action_data_map.send(InputListActionsMap {
-                            action_taker: *player_entity,
-                            gridmap_cell_id: Vec3Int {
-                                x: idx,
-                                y: idy,
-                                z: idz,
-                            },
-                            with_ui: true,
-                            face,
-                            action_taker_item: None,
-                        });
-                    }
-                    None => {
-                        warn!("Couldn't find player_entity belonging to ExamineMap sender handle.");
                     }
                 }
             }
