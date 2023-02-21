@@ -52,6 +52,7 @@ pub struct BuildingAction {
     pub incremented_i: u64,
     /// The entity which we request action data for.
     pub action_taker: Entity,
+    pub action_taker_item: Option<Entity>,
     /// The entity targetted in the action.
     pub target_entity_option: Option<Entity>,
     /// The ship cell targetted in the action.
@@ -131,7 +132,7 @@ pub(crate) fn list_action_data_finalizer(
 
                         match action_data.target_cell_option.clone() {
                             Some(c) => {
-                                cell_option = Some((c.id.x, c.id.y, c.id.z));
+                                cell_option = Some(c);
                             }
                             None => {}
                         }
@@ -141,6 +142,7 @@ pub(crate) fn list_action_data_finalizer(
                             action_data.target_entity_option,
                             cell_option,
                             action_data.action_taker,
+                            action_data.action_taker_item,
                         ));
                     }
                     None => {
@@ -226,9 +228,10 @@ pub(crate) fn init_action_data_listing(
         building_action.list.push(BuildingAction {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
-            action_taker: event.requested_by_entity,
+            action_taker: event.action_taker,
             target_entity_option: Some(event.targetted_entity),
             target_cell_option: None,
+            action_taker_item: event.action_taker_item,
         });
         action_data_requests.list.insert(
             action_data_i.get_i(),
@@ -239,12 +242,13 @@ pub(crate) fn init_action_data_listing(
         building_action.list.push(BuildingAction {
             incremented_i: action_data_i.get_i_it(),
             actions: vec![],
-            action_taker: event.requested_by_entity,
+            action_taker: event.action_taker,
             target_entity_option: None,
             target_cell_option: Some(TargetCell {
                 id: event.gridmap_cell_id,
                 face: event.face.clone(),
             }),
+            action_taker_item: event.action_taker_item,
         });
         action_data_requests.list.insert(
             action_data_i.get_i(),
@@ -277,18 +281,21 @@ impl Action {
     pub fn into_net(
         &self,
         item_name: &str,
-        examined_entity_option: Option<Entity>,
-        examined_cell_option: Option<(i16, i16, i16)>,
-        examiner_entity: Entity,
+        target_entity_option: Option<Entity>,
+        target_cell_option: Option<TargetCell>,
+        action_taker: Entity,
+        action_taker_item: Option<Entity>,
     ) -> NetAction {
         NetAction {
             id: self.id.clone(),
             text: self.text.clone(),
             tab_list_priority: self.tab_list_priority,
-            entity: examined_entity_option,
-            cell_option: examined_cell_option,
+            action_taker: action_taker,
+            action_taker_item: action_taker_item,
+
+            target_cell_option,
             item_name: item_name.to_string(),
-            belonging_entity: Some(examiner_entity),
+            target_entity_option: target_entity_option,
         }
     }
 }
@@ -329,6 +336,7 @@ pub(crate) fn init_action_request_building(
             action_taker: event.action_taker,
             target_entity_option: event.target_entity_option,
             target_cell_option: examined_cell,
+            action_taker_item: event.action_taker_item,
         });
         actions_requests.list.insert(
             action_data_i.get_i(),
@@ -340,7 +348,9 @@ pub(crate) fn init_action_request_building(
 /// Client input list actions map event.
 #[derive(Debug, Clone)]
 pub struct InputListActionsMap {
-    pub requested_by_entity: Entity,
+    pub action_taker: Entity,
+    pub action_taker_item: Option<Entity>,
+
     pub gridmap_cell_id: Vec3Int,
     pub face: CellFace,
     /// Show UI to entity that we check for.
@@ -350,7 +360,8 @@ pub struct InputListActionsMap {
 /// Client input list actions entity event.
 #[derive(Clone)]
 pub struct InputListActionsEntity {
-    pub requested_by_entity: Entity,
+    pub action_taker: Entity,
+    pub action_taker_item: Option<Entity>,
     /// Targetted entity.
     pub targetted_entity: Entity,
     /// Whether UI should be displayed to the requested by entity.
@@ -363,6 +374,8 @@ pub struct InputAction {
     /// Action ID.
     pub fired_action_id: String,
     pub action_taker: Entity,
+    pub action_taker_item: Option<Entity>,
+
     pub target_entity_option: Option<Entity>,
     pub target_cell_option: Option<TargetCell>,
 }

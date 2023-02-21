@@ -1,21 +1,29 @@
-use actions::net::{ActionsClientMessage, ActionsServerMessage, TabPressed};
+use actions::{
+    net::{ActionsClientMessage, ActionsServerMessage, TabPressed},
+    networking::NetAction,
+};
 use bevy::{
     prelude::{
         info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Children, Color,
-        Commands, Component, DespawnRecursiveExt, Entity, EventReader, EventWriter, NodeBundle,
-        Query, Res, TextBundle, With,
+        Commands, Component, DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res,
+        TextBundle, With,
     },
     text::TextStyle,
     ui::{
         AlignItems, BackgroundColor, FlexDirection, Interaction, JustifyContent, Size, Style, Val,
     },
 };
+use entity::spawn::PawnEntityId;
+use inventory::server::inventory::Inventory;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use player::configuration::Boarded;
 
 use crate::hud::{HudState, LeftContentHud};
 
 use super::build::{InventoryHudState, OpenInventoryHud};
+
+pub const INVENTORY_HUD_BG_COLOR: Color = Color::rgba(0.1, 0.1, 0.44, 0.9);
+pub const ACTIONS_HUD_BG_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 1.);
 
 pub(crate) fn slot_item_actions(
     mut net: EventReader<IncomingReliableServerMessage<ActionsServerMessage>>,
@@ -44,8 +52,6 @@ pub(crate) fn slot_item_actions(
 
                 let mut builder = commands.entity(hud_state.left_content_node);
 
-                let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
-                inventory_hud_color.set_a(0.9);
                 let arizone_font = asset_server.load("fonts/ArizoneUnicaseRegular.ttf");
                 let empire_font = asset_server.load("fonts/AAbsoluteEmpire.ttf");
 
@@ -64,7 +70,7 @@ pub(crate) fn slot_item_actions(
                                 align_items: AlignItems::Center,
                                 ..Default::default()
                             },
-                            background_color: inventory_hud_color.into(),
+                            background_color: INVENTORY_HUD_BG_COLOR.into(),
                             ..Default::default()
                         })
                         .with_children(|parent| {
@@ -97,74 +103,68 @@ pub(crate) fn slot_item_actions(
                                 },
                                 ..Default::default()
                             });
-                            let mut actions_bg = Color::DARK_GRAY;
-                            actions_bg.set_a(0.9);
+                            let actions_bg = ACTIONS_HUD_BG_COLOR;
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
                                         size: Size::new(Val::Percent(65.), Val::Percent(36.)),
-                                        justify_content: JustifyContent::Center,
+                                        flex_direction: FlexDirection::Column,
                                         ..Default::default()
                                     },
-
+                                    background_color: ACTIONS_HUD_BG_COLOR.into(),
                                     ..Default::default()
                                 })
                                 .with_children(|parent| {
-                                    for net_action in data.iter() {
-                                        match net_action.entity {
-                                            Some(action_server_entity) => {
+                                    let mut sorted_data = data.clone();
+
+                                    sorted_data.sort_by_key(|d| d.tab_list_priority);
+                                    sorted_data.reverse();
+
+                                    for net_action in sorted_data.iter() {
+                                        parent
+                                            .spawn(NodeBundle {
+                                                style: Style {
+                                                    justify_content: JustifyContent::Center,
+                                                    align_items: AlignItems::Center,
+                                                    size: Size::new(
+                                                        Val::Percent(100.),
+                                                        Val::Percent(10.),
+                                                    ),
+                                                    ..Default::default()
+                                                },
+
+                                                ..Default::default()
+                                            })
+                                            .with_children(|parent| {
                                                 parent
-                                                    .spawn(NodeBundle {
+                                                    .spawn(ButtonBundle {
                                                         style: Style {
-                                                            justify_content: JustifyContent::Center,
-                                                            align_items: AlignItems::Center,
                                                             size: Size::new(
                                                                 Val::Percent(100.),
-                                                                Val::Percent(10.),
+                                                                Val::Percent(100.),
                                                             ),
+                                                            justify_content: JustifyContent::Center,
+                                                            align_items: AlignItems::Center,
                                                             ..Default::default()
                                                         },
+                                                        background_color: actions_bg.into(),
 
                                                         ..Default::default()
                                                     })
+                                                    .insert(SlotItemActionButton {
+                                                        data: net_action.clone(),
+                                                    })
                                                     .with_children(|parent| {
-                                                        parent
-                                                            .spawn(ButtonBundle {
-                                                                style: Style {
-                                                                    size: Size::new(
-                                                                        Val::Percent(100.),
-                                                                        Val::Percent(100.),
-                                                                    ),
-                                                                    justify_content:
-                                                                        JustifyContent::Center,
-                                                                    align_items: AlignItems::Center,
-                                                                    ..Default::default()
-                                                                },
-                                                                background_color: actions_bg.into(),
-
-                                                                ..Default::default()
-                                                            })
-                                                            .insert(SlotItemActionButton {
-                                                                server_entity: action_server_entity,
-                                                                action_id: net_action.id.clone(),
-                                                            })
-                                                            .with_children(|parent| {
-                                                                parent.spawn(
-                                                                    TextBundle::from_section(
-                                                                        net_action.text.clone(),
-                                                                        TextStyle {
-                                                                            font_size: 13.0,
-                                                                            color: Color::WHITE,
-                                                                            font: empire_font
-                                                                                .clone(),
-                                                                        },
-                                                                    ),
-                                                                );
-                                                            });
+                                                        parent.spawn(TextBundle::from_section(
+                                                            net_action.text.clone(),
+                                                            TextStyle {
+                                                                font_size: 13.0,
+                                                                color: Color::WHITE,
+                                                                font: empire_font.clone(),
+                                                            },
+                                                        ));
                                                     });
-                                            }
-                                            None => {}
-                                        }
+                                            });
                                     }
                                 });
                         });
@@ -180,30 +180,33 @@ pub(crate) fn item_actions_button_events(
         (Changed<Interaction>, With<Button>),
     >,
     mut net: EventWriter<OutgoingReliableClientMessage<ActionsClientMessage>>,
+    state: Res<Inventory>,
+    pawn: Res<PawnEntityId>,
 ) {
     for (interaction, component, mut bg_color) in interaction_query.iter_mut() {
         match interaction {
             Interaction::Clicked => {
-                let mut gray = Color::MIDNIGHT_BLUE;
-                gray.set_a(0.9);
-                *bg_color = gray.into();
+                let mut midnight = ACTIONS_HUD_BG_COLOR;
+                midnight.set_a(1.);
+                *bg_color = midnight.into();
                 net.send(OutgoingReliableClientMessage {
                     message: ActionsClientMessage::TabPressed(TabPressed {
-                        id: component.action_id.clone(),
-                        entity_option: Some(component.server_entity),
-                        cell_option: None,
-                        belonging_entity_option: None,
+                        id: component.data.id.clone(),
+                        action_taker: pawn.option.expect("Pawn not yet initialized."),
+                        target_cell_option: None,
+                        target_entity_option: state.active_item,
+                        action_taker_item: None,
                     }),
                 });
             }
             Interaction::Hovered => {
-                let mut gray = Color::GRAY;
-                gray.set_a(0.9);
+                let gray = Color::GRAY;
+
                 *bg_color = gray.into();
             }
             Interaction::None => {
-                let mut gray = Color::DARK_GRAY;
-                gray.set_a(0.9);
+                let mut gray = INVENTORY_HUD_BG_COLOR;
+                gray.set_a(1.);
                 *bg_color = gray.into();
             }
         }
@@ -211,8 +214,7 @@ pub(crate) fn item_actions_button_events(
 }
 #[derive(Component)]
 pub struct SlotItemActionButton {
-    pub server_entity: Entity,
-    pub action_id: String,
+    pub data: NetAction,
 }
 pub(crate) fn hide_actions(
     boarded: Res<Boarded>,

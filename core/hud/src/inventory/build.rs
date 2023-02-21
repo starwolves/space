@@ -15,6 +15,8 @@ use crate::{expand::ExpandInventoryHud, hud::HudState};
 
 use super::slots::InventorySlotsNode;
 
+pub const INVENTORY_SLOTS_BG_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.9);
+
 pub(crate) fn create_inventory_hud(
     mut commands: Commands,
     hud_state: Res<HudState>,
@@ -79,8 +81,6 @@ pub(crate) fn create_inventory_hud(
                             });
                         });
                 });
-            let mut dark_gray = Color::DARK_GRAY;
-            dark_gray.set_a(0.9);
             parent
                 .spawn(NodeBundle {
                     style: Style {
@@ -94,7 +94,7 @@ pub(crate) fn create_inventory_hud(
                         ),
                         ..Default::default()
                     },
-                    background_color: dark_gray.into(),
+                    background_color: INVENTORY_SLOTS_BG_COLOR.into(),
                     ..Default::default()
                 })
                 .with_children(|parent| {

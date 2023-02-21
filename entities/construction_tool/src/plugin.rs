@@ -21,6 +21,7 @@ use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateLabel
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
+    construction_tool_inventory_prequisite_check,
     construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
     text_tree_input_selection,
 };
@@ -56,6 +57,11 @@ impl Plugin for ConstructionToolAdminPlugin {
                 )
                 .add_system(
                     construction_tool_search_distance_prequisite_check
+                        .label(ActionsLabels::Approve)
+                        .after(ActionsLabels::Build),
+                )
+                .add_system(
+                    construction_tool_inventory_prequisite_check
                         .label(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )

@@ -21,7 +21,8 @@ pub enum ActionsClientMessage {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TabPressed {
     pub id: String,
-    pub entity_option: Option<Entity>,
-    pub cell_option: Option<TargetCell>,
-    pub belonging_entity_option: Option<Entity>,
+    pub action_taker: Entity,
+    pub action_taker_item: Option<Entity>,
+    pub target_cell_option: Option<TargetCell>,
+    pub target_entity_option: Option<Entity>,
 }

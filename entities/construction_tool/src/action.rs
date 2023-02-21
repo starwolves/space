@@ -1,10 +1,11 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform};
+use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform, With};
 use gridmap::grid::Gridmap;
+use inventory::item::InventoryItem;
 use math::grid::cell_id_to_world;
 use pawn::pawn::REACH_DISTANCE;
 
-use crate::construction_tool::{InputConstructionOptions, InputDeconstruct};
+use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
 use networking::server::HandleToEntity;
 
 use super::construction_tool::InputConstruct;
@@ -91,24 +92,23 @@ pub(crate) fn construction_tool_actions(
 
 pub fn construct_action_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
-    _gridmap_main: Res<Gridmap>,
+    gridmap_main: Res<Gridmap>,
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
             if action.data.id == "action::construction_tool_admin/construct" {
-                /*let cell_id;
+                let cell_id;
 
                 match building.target_cell_option.clone() {
                     Some(c) => {
                         cell_id = c;
                     }
                     None => {
-                        warn!("couldnt find examined cell.");
                         continue;
                     }
                 }
 
-                let cell_option = gridmap_main.entity_data.get(&cell_id);
+                let cell_option = gridmap_main.get_cell(cell_id.id, cell_id.face);
 
                 match building.target_cell_option.is_some() && cell_option.is_none() {
                     true => {
@@ -117,7 +117,7 @@ pub fn construct_action_prequisite_check(
                     false => {
                         action.do_not_approve();
                     }
-                }*/
+                }
             }
         }
     }
@@ -137,7 +137,6 @@ pub(crate) fn deconstruct_action_prequisite_check(
                         cell_id = c;
                     }
                     None => {
-                        warn!("got entity with cell action.");
                         continue;
                     }
                 }
@@ -189,7 +188,6 @@ pub(crate) fn construction_tool_search_distance_prequisite_check(
                         start_pos = cell_id_to_world(cell_id.id);
                     }
                     None => {
-                        warn!("got entity with cell action.");
                         continue;
                     }
                 }
@@ -206,41 +204,66 @@ pub(crate) fn construction_tool_search_distance_prequisite_check(
     }
 }
 
+pub(crate) fn construction_tool_inventory_prequisite_check(
+    mut building_action_data: ResMut<BuildingActions>,
+    query: Query<&InventoryItem, With<ConstructionTool>>,
+) {
+    for building in building_action_data.list.iter_mut() {
+        for action in building.actions.iter_mut() {
+            if action.data.id == "action::construction_tool_admin/constructionoptions" {
+                match building.target_entity_option {
+                    Some(tool_entity) => match query.get(tool_entity) {
+                        Ok(inv) => match inv.in_inventory_of_entity {
+                            Some(holder_entity) => {
+                                if holder_entity == building.action_taker {
+                                    action.approve();
+                                } else {
+                                    action.do_not_approve();
+                                }
+                            }
+                            None => {}
+                        },
+                        Err(_) => {
+                            warn!("Couldnt find action taker pawn.");
+                        }
+                    },
+                    None => {}
+                }
+            }
+        }
+    }
+}
+
 pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
     for building_action in building_action_data.list.iter_mut() {
-        match &building_action.target_cell_option {
-            Some(_examined_entity) => {
-                let mut new_vec = vec![
-                    ActionData {
-                        data: Action {
-                            id: "action::construction_tool_admin/construct".to_string(),
-                            text: "Construct".to_string(),
-                            tab_list_priority: 50,
-                        },
-                        approved: None,
-                    },
-                    ActionData {
-                        data: Action {
-                            id: "action::construction_tool_admin/deconstruct".to_string(),
-                            text: "Deconstruct".to_string(),
-                            tab_list_priority: 49,
-                        },
-                        approved: None,
-                    },
-                    ActionData {
-                        data: Action {
-                            id: "action::construction_tool_admin/constructionoptions".to_string(),
-                            text: "Construction Options".to_string(),
-                            tab_list_priority: 48,
-                        },
-                        approved: None,
-                    },
-                ];
+        let mut new_vec = vec![
+            ActionData {
+                data: Action {
+                    id: "action::construction_tool_admin/construct".to_string(),
+                    text: "Construct".to_string(),
+                    tab_list_priority: 50,
+                },
+                approved: None,
+            },
+            ActionData {
+                data: Action {
+                    id: "action::construction_tool_admin/deconstruct".to_string(),
+                    text: "Deconstruct".to_string(),
+                    tab_list_priority: 49,
+                },
+                approved: None,
+            },
+            ActionData {
+                data: Action {
+                    id: "action::construction_tool_admin/constructionoptions".to_string(),
+                    text: "Construction Options".to_string(),
+                    tab_list_priority: 48,
+                },
+                approved: None,
+            },
+        ];
 
-                building_action.actions.append(&mut new_vec);
-            }
-            None => {}
-        }
+        building_action.actions.append(&mut new_vec);
     }
 }
 use crate::construction_tool::InputConstructionOptionsSelection;
@@ -261,7 +284,7 @@ pub(crate) fn text_tree_input_selection(
             }
         }
 
-        if event.menu_id == "textselection::construction_tool_admin/constructionoptionslist"
+        if event.menu_id == "action::construction_tool_admin/constructionoptions"
             && belonging_entity.is_some()
         {
             input_construction_options_selection.send(InputConstructionOptionsSelection {
