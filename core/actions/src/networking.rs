@@ -1,3 +1,4 @@
+use bevy::prelude::Entity;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -63,29 +64,29 @@ pub(crate) fn incoming_messages(
                 }
             }
 
-            ActionsClientMessage::TabPressed(id, entity_option, cell_option, belonging_entity) => {
+            ActionsClientMessage::TabPressed(tab_pressed) => {
                 let mut entity_p_op = None;
-                match entity_option {
+                match tab_pressed.entity_option {
                     Some(s) => {
                         entity_p_op = Some(s);
                     }
                     None => {}
                 }
                 let entity_b_op;
-                match belonging_entity {
+
+                match handle_to_entity.map.get(&message.handle) {
                     Some(s) => {
-                        entity_b_op = s;
+                        entity_b_op = *s;
                     }
                     None => {
-                        warn!("no examiner entity passed.");
+                        warn!("Couldnt find handle to entity.");
                         continue;
                     }
                 }
-
                 input_action.send(InputAction {
-                    fired_action_id: id,
+                    fired_action_id: tab_pressed.id,
                     target_entity_option: entity_p_op,
-                    target_cell_option: cell_option,
+                    target_cell_option: tab_pressed.cell_option,
                     action_taker: entity_b_op,
                 });
             }
@@ -100,7 +101,7 @@ pub struct NetAction {
     pub text: String,
     pub tab_list_priority: u8,
     pub item_name: String,
-    pub entity_option: Option<u64>,
-    pub belonging_entity: Option<u64>,
+    pub entity: Option<Entity>,
+    pub belonging_entity: Option<Entity>,
     pub cell_option: Option<(i16, i16, i16)>,
 }

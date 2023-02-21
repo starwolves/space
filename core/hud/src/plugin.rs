@@ -6,7 +6,7 @@ use crate::{
     expand::{expand_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, HudLabels},
     inventory::{
-        actions::{hide_actions, slot_item_actions},
+        actions::{hide_actions, item_actions_button_events, slot_item_actions},
         build::{
             create_inventory_hud, inventory_hud_key_press, open_inventory_hud, InventoryHudState,
             OpenInventoryHud,
@@ -52,7 +52,8 @@ impl Plugin for HudPlugin {
                 .add_system(right_mouse_click_item)
                 .add_system(slot_item_actions)
                 .add_system(show_hud)
-                .add_system(hide_actions);
+                .add_system(hide_actions)
+                .add_system(item_actions_button_events);
         }
     }
 }
