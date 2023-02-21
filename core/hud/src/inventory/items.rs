@@ -1,4 +1,4 @@
-use actions::net::ActionsClientMessage;
+use actions::net::{ActionsClientMessage, TabData};
 use bevy::{
     prelude::{
         info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
@@ -207,7 +207,11 @@ pub(crate) fn right_mouse_click_item(
         match state.option {
             Some(e) => {
                 actions_net.send(OutgoingReliableClientMessage {
-                    message: ActionsClientMessage::TabDataEntity(e),
+                    message: ActionsClientMessage::TabData(TabData {
+                        action_taker_item: None,
+                        target_cell_option: None,
+                        target_entity_option: Some(e),
+                    }),
                 });
             }
             None => {}
