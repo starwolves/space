@@ -5,6 +5,7 @@ use serde::Serialize;
 use crate::core::InputAction;
 use crate::core::InputListActionsEntity;
 use crate::core::InputListActionsMap;
+use crate::core::TargetCell;
 use bevy::prelude::warn;
 use math::grid::Vec3Int;
 use networking::server::HandleToEntity;
@@ -31,9 +32,10 @@ pub(crate) fn incoming_messages(
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         action_data_entity.send(InputListActionsEntity {
-                            requested_by_entity: *player_entity,
+                            action_taker: *player_entity,
                             targetted_entity: entity_id_bits,
                             with_ui: true,
+                            action_taker_item: None,
                         });
                     }
                     None => {
@@ -48,7 +50,7 @@ pub(crate) fn incoming_messages(
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         action_data_map.send(InputListActionsMap {
-                            requested_by_entity: *player_entity,
+                            action_taker: *player_entity,
                             gridmap_cell_id: Vec3Int {
                                 x: idx,
                                 y: idy,
@@ -56,6 +58,7 @@ pub(crate) fn incoming_messages(
                             },
                             with_ui: true,
                             face,
+                            action_taker_item: None,
                         });
                     }
                     None => {
@@ -65,29 +68,12 @@ pub(crate) fn incoming_messages(
             }
 
             ActionsClientMessage::TabPressed(tab_pressed) => {
-                let mut entity_p_op = None;
-                match tab_pressed.entity_option {
-                    Some(s) => {
-                        entity_p_op = Some(s);
-                    }
-                    None => {}
-                }
-                let entity_b_op;
-
-                match handle_to_entity.map.get(&message.handle) {
-                    Some(s) => {
-                        entity_b_op = *s;
-                    }
-                    None => {
-                        warn!("Couldnt find handle to entity.");
-                        continue;
-                    }
-                }
                 input_action.send(InputAction {
                     fired_action_id: tab_pressed.id,
-                    target_entity_option: entity_p_op,
-                    target_cell_option: tab_pressed.cell_option,
-                    action_taker: entity_b_op,
+                    target_entity_option: tab_pressed.target_entity_option,
+                    target_cell_option: tab_pressed.target_cell_option,
+                    action_taker: tab_pressed.action_taker,
+                    action_taker_item: tab_pressed.action_taker_item,
                 });
             }
         }
@@ -101,7 +87,8 @@ pub struct NetAction {
     pub text: String,
     pub tab_list_priority: u8,
     pub item_name: String,
-    pub entity: Option<Entity>,
-    pub belonging_entity: Option<Entity>,
-    pub cell_option: Option<(i16, i16, i16)>,
+    pub action_taker: Entity,
+    pub action_taker_item: Option<Entity>,
+    pub target_entity_option: Option<Entity>,
+    pub target_cell_option: Option<TargetCell>,
 }
