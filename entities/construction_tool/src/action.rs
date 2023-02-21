@@ -1,9 +1,7 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, Transform, With};
+use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, With};
 use gridmap::grid::Gridmap;
 use inventory::item::InventoryItem;
-use math::grid::cell_id_to_world;
-use pawn::pawn::REACH_DISTANCE;
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
 use networking::server::{HandleToEntity, OutgoingReliableServerMessage};
@@ -87,10 +85,15 @@ pub(crate) fn construction_tool_actions(
                         handle_option = None;
                     }
                 }
-                event_construction_options.send(InputConstructionOptions {
-                    handle_option,
-                    entity: building.action_taker,
-                });
+                match building.target_entity_option {
+                    Some(r) => {
+                        event_construction_options.send(InputConstructionOptions {
+                            handle_option,
+                            entity: r,
+                        });
+                    }
+                    None => {}
+                }
             }
         }
     }
@@ -185,54 +188,6 @@ pub(crate) fn deconstruct_action_prequisite_check(
     }
 }
 
-pub(crate) fn construction_tool_search_distance_prequisite_check(
-    mut building_action_data: ResMut<BuildingActions>,
-    transforms: Query<&Transform>,
-) {
-    for building in building_action_data.list.iter_mut() {
-        for action in building.actions.iter_mut() {
-            if action.data.id == DECONSTRUCTION_ACTION_ID
-                || action.data.id == CONSTRUCTION_ACTION_ID
-            {
-                let examiner_transform;
-
-                match transforms.get(building.action_taker) {
-                    Ok(t) => {
-                        examiner_transform = t;
-                    }
-                    Err(_rr) => {
-                        warn!("Couldnt find transform of examining entity!");
-                        continue;
-                    }
-                }
-
-                let start_pos;
-                let end_pos = examiner_transform.translation;
-
-                let cell_id;
-
-                match building.target_cell_option.clone() {
-                    Some(c) => {
-                        cell_id = c;
-                        start_pos = cell_id_to_world(cell_id.id);
-                    }
-                    None => {
-                        continue;
-                    }
-                }
-
-                let distance = start_pos.distance(end_pos);
-
-                if distance < REACH_DISTANCE {
-                    action.approve();
-                } else {
-                    action.do_not_approve();
-                }
-            }
-        }
-    }
-}
-
 pub(crate) fn construction_tool_inventory_prequisite_check(
     mut building_action_data: ResMut<BuildingActions>,
     query: Query<&InventoryItem, With<ConstructionTool>>,
@@ -295,23 +250,25 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
         building_action.actions.append(&mut new_vec);
     }
 }
-use crate::construction_tool::InputConstructionOptionsSelection;
 use ui::{
-    networking::{TextTreeSelection, UiServerMessage},
+    net::{TextTreeSelection, UiServerMessage},
     text_input::TextTreeInputSelection,
 };
 
-pub(crate) fn text_tree_input_selection(
+pub(crate) fn construction_tool_select_construction_option(
     mut input_events: EventReader<TextTreeInputSelection>,
-    mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,
+    mut query: Query<&mut ConstructionTool>,
 ) {
     for event in input_events.iter() {
-        if event.id == CONSTRUCTION_OPTIONS_ACTION_ID {
-            input_construction_options_selection.send(InputConstructionOptionsSelection {
-                handle_option: Some(event.handle),
-                menu_selection: event.entry.clone(),
-                entity: event.entity,
-            });
+        if event.id == CONSTRUCTION_OPTIONS_TEXT_LIST_ID {
+            match query.get_mut(event.entity) {
+                Ok(mut c) => {
+                    c.construction_option = Some(event.entry.clone());
+                }
+                Err(_) => {
+                    warn!("Couldnt find construction tool {:?}.", event.entity);
+                }
+            }
         }
     }
 }

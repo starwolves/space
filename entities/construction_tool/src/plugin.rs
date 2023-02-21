@@ -21,11 +21,10 @@ use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateLabel
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
-    construction_tool_inventory_prequisite_check,
-    construction_tool_search_distance_prequisite_check, deconstruct_action_prequisite_check,
-    open_input_construction_options_ui, text_tree_input_selection,
+    construction_tool_inventory_prequisite_check, construction_tool_select_construction_option,
+    deconstruct_action_prequisite_check, open_input_construction_options_ui,
 };
-use crate::construction_tool::{ConstructionTool, InputConstructionOptionsSelection};
+use crate::construction_tool::ConstructionTool;
 
 use super::{
     construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct},
@@ -40,7 +39,6 @@ impl Plugin for ConstructionToolAdminPlugin {
             app.add_event::<InputConstruct>()
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()
-                .add_event::<InputConstructionOptionsSelection>()
                 .add_system(
                     melee_attack_handler::<ConstructionTool>
                         .label(CombatLabels::WeaponHandler)
@@ -54,11 +52,6 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_system(
                     health_combat_hit_result_sfx::<ConstructionTool>
                         .after(CombatLabels::FinalizeApplyDamage),
-                )
-                .add_system(
-                    construction_tool_search_distance_prequisite_check
-                        .label(ActionsLabels::Approve)
-                        .after(ActionsLabels::Build),
                 )
                 .add_system(
                     construction_tool_inventory_prequisite_check
@@ -85,7 +78,10 @@ impl Plugin for ConstructionToolAdminPlugin {
                         .label(ActionsLabels::Build)
                         .after(ActionsLabels::Init),
                 )
-                .add_system(text_tree_input_selection.label(UpdateLabels::TextTreeInputSelection))
+                .add_system(
+                    construction_tool_select_construction_option
+                        .label(UpdateLabels::TextTreeInputSelection),
+                )
                 .add_system(open_input_construction_options_ui);
         } else {
             app.add_system(

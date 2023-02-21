@@ -11,4 +11,4 @@ pub mod button;
 
 pub mod fonts;
 /// The networking module of this crate.
-pub mod networking;
+pub mod net;
