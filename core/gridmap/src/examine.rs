@@ -368,16 +368,17 @@ pub(crate) fn examine_grid(
                 && action.data.id == building_action_id
             {
                 match handle_to_entity.inv_map.get(&building.action_taker) {
-                    Some(handle) => {
-                        let c = building.target_cell_option.clone().unwrap();
-
-                        examine_map_messages.messages.push(InputExamineMap {
-                            handle: *handle,
-                            entity: building.action_taker,
-                            gridmap_cell_id: c.id,
-                            ..Default::default()
-                        });
-                    }
+                    Some(handle) => match &building.target_cell_option {
+                        Some(c) => {
+                            examine_map_messages.messages.push(InputExamineMap {
+                                handle: *handle,
+                                entity: building.action_taker,
+                                gridmap_cell_id: c.id,
+                                ..Default::default()
+                            });
+                        }
+                        None => {}
+                    },
                     None => {
                         warn!("Couldnt find examiner in handletoentity.");
                     }

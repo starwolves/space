@@ -1,13 +1,16 @@
-use actions::net::ActionsServerMessage;
+use actions::net::{ActionsClientMessage, ActionsServerMessage, TabPressed};
 use bevy::{
     prelude::{
-        info, warn, AssetServer, BuildChildren, ButtonBundle, Children, Color, Commands,
-        DespawnRecursiveExt, EventReader, NodeBundle, Query, Res, TextBundle, With,
+        info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Children, Color,
+        Commands, Component, DespawnRecursiveExt, Entity, EventReader, EventWriter, NodeBundle,
+        Query, Res, TextBundle, With,
     },
     text::TextStyle,
-    ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, Val},
+    ui::{
+        AlignItems, BackgroundColor, FlexDirection, Interaction, JustifyContent, Size, Style, Val,
+    },
 };
-use networking::client::IncomingReliableServerMessage;
+use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use player::configuration::Boarded;
 
 use crate::hud::{HudState, LeftContentHud};
@@ -89,51 +92,127 @@ pub(crate) fn slot_item_actions(
                             parent.spawn(NodeBundle {
                                 style: Style {
                                     size: Size::new(Val::Percent(100.), Val::Percent(8.)),
+
                                     ..Default::default()
                                 },
                                 ..Default::default()
                             });
-                            for net_action in data.iter() {
-                                parent
-                                    .spawn(NodeBundle {
-                                        style: Style {
-                                            size: Size::new(Val::Percent(100.), Val::Percent(4.)),
-                                            justify_content: JustifyContent::Center,
-                                            ..Default::default()
-                                        },
+                            let mut actions_bg = Color::DARK_GRAY;
+                            actions_bg.set_a(0.9);
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        size: Size::new(Val::Percent(65.), Val::Percent(36.)),
+                                        justify_content: JustifyContent::Center,
                                         ..Default::default()
-                                    })
-                                    .with_children(|parent| {
-                                        parent
-                                            .spawn(TextBundle::from_section(
-                                                net_action.text.clone(),
-                                                TextStyle {
-                                                    font_size: 13.0,
-                                                    color: Color::WHITE,
-                                                    font: empire_font.clone(),
-                                                },
-                                            ))
-                                            .with_children(|parent| {
-                                                parent.spawn(ButtonBundle {
-                                                    style: Style {
-                                                        size: Size::new(
-                                                            Val::Percent(100.),
-                                                            Val::Percent(100.),
-                                                        ),
-                                                        ..Default::default()
-                                                    },
-                                                    background_color: inventory_hud_color.into(),
+                                    },
 
-                                                    ..Default::default()
-                                                });
-                                            });
-                                    });
-                            }
+                                    ..Default::default()
+                                })
+                                .with_children(|parent| {
+                                    for net_action in data.iter() {
+                                        match net_action.entity {
+                                            Some(action_server_entity) => {
+                                                parent
+                                                    .spawn(NodeBundle {
+                                                        style: Style {
+                                                            justify_content: JustifyContent::Center,
+                                                            align_items: AlignItems::Center,
+                                                            size: Size::new(
+                                                                Val::Percent(100.),
+                                                                Val::Percent(10.),
+                                                            ),
+                                                            ..Default::default()
+                                                        },
+
+                                                        ..Default::default()
+                                                    })
+                                                    .with_children(|parent| {
+                                                        parent
+                                                            .spawn(ButtonBundle {
+                                                                style: Style {
+                                                                    size: Size::new(
+                                                                        Val::Percent(100.),
+                                                                        Val::Percent(100.),
+                                                                    ),
+                                                                    justify_content:
+                                                                        JustifyContent::Center,
+                                                                    align_items: AlignItems::Center,
+                                                                    ..Default::default()
+                                                                },
+                                                                background_color: actions_bg.into(),
+
+                                                                ..Default::default()
+                                                            })
+                                                            .insert(SlotItemActionButton {
+                                                                server_entity: action_server_entity,
+                                                                action_id: net_action.id.clone(),
+                                                            })
+                                                            .with_children(|parent| {
+                                                                parent.spawn(
+                                                                    TextBundle::from_section(
+                                                                        net_action.text.clone(),
+                                                                        TextStyle {
+                                                                            font_size: 13.0,
+                                                                            color: Color::WHITE,
+                                                                            font: empire_font
+                                                                                .clone(),
+                                                                        },
+                                                                    ),
+                                                                );
+                                                            });
+                                                    });
+                                            }
+                                            None => {}
+                                        }
+                                    }
+                                });
                         });
                 });
             }
         }
     }
+}
+
+pub(crate) fn item_actions_button_events(
+    mut interaction_query: Query<
+        (&Interaction, &SlotItemActionButton, &mut BackgroundColor),
+        (Changed<Interaction>, With<Button>),
+    >,
+    mut net: EventWriter<OutgoingReliableClientMessage<ActionsClientMessage>>,
+) {
+    for (interaction, component, mut bg_color) in interaction_query.iter_mut() {
+        match interaction {
+            Interaction::Clicked => {
+                let mut gray = Color::MIDNIGHT_BLUE;
+                gray.set_a(0.9);
+                *bg_color = gray.into();
+                net.send(OutgoingReliableClientMessage {
+                    message: ActionsClientMessage::TabPressed(TabPressed {
+                        id: component.action_id.clone(),
+                        entity_option: Some(component.server_entity),
+                        cell_option: None,
+                        belonging_entity_option: None,
+                    }),
+                });
+            }
+            Interaction::Hovered => {
+                let mut gray = Color::GRAY;
+                gray.set_a(0.9);
+                *bg_color = gray.into();
+            }
+            Interaction::None => {
+                let mut gray = Color::DARK_GRAY;
+                gray.set_a(0.9);
+                *bg_color = gray.into();
+            }
+        }
+    }
+}
+#[derive(Component)]
+pub struct SlotItemActionButton {
+    pub server_entity: Entity,
+    pub action_id: String,
 }
 pub(crate) fn hide_actions(
     boarded: Res<Boarded>,

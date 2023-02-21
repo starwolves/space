@@ -16,5 +16,12 @@ pub enum ActionsServerMessage {
 pub enum ActionsClientMessage {
     TabDataEntity(Entity),
     TabDataMap(i16, i16, i16, CellFace),
-    TabPressed(String, Option<Entity>, Option<TargetCell>, Option<Entity>),
+    TabPressed(TabPressed),
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TabPressed {
+    pub id: String,
+    pub entity_option: Option<Entity>,
+    pub cell_option: Option<TargetCell>,
+    pub belonging_entity_option: Option<Entity>,
 }

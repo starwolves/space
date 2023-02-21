@@ -281,20 +281,14 @@ impl Action {
         examined_cell_option: Option<(i16, i16, i16)>,
         examiner_entity: Entity,
     ) -> NetAction {
-        let mut new_entity_option = None;
-        match examined_entity_option {
-            Some(b) => new_entity_option = Some(b.to_bits()),
-            None => {}
-        }
-
         NetAction {
             id: self.id.clone(),
             text: self.text.clone(),
             tab_list_priority: self.tab_list_priority,
-            entity_option: new_entity_option,
+            entity: examined_entity_option,
             cell_option: examined_cell_option,
             item_name: item_name.to_string(),
-            belonging_entity: Some(examiner_entity.to_bits()),
+            belonging_entity: Some(examiner_entity),
         }
     }
 }
