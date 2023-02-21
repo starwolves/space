@@ -468,18 +468,12 @@ pub(crate) fn incoming_messages(
         let client_message = message.message.clone();
 
         match client_message {
-            UiClientMessage::TextTreeInput(
-                belonging_entity,
-                tab_action_id,
-                menu_id,
-                input_selection,
-            ) => {
+            UiClientMessage::TextTreeInput(data) => {
                 text_tree_input_selection.send(TextTreeInputSelection {
                     handle: message.handle,
-                    menu_id,
-                    menu_selection: input_selection,
-                    belonging_entity,
-                    action_id: tab_action_id,
+                    id: data.id,
+                    entry: data.entry,
+                    entity: data.entity,
                 });
             }
         }
@@ -491,11 +485,8 @@ pub struct TextTreeInputSelection {
     /// Handle of the submitter of the selection.
     pub handle: u64,
     /// Menu ID.
-    pub menu_id: String,
+    pub id: String,
     /// The selection on the menu.
-    pub menu_selection: String,
-    /// The action ID.
-    pub action_id: String,
-    /// The entity submitting the selection.
-    pub belonging_entity: Option<u64>,
+    pub entry: String,
+    pub entity: Entity,
 }

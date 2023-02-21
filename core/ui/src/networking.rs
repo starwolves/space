@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use networking::server::TextTreeBit;
+use bevy::prelude::Entity;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -9,21 +7,28 @@ use typename::TypeName;
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum UiClientMessage {
-    TextTreeInput(Option<u64>, String, String, String),
+    TextTreeInput(TextTreeInput),
 }
 
 /// Gets serialized and sent over the net, this is the server message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum UiServerMessage {
-    TextTreeSelection(
-        Option<u64>,
-        String,
-        String,
-        String,
-        HashMap<String, TextTreeBit>,
-    ),
+    TextTreeSelection(TextTreeSelection),
     UIAddNotice(String),
     UIRemoveNotice(String),
     UIRequestInput(String),
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TextTreeSelection {
+    pub entity: Entity,
+    pub id: String,
+    pub entries: Vec<String>,
+    pub text: String,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TextTreeInput {
+    pub entity: Entity,
+    pub id: String,
+    pub entry: String,
 }

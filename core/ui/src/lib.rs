@@ -9,5 +9,6 @@ pub mod text_input;
 /// Button UI node.
 pub mod button;
 
+pub mod fonts;
 /// The networking module of this crate.
 pub mod networking;

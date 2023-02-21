@@ -1,16 +1,22 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
-use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Transform, With};
+use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, Transform, With};
 use gridmap::grid::Gridmap;
 use inventory::item::InventoryItem;
 use math::grid::cell_id_to_world;
 use pawn::pawn::REACH_DISTANCE;
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
-use networking::server::HandleToEntity;
+use networking::server::{HandleToEntity, OutgoingReliableServerMessage};
 
 use super::construction_tool::InputConstruct;
 
 /// Manage construction actions.
+
+pub const CONSTRUCTION_ACTION_ID: &str = "action::construction_tool_admin/construct";
+pub const DECONSTRUCTION_ACTION_ID: &str = "action::construction_tool_admin/deconstruct";
+pub const CONSTRUCTION_OPTIONS_ACTION_ID: &str =
+    "action::construction_tool_admin/constructionoptions";
+pub const CONSTRUCTION_OPTIONS_TEXT_LIST_ID: &str = "ui::construction_tool_admin/selectionoptions";
 
 pub(crate) fn construction_tool_actions(
     building_action_data: Res<BuildingActions>,
@@ -32,7 +38,7 @@ pub(crate) fn construction_tool_actions(
         }
         for action_data in building.actions.iter() {
             if action_data.is_approved()
-                && action_data.data.id == "action::construction_tool_admin/construct"
+                && action_data.data.id == CONSTRUCTION_ACTION_ID
                 && action_data.data.id == building_action_id
             {
                 let handle_option;
@@ -50,7 +56,7 @@ pub(crate) fn construction_tool_actions(
                     belonging_entity: building.action_taker,
                 });
             } else if action_data.is_approved()
-                && action_data.data.id == "action::construction_tool_admin/deconstruct"
+                && action_data.data.id == DECONSTRUCTION_ACTION_ID
                 && action_data.data.id == building_action_id
             {
                 let handle_option;
@@ -69,7 +75,7 @@ pub(crate) fn construction_tool_actions(
                     target_entity_option: building.target_entity_option,
                 });
             } else if action_data.is_approved()
-                && action_data.data.id == "action::construction_tool_admin/constructionoptions"
+                && action_data.data.id == CONSTRUCTION_OPTIONS_ACTION_ID
                 && action_data.data.id == building_action_id
             {
                 let handle_option;
@@ -83,9 +89,32 @@ pub(crate) fn construction_tool_actions(
                 }
                 event_construction_options.send(InputConstructionOptions {
                     handle_option,
-                    belonging_entity: building.action_taker,
+                    entity: building.action_taker,
                 });
             }
+        }
+    }
+}
+
+pub fn open_input_construction_options_ui(
+    mut events: EventReader<InputConstructionOptions>,
+    mut net: EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
+    gridmap: Res<Gridmap>,
+) {
+    for event in events.iter() {
+        match event.handle_option {
+            Some(handle) => {
+                net.send(OutgoingReliableServerMessage {
+                    handle: handle,
+                    message: UiServerMessage::TextTreeSelection(TextTreeSelection {
+                        entity: event.entity,
+                        id: CONSTRUCTION_OPTIONS_TEXT_LIST_ID.to_string(),
+                        entries: gridmap.ordered_main_names.clone(),
+                        text: "Select Construction".to_string(),
+                    }),
+                });
+            }
+            None => {}
         }
     }
 }
@@ -96,7 +125,7 @@ pub fn construct_action_prequisite_check(
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
-            if action.data.id == "action::construction_tool_admin/construct" {
+            if action.data.id == CONSTRUCTION_ACTION_ID {
                 let cell_id;
 
                 match building.target_cell_option.clone() {
@@ -129,7 +158,7 @@ pub(crate) fn deconstruct_action_prequisite_check(
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
-            if action.data.id == "action::construction_tool_admin/deconstruct" {
+            if action.data.id == DECONSTRUCTION_ACTION_ID {
                 let cell_id;
 
                 match building.target_cell_option.clone() {
@@ -162,8 +191,8 @@ pub(crate) fn construction_tool_search_distance_prequisite_check(
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
-            if action.data.id == "action::construction_tool_admin/deconstruct"
-                || action.data.id == "action::construction_tool_admin/construct"
+            if action.data.id == DECONSTRUCTION_ACTION_ID
+                || action.data.id == CONSTRUCTION_ACTION_ID
             {
                 let examiner_transform;
 
@@ -210,7 +239,7 @@ pub(crate) fn construction_tool_inventory_prequisite_check(
 ) {
     for building in building_action_data.list.iter_mut() {
         for action in building.actions.iter_mut() {
-            if action.data.id == "action::construction_tool_admin/constructionoptions" {
+            if action.data.id == CONSTRUCTION_OPTIONS_ACTION_ID {
                 match building.target_entity_option {
                     Some(tool_entity) => match query.get(tool_entity) {
                         Ok(inv) => match inv.in_inventory_of_entity {
@@ -239,7 +268,7 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
         let mut new_vec = vec![
             ActionData {
                 data: Action {
-                    id: "action::construction_tool_admin/construct".to_string(),
+                    id: CONSTRUCTION_ACTION_ID.to_string(),
                     text: "Construct".to_string(),
                     tab_list_priority: 50,
                 },
@@ -247,7 +276,7 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
             },
             ActionData {
                 data: Action {
-                    id: "action::construction_tool_admin/deconstruct".to_string(),
+                    id: DECONSTRUCTION_ACTION_ID.to_string(),
                     text: "Deconstruct".to_string(),
                     tab_list_priority: 49,
                 },
@@ -255,7 +284,7 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
             },
             ActionData {
                 data: Action {
-                    id: "action::construction_tool_admin/constructionoptions".to_string(),
+                    id: CONSTRUCTION_OPTIONS_ACTION_ID.to_string(),
                     text: "Construction Options".to_string(),
                     tab_list_priority: 48,
                 },
@@ -267,30 +296,21 @@ pub(crate) fn build_actions(mut building_action_data: ResMut<BuildingActions>) {
     }
 }
 use crate::construction_tool::InputConstructionOptionsSelection;
-use ui::text_input::TextTreeInputSelection;
+use ui::{
+    networking::{TextTreeSelection, UiServerMessage},
+    text_input::TextTreeInputSelection,
+};
 
 pub(crate) fn text_tree_input_selection(
     mut input_events: EventReader<TextTreeInputSelection>,
     mut input_construction_options_selection: EventWriter<InputConstructionOptionsSelection>,
 ) {
     for event in input_events.iter() {
-        let belonging_entity;
-        match event.belonging_entity {
-            Some(bits) => {
-                belonging_entity = Some(Entity::from_bits(bits));
-            }
-            None => {
-                belonging_entity = None;
-            }
-        }
-
-        if event.menu_id == "action::construction_tool_admin/constructionoptions"
-            && belonging_entity.is_some()
-        {
+        if event.id == CONSTRUCTION_OPTIONS_ACTION_ID {
             input_construction_options_selection.send(InputConstructionOptionsSelection {
                 handle_option: Some(event.handle),
-                menu_selection: event.menu_selection.clone(),
-                entity: belonging_entity.unwrap(),
+                menu_selection: event.entry.clone(),
+                entity: event.entity,
             });
         }
     }
