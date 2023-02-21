@@ -37,11 +37,3 @@ pub struct InputDeconstruct {
     /// Entity that requested to deconstruct.
     pub belonging_entity: Entity,
 }
-/// Client input construction options selection event.
-
-pub struct InputConstructionOptionsSelection {
-    pub handle_option: Option<u64>,
-    pub menu_selection: String,
-    // Entity has been validated.
-    pub entity: Entity,
-}

@@ -457,7 +457,7 @@ pub(crate) fn set_text_input_node_text(
 
 use networking::server::IncomingReliableClientMessage;
 
-use crate::networking::UiClientMessage;
+use crate::net::UiClientMessage;
 /// Manage incoming network messages from clients.
 
 pub(crate) fn incoming_messages(

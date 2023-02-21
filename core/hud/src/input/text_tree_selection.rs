@@ -1,15 +1,16 @@
 use bevy::{
     prelude::{
-        AssetServer, BuildChildren, ButtonBundle, Color, Commands, Component, DespawnRecursiveExt,
-        Entity, EventReader, NodeBundle, Res, ResMut, Resource, TextBundle,
+        warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
+        Component, DespawnRecursiveExt, Entity, EventReader, EventWriter, NodeBundle, Query, Res,
+        ResMut, Resource, TextBundle, With, Without,
     },
     text::TextStyle,
-    ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, Val},
+    ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Size, Style, Val},
 };
-use networking::client::IncomingReliableServerMessage;
+use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use ui::{
     fonts::{ARIZONE_FONT, EMPIRE_FONT},
-    networking::{TextTreeSelection, UiServerMessage},
+    net::{TextTreeInput, TextTreeSelection, UiClientMessage, UiServerMessage},
 };
 
 use crate::{
@@ -155,8 +156,9 @@ pub(crate) fn create_text_tree_selection(
                                                         })
                                                         .insert(TextTreeSelectionButton {
                                                             data: selection.clone(),
+                                                            entry: entry.clone(),
                                                         })
-                                                        .insert(ButtonSelectionStyle)
+                                                        .insert(ButtonSelectionStyle::default())
                                                         .with_children(|parent| {
                                                             parent.spawn(TextBundle::from_section(
                                                                 entry.clone(),
@@ -170,6 +172,30 @@ pub(crate) fn create_text_tree_selection(
                                                 });
                                         }
                                     });
+                                parent
+                                    .spawn(ButtonBundle {
+                                        style: Style {
+                                            size: Size::new(Val::Percent(65.), Val::Percent(3.)),
+                                            justify_content: JustifyContent::Center,
+                                            align_items: AlignItems::Center,
+                                            ..Default::default()
+                                        },
+                                        background_color: ACTIONS_HUD_BG_COLOR.into(),
+
+                                        ..Default::default()
+                                    })
+                                    .insert(ButtonSelectionStyle::default())
+                                    .insert(TextTreeSelectionSubmitButton)
+                                    .with_children(|parent| {
+                                        parent.spawn(TextBundle::from_section(
+                                            "Submit".clone(),
+                                            TextStyle {
+                                                font_size: 13.0,
+                                                color: Color::WHITE,
+                                                font: empire_font.clone(),
+                                            },
+                                        ));
+                                    });
                             })
                             .id();
                         state.entity = Some(root);
@@ -182,4 +208,102 @@ pub(crate) fn create_text_tree_selection(
 #[derive(Component)]
 pub struct TextTreeSelectionButton {
     pub data: TextTreeSelection,
+    pub entry: String,
+}
+#[derive(Component)]
+pub struct TextTreeSelectionSubmitButton;
+#[derive(Resource, Default)]
+pub struct TextTreeSelectionState {
+    pub selected: Option<SelectedTree>,
+}
+pub struct SelectedTree {
+    pub node_entity: Entity,
+    pub selection: TextTreeSelection,
+    pub entry: String,
+}
+pub(crate) fn text_tree_select_button(
+    interaction_query: Query<
+        (Entity, &Interaction, &TextTreeSelectionButton),
+        (
+            Changed<Interaction>,
+            With<Button>,
+            With<ButtonSelectionStyle>,
+            Without<TextTreeSelectionSubmitButton>,
+        ),
+    >,
+    mut state: ResMut<TextTreeSelectionState>,
+    mut style_query: Query<&mut ButtonSelectionStyle>,
+) {
+    let mut old_entity = None;
+    for (entity, interaction, component) in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                match &state.selected {
+                    Some(e) => {
+                        if e.node_entity == entity {
+                            continue;
+                        }
+                        old_entity = Some(e.node_entity);
+                    }
+                    None => {}
+                }
+                state.selected = Some(SelectedTree {
+                    node_entity: entity,
+                    selection: component.data.clone(),
+                    entry: component.entry.clone(),
+                });
+                match style_query.get_mut(entity) {
+                    Ok(mut stil) => {
+                        stil.selected = true;
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find style.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+    match old_entity {
+        Some(ent) => match style_query.get_mut(ent) {
+            Ok(mut style) => {
+                style.selected = false;
+            }
+            Err(_) => {
+                warn!("Couldnt find previous selection.");
+            }
+        },
+        None => {}
+    }
+}
+pub(crate) fn text_tree_select_submit_button(
+    interaction_query: Query<
+        &Interaction,
+        (
+            Changed<Interaction>,
+            With<Button>,
+            With<ButtonSelectionStyle>,
+            With<TextTreeSelectionSubmitButton>,
+        ),
+    >,
+    state: Res<TextTreeSelectionState>,
+    mut net: EventWriter<OutgoingReliableClientMessage<UiClientMessage>>,
+) {
+    for interaction in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => match &state.selected {
+                Some(tree) => {
+                    net.send(OutgoingReliableClientMessage {
+                        message: UiClientMessage::TextTreeInput(TextTreeInput {
+                            entity: tree.selection.entity,
+                            id: tree.selection.id.clone(),
+                            entry: tree.entry.clone(),
+                        }),
+                    });
+                }
+                None => {}
+            },
+            _ => (),
+        }
+    }
 }

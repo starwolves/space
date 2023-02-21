@@ -153,7 +153,7 @@ pub(crate) fn slot_item_actions(
                                                     .insert(SlotItemActionButton {
                                                         data: net_action.clone(),
                                                     })
-                                                    .insert(ButtonSelectionStyle)
+                                                    .insert(ButtonSelectionStyle::default())
                                                     .with_children(|parent| {
                                                         parent.spawn(TextBundle::from_section(
                                                             net_action.text.clone(),

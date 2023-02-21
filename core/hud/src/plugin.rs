@@ -6,7 +6,8 @@ use crate::{
     expand::{expand_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, HudLabels},
     input::text_tree_selection::{
-        create_text_tree_selection, hide_text_tree_selection, TextTreeInputSelectionState,
+        create_text_tree_selection, hide_text_tree_selection, text_tree_select_button,
+        text_tree_select_submit_button, TextTreeInputSelectionState, TextTreeSelectionState,
     },
     inventory::{
         actions::{hide_actions, item_actions_button_events, slot_item_actions},
@@ -24,7 +25,7 @@ use crate::{
         },
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
     },
-    style::button::button_style_events,
+    style::button::{button_style_events, changed_focus},
 };
 
 pub struct HudPlugin;
@@ -61,7 +62,11 @@ impl Plugin for HudPlugin {
                 .add_system(create_text_tree_selection)
                 .add_system(button_style_events)
                 .init_resource::<TextTreeInputSelectionState>()
-                .add_system(hide_text_tree_selection);
+                .add_system(hide_text_tree_selection)
+                .add_system(text_tree_select_button)
+                .init_resource::<TextTreeSelectionState>()
+                .add_system(changed_focus)
+                .add_system(text_tree_select_submit_button);
         }
     }
 }
