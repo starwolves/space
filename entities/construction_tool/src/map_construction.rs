@@ -1,8 +1,7 @@
 use bevy::{
     prelude::{
-        info, warn, AssetServer, BuildChildren, Commands, Component, Entity, EventReader,
-        EventWriter, Input, KeyCode, Query, Res, ResMut, Resource, Transform, Vec3, Visibility,
-        With,
+        warn, AssetServer, BuildChildren, Commands, Component, Entity, EventReader, EventWriter,
+        Input, KeyCode, Query, Res, ResMut, Resource, Transform, Vec3, Visibility, With,
     },
     scene::SceneBundle,
     transform::TransformBundle,
@@ -14,7 +13,7 @@ use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use entity::spawn::ClientEntityServerEntity;
 use gridmap::grid::{Cell, Gridmap};
 use inventory::server::inventory::Inventory;
-use math::grid::Vec3Int;
+use math::grid::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int};
 use physics::physics::{get_bit_masks, ColliderGroup};
 
 use crate::construction_tool::ConstructionTool;
@@ -50,6 +49,7 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
         y_level: 0,
         y_plane: plane_entity,
         y_plane_shown: false,
+        y_plane_position: Vec2Int { x: 0, y: 0 },
     });
 }
 
@@ -59,6 +59,7 @@ pub struct SelectCellCameraState {
     pub y_level: i16,
     pub y_plane: Entity,
     pub y_plane_shown: bool,
+    pub y_plane_position: Vec2Int,
 }
 
 pub struct CellSelection {
@@ -87,6 +88,48 @@ pub(crate) fn show_ylevel_plane(
             Err(_) => {
                 warn!("Coudlnt find yplane.");
             }
+        }
+    }
+}
+
+pub(crate) fn move_ylevel_plane(
+    camera_query: Query<&LookTransform>,
+    camera: Res<ActiveCamera>,
+    mut state: ResMut<SelectCellCameraState>,
+    mut ylevel_query: Query<&mut Transform, With<SelectCellCameraYPlane>>,
+) {
+    if !state.y_plane_shown {
+        return;
+    }
+    match camera.option {
+        Some(camera_entity) => match camera_query.get(camera_entity) {
+            Ok(look_transform) => {
+                let camera_cell_id = world_to_cell_id(look_transform.eye);
+                if state.y_plane_position.x != camera_cell_id.x
+                    && state.y_plane_position.y != camera_cell_id.z
+                {
+                    match ylevel_query.get_mut(state.y_plane) {
+                        Ok(mut transform) => {
+                            let new_transform = cell_id_to_world(camera_cell_id);
+                            transform.translation.x = new_transform.x + 0.5;
+                            transform.translation.z = new_transform.z + 0.5;
+                            state.y_plane_position = Vec2Int {
+                                x: camera_cell_id.x,
+                                y: camera_cell_id.z,
+                            }
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find yplane.");
+                        }
+                    }
+                }
+            }
+            Err(_) => {
+                warn!("Couldnt query camera.");
+            }
+        },
+        None => {
+            warn!("Couldnt find camera.");
         }
     }
 }
