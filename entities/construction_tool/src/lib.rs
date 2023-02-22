@@ -5,6 +5,7 @@
 mod action;
 /// Manage consturction tools.
 pub mod construction_tool;
+pub mod map_construction;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// The construction tool spawner.

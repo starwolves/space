@@ -17,7 +17,7 @@ version = "0.9.1"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.19.0"
+bevy_rapier3d = "0.20.0"
 
 entity = { path = "../../core/entity" }
 text_api = { path = "../../core/text_api"}

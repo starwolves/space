@@ -223,9 +223,7 @@ pub(crate) fn hide_actions(
                         commands.entity(*child).despawn_recursive();
                     }
                 }
-                Err(_) => {
-                    warn!("Could not find left content node");
-                }
+                Err(_) => {}
             }
         }
     }

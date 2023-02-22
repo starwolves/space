@@ -8,8 +8,7 @@ use bevy::{
 use bevy_rapier3d::{
     pipeline::QueryFilter,
     plugin::RapierContext,
-    prelude::{Collider, InteractionGroups},
-    rapier::prelude::Group,
+    prelude::{Collider, CollisionGroups, Group},
 };
 use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::grid::{Cell, Gridmap};
@@ -101,7 +100,7 @@ pub(crate) fn melee_direct(
         }
         let collider_groups = get_bit_masks(ColliderGroup::Standard);
 
-        let query_filter = QueryFilter::new().groups(InteractionGroups::new(
+        let query_filter = QueryFilter::new().groups(CollisionGroups::new(
             Group::from_bits(collider_groups.0).unwrap(),
             Group::from_bits(collider_groups.1).unwrap(),
         ));

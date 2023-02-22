@@ -2,7 +2,8 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
+use bevy::time::FixedTimestep;
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
@@ -25,6 +26,10 @@ use crate::action::{
     deconstruct_action_prequisite_check, open_input_construction_options_ui,
 };
 use crate::construction_tool::ConstructionTool;
+use crate::map_construction::{
+    create_select_cell_cam_state, input_yplane_position, select_cell_in_front_camera,
+    set_yplane_position, show_ylevel_plane, SetYPlanePosition, ShowYLevelPlane,
+};
 
 use super::{
     construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct},
@@ -91,7 +96,17 @@ impl Plugin for ConstructionToolAdminPlugin {
             )
             .add_system(load_entity::<ConstructionToolType>)
             .add_system(link_base_mesh::<ConstructionToolType>)
-            .add_system(active_item_display_camera::<ConstructionToolType>);
+            .add_system(active_item_display_camera::<ConstructionToolType>)
+            .add_system_set(
+                SystemSet::new()
+                    .with_run_criteria(FixedTimestep::step(1. / 8.))
+                    .with_system(select_cell_in_front_camera),
+            )
+            .add_startup_system(create_select_cell_cam_state)
+            .add_event::<SetYPlanePosition>()
+            .add_system(show_ylevel_plane)
+            .add_system(set_yplane_position)
+            .add_system(input_yplane_position);
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);
@@ -105,6 +120,7 @@ impl Plugin for ConstructionToolAdminPlugin {
         .add_system(
             (build_rigid_bodies::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
         )
+        .add_event::<ShowYLevelPlane>()
         .add_system(
             (build_inventory_items::<ConstructionToolType>)
                 .after(BuildingLabels::TriggerBuild)
