@@ -1,5 +1,5 @@
 use bevy::prelude::{Added, Changed, Commands, Component, Entity, Query};
-use bevy_rapier3d::prelude::RigidBody;
+use bevy_rapier3d::prelude::RigidBodyDisabled;
 use math::grid::Vec3Int;
 
 use crate::rigid_body::RigidBodyStatus;
@@ -18,6 +18,10 @@ pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
             0b00000000000000000000000000000000,
             0b00000000000000000000000000000000,
         ),
+        ColliderGroup::GridmapSelection => (
+            0b00000000000000000000000000000010,
+            0b00000000000000000000000000000010,
+        ),
     }
 }
 
@@ -26,6 +30,7 @@ pub fn get_bit_masks(group: ColliderGroup) -> (u32, u32) {
 pub enum ColliderGroup {
     NoCollision,
     Standard,
+    GridmapSelection,
 }
 
 /// Character floor physics friction.
@@ -41,12 +46,12 @@ pub(crate) fn disable_rigidbodies(
 ) {
     for (entity, status) in query.iter_mut() {
         if !status.enabled {
-            commands.entity(entity).remove::<RigidBody>();
+            commands.entity(entity).insert(RigidBodyDisabled);
         } else {
             match query_added.get(entity) {
                 Ok(_) => {}
                 Err(_) => {
-                    commands.entity(entity).insert(RigidBody::Dynamic);
+                    commands.entity(entity).remove::<RigidBodyDisabled>();
                 }
             }
         }

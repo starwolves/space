@@ -15,12 +15,12 @@ version = "0.9.1"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.19.0"
+bevy_rapier3d = "0.20.0"
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }
 networking = { path = "../../core/networking" }
-pawn = { path = "../../core/pawn" }
+cameras = { path = "../../core/cameras" }
 hud = { path = "../../core/hud" }
 combat = { path = "../../core/combat" }
 sfx = { path = "../../core/sfx" }

@@ -6,7 +6,7 @@ use bevy::{
 use bevy_rapier3d::{
     pipeline::QueryFilter,
     plugin::RapierContext,
-    prelude::{Collider, InteractionGroups},
+    prelude::{Collider, CollisionGroups, Group},
     rapier::prelude::Ray,
 };
 use entity::health::HealthComponent;
@@ -14,7 +14,6 @@ use pawn::pawn::REACH_DISTANCE;
 
 use crate::grid::{Cell, Gridmap};
 
-use bevy_rapier3d::rapier::geometry::Group;
 use physics::physics::ReachResult;
 use physics::physics::{get_bit_masks, ColliderGroup};
 
@@ -42,7 +41,7 @@ pub fn can_reach_entity(
     let solid = true;
 
     let collider_groups = get_bit_masks(ColliderGroup::Standard);
-    let query_filter = QueryFilter::new().groups(InteractionGroups::new(
+    let query_filter = QueryFilter::new().groups(CollisionGroups::new(
         Group::from_bits(collider_groups.0).unwrap(),
         Group::from_bits(collider_groups.1).unwrap(),
     ));

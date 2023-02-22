@@ -8,8 +8,8 @@ use bevy::{
 use bevy_rapier3d::{
     pipeline::QueryFilter,
     plugin::RapierContext,
-    prelude::{Collider, InteractionGroups},
-    rapier::prelude::{Group, Ray},
+    prelude::{Collider, CollisionGroups, Group},
+    rapier::prelude::Ray,
 };
 use entity::{examine::Examinable, health::HealthComponent};
 use gridmap::grid::{Cell, Gridmap};
@@ -79,7 +79,7 @@ pub(crate) fn projectile_attack(
 
         let collider_groups = get_bit_masks(ColliderGroup::Standard);
 
-        let interaction_groups = InteractionGroups::new(
+        let interaction_groups = CollisionGroups::new(
             Group::from_bits(collider_groups.0).unwrap(),
             Group::from_bits(collider_groups.1).unwrap(),
         );
