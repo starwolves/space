@@ -4,7 +4,7 @@ use actions::{
 };
 use bevy::{
     prelude::{
-        warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands,
+        AssetServer, BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands,
         Component, DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res,
         TextBundle, With,
     },

@@ -27,8 +27,9 @@ use crate::action::{
 };
 use crate::construction_tool::ConstructionTool;
 use crate::map_construction::{
-    create_select_cell_cam_state, input_yplane_position, select_cell_in_front_camera,
-    set_yplane_position, show_ylevel_plane, SetYPlanePosition, ShowYLevelPlane,
+    create_select_cell_cam_state, input_yplane_position, move_ylevel_plane,
+    select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, SetYPlanePosition,
+    ShowYLevelPlane,
 };
 
 use super::{
@@ -106,7 +107,8 @@ impl Plugin for ConstructionToolAdminPlugin {
             .add_event::<SetYPlanePosition>()
             .add_system(show_ylevel_plane)
             .add_system(set_yplane_position)
-            .add_system(input_yplane_position);
+            .add_system(input_yplane_position)
+            .add_system(move_ylevel_plane);
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);
