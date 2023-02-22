@@ -26,6 +26,7 @@ mod init;
 pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
+pub mod select_cell_yplane;
 /// Manage sensing authorization for gridmap examining.
 mod sensing_ability;
 /// Manage gridmap updates.

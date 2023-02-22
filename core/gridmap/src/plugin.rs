@@ -22,6 +22,11 @@ use crate::{
     grid::{add_tile, add_tile_collision, AddGroup, AddTile, Gridmap, RemoveCell},
     init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
+    select_cell_yplane::{
+        cell_selection_ghost_cell, change_ghost_tile_request, create_select_cell_cam_state,
+        input_yplane_position, move_ylevel_plane, select_cell_in_front_camera, set_yplane_position,
+        show_ylevel_plane, SelectCellSelectionChanged, SetYPlanePosition,
+    },
     wall::add_wall_group,
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
@@ -72,7 +77,21 @@ impl Plugin for GridmapPlugin {
                         .after(ConfigurationLabel::SpawnEntity),
                 );
         } else {
-            app.add_system(set_cell_graphics);
+            app.add_system(set_cell_graphics)
+                .add_startup_system(create_select_cell_cam_state)
+                .add_event::<SetYPlanePosition>()
+                .add_system(show_ylevel_plane)
+                .add_system(set_yplane_position)
+                .add_system(input_yplane_position)
+                .add_system(move_ylevel_plane)
+                .add_system_set(
+                    SystemSet::new()
+                        .with_run_criteria(FixedTimestep::step(1. / 8.))
+                        .with_system(select_cell_in_front_camera),
+                )
+                .add_system(cell_selection_ghost_cell)
+                .add_event::<SelectCellSelectionChanged>()
+                .add_system(change_ghost_tile_request);
         }
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))

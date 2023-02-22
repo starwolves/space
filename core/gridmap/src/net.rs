@@ -23,6 +23,7 @@ pub enum GridmapServerMessage {
     ConfigOrderedCellsDetails1(Vec<String>),
     ConfigPlaceableItemsSurfaces(Vec<u16>),
     ConfigNonBlockingCells(Vec<u16>),
+    GhostCellType(u16),
 }
 
 /// Contains information about the projectile and its visual graphics.
