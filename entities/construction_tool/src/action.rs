@@ -1,6 +1,6 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, With};
-use gridmap::grid::Gridmap;
+use gridmap::{grid::Gridmap, net::GridmapServerMessage};
 use inventory::item::InventoryItem;
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
@@ -258,12 +258,25 @@ use ui::{
 pub(crate) fn construction_tool_select_construction_option(
     mut input_events: EventReader<TextTreeInputSelection>,
     mut query: Query<&mut ConstructionTool>,
+    mut net: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
+    gridmap: Res<Gridmap>,
 ) {
     for event in input_events.iter() {
         if event.id == CONSTRUCTION_OPTIONS_TEXT_LIST_ID {
             match query.get_mut(event.entity) {
                 Ok(mut c) => {
                     c.construction_option = Some(event.entry.clone());
+                    match gridmap.main_name_id_map.get(&event.entry) {
+                        Some(type_id) => {
+                            net.send(OutgoingReliableServerMessage {
+                                handle: event.handle,
+                                message: GridmapServerMessage::GhostCellType(*type_id),
+                            });
+                        }
+                        None => {
+                            warn!("couldnt find tile id.");
+                        }
+                    }
                 }
                 Err(_) => {
                     warn!("Couldnt find construction tool {:?}.", event.entity);

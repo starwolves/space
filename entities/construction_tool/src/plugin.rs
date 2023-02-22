@@ -2,8 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
-use bevy::time::FixedTimestep;
+use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
@@ -11,6 +10,7 @@ use entity::entity_types::register_entity_type;
 use entity::loading::load_entity;
 use entity::spawn::build_base_entities;
 
+use gridmap::select_cell_yplane::ShowYLevelPlane;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudLabels;
 use inventory::client::items::active_item_display_camera;
@@ -26,11 +26,7 @@ use crate::action::{
     deconstruct_action_prequisite_check, open_input_construction_options_ui,
 };
 use crate::construction_tool::ConstructionTool;
-use crate::map_construction::{
-    create_select_cell_cam_state, input_yplane_position, move_ylevel_plane,
-    select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, SetYPlanePosition,
-    ShowYLevelPlane,
-};
+use crate::map_construction::construction_tool_enable_select_cell_in_front_camera;
 
 use super::{
     construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct},
@@ -98,17 +94,7 @@ impl Plugin for ConstructionToolAdminPlugin {
             .add_system(load_entity::<ConstructionToolType>)
             .add_system(link_base_mesh::<ConstructionToolType>)
             .add_system(active_item_display_camera::<ConstructionToolType>)
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(1. / 8.))
-                    .with_system(select_cell_in_front_camera),
-            )
-            .add_startup_system(create_select_cell_cam_state)
-            .add_event::<SetYPlanePosition>()
-            .add_system(show_ylevel_plane)
-            .add_system(set_yplane_position)
-            .add_system(input_yplane_position)
-            .add_system(move_ylevel_plane);
+            .add_system(construction_tool_enable_select_cell_in_front_camera);
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);

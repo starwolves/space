@@ -31,3 +31,4 @@ math = { path = "../math" }
 text_api = { path = "../text_api" }
 player = { path = "../player" }
 physics = { path = "../physics" }
+cameras = { path = "../cameras" }
