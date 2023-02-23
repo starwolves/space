@@ -140,7 +140,7 @@ pub fn construct_action_prequisite_check(
                     }
                 }
 
-                let cell_option = gridmap_main.get_cell(cell_id.id, cell_id.face);
+                let cell_option = gridmap_main.get_cell(cell_id);
 
                 match building.target_cell_option.is_some() && cell_option.is_none() {
                     true => {
@@ -173,7 +173,7 @@ pub(crate) fn deconstruct_action_prequisite_check(
                     }
                 }
 
-                let cell_option = gridmap_main.get_cell(cell_id.id, cell_id.face);
+                let cell_option = gridmap_main.get_cell(cell_id);
 
                 match building.target_cell_option.is_some() && cell_option.is_some() {
                     true => {

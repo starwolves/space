@@ -6,7 +6,7 @@ use entity::examine::RichName;
 use math::grid::Vec3Int;
 use resources::{core::TickRate, grid::CellFace, is_server::is_server};
 
-use crate::grid::{AddGroup, AddTile, Gridmap, Orientation, TileProperties};
+use crate::grid::{AddGroup, AddTile, CellType, Gridmap, TileProperties};
 
 /// Physics friction on placeable item surfaces.
 
@@ -43,6 +43,7 @@ pub(crate) fn startup_map_tile_properties(
         description: "A generic wall tile.".to_string(),
         constructable: true,
         mesh_option,
+        cell_type: CellType::Wall,
         ..Default::default()
     });
     let mut wall_group = HashMap::new();
@@ -81,6 +82,7 @@ pub(crate) fn startup_map_tile_properties(
         constructable: true,
         floor_cell: true,
         mesh_option,
+        cell_type: CellType::Floor,
         ..Default::default()
     });
 
@@ -225,7 +227,7 @@ pub(crate) fn load_ron_gridmap(
                 set_cell.send(AddTile {
                     id: cell_data.id,
                     face: cell_data.face.clone(),
-                    orientation_option: cell_data.orientation.clone(),
+                    orientation: cell_data.orientation.clone(),
                     tile_type: cell_item_id,
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
@@ -266,7 +268,7 @@ pub struct CellDataRon {
     /// Cell item id.
     pub item: RonItem,
     /// Cell rotation.
-    pub orientation: Option<Orientation>,
+    pub orientation: u8,
     pub face: CellFace,
 }
 

@@ -1,4 +1,4 @@
-use actions::core::{BuildingActions, ListActionDataRequests};
+use actions::core::{BuildingActions, ListActionDataRequests, TargetCell};
 use bevy::prelude::{warn, Entity, EventReader, Query, Res, ResMut, Resource};
 use entity::{
     examine::Examinable,
@@ -43,7 +43,10 @@ pub(crate) fn examine_map(
         if !examiner_senser_component.fov.is_in_fov(coords.0, coords.1) {
             examine_text = get_empty_cell_message();
         } else {
-            match gridmap_main.get_cell(examine_event.gridmap_cell_id, examine_event.face.clone()) {
+            match gridmap_main.get_cell(TargetCell {
+                id: examine_event.gridmap_cell_id,
+                face: examine_event.face.clone(),
+            }) {
                 Some(ship_cell) => {
                     examine_text = examine_ship_cell(&ship_cell, &gridmap_main);
                 }
@@ -97,7 +100,7 @@ pub(crate) fn set_action_header_name(
 
                 let item_id;
 
-                match gridmap_main.get_cell(gridmap.id, gridmap.face) {
+                match gridmap_main.get_cell(gridmap) {
                     Some(data) => {
                         item_id = data.tile_type;
                     }
@@ -135,8 +138,10 @@ pub(crate) fn examine_map_health(
 
         let gridmap_result;
 
-        gridmap_result =
-            gridmap_main.get_cell(examine_event.gridmap_cell_id, examine_event.face.clone());
+        gridmap_result = gridmap_main.get_cell(TargetCell {
+            id: examine_event.gridmap_cell_id,
+            face: examine_event.face.clone(),
+        });
 
         let ship_cell_option;
 

@@ -1,7 +1,11 @@
+use std::f32::consts::PI;
+
+use actions::core::TargetCell;
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Commands, Component, Entity, EventReader, EventWriter,
-        Handle, Input, KeyCode, Query, Res, ResMut, Resource, Transform, Vec3, Visibility, With,
+        Handle, Input, KeyCode, Quat, Query, Res, ResMut, Resource, SystemLabel, Transform, Vec3,
+        Visibility, With,
     },
     scene::{Scene, SceneBundle},
     transform::TransformBundle,
@@ -13,8 +17,12 @@ use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use math::grid::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int};
 use networking::client::IncomingReliableServerMessage;
 use physics::physics::{get_bit_masks, ColliderGroup};
+use resources::grid::CellFace;
 
-use crate::{grid::Gridmap, net::GridmapServerMessage};
+use crate::{
+    grid::{Gridmap, Orthogonal, OrthogonalBases},
+    net::GridmapServerMessage,
+};
 
 #[derive(Component)]
 pub struct SelectCellCameraYPlane;
@@ -52,6 +60,7 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
             ..Default::default()
         })
         .id();
+
     commands.insert_resource(SelectCellCameraState {
         selected: None,
         y_level: 0,
@@ -60,6 +69,8 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
         y_plane_position: Vec2Int { x: 0, y: 0 },
         ghost_tile: None,
         ghost_entity,
+        ghost_rotation: 0,
+        ghost_face: CellFace::default(),
     });
 }
 
@@ -72,6 +83,8 @@ pub struct SelectCellCameraState {
     pub y_plane_position: Vec2Int,
     pub ghost_tile: Option<GhostTile>,
     pub ghost_entity: Entity,
+    pub ghost_rotation: u8,
+    pub ghost_face: CellFace,
 }
 
 pub struct GhostTile {
@@ -186,6 +199,131 @@ pub(crate) fn input_yplane_position(
         }
     }
 }
+pub(crate) fn input_ghost_rotation(
+    keys: Res<Input<KeyCode>>,
+    mut state: ResMut<SelectCellCameraState>,
+    gridmap: Res<Gridmap>,
+    mut ghost_query: Query<&mut Transform, With<GhostTileComponent>>,
+    mut events: EventReader<SelectCellSelectionChanged>,
+) {
+    if !state.y_plane_shown {
+        return;
+    }
+
+    let mut changed = false;
+    for _ in events.iter() {
+        changed = true;
+    }
+
+    if keys.just_pressed(KeyCode::Left) {
+        // x
+        changed = true;
+    }
+    if keys.just_pressed(KeyCode::Right) {
+        changed = true;
+    }
+    if keys.just_pressed(KeyCode::Down) {
+        changed = true;
+    }
+    if keys.just_pressed(KeyCode::Up) {
+        changed = true;
+    }
+    if !changed {
+        return;
+    }
+
+    match &state.ghost_tile {
+        Some(ghost_tile) => match ghost_query.get_mut(state.ghost_entity) {
+            Ok(mut ghost_transform) => match state.selected {
+                Some(selected_id) => {
+                    match gridmap.main_cell_properties.get(&ghost_tile.tile_type) {
+                        Some(properties) => {
+                            let mut new_face = state.ghost_face.clone();
+                            let mut new_rotation = state.ghost_rotation;
+                            match properties.cell_type {
+                                crate::grid::CellType::Wall => {
+                                    if keys.just_pressed(KeyCode::Left) {
+                                        match state.ghost_face {
+                                            CellFace::FrontWall => {
+                                                new_face = CellFace::LeftWall;
+                                            }
+                                            CellFace::RightWall => {
+                                                new_face = CellFace::FrontWall;
+                                            }
+                                            CellFace::BackWall => {
+                                                new_face = CellFace::RightWall;
+                                            }
+                                            CellFace::LeftWall => {
+                                                new_face = CellFace::BackWall;
+                                            }
+                                            _ => {
+                                                warn!("Invalid wall rotation.");
+                                            }
+                                        }
+                                    } else if keys.just_pressed(KeyCode::Right) {
+                                        match state.ghost_face {
+                                            CellFace::FrontWall => {
+                                                new_face = CellFace::RightWall;
+                                            }
+                                            CellFace::RightWall => {
+                                                new_face = CellFace::BackWall;
+                                            }
+                                            CellFace::BackWall => {
+                                                new_face = CellFace::LeftWall;
+                                            }
+                                            CellFace::LeftWall => {
+                                                new_face = CellFace::FrontWall;
+                                            }
+                                            _ => {
+                                                warn!("Invalid wall rotation.");
+                                            }
+                                        }
+                                    } else if keys.just_pressed(KeyCode::Down) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::Y, PI);
+                                        new_rotation = rotation.get_orthogonal_index();
+                                    }
+                                }
+                                crate::grid::CellType::Floor => {
+                                    if keys.just_pressed(KeyCode::Left) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
+                                        new_rotation = rotation.get_orthogonal_index();
+                                    } else if keys.just_pressed(KeyCode::Right) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
+                                        new_rotation = rotation.get_orthogonal_index();
+                                    }
+                                }
+                            }
+
+                            *ghost_transform = gridmap.get_cell_transform(
+                                TargetCell {
+                                    id: selected_id,
+                                    face: new_face.clone(),
+                                },
+                                new_rotation,
+                            );
+                            state.ghost_face = new_face;
+                            state.ghost_rotation = new_rotation;
+                        }
+                        None => {
+                            warn!("Couldnt find cell properties.");
+                        }
+                    }
+                }
+                None => {}
+            },
+            Err(_) => {
+                warn!("Couldnt find ghost transform.");
+            }
+        },
+        None => {}
+    }
+}
 
 pub struct SelectCellSelectionChanged;
 
@@ -270,11 +408,17 @@ pub(crate) fn select_cell_in_front_camera(
         z: world_id.z,
     });
 }
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+
+pub enum GhostTileLabel {
+    Update,
+}
 #[derive(Component)]
 pub struct GhostTileComponent;
 
-pub(crate) fn cell_selection_ghost_cell(
-    select_state: Res<SelectCellCameraState>,
+pub(crate) fn update_ghost_cell(
+    mut select_state: ResMut<SelectCellCameraState>,
     gridmap: Res<Gridmap>,
     mut events: EventReader<SelectCellSelectionChanged>,
     mut ghost_tile: Query<(&mut Transform, &mut Handle<Scene>), With<GhostTileComponent>>,
@@ -286,27 +430,40 @@ pub(crate) fn cell_selection_ghost_cell(
     for _ in events.iter() {
         match select_state.selected {
             Some(selected_id) => match ghost_tile.get_mut(select_state.ghost_entity) {
-                Ok((mut transform, mut scene)) => {
-                    transform.translation = cell_id_to_world(selected_id);
-                    match &select_state.ghost_tile {
-                        Some(ghost) => match gridmap.main_cell_properties.get(&ghost.tile_type) {
-                            Some(properties) => {
-                                *scene = properties.mesh_option.clone().unwrap();
+                Ok((mut transform, mut scene)) => match &select_state.ghost_tile {
+                    Some(ghost) => match gridmap.main_cell_properties.get(&ghost.tile_type) {
+                        Some(properties) => {
+                            *scene = properties.mesh_option.clone().unwrap();
+                            select_state.ghost_rotation = 0;
+                            let face;
+                            match properties.cell_type {
+                                crate::grid::CellType::Wall => {
+                                    face = CellFace::FrontWall;
+                                }
+                                crate::grid::CellType::Floor => {
+                                    face = CellFace::Floor;
+                                }
                             }
-                            None => {
-                                warn!("Coudlnt find tile.");
-                            }
-                        },
-                        None => {}
-                    }
-                }
+                            *transform = gridmap.get_cell_transform(
+                                TargetCell {
+                                    id: selected_id,
+                                    face: face.clone(),
+                                },
+                                select_state.ghost_rotation,
+                            );
+                            select_state.ghost_face = face;
+                        }
+                        None => {
+                            warn!("Coudlnt find tile.");
+                        }
+                    },
+                    None => {}
+                },
                 Err(_) => {
                     warn!("Couldnt query ghost tile.");
                 }
             },
-            None => {
-                warn!("No selected cellid found.");
-            }
+            None => {}
         }
     }
 }
