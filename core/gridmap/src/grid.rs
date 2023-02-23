@@ -33,6 +33,7 @@ impl Default for MapLimits {
 pub enum CellType {
     Wall,
     Floor,
+    Center,
 }
 
 /// Gridmap meta-data set.
@@ -95,6 +96,7 @@ pub struct GridCell {
     pub floor: Option<CellItem>,
     pub front_wall: Option<CellItem>,
     pub right_wall: Option<CellItem>,
+    pub center: Option<CellItem>,
 }
 
 impl GridCell {
@@ -103,6 +105,7 @@ impl GridCell {
             StrictCellFace::FrontWall => self.front_wall.clone(),
             StrictCellFace::RightWall => self.right_wall.clone(),
             StrictCellFace::Floor => self.floor.clone(),
+            StrictCellFace::Center => self.center.clone(),
         }
     }
 }
@@ -222,6 +225,7 @@ pub enum StrictCellFace {
     FrontWall,
     RightWall,
     Floor,
+    Center,
 }
 
 pub struct StrictCell {
@@ -333,6 +337,9 @@ impl Gridmap {
             CellFace::Floor => {
                 adjusted_face = StrictCellFace::Floor;
             }
+            CellFace::Center => {
+                adjusted_face = StrictCellFace::Center;
+            }
         }
         StrictCell {
             face: adjusted_face,
@@ -375,13 +382,18 @@ impl Gridmap {
         match strict.face {
             crate::grid::StrictCellFace::FrontWall => {
                 transform.translation.z += 0.5;
+                transform.translation.y += 0.5;
                 transform.rotation = Quat::from_rotation_y(1. * PI);
             }
             crate::grid::StrictCellFace::RightWall => {
                 transform.translation.x += 0.5;
+                transform.translation.y += 0.5;
                 transform.rotation = Quat::from_rotation_y(0.5 * PI);
             }
             crate::grid::StrictCellFace::Floor => {}
+            StrictCellFace::Center => {
+                transform.translation.y += 0.5;
+            }
         }
         transform.rotation *= OrthogonalBases::default().bases[orientation as usize];
         transform
