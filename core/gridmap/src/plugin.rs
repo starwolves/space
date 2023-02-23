@@ -23,9 +23,10 @@ use crate::{
     init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
     select_cell_yplane::{
-        cell_selection_ghost_cell, change_ghost_tile_request, create_select_cell_cam_state,
+        change_ghost_tile_request, create_select_cell_cam_state, input_ghost_rotation,
         input_yplane_position, move_ylevel_plane, select_cell_in_front_camera, set_yplane_position,
-        show_ylevel_plane, SelectCellSelectionChanged, SetYPlanePosition,
+        show_ylevel_plane, update_ghost_cell, GhostTileLabel, SelectCellSelectionChanged,
+        SetYPlanePosition,
     },
     wall::add_wall_group,
 };
@@ -89,9 +90,10 @@ impl Plugin for GridmapPlugin {
                         .with_run_criteria(FixedTimestep::step(1. / 8.))
                         .with_system(select_cell_in_front_camera),
                 )
-                .add_system(cell_selection_ghost_cell)
+                .add_system(update_ghost_cell.label(GhostTileLabel::Update))
                 .add_event::<SelectCellSelectionChanged>()
-                .add_system(change_ghost_tile_request);
+                .add_system(change_ghost_tile_request)
+                .add_system(input_ghost_rotation.after(GhostTileLabel::Update));
         }
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))

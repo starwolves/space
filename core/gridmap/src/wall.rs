@@ -15,7 +15,7 @@ pub(crate) fn add_wall_group(
         set_tile.send(AddTile {
             id: add_group_event.id,
             tile_type: wall_id,
-            orientation_option: add_group_event.orientation.clone(),
+            orientation: add_group_event.orientation.clone(),
             face: add_group_event.face.clone(),
             group_instance_id_option: Some(group_instance_id),
             entity: commands.spawn(()).id(),
@@ -25,7 +25,7 @@ pub(crate) fn add_wall_group(
         set_tile.send(AddTile {
             id: high_id,
             tile_type: wall_id,
-            orientation_option: add_group_event.orientation.clone(),
+            orientation: add_group_event.orientation.clone(),
             face: add_group_event.face.clone(),
             group_instance_id_option: Some(group_instance_id),
             entity: commands.spawn(()).id(),

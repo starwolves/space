@@ -3,8 +3,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
 
-use crate::grid::Orientation;
-
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
@@ -16,7 +14,7 @@ pub enum GridmapClientMessage {
 
 pub enum GridmapServerMessage {
     RemoveCell(i16, i16, i16),
-    AddCell(i16, i16, i16, u16, Option<Orientation>),
+    AddCell(i16, i16, i16, u16, u8),
     FireProjectile(ProjectileData),
     ConfigBlackCellID(u16, u16),
     ConfigOrderedCellsMain(Vec<String>),

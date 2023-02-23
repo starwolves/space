@@ -1,11 +1,13 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, f32::consts::PI};
 
+use actions::core::TargetCell;
 use bevy::{
     prelude::{
-        warn, BuildChildren, Commands, Component, Entity, GlobalTransform, Handle, Res, Resource,
+        warn, BuildChildren, Commands, Component, Entity, Handle, Mat3, Quat, Res, Resource,
         Transform,
     },
     scene::Scene,
+    transform::TransformBundle,
 };
 use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, RigidBody,
@@ -27,6 +29,11 @@ impl Default for MapLimits {
         Self { length: 32 }
     }
 }
+#[derive(Clone)]
+pub enum CellType {
+    Wall,
+    Floor,
+}
 
 /// Gridmap meta-data set.
 #[derive(Clone)]
@@ -45,11 +52,11 @@ pub struct TileProperties {
     pub floor_cell: bool,
     pub atmospherics_blocker: bool,
     pub atmospherics_pushes_up: bool,
-    pub direction_rotations: GridDirectionRotations,
     pub friction: f32,
     pub combine_rule: CoefficientCombineRule,
     /// Always available on client. Never available on server.
     pub mesh_option: Option<Handle<Scene>>,
+    pub cell_type: CellType,
 }
 
 impl Default for TileProperties {
@@ -68,10 +75,10 @@ impl Default for TileProperties {
             floor_cell: false,
             atmospherics_blocker: true,
             atmospherics_pushes_up: false,
-            direction_rotations: GridDirectionRotations::default_wall_rotations(),
             friction: 0.,
             combine_rule: CoefficientCombineRule::Min,
             mesh_option: None,
+            cell_type: CellType::Wall,
         }
     }
 }
@@ -82,14 +89,6 @@ pub fn get_cell_a_name(ship_cell: &CellItem, gridmap_data: &Res<Gridmap>) -> Str
         .get(&ship_cell.tile_type)
         .unwrap()
         .get_a_name()
-}
-#[derive(Serialize, Deserialize, Default, Debug, Clone)]
-pub enum Orientation {
-    #[default]
-    FrontFacing,
-    BackFacing,
-    RightFacing,
-    LeftFacing,
 }
 #[derive(Clone, Default)]
 pub struct GridCell {
@@ -121,8 +120,8 @@ pub struct CellItem {
     pub group_entity: Option<Entity>,
     /// Health of this tile.
     pub health: Health,
-    /// Rotation.
-    pub orientation: Option<Orientation>,
+    /// Rotation. Range of 0 - 24. See [ORTHOGONAL_BASES].
+    pub orientation: u8,
 }
 
 /// Maximum amount of available map chunks. 32 by 32 by 32 (cubic length of 1024 meters).
@@ -233,7 +232,7 @@ pub struct StrictCell {
 /// Event to add a gridmap tile that can cover multiple cells.
 pub struct SetCell {
     pub id: Vec3Int,
-    pub orientation: Orientation,
+    pub orientation: u8,
     pub tile_id: u16,
     pub face: CellFace,
 }
@@ -308,11 +307,11 @@ impl Gridmap {
 
         Some(id)
     }
-    pub fn get_strict_cell(&self, id: Vec3Int, face: CellFace) -> StrictCell {
-        let mut adjusted_id = id.clone();
+    pub fn get_strict_cell(&self, cell: TargetCell) -> StrictCell {
+        let mut adjusted_id = cell.id.clone();
         let adjusted_face;
 
-        match face {
+        match cell.face {
             CellFace::BackWall => {
                 adjusted_id.z -= 1;
                 adjusted_face = StrictCellFace::FrontWall;
@@ -340,8 +339,8 @@ impl Gridmap {
             id: adjusted_id,
         }
     }
-    pub fn get_cell(&self, id: Vec3Int, face: CellFace) -> Option<CellItem> {
-        let strict = self.get_strict_cell(id, face);
+    pub fn get_cell(&self, cell: TargetCell) -> Option<CellItem> {
+        let strict = self.get_strict_cell(cell);
 
         let indexes;
         match self.get_indexes(strict.id) {
@@ -367,6 +366,25 @@ impl Gridmap {
             },
             None => None,
         }
+    }
+
+    pub fn get_cell_transform(&self, cell: TargetCell, orientation: u8) -> Transform {
+        let strict = self.get_strict_cell(cell);
+
+        let mut transform = Transform::from_translation(cell_id_to_world(strict.id));
+        match strict.face {
+            crate::grid::StrictCellFace::FrontWall => {
+                transform.translation.z += 0.5;
+                transform.rotation = Quat::from_rotation_y(1. * PI);
+            }
+            crate::grid::StrictCellFace::RightWall => {
+                transform.translation.x += 0.5;
+                transform.rotation = Quat::from_rotation_y(0.5 * PI);
+            }
+            crate::grid::StrictCellFace::Floor => {}
+        }
+        transform.rotation *= OrthogonalBases::default().bases[orientation as usize];
+        transform
     }
 }
 
@@ -438,7 +456,7 @@ pub struct AddTile {
     /// Id of tile type.
     pub tile_type: u16,
     /// Rotation.
-    pub orientation_option: Option<Orientation>,
+    pub orientation: u8,
     pub face: CellFace,
     pub group_instance_id_option: Option<u32>,
     pub entity: Entity,
@@ -449,7 +467,7 @@ impl Default for AddTile {
         Self {
             id: Vec3Int::default(),
             tile_type: 0,
-            orientation_option: None,
+            orientation: 0,
             face: CellFace::default(),
             group_instance_id_option: None,
             entity: Entity::from_bits(0),
@@ -464,7 +482,7 @@ pub struct AddGroup {
     /// Group id.
     pub group_id: u16,
     /// Rotation.
-    pub orientation: Option<Orientation>,
+    pub orientation: u8,
     pub face: CellFace,
 }
 
@@ -488,9 +506,16 @@ pub(crate) fn add_tile_collision(
             }
         }
 
-        let mut world_position = Transform::from_translation(cell_id_to_world(event.id));
-        world_position.translation += cell_properties.collider_position.translation;
-        world_position.rotation *= cell_properties.collider_position.rotation;
+        let world_position = gridmap_data.get_cell_transform(
+            TargetCell {
+                id: event.id,
+                face: event.face.clone(),
+            },
+            event.orientation,
+        );
+        let mut collider_position = Transform::IDENTITY;
+        collider_position.translation += cell_properties.collider_position.translation;
+        collider_position.rotation *= cell_properties.collider_position.rotation;
 
         let mut entity_builder = commands.entity(event.entity);
         entity_builder
@@ -498,9 +523,10 @@ pub(crate) fn add_tile_collision(
             .insert(Cell { id: event.id });
 
         if is_server() {
-            entity_builder
-                .insert(GlobalTransform::default())
-                .insert(world_position);
+            entity_builder.insert(TransformBundle {
+                local: world_position,
+                ..Default::default()
+            });
         }
 
         let masks = get_bit_masks(ColliderGroup::Standard);
@@ -511,7 +537,7 @@ pub(crate) fn add_tile_collision(
         entity_builder.with_children(|children| {
             children
                 .spawn(cell_properties.collider.clone())
-                .insert(Transform::IDENTITY)
+                .insert(collider_position)
                 .insert(friction_component)
                 .insert(CollisionGroups::new(
                     Group::from_bits(masks.0).unwrap(),
@@ -523,7 +549,10 @@ pub(crate) fn add_tile_collision(
 
 pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMut<Gridmap>) {
     for add_tile_event in events.iter() {
-        let strict = gridmap_main.get_strict_cell(add_tile_event.id, add_tile_event.face.clone());
+        let strict = gridmap_main.get_strict_cell(TargetCell {
+            id: add_tile_event.id,
+            face: add_tile_event.face.clone(),
+        });
 
         match gridmap_main.get_indexes(add_tile_event.id) {
             Some(indexes) => match gridmap_main.grid.get_mut(indexes.chunk) {
@@ -579,7 +608,7 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                                             ),
                                             ..Default::default()
                                         },
-                                        orientation: add_tile_event.orientation_option.clone(),
+                                        orientation: add_tile_event.orientation.clone(),
                                         group_instance_id_option: None,
                                     });
                                 }
@@ -600,5 +629,122 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                 warn!("set_cell couldn't get cell indexes.");
             }
         }
+    }
+}
+
+pub struct OrthogonalBases {
+    pub bases: [Quat; 24],
+}
+impl Default for OrthogonalBases {
+    fn default() -> Self {
+        Self {
+            bases: [
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    1., 0., 0., 0., 1., 0., 0., 0., 1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., -1., 0., 1., 0., 0., 0., 0., 1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    -1., 0., 0., 0., -1., 0., 0., 0., 1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 1., 0., -1., 0., 0., 0., 0., 1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    1., 0., 0., 0., 0., -1., 0., 1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., 1., 1., 0., 0., 0., 1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    -1., 0., 0., 0., 0., 1., 0., 1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., -1., -1., 0., 0., 0., 1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    1., 0., 0., 0., -1., 0., 0., 0., -1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 1., 0., 1., 0., 0., 0., 0., -1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    -1., 0., 0., 0., 1., 0., 0., 0., -1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., -1., 0., -1., 0., 0., 0., 0., -1.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    1., 0., 0., 0., 0., 1., 0., -1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., -1., 1., 0., 0., 0., -1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    -1., 0., 0., 0., 0., -1., 0., -1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., 1., -1., 0., 0., 0., -1., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., 1., 0., 1., 0., -1., 0., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., -1., 0., 0., 0., 1., -1., 0., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., -1., 0., -1., 0., -1., 0., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 1., 0., 0., 0., -1., -1., 0., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., 1., 0., -1., 0., 1., 0., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 1., 0., 0., 0., 1., 1., 0., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., 0., -1., 0., 1., 0., 1., 0., 0.,
+                ])),
+                Quat::from_mat3(&Mat3::from_cols_array(&[
+                    0., -1., 0., 0., 0., -1., 1., 0., 0.,
+                ])),
+            ],
+        }
+    }
+}
+
+pub trait Orthogonal {
+    fn get_orthogonal_index(&self) -> u8;
+}
+
+impl Orthogonal for Quat {
+    fn get_orthogonal_index(&self) -> u8 {
+        let bases = OrthogonalBases::default().bases;
+        let mut math3_cols = Mat3::from_quat(*self).to_cols_array_2d();
+        for i in 0..3 {
+            for j in 0..3 {
+                let mut v = math3_cols[i][j];
+                if v > 0.5 {
+                    v = 1.;
+                } else if v < -0.5 {
+                    v = -1.;
+                } else {
+                    v = 0.;
+                }
+
+                math3_cols[i][j] = v;
+            }
+        }
+
+        for i in 0..24 {
+            if bases[i] == *self {
+                return i as u8;
+            }
+        }
+
+        return 0;
     }
 }
