@@ -10,4 +10,5 @@ pub enum CellFace {
     LeftWall,
     Floor,
     Ceiling,
+    Center,
 }

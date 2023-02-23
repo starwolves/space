@@ -39,7 +39,7 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
         .insert(SceneBundle {
             scene: plane_asset,
             visibility: Visibility::INVISIBLE,
-            transform: Transform::from_xyz(0.5, 0.2, 0.5),
+            transform: Transform::from_xyz(0.5, YPLANE_Y_OFFSET, 0.5),
             ..Default::default()
         })
         .with_children(|parent| {
@@ -163,6 +163,8 @@ pub struct SetYPlanePosition {
     pub y: i16,
 }
 
+pub const YPLANE_Y_OFFSET: f32 = 0.1;
+
 pub(crate) fn set_yplane_position(
     mut events: EventReader<SetYPlanePosition>,
     mut state: ResMut<SelectCellCameraState>,
@@ -172,7 +174,7 @@ pub(crate) fn set_yplane_position(
         state.y_level = event.y;
         match query.get_mut(state.y_plane) {
             Ok(mut transform) => {
-                transform.translation.y = event.y as f32 + 0.2;
+                transform.translation.y = event.y as f32 + YPLANE_Y_OFFSET;
             }
             Err(_) => {
                 warn!("Couldnt query plane.");
@@ -283,6 +285,11 @@ pub(crate) fn input_ghost_rotation(
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Y, PI);
                                         new_rotation = rotation.get_orthogonal_index();
+                                    } else if keys.just_pressed(KeyCode::Up) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::Z, PI / 2.0);
+                                        new_rotation = rotation.get_orthogonal_index();
                                     }
                                 }
                                 crate::grid::CellType::Floor => {
@@ -292,6 +299,29 @@ pub(crate) fn input_ghost_rotation(
                                         rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
                                         new_rotation = rotation.get_orthogonal_index();
                                     } else if keys.just_pressed(KeyCode::Right) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
+                                        new_rotation = rotation.get_orthogonal_index();
+                                    } else if keys.just_pressed(KeyCode::Down) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::X, PI);
+                                        new_rotation = rotation.get_orthogonal_index();
+                                    }
+                                }
+                                crate::grid::CellType::Center => {
+                                    if keys.just_pressed(KeyCode::Left) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::X, PI / 2.);
+                                        new_rotation = rotation.get_orthogonal_index();
+                                    } else if keys.just_pressed(KeyCode::Right) {
+                                        let mut rotation = OrthogonalBases::default().bases
+                                            [state.ghost_rotation as usize];
+                                        rotation *= Quat::from_axis_angle(Vec3::Z, PI / 2.);
+                                        new_rotation = rotation.get_orthogonal_index();
+                                    } else if keys.just_pressed(KeyCode::Down) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
@@ -442,6 +472,9 @@ pub(crate) fn update_ghost_cell(
                                 }
                                 crate::grid::CellType::Floor => {
                                     face = CellFace::Floor;
+                                }
+                                crate::grid::CellType::Center => {
+                                    face = CellFace::Center;
                                 }
                             }
                             *transform = gridmap.get_cell_transform(
