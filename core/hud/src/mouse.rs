@@ -17,6 +17,7 @@ pub(crate) fn grab_mouse_on_board(
                 match windows.get_primary_mut() {
                     Some(w) => {
                         w.set_cursor_grab_mode(CursorGrabMode::Locked);
+                        w.set_cursor_visibility(false);
                     }
                     None => {
                         warn!("Couldnt get primary window.");
@@ -37,8 +38,10 @@ pub(crate) fn grab_mouse_hud_expand(
             Some(w) => {
                 if event.expand {
                     w.set_cursor_grab_mode(CursorGrabMode::None);
+                    w.set_cursor_visibility(true);
                 } else {
                     w.set_cursor_grab_mode(CursorGrabMode::Locked);
+                    w.set_cursor_visibility(false);
                 }
             }
             None => {
