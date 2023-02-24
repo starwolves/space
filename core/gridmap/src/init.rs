@@ -231,6 +231,7 @@ pub(crate) fn load_ron_gridmap(
                     tile_type: cell_item_id,
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
+                    default_map_spawn: true,
                 });
             }
             RonItem::Group(item) => {
@@ -251,6 +252,7 @@ pub(crate) fn load_ron_gridmap(
                     group_id: group_item_id,
                     orientation: cell_data.orientation.clone(),
                     face: cell_data.face.clone(),
+                    default_map_spawn: true,
                 });
             }
         }

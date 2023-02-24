@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::Component;
 
 /// The data for entities and gridmap cells that have health.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 
 pub struct Health {
     /// The health container.
@@ -23,7 +23,7 @@ pub struct Health {
 }
 
 /// For sound effects.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 
 pub enum HitSoundSurface {
     Soft,
@@ -32,7 +32,7 @@ pub enum HitSoundSurface {
 
 /// All potential damage flags.
 #[allow(dead_code)]
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 
 pub enum DamageFlag {
     SoftDamage, //Ie fists.
@@ -42,7 +42,7 @@ pub enum DamageFlag {
 }
 /// Health flags acting as damage amplifiers or negators. Such as the armour plating flag.
 #[allow(dead_code)]
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 
 pub enum HealthFlag {
     ArmourPlated,
@@ -101,7 +101,7 @@ pub struct HumanoidHealth {
 }
 
 /// Contains health data of the entity.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 
 pub enum HealthContainer {
     Humanoid(HumanoidHealth),
@@ -109,7 +109,7 @@ pub enum HealthContainer {
     Structure(StructureHealth),
 }
 /// Health data for structures like gridmap cells.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 
 pub struct StructureHealth {
     pub brute: f32,
@@ -118,7 +118,7 @@ pub struct StructureHealth {
 }
 
 /// The health data for entities.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 
 pub struct EntityContainer {
     pub brute: f32,

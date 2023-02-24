@@ -32,7 +32,7 @@ pub struct DeconstructCell {
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum GridmapServerMessage {
-    RemoveCell(i16, i16, i16),
+    RemoveCell(TargetCell),
     AddCell(NewCell),
     FireProjectile(ProjectileData),
     ConfigBlackCellID(u16, u16),
