@@ -2,8 +2,8 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::{
     prelude::{
-        warn, BuildChildren, Commands, Component, Entity, EventWriter, Handle, Mat3, Quat, Query,
-        Res, Resource, Transform, Without,
+        warn, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity, EventWriter, Handle,
+        Mat3, Quat, Query, Res, Resource, Transform, Without,
     },
     scene::Scene,
     transform::TransformBundle,
@@ -98,7 +98,7 @@ pub fn get_cell_a_name(ship_cell: &CellItem, gridmap_data: &Res<Gridmap>) -> Str
         .unwrap()
         .get_a_name()
 }
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct GridCell {
     pub floor: Option<CellItem>,
     pub front_wall: Option<CellItem>,
@@ -115,10 +115,16 @@ impl GridCell {
             StrictCellFace::Center => self.center.clone(),
         }
     }
+    pub fn is_empty(&self) -> bool {
+        self.floor.is_none()
+            && self.front_wall.is_none()
+            && self.right_wall.is_none()
+            && self.center.is_none()
+    }
 }
 
 /// Data stored in a resource of a cell instead of each cell having their own entity with components.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct CellItem {
     /// Id of tile type.
     pub tile_type: u16,
@@ -157,10 +163,30 @@ impl Default for GridmapChunk {
     }
 }
 
+impl GridmapChunk {
+    fn is_empty(&self) -> bool {
+        let mut empty = true;
+
+        for cell in self.cells.iter() {
+            if cell.is_some() {
+                empty = false;
+                break;
+            }
+        }
+
+        empty
+    }
+}
+
 #[derive(Clone)]
-pub struct GridmapUpdate {
-    pub cell: NewCell,
+pub struct AddedUpdate {
+    pub cell: GridmapUpdate,
     pub players_received: Vec<u64>,
+}
+#[derive(Clone)]
+pub enum GridmapUpdate {
+    Added(NewCell),
+    Removed,
 }
 
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
@@ -168,7 +194,7 @@ pub struct GridmapUpdate {
 #[derive(Resource)]
 pub struct Gridmap {
     pub grid: Vec<Option<GridmapChunk>>,
-    pub updates: HashMap<TargetCell, GridmapUpdate>,
+    pub updates: HashMap<TargetCell, AddedUpdate>,
     pub non_fov_blocking_cells_list: Vec<u16>,
     pub non_combat_obstacle_cells_list: Vec<u16>,
     pub non_laser_obstacle_cells_list: Vec<u16>,
@@ -232,7 +258,7 @@ pub struct CellIndexes {
     pub cell: usize,
 }
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Default, Debug)]
 pub enum StrictCellFace {
     #[default]
     FrontWall,
@@ -255,7 +281,7 @@ pub struct SetCell {
 }
 
 impl Gridmap {
-    pub fn get_indexes(&self, id: Vec3Int) -> Option<CellIndexes> {
+    pub fn get_indexes(&self, id: Vec3Int) -> CellIndexes {
         let map_half_length = ((self.map_length_limit.length as f32 * CHUNK_CUBIC_LENGTH as f32)
             * 0.5)
             .floor() as i16;
@@ -285,10 +311,10 @@ impl Gridmap {
         let y_offset = y_cell_id * (CHUNK_CUBIC_LENGTH * CHUNK_CUBIC_LENGTH);
 
         let cell_index = x_offset + z_offset + y_offset;
-        Some(CellIndexes {
+        CellIndexes {
             chunk: chunk_index as usize,
             cell: cell_index as usize,
-        })
+        }
     }
     pub fn get_id(&self, indexes: CellIndexes) -> Option<Vec3Int> {
         let chunk_y_id = (indexes.chunk as f32
@@ -362,16 +388,7 @@ impl Gridmap {
     pub fn get_cell(&self, cell: TargetCell) -> Option<CellItem> {
         let strict = self.get_strict_cell(cell);
 
-        let indexes;
-        match self.get_indexes(strict.id) {
-            Some(i) => {
-                indexes = i;
-            }
-            None => {
-                warn!("Couldnt get index.");
-                return None;
-            }
-        }
+        let indexes = self.get_indexes(strict.id);
 
         match self.grid.get(indexes.chunk) {
             Some(chunk_option) => match chunk_option {
@@ -447,10 +464,8 @@ pub enum AdjacentTileDirection {
 
 /// Remove gridmap cell event.
 
-pub struct RemoveCell {
-    pub handle_option: Option<u64>,
-    pub id: Vec3Int,
-    pub face: CellFace,
+pub struct RemoveTile {
+    pub cell: TargetCell,
 }
 
 /// A pending cell update like a cell construction.
@@ -485,6 +500,7 @@ pub struct AddTile {
     pub face: CellFace,
     pub group_instance_id_option: Option<u32>,
     pub entity: Entity,
+    pub default_map_spawn: bool,
 }
 
 impl Default for AddTile {
@@ -496,6 +512,7 @@ impl Default for AddTile {
             face: CellFace::default(),
             group_instance_id_option: None,
             entity: Entity::from_bits(0),
+            default_map_spawn: false,
         }
     }
 }
@@ -509,12 +526,106 @@ pub struct AddGroup {
     /// Rotation.
     pub orientation: u8,
     pub face: CellFace,
+    pub default_map_spawn: bool,
 }
 
 use bevy::prelude::{EventReader, ResMut};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
 
 use crate::net::{ConstructCell, GridmapServerMessage, NewCell};
+
+pub(crate) fn remove_tile(
+    mut events: EventReader<RemoveTile>,
+    mut gridmap: ResMut<Gridmap>,
+    mut commands: Commands,
+) {
+    for event in events.iter() {
+        let strict_cell = gridmap.get_strict_cell(event.cell.clone());
+        let indexes = gridmap.get_indexes(strict_cell.id);
+        match gridmap.grid.get_mut(indexes.chunk) {
+            Some(grid_chunk_option) => {
+                let mut clear_chunk = false;
+                match grid_chunk_option {
+                    Some(grid_chunk) => {
+                        match grid_chunk.cells.get_mut(indexes.cell) {
+                            Some(cell_option) => {
+                                let mut cell_empty = false;
+                                match cell_option {
+                                    Some(cell) => {
+                                        let mut old_cell_entity = None;
+                                        match strict_cell.face {
+                                            StrictCellFace::FrontWall => {
+                                                match &cell.front_wall {
+                                                    Some(wall) => {
+                                                        old_cell_entity = wall.entity;
+                                                    }
+                                                    None => {}
+                                                }
+
+                                                cell.front_wall = None;
+                                            }
+                                            StrictCellFace::RightWall => {
+                                                match &cell.right_wall {
+                                                    Some(wall) => {
+                                                        old_cell_entity = wall.entity;
+                                                    }
+                                                    None => {}
+                                                }
+
+                                                cell.right_wall = None;
+                                            }
+                                            StrictCellFace::Floor => {
+                                                match &cell.floor {
+                                                    Some(wall) => {
+                                                        old_cell_entity = wall.entity;
+                                                    }
+                                                    None => {}
+                                                }
+
+                                                cell.floor = None;
+                                            }
+                                            StrictCellFace::Center => {
+                                                match &cell.center {
+                                                    Some(wall) => {
+                                                        old_cell_entity = wall.entity;
+                                                    }
+                                                    None => {}
+                                                }
+
+                                                cell.center = None;
+                                            }
+                                        }
+
+                                        match old_cell_entity {
+                                            Some(ent) => {
+                                                commands.entity(ent).despawn_recursive();
+                                            }
+                                            None => {}
+                                        }
+                                        cell_empty = cell.is_empty();
+                                    }
+                                    None => {}
+                                }
+                                if cell_empty {
+                                    *cell_option = None;
+                                }
+                            }
+                            None => {}
+                        }
+
+                        clear_chunk = grid_chunk.is_empty();
+                    }
+                    None => {}
+                }
+
+                if clear_chunk {
+                    *grid_chunk_option = None;
+                }
+            }
+            None => {}
+        }
+    }
+}
 
 pub(crate) fn add_tile_net(
     mut events: EventReader<AddTile>,
@@ -535,29 +646,85 @@ pub(crate) fn add_tile_net(
             orientation: event.orientation,
         };
 
+        if !event.default_map_spawn {
+            for connected_player in connected_players.iter() {
+                if !connected_player.connected {
+                    continue;
+                }
+                net.send(OutgoingReliableServerMessage {
+                    handle: connected_player.handle,
+                    message: GridmapServerMessage::AddCell(NewCell {
+                        cell: new_cell.cell.clone(),
+                        orientation: new_cell.orientation,
+                        tile_type: event.tile_type,
+                    }),
+                });
+                received.push(connected_player.handle);
+            }
+            gridmap.updates.insert(
+                target,
+                AddedUpdate {
+                    cell: GridmapUpdate::Added(NewCell {
+                        cell: new_cell.cell,
+                        orientation: new_cell.orientation,
+                        tile_type: event.tile_type,
+                    }),
+                    players_received: received,
+                },
+            );
+        }
+    }
+
+    for connected_player in connected_players.iter() {
+        if !connected_player.connected {
+            return;
+        }
+
+        for (_target_cell, update) in gridmap.updates.iter_mut() {
+            match &update.cell {
+                GridmapUpdate::Added(add) => {
+                    if !update.players_received.contains(&connected_player.handle) {
+                        update.players_received.push(connected_player.handle);
+                        net.send(OutgoingReliableServerMessage {
+                            handle: connected_player.handle,
+                            message: GridmapServerMessage::AddCell(NewCell {
+                                cell: add.cell.clone(),
+                                orientation: add.orientation,
+                                tile_type: add.tile_type,
+                            }),
+                        });
+                    }
+                }
+                _ => (),
+            }
+        }
+    }
+}
+
+pub(crate) fn remove_tile_net(
+    mut events: EventReader<RemoveTile>,
+    connected_players: Query<&ConnectedPlayer, Without<SoftPlayer>>,
+    mut net: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
+    mut gridmap: ResMut<Gridmap>,
+) {
+    for event in events.iter() {
+        let mut received = vec![];
+
         for connected_player in connected_players.iter() {
             if !connected_player.connected {
                 continue;
             }
             net.send(OutgoingReliableServerMessage {
                 handle: connected_player.handle,
-                message: GridmapServerMessage::AddCell(NewCell {
-                    cell: new_cell.cell.clone(),
-                    orientation: new_cell.orientation,
-                    tile_type: event.tile_type,
-                }),
+                message: GridmapServerMessage::RemoveCell(event.cell.clone()),
             });
             received.push(connected_player.handle);
         }
 
         gridmap.updates.insert(
-            target,
-            GridmapUpdate {
-                cell: NewCell {
-                    cell: new_cell.cell,
-                    orientation: new_cell.orientation,
-                    tile_type: event.tile_type,
-                },
+            event.cell.clone(),
+            AddedUpdate {
+                cell: GridmapUpdate::Removed,
                 players_received: received,
             },
         );
@@ -568,17 +735,18 @@ pub(crate) fn add_tile_net(
             return;
         }
 
-        for (_target_cell, update) in gridmap.updates.iter_mut() {
-            if !update.players_received.contains(&connected_player.handle) {
-                update.players_received.push(connected_player.handle);
-                net.send(OutgoingReliableServerMessage {
-                    handle: connected_player.handle,
-                    message: GridmapServerMessage::AddCell(NewCell {
-                        cell: update.cell.cell.clone(),
-                        orientation: update.cell.orientation,
-                        tile_type: update.cell.tile_type,
-                    }),
-                });
+        for (target_cell, update) in gridmap.updates.iter_mut() {
+            match update.cell {
+                GridmapUpdate::Removed => {
+                    if !update.players_received.contains(&connected_player.handle) {
+                        update.players_received.push(connected_player.handle);
+                        net.send(OutgoingReliableServerMessage {
+                            handle: connected_player.handle,
+                            message: GridmapServerMessage::RemoveCell(target_cell.clone()),
+                        });
+                    }
+                }
+                _ => (),
             }
         }
     }
@@ -591,14 +759,29 @@ pub(crate) fn add_cell_client(
 ) {
     for message in net.iter() {
         match &message.message {
-            GridmapServerMessage::AddCell(new) => event.send(AddTile {
-                id: new.cell.id,
-                tile_type: new.tile_type,
-                orientation: new.orientation,
-                face: new.cell.face.clone(),
-                group_instance_id_option: None,
-                entity: commands.spawn(()).id(),
-            }),
+            GridmapServerMessage::AddCell(new) => {
+                event.send(AddTile {
+                    id: new.cell.id,
+                    tile_type: new.tile_type,
+                    orientation: new.orientation,
+                    face: new.cell.face.clone(),
+                    group_instance_id_option: None,
+                    entity: commands.spawn(()).id(),
+                    default_map_spawn: false,
+                });
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn remove_cell_client(
+    mut net: EventReader<IncomingReliableServerMessage<GridmapServerMessage>>,
+    mut event: EventWriter<RemoveTile>,
+) {
+    for message in net.iter() {
+        match &message.message {
+            GridmapServerMessage::RemoveCell(new) => event.send(RemoveTile { cell: new.clone() }),
             _ => (),
         }
     }
@@ -669,79 +852,71 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
             face: add_tile_event.face.clone(),
         });
 
-        match gridmap_main.get_indexes(add_tile_event.id) {
-            Some(indexes) => match gridmap_main.grid.get_mut(indexes.chunk) {
-                Some(chunk_option) => {
-                    match chunk_option {
-                        Some(_) => {}
-                        None => {
-                            *chunk_option = Some(GridmapChunk::default());
-                        }
-                    }
-                    match chunk_option {
-                        Some(chunk) => {
-                            let found;
-                            match chunk.cells.get(indexes.cell) {
-                                Some(_) => {
-                                    found = true;
-                                }
-                                None => {
-                                    found = false;
-                                }
-                            }
-
-                            if !found {
-                                chunk.cells[indexes.cell] = Some(GridCell::default());
-                            }
-
-                            let mut y = chunk.cells.get_mut(indexes.cell);
-                            let x = y.as_mut().unwrap();
-
-                            match x {
-                                Some(_) => {}
-                                None => {
-                                    **x = Some(GridCell::default());
-                                }
-                            }
-
-                            let mut grid_items = x.as_mut().unwrap();
-
-                            let mut health_flags = HashMap::new();
-
-                            health_flags.insert(0, HealthFlag::ArmourPlated);
-
-                            match strict.face {
-                                crate::grid::StrictCellFace::Floor => {
-                                    grid_items.floor = Some(CellItem {
-                                        tile_type: add_tile_event.tile_type,
-                                        entity: None,
-                                        group_entity: None,
-                                        health: Health {
-                                            health_flags: health_flags.clone(),
-                                            health_container: HealthContainer::Structure(
-                                                StructureHealth::default(),
-                                            ),
-                                            ..Default::default()
-                                        },
-                                        orientation: add_tile_event.orientation.clone(),
-                                        group_instance_id_option: None,
-                                    });
-                                }
-                                _ => (),
-                            }
-                        }
-                        None => {
-                            warn!("No chunk option");
-                            continue;
-                        }
+        let indexes = gridmap_main.get_indexes(strict.id);
+        match gridmap_main.grid.get_mut(indexes.chunk) {
+            Some(chunk_option) => {
+                match chunk_option {
+                    Some(_) => {}
+                    None => {
+                        *chunk_option = Some(GridmapChunk::default());
                     }
                 }
-                None => {
-                    warn!("set_cell couldn't find chunk.");
+                match chunk_option {
+                    Some(chunk) => {
+                        let mut y = chunk.cells.get_mut(indexes.cell);
+                        let x = y.as_mut().unwrap();
+
+                        match x {
+                            Some(_) => {}
+                            None => {
+                                **x = Some(GridCell::default());
+                            }
+                        }
+
+                        let mut grid_items = x.as_mut().unwrap();
+
+                        let mut health_flags = HashMap::new();
+
+                        health_flags.insert(0, HealthFlag::ArmourPlated);
+
+                        let new = Some(CellItem {
+                            tile_type: add_tile_event.tile_type,
+                            entity: Some(add_tile_event.entity),
+                            group_entity: None,
+                            health: Health {
+                                health_flags: health_flags.clone(),
+                                health_container: HealthContainer::Structure(
+                                    StructureHealth::default(),
+                                ),
+                                ..Default::default()
+                            },
+                            orientation: add_tile_event.orientation.clone(),
+                            group_instance_id_option: None,
+                        });
+
+                        match strict.face {
+                            StrictCellFace::FrontWall => {
+                                grid_items.front_wall = new;
+                            }
+                            StrictCellFace::RightWall => {
+                                grid_items.right_wall = new;
+                            }
+                            StrictCellFace::Floor => {
+                                grid_items.floor = new;
+                            }
+                            StrictCellFace::Center => {
+                                grid_items.center = new;
+                            }
+                        }
+                    }
+                    None => {
+                        warn!("No chunk option");
+                        continue;
+                    }
                 }
-            },
+            }
             None => {
-                warn!("set_cell couldn't get cell indexes.");
+                warn!("set_cell couldn't find chunk.");
             }
         }
     }

@@ -25,7 +25,6 @@ pub(crate) fn set_cell_graphics(
                     },
                     set_cell.orientation,
                 );
-
                 commands.entity(set_cell.entity).insert(SceneBundle {
                     scene: properties.mesh_option.clone().unwrap(),
                     transform,

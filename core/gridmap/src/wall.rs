@@ -19,6 +19,7 @@ pub(crate) fn add_wall_group(
             face: add_group_event.face.clone(),
             group_instance_id_option: Some(group_instance_id),
             entity: commands.spawn(()).id(),
+            default_map_spawn: add_group_event.default_map_spawn,
         });
         let mut high_id = add_group_event.id.clone();
         high_id.y += 1;
@@ -29,6 +30,7 @@ pub(crate) fn add_wall_group(
             face: add_group_event.face.clone(),
             group_instance_id_option: Some(group_instance_id),
             entity: commands.spawn(()).id(),
+            default_map_spawn: add_group_event.default_map_spawn,
         });
     }
 }

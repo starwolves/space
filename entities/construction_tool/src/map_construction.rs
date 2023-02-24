@@ -2,7 +2,7 @@ use bevy::prelude::{warn, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::ClientEntityServerEntity;
 use gridmap::{
     construction::{GridmapConstructionState, ShowYLevelPlane},
-    grid::AddTile,
+    grid::{AddTile, RemoveTile},
     net::GridmapClientMessage,
 };
 use inventory::server::inventory::Inventory;
@@ -50,50 +50,51 @@ pub(crate) fn mouse_click_input(
     inventory_query: Query<&Inventory>,
     handle_to_entity: Res<HandleToEntity>,
     construction_tool_query: Query<&ConstructionTool>,
-    mut events: EventWriter<AddTile>,
+    mut add_events: EventWriter<AddTile>,
+    mut remove_events: EventWriter<RemoveTile>,
     mut commands: Commands,
 ) {
     for message in net.iter() {
+        let client_entity;
+        match handle_to_entity.map.get(&message.handle) {
+            Some(entity) => {
+                client_entity = *entity;
+            }
+            None => {
+                warn!("Couldnt get entity from map.");
+                return;
+            }
+        }
+
+        let active_item_entity;
+
+        match inventory_query.get(client_entity) {
+            Ok(inventory) => match inventory.active_item {
+                Some(e) => {
+                    active_item_entity = e;
+                }
+                None => {
+                    return;
+                }
+            },
+            Err(_) => {
+                return;
+            }
+        }
+
+        let construction_tool_component;
+
+        match construction_tool_query.get(active_item_entity) {
+            Ok(component) => {
+                construction_tool_component = component;
+            }
+            Err(_) => {
+                return;
+            }
+        }
+
         match &message.message {
             GridmapClientMessage::ConstructCell(construct) => {
-                let client_entity;
-                match handle_to_entity.map.get(&message.handle) {
-                    Some(entity) => {
-                        client_entity = *entity;
-                    }
-                    None => {
-                        warn!("Couldnt get entity from map.");
-                        return;
-                    }
-                }
-
-                let active_item_entity;
-
-                match inventory_query.get(client_entity) {
-                    Ok(inventory) => match inventory.active_item {
-                        Some(e) => {
-                            active_item_entity = e;
-                        }
-                        None => {
-                            return;
-                        }
-                    },
-                    Err(_) => {
-                        return;
-                    }
-                }
-
-                let construction_tool_component;
-
-                match construction_tool_query.get(active_item_entity) {
-                    Ok(component) => {
-                        construction_tool_component = component;
-                    }
-                    Err(_) => {
-                        return;
-                    }
-                }
-
                 let type_id;
 
                 match construction_tool_component.construction_option {
@@ -105,16 +106,21 @@ pub(crate) fn mouse_click_input(
                     }
                 }
 
-                events.send(AddTile {
+                add_events.send(AddTile {
                     id: construct.cell.id,
                     tile_type: type_id,
                     orientation: construct.orientation,
                     face: construct.cell.face.clone(),
                     group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
+                    default_map_spawn: false,
                 });
             }
-            GridmapClientMessage::DeconstructCell(deconstruct) => {}
+            GridmapClientMessage::DeconstructCell(deconstruct) => {
+                remove_events.send(RemoveTile {
+                    cell: deconstruct.cell.clone(),
+                });
+            }
             _ => (),
         }
     }

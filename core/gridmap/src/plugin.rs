@@ -25,8 +25,8 @@ use crate::{
     fov::ProjectileFOV,
     graphics::set_cell_graphics,
     grid::{
-        add_cell_client, add_tile, add_tile_collision, add_tile_net, AddGroup, AddTile, Gridmap,
-        RemoveCell,
+        add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
+        remove_tile, remove_tile_net, AddGroup, AddTile, Gridmap, RemoveTile,
     },
     init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
@@ -45,7 +45,6 @@ impl Plugin for GridmapPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_system(senser_update_fov)
-                .add_event::<RemoveCell>()
                 .add_system(gridmap_sensing_ability)
                 .add_system(examine_map.after(ActionsLabels::Action))
                 .add_system(
@@ -71,7 +70,8 @@ impl Plugin for GridmapPlugin {
                         .label(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
                 )
-                .add_system(add_tile_net);
+                .add_system(add_tile_net)
+                .add_system(remove_tile_net);
         } else {
             app.add_system(set_cell_graphics)
                 .add_startup_system(create_select_cell_cam_state)
@@ -90,7 +90,8 @@ impl Plugin for GridmapPlugin {
                 .add_system(change_ghost_tile_request)
                 .add_system(input_ghost_rotation.after(GhostTileLabel::Update))
                 .add_system(client_mouse_click_input)
-                .add_system(add_cell_client);
+                .add_system(add_cell_client)
+                .add_system(remove_cell_client);
         }
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
@@ -111,7 +112,9 @@ impl Plugin for GridmapPlugin {
             .add_event::<AddTile>()
             .add_event::<AddGroup>()
             .add_system(add_wall_group)
-            .add_system(add_tile_collision);
+            .add_system(add_tile_collision)
+            .add_system(remove_tile)
+            .add_event::<RemoveTile>();
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
