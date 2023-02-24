@@ -75,7 +75,7 @@ impl Default for FpsCameraController {
         Self {
             enabled: true,
             mouse_rotate_sensitivity: Vec2::splat(0.2),
-            translate_sensitivity: 2.0,
+            translate_sensitivity: 6.0,
             smoothing_weight: 0.9,
         }
     }

@@ -25,6 +25,7 @@ use crate::{
         },
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
     },
+    mouse::{grab_mouse_hud_expand, grab_mouse_on_board},
     style::button::{button_style_events, changed_focus},
 };
 
@@ -66,7 +67,9 @@ impl Plugin for HudPlugin {
                 .add_system(text_tree_select_button)
                 .init_resource::<TextTreeSelectionState>()
                 .add_system(changed_focus)
-                .add_system(text_tree_select_submit_button);
+                .add_system(text_tree_select_submit_button)
+                .add_system(grab_mouse_on_board)
+                .add_system(grab_mouse_hud_expand);
         }
     }
 }
