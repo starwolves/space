@@ -15,8 +15,11 @@ use bevy_rapier3d::prelude::{
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
-use resources::grid::{CellFace, TargetCell};
 use resources::math::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int};
+use resources::{
+    grid::{CellFace, TargetCell},
+    hud::HudState,
+};
 
 use crate::{
     grid::{Gridmap, Orthogonal, OrthogonalBases},
@@ -354,7 +357,9 @@ pub(crate) fn input_ghost_rotation(
     }
 }
 
-pub struct ConstructionCellSelectionChanged;
+pub struct ConstructionCellSelectionChanged {
+    pub changed_tile_type: bool,
+}
 
 pub(crate) fn select_cell_in_front_camera(
     camera_query: Query<&LookTransform>,
@@ -425,7 +430,9 @@ pub(crate) fn select_cell_in_front_camera(
     match state.selected {
         Some(s) => {
             if s != n {
-                events.send(ConstructionCellSelectionChanged);
+                events.send(ConstructionCellSelectionChanged {
+                    changed_tile_type: false,
+                });
             }
         }
         None => {}
@@ -456,34 +463,38 @@ pub(crate) fn update_ghost_cell(
         return;
     }
 
-    for _ in events.iter() {
+    for event in events.iter() {
         match select_state.selected {
             Some(selected_id) => match ghost_tile.get_mut(select_state.ghost_entity) {
                 Ok((mut transform, mut scene)) => match &select_state.ghost_tile {
                     Some(ghost) => match gridmap.main_cell_properties.get(&ghost.tile_type) {
                         Some(properties) => {
                             *scene = properties.mesh_option.clone().unwrap();
-                            select_state.ghost_rotation = 0;
                             let face;
-                            match properties.cell_type {
-                                crate::grid::CellType::Wall => {
-                                    face = CellFace::FrontWall;
+                            if event.changed_tile_type {
+                                select_state.ghost_rotation = 0;
+                                match properties.cell_type {
+                                    crate::grid::CellType::Wall => {
+                                        face = CellFace::FrontWall;
+                                    }
+                                    crate::grid::CellType::Floor => {
+                                        face = CellFace::Floor;
+                                    }
+                                    crate::grid::CellType::Center => {
+                                        face = CellFace::Center;
+                                    }
                                 }
-                                crate::grid::CellType::Floor => {
-                                    face = CellFace::Floor;
-                                }
-                                crate::grid::CellType::Center => {
-                                    face = CellFace::Center;
-                                }
+                                select_state.ghost_face = face.clone();
+                            } else {
+                                face = select_state.ghost_face.clone();
                             }
                             *transform = gridmap.get_cell_transform(
                                 TargetCell {
                                     id: selected_id,
-                                    face: face.clone(),
+                                    face: face,
                                 },
                                 select_state.ghost_rotation,
                             );
-                            select_state.ghost_face = face;
                         }
                         None => {
                             warn!("Coudlnt find tile.");
@@ -511,7 +522,9 @@ pub(crate) fn change_ghost_tile_request(
                 select_state.ghost_tile = Some(GhostTile {
                     tile_type: *type_id,
                 });
-                events.send(ConstructionCellSelectionChanged);
+                events.send(ConstructionCellSelectionChanged {
+                    changed_tile_type: true,
+                });
             }
             _ => (),
         }
@@ -522,8 +535,9 @@ pub(crate) fn client_mouse_click_input(
     buttons: Res<Input<MouseButton>>,
     state: Res<GridmapConstructionState>,
     mut net: EventWriter<OutgoingReliableClientMessage<GridmapClientMessage>>,
+    hud_state: Res<HudState>,
 ) {
-    if !state.is_constructing {
+    if !state.is_constructing || hud_state.expanded {
         return;
     }
 
