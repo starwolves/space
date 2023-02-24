@@ -3,7 +3,7 @@ use std::{collections::HashMap, fs, path::Path};
 use bevy::prelude::{info, warn, AssetServer, Commands, EventWriter, Res, ResMut, Transform};
 use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
 use entity::examine::RichName;
-use math::grid::Vec3Int;
+use resources::math::Vec3Int;
 use resources::{core::TickRate, grid::CellFace, is_server::is_server};
 
 use crate::grid::{AddGroup, AddTile, CellType, Gridmap, TileProperties};

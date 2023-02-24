@@ -25,7 +25,6 @@ networking = { path = "../networking" }
 sfx = { path = "../sfx" }
 pawn = { path = "../pawn"}
 entity = { path = "../entity" }
-math = { path = "../math" }
 text_api = { path = "../text_api" }
 player = { path = "../player" }
 resources = { path = "../resources" }

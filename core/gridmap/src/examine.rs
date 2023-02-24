@@ -1,12 +1,12 @@
-use actions::core::{BuildingActions, ListActionDataRequests, TargetCell};
+use actions::core::{BuildingActions, ListActionDataRequests};
 use bevy::prelude::{warn, Entity, EventReader, Query, Res, ResMut, Resource};
 use entity::{
     examine::Examinable,
     health::HealthContainer,
     senser::{to_doryen_coordinates, Senser, SensingAbility},
 };
-use math::grid::Vec3Int;
-use resources::grid::CellFace;
+use resources::grid::{CellFace, TargetCell};
+use resources::math::Vec3Int;
 use text_api::core::{
     get_empty_cell_message, get_space_message, ASTRIX, ENGINEERING_TEXT_COLOR, EXAMINATION_EMPTY,
     FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
@@ -426,6 +426,7 @@ pub(crate) fn incoming_messages(
                     }
                 }
             }
+            _ => (),
         }
     }
 }

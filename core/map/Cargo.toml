@@ -21,7 +21,6 @@ typename = "0.1.2"
 
 networking = { path = "../networking" }
 resources = { path = "../resources" }
-math = { path = "../math" }
 entity = { path = "../entity" }
 player = { path = "../player" }
 pawn = { path = "../pawn" }

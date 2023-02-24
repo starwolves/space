@@ -4,7 +4,7 @@ use bevy::{
     prelude::{Entity, EventReader, Query, Resource},
 };
 use entity::senser::WORLD_WIDTH_CELLS;
-use math::grid::Vec2Int;
+use resources::math::Vec2Int;
 
 use std::collections::HashMap;
 /// Read map input events and apply them to the Map component.

@@ -10,9 +10,9 @@ use entity::{
     sensable::Sensable,
     senser::{to_doryen_coordinates, Senser},
 };
-use math::grid::world_to_cell_id;
 use networking::server::EntityUpdateData;
 use pawn::pawn::ShipJobsEnum;
+use resources::math::world_to_cell_id;
 use sfx::{proximity_message::PlaySoundProximityMessageData, radio_sound::PlaySoundRadioMessage};
 use text_api::core::{
     escape_bb, BILLBOARD_DATA_SECURITY_END, BILLBOARD_DATA_SECURITY_START, BILLBOARD_SHOUT_FONT,

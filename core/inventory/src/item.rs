@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{Component, Entity, Transform};
-use math::grid::Vec2Int;
+use resources::math::Vec2Int;
 
 use crate::server::inventory::SlotType;
 

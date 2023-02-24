@@ -1,8 +1,9 @@
 use bevy::prelude::Entity;
+use resources::grid::TargetCell;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
-use crate::{core::TargetCell, networking::NetAction};
+use crate::networking::NetAction;
 
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 

@@ -11,10 +11,10 @@ use inventory::item::InventoryItem;
 use inventory::server::combat::{DamageModel, MeleeCombat};
 use inventory::server::inventory::SlotType;
 use inventory::spawn_item::{InventoryItemBuilder, InventoryItemBundle};
-use math::grid::Vec2Int;
 use physics::rigid_body::STANDARD_BODY_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
 use resources::content::SF_CONTENT_PREFIX;
+use resources::math::Vec2Int;
 use std::collections::BTreeMap;
 
 use super::construction_tool::ConstructionTool;

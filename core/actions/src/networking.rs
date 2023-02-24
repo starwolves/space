@@ -1,10 +1,10 @@
 use bevy::prelude::Entity;
+use resources::grid::TargetCell;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::core::InputAction;
 use crate::core::InputListActions;
-use crate::core::TargetCell;
 use bevy::prelude::warn;
 use networking::server::HandleToEntity;
 

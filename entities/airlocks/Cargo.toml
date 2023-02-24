@@ -30,5 +30,4 @@ combat = { path = "../../core/combat" }
 actions = { path = "../../core/actions" }
 gridmap = { path = "../../core/gridmap" }
 resources = { path = "../../core/resources" }
-math = { path = "../../core/math" }
 physics = { path = "../../core/physics" }

@@ -27,6 +27,5 @@ sfx = { path = "../sfx" }
 chat = { path = "../chat" }
 entity = { path = "../entity" }
 resources = { path = "../resources" }
-math = { path = "../math" }
 physics = { path = "../physics" }
 inventory = { path = "../inventory" }

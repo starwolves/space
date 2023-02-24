@@ -7,7 +7,7 @@ use bevy::{
     ui::{FlexDirection, Node, Size, Style, Val},
 };
 use inventory::client::slots::AddedSlot;
-use math::grid::Vec2Int;
+use resources::math::Vec2Int;
 use ui::fonts::EMPIRE_FONT;
 
 use super::build::{InventoryHudRootNode, InventoryHudState};

@@ -11,6 +11,7 @@
 pub mod can_reach_entity;
 /// Configuration to send to newly connected clients.
 pub mod connections;
+pub mod construction;
 /// Manage gridmap exmination.
 pub mod examine;
 /// Manage gridmap FOV.
@@ -26,9 +27,6 @@ mod init;
 pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;
-pub mod select_cell_yplane;
 /// Manage sensing authorization for gridmap examining.
 mod sensing_ability;
-/// Manage gridmap updates.
-pub mod updates;
 pub mod wall;

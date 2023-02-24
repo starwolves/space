@@ -27,7 +27,6 @@ sfx = { path = "../../core/sfx" }
 actions = { path = "../../core/actions" }
 ui = { path = "../../core/ui" }
 resources = { path = "../../core/resources" }
-math = { path = "../../core/math" }
 physics = { path = "../../core/physics" }
 inventory = { path = "../../core/inventory" }
 basic_console_commands = { path = "../../core/basic_console_commands" }

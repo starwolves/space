@@ -22,11 +22,11 @@ use inventory::server::{
     inventory::{AddItemToSlot, AddSlot, Inventory, Slot},
 };
 use map::map::Map;
-use math::grid::Vec2Int;
 use pawn::pawn::{DataLink, DataLinkType, PawnBuilder};
 use pawn::pawn::{PawnDesignation, ShipAuthorization, ShipAuthorizationEnum, SpawnPawnData};
 use physics::physics::CHARACTER_FLOOR_FRICTION;
 use physics::spawn::{RigidBodyBuilder, RigidBodyBundle};
+use resources::math::Vec2Int;
 
 /// Get default transform.
 

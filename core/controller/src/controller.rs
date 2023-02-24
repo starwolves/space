@@ -1,6 +1,6 @@
 use bevy::prelude::{Component, Entity, Vec2};
-use math::grid::Vec3Int;
 use pawn::pawn::FacingDirection;
+use resources::math::Vec3Int;
 
 /// Controller input component.
 #[derive(Component)]

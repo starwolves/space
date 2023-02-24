@@ -2,7 +2,6 @@ use bevy::{
     prelude::{App, IntoSystemDescriptor, Plugin, SystemSet},
     time::FixedTimestep,
 };
-use entity::entity_data::INTERPOLATION_LABEL1;
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
@@ -12,6 +11,12 @@ use resources::{
 
 use crate::{
     connections::configure,
+    construction::{
+        change_ghost_tile_request, client_mouse_click_input, create_select_cell_cam_state,
+        input_ghost_rotation, input_yplane_position, move_ylevel_plane,
+        select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, update_ghost_cell,
+        ConstructionCellSelectionChanged, GhostTileLabel, SetYPlanePosition,
+    },
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
         finalize_grid_examine_input, incoming_messages, set_action_header_name,
@@ -19,15 +24,12 @@ use crate::{
     },
     fov::ProjectileFOV,
     graphics::set_cell_graphics,
-    grid::{add_tile, add_tile_collision, AddGroup, AddTile, Gridmap, RemoveCell},
+    grid::{
+        add_cell_client, add_tile, add_tile_collision, add_tile_net, AddGroup, AddTile, Gridmap,
+        RemoveCell,
+    },
     init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
-    select_cell_yplane::{
-        change_ghost_tile_request, create_select_cell_cam_state, input_ghost_rotation,
-        input_yplane_position, move_ylevel_plane, select_cell_in_front_camera, set_yplane_position,
-        show_ylevel_plane, update_ghost_cell, GhostTileLabel, SelectCellSelectionChanged,
-        SetYPlanePosition,
-    },
     wall::add_wall_group,
 };
 use bevy::app::CoreStage::{PostUpdate, PreUpdate};
@@ -35,7 +37,6 @@ use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 use super::{
     fov::{senser_update_fov, DoryenMap},
     sensing_ability::gridmap_sensing_ability,
-    updates::gridmap_updates_manager,
 };
 
 pub struct GridmapPlugin;
@@ -45,13 +46,6 @@ impl Plugin for GridmapPlugin {
         if is_server() {
             app.add_system(senser_update_fov)
                 .add_event::<RemoveCell>()
-                .add_system_set(
-                    SystemSet::new()
-                        .with_run_criteria(
-                            FixedTimestep::step(1. / 4.).with_label(INTERPOLATION_LABEL1),
-                        )
-                        .with_system(gridmap_updates_manager),
-                )
                 .add_system(gridmap_sensing_ability)
                 .add_system(examine_map.after(ActionsLabels::Action))
                 .add_system(
@@ -76,7 +70,8 @@ impl Plugin for GridmapPlugin {
                     configure
                         .label(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
-                );
+                )
+                .add_system(add_tile_net);
         } else {
             app.add_system(set_cell_graphics)
                 .add_startup_system(create_select_cell_cam_state)
@@ -91,9 +86,11 @@ impl Plugin for GridmapPlugin {
                         .with_system(select_cell_in_front_camera),
                 )
                 .add_system(update_ghost_cell.label(GhostTileLabel::Update))
-                .add_event::<SelectCellSelectionChanged>()
+                .add_event::<ConstructionCellSelectionChanged>()
                 .add_system(change_ghost_tile_request)
-                .add_system(input_ghost_rotation.after(GhostTileLabel::Update));
+                .add_system(input_ghost_rotation.after(GhostTileLabel::Update))
+                .add_system(client_mouse_click_input)
+                .add_system(add_cell_client);
         }
 
         app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))

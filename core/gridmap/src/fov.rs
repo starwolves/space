@@ -1,7 +1,7 @@
 use bevy::prelude::{Query, ResMut, Resource, Transform};
 use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, WORLD_WIDTH_CELLS};
-use math::grid::{world_to_cell_id, Vec2Int};
+use resources::math::{world_to_cell_id, Vec2Int};
 
 use crate::net::ProjectileData;
 

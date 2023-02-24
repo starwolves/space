@@ -1,5 +1,5 @@
 use bevy::prelude::{warn, Commands, Component, EventReader, Query, Res, ResMut, Transform};
-use math::grid::cell_id_to_world;
+use resources::math::cell_id_to_world;
 use sfx::entity_update::SfxAutoDestroyTimers;
 use sounds::shared::CombatSoundSet;
 

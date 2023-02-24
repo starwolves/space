@@ -23,7 +23,6 @@ dyn-clone = "1.0.10"
 
 doryen_fov = { path = "../doryen_fov" }
 networking = { path = "../networking" }
-math = { path = "../math"}
 resources = { path = "../resources" }
 text_api = { path = "../text_api"}
 entity_macros = { path = "../entity_macros" }

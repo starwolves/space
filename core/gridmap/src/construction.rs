@@ -1,11 +1,10 @@
 use std::f32::consts::PI;
 
-use actions::core::TargetCell;
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Commands, Component, Entity, EventReader, EventWriter,
-        Handle, Input, KeyCode, Quat, Query, Res, ResMut, Resource, SystemLabel, Transform, Vec3,
-        Visibility, With,
+        Handle, Input, KeyCode, MouseButton, Quat, Query, Res, ResMut, Resource, SystemLabel,
+        Transform, Vec3, Visibility, With,
     },
     scene::{Scene, SceneBundle},
     transform::TransformBundle,
@@ -14,14 +13,14 @@ use bevy_rapier3d::prelude::{
     Collider, CollisionGroups, Group, QueryFilter, RapierContext, RigidBody,
 };
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
-use math::grid::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int};
-use networking::client::IncomingReliableServerMessage;
+use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
-use resources::grid::CellFace;
+use resources::grid::{CellFace, TargetCell};
+use resources::math::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int};
 
 use crate::{
     grid::{Gridmap, Orthogonal, OrthogonalBases},
-    net::GridmapServerMessage,
+    net::{ConstructCell, DeconstructCell, GridmapClientMessage, GridmapServerMessage},
 };
 
 #[derive(Component)]
@@ -61,11 +60,11 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
         })
         .id();
 
-    commands.insert_resource(SelectCellCameraState {
+    commands.insert_resource(GridmapConstructionState {
         selected: None,
         y_level: 0,
         y_plane: plane_entity,
-        y_plane_shown: false,
+        is_constructing: false,
         y_plane_position: Vec2Int { x: 0, y: 0 },
         ghost_tile: None,
         ghost_entity,
@@ -75,11 +74,11 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
 }
 
 #[derive(Resource)]
-pub struct SelectCellCameraState {
+pub struct GridmapConstructionState {
     pub selected: Option<Vec3Int>,
     pub y_level: i16,
     pub y_plane: Entity,
-    pub y_plane_shown: bool,
+    pub is_constructing: bool,
     pub y_plane_position: Vec2Int,
     pub ghost_tile: Option<GhostTile>,
     pub ghost_entity: Entity,
@@ -97,7 +96,7 @@ pub struct ShowYLevelPlane {
 }
 pub(crate) fn show_ylevel_plane(
     mut events: EventReader<ShowYLevelPlane>,
-    mut state: ResMut<SelectCellCameraState>,
+    mut state: ResMut<GridmapConstructionState>,
     mut query: Query<&mut Visibility, With<SelectCellCameraYPlane>>,
     mut events2: EventWriter<SetYPlanePosition>,
 ) {
@@ -105,7 +104,7 @@ pub(crate) fn show_ylevel_plane(
         match query.get_mut(state.y_plane) {
             Ok(mut visibility) => {
                 visibility.is_visible = event.show;
-                state.y_plane_shown = event.show;
+                state.is_constructing = event.show;
                 if event.show {
                     events2.send(SetYPlanePosition { y: state.y_level });
                 }
@@ -120,10 +119,10 @@ pub(crate) fn show_ylevel_plane(
 pub(crate) fn move_ylevel_plane(
     camera_query: Query<&LookTransform>,
     camera: Res<ActiveCamera>,
-    mut state: ResMut<SelectCellCameraState>,
+    mut state: ResMut<GridmapConstructionState>,
     mut ylevel_query: Query<&mut Transform, With<SelectCellCameraYPlane>>,
 ) {
-    if !state.y_plane_shown {
+    if !state.is_constructing {
         return;
     }
     match camera.option {
@@ -167,7 +166,7 @@ pub const YPLANE_Y_OFFSET: f32 = 0.1;
 
 pub(crate) fn set_yplane_position(
     mut events: EventReader<SetYPlanePosition>,
-    mut state: ResMut<SelectCellCameraState>,
+    mut state: ResMut<GridmapConstructionState>,
     mut query: Query<&mut Transform, With<SelectCellCameraYPlane>>,
 ) {
     for event in events.iter() {
@@ -185,10 +184,10 @@ pub(crate) fn set_yplane_position(
 
 pub(crate) fn input_yplane_position(
     keys: Res<Input<KeyCode>>,
-    state: Res<SelectCellCameraState>,
+    state: Res<GridmapConstructionState>,
     mut events: EventWriter<SetYPlanePosition>,
 ) {
-    if state.y_plane_shown {
+    if state.is_constructing {
         if keys.just_pressed(KeyCode::Q) {
             events.send(SetYPlanePosition {
                 y: state.y_level - 1,
@@ -203,12 +202,12 @@ pub(crate) fn input_yplane_position(
 }
 pub(crate) fn input_ghost_rotation(
     keys: Res<Input<KeyCode>>,
-    mut state: ResMut<SelectCellCameraState>,
+    mut state: ResMut<GridmapConstructionState>,
     gridmap: Res<Gridmap>,
     mut ghost_query: Query<&mut Transform, With<GhostTileComponent>>,
-    mut events: EventReader<SelectCellSelectionChanged>,
+    mut events: EventReader<ConstructionCellSelectionChanged>,
 ) {
-    if !state.y_plane_shown {
+    if !state.is_constructing {
         return;
     }
 
@@ -355,16 +354,16 @@ pub(crate) fn input_ghost_rotation(
     }
 }
 
-pub struct SelectCellSelectionChanged;
+pub struct ConstructionCellSelectionChanged;
 
 pub(crate) fn select_cell_in_front_camera(
     camera_query: Query<&LookTransform>,
     active_camera: Res<ActiveCamera>,
     rapier_context: Res<RapierContext>,
-    mut state: ResMut<SelectCellCameraState>,
-    mut events: EventWriter<SelectCellSelectionChanged>,
+    mut state: ResMut<GridmapConstructionState>,
+    mut events: EventWriter<ConstructionCellSelectionChanged>,
 ) {
-    if !state.y_plane_shown {
+    if !state.is_constructing {
         return;
     }
 
@@ -426,7 +425,7 @@ pub(crate) fn select_cell_in_front_camera(
     match state.selected {
         Some(s) => {
             if s != n {
-                events.send(SelectCellSelectionChanged);
+                events.send(ConstructionCellSelectionChanged);
             }
         }
         None => {}
@@ -448,12 +447,12 @@ pub enum GhostTileLabel {
 pub struct GhostTileComponent;
 
 pub(crate) fn update_ghost_cell(
-    mut select_state: ResMut<SelectCellCameraState>,
+    mut select_state: ResMut<GridmapConstructionState>,
     gridmap: Res<Gridmap>,
-    mut events: EventReader<SelectCellSelectionChanged>,
+    mut events: EventReader<ConstructionCellSelectionChanged>,
     mut ghost_tile: Query<(&mut Transform, &mut Handle<Scene>), With<GhostTileComponent>>,
 ) {
-    if !select_state.y_plane_shown {
+    if !select_state.is_constructing {
         return;
     }
 
@@ -503,8 +502,8 @@ pub(crate) fn update_ghost_cell(
 
 pub(crate) fn change_ghost_tile_request(
     mut net: EventReader<IncomingReliableServerMessage<GridmapServerMessage>>,
-    mut events: EventWriter<SelectCellSelectionChanged>,
-    mut select_state: ResMut<SelectCellCameraState>,
+    mut events: EventWriter<ConstructionCellSelectionChanged>,
+    mut select_state: ResMut<GridmapConstructionState>,
 ) {
     for message in net.iter() {
         match &message.message {
@@ -512,9 +511,67 @@ pub(crate) fn change_ghost_tile_request(
                 select_state.ghost_tile = Some(GhostTile {
                     tile_type: *type_id,
                 });
-                events.send(SelectCellSelectionChanged);
+                events.send(ConstructionCellSelectionChanged);
             }
             _ => (),
         }
+    }
+}
+
+pub(crate) fn client_mouse_click_input(
+    buttons: Res<Input<MouseButton>>,
+    state: Res<GridmapConstructionState>,
+    mut net: EventWriter<OutgoingReliableClientMessage<GridmapClientMessage>>,
+) {
+    if !state.is_constructing {
+        return;
+    }
+
+    if buttons.just_pressed(MouseButton::Left) {
+        if state.ghost_tile.is_none() {
+            return;
+        }
+
+        let cell_id;
+
+        match state.selected {
+            Some(c) => {
+                cell_id = c;
+            }
+            None => {
+                return;
+            }
+        }
+
+        net.send(OutgoingReliableClientMessage {
+            message: GridmapClientMessage::ConstructCell(ConstructCell {
+                cell: TargetCell {
+                    id: cell_id,
+                    face: state.ghost_face.clone(),
+                },
+                orientation: state.ghost_rotation,
+            }),
+        });
+    }
+    if buttons.just_pressed(MouseButton::Right) {
+        let cell_id;
+
+        match state.selected {
+            Some(c) => {
+                cell_id = c;
+            }
+            None => {
+                return;
+            }
+        }
+
+        net.send(OutgoingReliableClientMessage {
+            message: GridmapClientMessage::DeconstructCell(DeconstructCell {
+                cell: TargetCell {
+                    id: cell_id,
+                    face: state.ghost_face.clone(),
+                },
+            }),
+        });
     }
 }

@@ -4,8 +4,8 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::{CollisionGroups, Group};
 use entity::{entity_data::EntityGroup, examine::Examinable};
-use math::grid::{world_to_cell_id, Vec2Int};
 use pawn::pawn::{Pawn, ShipAuthorization};
+use resources::math::{world_to_cell_id, Vec2Int};
 use sfx::{builder::sfx_builder, entity_update::SfxAutoDestroyTimers};
 use sounds::{
     airlock::{

@@ -23,7 +23,6 @@ networking = { path = "../networking" }
 pawn = { path = "../pawn" }
 entity = { path = "../entity" }
 resources = { path = "../resources" }
-math = { path = "../math" }
 physics = { path = "../physics" }
 text_api = { path = "../text_api" }
 console_commands = { path = "../console_commands" }
