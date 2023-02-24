@@ -8,6 +8,7 @@ use bevy::{
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Size, Style, Val},
 };
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
+use resources::hud::HudState;
 use ui::{
     fonts::{ARIZONE_FONT, EMPIRE_FONT},
     net::{TextTreeInput, TextTreeSelection, UiClientMessage, UiServerMessage},
@@ -15,7 +16,6 @@ use ui::{
 
 use crate::{
     expand::ExpandInventoryHud,
-    hud::HudState,
     inventory::actions::{ACTIONS_HUD_BG_COLOR, INVENTORY_HUD_BG_COLOR},
     style::button::ButtonSelectionStyle,
 };

@@ -14,12 +14,10 @@ use bevy::{
 use entity::spawn::PawnEntityId;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use player::configuration::Boarded;
+use resources::hud::HudState;
 use ui::fonts::{ARIZONE_FONT, EMPIRE_FONT};
 
-use crate::{
-    hud::{HudState, LeftContentHud},
-    style::button::ButtonSelectionStyle,
-};
+use crate::{hud::LeftContentHud, style::button::ButtonSelectionStyle};
 
 use super::build::{InventoryHudState, OpenInventoryHud};
 

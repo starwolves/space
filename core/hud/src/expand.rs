@@ -1,7 +1,6 @@
 use bevy::prelude::{EventReader, ResMut};
 use cameras::controllers::fps::CameraMouseInputEnabled;
-
-use crate::hud::HudState;
+use resources::hud::HudState;
 
 /// Event to expand the hud.
 pub struct ExpandInventoryHud {
