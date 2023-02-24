@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use bevy::prelude::{
     warn, Component, Entity, EventReader, EventWriter, Query, Resource, SystemLabel,
 };
-use math::grid::Vec2Int;
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
+use resources::math::Vec2Int;
 use serde::{Deserialize, Serialize};
 
 use crate::{item::InventoryItem, net::InventoryServerMessage};

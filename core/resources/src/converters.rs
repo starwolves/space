@@ -110,8 +110,8 @@ pub fn isometry_to_transform(isometry: Isometry<Real>) -> Transform {
         scale: Vec3::new(1., 1., 1.),
     }
 }
+use crate::math::Vec2Int;
 use bevy::math::Mat3;
-use math::grid::Vec2Int;
 
 pub fn string_color_to_color(string_color: &str) -> (f32, f32, f32, f32) {
     let string_values: Vec<&str> = string_color.split(",").collect();

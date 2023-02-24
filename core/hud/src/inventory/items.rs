@@ -16,8 +16,8 @@ use inventory::{
     server::inventory::{Inventory, ItemAddedToSlot},
     spawn_item::InventoryItemBuilder,
 };
-use math::grid::Vec2Int;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
+use resources::math::Vec2Int;
 
 use crate::{hud::HudState, inventory::queue::RequeueHudAddItemToSlot};
 

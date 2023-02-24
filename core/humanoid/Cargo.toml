@@ -25,7 +25,6 @@ combat = { path = "../combat" }
 sfx = { path = "../sfx" }
 entity = { path = "../entity" }
 resources = { path = "../resources" }
-math = { path = "../math" }
 text_api = { path = "../text_api" }
 controller = { path = "../controller" }
 player = { path = "../player" }

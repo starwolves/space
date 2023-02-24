@@ -21,5 +21,4 @@ bevy_rapier3d = "0.20.0"
 networking = { path = "../networking"}
 actions = { path = "../actions" }
 resources = { path = "../resources" }
-math = { path = "../math" }
 entity = { path = "../entity" }

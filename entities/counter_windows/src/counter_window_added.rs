@@ -7,7 +7,7 @@ use entity::{
 };
 use gridmap::grid::Gridmap;
 use map::{map::GREEN_MAP_TILE_COUNTER, map_input::MapData};
-use math::grid::{world_to_cell_id, Vec2Int};
+use resources::math::{world_to_cell_id, Vec2Int};
 use text_api::core::{FURTHER_ITALIC_FONT, HEALTHY_COLOR};
 
 use super::{

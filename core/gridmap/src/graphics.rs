@@ -1,4 +1,3 @@
-use actions::core::TargetCell;
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 
@@ -6,6 +5,7 @@ use bevy::scene::SceneBundle;
 
 use bevy::prelude::warn;
 use bevy::prelude::Res;
+use resources::grid::TargetCell;
 
 use crate::grid::AddTile;
 use crate::grid::Gridmap;

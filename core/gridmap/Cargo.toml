@@ -27,7 +27,6 @@ entity = { path = "../entity" }
 actions = { path = "../actions" }
 pawn = { path = "../pawn" }
 resources = { path = "../resources" }
-math = { path = "../math" }
 text_api = { path = "../text_api" }
 player = { path = "../player" }
 physics = { path = "../physics" }

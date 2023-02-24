@@ -15,7 +15,7 @@ use crate::input::InputSprinting;
 use crate::input::InputToggleAutoMove;
 use crate::input::InputToggleCombatMode;
 use crate::input::{InputBuildGraphics, InputMouseDirectionUpdate};
-use math::grid::Vec3Int;
+use resources::math::Vec3Int;
 
 use networking::server::HandleToEntity;
 use player::boarding::InputUIInputTransmitText;

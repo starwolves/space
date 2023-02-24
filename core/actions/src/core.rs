@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use bevy::prelude::Resource;
 use bevy::prelude::{warn, Component, Entity, EventReader, Query, Res, ResMut};
-use math::grid::Vec3Int;
 
 /// Resource with a list of actions being built this frame.
 
@@ -38,12 +37,6 @@ impl ActionRequest {
         self.id = new_id;
     }
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TargetCell {
-    pub id: Vec3Int,
-    pub face: CellFace,
-}
-
 /// A request to build a list of available actions.
 pub struct BuildingAction {
     /// Available to-be-approved actions
@@ -93,8 +86,7 @@ impl ActionData {
     }
 }
 use networking::server::HandleToEntity;
-use resources::grid::CellFace;
-use serde::{Deserialize, Serialize};
+use resources::grid::TargetCell;
 
 use crate::networking::NetAction;
 use networking::server::OutgoingReliableServerMessage;

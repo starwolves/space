@@ -1,12 +1,12 @@
-use actions::core::TargetCell;
 use bevy::prelude::{Component, Entity};
+use resources::grid::TargetCell;
 
 /// The component.
 #[derive(Component, Default)]
 
 pub struct ConstructionTool {
     /// Currently selected construction cell option.
-    pub construction_option: Option<String>,
+    pub construction_option: Option<u16>,
 }
 
 /// Player requested input event.

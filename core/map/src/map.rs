@@ -5,7 +5,7 @@ use bevy::{
     prelude::{Component, Entity, Resource},
 };
 use entity::senser::WORLD_WIDTH_CELLS;
-use math::grid::Vec2Int;
+use resources::math::Vec2Int;
 
 /// Mini-map overlay tile color.
 #[derive(Clone, PartialEq)]

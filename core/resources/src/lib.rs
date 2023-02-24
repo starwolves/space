@@ -14,4 +14,5 @@ pub mod plugin;
 pub mod content;
 pub mod grid;
 pub mod is_server;
+pub mod math;
 pub mod set_icon;

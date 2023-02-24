@@ -1,6 +1,6 @@
 use crate::controller::ControllerInput;
 use bevy::prelude::{warn, Entity, EventReader, Query, Vec2};
-use math::grid::Vec3Int;
+use resources::math::Vec3Int;
 
 /// Manage player input and apply to controller.
 

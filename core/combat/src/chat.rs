@@ -13,8 +13,8 @@ use inventory::server::combat::get_default_trigger_melee_words;
 use inventory::server::combat::get_default_trigger_weapon_words;
 use inventory::server::combat::MeleeCombat;
 use inventory::server::combat::ProjectileCombat;
-use math::grid::world_to_cell_id;
 use rand::prelude::SliceRandom;
+use resources::math::world_to_cell_id;
 
 use crate::{
     active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,

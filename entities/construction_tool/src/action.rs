@@ -264,20 +264,19 @@ pub(crate) fn construction_tool_select_construction_option(
     for event in input_events.iter() {
         if event.id == CONSTRUCTION_OPTIONS_TEXT_LIST_ID {
             match query.get_mut(event.entity) {
-                Ok(mut c) => {
-                    c.construction_option = Some(event.entry.clone());
-                    match gridmap.main_name_id_map.get(&event.entry) {
-                        Some(type_id) => {
-                            net.send(OutgoingReliableServerMessage {
-                                handle: event.handle,
-                                message: GridmapServerMessage::GhostCellType(*type_id),
-                            });
-                        }
-                        None => {
-                            warn!("couldnt find tile id.");
-                        }
+                Ok(mut c) => match gridmap.main_name_id_map.get(&event.entry) {
+                    Some(type_id) => {
+                        c.construction_option = Some(*type_id);
+
+                        net.send(OutgoingReliableServerMessage {
+                            handle: event.handle,
+                            message: GridmapServerMessage::GhostCellType(*type_id),
+                        });
                     }
-                }
+                    None => {
+                        warn!("couldnt find tile id.");
+                    }
+                },
                 Err(_) => {
                     warn!("Couldnt find construction tool {:?}.", event.entity);
                 }

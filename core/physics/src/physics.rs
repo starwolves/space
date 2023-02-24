@@ -1,6 +1,6 @@
 use bevy::prelude::{Added, Changed, Commands, Component, Entity, Query};
 use bevy_rapier3d::prelude::RigidBodyDisabled;
-use math::grid::Vec3Int;
+use resources::math::Vec3Int;
 
 use crate::rigid_body::RigidBodyStatus;
 

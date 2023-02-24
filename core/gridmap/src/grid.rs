@@ -1,10 +1,9 @@
 use std::{collections::HashMap, f32::consts::PI};
 
-use actions::core::TargetCell;
 use bevy::{
     prelude::{
-        warn, BuildChildren, Commands, Component, Entity, Handle, Mat3, Quat, Res, Resource,
-        Transform,
+        warn, BuildChildren, Commands, Component, Entity, EventWriter, Handle, Mat3, Quat, Query,
+        Res, Resource, Transform, Without,
     },
     scene::Scene,
     transform::TransformBundle,
@@ -13,9 +12,17 @@ use bevy_rapier3d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, RigidBody,
 };
 use entity::{examine::RichName, health::Health};
-use math::grid::{cell_id_to_world, Vec3Int};
+use networking::{
+    client::IncomingReliableServerMessage,
+    server::{ConnectedPlayer, OutgoingReliableServerMessage},
+};
 use physics::physics::{get_bit_masks, ColliderGroup};
+use player::boarding::SoftPlayer;
 use resources::{grid::CellFace, is_server::is_server};
+use resources::{
+    grid::TargetCell,
+    math::{cell_id_to_world, Vec3Int},
+};
 use serde::{Deserialize, Serialize};
 
 /// Gridmap maximum limits as cube dimensions in chunks.
@@ -150,12 +157,18 @@ impl Default for GridmapChunk {
     }
 }
 
+#[derive(Clone)]
+pub struct GridmapUpdate {
+    pub cell: NewCell,
+    pub players_received: Vec<u64>,
+}
+
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
 /// The hashmaps should probably be turned into arrays by converting Vec3Int into an index for performance reasons.
 #[derive(Resource)]
 pub struct Gridmap {
     pub grid: Vec<Option<GridmapChunk>>,
-    pub updates: HashMap<Vec3Int, CellUpdate>,
+    pub updates: HashMap<TargetCell, GridmapUpdate>,
     pub non_fov_blocking_cells_list: Vec<u16>,
     pub non_combat_obstacle_cells_list: Vec<u16>,
     pub non_laser_obstacle_cells_list: Vec<u16>,
@@ -500,6 +513,96 @@ pub struct AddGroup {
 
 use bevy::prelude::{EventReader, ResMut};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
+
+use crate::net::{ConstructCell, GridmapServerMessage, NewCell};
+
+pub(crate) fn add_tile_net(
+    mut events: EventReader<AddTile>,
+    connected_players: Query<&ConnectedPlayer, Without<SoftPlayer>>,
+    mut net: EventWriter<OutgoingReliableServerMessage<GridmapServerMessage>>,
+    mut gridmap: ResMut<Gridmap>,
+) {
+    for event in events.iter() {
+        let mut received = vec![];
+
+        let target = TargetCell {
+            id: event.id,
+            face: event.face.clone(),
+        };
+
+        let new_cell = ConstructCell {
+            cell: target.clone(),
+            orientation: event.orientation,
+        };
+
+        for connected_player in connected_players.iter() {
+            if !connected_player.connected {
+                continue;
+            }
+            net.send(OutgoingReliableServerMessage {
+                handle: connected_player.handle,
+                message: GridmapServerMessage::AddCell(NewCell {
+                    cell: new_cell.cell.clone(),
+                    orientation: new_cell.orientation,
+                    tile_type: event.tile_type,
+                }),
+            });
+            received.push(connected_player.handle);
+        }
+
+        gridmap.updates.insert(
+            target,
+            GridmapUpdate {
+                cell: NewCell {
+                    cell: new_cell.cell,
+                    orientation: new_cell.orientation,
+                    tile_type: event.tile_type,
+                },
+                players_received: received,
+            },
+        );
+    }
+
+    for connected_player in connected_players.iter() {
+        if !connected_player.connected {
+            return;
+        }
+
+        for (_target_cell, update) in gridmap.updates.iter_mut() {
+            if !update.players_received.contains(&connected_player.handle) {
+                update.players_received.push(connected_player.handle);
+                net.send(OutgoingReliableServerMessage {
+                    handle: connected_player.handle,
+                    message: GridmapServerMessage::AddCell(NewCell {
+                        cell: update.cell.cell.clone(),
+                        orientation: update.cell.orientation,
+                        tile_type: update.cell.tile_type,
+                    }),
+                });
+            }
+        }
+    }
+}
+
+pub(crate) fn add_cell_client(
+    mut net: EventReader<IncomingReliableServerMessage<GridmapServerMessage>>,
+    mut event: EventWriter<AddTile>,
+    mut commands: Commands,
+) {
+    for message in net.iter() {
+        match &message.message {
+            GridmapServerMessage::AddCell(new) => event.send(AddTile {
+                id: new.cell.id,
+                tile_type: new.tile_type,
+                orientation: new.orientation,
+                face: new.cell.face.clone(),
+                group_instance_id_option: None,
+                entity: commands.spawn(()).id(),
+            }),
+            _ => (),
+        }
+    }
+}
 
 pub(crate) fn add_tile_collision(
     mut events: EventReader<AddTile>,

@@ -10,7 +10,7 @@ use entity::entity_types::register_entity_type;
 use entity::loading::load_entity;
 use entity::spawn::build_base_entities;
 
-use gridmap::select_cell_yplane::ShowYLevelPlane;
+use gridmap::construction::ShowYLevelPlane;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudLabels;
 use inventory::client::items::active_item_display_camera;
@@ -26,7 +26,9 @@ use crate::action::{
     deconstruct_action_prequisite_check, open_input_construction_options_ui,
 };
 use crate::construction_tool::ConstructionTool;
-use crate::map_construction::construction_tool_enable_select_cell_in_front_camera;
+use crate::map_construction::{
+    construction_tool_enable_select_cell_in_front_camera, mouse_click_input,
+};
 
 use super::{
     construction_tool::{InputConstruct, InputConstructionOptions, InputDeconstruct},
@@ -84,7 +86,8 @@ impl Plugin for ConstructionToolAdminPlugin {
                     construction_tool_select_construction_option
                         .label(UpdateLabels::TextTreeInputSelection),
                 )
-                .add_system(open_input_construction_options_ui);
+                .add_system(open_input_construction_options_ui)
+                .add_system(mouse_click_input);
         } else {
             app.add_system(
                 update_inventory_hud_add_item_to_slot::<ConstructionToolType>
