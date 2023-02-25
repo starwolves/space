@@ -26,7 +26,10 @@ use crate::{
         },
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
     },
-    mouse::{grab_mouse_hud_expand, grab_mouse_on_board, window_unfocus_event},
+    mouse::{
+        grab_cursor, grab_mouse_hud_expand, grab_mouse_on_board, release_cursor,
+        window_unfocus_event, GrabCursor, ReleaseCursor,
+    },
     style::button::{button_style_events, changed_focus},
 };
 
@@ -73,7 +76,11 @@ impl Plugin for HudPlugin {
                 .add_system(grab_mouse_on_board)
                 .add_system(grab_mouse_hud_expand)
                 .add_event::<ExpandedLeftContentHud>()
-                .add_system(window_unfocus_event);
+                .add_system(window_unfocus_event)
+                .add_event::<GrabCursor>()
+                .add_event::<ReleaseCursor>()
+                .add_system(release_cursor)
+                .add_system(grab_cursor);
         }
     }
 }
