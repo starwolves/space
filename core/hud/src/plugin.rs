@@ -3,8 +3,9 @@ use iyes_loopless::prelude::IntoConditionalSystem;
 use resources::is_server::is_server;
 
 use crate::{
+    communication::build::build_communication_ui,
     expand::{expand_hud, ExpandInventoryHud},
-    hud::{create_hud, show_hud, HudLabels},
+    hud::{create_hud, show_hud, ExpandedLeftContentHud},
     input::text_tree_selection::{
         create_text_tree_selection, hide_text_tree_selection, text_tree_select_button,
         text_tree_select_submit_button, TextTreeInputSelectionState, TextTreeSelectionState,
@@ -25,7 +26,7 @@ use crate::{
         },
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
     },
-    mouse::{grab_mouse_hud_expand, grab_mouse_on_board},
+    mouse::{grab_mouse_hud_expand, grab_mouse_on_board, window_unfocus_event},
     style::button::{button_style_events, changed_focus},
 };
 
@@ -37,7 +38,8 @@ impl Plugin for HudPlugin {
             app.add_event::<ExpandInventoryHud>()
                 .add_system(expand_hud)
                 .add_startup_system_to_stage(StartupStage::PostStartup, create_inventory_hud)
-                .add_startup_system(create_hud.label(HudLabels::CreateHud))
+                .add_startup_system(create_hud)
+                .add_startup_system_to_stage(StartupStage::PostStartup, build_communication_ui)
                 .add_event::<OpenInventoryHud>()
                 .add_system(inventory_hud_key_press)
                 .add_system(open_inventory_hud)
@@ -69,7 +71,9 @@ impl Plugin for HudPlugin {
                 .add_system(changed_focus)
                 .add_system(text_tree_select_submit_button)
                 .add_system(grab_mouse_on_board)
-                .add_system(grab_mouse_hud_expand);
+                .add_system(grab_mouse_hud_expand)
+                .add_event::<ExpandedLeftContentHud>()
+                .add_system(window_unfocus_event);
         }
     }
 }

@@ -17,7 +17,10 @@ use player::configuration::Boarded;
 use resources::hud::HudState;
 use ui::fonts::{ARIZONE_FONT, EMPIRE_FONT};
 
-use crate::{hud::LeftContentHud, style::button::ButtonSelectionStyle};
+use crate::{
+    hud::{ExpandedLeftContentHud, LeftContentHud},
+    style::button::ButtonSelectionStyle,
+};
 
 use super::build::{InventoryHudState, OpenInventoryHud};
 
@@ -31,6 +34,7 @@ pub(crate) fn slot_item_actions(
     mut commands: Commands,
     children_query: Query<&Children>,
     asset_server: Res<AssetServer>,
+    mut expand_event: EventWriter<ExpandedLeftContentHud>,
 ) {
     if !inventory_state.open || !hud_state.expanded {
         return;
@@ -57,6 +61,7 @@ pub(crate) fn slot_item_actions(
                 }
 
                 let item_name = data.get(0).unwrap().item_name.clone();
+                expand_event.send(ExpandedLeftContentHud { expanded: true });
 
                 builder.with_children(|parent| {
                     parent
