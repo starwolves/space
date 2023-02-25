@@ -1,3 +1,4 @@
+pub mod communication;
 pub mod expand;
 pub mod hud;
 pub mod input;

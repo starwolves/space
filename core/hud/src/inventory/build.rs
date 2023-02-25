@@ -13,7 +13,7 @@ use player::configuration::Boarded;
 use resources::hud::HudState;
 use ui::fonts::ARIZONE_FONT;
 
-use crate::expand::ExpandInventoryHud;
+use crate::{expand::ExpandInventoryHud, hud::ExpandedLeftContentHud};
 
 use super::slots::InventorySlotsNode;
 
@@ -134,6 +134,7 @@ pub(crate) fn open_inventory_hud(
     mut state: ResMut<InventoryHudState>,
     mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
     mut expand: EventWriter<ExpandInventoryHud>,
+    mut expand2: EventWriter<ExpandedLeftContentHud>,
 ) {
     for event in events.iter() {
         if !boarded.boarded {
@@ -150,6 +151,11 @@ pub(crate) fn open_inventory_hud(
             }
         }
         expand.send(ExpandInventoryHud { expand: state.open });
+        if !state.open {
+            expand2.send(ExpandedLeftContentHud {
+                expanded: state.open,
+            });
+        }
     }
 }
 

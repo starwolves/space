@@ -1,6 +1,6 @@
 use bevy::{
     prelude::{warn, EventReader, ResMut},
-    window::{CursorGrabMode, Windows},
+    window::{CursorGrabMode, WindowFocused, Windows},
 };
 use networking::client::IncomingReliableServerMessage;
 use player::net::PlayerServerMessage;
@@ -25,6 +25,25 @@ pub(crate) fn grab_mouse_on_board(
                 };
             }
             _ => (),
+        }
+    }
+}
+
+pub(crate) fn window_unfocus_event(
+    mut events: EventReader<WindowFocused>,
+    mut windows: ResMut<Windows>,
+) {
+    for event in events.iter() {
+        if !event.focused {
+            match windows.get_primary_mut() {
+                Some(w) => {
+                    w.set_cursor_grab_mode(CursorGrabMode::None);
+                    w.set_cursor_visibility(true);
+                }
+                None => {
+                    warn!("Couldnt get primary window.");
+                }
+            };
         }
     }
 }

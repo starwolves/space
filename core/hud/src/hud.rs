@@ -1,7 +1,6 @@
 use bevy::{
     prelude::{
-        warn, BuildChildren, Commands, Component, Entity, EventReader, NodeBundle, Query, Res,
-        SystemLabel, With,
+        warn, BuildChildren, Commands, Component, Entity, EventReader, NodeBundle, Query, Res, With,
     },
     ui::{Display, FlexDirection, Size, Style, Val},
 };
@@ -38,11 +37,15 @@ pub struct CenterContentHud;
 #[derive(Component)]
 pub struct RightContentHud;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
-
-pub enum HudLabels {
-    CreateHud,
+pub struct ExpandedLeftContentHud {
+    pub expanded: bool,
 }
+
+pub const LEFT_RIGHT_CONTENT_HUD_WIDTH: f32 = 25.;
+pub const LEFT_RIGHT_EDGE_HUD_WIDTH: f32 = 10.;
+pub const LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH: f32 = 35.;
+pub const CONTENT_NODE_EXPANDED_WIDTH: f32 = 80.;
+pub const CONTENT_NODE_WIDTH: f32 = 50.;
 
 pub fn create_hud(mut commands: Commands) {
     let mut builder = commands.spawn(HudRootNode);
@@ -53,7 +56,6 @@ pub fn create_hud(mut commands: Commands) {
     let mut bottom_edge = Entity::from_bits(0);
 
     let mut left = Entity::from_bits(0);
-    let mut content = Entity::from_bits(0);
     let mut right = Entity::from_bits(0);
 
     let mut left_content = Entity::from_bits(0);
@@ -94,59 +96,61 @@ pub fn create_hud(mut commands: Commands) {
                     left = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(10.), Val::Percent(100.)),
+                                size: Size::new(
+                                    Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
+                                    Val::Percent(100.),
+                                ),
                                 ..Default::default()
                             },
                             ..Default::default()
                         })
                         .insert(LeftEdgeHud)
                         .id();
-                    content = parent
+                    left_content = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(80.), Val::Percent(100.)),
+                                display: Display::None,
+                                size: Size::new(
+                                    Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
+                                    Val::Percent(100.),
+                                ),
                                 ..Default::default()
                             },
                             ..Default::default()
                         })
-                        .insert(ContentHud)
-                        .with_children(|parent| {
-                            left_content = parent
-                                .spawn(NodeBundle {
-                                    style: Style {
-                                        size: Size::new(Val::Percent(25.), Val::Percent(100.)),
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                })
-                                .insert(LeftContentHud)
-                                .id();
-                            center_content = parent
-                                .spawn(NodeBundle {
-                                    style: Style {
-                                        size: Size::new(Val::Percent(50.), Val::Percent(100.)),
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                })
-                                .insert(CenterContentHud)
-                                .id();
-                            right_content = parent
-                                .spawn(NodeBundle {
-                                    style: Style {
-                                        size: Size::new(Val::Percent(25.), Val::Percent(100.)),
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                })
-                                .insert(RightContentHud)
-                                .id();
+                        .insert(LeftContentHud)
+                        .id();
+                    center_content = parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(50.), Val::Percent(100.)),
+                                ..Default::default()
+                            },
+                            ..Default::default()
                         })
+                        .insert(CenterContentHud)
+                        .id();
+                    right_content = parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                display: Display::None,
+                                size: Size::new(
+                                    Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
+                                    Val::Percent(100.),
+                                ),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .insert(RightContentHud)
                         .id();
                     right = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(10.), Val::Percent(100.)),
+                                size: Size::new(
+                                    Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
+                                    Val::Percent(100.),
+                                ),
                                 ..Default::default()
                             },
                             ..Default::default()
