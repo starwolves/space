@@ -1,10 +1,10 @@
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Children, Commands, EventReader, EventWriter, Input,
-        KeyCode, NodeBundle, Query, Res, TextBundle, With,
+        KeyCode, NodeBundle, Query, Res, TextBundle,
     },
     text::{Text, TextSection, TextStyle},
-    ui::{Interaction, Size, Style, Val},
+    ui::{Size, Style, Val},
 };
 use chat::net::{ChatClientMessage, ChatServerMessage};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
@@ -13,7 +13,7 @@ use ui::{
     text_input::{FocusTextInput, TextInput, TextInputNode, UnfocusTextInput},
 };
 
-use super::build::{CommunicationInputNode, HudCommunicationState};
+use super::build::HudCommunicationState;
 
 pub(crate) fn text_input(
     keyboard: Res<Input<KeyCode>>,
