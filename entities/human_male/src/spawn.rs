@@ -2,7 +2,6 @@ use std::collections::{BTreeMap, HashMap};
 
 use bevy::prelude::{warn, Commands, EventReader, EventWriter, Transform, Vec3};
 use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
-use chat::chat::{Radio, RadioChannel};
 use entity::{
     entity_data::{WorldMode, WorldModes},
     entity_macros::Identity,
@@ -198,10 +197,6 @@ pub fn build_human_males(
 
             spawner.insert((
                 Senser::default(),
-                Radio {
-                    listen_access: vec![RadioChannel::Common, RadioChannel::Security],
-                    speak_access: vec![RadioChannel::Common, RadioChannel::Security],
-                },
                 ShipAuthorization {
                     access: vec![ShipAuthorizationEnum::Security],
                 },

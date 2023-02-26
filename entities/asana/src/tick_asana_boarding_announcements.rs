@@ -1,8 +1,7 @@
-use bevy::{
+/*use bevy::{
     prelude::{EventWriter, Res, ResMut},
     time::Time,
 };
-use chat::chat::NewChatMessage;
 
 use player::boarding::BoardingAnnouncements;
 /// Manage asana boarding announcements.
@@ -39,3 +38,4 @@ pub(crate) fn tick_asana_boarding_announcements(
         asana_boarding_announcements.announcements.remove(j);
     }
 }
+*/

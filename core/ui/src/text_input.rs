@@ -1,4 +1,4 @@
-use bevy::prelude::{Color, Component, Entity, Resource, SystemLabel};
+use bevy::prelude::{info, Color, Component, Entity, Resource, SystemLabel};
 use bevy::{
     prelude::{Changed, Query},
     ui::Interaction,
@@ -25,6 +25,7 @@ pub struct TextInputNode {
 pub enum CharacterFilter {
     AccountName,
     ServerAddress,
+    Chat,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
@@ -66,6 +67,7 @@ pub(crate) fn ui_events(
         if !input_has_focus {
             match *interaction {
                 Interaction::Clicked => {
+                    info!("Text input clicked.");
                     *color = INPUT_TEXT_BG_PRESSED.into();
                     focus.send(FocusTextInput { entity });
                 }
@@ -313,6 +315,14 @@ pub(crate) fn input_characters(
                                                         valid_char = true;
                                                     }
                                                 }
+                                                CharacterFilter::Chat => {
+                                                    if char.is_whitespace()
+                                                        || char.is_ascii_alphanumeric()
+                                                        || char.is_ascii_graphic()
+                                                    {
+                                                        valid_char = true;
+                                                    }
+                                                }
                                             },
                                             None => {
                                                 valid_char = true;
@@ -352,6 +362,14 @@ pub(crate) fn input_characters(
                                                 valid_char = true;
                                             }
                                         }
+                                        CharacterFilter::Chat => {
+                                            if ev.char.is_whitespace()
+                                                || ev.char.is_ascii_alphanumeric()
+                                                || ev.char.is_ascii_graphic()
+                                            {
+                                                valid_char = true;
+                                            }
+                                        }
                                     },
                                     None => {
                                         valid_char = true;
@@ -365,6 +383,7 @@ pub(crate) fn input_characters(
 
                         if keys.just_pressed(KeyCode::Back) {
                             input_node.input.pop();
+
                             *backspace_init_timer =
                                 Timer::new(Duration::from_millis(300), TimerMode::Once);
                         } else if keys.pressed(KeyCode::Back) {

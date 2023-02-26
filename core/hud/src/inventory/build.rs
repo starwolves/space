@@ -11,7 +11,7 @@ use bevy::{
 };
 use player::configuration::Boarded;
 use resources::hud::HudState;
-use ui::fonts::ARIZONE_FONT;
+use ui::{fonts::ARIZONE_FONT, text_input::TextInput};
 
 use crate::{expand::ExpandInventoryHud, hud::ExpandedLeftContentHud};
 
@@ -163,8 +163,9 @@ pub(crate) fn inventory_hud_key_press(
     keys: Res<Input<KeyCode>>,
     mut event: EventWriter<OpenInventoryHud>,
     state: Res<InventoryHudState>,
+    focus: Res<TextInput>,
 ) {
-    if keys.just_pressed(KeyCode::I) {
+    if keys.just_pressed(KeyCode::I) && focus.focused_input.is_none() {
         event.send(OpenInventoryHud { open: !state.open });
     }
 }

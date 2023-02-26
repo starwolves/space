@@ -1,11 +1,10 @@
 use bevy::app::CoreStage::PostUpdate;
 use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
-use chat::chat::EntityProximityMessages;
 use resources::is_server::is_server;
 use resources::labels::{CombatLabels, PostUpdateLabels};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
-use crate::chat::{blanks_chat, hit_query_chat_cells};
+use crate::chat::hit_query_chat_cells;
 use crate::health_ui::{health_ui_update, ClientHealthUICache};
 use crate::melee_queries::MeleeBlank;
 use crate::projectile_queries::ProjectileBlank;
@@ -46,11 +45,11 @@ impl Plugin for CombatPlugin {
                     .after(CombatLabels::Query),
             )
             .add_system(hit_query_chat_cells.after(CombatLabels::FinalizeApplyDamage))
-            .add_system(
+            /*.add_system(
                 blanks_chat
                     .after(CombatLabels::FinalizeApplyDamage)
                     .after(EntityProximityMessages::Send),
-            )
+            )*/
             .add_event::<Attack>()
             .add_event::<MeleeDirectQuery>()
             .add_event::<QueryCombatHitResult>()

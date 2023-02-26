@@ -100,6 +100,8 @@ pub fn create_hud(mut commands: Commands) {
                                     Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
                                     Val::Percent(100.),
                                 ),
+                                flex_direction: FlexDirection::ColumnReverse,
+
                                 ..Default::default()
                             },
                             ..Default::default()
