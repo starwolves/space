@@ -1,5 +1,4 @@
 use bevy::prelude::{warn, Component, Entity, EventReader, EventWriter, Query, Res, Transform};
-use chat::chat::EntityProximityMessage;
 use entity::examine::Examinable;
 use entity::health::HealthComponent;
 use entity::health::HealthContainer;
@@ -9,17 +8,12 @@ use gridmap::grid::Gridmap;
 use inventory::item::InventoryItem;
 use inventory::server::combat::get_default_fists_words;
 use inventory::server::combat::get_default_trigger_fists_words;
-use inventory::server::combat::get_default_trigger_melee_words;
-use inventory::server::combat::get_default_trigger_weapon_words;
 use inventory::server::combat::MeleeCombat;
 use inventory::server::combat::ProjectileCombat;
 use rand::prelude::SliceRandom;
 use resources::math::world_to_cell_id;
 
-use crate::{
-    active_attacks::ActiveAttacks, attack::QueryCombatHitResult, melee_queries::MeleeBlank,
-    projectile_queries::ProjectileBlank,
-};
+use crate::{active_attacks::ActiveAttacks, attack::QueryCombatHitResult};
 
 use networking::server::HandleToEntity;
 use networking::server::NetworkingChatServerMessage;
@@ -623,6 +617,7 @@ pub fn hit_query_chat_cells(
     }
 }
 
+/*
 /// Chat hooks for blanks, when nothing was hit.
 
 pub(crate) fn blanks_chat(
@@ -631,7 +626,6 @@ pub(crate) fn blanks_chat(
     attackers: Query<&Examinable>,
     inventory_items_query: Query<(&InventoryItem, &MeleeCombat, &Examinable)>,
     mut melee_blanks: EventReader<MeleeBlank>,
-    mut entity_proximity_messages: EventWriter<EntityProximityMessage>,
 ) {
     for melee_blank in melee_blanks.iter() {
         let active_attack;
@@ -676,7 +670,7 @@ pub(crate) fn blanks_chat(
         let ra = get_default_trigger_melee_words();
         let trigger_word = ra.choose(&mut rand::thread_rng()).unwrap();
 
-        entity_proximity_messages.send(EntityProximityMessage {
+        /*entity_proximity_messages.send(EntityProximityMessage {
             entities: vec![active_attack.attack.attacker],
             message: "[color=#ff003c]".to_string()
                 + attacker_examinable.name.get_name()
@@ -685,7 +679,7 @@ pub(crate) fn blanks_chat(
                 + " "
                 + &weapon_a_name
                 + "![/color]",
-        });
+        });*/
     }
 
     for projectile_blank in projectile_blanks.iter() {
@@ -742,7 +736,7 @@ pub(crate) fn blanks_chat(
         let ra = get_default_trigger_weapon_words();
         let trigger_word = ra.choose(&mut rand::thread_rng()).unwrap();
 
-        entity_proximity_messages.send(EntityProximityMessage {
+        /*entity_proximity_messages.send(EntityProximityMessage {
             entities: vec![active_attack.attack.attacker],
             message: "[color=#ff003c]".to_string()
                 + attacker_examinable.name.get_name()
@@ -751,6 +745,7 @@ pub(crate) fn blanks_chat(
                 + " his "
                 + &weapon_examinable.name.get_name()
                 + "![/color]",
-        });
+        });*/
     }
 }
+*/

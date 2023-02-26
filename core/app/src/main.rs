@@ -15,6 +15,7 @@ use bevy::prelude::HierarchyPlugin;
 use bevy::prelude::ImagePlugin;
 use bevy::prelude::IntoSystemDescriptor;
 use bevy::prelude::PluginGroup;
+use bevy::prelude::TaskPoolOptions;
 use bevy::render::settings::WgpuSettings;
 use bevy::render::RenderPlugin;
 use bevy::scene::ScenePlugin;
@@ -87,7 +88,9 @@ pub(crate) fn configure_and_start() {
         wgpu_settings.backends = None;
 
         app.add_plugin(LogPlugin::default())
-            .add_plugin(CorePlugin::default())
+            .add_plugin(CorePlugin {
+                task_pool_options: TaskPoolOptions::with_num_threads(2),
+            })
             .add_plugin(AssetPlugin {
                 asset_folder: ASSET_FOLDER.to_string(),
                 ..Default::default()

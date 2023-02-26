@@ -3,7 +3,10 @@ use iyes_loopless::prelude::IntoConditionalSystem;
 use resources::is_server::is_server;
 
 use crate::{
-    communication::build::build_communication_ui,
+    communication::{
+        build::build_communication_ui,
+        input::{display_global_chat_message, tab_communication_input_toggle, text_input},
+    },
     expand::{expand_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, ExpandedLeftContentHud},
     input::text_tree_selection::{
@@ -80,7 +83,10 @@ impl Plugin for HudPlugin {
                 .add_event::<GrabCursor>()
                 .add_event::<ReleaseCursor>()
                 .add_system(release_cursor)
-                .add_system(grab_cursor);
+                .add_system(grab_cursor)
+                .add_system(text_input)
+                .add_system(display_global_chat_message)
+                .add_system(tab_communication_input_toggle);
         }
     }
 }

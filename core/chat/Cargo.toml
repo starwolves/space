@@ -28,3 +28,4 @@ entity = { path = "../entity" }
 text_api = { path = "../text_api" }
 player = { path = "../player" }
 resources = { path = "../resources" }
+ui = { path = "../ui" }
