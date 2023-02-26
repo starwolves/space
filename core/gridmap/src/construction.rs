@@ -15,10 +15,13 @@ use bevy_rapier3d::prelude::{
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
-use resources::math::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int};
 use resources::{
     grid::{CellFace, TargetCell},
     hud::HudState,
+};
+use resources::{
+    math::{cell_id_to_world, world_to_cell_id, Vec2Int, Vec3Int},
+    ui::TextInput,
 };
 
 use crate::{
@@ -189,8 +192,9 @@ pub(crate) fn input_yplane_position(
     keys: Res<Input<KeyCode>>,
     state: Res<GridmapConstructionState>,
     mut events: EventWriter<SetYPlanePosition>,
+    focus: Res<TextInput>,
 ) {
-    if state.is_constructing {
+    if state.is_constructing && focus.focused_input.is_none() {
         if keys.just_pressed(KeyCode::Q) {
             events.send(SetYPlanePosition {
                 y: state.y_level - 1,

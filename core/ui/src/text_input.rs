@@ -1,4 +1,4 @@
-use bevy::prelude::{info, Color, Component, Entity, Resource, SystemLabel};
+use bevy::prelude::{info, Color, Component, Entity, SystemLabel};
 use bevy::{
     prelude::{Changed, Query},
     ui::Interaction,
@@ -35,10 +35,6 @@ pub enum TextInputLabel {
     MousePressUnfocus,
 }
 
-#[derive(Default, Resource)]
-pub struct TextInput {
-    pub focused_input: Option<Entity>,
-}
 use bevy::prelude::ResMut;
 use bevy::prelude::With;
 use bevy::ui::BackgroundColor;
@@ -230,6 +226,7 @@ use bevy::time::Time;
 use bevy::time::TimerMode;
 use bevy::{prelude::Local, time::Timer};
 use bevy_egui::EguiClipboard;
+use resources::ui::TextInput;
 use std::time::Duration;
 
 /// Register characters input and output as displayed text inside input node. Also manages ctrl+v paste.

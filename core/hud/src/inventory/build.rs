@@ -10,8 +10,8 @@ use bevy::{
     ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
 use player::configuration::Boarded;
-use resources::hud::HudState;
-use ui::{fonts::ARIZONE_FONT, text_input::TextInput};
+use resources::{hud::HudState, ui::TextInput};
+use ui::fonts::ARIZONE_FONT;
 
 use crate::{expand::ExpandInventoryHud, hud::ExpandedLeftContentHud};
 

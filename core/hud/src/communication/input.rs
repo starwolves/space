@@ -8,9 +8,10 @@ use bevy::{
 };
 use chat::net::{ChatClientMessage, ChatServerMessage};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
+use resources::ui::TextInput;
 use ui::{
     fonts::Fonts,
-    text_input::{FocusTextInput, TextInput, TextInputNode, UnfocusTextInput},
+    text_input::{FocusTextInput, TextInputNode, UnfocusTextInput},
 };
 
 use super::build::HudCommunicationState;
