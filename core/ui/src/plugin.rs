@@ -7,13 +7,13 @@ use crate::{
     net::{UiClientMessage, UiServerMessage},
     text_input::{
         focus_events, incoming_messages, input_characters, input_mouse_press_unfocus,
-        set_text_input_node_text, ui_events, FocusTextInput, SetText, TextInput, TextInputLabel,
+        set_text_input_node_text, ui_events, FocusTextInput, SetText, TextInputLabel,
         TextTreeInputSelection, UnfocusTextInput,
     },
 };
 use bevy::app::CoreStage::PreUpdate;
 use bevy::prelude::IntoSystemDescriptor;
-use resources::is_server::is_server;
+use resources::{is_server::is_server, ui::TextInput};
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {

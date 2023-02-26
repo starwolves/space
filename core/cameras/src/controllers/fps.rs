@@ -8,6 +8,7 @@ use bevy::{
     time::Time,
     transform::components::Transform,
 };
+use resources::ui::TextInput;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
@@ -93,6 +94,7 @@ pub fn default_input_map(
     keyboard: Res<Input<KeyCode>>,
     mut mouse_motion_events: EventReader<MouseMotion>,
     controllers: Query<&FpsCameraController>,
+    text_input_state: Res<TextInput>,
 ) {
     // Can only control one camera at a time.
     let controller = if let Some(controller) = controllers.iter().find(|c| c.enabled) {
@@ -126,7 +128,7 @@ pub fn default_input_map(
     .iter()
     .cloned()
     {
-        if keyboard.pressed(key) {
+        if keyboard.pressed(key) && text_input_state.focused_input.is_none() {
             events.send(ControlEvent::TranslateEye(translate_sensitivity * dir));
         }
     }
