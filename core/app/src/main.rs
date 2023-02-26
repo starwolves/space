@@ -89,7 +89,7 @@ pub(crate) fn configure_and_start() {
 
         app.add_plugin(LogPlugin::default())
             .add_plugin(CorePlugin {
-                task_pool_options: TaskPoolOptions::with_num_threads(2),
+                task_pool_options: TaskPoolOptions::with_num_threads(4),
             })
             .add_plugin(AssetPlugin {
                 asset_folder: ASSET_FOLDER.to_string(),
