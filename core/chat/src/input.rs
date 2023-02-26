@@ -1,5 +1,7 @@
-use bevy::prelude::{warn, Color, EventReader, EventWriter, Res};
-use networking::server::{IncomingReliableClientMessage, OutgoingReliableServerMessage};
+use bevy::prelude::{warn, Color, EventReader, EventWriter, Query, Res};
+use networking::server::{
+    ConnectedPlayer, IncomingReliableClientMessage, OutgoingReliableServerMessage,
+};
 use player::account::Accounts;
 use ui::fonts::{Fonts, EMPIRE_FONT};
 
@@ -31,6 +33,7 @@ pub(crate) fn broadcast_global_chat_message(
     mut net: EventWriter<OutgoingReliableServerMessage<ChatServerMessage>>,
     accounts: Res<Accounts>,
     fonts: Res<Fonts>,
+    connected_players: Query<&ConnectedPlayer>,
 ) {
     for event in events.iter() {
         let sender_name;
@@ -61,11 +64,15 @@ pub(crate) fn broadcast_global_chat_message(
             color: Color::WHITE,
         };
 
-        net.send(OutgoingReliableServerMessage {
-            handle: event.sender,
-            message: ChatServerMessage::ChatMessage(ChatMessage {
-                sections: vec![sender_name_section, message_section],
-            }),
-        });
+        for connected in connected_players.iter() {
+            if connected.connected {
+                net.send(OutgoingReliableServerMessage {
+                    handle: connected.handle,
+                    message: ChatServerMessage::ChatMessage(ChatMessage {
+                        sections: vec![sender_name_section.clone(), message_section.clone()],
+                    }),
+                });
+            }
+        }
     }
 }
