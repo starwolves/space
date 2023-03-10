@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 use console_commands::commands::ConsoleCommandsLabels;
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::PostUpdateLabels};
@@ -22,17 +22,15 @@ use crate::{
     spawn_item::spawn_entity_for_client,
 };
 
-use bevy::app::CoreStage::PostUpdate;
 pub struct InventoryPlugin;
 
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .label(PostUpdateLabels::EntityUpdate)
-                    .with_system(inventory_item_update),
+            app.add_system(
+                inventory_item_update
+                    .in_base_set(CoreSet::PostUpdate)
+                    .in_set(PostUpdateLabels::EntityUpdate),
             )
             .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
             .add_system(
@@ -42,12 +40,12 @@ impl Plugin for InventoryPlugin {
             )
             .add_event::<ItemAddedToSlot>()
             .add_system(added_item_to_slot)
-            .add_system(add_slot_to_inventory.label(InventorySlotLabel::AddSlotToInventory))
+            .add_system(add_slot_to_inventory.in_set(InventorySlotLabel::AddSlotToInventory))
             .add_system(process_request_set_active_item)
             .add_system(spawn_entity_for_client);
         } else {
             app.add_system(client_item_added_to_slot.after(ClientBuildInventoryLabel::AddSlot))
-                .add_system(client_slot_added.label(ClientBuildInventoryLabel::AddSlot))
+                .add_system(client_slot_added.in_set(ClientBuildInventoryLabel::AddSlot))
                 .init_resource::<Inventory>()
                 .add_event::<AddedSlot>()
                 .add_system(set_active_item)

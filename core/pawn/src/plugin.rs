@@ -1,6 +1,5 @@
 use crate::actions::{build_actions, examine, examine_prerequisite_check};
-use bevy::prelude::IntoSystemDescriptor;
-use bevy::prelude::{App, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use resources::is_server::is_server;
 use resources::labels::ActionsLabels;
 pub struct PawnPlugin;
@@ -10,17 +9,17 @@ impl Plugin for PawnPlugin {
         if is_server() {
             app.add_system(
                 examine_prerequisite_check
-                    .label(ActionsLabels::Approve)
+                    .in_set(ActionsLabels::Approve)
                     .after(ActionsLabels::Init),
             )
             .add_system(
                 examine
-                    .label(ActionsLabels::Action)
+                    .in_set(ActionsLabels::Action)
                     .after(ActionsLabels::Approve),
             )
             .add_system(
                 build_actions
-                    .label(ActionsLabels::Build)
+                    .in_set(ActionsLabels::Build)
                     .after(ActionsLabels::Init),
             );
         }

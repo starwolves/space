@@ -1,13 +1,18 @@
-use std::path::Path;
+/*use std::path::Path;
 
-use bevy::{prelude::NonSend, window::WindowId, winit::WinitWindows};
+use bevy::{
+    prelude::{NonSend, Query, With},
+    window::{PrimaryWindow, Window},
+    winit::WinitWindows,
+};
 use winit::window::Icon;
 
 pub(crate) fn set_window_icon(
     // we have to use `NonSend` here
     windows: NonSend<WinitWindows>,
+    primary_query: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let primary = windows.get_window(WindowId::primary()).unwrap();
+    let primary = primary_query.get_single().unwrap();
 
     let path = Path::new("././data/project/sflogo.png");
 
@@ -23,4 +28,4 @@ pub(crate) fn set_window_icon(
     let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
 
     primary.set_window_icon(Some(icon));
-}
+}*/

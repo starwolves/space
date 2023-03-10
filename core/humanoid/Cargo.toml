@@ -11,12 +11,12 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.9.1"
+version = "0.10.0"
 default-features = false
 
 [dependencies]
 vector2math = "0.13.0"
-bevy_renet = "0.0.6"
+bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
 const_format = "0.2.30"
 
 networking = { path = "../networking" }

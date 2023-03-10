@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::ActionsLabels};
 
@@ -11,30 +11,29 @@ use crate::{
     net::{ActionsClientMessage, ActionsServerMessage},
     networking::incoming_messages,
 };
-use bevy::app::CoreStage::PreUpdate;
 pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(init_action_data_listing.label(ActionsLabels::Init))
+            app.add_system(init_action_data_listing.in_set(ActionsLabels::Init))
                 .add_system(
                     list_action_data_from_actions_component
                         .after(ActionsLabels::Init)
-                        .label(ActionsLabels::Build),
+                        .in_set(ActionsLabels::Build),
                 )
                 .add_system(list_action_data_finalizer.after(ActionsLabels::Approve))
                 .init_resource::<BuildingActions>()
                 .init_resource::<ActionIncremented>()
                 .init_resource::<ListActionDataRequests>()
-                .add_system(init_action_request_building.label(ActionsLabels::Init))
+                .add_system(init_action_request_building.in_set(ActionsLabels::Init))
                 .add_system(
                     clear_action_building
-                        .label(ActionsLabels::Clear)
+                        .in_set(ActionsLabels::Clear)
                         .before(ActionsLabels::Init),
                 )
                 .init_resource::<ActionRequests>()
-                .add_system_to_stage(PreUpdate, incoming_messages)
+                .add_system(incoming_messages.in_base_set(CoreSet::PreUpdate))
                 .add_event::<InputListActions>()
                 .add_event::<InputAction>();
         }

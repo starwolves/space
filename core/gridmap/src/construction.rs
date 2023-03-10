@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Commands, Component, Entity, EventReader, EventWriter,
-        Handle, Input, KeyCode, MouseButton, Quat, Query, Res, ResMut, Resource, SystemLabel,
+        Handle, Input, KeyCode, MouseButton, Quat, Query, Res, ResMut, Resource, SystemSet,
         Transform, Vec3, Visibility, With,
     },
     scene::{Scene, SceneBundle},
@@ -43,7 +43,7 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
         .insert(SelectCellCameraYPlane)
         .insert(SceneBundle {
             scene: plane_asset,
-            visibility: Visibility::INVISIBLE,
+            visibility: Visibility::Hidden,
             transform: Transform::from_xyz(0.5, YPLANE_Y_OFFSET, 0.5),
             ..Default::default()
         })
@@ -109,7 +109,13 @@ pub(crate) fn show_ylevel_plane(
     for event in events.iter() {
         match query.get_mut(state.y_plane) {
             Ok(mut visibility) => {
-                visibility.is_visible = event.show;
+                let visibility2;
+                if event.show {
+                    visibility2 = Visibility::Inherited;
+                } else {
+                    visibility2 = Visibility::Hidden;
+                }
+                *visibility = visibility2;
                 state.is_constructing = event.show;
                 if event.show {
                     events2.send(SetYPlanePosition { y: state.y_level });
@@ -449,7 +455,7 @@ pub(crate) fn select_cell_in_front_camera(
     });
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum GhostTileLabel {
     Update,

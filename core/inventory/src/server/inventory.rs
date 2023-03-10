@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{
-    warn, Component, Entity, EventReader, EventWriter, Query, Resource, SystemLabel,
+    warn, Component, Entity, EventReader, EventWriter, Query, Resource, SystemSet,
 };
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use resources::math::Vec2Int;
@@ -57,7 +57,7 @@ pub struct Inventory {
     pub active_item: Option<Entity>,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum SpawnItemLabel {
     SpawnHeldItem,
@@ -73,7 +73,7 @@ pub struct ItemAddedToSlot {
     pub position: Vec2Int,
     pub item_type_id: u16,
 }
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum InventorySlotLabel {
     AddSlotToInventory,

@@ -1,5 +1,5 @@
 use bevy::prelude::Resource;
-use bevy::prelude::{Entity, SystemLabel};
+use bevy::prelude::{Entity, SystemSet};
 use networking::server::GodotVariant;
 use networking::server::GodotVariantValues;
 
@@ -11,7 +11,7 @@ pub struct AllConsoleCommands {
 }
 
 /// Label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum ConsoleCommandsLabels {
     Finalize,

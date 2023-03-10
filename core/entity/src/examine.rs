@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 use bevy::prelude::Entity;
 use bevy::prelude::Resource;
 use bevy::prelude::{warn, Query, Res};
-use bevy::prelude::{Component, EventReader, ResMut, SystemLabel};
+use bevy::prelude::{Component, EventReader, ResMut, SystemSet};
 use text_api::core::FURTHER_ITALIC_FONT;
 use text_api::core::HEALTHY_COLOR;
 use text_api::core::UNHEALTHY_COLOR;
@@ -135,7 +135,7 @@ impl Default for RichName {
 }
 
 /// System label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum ExamineLabels {
     Start,

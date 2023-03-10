@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
@@ -26,7 +26,7 @@ impl Plugin for HelmetsPlugin {
         if is_server() {
             app.add_system(
                 melee_attack_handler::<Helmet>
-                    .label(CombatLabels::WeaponHandler)
+                    .in_set(CombatLabels::WeaponHandler)
                     .after(CombatLabels::CacheAttack),
             )
             .add_system(

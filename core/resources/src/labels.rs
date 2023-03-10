@@ -1,6 +1,6 @@
-use bevy::prelude::SystemLabel;
+use bevy::prelude::SystemSet;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum StartupLabels {
     ConsoleCommands,
@@ -12,14 +12,14 @@ pub enum StartupLabels {
     ServerIsLive,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum MapLabels {
     ChangeMode,
     MapInput,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum ActionsLabels {
     Clear,
@@ -29,7 +29,7 @@ pub enum ActionsLabels {
     Action,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum CombatLabels {
     RegisterAttacks,
@@ -41,7 +41,7 @@ pub enum CombatLabels {
     DamageResults,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum UpdateLabels {
     ProcessMovementInput,
@@ -51,7 +51,7 @@ pub enum UpdateLabels {
     DeconstructCell,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum PostUpdateLabels {
     EntityUpdate,
@@ -60,7 +60,7 @@ pub enum PostUpdateLabels {
     Net,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum BuildingLabels {
     TriggerBuild,

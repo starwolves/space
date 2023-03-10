@@ -10,19 +10,21 @@ use bevy::log::LogPlugin;
 use bevy::prelude::info;
 use bevy::prelude::App;
 use bevy::prelude::AssetPlugin;
-use bevy::prelude::CorePlugin;
+use bevy::prelude::FrameCountPlugin;
 use bevy::prelude::HierarchyPlugin;
 use bevy::prelude::ImagePlugin;
-use bevy::prelude::IntoSystemDescriptor;
+use bevy::prelude::IntoSystemConfig;
 use bevy::prelude::PluginGroup;
 use bevy::prelude::TaskPoolOptions;
+use bevy::prelude::TaskPoolPlugin;
+use bevy::prelude::TypeRegistrationPlugin;
 use bevy::render::settings::WgpuSettings;
 use bevy::render::RenderPlugin;
 use bevy::scene::ScenePlugin;
 use bevy::time::TimePlugin;
 use bevy::transform::TransformPlugin;
 use bevy::window::PresentMode;
-use bevy::window::WindowDescriptor;
+use bevy::window::Window;
 use bevy::window::WindowMode;
 use bevy::window::WindowPlugin;
 use bevy::window::WindowPosition;
@@ -88,41 +90,38 @@ pub(crate) fn configure_and_start() {
         wgpu_settings.backends = None;
 
         app.add_plugin(LogPlugin::default())
-            .add_plugin(CorePlugin {
+            .add_plugin(TaskPoolPlugin {
                 task_pool_options: TaskPoolOptions::with_num_threads(4),
             })
+            .add_plugin(TypeRegistrationPlugin)
+            .add_plugin(FrameCountPlugin)
             .add_plugin(AssetPlugin {
                 asset_folder: ASSET_FOLDER.to_string(),
                 ..Default::default()
             })
-            .insert_resource(wgpu_settings)
-            .add_plugin(WindowPlugin {
-                add_primary_window: false,
-                exit_on_all_closed: false,
-                ..Default::default()
-            })
+            .add_plugin(WindowPlugin::default())
             .add_plugin(ScheduleRunnerPlugin::default())
             .add_plugin(TimePlugin::default())
             .add_plugin(TransformPlugin::default())
             .add_plugin(HierarchyPlugin::default())
             .add_plugin(DiagnosticsPlugin::default())
             .add_plugin(ScenePlugin::default())
-            .add_plugin(RenderPlugin::default())
+            .add_plugin(RenderPlugin {
+                wgpu_settings: wgpu_settings,
+            })
             .add_plugin(ImagePlugin::default());
     } else {
         app.add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
-                    window: WindowDescriptor {
+                    primary_window: Some(Window {
                         title: "Space Frontiers ".to_string() + APP_VERSION,
-                        width: 1280.,
-                        height: 720.,
                         present_mode: PresentMode::AutoNoVsync,
-                        position: WindowPosition::Centered,
+                        position: WindowPosition::Automatic,
                         mode: WindowMode::Windowed,
                         transparent: true,
                         ..Default::default()
-                    },
+                    }),
                     ..Default::default()
                 })
                 .set(AssetPlugin {
@@ -171,7 +170,7 @@ pub(crate) fn configure_and_start() {
             give_all_rcon: true,
         })
         .add_startup_system(
-            live.label(StartupLabels::ServerIsLive)
+            live.in_set(StartupLabels::ServerIsLive)
                 .after(StartupLabels::InitAtmospherics),
         )
         .insert_resource(MOTD::new_default(APP_VERSION.to_string()))

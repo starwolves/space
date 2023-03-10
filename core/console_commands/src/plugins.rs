@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
 use resources::{
@@ -14,7 +14,6 @@ use crate::{
     networking::incoming_messages,
 };
 
-use bevy::app::CoreStage::PreUpdate;
 #[derive(Default)]
 pub struct ConsoleCommandsPlugin;
 
@@ -24,20 +23,20 @@ impl Plugin for ConsoleCommandsPlugin {
             app.init_resource::<AllConsoleCommands>()
                 .add_startup_system(
                     initialize_console_commands
-                        .label(ConsoleCommandsLabels::Finalize)
-                        .label(StartupLabels::ConsoleCommands),
+                        .in_set(ConsoleCommandsLabels::Finalize)
+                        .in_set(StartupLabels::ConsoleCommands),
                 )
-                .add_system_to_stage(PreUpdate, incoming_messages)
+                .add_system(incoming_messages.in_base_set(CoreSet::PreUpdate))
                 .add_event::<InputConsoleCommand>()
                 .add_system(
                     configure
-                        .label(ConfigurationLabel::Main)
+                        .in_set(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
                 )
                 .add_startup_system(
                     initialize_console_commands_2
                         .before(ConsoleCommandsLabels::Finalize)
-                        .label(BuildingLabels::TriggerBuild),
+                        .in_set(BuildingLabels::TriggerBuild),
                 );
         }
 

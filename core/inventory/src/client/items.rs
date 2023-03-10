@@ -1,6 +1,6 @@
 use bevy::prelude::{
-    warn, BuildChildren, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut,
-    SystemLabel, Transform, Vec3, Visibility,
+    warn, BuildChildren, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, SystemSet,
+    Transform, Vec3, Visibility,
 };
 use cameras::controllers::fps::ActiveCamera;
 use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ClientEntityServerEntity};
@@ -35,7 +35,7 @@ pub(crate) fn client_item_added_to_slot(
         }
     }
 }
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum ClientBuildInventoryLabel {
     AddSlot,
@@ -86,7 +86,7 @@ pub fn set_active_item(
                     Some(old_active) => match map.map.get(&old_active) {
                         Some(ent) => match visible_query.get_mut(*ent) {
                             Ok((_status, mut comp)) => {
-                                comp.is_visible = false;
+                                *comp = Visibility::Hidden;
                             }
                             Err(_) => {
                                 warn!("Couldnt find old visible component.");
@@ -102,7 +102,7 @@ pub fn set_active_item(
                 match map.map.get(&entity) {
                     Some(ent) => match visible_query.get_mut(*ent) {
                         Ok((mut status, mut comp)) => {
-                            comp.is_visible = true;
+                            *comp = Visibility::Inherited;
                             status.enabled = false;
                             match state.option {
                                 Some(camera_entity) => {

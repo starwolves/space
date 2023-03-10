@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{App, SystemLabel};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, SystemSet};
 use bevy::prelude::{ResMut, Resource};
 use typename::TypeName;
 
@@ -62,8 +62,6 @@ pub fn generate_typenames(mut typenames: ResMut<Typenames>) {
         typenames.reliable_net_types.len() + typenames.unreliable_net_types.len()
     );
 }
-use bevy::app::CoreStage::PostUpdate;
-use bevy::prelude::IntoSystemDescriptor;
 
 pub enum MessageSender {
     Client,
@@ -82,8 +80,6 @@ use crate::{
         IncomingReliableClientMessage, OutgoingReliableServerMessage,
     },
 };
-use bevy::app::CoreStage::PreUpdate;
-use iyes_loopless::prelude::IntoConditionalSystem;
 /// All reliable networking messages must be registered with this system.
 
 pub fn register_reliable_message<
@@ -92,7 +88,7 @@ pub fn register_reliable_message<
     app: &mut App,
     sender: MessageSender,
 ) {
-    app.add_startup_system(reliable_message::<T>.label(TypenamesLabel::Generate));
+    app.add_startup_system(reliable_message::<T>.in_set(TypenamesLabel::Generate));
 
     let mut client_is_sender = false;
     let mut server_is_sender = false;
@@ -112,29 +108,34 @@ pub fn register_reliable_message<
 
     app.add_event::<OutgoingReliableServerMessage<T>>();
     if server_is_sender && is_server() {
-        app.add_system_to_stage(PostUpdate, send_outgoing_reliable_server_messages::<T>);
+        app.add_system(
+            send_outgoing_reliable_server_messages::<T>.in_base_set(CoreSet::PostUpdate),
+        );
     }
     app.add_event::<IncomingReliableServerMessage<T>>();
     if server_is_sender && !is_server() {
-        app.add_system_to_stage(
-            PreUpdate,
-            deserialize_incoming_reliable_server_message::<T>.after(TypenamesLabel::SendRawEvents),
+        app.add_system(
+            deserialize_incoming_reliable_server_message::<T>
+                .in_base_set(CoreSet::PreUpdate)
+                .after(TypenamesLabel::SendRawEvents),
         );
     }
     app.add_event::<OutgoingReliableClientMessage<T>>();
 
     if client_is_sender && !is_server() {
-        app.add_system_to_stage(
-            PostUpdate,
-            send_outgoing_reliable_client_messages::<T>.run_if(is_client_connected),
+        app.add_system(
+            send_outgoing_reliable_client_messages::<T>
+                .in_base_set(CoreSet::PostUpdate)
+                .run_if(is_client_connected),
         );
     }
     app.add_event::<IncomingReliableClientMessage<T>>();
 
     if client_is_sender && is_server() {
-        app.add_system_to_stage(
-            PreUpdate,
-            deserialize_incoming_reliable_client_message::<T>.after(TypenamesLabel::SendRawEvents),
+        app.add_system(
+            deserialize_incoming_reliable_client_message::<T>
+                .in_base_set(CoreSet::PreUpdate)
+                .after(TypenamesLabel::SendRawEvents),
         );
     }
 }
@@ -160,7 +161,7 @@ pub fn register_unreliable_message<
         },
     };
 
-    app.add_startup_system(unreliable_message::<T>.label(TypenamesLabel::Generate));
+    app.add_startup_system(unreliable_message::<T>.in_set(TypenamesLabel::Generate));
     let mut client_is_sender = false;
     let mut server_is_sender = false;
 
@@ -178,28 +179,31 @@ pub fn register_unreliable_message<
     }
     if server_is_sender && is_server() {
         app.add_event::<OutgoingUnreliableServerMessage<T>>()
-            .add_system_to_stage(PostUpdate, send_outgoing_unreliable_server_messages::<T>);
+            .add_system(
+                send_outgoing_unreliable_server_messages::<T>.in_base_set(CoreSet::PostUpdate),
+            );
     }
     if server_is_sender && !is_server() {
         app.add_event::<IncomingUnreliableServerMessage<T>>()
-            .add_system_to_stage(
-                PreUpdate,
+            .add_system(
                 deserialize_incoming_unreliable_server_message::<T>
+                    .in_base_set(CoreSet::PreUpdate)
                     .after(TypenamesLabel::SendRawEvents),
             );
     }
     if client_is_sender && !is_server() {
         app.add_event::<OutgoingUnreliableClientMessage<T>>()
-            .add_system_to_stage(
-                PostUpdate,
-                send_outgoing_unreliable_client_messages::<T>.run_if(is_client_connected),
+            .add_system(
+                send_outgoing_unreliable_client_messages::<T>
+                    .in_base_set(CoreSet::PostUpdate)
+                    .run_if(is_client_connected),
             );
     }
     if client_is_sender && is_server() {
         app.add_event::<IncomingUnreliableClientMessage<T>>()
-            .add_system_to_stage(
-                PreUpdate,
+            .add_system(
                 deserialize_incoming_unreliable_client_message::<T>
+                    .in_base_set(CoreSet::PreUpdate)
                     .after(TypenamesLabel::SendRawEvents),
             );
     }
@@ -251,7 +255,7 @@ use serde::{Deserialize, Serialize};
 
 /// Typenames systems ordering label.
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum TypenamesLabel {
     Generate,
     SendRawEvents,

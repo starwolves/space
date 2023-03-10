@@ -1,6 +1,5 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use controller::networking::InputUIInput;
-use iyes_loopless::prelude::IntoConditionalSystem;
 use networking::{
     client::is_client_connected,
     messaging::{register_reliable_message, MessageSender},
@@ -22,11 +21,11 @@ impl Plugin for SetupMenuPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_system(ui_input_boarding)
-                .add_system(initialize_setupui.label(BuildingLabels::TriggerBuild))
+                .add_system(initialize_setupui.in_set(BuildingLabels::TriggerBuild))
                 .add_event::<InputUIInput>()
                 .add_system(
                     configure
-                        .label(ConfigurationLabel::Main)
+                        .in_set(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
                 )
                 .add_system(new_clients_enable_setupui)

@@ -1,4 +1,4 @@
-use bevy::prelude::{App, ClearColor, IntoSystemDescriptor, Plugin, SystemLabel};
+use bevy::prelude::{App, ClearColor, IntoSystemConfig, Plugin, SystemSet};
 use resources::is_server::is_server;
 
 use crate::{
@@ -11,7 +11,7 @@ use crate::{
     hide::{confirm_connection, hide_main_menu},
 };
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum StartupLabel {
     Live,
@@ -22,7 +22,7 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         if is_server() == false {
-            app.add_system(show_main_menu.label(MainMenuLabel::BuildMainMenu))
+            app.add_system(show_main_menu.in_set(MainMenuLabel::BuildMainMenu))
                 .add_system(hide_main_menu)
                 .add_event::<EnableMainMenu>()
                 .init_resource::<MainMenuState>()

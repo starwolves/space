@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Resource, SystemLabel};
+use bevy::prelude::{IntoSystemConfig, Resource, SystemSet};
 
 /// Resource containing all registered entity types with [init_entity_type].
 #[derive(Default, Resource)]
@@ -32,7 +32,7 @@ pub(crate) fn finalize_register_entity_types(mut types: ResMut<EntityTypes>) {
     info!("Loaded {:?} entity types.", i);
 }
 /// System label for systems ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum EntityTypeLabel {
     Register,
 }
@@ -56,11 +56,10 @@ dyn_clone::clone_trait_object!(EntityType);
 pub type BoxedEntityType = Box<dyn EntityType>;
 use crate::spawn::SpawnEntity;
 use bevy::prelude::App;
-use bevy::prelude::IntoSystemDescriptor;
 use resources::labels::BuildingLabels;
 
 pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut App) {
-    app.add_startup_system(store_entity_type::<T>.label(EntityTypeLabel::Register))
+    app.add_startup_system(store_entity_type::<T>.in_set(EntityTypeLabel::Register))
         .add_event::<SpawnEntity<T>>()
         .add_system((build_raw_entities::<T>).after(BuildingLabels::TriggerBuild));
 }

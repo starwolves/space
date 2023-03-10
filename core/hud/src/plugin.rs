@@ -1,5 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, StartupStage};
-use iyes_loopless::prelude::IntoConditionalSystem;
+use bevy::prelude::{not, resource_exists, App, IntoSystemConfig, Plugin, StartupSet};
 use resources::is_server::is_server;
 
 use crate::{
@@ -43,17 +42,17 @@ impl Plugin for HudPlugin {
         if !is_server() {
             app.add_event::<ExpandInventoryHud>()
                 .add_system(expand_hud)
-                .add_startup_system_to_stage(StartupStage::PostStartup, create_inventory_hud)
+                .add_startup_system(create_inventory_hud.in_base_set(StartupSet::PostStartup))
                 .add_startup_system(create_hud)
-                .add_startup_system_to_stage(StartupStage::PostStartup, build_communication_ui)
+                .add_startup_system(build_communication_ui.in_base_set(StartupSet::PostStartup))
                 .add_event::<OpenInventoryHud>()
                 .add_system(inventory_hud_key_press)
                 .add_system(open_inventory_hud)
                 .add_system(
-                    queue_inventory_updates.run_unless_resource_exists::<InventoryHudState>(),
+                    queue_inventory_updates.run_if(not(resource_exists::<InventoryHudState>())),
                 )
                 .add_system(inventory_net_updates)
-                .add_system(update_inventory_hud_slot.label(InventoryHudLabels::UpdateSlot))
+                .add_system(update_inventory_hud_slot.in_set(InventoryHudLabels::UpdateSlot))
                 .add_event::<HudAddItemToSlot>()
                 .add_event::<HudAddInventorySlot>()
                 .init_resource::<InventoryUpdatesQueue>()

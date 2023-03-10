@@ -10,10 +10,10 @@ license-file = "LICENSE"
 edition = "2021"
 
 [dependencies]
-bevy_atmosphere = "0.5.0"
+bevy_atmosphere = { git = "https://github.com/BrandonDyer64/bevy_atmosphere.git" , branch = "bevy-v0.10" }
 
 resources = { path = "../resources" }
 
 [dependencies.bevy]
-version = "0.9.1"
+version = "0.10.0"
 default-features = false

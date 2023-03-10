@@ -1,5 +1,5 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 use construction_tool::spawn::ConstructionToolType;
 use entity::{base_mesh::link_base_mesh, entity_types::register_entity_type, loading::load_entity};
 
@@ -16,7 +16,6 @@ use crate::{
     setup_ui_showcase::human_male_setup_ui,
     spawn::{build_base_human_males, build_human_males, spawn_held_item, HumanMaleType},
 };
-use bevy::app::CoreStage::PostUpdate;
 pub struct HumanMalePlugin;
 
 impl Plugin for HumanMalePlugin {
@@ -24,11 +23,11 @@ impl Plugin for HumanMalePlugin {
         if is_server() {
             app.add_system(
                 hands_attack_handler
-                    .label(CombatLabels::WeaponHandler)
+                    .in_set(CombatLabels::WeaponHandler)
                     .after(CombatLabels::CacheAttack),
             )
-            .add_system(human_male_setup_ui.label(BuildingLabels::TriggerBuild))
-            .add_system_to_stage(PostUpdate, spawn_boarding_player);
+            .add_system(human_male_setup_ui.in_set(BuildingLabels::TriggerBuild))
+            .add_system(spawn_boarding_player.in_base_set(CoreSet::PostUpdate));
         } else {
             app.add_system(link_base_mesh::<HumanMaleType>)
                 .add_system(load_entity::<HumanMaleType>);
@@ -38,10 +37,10 @@ impl Plugin for HumanMalePlugin {
         app.add_system(
             build_human_males
                 .before(BuildingLabels::TriggerBuild)
-                .label(BuildingLabels::NormalBuild),
+                .in_set(BuildingLabels::NormalBuild),
         )
         .add_system((build_base_human_males::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
         .add_system((build_rigid_bodies::<HumanMaleType>).after(BuildingLabels::TriggerBuild))
-        .add_system(spawn_held_item::<ConstructionToolType>.label(SpawnItemLabel::SpawnHeldItem));
+        .add_system(spawn_held_item::<ConstructionToolType>.in_set(SpawnItemLabel::SpawnHeldItem));
     }
 }

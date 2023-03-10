@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
@@ -45,7 +45,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_event::<InputConstructionOptions>()
                 .add_system(
                     melee_attack_handler::<ConstructionTool>
-                        .label(CombatLabels::WeaponHandler)
+                        .in_set(CombatLabels::WeaponHandler)
                         .after(CombatLabels::CacheAttack),
                 )
                 .add_system(
@@ -59,32 +59,32 @@ impl Plugin for ConstructionToolAdminPlugin {
                 )
                 .add_system(
                     construction_tool_inventory_prequisite_check
-                        .label(ActionsLabels::Approve)
+                        .in_set(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
                     deconstruct_action_prequisite_check
-                        .label(ActionsLabels::Approve)
+                        .in_set(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
                     construct_action_prequisite_check
-                        .label(ActionsLabels::Approve)
+                        .in_set(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
                     construction_tool_actions
-                        .label(ActionsLabels::Action)
+                        .in_set(ActionsLabels::Action)
                         .after(ActionsLabels::Approve),
                 )
                 .add_system(
                     build_actions
-                        .label(ActionsLabels::Build)
+                        .in_set(ActionsLabels::Build)
                         .after(ActionsLabels::Init),
                 )
                 .add_system(
                     construction_tool_select_construction_option
-                        .label(UpdateLabels::TextTreeInputSelection),
+                        .in_set(UpdateLabels::TextTreeInputSelection),
                 )
                 .add_system(open_input_construction_options_ui)
                 .add_system(mouse_click_input);
@@ -92,7 +92,7 @@ impl Plugin for ConstructionToolAdminPlugin {
             app.add_system(
                 update_inventory_hud_add_item_to_slot::<ConstructionToolType>
                     .after(InventoryHudLabels::UpdateSlot)
-                    .label(InventoryHudLabels::QueueUpdate),
+                    .in_set(InventoryHudLabels::QueueUpdate),
             )
             .add_system(load_entity::<ConstructionToolType>)
             .add_system(link_base_mesh::<ConstructionToolType>)
@@ -116,7 +116,7 @@ impl Plugin for ConstructionToolAdminPlugin {
             (build_inventory_items::<ConstructionToolType>)
                 .after(BuildingLabels::TriggerBuild)
                 .after(SpawnItemLabel::SpawnHeldItem)
-                .label(SpawnItemLabel::AddingComponent),
+                .in_set(SpawnItemLabel::AddingComponent),
         );
     }
 }

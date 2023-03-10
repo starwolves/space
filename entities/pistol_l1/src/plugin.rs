@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use combat::{
     laser_visuals::projectile_laser_visuals,
     melee_queries::melee_attack_handler,
@@ -28,12 +28,12 @@ impl Plugin for PistolL1Plugin {
         if is_server() {
             app.add_system(
                 melee_attack_handler::<PistolL1>
-                    .label(CombatLabels::WeaponHandler)
+                    .in_set(CombatLabels::WeaponHandler)
                     .after(CombatLabels::CacheAttack),
             )
             .add_system(
                 projectile_attack_handler::<PistolL1>
-                    .label(CombatLabels::WeaponHandler)
+                    .in_set(CombatLabels::WeaponHandler)
                     .after(CombatLabels::CacheAttack),
             )
             .add_system(

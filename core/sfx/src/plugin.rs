@@ -1,8 +1,10 @@
+use std::time::Duration;
+
 use bevy::{
-    prelude::{App, Plugin, SystemSet},
-    time::FixedTimestep,
+    prelude::{App, CoreSchedule, CoreSet, IntoSystemAppConfig, IntoSystemConfig, Plugin},
+    time::common_conditions::on_fixed_timer,
 };
-use entity::{entity_data::INTERPOLATION_LABEL1, entity_types::register_entity_type};
+use entity::{entity_data::InterpolationSet, entity_types::register_entity_type};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::PostUpdateLabels};
 
@@ -17,26 +19,27 @@ use super::{
     entity_update::{repeating_sfx_update, sfx_update},
     timers::tick_timers_slowed,
 };
-use bevy::app::CoreStage::PostUpdate;
 
 pub struct SfxPlugin;
 
 impl Plugin for SfxPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(
-                        FixedTimestep::step(1. / 2.).with_label(INTERPOLATION_LABEL1),
-                    )
-                    .with_system(tick_timers_slowed),
+            app.add_system(
+                tick_timers_slowed
+                    .in_schedule(CoreSchedule::FixedUpdate)
+                    .in_set(InterpolationSet::Main)
+                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.))),
             )
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .label(PostUpdateLabels::EntityUpdate)
-                    .with_system(sfx_update)
-                    .with_system(repeating_sfx_update),
+            .add_system(
+                sfx_update
+                    .in_base_set(CoreSet::PostUpdate)
+                    .in_set(PostUpdateLabels::EntityUpdate),
+            )
+            .add_system(
+                repeating_sfx_update
+                    .in_base_set(CoreSet::PostUpdate)
+                    .in_set(PostUpdateLabels::EntityUpdate),
             )
             .add_system(free_sfx)
             .init_resource::<SfxAutoDestroyTimers>();

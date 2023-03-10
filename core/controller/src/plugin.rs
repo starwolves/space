@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::connections::{configure, connections};
 use crate::input::{
     InputAltItemAttack, InputAttackCell, InputAttackEntity, InputBuildGraphics, InputMouseAction,
@@ -6,12 +8,9 @@ use crate::input::{
 };
 use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
 use crate::networking::incoming_messages;
-use bevy::prelude::IntoSystemDescriptor;
-use bevy::{
-    prelude::{App, Plugin, SystemSet},
-    time::FixedTimestep,
-};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 
+use bevy::time::common_conditions::on_fixed_timer;
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender,
 };
@@ -25,8 +24,6 @@ use super::{
     net::{send_server_time, update_player_count},
 };
 
-use bevy::app::CoreStage::PreUpdate;
-
 #[derive(Default)]
 pub struct ControllerPlugin {
     pub custom_motd: Option<String>,
@@ -36,21 +33,13 @@ impl Plugin for ControllerPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_system(
-                apply_movement_input_controller.label(UpdateLabels::ProcessMovementInput),
+                apply_movement_input_controller.in_set(UpdateLabels::ProcessMovementInput),
             )
             .add_event::<BoardingPlayer>()
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(10.))
-                    .with_system(update_player_count),
-            )
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(2.))
-                    .with_system(send_server_time),
-            )
+            .add_system(update_player_count.run_if(on_fixed_timer(Duration::from_secs_f32(10.))))
+            .add_system(send_server_time.run_if(on_fixed_timer(Duration::from_secs_f32(2.))))
             .add_system(connections)
-            .add_system_to_stage(PreUpdate, incoming_messages)
+            .add_system(incoming_messages.in_base_set(CoreSet::PreUpdate))
             .add_event::<InputAttackCell>()
             .add_event::<InputToggleCombatMode>()
             .add_event::<InputToggleAutoMove>()
@@ -64,7 +53,7 @@ impl Plugin for ControllerPlugin {
             .add_event::<InputMouseDirectionUpdate>()
             .add_system(
                 configure
-                    .label(ConfigurationLabel::Main)
+                    .in_set(ConfigurationLabel::Main)
                     .after(ConfigurationLabel::SpawnEntity),
             );
         }

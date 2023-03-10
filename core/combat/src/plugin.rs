@@ -1,5 +1,4 @@
-use bevy::app::CoreStage::PostUpdate;
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 use resources::is_server::is_server;
 use resources::labels::{CombatLabels, PostUpdateLabels};
 
@@ -25,22 +24,22 @@ impl Plugin for CombatPlugin {
             app.add_system(
                 melee_direct
                     .after(CombatLabels::WeaponHandler)
-                    .label(CombatLabels::Query),
+                    .in_set(CombatLabels::Query),
             )
             .add_system(
                 projectile_attack
                     .after(CombatLabels::WeaponHandler)
-                    .label(CombatLabels::Query),
+                    .in_set(CombatLabels::Query),
             )
             .add_system(
                 start_apply_damage
-                    .label(CombatLabels::StartApplyDamage)
+                    .in_set(CombatLabels::StartApplyDamage)
                     .before(CombatLabels::FinalizeApplyDamage)
                     .after(CombatLabels::Query),
             )
             .add_system(
                 finalize_apply_damage
-                    .label(CombatLabels::FinalizeApplyDamage)
+                    .in_set(CombatLabels::FinalizeApplyDamage)
                     .after(CombatLabels::StartApplyDamage)
                     .after(CombatLabels::Query),
             )
@@ -63,15 +62,14 @@ impl Plugin for CombatPlugin {
                 cache_attacks
                     .after(CombatLabels::RegisterAttacks)
                     .before(CombatLabels::Query)
-                    .label(CombatLabels::CacheAttack),
+                    .in_set(CombatLabels::CacheAttack),
             )
             .add_system(health_combat_hit_result_sfx_cells.after(CombatLabels::FinalizeApplyDamage))
             .init_resource::<ActiveApplyDamage>()
-            .add_system_set_to_stage(
-                PostUpdate,
-                SystemSet::new()
-                    .label(PostUpdateLabels::EntityUpdate)
-                    .with_system(health_ui_update),
+            .add_system(
+                health_ui_update
+                    .in_base_set(CoreSet::PostUpdate)
+                    .in_set(PostUpdateLabels::EntityUpdate),
             )
             .init_resource::<ClientHealthUICache>();
         }

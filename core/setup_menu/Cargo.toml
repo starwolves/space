@@ -12,11 +12,10 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.9.1"
+version = "0.10.0"
 default-features = false
 
 [dependencies]
-iyes_loopless = "0.9.1"
 serde = "1.0.150"
 typename = "0.1.2"
 

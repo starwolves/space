@@ -1,6 +1,8 @@
+use std::time::Duration;
+
 use bevy::{
-    prelude::{App, IntoSystemDescriptor, Plugin, SystemSet},
-    time::FixedTimestep,
+    prelude::{App, CoreSet, IntoSystemConfig, Plugin},
+    time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
@@ -32,7 +34,6 @@ use crate::{
     net::{GridmapClientMessage, GridmapServerMessage},
     wall::add_wall_group,
 };
-use bevy::app::CoreStage::{PostUpdate, PreUpdate};
 
 use super::{
     fov::{senser_update_fov, DoryenMap},
@@ -56,18 +57,19 @@ impl Plugin for GridmapPlugin {
                 .add_system(examine_map_health.after(ActionsLabels::Action))
                 .add_system(examine_map_abilities.after(ActionsLabels::Action))
                 .add_event::<ProjectileFOV>()
-                .add_system_to_stage(PreUpdate, finalize_grid_examine_input)
-                .add_system_to_stage(PreUpdate, incoming_messages)
+                .add_system(finalize_grid_examine_input.in_base_set(CoreSet::PreUpdate))
+                .add_system(incoming_messages.in_base_set(CoreSet::PreUpdate))
                 .add_event::<InputExamineMap>()
                 .init_resource::<GridmapExamineMessages>()
-                .add_system_to_stage(
-                    PostUpdate,
-                    finalize_examine_map.before(PostUpdateLabels::EntityUpdate),
+                .add_system(
+                    finalize_examine_map
+                        .in_base_set(CoreSet::PostUpdate)
+                        .before(PostUpdateLabels::EntityUpdate),
                 )
                 .add_system(examine_grid.after(ActionsLabels::Action))
                 .add_system(
                     configure
-                        .label(ConfigurationLabel::Main)
+                        .in_set(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
                 )
                 .add_system(add_tile_net)
@@ -80,12 +82,11 @@ impl Plugin for GridmapPlugin {
                 .add_system(set_yplane_position)
                 .add_system(input_yplane_position)
                 .add_system(move_ylevel_plane)
-                .add_system_set(
-                    SystemSet::new()
-                        .with_run_criteria(FixedTimestep::step(1. / 8.))
-                        .with_system(select_cell_in_front_camera),
+                .add_system(
+                    select_cell_in_front_camera
+                        .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
                 )
-                .add_system(update_ghost_cell.label(GhostTileLabel::Update))
+                .add_system(update_ghost_cell.in_set(GhostTileLabel::Update))
                 .add_event::<ConstructionCellSelectionChanged>()
                 .add_system(change_ghost_tile_request)
                 .add_system(input_ghost_rotation.after(GhostTileLabel::Update))
@@ -94,16 +95,16 @@ impl Plugin for GridmapPlugin {
                 .add_system(remove_cell_client);
         }
 
-        app.add_startup_system(startup_misc_resources.label(StartupLabels::MiscResources))
+        app.add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 startup_map_tile_properties
-                    .label(StartupLabels::InitDefaultGridmapData)
-                    .label(BuildingLabels::TriggerBuild)
+                    .in_set(StartupLabels::InitDefaultGridmapData)
+                    .in_set(BuildingLabels::TriggerBuild)
                     .after(StartupLabels::MiscResources),
             )
             .add_startup_system(
                 load_ron_gridmap
-                    .label(StartupLabels::BuildGridmap)
+                    .in_set(StartupLabels::BuildGridmap)
                     .after(StartupLabels::InitDefaultGridmapData),
             )
             .init_resource::<Gridmap>()
