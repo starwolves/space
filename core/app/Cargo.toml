@@ -11,11 +11,11 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.9.1"
+version = "0.10.0"
 default-features = false
 
 [dependencies]
-bevy_egui = { version = "0.19.0", default-features = false, features = [
+bevy_egui = { version = "0.20.0", default-features = false, features = [
     "manage_clipboard",
 ] }
 combat = { path = "../combat" }

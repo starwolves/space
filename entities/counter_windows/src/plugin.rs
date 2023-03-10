@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemSet};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
@@ -28,7 +28,6 @@ use super::{
     spawn::{build_counter_windows, CounterWindowType},
 };
 use crate::actions::build_actions;
-use bevy::app::CoreStage::PostUpdate;
 pub struct CounterWindowsPlugin;
 
 impl Plugin for CounterWindowsPlugin {
@@ -43,11 +42,10 @@ impl Plugin for CounterWindowsPlugin {
                 .add_event::<CounterWindowLockOpen>()
                 .add_event::<CounterWindowLockClosed>()
                 .add_event::<CounterWindowUnlock>()
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .label(PostUpdateLabels::EntityUpdate)
-                        .with_system(counter_window_update),
+                .add_system(
+                    counter_window_update
+                        .in_base_set(CoreSet::PostUpdate)
+                        .in_set(PostUpdateLabels::EntityUpdate),
                 )
                 .add_system(
                     health_combat_hit_result_sfx::<CounterWindow>
@@ -55,22 +53,22 @@ impl Plugin for CounterWindowsPlugin {
                 )
                 .add_system(
                     toggle_open_action_prequisite_check
-                        .label(ActionsLabels::Approve)
+                        .in_set(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
                     lock_open_action_prequisite_check
-                        .label(ActionsLabels::Approve)
+                        .in_set(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
                     counter_window_actions
-                        .label(ActionsLabels::Action)
+                        .in_set(ActionsLabels::Action)
                         .after(ActionsLabels::Approve),
                 )
                 .add_system(
                     build_actions
-                        .label(ActionsLabels::Build)
+                        .in_set(ActionsLabels::Build)
                         .after(ActionsLabels::Init),
                 );
         }

@@ -1,6 +1,5 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
-use bevy_renet::{RenetClientPlugin, RenetServerPlugin};
-use iyes_loopless::prelude::IntoConditionalSystem;
+use bevy::prelude::{resource_exists, App, CoreSet, IntoSystemConfig, Plugin};
+use bevy_renet::{renet::RenetClient, RenetClientPlugin, RenetServerPlugin};
 use resources::is_server::is_server;
 
 use super::server::{souls, startup_server_listen_connections};
@@ -22,7 +21,6 @@ use crate::{
         UnreliableServerMessage,
     },
 };
-use bevy::app::CoreStage::PreUpdate;
 pub struct NetworkingPlugin;
 
 impl Plugin for NetworkingPlugin {
@@ -33,14 +31,15 @@ impl Plugin for NetworkingPlugin {
                 .add_system(souls)
                 .add_event::<IncomingRawReliableClientMessage>()
                 .add_event::<IncomingRawUnreliableClientMessage>()
-                .add_system_to_stage(
-                    PreUpdate,
-                    receive_incoming_reliable_client_messages.label(TypenamesLabel::SendRawEvents),
+                .add_system(
+                    receive_incoming_reliable_client_messages
+                        .in_base_set(CoreSet::PreUpdate)
+                        .in_set(TypenamesLabel::SendRawEvents),
                 )
-                .add_system_to_stage(
-                    PreUpdate,
+                .add_system(
                     receive_incoming_unreliable_client_messages
-                        .label(TypenamesLabel::SendRawEvents),
+                        .in_base_set(CoreSet::PreUpdate)
+                        .in_set(TypenamesLabel::SendRawEvents),
                 );
         } else {
             app.add_plugin(RenetClientPlugin::default())
@@ -48,17 +47,17 @@ impl Plugin for NetworkingPlugin {
                 .add_event::<ConnectToServer>()
                 .init_resource::<ConnectionPreferences>()
                 .init_resource::<Connection>()
-                .add_system_to_stage(
-                    PreUpdate,
+                .add_system(
                     receive_incoming_reliable_server_messages
-                        .run_if(is_client_connected)
-                        .label(TypenamesLabel::SendRawEvents),
+                        .in_base_set(CoreSet::PreUpdate)
+                        .in_set(TypenamesLabel::SendRawEvents)
+                        .run_if(resource_exists::<RenetClient>()),
                 )
-                .add_system_to_stage(
-                    PreUpdate,
+                .add_system(
                     receive_incoming_unreliable_server_messages
-                        .run_if(is_client_connected)
-                        .label(TypenamesLabel::SendRawEvents),
+                        .in_base_set(CoreSet::PreUpdate)
+                        .in_set(TypenamesLabel::SendRawEvents)
+                        .run_if(resource_exists::<RenetClient>()),
                 )
                 .add_event::<IncomingRawReliableServerMessage>()
                 .add_event::<IncomingRawUnreliableServerMessage>()

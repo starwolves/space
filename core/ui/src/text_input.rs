@@ -1,4 +1,4 @@
-use bevy::prelude::{info, Color, Component, Entity, SystemLabel};
+use bevy::prelude::{info, Color, Component, Entity, SystemSet};
 use bevy::{
     prelude::{Changed, Query},
     ui::Interaction,
@@ -28,7 +28,7 @@ pub enum CharacterFilter {
     Chat,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum TextInputLabel {
     UiEvents,

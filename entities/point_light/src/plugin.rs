@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use entity::entity_types::register_entity_type;
 use resources::labels::BuildingLabels;
 

@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;

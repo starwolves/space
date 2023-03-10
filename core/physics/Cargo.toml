@@ -12,11 +12,11 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.9.1"
+version = "0.10.0"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = "0.20.0"
+bevy_rapier3d = "0.21.0"
 
 entity = { path = "../entity"}
 networking = { path = "../networking" }

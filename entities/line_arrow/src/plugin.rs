@@ -1,5 +1,5 @@
 use basic_console_commands::register::register_basic_console_commands_for_type;
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, ResMut};
+use bevy::prelude::{App, IntoSystemConfig, Plugin, ResMut};
 use console_commands::commands::{AllConsoleCommands, ConsoleCommandsLabels};
 use entity::{entity_types::register_entity_type, spawn::build_base_entities};
 use networking::server::GodotVariant;
@@ -23,9 +23,9 @@ impl Plugin for LineArrowPlugin {
             app.add_startup_system(
                 initialize_console_commands
                     .before(ConsoleCommandsLabels::Finalize)
-                    .label(StartupLabels::ConsoleCommands),
+                    .in_set(StartupLabels::ConsoleCommands),
             )
-            .add_system(entity_console_commands.label(BuildingLabels::TriggerBuild));
+            .add_system(entity_console_commands.in_set(BuildingLabels::TriggerBuild));
         }
         register_entity_type::<LineArrowType>(app);
         register_basic_console_commands_for_type::<LineArrowType>(app);

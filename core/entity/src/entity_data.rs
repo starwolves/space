@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{warn, Changed, Component, Entity, EventWriter, Query, Res, Transform},
-    time::{FixedTimesteps, Time},
+    prelude::{Changed, Component, Entity, EventWriter, Query, Res, SystemSet, Transform},
+    time::Time,
 };
 use entity_macros::Identity;
 use networking::server::{EntityUpdateData, UnreliableServerMessage};
@@ -27,7 +27,6 @@ use networking::server::OutgoingUnreliableServerMessage;
 
 pub(crate) fn broadcast_position_updates(
     time: Res<Time>,
-    fixed_timesteps: Res<FixedTimesteps>,
 
     mut net: EventWriter<OutgoingUnreliableServerMessage<UnreliableServerMessage>>,
     handle_to_entity: Res<HandleToEntity>,
@@ -40,17 +39,6 @@ pub(crate) fn broadcast_position_updates(
     )>,
 ) {
     let current_time_stamp = time.elapsed().as_millis();
-
-    let overstep_percentage = fixed_timesteps
-        .get(INTERPOLATION_LABEL1)
-        .unwrap()
-        .overstep_percentage();
-    if overstep_percentage > 5. {
-        if current_time_stamp > 60000 {
-            warn!("overstep_percentage: {}", overstep_percentage);
-        }
-    }
-
     for (
         entity,
         visible_component,
@@ -89,7 +77,10 @@ pub(crate) fn broadcast_position_updates(
     }
 }
 
-pub const INTERPOLATION_LABEL1: &str = "fixed_timestep_interpolation1";
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum InterpolationSet {
+    Main,
+}
 
 /// Component for entities that were included and spawned with the map itself.
 #[derive(Component)]

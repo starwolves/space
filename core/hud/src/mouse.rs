@@ -1,6 +1,6 @@
 use bevy::{
-    prelude::{warn, EventReader, EventWriter, Res, ResMut},
-    window::{CursorGrabMode, WindowFocused, Windows},
+    prelude::{EventReader, EventWriter, Query, Res, With},
+    window::{CursorGrabMode, PrimaryWindow, Window, WindowFocused},
 };
 use networking::client::IncomingReliableServerMessage;
 use player::{configuration::Boarded, net::PlayerServerMessage};
@@ -23,33 +23,27 @@ pub(crate) fn grab_mouse_on_board(
 }
 pub struct GrabCursor;
 
-pub(crate) fn grab_cursor(mut events: EventReader<GrabCursor>, mut windows: ResMut<Windows>) {
+pub(crate) fn grab_cursor(
+    mut events: EventReader<GrabCursor>,
+    mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
+) {
     for _ in events.iter() {
-        match windows.get_primary_mut() {
-            Some(w) => {
-                w.set_cursor_grab_mode(CursorGrabMode::Locked);
-                w.set_cursor_visibility(false);
-            }
-            None => {
-                warn!("Couldnt find main window.");
-            }
-        }
+        let mut primary = primary_query.get_single_mut().unwrap();
+        primary.cursor.grab_mode = CursorGrabMode::Locked;
+        primary.cursor.visible = false;
     }
 }
 
 pub struct ReleaseCursor;
 
-pub(crate) fn release_cursor(mut events: EventReader<ReleaseCursor>, mut windows: ResMut<Windows>) {
+pub(crate) fn release_cursor(
+    mut events: EventReader<ReleaseCursor>,
+    mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
+) {
     for _ in events.iter() {
-        match windows.get_primary_mut() {
-            Some(w) => {
-                w.set_cursor_grab_mode(CursorGrabMode::None);
-                w.set_cursor_visibility(true);
-            }
-            None => {
-                warn!("Couldnt find main window.");
-            }
-        }
+        let mut primary = primary_query.get_single_mut().unwrap();
+        primary.cursor.grab_mode = CursorGrabMode::None;
+        primary.cursor.visible = true;
     }
 }
 

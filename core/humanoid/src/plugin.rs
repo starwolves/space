@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin};
+use bevy::prelude::{App, IntoSystemConfig, Plugin};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use player::names::UsedNames;
 use resources::{

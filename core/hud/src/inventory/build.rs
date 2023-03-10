@@ -45,7 +45,7 @@ pub(crate) fn create_inventory_hud(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            visibility: Visibility { is_visible: false },
+            visibility: Visibility::Hidden,
             background_color: inventory_hud_color.into(),
             ..Default::default()
         })
@@ -144,7 +144,11 @@ pub(crate) fn open_inventory_hud(
         state.open = event.open;
         match root_node.get_mut(state.root_node) {
             Ok(mut root) => {
-                root.is_visible = state.open;
+                if state.open {
+                    *root = Visibility::Inherited;
+                } else {
+                    *root = Visibility::Hidden;
+                }
             }
             Err(_) => {
                 warn!("Couldnt toggle open inventory , couldnt find root node.");

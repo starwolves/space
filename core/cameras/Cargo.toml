@@ -14,5 +14,5 @@ serde = "1.0"
 resources = { path = "../resources" }
 
 [dependencies.bevy]
-version = "0.9"
+version = "0.10.0"
 default-features = false

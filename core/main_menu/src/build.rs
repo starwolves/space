@@ -2,7 +2,7 @@ use bevy::text::TextSection;
 use bevy::{
     prelude::{
         AssetServer, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, Component,
-        Entity, EventReader, EventWriter, NodeBundle, Res, ResMut, SystemLabel, TextBundle,
+        Entity, EventReader, EventWriter, NodeBundle, Res, ResMut, SystemSet, TextBundle,
     },
     text::TextStyle,
     ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val},
@@ -26,7 +26,7 @@ pub struct MainMenuState {
 }
 
 /// Labels for system ordering.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum MainMenuLabel {
     BuildMainMenu,

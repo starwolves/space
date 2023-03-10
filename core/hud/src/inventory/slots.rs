@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Color, Commands, Component, EventReader, NodeBundle,
-        Query, Res, ResMut, SystemLabel, TextBundle, With,
+        Query, Res, ResMut, SystemSet, TextBundle, With,
     },
     text::TextStyle,
     ui::{FlexDirection, Node, Size, Style, Val},
@@ -17,7 +17,7 @@ pub struct SlotHud {
     pub size: Vec2Int,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum InventoryHudLabels {
     UpdateSlot,

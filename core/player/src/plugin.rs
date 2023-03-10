@@ -10,8 +10,8 @@ use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
     connections::{server_events, PlayerAwaitingBoarding},
 };
-use bevy::prelude::IntoSystemDescriptor;
-use bevy::prelude::{App, Plugin, SystemLabel};
+use bevy::prelude::IntoSystemConfig;
+use bevy::prelude::{App, Plugin, SystemSet};
 use cameras::controllers::fps::FpsCameraPlugin;
 use cameras::LookTransformPlugin;
 use networking::{
@@ -21,7 +21,7 @@ use networking::{
 use resources::is_server::is_server;
 
 /// Atmospherics systems ordering label.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum ConfigurationLabel {
     SpawnEntity,
     Main,
@@ -41,7 +41,7 @@ impl Plugin for PlayerPlugin {
                 .add_event::<PlayerAwaitingBoarding>()
                 .add_system(
                     server_new_client_configuration
-                        .label(ConfigurationLabel::SpawnEntity)
+                        .in_set(ConfigurationLabel::SpawnEntity)
                         .before(ConfigurationLabel::Main),
                 )
                 .add_event::<InputUIInputTransmitText>()

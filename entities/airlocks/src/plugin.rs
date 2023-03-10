@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemDescriptor, Plugin, SystemLabel, SystemSet};
+use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
@@ -25,9 +25,8 @@ use super::{
     entity_update::airlock_update,
     spawn::{build_airlocks, AirlockType},
 };
-use bevy::app::CoreStage::PostUpdate;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum AirLockTimers {
     Timer,
 }
@@ -46,11 +45,10 @@ impl Plugin for AirLocksPlugin {
                 .add_system(physics_events)
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>()
-                .add_system_set_to_stage(
-                    PostUpdate,
-                    SystemSet::new()
-                        .label(PostUpdateLabels::EntityUpdate)
-                        .with_system(airlock_update),
+                .add_system(
+                    airlock_update
+                        .in_set(PostUpdateLabels::EntityUpdate)
+                        .in_base_set(CoreSet::PostUpdate),
                 )
                 .add_system(
                     health_combat_hit_result_sfx::<Airlock>
@@ -58,22 +56,22 @@ impl Plugin for AirLocksPlugin {
                 )
                 .add_system(
                     toggle_open_action_prequisite_check
-                        .label(ActionsLabels::Approve)
+                        .in_set(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
                     lock_action_prequisite_check
-                        .label(ActionsLabels::Approve)
+                        .in_set(ActionsLabels::Approve)
                         .after(ActionsLabels::Build),
                 )
                 .add_system(
                     airlock_actions
-                        .label(ActionsLabels::Action)
+                        .in_set(ActionsLabels::Action)
                         .after(ActionsLabels::Approve),
                 )
                 .add_system(
                     build_actions
-                        .label(ActionsLabels::Build)
+                        .in_set(ActionsLabels::Build)
                         .after(ActionsLabels::Init),
                 );
         }

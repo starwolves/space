@@ -28,6 +28,7 @@ pub(crate) fn spawn_debug_camera(
             ))
             .insert(AtmosphereCamera::default())
             .id();
+
         state.option = Some(id);
     }
 

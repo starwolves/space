@@ -6,15 +6,14 @@ pub mod core;
 /// Systems ordering labels.
 pub mod labels;
 
+pub mod content;
 /// Convert data, mainly used for old  Godot prototype.
 pub mod converters;
-/// The Bevy ECS plugin of this crate.
-pub mod plugin;
-// Set window icon of client.
-pub mod content;
 pub mod grid;
 pub mod hud;
 pub mod is_server;
 pub mod math;
+/// The Bevy ECS plugin of this crate.
+pub mod plugin;
 pub mod set_icon;
 pub mod ui;
