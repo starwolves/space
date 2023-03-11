@@ -1,10 +1,11 @@
 use bevy::{
-    prelude::{EventReader, EventWriter, Query, Res, With},
+    prelude::{EventReader, EventWriter, Query, Res, ResMut, With},
     window::{CursorGrabMode, PrimaryWindow, Window, WindowFocused},
 };
 use networking::client::IncomingReliableServerMessage;
 use player::{configuration::Boarded, net::PlayerServerMessage};
 use resources::hud::HudState;
+use ui::button::VisualButtonsEnabled;
 
 use crate::expand::ExpandInventoryHud;
 
@@ -26,11 +27,13 @@ pub struct GrabCursor;
 pub(crate) fn grab_cursor(
     mut events: EventReader<GrabCursor>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
+    mut button_visuals_enabled: ResMut<VisualButtonsEnabled>,
 ) {
     for _ in events.iter() {
         let mut primary = primary_query.get_single_mut().unwrap();
         primary.cursor.grab_mode = CursorGrabMode::Locked;
         primary.cursor.visible = false;
+        button_visuals_enabled.enabled = false;
     }
 }
 
@@ -39,11 +42,13 @@ pub struct ReleaseCursor;
 pub(crate) fn release_cursor(
     mut events: EventReader<ReleaseCursor>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
+    mut button_visuals_enabled: ResMut<VisualButtonsEnabled>,
 ) {
     for _ in events.iter() {
         let mut primary = primary_query.get_single_mut().unwrap();
         primary.cursor.grab_mode = CursorGrabMode::None;
         primary.cursor.visible = true;
+        button_visuals_enabled.enabled = true;
     }
 }
 

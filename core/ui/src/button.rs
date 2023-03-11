@@ -1,4 +1,4 @@
-use bevy::prelude::{Color, Component};
+use bevy::prelude::{Color, Component, Res, Resource};
 
 use crate::text_input::INPUT_TEXT_BG;
 
@@ -35,16 +35,31 @@ use bevy::{
     ui::Interaction,
 };
 
+#[derive(Resource)]
+pub struct VisualButtonsEnabled {
+    pub enabled: bool,
+}
+
+impl Default for VisualButtonsEnabled {
+    fn default() -> Self {
+        Self { enabled: true }
+    }
+}
+
 pub(crate) fn button_hover_visuals(
     mut interaction_query: Query<
         (Entity, &Interaction, &Parent, &ButtonVisuals),
         (Changed<Interaction>, With<Button>),
     >,
     mut color_query: Query<&mut BackgroundColor>,
+    enabled: Res<VisualButtonsEnabled>,
 ) {
     for (entity, interaction, parent, button_visuals) in &mut interaction_query {
         match *interaction {
             Interaction::Clicked => {
+                if !enabled.enabled {
+                    continue;
+                }
                 if button_visuals.color_parent {
                     match color_query.get_mut(parent.get()) {
                         Ok(mut c) => {
@@ -67,6 +82,9 @@ pub(crate) fn button_hover_visuals(
                 }
             }
             Interaction::Hovered => {
+                if !enabled.enabled {
+                    continue;
+                }
                 if button_visuals.color_parent {
                     match color_query.get_mut(parent.get()) {
                         Ok(mut c) => {

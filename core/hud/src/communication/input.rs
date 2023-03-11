@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Children, Commands, EventReader, EventWriter, Input,
-        KeyCode, NodeBundle, Query, Res, TextBundle,
+        KeyCode, NodeBundle, Query, Res, ResMut, TextBundle,
     },
     text::{Text, TextSection, TextStyle},
     ui::{Size, Style, Val},
@@ -10,6 +10,7 @@ use chat::net::{ChatClientMessage, ChatServerMessage};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use resources::ui::TextInput;
 use ui::{
+    button::VisualButtonsEnabled,
     fonts::Fonts,
     text_input::{FocusTextInput, TextInputNode, UnfocusTextInput},
 };
@@ -139,9 +140,11 @@ pub(crate) fn communication_focus_cursor(
     mut unfocus_input: EventReader<UnfocusTextInput>,
     state: Res<HudCommunicationState>,
     text_input: Res<TextInput>,
+    mut button_visuals_enabled: ResMut<VisualButtonsEnabled>,
 ) {
     for focus in focus_input.iter() {
         if focus.entity == state.communication_input_node {
+            button_visuals_enabled.enabled = true;
             release_cursor.send(ReleaseCursor);
         }
     }
@@ -149,6 +152,8 @@ pub(crate) fn communication_focus_cursor(
         match text_input.focused_input {
             Some(input_entity) => {
                 if input_entity == state.communication_input_node {
+                    button_visuals_enabled.enabled = false;
+
                     grab_cursor.send(GrabCursor);
                 }
             }
