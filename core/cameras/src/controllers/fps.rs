@@ -102,6 +102,9 @@ pub fn default_input_map(
     } else {
         return;
     };
+    if text_input_state.focused_input.is_some() {
+        return;
+    }
     let FpsCameraController {
         translate_sensitivity,
         mouse_rotate_sensitivity,
@@ -128,7 +131,7 @@ pub fn default_input_map(
     .iter()
     .cloned()
     {
-        if keyboard.pressed(key) && text_input_state.focused_input.is_none() {
+        if keyboard.pressed(key) {
             events.send(ControlEvent::TranslateEye(translate_sensitivity * dir));
         }
     }

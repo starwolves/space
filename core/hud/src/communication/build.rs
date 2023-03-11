@@ -1,13 +1,14 @@
 use bevy::{
     prelude::{
-        AssetServer, BuildChildren, Color, Commands, Component, Entity, NodeBundle, Res, Resource,
-        TextBundle,
+        AssetServer, BuildChildren, ButtonBundle, Color, Commands, Component, Entity, NodeBundle,
+        Res, Resource, TextBundle,
     },
     text::TextStyle,
     ui::{FlexDirection, Interaction, Size, Style, Val},
 };
 use resources::hud::HudState;
 use ui::{
+    button::ButtonVisuals,
     fonts::EMPIRE_FONT,
     text_input::{CharacterFilter, TextInputNode},
 };
@@ -91,13 +92,35 @@ pub(crate) fn build_communication_ui(
                             },
                         ));
                     });
-                    parent.spawn(NodeBundle {
-                        style: Style {
-                            size: Size::new(Val::Percent(100.), Val::Percent(50.)),
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                size: Size::new(Val::Percent(3.3), Val::Percent(25.)),
+
+                                ..Default::default()
+                            },
                             ..Default::default()
-                        },
-                        ..Default::default()
-                    });
+                        })
+                        .with_children(|parent| {
+                            parent
+                                .spawn((
+                                    ButtonBundle {
+                                        background_color: Color::DARK_GRAY.into(),
+                                        ..Default::default()
+                                    },
+                                    ButtonVisuals::default(),
+                                ))
+                                .with_children(|parent| {
+                                    parent.spawn(TextBundle::from_section(
+                                        "~",
+                                        TextStyle {
+                                            font: empire_font.clone(),
+                                            font_size: 16.0,
+                                            color: Color::WHITE.into(),
+                                        },
+                                    ));
+                                });
+                        });
                 });
         });
     commands.insert_resource(HudCommunicationState {

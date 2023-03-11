@@ -1,4 +1,4 @@
-use bevy::prelude::{info, Color, Component, Entity, SystemSet};
+use bevy::prelude::{Color, Component, Entity, SystemSet};
 use bevy::{
     prelude::{Changed, Query},
     ui::Interaction,
@@ -63,7 +63,6 @@ pub(crate) fn ui_events(
         if !input_has_focus {
             match *interaction {
                 Interaction::Clicked => {
-                    info!("Text input clicked.");
                     *color = INPUT_TEXT_BG_PRESSED.into();
                     focus.send(FocusTextInput { entity });
                 }
@@ -86,6 +85,7 @@ use bevy::text::Text;
 use bevy::{prelude::EventReader, window::ReceivedCharacter};
 
 /// Event to unfocus the currently focused text input.
+#[derive(Default)]
 
 pub struct UnfocusTextInput {
     pub entity_option: Option<Entity>,

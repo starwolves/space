@@ -14,6 +14,8 @@ use ui::{
     text_input::{FocusTextInput, TextInputNode, UnfocusTextInput},
 };
 
+use crate::mouse::{GrabCursor, ReleaseCursor};
+
 use super::build::HudCommunicationState;
 
 pub(crate) fn text_input(
@@ -126,6 +128,31 @@ pub(crate) fn tab_communication_input_toggle(
             focus_event.send(FocusTextInput {
                 entity: state.communication_input_node,
             });
+        }
+    }
+}
+
+pub(crate) fn communication_focus_cursor(
+    mut release_cursor: EventWriter<ReleaseCursor>,
+    mut grab_cursor: EventWriter<GrabCursor>,
+    mut focus_input: EventReader<FocusTextInput>,
+    mut unfocus_input: EventReader<UnfocusTextInput>,
+    state: Res<HudCommunicationState>,
+    text_input: Res<TextInput>,
+) {
+    for focus in focus_input.iter() {
+        if focus.entity == state.communication_input_node {
+            release_cursor.send(ReleaseCursor);
+        }
+    }
+    for _ in unfocus_input.iter() {
+        match text_input.focused_input {
+            Some(input_entity) => {
+                if input_entity == state.communication_input_node {
+                    grab_cursor.send(GrabCursor);
+                }
+            }
+            None => {}
         }
     }
 }

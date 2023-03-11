@@ -1,10 +1,14 @@
 use bevy::prelude::{not, resource_exists, App, IntoSystemConfig, Plugin, StartupSet};
 use resources::is_server::is_server;
+use ui::text_input::TextInputLabel;
 
 use crate::{
     communication::{
         build::build_communication_ui,
-        input::{display_global_chat_message, tab_communication_input_toggle, text_input},
+        input::{
+            communication_focus_cursor, display_global_chat_message,
+            tab_communication_input_toggle, text_input,
+        },
     },
     expand::{expand_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, ExpandedLeftContentHud},
@@ -85,7 +89,8 @@ impl Plugin for HudPlugin {
                 .add_system(grab_cursor)
                 .add_system(text_input)
                 .add_system(display_global_chat_message)
-                .add_system(tab_communication_input_toggle);
+                .add_system(tab_communication_input_toggle)
+                .add_system(communication_focus_cursor.before(TextInputLabel::MousePressUnfocus));
         }
     }
 }
