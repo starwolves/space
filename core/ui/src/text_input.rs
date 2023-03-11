@@ -48,6 +48,7 @@ pub(crate) fn ui_events(
     >,
     text_input: Res<TextInput>,
     mut focus: EventWriter<FocusTextInput>,
+    enabled: Res<VisualButtonsEnabled>,
 ) {
     for (entity, interaction, mut color) in interaction_query.iter_mut() {
         let mut input_has_focus = false;
@@ -63,10 +64,16 @@ pub(crate) fn ui_events(
         if !input_has_focus {
             match *interaction {
                 Interaction::Clicked => {
+                    if !enabled.enabled {
+                        continue;
+                    }
                     *color = INPUT_TEXT_BG_PRESSED.into();
                     focus.send(FocusTextInput { entity });
                 }
                 Interaction::Hovered => {
+                    if !enabled.enabled {
+                        continue;
+                    }
                     *color = INPUT_TEXT_BG_HOVER.into();
                 }
                 Interaction::None => {
@@ -473,6 +480,7 @@ pub(crate) fn set_text_input_node_text(
 
 use networking::server::IncomingReliableClientMessage;
 
+use crate::button::VisualButtonsEnabled;
 use crate::net::UiClientMessage;
 /// Manage incoming network messages from clients.
 
