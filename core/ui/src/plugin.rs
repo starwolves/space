@@ -2,7 +2,7 @@ use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
 use networking::messaging::{register_reliable_message, MessageSender};
 
 use crate::{
-    button::{button_hover_visuals, VisualButtonsEnabled},
+    button::button_hover_visuals,
     fonts::{init_fonts, Fonts},
     net::{UiClientMessage, UiServerMessage},
     text_input::{
@@ -32,8 +32,7 @@ impl Plugin for UiPlugin {
                 .add_event::<FocusTextInput>()
                 .add_system(button_hover_visuals)
                 .add_event::<SetText>()
-                .add_system(set_text_input_node_text)
-                .init_resource::<VisualButtonsEnabled>();
+                .add_system(set_text_input_node_text);
         }
         app.init_resource::<Fonts>().add_startup_system(init_fonts);
         register_reliable_message::<UiClientMessage>(app, MessageSender::Client);
