@@ -8,7 +8,7 @@ use bevy::{
     time::Time,
     transform::components::Transform,
 };
-use resources::ui::TextInput;
+use resources::hud::HudState;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
@@ -30,8 +30,7 @@ impl Plugin for FpsCameraPlugin {
             .add_system(on_controller_enabled_changed.in_base_set(CoreSet::PreUpdate))
             .add_system(control_system)
             .add_event::<ControlEvent>()
-            .init_resource::<ActiveCamera>()
-            .init_resource::<CameraMouseInputEnabled>();
+            .init_resource::<ActiveCamera>();
         if !self.override_input_system {
             app.add_system(default_input_map);
         }
@@ -94,7 +93,7 @@ pub fn default_input_map(
     keyboard: Res<Input<KeyCode>>,
     mut mouse_motion_events: EventReader<MouseMotion>,
     controllers: Query<&FpsCameraController>,
-    text_input_state: Res<TextInput>,
+    hud_state: Res<HudState>,
 ) {
     // Can only control one camera at a time.
     let controller = if let Some(controller) = controllers.iter().find(|c| c.enabled) {
@@ -102,7 +101,7 @@ pub fn default_input_map(
     } else {
         return;
     };
-    if text_input_state.focused_input.is_some() {
+    if hud_state.expanded {
         return;
     }
     let FpsCameraController {
@@ -137,17 +136,6 @@ pub fn default_input_map(
     }
 }
 
-#[derive(Resource)]
-pub struct CameraMouseInputEnabled {
-    pub enabled: bool,
-}
-
-impl Default for CameraMouseInputEnabled {
-    fn default() -> Self {
-        Self { enabled: true }
-    }
-}
-
 #[derive(Resource, Default)]
 pub struct ActiveCamera {
     pub option: Option<Entity>,
@@ -157,11 +145,7 @@ pub fn control_system(
     mut events: EventReader<ControlEvent>,
     mut cameras: Query<(&FpsCameraController, &mut LookTransform)>,
     time: Res<Time>,
-    enabled: Res<CameraMouseInputEnabled>,
 ) {
-    if !enabled.enabled {
-        return;
-    }
     // Can only control one camera at a time.
     let mut transform = if let Some((_, transform)) = cameras.iter_mut().find(|c| c.0.enabled) {
         transform

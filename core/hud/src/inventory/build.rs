@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     prelude::{
-        warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
+        info, warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
         EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
         Visibility, With,
     },
@@ -132,19 +132,18 @@ pub(crate) fn open_inventory_hud(
     boarded: Res<Boarded>,
     mut events: EventReader<OpenInventoryHud>,
     mut state: ResMut<InventoryHudState>,
-    mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
     mut expand: EventWriter<ExpandInventoryHud>,
     mut expand2: EventWriter<ExpandedLeftContentHud>,
+    mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
+    mut open_hud: EventWriter<OpenHud>,
 ) {
     for event in events.iter() {
         if !boarded.boarded {
             continue;
         }
-
-        state.open = event.open;
         match root_node.get_mut(state.root_node) {
             Ok(mut root) => {
-                if state.open {
+                if !state.open {
                     *root = Visibility::Inherited;
                 } else {
                     *root = Visibility::Hidden;
@@ -154,26 +153,45 @@ pub(crate) fn open_inventory_hud(
                 warn!("Couldnt toggle open inventory , couldnt find root node.");
             }
         }
+        state.open = event.open;
+        info!("open_inventory_hud {}", state.open);
+
         expand.send(ExpandInventoryHud { expand: state.open });
-        if !state.open {
-            expand2.send(ExpandedLeftContentHud {
-                expanded: state.open,
-            });
+        expand2.send(ExpandedLeftContentHud {
+            expanded: state.open,
+        });
+        open_hud.send(OpenHud { open: state.open });
+    }
+}
+
+pub(crate) fn open_hud(
+    boarded: Res<Boarded>,
+    mut events: EventReader<OpenHud>,
+    mut state: ResMut<HudState>,
+) {
+    for event in events.iter() {
+        if !boarded.boarded {
+            continue;
         }
+        state.expanded = event.open;
     }
 }
 
 pub(crate) fn inventory_hud_key_press(
     keys: Res<Input<KeyCode>>,
-    mut event: EventWriter<OpenInventoryHud>,
+    mut event2: EventWriter<OpenInventoryHud>,
+
     state: Res<InventoryHudState>,
     focus: Res<TextInput>,
 ) {
     if keys.just_pressed(KeyCode::I) && focus.focused_input.is_none() {
-        event.send(OpenInventoryHud { open: !state.open });
+        event2.send(OpenInventoryHud { open: !state.open });
     }
 }
 
+pub struct OpenHud {
+    pub open: bool,
+}
 pub struct OpenInventoryHud {
     pub open: bool,
 }

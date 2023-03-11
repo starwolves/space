@@ -1,16 +1,12 @@
 use bevy::prelude::{not, resource_exists, App, IntoSystemConfig, Plugin, StartupSet};
 use resources::is_server::is_server;
-use ui::text_input::TextInputLabel;
 
 use crate::{
     communication::{
         build::build_communication_ui,
-        input::{
-            communication_focus_cursor, display_global_chat_message,
-            tab_communication_input_toggle, text_input,
-        },
+        input::{display_global_chat_message, tab_communication_input_toggle, text_input},
     },
-    expand::{expand_hud, ExpandInventoryHud},
+    expand::{expand_inventory_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, ExpandedLeftContentHud},
     input::text_tree_selection::{
         create_text_tree_selection, hide_text_tree_selection, text_tree_select_button,
@@ -19,8 +15,8 @@ use crate::{
     inventory::{
         actions::{hide_actions, item_actions_button_events, slot_item_actions},
         build::{
-            create_inventory_hud, inventory_hud_key_press, open_inventory_hud, InventoryHudState,
-            OpenInventoryHud,
+            create_inventory_hud, inventory_hud_key_press, open_hud, open_inventory_hud,
+            InventoryHudState, OpenHud, OpenInventoryHud,
         },
         items::{
             change_active_item, requeue_hud_add_item_to_slot, right_mouse_click_item,
@@ -45,13 +41,13 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         if !is_server() {
             app.add_event::<ExpandInventoryHud>()
-                .add_system(expand_hud)
+                .add_system(expand_inventory_hud)
                 .add_startup_system(create_inventory_hud.in_base_set(StartupSet::PostStartup))
                 .add_startup_system(create_hud)
                 .add_startup_system(build_communication_ui.in_base_set(StartupSet::PostStartup))
-                .add_event::<OpenInventoryHud>()
+                .add_event::<OpenHud>()
                 .add_system(inventory_hud_key_press)
-                .add_system(open_inventory_hud)
+                .add_system(open_hud)
                 .add_system(
                     queue_inventory_updates.run_if(not(resource_exists::<InventoryHudState>())),
                 )
@@ -90,7 +86,8 @@ impl Plugin for HudPlugin {
                 .add_system(text_input)
                 .add_system(display_global_chat_message)
                 .add_system(tab_communication_input_toggle)
-                .add_system(communication_focus_cursor.before(TextInputLabel::MousePressUnfocus));
+                .add_system(open_inventory_hud.after(open_hud))
+                .add_event::<OpenInventoryHud>();
         }
     }
 }

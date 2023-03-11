@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Children, Commands, EventReader, EventWriter, Input,
-        KeyCode, NodeBundle, Query, Res, ResMut, TextBundle,
+        KeyCode, NodeBundle, Query, Res, TextBundle,
     },
     text::{Text, TextSection, TextStyle},
     ui::{Size, Style, Val},
@@ -10,12 +10,11 @@ use chat::net::{ChatClientMessage, ChatServerMessage};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use resources::ui::TextInput;
 use ui::{
-    button::VisualButtonsEnabled,
     fonts::Fonts,
     text_input::{FocusTextInput, TextInputNode, UnfocusTextInput},
 };
 
-use crate::mouse::{GrabCursor, ReleaseCursor};
+use crate::inventory::build::OpenHud;
 
 use super::build::HudCommunicationState;
 
@@ -108,6 +107,8 @@ pub(crate) fn tab_communication_input_toggle(
     keys: Res<Input<KeyCode>>,
     state: Res<HudCommunicationState>,
     focus: Res<TextInput>,
+    mut open_hud: EventWriter<OpenHud>,
+
     mut focus_event: EventWriter<FocusTextInput>,
     mut unfocus_event: EventWriter<UnfocusTextInput>,
 ) {
@@ -130,34 +131,7 @@ pub(crate) fn tab_communication_input_toggle(
                 entity: state.communication_input_node,
             });
         }
-    }
-}
 
-pub(crate) fn communication_focus_cursor(
-    mut release_cursor: EventWriter<ReleaseCursor>,
-    mut grab_cursor: EventWriter<GrabCursor>,
-    mut focus_input: EventReader<FocusTextInput>,
-    mut unfocus_input: EventReader<UnfocusTextInput>,
-    state: Res<HudCommunicationState>,
-    text_input: Res<TextInput>,
-    mut button_visuals_enabled: ResMut<VisualButtonsEnabled>,
-) {
-    for focus in focus_input.iter() {
-        if focus.entity == state.communication_input_node {
-            button_visuals_enabled.enabled = true;
-            release_cursor.send(ReleaseCursor);
-        }
-    }
-    for _ in unfocus_input.iter() {
-        match text_input.focused_input {
-            Some(input_entity) => {
-                if input_entity == state.communication_input_node {
-                    button_visuals_enabled.enabled = false;
-
-                    grab_cursor.send(GrabCursor);
-                }
-            }
-            None => {}
-        }
+        open_hud.send(OpenHud { open: !is_focused });
     }
 }

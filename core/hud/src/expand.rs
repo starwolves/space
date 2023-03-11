@@ -1,8 +1,7 @@
 use bevy::{
-    prelude::{warn, EventReader, Query, ResMut},
+    prelude::{info, warn, EventReader, Query, ResMut},
     ui::{Display, Size, Style, Val},
 };
-use cameras::controllers::fps::CameraMouseInputEnabled;
 use resources::hud::HudState;
 
 use crate::hud::{
@@ -14,14 +13,14 @@ pub struct ExpandInventoryHud {
     pub expand: bool,
 }
 
-pub(crate) fn expand_hud(
+pub(crate) fn expand_inventory_hud(
     mut events: EventReader<ExpandInventoryHud>,
     mut state: ResMut<HudState>,
-    mut mouse_enabled: ResMut<CameraMouseInputEnabled>,
     mut node_query: Query<&mut Style>,
     mut expand_event: EventReader<ExpandedLeftContentHud>,
 ) {
     for event in expand_event.iter() {
+        info!("Left expansion: {}", event.expanded);
         if event.expanded {
             match node_query.get_mut(state.left_content_node) {
                 Ok(mut style) => {
@@ -65,6 +64,7 @@ pub(crate) fn expand_hud(
                     warn!("Couldnt find right content node.");
                 }
             }
+            info!("Done expanding.");
         } else {
             match node_query.get_mut(state.left_content_node) {
                 Ok(mut style) => {
@@ -109,6 +109,5 @@ pub(crate) fn expand_hud(
 
     for event in events.iter() {
         state.expanded = event.expand;
-        mouse_enabled.enabled = !event.expand;
     }
 }

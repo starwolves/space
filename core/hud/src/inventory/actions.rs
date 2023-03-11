@@ -22,7 +22,7 @@ use crate::{
     style::button::ButtonSelectionStyle,
 };
 
-use super::build::{InventoryHudState, OpenInventoryHud};
+use super::build::{InventoryHudState, OpenHud};
 
 pub const INVENTORY_HUD_BG_COLOR: Color = Color::rgba(0.1, 0.1, 0.44, 0.9);
 pub const ACTIONS_HUD_BG_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 1.);
@@ -210,7 +210,7 @@ pub struct SlotItemActionButton {
 }
 pub(crate) fn hide_actions(
     boarded: Res<Boarded>,
-    mut events: EventReader<OpenInventoryHud>,
+    mut events: EventReader<OpenHud>,
     query: Query<&Children, With<LeftContentHud>>,
     hud: Res<HudState>,
     mut commands: Commands,
