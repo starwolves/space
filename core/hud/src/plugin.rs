@@ -3,7 +3,7 @@ use resources::is_server::is_server;
 
 use crate::{
     communication::{
-        build::build_communication_ui,
+        build::{build_communication_ui, toggle_console_button},
         input::{display_global_chat_message, tab_communication_input_toggle, text_input},
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
@@ -87,7 +87,8 @@ impl Plugin for HudPlugin {
                 .add_system(display_global_chat_message)
                 .add_system(tab_communication_input_toggle)
                 .add_system(open_inventory_hud.after(open_hud))
-                .add_event::<OpenInventoryHud>();
+                .add_event::<OpenInventoryHud>()
+                .add_system(toggle_console_button);
         }
     }
 }

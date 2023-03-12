@@ -12,7 +12,7 @@ pub const INPUT_TEXT_BG_FOCUSED: Color = Color::rgb(0.46, 0.5, 0.79);
 
 /// The component for text input UI nodes.
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct TextInputNode {
     /// The text the input node currently holds.
     pub input: String,
@@ -22,7 +22,25 @@ pub struct TextInputNode {
     pub placeholder_active: bool,
     /// Apply a filter to allowed characters in the input field.
     pub character_filter_option: Option<CharacterFilter>,
+    pub bg_color: Color,
+    pub bg_color_hover: Color,
+    pub bg_color_focused: Color,
 }
+
+impl Default for TextInputNode {
+    fn default() -> Self {
+        Self {
+            input: String::default(),
+            placeholder_text_option: Option::default(),
+            placeholder_active: bool::default(),
+            character_filter_option: Option::default(),
+            bg_color: INPUT_TEXT_BG,
+            bg_color_hover: INPUT_TEXT_BG_HOVER,
+            bg_color_focused: INPUT_TEXT_BG_FOCUSED,
+        }
+    }
+}
+
 pub enum CharacterFilter {
     AccountName,
     ServerAddress,
@@ -44,8 +62,8 @@ use bevy::ui::BackgroundColor;
 
 pub(crate) fn ui_events(
     mut interaction_query: Query<
-        (Entity, &Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<TextInputNode>),
+        (Entity, &Interaction, &TextInputNode, &mut BackgroundColor),
+        Changed<Interaction>,
     >,
     text_input: Res<TextInput>,
     mut focus: EventWriter<FocusTextInput>,
@@ -53,7 +71,7 @@ pub(crate) fn ui_events(
 ) {
     let primary = primary_query.get_single().unwrap();
 
-    for (entity, interaction, mut color) in interaction_query.iter_mut() {
+    for (entity, interaction, text_input_node, mut color) in interaction_query.iter_mut() {
         let mut input_has_focus = false;
         match text_input.focused_input {
             Some(ent) => {
@@ -70,17 +88,17 @@ pub(crate) fn ui_events(
                     if !primary.cursor.visible {
                         continue;
                     }
-                    *color = INPUT_TEXT_BG_PRESSED.into();
+                    *color = text_input_node.bg_color.into();
                     focus.send(FocusTextInput { entity });
                 }
                 Interaction::Hovered => {
                     if !primary.cursor.visible {
                         continue;
                     }
-                    *color = INPUT_TEXT_BG_HOVER.into();
+                    *color = text_input_node.bg_color_hover.into();
                 }
                 Interaction::None => {
-                    *color = INPUT_TEXT_BG.into();
+                    *color = text_input_node.bg_color.into();
                 }
             }
         }
@@ -121,8 +139,8 @@ pub(crate) fn focus_events(
             Some(entity) => {
                 if entity != focus.entity {
                     match input_query.get_mut(entity) {
-                        Ok((mut old_color, _, _)) => {
-                            *old_color = INPUT_TEXT_BG.into();
+                        Ok((mut old_color, text_input_node, _)) => {
+                            *old_color = text_input_node.bg_color.into();
                         }
                         Err(_) => {
                             warn!("Couldnt find node of old text input focus. 1");
@@ -134,8 +152,8 @@ pub(crate) fn focus_events(
         }
 
         match input_query.get_mut(focus.entity) {
-            Ok((mut new_color, _, _)) => {
-                *new_color = INPUT_TEXT_BG_FOCUSED.into();
+            Ok((mut new_color, text_input_node, _)) => {
+                *new_color = text_input_node.bg_color_focused.into();
             }
             Err(_) => {
                 warn!("Couldnt find node of new text input focus. 0");
@@ -162,7 +180,7 @@ pub(crate) fn focus_events(
                 if should_unfocus {
                     match input_query.get_mut(entity) {
                         Ok((mut old_color, input_node, children)) => {
-                            *old_color = INPUT_TEXT_BG.into();
+                            *old_color = input_node.bg_color.into();
 
                             let mut text_entity_option = None;
 
