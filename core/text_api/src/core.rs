@@ -9,7 +9,24 @@ pub struct Color {
     pub b: f32,
     pub a: f32,
 }
+/// Get message when examining space.
+pub fn get_space_message() -> String {
+    let mut rng = rand::thread_rng();
+    let random_pick: i32 = rng.gen_range(0..3);
 
+    let mut msg = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n";
+    msg = msg + "[font=" + FURTHER_ITALIC_FONT + "]" + "You examine the empty space.[/font]\n";
+
+    if random_pick == 0 {
+        msg = msg + "You are starstruck by the sight of space.";
+    } else if random_pick == 1 {
+        msg = msg + "That certainly looks like space.";
+    } else {
+        msg = msg + "Space.";
+    }
+
+    msg.to_string()
+}
 pub const BILLBOARD_SHOUT_FONT: &str =
     "res://assets/fonts/RobotoFamily/RobotoCondensed/RobotoCondensed-BoldShoutDyna.tres";
 pub const BILLBOARD_SHOUT_ITALIC_FONT: &str =
@@ -234,103 +251,6 @@ pub const EXAMINATION_EMPTY: &str = "You cannot see what is there.";
 /// Get message when examining nothing.
 pub fn get_empty_cell_message() -> String {
     "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n" + EXAMINATION_EMPTY
-}
-
-/// Get message when examining space.
-pub fn get_space_message() -> String {
-    let mut rng = rand::thread_rng();
-    let random_pick: i32 = rng.gen_range(0..3);
-
-    let mut msg = "[font=".to_owned() + FURTHER_NORMAL_FONT + "]" + ASTRIX + "\n";
-    msg = msg + "[font=" + FURTHER_ITALIC_FONT + "]" + "You examine the empty space.[/font]\n";
-
-    if random_pick == 0 {
-        msg = msg + "You are starstruck by the sight of space.";
-    } else if random_pick == 1 {
-        msg = msg + "That certainly looks like space.";
-    } else {
-        msg = msg + "Space.";
-    }
-
-    msg.to_string()
-}
-/// Get all talk spaces.
-pub fn get_talk_spaces() -> Vec<(String, String)> {
-    vec![
-        ("Local".to_string(), "".to_string()),
-        (
-            "Me".to_string(),
-            TALK_SPACE_PROXIMITY_EMOTE_CHATPREFIX.to_string(),
-        ),
-        (
-            "Common".to_string(),
-            TALK_SPACE_COMMON_CHATPREFIX.to_string(),
-        ),
-        (
-            "Security".to_string(),
-            TALK_SPACE_SECURITY_CHATPREFIX.to_string(),
-        ),
-        (
-            "Global".to_string(),
-            TALK_SPACE_GLOBAL_CHATPREFIX.to_string(),
-        ),
-    ]
-}
-
-/// Escape string from bb code for security reasons.
-pub fn escape_bb(string: String, partially: bool, escape_special_chars: bool) -> String {
-    let mut new_string = string.escape_default().to_string();
-
-    new_string = new_string.replace("[", "(");
-    new_string = new_string.replace("]", ")");
-
-    if partially {
-        if string == "b"
-            || string == "i"
-            || string == "u"
-            || string == "s"
-            || string == "code"
-            || string == "center"
-            || string == "right"
-            || string == "fill"
-            || string == "indent"
-            || string == "url"
-            || string == "image"
-            || string == "cell"
-            || string.contains("url=")
-            || string.contains("img=")
-            || string.contains("font=")
-            || string.contains("color=")
-            || string.contains("table=")
-        {
-            new_string = "".to_string();
-        }
-    }
-
-    if escape_special_chars {
-        new_string = new_string
-            .replace("`", "")
-            .replace("~", "")
-            .replace("!", "")
-            .replace("@", "")
-            .replace("#", "")
-            .replace("$", "")
-            .replace("%", "")
-            .replace("^", "")
-            .replace("&", "")
-            .replace("*", "")
-            .replace("(", "")
-            .replace(")", "")
-            .replace("-", "")
-            .replace("+", "")
-            .replace("_", "")
-            .replace("{", "")
-            .replace("}", "")
-            .replace("\\", "")
-            .replace("|", "");
-    }
-
-    new_string.trim().to_string()
 }
 
 pub const ATMOSPHERICS_TEXT_COLOR: &str = "#1797ff";

@@ -1,4 +1,5 @@
 use bevy::prelude::{Color, Component, Entity, SystemSet};
+use bevy::window::{PrimaryWindow, Window};
 use bevy::{
     prelude::{Changed, Query},
     ui::Interaction,
@@ -48,7 +49,10 @@ pub(crate) fn ui_events(
     >,
     text_input: Res<TextInput>,
     mut focus: EventWriter<FocusTextInput>,
+    primary_query: Query<&Window, With<PrimaryWindow>>,
 ) {
+    let primary = primary_query.get_single().unwrap();
+
     for (entity, interaction, mut color) in interaction_query.iter_mut() {
         let mut input_has_focus = false;
         match text_input.focused_input {
@@ -63,10 +67,16 @@ pub(crate) fn ui_events(
         if !input_has_focus {
             match *interaction {
                 Interaction::Clicked => {
+                    if !primary.cursor.visible {
+                        continue;
+                    }
                     *color = INPUT_TEXT_BG_PRESSED.into();
                     focus.send(FocusTextInput { entity });
                 }
                 Interaction::Hovered => {
+                    if !primary.cursor.visible {
+                        continue;
+                    }
                     *color = INPUT_TEXT_BG_HOVER.into();
                 }
                 Interaction::None => {

@@ -25,7 +25,6 @@ use bevy::prelude::{EventWriter, Transform};
 use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
 use pawn::pawn::Spawning;
-use text_api::core::get_talk_spaces;
 
 /// Event that fires when a player has successfully boarded.
 pub struct PlayerBoarded {
@@ -98,13 +97,6 @@ pub(crate) fn done_boarding(
         server.send(OutgoingReliableServerMessage {
             handle: player_handle,
             message: PlayerServerMessage::InitGame,
-        });
-
-        let talk_spaces = get_talk_spaces();
-
-        server.send(OutgoingReliableServerMessage {
-            handle: player_handle,
-            message: PlayerServerMessage::ConfigTalkSpaces(talk_spaces),
         });
 
         asana_boarding_announcements.announcements.push((
