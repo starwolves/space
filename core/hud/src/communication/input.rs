@@ -8,7 +8,7 @@ use bevy::{
 };
 use chat::net::{ChatClientMessage, ChatServerMessage};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
-use resources::ui::TextInput;
+use resources::{hud::HudState, ui::TextInput};
 use ui::{
     fonts::Fonts,
     text_input::{FocusTextInput, TextInputNode, UnfocusTextInput},
@@ -106,21 +106,14 @@ pub(crate) fn display_global_chat_message(
 pub(crate) fn tab_communication_input_toggle(
     keys: Res<Input<KeyCode>>,
     state: Res<HudCommunicationState>,
-    focus: Res<TextInput>,
     mut open_hud: EventWriter<OpenHud>,
 
     mut focus_event: EventWriter<FocusTextInput>,
     mut unfocus_event: EventWriter<UnfocusTextInput>,
+    hud_state: Res<HudState>,
 ) {
     if keys.just_pressed(KeyCode::Tab) {
-        let is_focused;
-
-        match focus.focused_input {
-            Some(e) => is_focused = e == state.communication_input_node,
-            None => {
-                is_focused = false;
-            }
-        }
+        let is_focused = hud_state.expanded;
 
         if is_focused {
             unfocus_event.send(UnfocusTextInput {
