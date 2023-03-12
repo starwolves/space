@@ -1,10 +1,10 @@
 use bevy::{
     prelude::{
-        AssetServer, BuildChildren, ButtonBundle, Color, Commands, Component, Entity, NodeBundle,
-        Res, Resource, TextBundle,
+        warn, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands, Component,
+        Entity, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::TextStyle,
-    ui::{FlexDirection, Interaction, Size, Style, Val},
+    ui::{Display, FlexDirection, Interaction, Overflow, Size, Style, Val},
 };
 use resources::hud::HudState;
 use ui::{
@@ -14,15 +14,61 @@ use ui::{
 };
 #[derive(Component)]
 pub struct ChatMessagesNode;
+#[derive(Component)]
+pub struct ConsoleMessagesNode;
 
 #[derive(Resource)]
 pub struct HudCommunicationState {
     pub chat_messages_node: Entity,
+    pub console_messages_node: Entity,
     pub communication_input_node: Entity,
     pub communication_input_focused: bool,
+    pub is_displaying_console: bool,
 }
 #[derive(Component)]
 pub struct CommunicationInputNode;
+#[derive(Component)]
+pub struct ToggleConsoleButton;
+
+pub(crate) fn toggle_console_button(
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<ToggleConsoleButton>)>,
+    mut state: ResMut<HudCommunicationState>,
+    mut style_query: Query<&mut Style>,
+) {
+    for interaction in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                state.is_displaying_console = !state.is_displaying_console;
+
+                match style_query.get_mut(state.chat_messages_node) {
+                    Ok(mut style) => {
+                        if state.is_displaying_console {
+                            style.display = Display::Flex;
+                        } else {
+                            style.display = Display::None;
+                        }
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find visibility component of chat messages node.");
+                    }
+                }
+                match style_query.get_mut(state.console_messages_node) {
+                    Ok(mut style) => {
+                        if state.is_displaying_console {
+                            style.display = Display::None;
+                        } else {
+                            style.display = Display::Flex;
+                        }
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find visibility component of console messages node.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
 
 pub(crate) fn build_communication_ui(
     hud_state: Res<HudState>,
@@ -32,6 +78,7 @@ pub(crate) fn build_communication_ui(
     let empire_font = asset_server.load(EMPIRE_FONT);
 
     let mut chat_messages_node = Entity::from_bits(0);
+    let mut console_messages_node = Entity::from_bits(0);
     let mut communication_input_node = Entity::from_bits(0);
     commands
         .entity(hud_state.left_edge_node)
@@ -41,11 +88,30 @@ pub(crate) fn build_communication_ui(
                     style: Style {
                         size: Size::new(Val::Percent(100.), Val::Percent(35.)),
                         flex_direction: FlexDirection::ColumnReverse,
+                        overflow: Overflow::Hidden,
+
                         ..Default::default()
                     },
+                    background_color: Color::rgba(0.0, 0.0, 1.0, 0.5).into(),
                     ..Default::default()
                 })
                 .insert(ChatMessagesNode)
+                .id();
+
+            console_messages_node = parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Percent(100.), Val::Percent(35.)),
+                        flex_direction: FlexDirection::ColumnReverse,
+                        display: Display::None,
+                        overflow: Overflow::Hidden,
+                        ..Default::default()
+                    },
+                    background_color: Color::rgba(0.25, 0.25, 0.25, 0.7).into(),
+
+                    ..Default::default()
+                })
+                .insert(ConsoleMessagesNode)
                 .id();
         });
 
@@ -76,6 +142,9 @@ pub(crate) fn build_communication_ui(
                             placeholder_active: true,
                             character_filter_option: Some(CharacterFilter::Chat),
                             placeholder_text_option: Some(text.to_owned()),
+                            bg_color: Color::rgba(0.26, 0.3, 0.49, 0.5),
+                            bg_color_focused: Color::rgba(0.46, 0.5, 0.79, 0.5),
+                            bg_color_hover: Color::rgba(0.26, 0.3, 0.79, 0.5),
                             ..Default::default()
                         },
                         Interaction::default(),
@@ -113,6 +182,7 @@ pub(crate) fn build_communication_ui(
                                         },
                                         ..Default::default()
                                     },
+                                    ToggleConsoleButton,
                                     ButtonVisuals::default(),
                                 ))
                                 .with_children(|parent| {
@@ -132,5 +202,7 @@ pub(crate) fn build_communication_ui(
         chat_messages_node,
         communication_input_node,
         communication_input_focused: false,
+        console_messages_node,
+        is_displaying_console: false,
     });
 }
