@@ -41,9 +41,9 @@ pub struct ExpandedLeftContentHud {
     pub expanded: bool,
 }
 
-pub const LEFT_RIGHT_CONTENT_HUD_WIDTH: f32 = 25.;
-pub const LEFT_RIGHT_EDGE_HUD_WIDTH: f32 = 10.;
-pub const LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH: f32 = 35.;
+pub const LEFT_RIGHT_CONTENT_HUD_WIDTH: f32 = 21.;
+pub const LEFT_RIGHT_EDGE_HUD_WIDTH: f32 = 8.1;
+pub const LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH: f32 = 29.2;
 pub const CONTENT_NODE_EXPANDED_WIDTH: f32 = 80.;
 pub const CONTENT_NODE_WIDTH: f32 = 50.;
 
@@ -118,6 +118,7 @@ pub fn create_hud(mut commands: Commands) {
                                 ),
                                 ..Default::default()
                             },
+
                             ..Default::default()
                         })
                         .insert(LeftContentHud)

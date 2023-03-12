@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{info, warn, EventReader, Query, ResMut},
+    prelude::{warn, EventReader, Query, ResMut},
     ui::{Display, Size, Style, Val},
 };
 use resources::hud::HudState;
@@ -20,7 +20,6 @@ pub(crate) fn expand_inventory_hud(
     mut expand_event: EventReader<ExpandedLeftContentHud>,
 ) {
     for event in expand_event.iter() {
-        info!("Left expansion: {}", event.expanded);
         if event.expanded {
             match node_query.get_mut(state.left_content_node) {
                 Ok(mut style) => {
@@ -64,7 +63,6 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find right content node.");
                 }
             }
-            info!("Done expanding.");
         } else {
             match node_query.get_mut(state.left_content_node) {
                 Ok(mut style) => {
