@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     prelude::{
-        info, warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
+        warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
         EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
         Visibility, With,
     },
@@ -134,8 +134,9 @@ pub(crate) fn open_inventory_hud(
     mut state: ResMut<InventoryHudState>,
     mut expand: EventWriter<ExpandInventoryHud>,
     mut expand2: EventWriter<ExpandedLeftContentHud>,
+    mut expand3: EventWriter<OpenHud>,
+
     mut root_node: Query<&mut Visibility, With<InventoryHudRootNode>>,
-    mut open_hud: EventWriter<OpenHud>,
 ) {
     for event in events.iter() {
         if !boarded.boarded {
@@ -154,13 +155,11 @@ pub(crate) fn open_inventory_hud(
             }
         }
         state.open = event.open;
-        info!("open_inventory_hud {}", state.open);
-
+        expand3.send(OpenHud { open: state.open });
         expand.send(ExpandInventoryHud { expand: state.open });
         expand2.send(ExpandedLeftContentHud {
             expanded: state.open,
         });
-        open_hud.send(OpenHud { open: state.open });
     }
 }
 
