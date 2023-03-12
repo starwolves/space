@@ -1,4 +1,5 @@
 use bevy::prelude::{Color, Component};
+use bevy::window::{PrimaryWindow, Window};
 
 use crate::text_input::INPUT_TEXT_BG;
 
@@ -41,11 +42,17 @@ pub(crate) fn button_hover_visuals(
         (Changed<Interaction>, With<Button>),
     >,
     mut color_query: Query<&mut BackgroundColor>,
+    primary_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     for (entity, interaction, parent, button_visuals) in &mut interaction_query {
+        let primary = primary_query.get_single().unwrap();
+
         match *interaction {
             Interaction::Clicked => {
                 if button_visuals.color_parent {
+                    if !primary.cursor.visible {
+                        continue;
+                    }
                     match color_query.get_mut(parent.get()) {
                         Ok(mut c) => {
                             *c = button_visuals.pressed_color.into();
@@ -67,6 +74,9 @@ pub(crate) fn button_hover_visuals(
                 }
             }
             Interaction::Hovered => {
+                if !primary.cursor.visible {
+                    continue;
+                }
                 if button_visuals.color_parent {
                     match color_query.get_mut(parent.get()) {
                         Ok(mut c) => {

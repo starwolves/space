@@ -13,5 +13,4 @@ pub enum PlayerServerMessage {
     Boarded,
     ConfigRepeatingSFX(String, Vec<String>),
     ConfigFinished,
-    ConfigTalkSpaces(Vec<(String, String)>),
 }

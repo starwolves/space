@@ -127,32 +127,13 @@ pub(crate) fn ui_input_boarding(
     }
 }
 
-/// Sets radio channel list for clients in setup UI to only show global chat availability as a function.
-
-pub fn get_talk_spaces_setupui() -> Vec<(String, String)> {
-    use text_api::core::TALK_SPACE_GLOBAL_CHATPREFIX;
-
-    vec![(
-        "Global".to_string(),
-        TALK_SPACE_GLOBAL_CHATPREFIX.to_string(),
-    )]
-}
-
 use player::connections::SendServerConfiguration;
-use player::net::PlayerServerMessage;
 
 pub(crate) fn configure(
     mut config_events: EventReader<SendServerConfiguration>,
-    mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
     mut server1: EventWriter<OutgoingReliableServerMessage<SetupUiServerMessage>>,
 ) {
     for event in config_events.iter() {
-        let talk_spaces = get_talk_spaces_setupui();
-
-        server.send(OutgoingReliableServerMessage {
-            handle: event.handle,
-            message: PlayerServerMessage::ConfigTalkSpaces(talk_spaces),
-        });
         server1.send(OutgoingReliableServerMessage {
             handle: event.handle,
             message: SetupUiServerMessage::InitSetupUi,
