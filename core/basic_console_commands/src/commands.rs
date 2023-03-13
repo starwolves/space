@@ -4,12 +4,16 @@ use console_commands::commands::InputConsoleCommand;
 use bevy::prelude::{Commands, EventWriter, Res};
 
 use bevy::prelude::{Query, ResMut, Transform};
-use console_commands::net::ConsoleCommandsServerMessage;
+use console_commands::net::{ConsoleCommandsServerMessage, ConsoleLine};
 use gridmap::grid::Gridmap;
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use pawn::pawn::Pawn;
 use player::names::UsedNames;
+use ui::fonts::{Fonts, SOURCECODE_REGULAR_FONT};
+use ui::text::{
+    NetTextSection, COMMUNICATION_FONT_SIZE, CONSOLE_ERROR_COLOR, CONSOLE_SUCCESS_COLOR,
+};
 
 /// Perform entity console commands.
 
@@ -18,6 +22,7 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     connected_players: Query<&ConnectedPlayer>,
     mut rcon_spawn_event: EventWriter<RconSpawnEntity<T>>,
+    fonts: Res<Fonts>,
 ) {
     for console_command_event in queue.iter() {
         let player_entity;
@@ -33,11 +38,18 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
         if player_entity.rcon == false {
             match console_command_event.handle_option {
                 Some(t) => {
+                    let section = NetTextSection {
+                        text: "RCON status denied.".to_string(),
+                        font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+                        font_size: COMMUNICATION_FONT_SIZE,
+                        color: CONSOLE_ERROR_COLOR,
+                    };
+
                     server.send(OutgoingReliableServerMessage {
                         handle: t,
-                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                            "[color=#ff6600]RCON status denied.[/color]".to_string(),
-                        ),
+                        message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                            sections: vec![section],
+                        }),
                     });
                 }
                 None => {}
@@ -45,17 +57,17 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
             return;
         }
 
-        if console_command_event.command_name == "spawn"
-            && console_command_event.command_arguments.len() == 3
+        if console_command_event.input.command == "spawn"
+            && console_command_event.input.command.len() == 3
         {
-            let entity_name = console_command_event.command_arguments[0].clone();
+            let entity_name = console_command_event.input.args[0].clone();
 
             if entity_name != T::default().get_identity() {
                 continue;
             }
 
             let spawn_amount;
-            match console_command_event.command_arguments[1].parse::<i64>() {
+            match console_command_event.input.args[1].parse::<i64>() {
                 Ok(t) => {
                     spawn_amount = t;
                 }
@@ -64,7 +76,7 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
                 }
             };
 
-            let player_selector = console_command_event.command_arguments[2].clone();
+            let player_selector = console_command_event.input.args[2].clone();
 
             rcon_spawn_event.send(RconSpawnEntity {
                 entity_type: T::default(),
@@ -81,7 +93,6 @@ use bevy::prelude::Entity;
 
 use entity::spawn::spawn_entity;
 use gridmap::get_spawn_position::entity_spawn_position_for_player;
-use text_api::core::CONSOLE_ERROR_COLOR;
 
 /// Event for spawning in entities with the rcon command.
 pub struct RconSpawnEntity<T: EntityType + Send + Sync + 'static> {
@@ -106,6 +117,7 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
     mut used_names: ResMut<UsedNames>,
     handle_to_entity: Res<HandleToEntity>,
     mut default_spawner: EventWriter<SpawnEntity<T>>,
+    fonts: Res<Fonts>,
 ) {
     for event in rcon_spawn_events.iter() {
         let mut spawn_amount = event.spawn_amount;
@@ -114,10 +126,20 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
             spawn_amount = 5;
             match event.command_executor_handle_option {
                 Some(t) => {
+                    let section = NetTextSection {
+                        text: "RCON status denied.".to_string(),
+                        font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+                        font_size: COMMUNICATION_FONT_SIZE,
+                        color: CONSOLE_ERROR_COLOR,
+                    };
+
                     server_1.send(OutgoingReliableServerMessage {
                         handle: t,
                         message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                            "Capped amount to 5, maniac protection.".to_string(),
+                            // "Capped amount to 5, maniac protection.".to_string(),
+                            ConsoleLine {
+                                sections: vec![section],
+                            },
                         ),
                     });
                 }
@@ -131,6 +153,7 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
             &event.target_selector,
             &mut used_names,
             &mut server_1,
+            &fonts,
         )
         .iter()
         {
@@ -228,11 +251,13 @@ pub(crate) fn rcon_console_commands(
     mut rcon_bruteforce_protection: Local<BruteforceProtection>,
     mut connected_players: Query<&mut ConnectedPlayer>,
     mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
+    fonts: Res<Fonts>,
 ) {
     for console_command_event in console_commands_events.iter() {
-        if console_command_event.command_name == "rcon"
+        if console_command_event.input.command == "rcon"
+            && console_command_event.input.args.len() == 1
             && console_command_event.handle_option.is_some()
-            && !console_command_event.command_arguments.is_empty()
+            && !console_command_event.input.args.is_empty()
         {
             rcon_authorization(
                 &mut rcon_bruteforce_protection,
@@ -240,9 +265,10 @@ pub(crate) fn rcon_console_commands(
                 console_command_event.handle_option.unwrap(),
                 console_command_event.entity,
                 &mut server,
-                console_command_event.command_arguments[0].to_string(),
+                console_command_event.input.args[0].to_string(),
+                &fonts,
             );
-        } else if console_command_event.command_name == "rconStatus"
+        } else if console_command_event.input.command == "rconStatus"
             && console_command_event.handle_option.is_some()
         {
             rcon_status(
@@ -250,6 +276,7 @@ pub(crate) fn rcon_console_commands(
                 console_command_event.handle_option.unwrap(),
                 console_command_event.entity,
                 &mut server,
+                &fonts,
             );
         }
     }
@@ -264,15 +291,21 @@ pub(crate) fn rcon_authorization(
     client_entity: Entity,
     server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
     input_password: String,
+    fonts: &Res<Fonts>,
 ) {
     if bruteforce_protection.blacklist.contains(&client_handle) {
+        let section = NetTextSection {
+            text: "Too many past attempts, blacklisted.".to_string(),
+            font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+            font_size: COMMUNICATION_FONT_SIZE,
+            color: CONSOLE_ERROR_COLOR,
+        };
+
         server.send(OutgoingReliableServerMessage {
             handle: client_handle,
-            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                "[color=".to_string()
-                    + CONSOLE_ERROR_COLOR
-                    + "]Too many past attempts, blacklisted.[/color]",
-            ),
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                sections: vec![section],
+            }),
         });
         return;
     }
@@ -291,11 +324,18 @@ pub(crate) fn rcon_authorization(
 
         connected_player_component.rcon = true;
 
+        let section = NetTextSection {
+            text: "RCON status granted!".to_string(),
+            font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+            font_size: COMMUNICATION_FONT_SIZE,
+            color: CONSOLE_SUCCESS_COLOR,
+        };
+
         server.send(OutgoingReliableServerMessage {
             handle: client_handle,
-            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                "[color=".to_string() + CONSOLE_SUCCESS_COLOR + "]RCON status granted![/color]",
-            ),
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                sections: vec![section],
+            }),
         });
     } else {
         match bruteforce_protection.tracking_data.get_mut(&client_handle) {
@@ -309,15 +349,22 @@ pub(crate) fn rcon_authorization(
                 bruteforce_protection.tracking_data.insert(client_handle, 1);
             }
         }
+
+        let section = NetTextSection {
+            text: "Wrong password.".to_string(),
+            font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+            font_size: COMMUNICATION_FONT_SIZE,
+            color: CONSOLE_ERROR_COLOR,
+        };
+
         server.send(OutgoingReliableServerMessage {
             handle: client_handle,
-            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]Wrong password.[/color]",
-            ),
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                sections: vec![section],
+            }),
         });
     }
 }
-use text_api::core::CONSOLE_SUCCESS_COLOR;
 
 /// Manage requests for RCON permission status.
 
@@ -326,6 +373,7 @@ pub(crate) fn rcon_status(
     client_handle: u64,
     client_entity: Entity,
     server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
+    fonts: &Res<Fonts>,
 ) {
     let connected_player_component;
 
@@ -339,18 +387,31 @@ pub(crate) fn rcon_status(
     }
 
     if connected_player_component.rcon {
+        let section = NetTextSection {
+            text: "RCON status granted!".to_string(),
+            font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+            font_size: COMMUNICATION_FONT_SIZE,
+            color: CONSOLE_SUCCESS_COLOR,
+        };
+
         server.send(OutgoingReliableServerMessage {
             handle: client_handle,
-            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                "[color=".to_string() + CONSOLE_SUCCESS_COLOR + "]RCON status granted![/color]",
-            ),
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                sections: vec![section],
+            }),
         });
     } else {
+        let section = NetTextSection {
+            text: "RCON status denied.".to_string(),
+            font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+            font_size: COMMUNICATION_FONT_SIZE,
+            color: CONSOLE_ERROR_COLOR,
+        };
         server.send(OutgoingReliableServerMessage {
             handle: client_handle,
-            message: ConsoleCommandsServerMessage::ConsoleWriteLine(
-                "[color=".to_string() + CONSOLE_ERROR_COLOR + "]RCON status denied.[/color]",
-            ),
+            message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                sections: vec![section],
+            }),
         });
     }
 }

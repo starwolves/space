@@ -23,3 +23,5 @@ networking = { path = "../networking" }
 
 resources = { path = "../resources"}
 player = { path = "../player" }
+chat = { path = "../chat" }
+ui = { path = "../ui" }

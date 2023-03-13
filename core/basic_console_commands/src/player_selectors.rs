@@ -1,10 +1,14 @@
-use bevy::prelude::{Entity, ResMut};
+use bevy::prelude::{warn, Entity, Res, ResMut};
 
 use player::names::UsedNames;
 
 use bevy::prelude::EventWriter;
-use console_commands::net::ConsoleCommandsServerMessage;
+use console_commands::net::{ConsoleCommandsServerMessage, ConsoleLine};
 use networking::server::OutgoingReliableServerMessage;
+use ui::{
+    fonts::{Fonts, SOURCECODE_REGULAR_FONT},
+    text::{NetTextSection, COMMUNICATION_FONT_SIZE, CONSOLE_ERROR_COLOR},
+};
 
 /// Player selector to entities.
 
@@ -14,6 +18,7 @@ pub(crate) fn player_selector_to_entities(
     mut player_selector: &str,
     used_names: &mut ResMut<UsedNames>,
     server: &mut EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
+    fonts: &Res<Fonts>,
 ) -> Vec<Entity> {
     if player_selector == "*" {
         return used_names.names.values().copied().collect();
@@ -66,13 +71,25 @@ pub(crate) fn player_selector_to_entities(
             format!("Player selector \"{player_selector}\" is not specific enough.\n{names}")
         }
     };
-    if let Some(handle) = command_executor_handle_option {
-        server.send(OutgoingReliableServerMessage {
-            handle,
-            message: ConsoleCommandsServerMessage::ConsoleWriteLine(format!(
-                "[color=#ff6600]{message}[/color]"
-            )),
-        });
+    match command_executor_handle_option {
+        Some(handle) => {
+            let section = NetTextSection {
+                text: message.to_string(),
+                font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+                font_size: COMMUNICATION_FONT_SIZE,
+                color: CONSOLE_ERROR_COLOR,
+            };
+
+            server.send(OutgoingReliableServerMessage {
+                handle,
+                message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                    sections: vec![section],
+                }),
+            });
+        }
+        None => {
+            warn!("Couldnt find connection handle.");
+        }
     }
-    vec![]
+    return vec![];
 }

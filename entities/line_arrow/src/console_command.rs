@@ -16,29 +16,29 @@ pub(crate) fn entity_console_commands(
     mut spawn_event: EventWriter<SpawnEntity<LineArrowType>>,
 ) {
     for command in queue.iter() {
-        if command.command_name == "pointArrow" {
+        if command.input.command == "pointArrow" && command.input.args.len() == 4 {
             let x;
             let y;
             let z;
 
-            match command.command_arguments[0].parse::<f32>() {
+            match command.input.args[0].parse::<f32>() {
                 Ok(v) => x = v,
                 Err(_) => continue,
             }
 
-            match command.command_arguments[1].parse::<f32>() {
+            match command.input.args[1].parse::<f32>() {
                 Ok(v) => y = v,
                 Err(_) => continue,
             }
 
-            match command.command_arguments[2].parse::<f32>() {
+            match command.input.args[2].parse::<f32>() {
                 Ok(v) => z = v,
                 Err(_) => continue,
             }
 
             let duration;
 
-            match command.command_arguments[2].parse::<i64>() {
+            match command.input.args[3].parse::<i64>() {
                 Ok(v) => duration = v,
                 Err(_) => continue,
             }

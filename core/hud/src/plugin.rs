@@ -6,7 +6,7 @@ use crate::{
     communication::{
         build::{build_communication_ui, toggle_console_button},
         chat::display_global_chat_message,
-        console::console_input,
+        console::{console_input, console_message},
         input::{tab_communication_input_toggle, text_input},
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
@@ -93,7 +93,8 @@ impl Plugin for HudPlugin {
                 .add_event::<OpenInventoryHud>()
                 .add_system(toggle_console_button)
                 .add_event::<ClientConsoleInput>()
-                .add_system(console_input);
+                .add_system(console_input)
+                .add_system(console_message);
         }
     }
 }

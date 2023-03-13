@@ -25,8 +25,7 @@ pub(crate) fn incoming_messages(
                         console_commands_queue.send(InputConsoleCommand {
                             handle_option: Some(message.handle),
                             entity: *player_entity,
-                            command_name: input.command,
-                            command_arguments: input.args,
+                            input,
                         });
                     }
                     None => {

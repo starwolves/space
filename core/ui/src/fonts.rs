@@ -5,6 +5,7 @@ use bevy::prelude::{ResMut, Resource};
 pub const ARIZONE_FONT: &str = "fonts/ArizoneUnicaseRegular.ttf";
 pub const EMPIRE_FONT: &str = "fonts/AAbsoluteEmpire.ttf";
 pub const NESATHOBERYL_FONT: &str = "fonts/Nesathoberyl.ttf";
+pub const SOURCECODE_REGULAR_FONT: &str = "fonts/SourceCodePro-Regular.otf";
 
 #[derive(Resource, Default)]
 pub struct Fonts {
@@ -24,4 +25,5 @@ pub(crate) fn init_fonts(mut fonts: ResMut<Fonts>) {
     fonts.add(ARIZONE_FONT.to_string());
     fonts.add(EMPIRE_FONT.to_string());
     fonts.add(NESATHOBERYL_FONT.to_string());
+    fonts.add(SOURCECODE_REGULAR_FONT.to_string());
 }
