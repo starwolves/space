@@ -4,7 +4,6 @@ use bevy::{
     time::Time,
 };
 use entity::spawn::{EntityBuildData, SpawnEntity};
-use networking::server::GodotVariantValues;
 
 use super::{line_arrow::PointArrow, spawn::LineArrowType};
 use console_commands::commands::InputConsoleCommand;
@@ -22,86 +21,26 @@ pub(crate) fn entity_console_commands(
             let y;
             let z;
 
-            match command.command_arguments.get(0) {
-                Some(variant_val) => match variant_val {
-                    GodotVariantValues::Int(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::String(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::Float(val) => {
-                        x = *val;
-                    }
-                    GodotVariantValues::Bool(_) => {
-                        continue;
-                    }
-                },
-                None => {
-                    continue;
-                }
+            match command.command_arguments[0].parse::<f32>() {
+                Ok(v) => x = v,
+                Err(_) => continue,
             }
 
-            match command.command_arguments.get(1) {
-                Some(variant_val) => match variant_val {
-                    GodotVariantValues::Int(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::String(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::Float(val) => {
-                        y = *val;
-                    }
-                    GodotVariantValues::Bool(_) => {
-                        continue;
-                    }
-                },
-                None => {
-                    continue;
-                }
+            match command.command_arguments[1].parse::<f32>() {
+                Ok(v) => y = v,
+                Err(_) => continue,
             }
 
-            match command.command_arguments.get(2) {
-                Some(variant_val) => match variant_val {
-                    GodotVariantValues::Int(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::String(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::Float(val) => {
-                        z = *val;
-                    }
-                    GodotVariantValues::Bool(_) => {
-                        continue;
-                    }
-                },
-                None => {
-                    continue;
-                }
+            match command.command_arguments[2].parse::<f32>() {
+                Ok(v) => z = v,
+                Err(_) => continue,
             }
 
             let duration;
 
-            match command.command_arguments.get(3) {
-                Some(variant_val) => match variant_val {
-                    GodotVariantValues::Int(val) => {
-                        duration = *val;
-                    }
-                    GodotVariantValues::String(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::Float(_) => {
-                        continue;
-                    }
-                    GodotVariantValues::Bool(_) => {
-                        continue;
-                    }
-                },
-                None => {
-                    continue;
-                }
+            match command.command_arguments[2].parse::<i64>() {
+                Ok(v) => duration = v,
+                Err(_) => continue,
             }
 
             let translation = Vec3::new(x, y, z);

@@ -1,18 +1,12 @@
 use bevy::{
-    prelude::{
-        warn, AssetServer, BuildChildren, Children, Commands, EventReader, EventWriter, Input,
-        KeyCode, NodeBundle, Query, Res, TextBundle,
-    },
-    text::{Text, TextSection, TextStyle},
-    ui::{Size, Style, Val},
+    prelude::{warn, Children, EventWriter, Input, KeyCode, Query, Res},
+    text::Text,
 };
-use chat::net::{ChatClientMessage, ChatServerMessage};
-use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
+use chat::net::ChatClientMessage;
+use console_commands::net::ClientConsoleInput;
+use networking::client::OutgoingReliableClientMessage;
 use resources::{hud::HudState, ui::TextInput};
-use ui::{
-    fonts::Fonts,
-    text_input::{FocusTextInput, TextInputNode, UnfocusTextInput},
-};
+use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
 
 use crate::inventory::build::OpenHud;
 
@@ -24,6 +18,8 @@ pub(crate) fn text_input(
     mut text_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_node_input_query: Query<&mut Text>,
     mut net: EventWriter<OutgoingReliableClientMessage<ChatClientMessage>>,
+    state: Res<HudCommunicationState>,
+    mut console: EventWriter<ClientConsoleInput>,
 ) {
     match text_input_state.focused_input {
         Some(focused_input_entity) => {
@@ -34,15 +30,23 @@ pub(crate) fn text_input(
                             match text_node_input_query.get_mut(*child) {
                                 Ok(mut text) => {
                                     let input_text = text_input_component.input.clone();
-
+                                    if input_text.trim().is_empty() {
+                                        continue;
+                                    }
                                     for section in text.sections.iter_mut() {
                                         section.value = "".to_string();
                                         text_input_component.input = "".to_string();
                                     }
 
-                                    net.send(OutgoingReliableClientMessage {
-                                        message: ChatClientMessage::InputChatMessage(input_text),
-                                    });
+                                    if state.is_displaying_console {
+                                        console.send(ClientConsoleInput::from_string(input_text));
+                                    } else {
+                                        net.send(OutgoingReliableClientMessage {
+                                            message: ChatClientMessage::InputChatMessage(
+                                                input_text,
+                                            ),
+                                        });
+                                    }
                                 }
                                 Err(_) => {}
                             }
@@ -55,51 +59,6 @@ pub(crate) fn text_input(
             }
         }
         None => {}
-    }
-}
-
-pub(crate) fn display_global_chat_message(
-    mut net: EventReader<IncomingReliableServerMessage<ChatServerMessage>>,
-    chat_state: Res<HudCommunicationState>,
-    mut commands: Commands,
-    fonts: Res<Fonts>,
-    asset_server: Res<AssetServer>,
-) {
-    for message in net.iter() {
-        match &message.message {
-            ChatServerMessage::ChatMessage(message) => {
-                let mut sections = vec![];
-
-                for net_section in message.sections.iter() {
-                    sections.push(TextSection::new(
-                        net_section.text.clone(),
-                        TextStyle {
-                            font: asset_server
-                                .load(fonts.map.get(&net_section.font).expect("Font not loaded")),
-                            font_size: net_section.font_size,
-                            color: net_section.color,
-                        },
-                    ));
-                }
-
-                let text_section = commands
-                    .spawn(NodeBundle {
-                        style: Style {
-                            size: Size::new(Val::Percent(100.), Val::Percent(10.)),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    })
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_sections(sections));
-                    })
-                    .id();
-
-                commands
-                    .entity(chat_state.chat_messages_node)
-                    .insert_children(0, &[text_section]);
-            }
-        }
     }
 }
 

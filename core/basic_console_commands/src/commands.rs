@@ -6,7 +6,6 @@ use bevy::prelude::{Commands, EventWriter, Res};
 use bevy::prelude::{Query, ResMut, Transform};
 use console_commands::net::ConsoleCommandsServerMessage;
 use gridmap::grid::Gridmap;
-use networking::server::GodotVariantValues;
 use networking::server::OutgoingReliableServerMessage;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 use pawn::pawn::Pawn;
@@ -46,43 +45,26 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
             return;
         }
 
-        if console_command_event.command_name == "spawn" {
-            let entity_name;
+        if console_command_event.command_name == "spawn"
+            && console_command_event.command_arguments.len() == 3
+        {
+            let entity_name = console_command_event.command_arguments[0].clone();
 
-            match &console_command_event.command_arguments[0] {
-                GodotVariantValues::String(value) => {
-                    entity_name = value;
-                }
-                _ => {
-                    return;
-                }
-            }
-
-            if entity_name != &T::default().get_identity() {
+            if entity_name != T::default().get_identity() {
                 continue;
             }
 
             let spawn_amount;
+            match console_command_event.command_arguments[1].parse::<i64>() {
+                Ok(t) => {
+                    spawn_amount = t;
+                }
+                Err(_) => {
+                    continue;
+                }
+            };
 
-            match &console_command_event.command_arguments[1] {
-                GodotVariantValues::Int(value) => {
-                    spawn_amount = *value;
-                }
-                _ => {
-                    return;
-                }
-            }
-
-            let player_selector;
-
-            match &console_command_event.command_arguments[2] {
-                GodotVariantValues::String(value) => {
-                    player_selector = value;
-                }
-                _ => {
-                    return;
-                }
-            }
+            let player_selector = console_command_event.command_arguments[2].clone();
 
             rcon_spawn_event.send(RconSpawnEntity {
                 entity_type: T::default(),
@@ -250,20 +232,16 @@ pub(crate) fn rcon_console_commands(
     for console_command_event in console_commands_events.iter() {
         if console_command_event.command_name == "rcon"
             && console_command_event.handle_option.is_some()
+            && !console_command_event.command_arguments.is_empty()
         {
-            match &console_command_event.command_arguments[0] {
-                GodotVariantValues::String(value) => {
-                    rcon_authorization(
-                        &mut rcon_bruteforce_protection,
-                        &mut connected_players,
-                        console_command_event.handle_option.unwrap(),
-                        console_command_event.entity,
-                        &mut server,
-                        value.to_string(),
-                    );
-                }
-                _ => (),
-            }
+            rcon_authorization(
+                &mut rcon_bruteforce_protection,
+                &mut connected_players,
+                console_command_event.handle_option.unwrap(),
+                console_command_event.entity,
+                &mut server,
+                console_command_event.command_arguments[0].to_string(),
+            );
         } else if console_command_event.command_name == "rconStatus"
             && console_command_event.handle_option.is_some()
         {
