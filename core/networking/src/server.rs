@@ -109,19 +109,10 @@ pub enum UnreliableServerMessage {
     PositionUpdate(u64, Vec3, u64),
 }
 
-/// Variants for input console commands with values.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-
-pub enum GodotVariantValues {
-    Int(i64),
-    String(String),
-    Float(f32),
-    Bool(bool),
-}
 /// Variant types for input console commands with values.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 
-pub enum GodotVariant {
+pub enum ConsoleArgVariant {
     Int,
     String,
     Float,

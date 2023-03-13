@@ -1,5 +1,5 @@
 use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
-use console_commands::commands::ConsoleCommandsLabels;
+use console_commands::commands::{ConsoleCommand, ConsoleCommandsLabels};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::PostUpdateLabels};
 
@@ -32,7 +32,6 @@ impl Plugin for InventoryPlugin {
                     .in_base_set(CoreSet::PostUpdate)
                     .in_set(PostUpdateLabels::EntityUpdate),
             )
-            .add_startup_system(initialize_console_commands.before(ConsoleCommandsLabels::Finalize))
             .add_system(
                 add_item_to_slot
                     .before(SpawnItemLabel::SpawnHeldItem)
@@ -51,24 +50,29 @@ impl Plugin for InventoryPlugin {
                 .add_system(set_active_item)
                 .add_event::<ActiveItemCamera>();
         }
-        app.add_event::<AddItemToSlot>().add_event::<AddSlot>();
+        app.add_event::<AddItemToSlot>()
+            .add_event::<AddSlot>()
+            .add_startup_system(
+                initialize_console_commands.before(ConsoleCommandsLabels::Finalize),
+            );
         register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
         register_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);
     }
 }
-use networking::server::GodotVariant;
+use networking::server::ConsoleArgVariant;
 
 use bevy::prelude::ResMut;
 use console_commands::commands::AllConsoleCommands;
 
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
-    commands.list.push((
-        "spawnHeld".to_string(),
-        "For server administrators only. Spawn in held entities in hands or in proximity."
-            .to_string(),
-        vec![
-            ("entity_name".to_string(), GodotVariant::String),
-            ("player_selector".to_string(), GodotVariant::String),
+    commands.list.push(ConsoleCommand {
+        base: "spawnHeld".to_string(),
+        description:
+            "For server administrators only. Spawn in held entities in hands or in proximity."
+                .to_string(),
+        args: vec![
+            ("entity_name".to_string(), ConsoleArgVariant::String),
+            ("player_selector".to_string(), ConsoleArgVariant::String),
         ],
-    ));
+    });
 }

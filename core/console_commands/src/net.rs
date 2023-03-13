@@ -1,12 +1,19 @@
-use networking::server::GodotVariant;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
+use ui::text::NetTextSection;
+
+use crate::commands::ConsoleCommand;
 
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum ConsoleCommandsServerMessage {
-    ConsoleWriteLine(String),
-    ConfigConsoleCommands(Vec<(String, String, Vec<(String, GodotVariant)>)>),
+    ConsoleWriteLine(ConsoleLine),
+    ConfigConsoleCommands(Vec<ConsoleCommand>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ConsoleLine {
+    pub sections: Vec<NetTextSection>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]

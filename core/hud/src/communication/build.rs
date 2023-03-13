@@ -9,7 +9,8 @@ use bevy::{
 use resources::hud::HudState;
 use ui::{
     button::ButtonVisuals,
-    fonts::EMPIRE_FONT,
+    fonts::SOURCECODE_REGULAR_FONT,
+    text::COMMUNICATION_FONT_SIZE,
     text_input::{CharacterFilter, TextInputNode},
 };
 #[derive(Component)]
@@ -43,9 +44,9 @@ pub(crate) fn toggle_console_button(
                 match style_query.get_mut(state.chat_messages_node) {
                     Ok(mut style) => {
                         if state.is_displaying_console {
-                            style.display = Display::Flex;
-                        } else {
                             style.display = Display::None;
+                        } else {
+                            style.display = Display::Flex;
                         }
                     }
                     Err(_) => {
@@ -55,9 +56,9 @@ pub(crate) fn toggle_console_button(
                 match style_query.get_mut(state.console_messages_node) {
                     Ok(mut style) => {
                         if state.is_displaying_console {
-                            style.display = Display::None;
-                        } else {
                             style.display = Display::Flex;
+                        } else {
+                            style.display = Display::None;
                         }
                     }
                     Err(_) => {
@@ -75,7 +76,7 @@ pub(crate) fn build_communication_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let empire_font = asset_server.load(EMPIRE_FONT);
+    let sourcecode_font = asset_server.load(SOURCECODE_REGULAR_FONT);
 
     let mut chat_messages_node = Entity::from_bits(0);
     let mut console_messages_node = Entity::from_bits(0);
@@ -92,7 +93,7 @@ pub(crate) fn build_communication_ui(
 
                         ..Default::default()
                     },
-                    background_color: Color::rgba(0.0, 0.0, 1.0, 0.5).into(),
+                    background_color: Color::rgba(0.0, 0.0, 1.0, 0.05).into(),
                     ..Default::default()
                 })
                 .insert(ChatMessagesNode)
@@ -107,7 +108,7 @@ pub(crate) fn build_communication_ui(
                         overflow: Overflow::Hidden,
                         ..Default::default()
                     },
-                    background_color: Color::rgba(0.25, 0.25, 0.25, 0.7).into(),
+                    background_color: Color::rgba(0.25, 0.25, 0.25, 0.4).into(),
 
                     ..Default::default()
                 })
@@ -155,8 +156,8 @@ pub(crate) fn build_communication_ui(
                         parent.spawn(TextBundle::from_section(
                             text,
                             TextStyle {
-                                font: empire_font.clone(),
-                                font_size: 8.,
+                                font: sourcecode_font.clone(),
+                                font_size: COMMUNICATION_FONT_SIZE,
                                 color: Color::WHITE.into(),
                             },
                         ));
@@ -189,7 +190,7 @@ pub(crate) fn build_communication_ui(
                                     parent.spawn(TextBundle::from_section(
                                         "~",
                                         TextStyle {
-                                            font: empire_font.clone(),
+                                            font: sourcecode_font.clone(),
                                             font_size: 16.0,
                                             color: Color::WHITE.into(),
                                         },

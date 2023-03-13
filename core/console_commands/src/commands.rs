@@ -1,12 +1,21 @@
 use bevy::prelude::Resource;
 use bevy::prelude::{Entity, SystemSet};
-use networking::server::GodotVariant;
+use networking::server::ConsoleArgVariant;
+use serde::{Deserialize, Serialize};
+
+use crate::net::ClientConsoleInput;
 
 /// Resource containing all registered custom console commands.
 #[derive(Default, Resource)]
 
 pub struct AllConsoleCommands {
-    pub list: Vec<(String, String, Vec<(String, GodotVariant)>)>,
+    pub list: Vec<ConsoleCommand>,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ConsoleCommand {
+    pub base: String,
+    pub description: String,
+    pub args: Vec<(String, ConsoleArgVariant)>,
 }
 
 /// Label for systems ordering.
@@ -23,8 +32,5 @@ pub struct InputConsoleCommand {
     pub handle_option: Option<u64>,
     /// The entity performing the command.
     pub entity: Entity,
-    /// The command name.
-    pub command_name: String,
-    /// The passed arguments to the command as variants.
-    pub command_arguments: Vec<String>,
+    pub input: ClientConsoleInput,
 }

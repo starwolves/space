@@ -3,9 +3,12 @@ use networking::server::{
     ConnectedPlayer, IncomingReliableClientMessage, OutgoingReliableServerMessage,
 };
 use player::account::Accounts;
-use ui::fonts::{Fonts, EMPIRE_FONT};
+use ui::{
+    fonts::{Fonts, SOURCECODE_REGULAR_FONT},
+    text::{NetTextSection, COMMUNICATION_FONT_SIZE},
+};
 
-use crate::net::{ChatClientMessage, ChatMessage, ChatServerMessage, NetTextSection};
+use crate::net::{ChatClientMessage, ChatMessage, ChatServerMessage};
 
 pub struct GlobalChatMessage {
     pub message: String,
@@ -48,19 +51,22 @@ pub(crate) fn broadcast_global_chat_message(
             }
         }
 
-        let empire_font_id = *fonts.inv_map.get(EMPIRE_FONT).expect("Could not get font.");
+        let sourcecode_regular = *fonts
+            .inv_map
+            .get(SOURCECODE_REGULAR_FONT)
+            .expect("Could not get font.");
 
         let sender_name_section = NetTextSection {
             text: sender_name.to_string() + ": ",
-            font: empire_font_id,
-            font_size: 9.,
+            font: sourcecode_regular,
+            font_size: COMMUNICATION_FONT_SIZE,
             color: Color::BLUE,
         };
 
         let message_section = NetTextSection {
             text: event.message.clone(),
-            font: empire_font_id,
-            font_size: 9.,
+            font: sourcecode_regular,
+            font_size: COMMUNICATION_FONT_SIZE,
             color: Color::WHITE,
         };
 

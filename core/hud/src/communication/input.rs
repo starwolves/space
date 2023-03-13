@@ -37,7 +37,6 @@ pub(crate) fn text_input(
                                         section.value = "".to_string();
                                         text_input_component.input = "".to_string();
                                     }
-
                                     if state.is_displaying_console {
                                         console.send(ClientConsoleInput::from_string(input_text));
                                     } else {
