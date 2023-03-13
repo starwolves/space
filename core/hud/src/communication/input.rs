@@ -29,8 +29,8 @@ pub(crate) fn text_input(
                         for child in children {
                             match text_node_input_query.get_mut(*child) {
                                 Ok(mut text) => {
-                                    let input_text = text_input_component.input.clone();
-                                    if input_text.trim().is_empty() {
+                                    let input_text = text_input_component.input.trim().to_string();
+                                    if input_text.is_empty() {
                                         continue;
                                     }
                                     for section in text.sections.iter_mut() {
