@@ -208,8 +208,8 @@ pub(crate) fn connect_to_server_button(
                     .get_component::<TextInputNode>(server_address_input_entity)
                     .unwrap();
 
-                let account_name = account_name_node.input.clone();
-                let server_address = server_address_node.input.clone();
+                let account_name = account_name_node.input.trim().to_string();
+                let server_address = server_address_node.input.trim().to_string();
 
                 if account_name.len() < 3 {
                     warn!("Account name is too short.");

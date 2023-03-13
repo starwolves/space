@@ -362,7 +362,7 @@ pub(crate) fn input_characters(
                                     input_node.input =
                                         input_node.input.clone() + &validated_clipboard_text;
 
-                                    input_node.input = input_node.input.trim().to_string();
+                                    input_node.input = input_node.input.to_string();
                                 }
                                 None => {}
                             }
@@ -406,7 +406,7 @@ pub(crate) fn input_characters(
                                     input_node.input.push(ev.char);
                                 }
                             }
-                            input_node.input = input_node.input.trim().to_string();
+                            input_node.input = input_node.input.to_string();
                         }
 
                         if keys.just_pressed(KeyCode::Back) {
