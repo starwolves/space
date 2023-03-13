@@ -1,10 +1,13 @@
 use bevy::prelude::{not, resource_exists, App, IntoSystemConfig, Plugin, StartupSet};
+use console_commands::net::ClientConsoleInput;
 use resources::is_server::is_server;
 
 use crate::{
     communication::{
         build::{build_communication_ui, toggle_console_button},
-        input::{display_global_chat_message, tab_communication_input_toggle, text_input},
+        chat::display_global_chat_message,
+        console::console_input,
+        input::{tab_communication_input_toggle, text_input},
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, ExpandedLeftContentHud},
@@ -88,7 +91,9 @@ impl Plugin for HudPlugin {
                 .add_system(tab_communication_input_toggle)
                 .add_system(open_inventory_hud.after(open_hud))
                 .add_event::<OpenInventoryHud>()
-                .add_system(toggle_console_button);
+                .add_system(toggle_console_button)
+                .add_event::<ClientConsoleInput>()
+                .add_system(console_input);
         }
     }
 }

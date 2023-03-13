@@ -1,7 +1,6 @@
 use bevy::prelude::Resource;
 use bevy::prelude::{Entity, SystemSet};
 use networking::server::GodotVariant;
-use networking::server::GodotVariantValues;
 
 /// Resource containing all registered custom console commands.
 #[derive(Default, Resource)]
@@ -27,5 +26,5 @@ pub struct InputConsoleCommand {
     /// The command name.
     pub command_name: String,
     /// The passed arguments to the command as variants.
-    pub command_arguments: Vec<GodotVariantValues>,
+    pub command_arguments: Vec<String>,
 }

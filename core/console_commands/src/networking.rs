@@ -19,14 +19,14 @@ pub(crate) fn incoming_messages(
         let client_message = message.message.clone();
 
         match client_message {
-            ConsoleCommandsClientMessage::ConsoleCommand(command_name, variant_arguments) => {
+            ConsoleCommandsClientMessage::ConsoleCommand(input) => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         console_commands_queue.send(InputConsoleCommand {
                             handle_option: Some(message.handle),
                             entity: *player_entity,
-                            command_name: command_name,
-                            command_arguments: variant_arguments,
+                            command_name: input.command,
+                            command_arguments: input.args,
                         });
                     }
                     None => {
