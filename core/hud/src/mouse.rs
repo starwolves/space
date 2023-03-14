@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{EventReader, EventWriter, Query, Res, With},
+    prelude::{EventReader, EventWriter, Query, Res, ResMut, Resource, With},
     window::{CursorGrabMode, PrimaryWindow, Window, WindowFocused},
 };
 use networking::client::IncomingReliableServerMessage;
@@ -26,7 +26,12 @@ pub struct GrabCursor;
 pub(crate) fn grab_cursor(
     mut events: EventReader<GrabCursor>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
+
+    state: Res<FocusState>,
 ) {
+    if !state.focused {
+        return;
+    }
     for _ in events.iter() {
         let mut primary = primary_query.get_single_mut().unwrap();
         primary.cursor.grab_mode = CursorGrabMode::Locked;
@@ -44,6 +49,16 @@ pub(crate) fn release_cursor(
         let mut primary = primary_query.get_single_mut().unwrap();
         primary.cursor.grab_mode = CursorGrabMode::None;
         primary.cursor.visible = true;
+    }
+}
+#[derive(Resource, Default)]
+pub struct FocusState {
+    pub focused: bool,
+}
+
+pub(crate) fn focus_state(mut state: ResMut<FocusState>, mut events: EventReader<WindowFocused>) {
+    for event in events.iter() {
+        state.focused = event.focused;
     }
 }
 

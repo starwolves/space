@@ -34,8 +34,8 @@ use crate::{
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
     },
     mouse::{
-        grab_cursor, grab_mouse_hud_expand, grab_mouse_on_board, release_cursor,
-        window_unfocus_event, GrabCursor, ReleaseCursor,
+        focus_state, grab_cursor, grab_mouse_hud_expand, grab_mouse_on_board, release_cursor,
+        window_unfocus_event, FocusState, GrabCursor, ReleaseCursor,
     },
     style::button::{button_style_events, changed_focus},
 };
@@ -87,7 +87,7 @@ impl Plugin for HudPlugin {
                 .add_event::<GrabCursor>()
                 .add_event::<ReleaseCursor>()
                 .add_system(release_cursor)
-                .add_system(grab_cursor)
+                .add_system(grab_cursor.after(focus_state))
                 .add_system(text_input)
                 .add_system(display_global_chat_message)
                 .add_system(tab_communication_input_toggle)
@@ -103,7 +103,9 @@ impl Plugin for HudPlugin {
                         .after(build_communication_ui),
                 )
                 .add_event::<DisplayConsoleMessage>()
-                .add_system(display_console_message);
+                .add_system(display_console_message)
+                .init_resource::<FocusState>()
+                .add_system(focus_state);
         }
     }
 }
