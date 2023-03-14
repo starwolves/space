@@ -3,7 +3,7 @@ use bevy::{
         AssetServer, BuildChildren, Commands, EventReader, EventWriter, NodeBundle, Res, TextBundle,
     },
     text::{TextSection, TextStyle},
-    ui::{Size, Style, Val},
+    ui::{FlexDirection, Size, Style, Val},
 };
 use console_commands::net::{
     ClientConsoleInput, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage,
@@ -24,12 +24,11 @@ pub(crate) fn console_input(
     }
 }
 
-pub(crate) fn console_message(
+pub(crate) fn receive_console_message(
     mut net: EventReader<IncomingReliableServerMessage<ConsoleCommandsServerMessage>>,
     fonts: Res<Fonts>,
     asset_server: Res<AssetServer>,
-    mut commands: Commands,
-    chat_state: Res<HudCommunicationState>,
+    mut events: EventWriter<DisplayConsoleMessage>,
 ) {
     for message in net.iter() {
         match &message.message {
@@ -48,24 +47,40 @@ pub(crate) fn console_message(
                     ));
                 }
 
-                let text_section = commands
-                    .spawn(NodeBundle {
-                        style: Style {
-                            size: Size::new(Val::Percent(100.), Val::Percent(10.)),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    })
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_sections(sections));
-                    })
-                    .id();
-
-                commands
-                    .entity(chat_state.console_messages_node)
-                    .insert_children(0, &[text_section]);
+                events.send(DisplayConsoleMessage { sections });
             }
             _ => (),
         }
+    }
+}
+
+pub struct DisplayConsoleMessage {
+    pub sections: Vec<TextSection>,
+}
+
+pub(crate) fn display_console_message(
+    mut events: EventReader<DisplayConsoleMessage>,
+    mut commands: Commands,
+    chat_state: Res<HudCommunicationState>,
+) {
+    for event in events.iter() {
+        let text_section = commands
+            .spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                    flex_direction: FlexDirection::ColumnReverse,
+
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_sections(event.sections.clone()));
+            })
+            .id();
+
+        commands
+            .entity(chat_state.console_messages_node)
+            .insert_children(0, &[text_section]);
     }
 }

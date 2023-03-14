@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{AssetServer, BuildChildren, Commands, EventReader, NodeBundle, Res, TextBundle},
     text::{TextSection, TextStyle},
-    ui::{Size, Style, Val},
+    ui::{FlexDirection, Size, Style, Val},
 };
 use chat::net::ChatServerMessage;
 use networking::client::IncomingReliableServerMessage;
@@ -37,6 +37,8 @@ pub(crate) fn display_global_chat_message(
                     .spawn(NodeBundle {
                         style: Style {
                             size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                            flex_direction: FlexDirection::ColumnReverse,
+
                             ..Default::default()
                         },
                         ..Default::default()

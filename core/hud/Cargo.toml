@@ -16,6 +16,7 @@ version = "0.10.0"
 default-features = false
 
 [dependencies]
+cargo_toml = "0.15.2"
 
 resources = { path = "../resources"}
 player = { path = "../player"}

@@ -4,9 +4,11 @@ use resources::is_server::is_server;
 
 use crate::{
     communication::{
-        build::{build_communication_ui, toggle_console_button},
+        build::{build_communication_ui, console_welcome_message, toggle_console_button},
         chat::display_global_chat_message,
-        console::{console_input, console_message},
+        console::{
+            console_input, display_console_message, receive_console_message, DisplayConsoleMessage,
+        },
         input::{tab_communication_input_toggle, text_input},
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
@@ -94,7 +96,14 @@ impl Plugin for HudPlugin {
                 .add_system(toggle_console_button)
                 .add_event::<ClientConsoleInput>()
                 .add_system(console_input)
-                .add_system(console_message);
+                .add_system(receive_console_message)
+                .add_startup_system(
+                    console_welcome_message
+                        .in_base_set(StartupSet::PostStartup)
+                        .after(build_communication_ui),
+                )
+                .add_event::<DisplayConsoleMessage>()
+                .add_system(display_console_message);
         }
     }
 }
