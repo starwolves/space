@@ -47,4 +47,7 @@ impl ClientConsoleInput {
             args,
         }
     }
+    pub fn to_string(&self) -> String {
+        format!("{} {}", self.command, self.args.join(" "))
+    }
 }

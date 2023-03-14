@@ -9,15 +9,32 @@ use console_commands::net::{
     ClientConsoleInput, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage,
 };
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
-use ui::fonts::Fonts;
+use ui::fonts::{Fonts, SOURCECODE_REGULAR_FONT};
 
-use super::build::HudCommunicationState;
+use super::build::{HudCommunicationState, CONSOLE_FONT_COLOR};
 
 pub(crate) fn console_input(
     mut events: EventReader<ClientConsoleInput>,
     mut net: EventWriter<OutgoingReliableClientMessage<ConsoleCommandsClientMessage>>,
+    mut display: EventWriter<DisplayConsoleMessage>,
+    asset_server: Res<AssetServer>,
 ) {
     for input in events.iter() {
+        let source = asset_server.load(SOURCECODE_REGULAR_FONT);
+
+        let section = TextSection::new(
+            input.to_string(),
+            TextStyle {
+                font: source,
+                font_size: 12.0,
+                color: CONSOLE_FONT_COLOR,
+            },
+        );
+
+        display.send(DisplayConsoleMessage {
+            sections: vec![section],
+        });
+
         net.send(OutgoingReliableClientMessage {
             message: ConsoleCommandsClientMessage::ConsoleCommand(input.clone()),
         });
