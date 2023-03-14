@@ -142,8 +142,6 @@ pub(crate) fn connect_to_server(
                         });
                         commands.insert_resource(renet_client);
 
-                        info!("Connected to {}!", socket_address);
-
                         connection_state.status = ConnectionStatus::Connecting;
                     }
                     Err(err) => {

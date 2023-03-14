@@ -1,11 +1,14 @@
+use std::fs;
+
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands, Component,
-        Entity, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
+        Entity, EventWriter, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
     },
-    text::TextStyle,
+    text::{TextSection, TextStyle},
     ui::{Display, FlexDirection, Interaction, Overflow, Size, Style, Val},
 };
+use cargo_toml::Manifest;
 use resources::hud::HudState;
 use ui::{
     button::ButtonVisuals,
@@ -13,6 +16,8 @@ use ui::{
     text::COMMUNICATION_FONT_SIZE,
     text_input::{CharacterFilter, TextInputNode},
 };
+
+use super::console::DisplayConsoleMessage;
 #[derive(Component)]
 pub struct ChatMessagesNode;
 #[derive(Component)]
@@ -205,5 +210,50 @@ pub(crate) fn build_communication_ui(
         communication_input_focused: false,
         console_messages_node,
         is_displaying_console: false,
+    });
+}
+
+pub const CONSOLE_FONT_COLOR: Color = Color::WHITE;
+
+pub(crate) fn console_welcome_message(
+    mut events: EventWriter<DisplayConsoleMessage>,
+    asset_server: Res<AssetServer>,
+) {
+    let cargo_toml_contents = fs::read_to_string("core/app/Cargo.toml").unwrap();
+    let cargo = Manifest::from_slice(cargo_toml_contents.as_bytes()).unwrap();
+
+    let mut bevy_version = "".to_string();
+
+    match cargo.dependencies.get("bevy").unwrap() {
+        cargo_toml::Dependency::Simple(v) => {
+            bevy_version = v.clone();
+        }
+        cargo_toml::Dependency::Detailed(v) => {
+            bevy_version = v.version.clone().unwrap();
+        }
+        _ => (),
+    }
+    let mut sf_version = "".to_string();
+
+    match cargo.package.unwrap().version {
+        cargo_toml::Inheritable::Set(v) => {
+            sf_version = v;
+        }
+        _ => (),
+    }
+
+    let welcome_message = format!("Space Frontiers v{}\n", sf_version)
+        + &format!("Bevy v{}\n", bevy_version)
+        + "Write \"help\" for a list of available commands.";
+
+    events.send(DisplayConsoleMessage {
+        sections: vec![TextSection::new(
+            welcome_message,
+            TextStyle {
+                font: asset_server.load(SOURCECODE_REGULAR_FONT),
+                font_size: COMMUNICATION_FONT_SIZE,
+                color: CONSOLE_FONT_COLOR.into(),
+            },
+        )],
     });
 }
