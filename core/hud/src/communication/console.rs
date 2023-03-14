@@ -81,6 +81,10 @@ pub(crate) fn display_console_message(
     chat_state: Res<HudCommunicationState>,
 ) {
     for event in events.iter() {
+        let mut sections = event.sections.clone();
+        let mut first = sections.first_mut().unwrap();
+        first.value = "> ".to_string() + &first.value;
+
         let text_section = commands
             .spawn(NodeBundle {
                 style: Style {
@@ -92,7 +96,7 @@ pub(crate) fn display_console_message(
                 ..Default::default()
             })
             .with_children(|parent| {
-                parent.spawn(TextBundle::from_sections(event.sections.clone()));
+                parent.spawn(TextBundle::from_sections(sections.clone()));
             })
             .id();
 
