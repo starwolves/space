@@ -3,19 +3,22 @@ use std::fs;
 use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands, Component,
-        Entity, EventWriter, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
+        Entity, EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
+        With,
     },
     text::{TextSection, TextStyle},
     ui::{Display, FlexDirection, Interaction, Overflow, Size, Style, Val},
 };
 use cargo_toml::Manifest;
-use resources::hud::HudState;
+use resources::{hud::HudState, ui::TextInput};
 use ui::{
     button::ButtonVisuals,
     fonts::SOURCECODE_REGULAR_FONT,
     text::COMMUNICATION_FONT_SIZE,
-    text_input::{CharacterFilter, TextInputNode},
+    text_input::{CharacterFilter, FocusTextInput, TextInputNode},
 };
+
+use crate::inventory::build::OpenHud;
 
 use super::console::DisplayConsoleMessage;
 #[derive(Component)]
@@ -40,7 +43,35 @@ pub(crate) fn toggle_console_button(
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<ToggleConsoleButton>)>,
     mut state: ResMut<HudCommunicationState>,
     mut style_query: Query<&mut Style>,
+    keys: Res<Input<KeyCode>>,
+    mut focus_event: EventWriter<FocusTextInput>,
+    mut open_hud: EventWriter<OpenHud>,
+    text_input: Res<TextInput>,
 ) {
+    if keys.just_pressed(KeyCode::Grave) && text_input.focused_input.is_none() {
+        state.is_displaying_console = true;
+        match style_query.get_mut(state.chat_messages_node) {
+            Ok(mut style) => {
+                style.display = Display::None;
+            }
+            Err(_) => {
+                warn!("Couldnt find visibility component of chat messages node.");
+            }
+        }
+        match style_query.get_mut(state.console_messages_node) {
+            Ok(mut style) => {
+                style.display = Display::Flex;
+            }
+            Err(_) => {
+                warn!("Couldnt find visibility component of console messages node.");
+            }
+        }
+        focus_event.send(FocusTextInput {
+            entity: state.communication_input_node,
+        });
+        open_hud.send(OpenHud { open: true });
+    }
+
     for interaction in interaction_query.iter() {
         match interaction {
             Interaction::Clicked => {
