@@ -3,7 +3,7 @@ use bevy::{
     text::Text,
 };
 use chat::net::ChatClientMessage;
-use console_commands::net::ClientConsoleInput;
+use console_commands::net::ClientSideConsoleInput;
 use networking::client::OutgoingReliableClientMessage;
 use resources::{hud::HudState, ui::TextInput};
 use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
@@ -19,7 +19,7 @@ pub(crate) fn text_input(
     mut text_node_input_query: Query<&mut Text>,
     mut net: EventWriter<OutgoingReliableClientMessage<ChatClientMessage>>,
     state: Res<HudCommunicationState>,
-    mut console: EventWriter<ClientConsoleInput>,
+    mut console: EventWriter<ClientSideConsoleInput>,
 ) {
     match text_input_state.focused_input {
         Some(focused_input_entity) => {
@@ -38,7 +38,8 @@ pub(crate) fn text_input(
                                         text_input_component.input = "".to_string();
                                     }
                                     if state.is_displaying_console {
-                                        console.send(ClientConsoleInput::from_string(input_text));
+                                        console
+                                            .send(ClientSideConsoleInput::from_string(input_text));
                                     } else {
                                         net.send(OutgoingReliableClientMessage {
                                             message: ChatClientMessage::InputChatMessage(

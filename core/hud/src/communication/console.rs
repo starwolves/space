@@ -6,15 +6,15 @@ use bevy::{
     ui::{FlexDirection, Size, Style, Val},
 };
 use console_commands::net::{
-    ClientConsoleInput, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage,
+    ClientSideConsoleInput, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage,
 };
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use ui::fonts::{Fonts, SOURCECODE_REGULAR_FONT};
 
 use super::build::{HudCommunicationState, CONSOLE_FONT_COLOR};
 
-pub(crate) fn console_input(
-    mut events: EventReader<ClientConsoleInput>,
+pub fn console_input(
+    mut events: EventReader<ClientSideConsoleInput>,
     mut net: EventWriter<OutgoingReliableClientMessage<ConsoleCommandsClientMessage>>,
     mut display: EventWriter<DisplayConsoleMessage>,
     asset_server: Res<AssetServer>,
@@ -88,8 +88,8 @@ pub(crate) fn display_console_message(
         let text_section = commands
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.), Val::Percent(10.)),
-                    flex_direction: FlexDirection::ColumnReverse,
+                    size: Size::new(Val::Auto, Val::Auto),
+                    flex_direction: FlexDirection::Column,
 
                     ..Default::default()
                 },

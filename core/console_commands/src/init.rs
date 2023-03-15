@@ -10,16 +10,13 @@ use crate::commands::ConsoleCommand;
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push(ConsoleCommand {
         base: "rcon".to_string(),
-        description: "For server administrators only. Obtaining rcon status allows for usage of rcon_* commands"
-        .to_string(),
+        description: "Obtaining rcon status allows for usage of rcon commands".to_string(),
         args: vec![("password".to_string(), ConsoleArgVariant::String)],
     });
 
     commands.list.push(ConsoleCommand {
         base: "rconStatus".to_string(),
-        description:
-            "For server administrators only. Check if the server has granted you the RCON status."
-                .to_string(),
+        description: "Check if the server has granted you the RCON status.".to_string(),
         args: vec![],
     });
 
@@ -31,7 +28,7 @@ pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
 pub(crate) fn initialize_console_commands_2(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push(ConsoleCommand {
         base: "spawn".to_string(),
-        description: "For server administrators only. Spawn in entities in proximity.".to_string(),
+        description: "Spawn in entities in proximity.".to_string(),
         args: vec![
             ("entity_name".to_string(), ConsoleArgVariant::String),
             ("amount".to_string(), ConsoleArgVariant::Int),

@@ -19,17 +19,17 @@ pub struct ConsoleLine {
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum ConsoleCommandsClientMessage {
-    ConsoleCommand(ClientConsoleInput),
+    ConsoleCommand(ClientSideConsoleInput),
 }
 
 /// Event for new input console commands.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ClientConsoleInput {
+pub struct ClientSideConsoleInput {
     pub command: String,
     pub args: Vec<String>,
 }
 
-impl ClientConsoleInput {
+impl ClientSideConsoleInput {
     pub fn from_string(str: String) -> Self {
         let mut split: Vec<&str> = str.split(" ").collect();
 
@@ -42,7 +42,7 @@ impl ClientConsoleInput {
             args.push(s.to_string());
         }
 
-        ClientConsoleInput {
+        ClientSideConsoleInput {
             command: base.to_string(),
             args,
         }
