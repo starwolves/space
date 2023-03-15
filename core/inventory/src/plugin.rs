@@ -67,9 +67,7 @@ use console_commands::commands::AllConsoleCommands;
 pub fn initialize_console_commands(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push(ConsoleCommand {
         base: "spawnHeld".to_string(),
-        description:
-            "For server administrators only. Spawn in held entities in hands or in proximity."
-                .to_string(),
+        description: "Spawn in held entities in hands or in proximity.".to_string(),
         args: vec![
             ("entity_name".to_string(), ConsoleArgVariant::String),
             ("player_selector".to_string(), ConsoleArgVariant::String),

@@ -3,7 +3,7 @@ use bevy::prelude::{Entity, SystemSet};
 use networking::server::ConsoleArgVariant;
 use serde::{Deserialize, Serialize};
 
-use crate::net::ClientConsoleInput;
+use crate::net::ClientSideConsoleInput;
 
 /// Resource containing all registered custom console commands.
 #[derive(Default, Resource)]
@@ -32,5 +32,5 @@ pub struct InputConsoleCommand {
     pub handle_option: Option<u64>,
     /// The entity performing the command.
     pub entity: Entity,
-    pub input: ClientConsoleInput,
+    pub input: ClientSideConsoleInput,
 }

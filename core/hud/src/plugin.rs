@@ -1,5 +1,5 @@
 use bevy::prelude::{not, resource_exists, App, IntoSystemConfig, Plugin, StartupSet};
-use console_commands::net::ClientConsoleInput;
+use console_commands::net::ClientSideConsoleInput;
 use resources::is_server::is_server;
 
 use crate::{
@@ -94,7 +94,7 @@ impl Plugin for HudPlugin {
                 .add_system(open_inventory_hud.after(open_hud))
                 .add_event::<OpenInventoryHud>()
                 .add_system(toggle_console_button)
-                .add_event::<ClientConsoleInput>()
+                .add_event::<ClientSideConsoleInput>()
                 .add_system(console_input)
                 .add_system(receive_console_message)
                 .add_startup_system(

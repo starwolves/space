@@ -36,8 +36,8 @@ pub(crate) fn display_global_chat_message(
                 let text_section = commands
                     .spawn(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Percent(100.), Val::Percent(10.)),
-                            flex_direction: FlexDirection::ColumnReverse,
+                            size: Size::new(Val::Auto, Val::Auto),
+                            flex_direction: FlexDirection::Column,
 
                             ..Default::default()
                         },
