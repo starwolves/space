@@ -77,6 +77,8 @@ pub fn create_hud(mut commands: Commands) {
                 .spawn(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                        flex_direction: FlexDirection::RowReverse,
+
                         ..Default::default()
                     },
                     ..Default::default()

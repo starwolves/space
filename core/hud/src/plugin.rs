@@ -37,6 +37,7 @@ use crate::{
         focus_state, grab_cursor, grab_mouse_hud_expand, grab_mouse_on_board, release_cursor,
         window_unfocus_event, FocusState, GrabCursor, ReleaseCursor,
     },
+    server_stats::{build_server_stats, update_server_stats, ServerStatsState},
     style::button::{button_style_events, changed_focus},
 };
 
@@ -49,6 +50,7 @@ impl Plugin for HudPlugin {
                 .add_system(expand_inventory_hud)
                 .add_startup_system(create_inventory_hud.in_base_set(StartupSet::PostStartup))
                 .add_startup_system(create_hud)
+                .add_startup_system(build_server_stats.in_base_set(StartupSet::PostStartup))
                 .add_startup_system(build_communication_ui.in_base_set(StartupSet::PostStartup))
                 .add_event::<OpenHud>()
                 .add_system(inventory_hud_key_press)
@@ -107,7 +109,9 @@ impl Plugin for HudPlugin {
                 .init_resource::<FocusState>()
                 .add_system(focus_state)
                 .add_event::<DisplayChatMessage>()
-                .add_system(display_chat_message);
+                .add_system(display_chat_message)
+                .add_system(update_server_stats)
+                .init_resource::<ServerStatsState>();
         }
     }
 }

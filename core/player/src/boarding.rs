@@ -100,7 +100,7 @@ pub(crate) fn done_boarding(
         });
 
         asana_boarding_announcements.announcements.push((
-            player_character_name + " is now on board.",
+            player_character_name + " has boarded.",
             Timer::from_seconds(2., TimerMode::Once),
         ));
     }

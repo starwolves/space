@@ -214,7 +214,6 @@ pub(crate) fn build_communication_ui(
                                         background_color: Color::DARK_GRAY.into(),
                                         style: Style {
                                             size: Size::new(Val::Percent(100.), Val::Percent(100.)),
-
                                             ..Default::default()
                                         },
                                         ..Default::default()
