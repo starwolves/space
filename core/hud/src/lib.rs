@@ -5,4 +5,5 @@ pub mod input;
 pub mod inventory;
 pub mod mouse;
 pub mod plugin;
+pub mod server_stats;
 pub mod style;
