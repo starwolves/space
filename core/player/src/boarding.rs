@@ -100,7 +100,7 @@ pub(crate) fn done_boarding(
         });
 
         asana_boarding_announcements.announcements.push((
-            ";Security Officer ".to_owned() + &player_character_name + " is now on board.",
+            player_character_name + " is now on board.",
             Timer::from_seconds(2., TimerMode::Once),
         ));
     }

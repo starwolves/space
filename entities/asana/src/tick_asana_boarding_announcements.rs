@@ -1,15 +1,23 @@
-/*use bevy::{
-    prelude::{EventWriter, Res, ResMut},
+use bevy::{
+    prelude::{Color, EventWriter, Query, Res, ResMut},
     time::Time,
 };
 
+use chat::net::{ChatMessage, ChatServerMessage};
+use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use player::boarding::BoardingAnnouncements;
+use ui::{
+    fonts::{Fonts, SOURCECODE_REGULAR_FONT},
+    text::{NetTextSection, COMMUNICATION_FONT_SIZE},
+};
 /// Manage asana boarding announcements.
 
 pub(crate) fn tick_asana_boarding_announcements(
-    mut net_new_chat_message_event: EventWriter<NewChatMessage>,
     mut asana_boarding_announcements: ResMut<BoardingAnnouncements>,
     time: Res<Time>,
+    mut net: EventWriter<OutgoingReliableServerMessage<ChatServerMessage>>,
+    connected_players: Query<&ConnectedPlayer>,
+    fonts: Res<Fonts>,
 ) {
     let mut done_messages: Vec<usize> = vec![];
 
@@ -19,14 +27,22 @@ pub(crate) fn tick_asana_boarding_announcements(
         &mut asana_boarding_announcements.announcements
     {
         if announcement_timer.tick(time.delta()).just_finished() {
-            net_new_chat_message_event.send(NewChatMessage {
-                messenger_entity_option: None,
-                messenger_name_option: Some("ASANA".to_string()),
-                raw_message: announcement_message.to_string(),
-                exclusive_radio: true,
-                position_option: None,
-                send_entity_update: false,
-            });
+            for player in connected_players.iter() {
+                if !player.connected {
+                    continue;
+                }
+                net.send(OutgoingReliableServerMessage {
+                    handle: player.handle,
+                    message: ChatServerMessage::ChatMessage(ChatMessage {
+                        sections: vec![NetTextSection {
+                            text: "ASANA: ".to_string() + announcement_message,
+                            font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+                            font_size: COMMUNICATION_FONT_SIZE,
+                            color: Color::WHITE,
+                        }],
+                    }),
+                });
+            }
 
             done_messages.push(j);
         }
@@ -38,4 +54,3 @@ pub(crate) fn tick_asana_boarding_announcements(
         asana_boarding_announcements.announcements.remove(j);
     }
 }
-*/
