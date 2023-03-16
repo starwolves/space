@@ -20,3 +20,5 @@ default-features = false
 chat = { path = "../../core/chat" }
 player = { path = "../../core/player" }
 resources = { path = "../../core/resources"}
+networking = { path = "../../core/networking"}
+ui = { path = "../../core/ui"}

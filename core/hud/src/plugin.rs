@@ -5,7 +5,7 @@ use resources::is_server::is_server;
 use crate::{
     communication::{
         build::{build_communication_ui, console_welcome_message, toggle_console_button},
-        chat::display_global_chat_message,
+        chat::{display_chat_message, receive_chat_message, DisplayChatMessage},
         console::{
             console_input, display_console_message, receive_console_message, DisplayConsoleMessage,
         },
@@ -89,7 +89,7 @@ impl Plugin for HudPlugin {
                 .add_system(release_cursor)
                 .add_system(grab_cursor.after(focus_state))
                 .add_system(text_input)
-                .add_system(display_global_chat_message)
+                .add_system(receive_chat_message)
                 .add_system(tab_communication_input_toggle)
                 .add_system(open_inventory_hud.after(open_hud))
                 .add_event::<OpenInventoryHud>()
@@ -105,7 +105,9 @@ impl Plugin for HudPlugin {
                 .add_event::<DisplayConsoleMessage>()
                 .add_system(display_console_message)
                 .init_resource::<FocusState>()
-                .add_system(focus_state);
+                .add_system(focus_state)
+                .add_event::<DisplayChatMessage>()
+                .add_system(display_chat_message);
         }
     }
 }
