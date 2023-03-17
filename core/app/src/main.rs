@@ -39,6 +39,7 @@ use construction_tool::plugin::ConstructionToolAdminPlugin;
 use controller::plugin::ControllerPlugin;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
+use escape_menu::plugin::EscapeMenuPlugin;
 use gridmap::plugin::GridmapPlugin;
 use helmet_security::plugin::HelmetsPlugin;
 use hud::plugin::HudPlugin;
@@ -57,7 +58,6 @@ use physics::plugin::PhysicsPlugin;
 use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
-use quit::quit_application;
 use resources::core::ClientInformation;
 use resources::is_server::is_server;
 use resources::labels::StartupLabels;
@@ -67,8 +67,6 @@ use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use ui::plugin::UiPlugin;
 use world::plugin::WorldPlugin;
-
-mod quit;
 
 /// The function that launches the server on application start.
 fn main() {
@@ -133,8 +131,7 @@ pub(crate) fn configure_and_start() {
         .add_plugin(EguiPlugin)
         .insert_resource(ClientInformation {
             version: APP_VERSION.to_string(),
-        })
-        .add_system(quit_application);
+        });
     }
     app.add_plugin(AsanaPlugin)
         .add_plugin(GridmapPlugin)
@@ -175,6 +172,7 @@ pub(crate) fn configure_and_start() {
         )
         .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
         .add_plugin(MainMenuPlugin)
+        .add_plugin(EscapeMenuPlugin)
         .add_plugin(ControllerPlugin::default())
         .add_plugin(WorldPlugin)
         .add_plugin(HudPlugin)
