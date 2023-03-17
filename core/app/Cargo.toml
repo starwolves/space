@@ -42,6 +42,7 @@ physics = { path = "../physics" }
 world = { path = "../world" }
 
 setup_menu = { path = "../setup_menu" }
+escape_menu = { path = "../escape_menu" }
 
 sounds = { path = "../../entities/sounds" }
 asana = { path = "../../entities/asana" }

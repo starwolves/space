@@ -1,0 +1,22 @@
+[package]
+name = "escape_menu"
+version = "0.0.3"
+authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
+description = "The ESC menu."
+homepage = "https://starwolves.io"
+repository = "https://gitlab.starwolves.io/starwolves/space"
+documentation = "https://docs.sf.starwolves.io"
+license-file = "LICENSE"
+edition = "2021"
+
+
+
+[dependencies.bevy]
+version = "0.10.0"
+default-features = false
+
+[dependencies]
+resources = { path = "../resources" }
+hud = { path = "../hud" }
+ui = { path = "../ui" }
+main_menu= { path = "../main_menu" }
