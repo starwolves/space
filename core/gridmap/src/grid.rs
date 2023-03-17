@@ -107,13 +107,41 @@ pub struct GridCell {
 }
 
 impl GridCell {
-    pub fn get_item(&self, strict_face: StrictCellFace) -> Option<CellItem> {
+    pub fn get_item_from_face(&self, strict_face: StrictCellFace) -> Option<CellItem> {
         match strict_face {
             StrictCellFace::FrontWall => self.front_wall.clone(),
             StrictCellFace::RightWall => self.right_wall.clone(),
             StrictCellFace::Floor => self.floor.clone(),
             StrictCellFace::Center => self.center.clone(),
         }
+    }
+    pub fn get_items(&self) -> Vec<(CellItem, CellFace)> {
+        let mut items = vec![];
+        match &self.floor {
+            Some(i) => {
+                items.push((i.clone(), CellFace::Floor));
+            }
+            None => {}
+        }
+        match &self.front_wall {
+            Some(i) => {
+                items.push((i.clone(), CellFace::FrontWall));
+            }
+            None => {}
+        }
+        match &self.right_wall {
+            Some(i) => {
+                items.push((i.clone(), CellFace::RightWall));
+            }
+            None => {}
+        }
+        match &self.center {
+            Some(i) => {
+                items.push((i.clone(), CellFace::Center));
+            }
+            None => {}
+        }
+        items
     }
     pub fn is_empty(&self) -> bool {
         self.floor.is_none()
@@ -217,6 +245,55 @@ pub struct Gridmap {
     pub map_length_limit: MapLimits,
     pub groups: Vec<HashMap<Vec3Int, u16>>,
     pub group_instance_incremental: u32,
+}
+
+impl Gridmap {
+    pub fn export_ron(&self) -> String {
+        let mut data = vec![];
+        let mut chunk_i = 0;
+        for chunk_option in &self.grid {
+            match chunk_option {
+                Some(chunk) => {
+                    let mut cell_i = 0;
+                    for cell_option in chunk.cells.iter() {
+                        match cell_option {
+                            Some(cell) => {
+                                for (item, face) in cell.get_items() {
+                                    let cell_item_id;
+
+                                    match self.main_id_name_map.get(&item.tile_type) {
+                                        Some(x) => {
+                                            cell_item_id = x.clone();
+                                        }
+                                        None => {
+                                            warn!("Couldnt find item {}", item.tile_type);
+                                            continue;
+                                        }
+                                    };
+                                    data.push(CellDataRon {
+                                        id: self
+                                            .get_id(CellIndexes {
+                                                chunk: chunk_i,
+                                                cell: cell_i,
+                                            })
+                                            .unwrap(),
+                                        item: RonItem::Cell(cell_item_id),
+                                        orientation: item.orientation,
+                                        face: face,
+                                    });
+                                }
+                            }
+                            None => {}
+                        }
+                        cell_i += 1;
+                    }
+                }
+                None => {}
+            }
+            chunk_i += 1;
+        }
+        ron::to_string(&data).unwrap()
+    }
 }
 
 const EMPTY_CHUNK: Option<GridmapChunk> = None;
@@ -394,7 +471,7 @@ impl Gridmap {
             Some(chunk_option) => match chunk_option {
                 Some(chunk) => match chunk.cells.get(indexes.cell) {
                     Some(cell_data_option) => match cell_data_option {
-                        Some(items) => items.get_item(strict.face),
+                        Some(items) => items.get_item_from_face(strict.face),
                         None => None,
                     },
                     None => None,
@@ -532,7 +609,10 @@ pub struct AddGroup {
 use bevy::prelude::{EventReader, ResMut};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
 
-use crate::net::{ConstructCell, GridmapServerMessage, NewCell};
+use crate::{
+    init::{CellDataRon, RonItem},
+    net::{ConstructCell, GridmapServerMessage, NewCell},
+};
 
 pub(crate) fn remove_tile(
     mut events: EventReader<RemoveTile>,

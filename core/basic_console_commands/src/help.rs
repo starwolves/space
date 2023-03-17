@@ -26,7 +26,7 @@ pub(crate) fn help_command(
         if input.command != "help" {
             continue;
         }
-        let mut console_message = "For more information about a specific command write help [command].\nAvailable console commands:\n".to_string();
+        let mut console_message = "".to_string();
 
         if input.args.len() == 1 {
             let arg = input.args.get(0).unwrap();
@@ -43,6 +43,7 @@ pub(crate) fn help_command(
                 }
             }
         } else {
+            console_message+="For more information about a specific command write help [command].\nAvailable console commands:\n";
             for command in commands.list.iter() {
                 console_message += &format!("{}: {} \n\n", command.base, command.description);
             }

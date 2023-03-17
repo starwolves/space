@@ -4,6 +4,7 @@ use resources::is_server::is_server;
 
 use crate::{
     commands::{rcon_console_commands, GiveAllRCON},
+    gridmap::{add_export_map_command, export_map},
     help::{add_help_command, help_command},
 };
 
@@ -18,10 +19,12 @@ impl Plugin for BasicConsoleCommandsPlugin {
             app.add_system(rcon_console_commands)
                 .insert_resource::<GiveAllRCON>(GiveAllRCON {
                     give: self.give_all_rcon,
-                });
+                })
+                .add_system(export_map);
         } else {
             app.add_startup_system(add_help_command)
                 .add_system(help_command.after(console_input));
         }
+        app.add_startup_system(add_export_map_command);
     }
 }
