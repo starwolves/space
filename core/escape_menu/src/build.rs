@@ -67,7 +67,10 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(33.), Val::Percent(100.)),
+                                        size: Size::new(
+                                            Val::Percent(33.333333),
+                                            Val::Percent(100.),
+                                        ),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -104,7 +107,10 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(33.), Val::Percent(100.)),
+                                        size: Size::new(
+                                            Val::Percent(33.333333),
+                                            Val::Percent(100.),
+                                        ),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -141,7 +147,10 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(33.), Val::Percent(100.)),
+                                        size: Size::new(
+                                            Val::Percent(33.333333),
+                                            Val::Percent(100.),
+                                        ),
                                         ..Default::default()
                                     },
                                     ..Default::default()
