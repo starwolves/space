@@ -5,6 +5,7 @@ use crate::{
     button::button_hover_visuals,
     fonts::{init_fonts, Fonts},
     net::{UiClientMessage, UiServerMessage},
+    scrolling::{mouse_scroll, mouse_scroll_inverted},
     text_input::{
         focus_events, incoming_messages, input_characters, input_mouse_press_unfocus,
         set_text_input_node_text, ui_events, FocusTextInput, SetText, TextInputLabel,
@@ -32,7 +33,9 @@ impl Plugin for UiPlugin {
                 .add_event::<FocusTextInput>()
                 .add_system(button_hover_visuals)
                 .add_event::<SetText>()
-                .add_system(set_text_input_node_text);
+                .add_system(set_text_input_node_text)
+                .add_system(mouse_scroll_inverted)
+                .add_system(mouse_scroll);
         }
         app.init_resource::<Fonts>().add_startup_system(init_fonts);
         register_reliable_message::<UiClientMessage>(app, MessageSender::Client);

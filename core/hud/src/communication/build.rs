@@ -18,13 +18,14 @@ use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::{
     button::ButtonVisuals,
     fonts::SOURCECODE_REGULAR_FONT,
+    scrolling::ScrollingListInverted,
     text::COMMUNICATION_FONT_SIZE,
     text_input::{CharacterFilter, FocusTextInput, TextInputNode},
 };
 
 use crate::{input::binds::TOGGLE_CONSOLE_BIND, inventory::build::OpenHud};
 
-use super::{console::DisplayConsoleMessage, input::ScrollingList};
+use super::console::DisplayConsoleMessage;
 #[derive(Component)]
 pub struct ChatMessagesNode;
 #[derive(Component)]
@@ -156,7 +157,7 @@ pub(crate) fn build_communication_ui(
                                 },
                                 ..Default::default()
                             },
-                            ScrollingList::default(),
+                            ScrollingListInverted::default(),
                             AccessibilityNode(NodeBuilder::new(Role::List)),
                         ))
                         .insert(ChatMessagesNode)
@@ -188,7 +189,7 @@ pub(crate) fn build_communication_ui(
                                 },
                                 ..Default::default()
                             },
-                            ScrollingList::default(),
+                            ScrollingListInverted::default(),
                             AccessibilityNode(NodeBuilder::new(Role::List)),
                         ))
                         .insert(ConsoleMessagesNode)
