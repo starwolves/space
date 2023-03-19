@@ -9,7 +9,7 @@ use crate::{
         console::{
             console_input, display_console_message, receive_console_message, DisplayConsoleMessage,
         },
-        input::{mouse_scroll, tab_communication_input_toggle, text_input},
+        input::{tab_communication_input_toggle, text_input},
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, ExpandedLeftContentHud},
@@ -115,8 +115,7 @@ impl Plugin for HudPlugin {
                 .add_system(display_chat_message)
                 .add_system(update_server_stats)
                 .init_resource::<ServerStatsState>()
-                .add_startup_system(register_input)
-                .add_system(mouse_scroll);
+                .add_startup_system(register_input);
         }
     }
 }

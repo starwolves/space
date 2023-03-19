@@ -12,8 +12,8 @@ use resources::{
 };
 
 use crate::build::{
-    ControlsHeaderButton, ControlsSection, EscapeMenuState, ExitGameButton, GeneralHeaderButton,
-    GeneralSection, GraphicsHeaderButton, GraphicsSection,
+    ControlsBGSection, ControlsHeaderButton, EscapeMenuState, ExitGameButton, GeneralHeaderButton,
+    GeneralSection, GraphicsBGSection, GraphicsHeaderButton,
 };
 
 pub struct ToggleEscapeMenu {
@@ -116,7 +116,7 @@ pub(crate) fn toggle_general_menu_section(
 
 pub(crate) fn toggle_graphics_menu_section(
     mut events: EventReader<ToggleGraphicsSection>,
-    mut general_style: Query<&mut Style, With<GraphicsSection>>,
+    mut general_style: Query<&mut Style, With<GraphicsBGSection>>,
     mut control_events: EventWriter<ToggleControlsSection>,
     mut general_events: EventWriter<ToggleGeneralSection>,
 ) {
@@ -133,7 +133,7 @@ pub(crate) fn toggle_graphics_menu_section(
 }
 pub(crate) fn toggle_controls_menu_section(
     mut events: EventReader<ToggleControlsSection>,
-    mut general_style: Query<&mut Style, With<ControlsSection>>,
+    mut general_style: Query<&mut Style, With<ControlsBGSection>>,
     mut general_events: EventWriter<ToggleGeneralSection>,
     mut graphics_events: EventWriter<ToggleGraphicsSection>,
 ) {
