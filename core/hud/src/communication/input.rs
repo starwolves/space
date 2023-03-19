@@ -27,7 +27,7 @@ pub(crate) fn text_input(
 ) {
     match text_input_state.focused_input {
         Some(focused_input_entity) => {
-            if keyboard.just_pressed(binds.bind(SUBMIT_CONSOLE_BIND.to_string())) {
+            if keyboard.just_pressed(binds.bind(SUBMIT_CONSOLE_BIND)) {
                 match text_node_query.get_mut(focused_input_entity) {
                     Ok((mut text_input_component, children)) => {
                         for child in children {
@@ -76,7 +76,7 @@ pub(crate) fn tab_communication_input_toggle(
     hud_state: Res<HudState>,
     binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(binds.bind(TOGGLE_CHAT.to_string())) {
+    if keys.just_pressed(binds.bind(TOGGLE_CHAT)) {
         let is_focused = hud_state.expanded;
 
         if is_focused {

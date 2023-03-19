@@ -14,7 +14,7 @@ pub struct KeyBind {
 }
 
 impl KeyBinds {
-    pub fn bind(&self, id: String) -> KeyCode {
-        self.list.get(&id).unwrap().key_code
+    pub fn bind(&self, id: &str) -> KeyCode {
+        self.list.get(id).unwrap().key_code
     }
 }
