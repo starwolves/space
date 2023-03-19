@@ -1,6 +1,10 @@
 use std::fs;
 
 use bevy::{
+    a11y::{
+        accesskit::{NodeBuilder, Role},
+        AccessibilityNode,
+    },
     prelude::{
         warn, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands, Component,
         Entity, EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
@@ -20,19 +24,24 @@ use ui::{
 
 use crate::{input::binds::TOGGLE_CONSOLE_BIND, inventory::build::OpenHud};
 
-use super::console::DisplayConsoleMessage;
+use super::{console::DisplayConsoleMessage, input::ScrollingList};
 #[derive(Component)]
 pub struct ChatMessagesNode;
 #[derive(Component)]
+pub struct ChatMessagesBGNode;
+#[derive(Component)]
 pub struct ConsoleMessagesNode;
-
+#[derive(Component)]
+pub struct ConsoleMessagesBGNode;
 #[derive(Resource)]
 pub struct HudCommunicationState {
     pub chat_messages_node: Entity,
     pub console_messages_node: Entity,
+    pub console_messages_bg_node: Entity,
     pub communication_input_node: Entity,
     pub communication_input_focused: bool,
     pub is_displaying_console: bool,
+    pub chat_messages_bg_node: Entity,
 }
 #[derive(Component)]
 pub struct CommunicationInputNode;
@@ -51,7 +60,7 @@ pub(crate) fn toggle_console_button(
 ) {
     if keys.just_pressed(binds.bind(TOGGLE_CONSOLE_BIND)) && text_input.focused_input.is_none() {
         state.is_displaying_console = true;
-        match style_query.get_mut(state.chat_messages_node) {
+        match style_query.get_mut(state.chat_messages_bg_node) {
             Ok(mut style) => {
                 style.display = Display::None;
             }
@@ -59,7 +68,7 @@ pub(crate) fn toggle_console_button(
                 warn!("Couldnt find visibility component of chat messages node.");
             }
         }
-        match style_query.get_mut(state.console_messages_node) {
+        match style_query.get_mut(state.console_messages_bg_node) {
             Ok(mut style) => {
                 style.display = Display::Flex;
             }
@@ -78,7 +87,7 @@ pub(crate) fn toggle_console_button(
             Interaction::Clicked => {
                 state.is_displaying_console = !state.is_displaying_console;
 
-                match style_query.get_mut(state.chat_messages_node) {
+                match style_query.get_mut(state.chat_messages_bg_node) {
                     Ok(mut style) => {
                         if state.is_displaying_console {
                             style.display = Display::None;
@@ -90,7 +99,7 @@ pub(crate) fn toggle_console_button(
                         warn!("Couldnt find visibility component of chat messages node.");
                     }
                 }
-                match style_query.get_mut(state.console_messages_node) {
+                match style_query.get_mut(state.console_messages_bg_node) {
                     Ok(mut style) => {
                         if state.is_displaying_console {
                             style.display = Display::Flex;
@@ -116,12 +125,15 @@ pub(crate) fn build_communication_ui(
     let sourcecode_font = asset_server.load(SOURCECODE_REGULAR_FONT);
 
     let mut chat_messages_node = Entity::from_bits(0);
+    let mut chat_messages_bg_node = Entity::from_bits(0);
+
     let mut console_messages_node = Entity::from_bits(0);
     let mut communication_input_node = Entity::from_bits(0);
+    let mut console_messages_bg_node = Entity::from_bits(0);
     commands
         .entity(hud_state.left_edge_node)
         .with_children(|parent| {
-            chat_messages_node = parent
+            chat_messages_bg_node = parent
                 .spawn(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.), Val::Percent(35.)),
@@ -133,10 +145,26 @@ pub(crate) fn build_communication_ui(
                     background_color: Color::rgba(0.0, 0.0, 1.0, 0.05).into(),
                     ..Default::default()
                 })
-                .insert(ChatMessagesNode)
+                .insert(ChatMessagesBGNode)
+                .with_children(|parent| {
+                    chat_messages_node = parent
+                        .spawn((
+                            NodeBundle {
+                                style: Style {
+                                    flex_direction: FlexDirection::ColumnReverse,
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            },
+                            ScrollingList::default(),
+                            AccessibilityNode(NodeBuilder::new(Role::List)),
+                        ))
+                        .insert(ChatMessagesNode)
+                        .id();
+                })
                 .id();
 
-            console_messages_node = parent
+            console_messages_bg_node = parent
                 .spawn(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.), Val::Percent(35.)),
@@ -149,7 +177,23 @@ pub(crate) fn build_communication_ui(
 
                     ..Default::default()
                 })
-                .insert(ConsoleMessagesNode)
+                .insert(ConsoleMessagesBGNode)
+                .with_children(|parent| {
+                    console_messages_node = parent
+                        .spawn((
+                            NodeBundle {
+                                style: Style {
+                                    flex_direction: FlexDirection::ColumnReverse,
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            },
+                            ScrollingList::default(),
+                            AccessibilityNode(NodeBuilder::new(Role::List)),
+                        ))
+                        .insert(ConsoleMessagesNode)
+                        .id();
+                })
                 .id();
         });
 
@@ -241,6 +285,8 @@ pub(crate) fn build_communication_ui(
         communication_input_focused: false,
         console_messages_node,
         is_displaying_console: false,
+        console_messages_bg_node,
+        chat_messages_bg_node,
     });
 }
 
@@ -288,3 +334,5 @@ pub(crate) fn console_welcome_message(
         )],
     });
 }
+
+pub const MESSAGES_DEFAULT_MAX_WIDTH: f32 = 380.;

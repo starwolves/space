@@ -1,6 +1,11 @@
 use bevy::{
+    a11y::{
+        accesskit::{NodeBuilder, Role},
+        AccessibilityNode,
+    },
     prelude::{
-        AssetServer, BuildChildren, Commands, EventReader, EventWriter, NodeBundle, Res, TextBundle,
+        AssetServer, BuildChildren, Commands, EventReader, EventWriter, Label, NodeBundle, Res,
+        TextBundle,
     },
     text::{TextSection, TextStyle},
     ui::{FlexDirection, Size, Style, Val},
@@ -9,7 +14,7 @@ use chat::net::ChatServerMessage;
 use networking::client::IncomingReliableServerMessage;
 use ui::fonts::Fonts;
 
-use super::build::HudCommunicationState;
+use super::build::{HudCommunicationState, MESSAGES_DEFAULT_MAX_WIDTH};
 
 pub(crate) fn receive_chat_message(
     mut net: EventReader<IncomingReliableServerMessage<ChatServerMessage>>,
@@ -53,14 +58,23 @@ pub(crate) fn display_chat_message(
             .spawn(NodeBundle {
                 style: Style {
                     size: Size::new(Val::Auto, Val::Auto),
-                    flex_direction: FlexDirection::Column,
+                    flex_direction: FlexDirection::Row,
 
                     ..Default::default()
                 },
                 ..Default::default()
             })
+            .insert((Label, AccessibilityNode(NodeBuilder::new(Role::ListItem))))
             .with_children(|parent| {
-                parent.spawn(TextBundle::from_sections(event.sections.clone()));
+                parent.spawn(
+                    TextBundle::from_sections(event.sections.clone()).with_style(Style {
+                        max_size: Size {
+                            width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
+                            height: Val::Undefined,
+                        },
+                        ..Default::default()
+                    }),
+                );
             })
             .id();
 

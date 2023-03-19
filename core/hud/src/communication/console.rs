@@ -1,6 +1,11 @@
 use bevy::{
+    a11y::{
+        accesskit::{NodeBuilder, Role},
+        AccessibilityNode,
+    },
     prelude::{
-        AssetServer, BuildChildren, Commands, EventReader, EventWriter, NodeBundle, Res, TextBundle,
+        AssetServer, BuildChildren, Commands, EventReader, EventWriter, Label, NodeBundle, Res,
+        TextBundle,
     },
     text::{TextSection, TextStyle},
     ui::{FlexDirection, Size, Style, Val},
@@ -11,7 +16,7 @@ use console_commands::net::{
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use ui::fonts::{Fonts, SOURCECODE_REGULAR_FONT};
 
-use super::build::{HudCommunicationState, CONSOLE_FONT_COLOR};
+use super::build::{HudCommunicationState, CONSOLE_FONT_COLOR, MESSAGES_DEFAULT_MAX_WIDTH};
 
 pub fn console_input(
     mut events: EventReader<ClientSideConsoleInput>,
@@ -89,14 +94,23 @@ pub(crate) fn display_console_message(
             .spawn(NodeBundle {
                 style: Style {
                     size: Size::new(Val::Auto, Val::Auto),
-                    flex_direction: FlexDirection::Column,
+                    flex_direction: FlexDirection::Row,
 
                     ..Default::default()
                 },
                 ..Default::default()
             })
+            .insert((Label, AccessibilityNode(NodeBuilder::new(Role::ListItem))))
             .with_children(|parent| {
-                parent.spawn(TextBundle::from_sections(sections.clone()));
+                parent.spawn(
+                    TextBundle::from_sections(sections.clone()).with_style(Style {
+                        max_size: Size {
+                            width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
+                            height: Val::Undefined,
+                        },
+                        ..Default::default()
+                    }),
+                );
             })
             .id();
 
