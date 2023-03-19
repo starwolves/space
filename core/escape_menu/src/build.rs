@@ -4,7 +4,9 @@ use bevy::{
         Res, Resource, TextBundle,
     },
     text::TextStyle,
-    ui::{AlignItems, Display, FlexDirection, FlexWrap, JustifyContent, Size, Style, Val},
+    ui::{
+        AlignItems, Display, FlexDirection, FlexWrap, JustifyContent, Overflow, Size, Style, Val,
+    },
 };
 use resources::binds::KeyBinds;
 use ui::{
@@ -208,6 +210,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                 size: Size::new(Val::Percent(100.), Val::Percent(100.)),
                                 display: Display::None,
                                 flex_direction: FlexDirection::Column,
+                                overflow: Overflow::Hidden,
+
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -340,6 +344,7 @@ pub(crate) fn build_controls_section(
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     flex_wrap: FlexWrap::Wrap,
+
                     ..Default::default()
                 },
                 ..Default::default()
@@ -349,7 +354,7 @@ pub(crate) fn build_controls_section(
                 parent
                     .spawn(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Percent(60.), Val::Percent(6.)),
+                            size: Size::new(Val::Percent(60.), Val::Auto),
                             flex_direction: FlexDirection::Row,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
@@ -378,7 +383,7 @@ pub(crate) fn build_controls_section(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(10.), Val::Percent(100.)),
+                                    size: Size::new(Val::Percent(10.), Val::Auto),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -387,7 +392,7 @@ pub(crate) fn build_controls_section(
                                 parent
                                     .spawn(ButtonBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                            size: Size::new(Val::Percent(100.), Val::Auto),
                                             flex_direction: FlexDirection::Row,
                                             justify_content: JustifyContent::Center,
                                             align_items: AlignItems::Center,
