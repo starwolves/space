@@ -183,12 +183,12 @@ pub fn default_input_map(
     ));
 
     for (key, dir) in [
-        (binds.bind(MOVE_FORWARD_BIND.to_string()), Vec3::Z),
-        (binds.bind(MOVE_LEFT_BIND.to_string()), Vec3::X),
-        (binds.bind(MOVE_BACKWARD_BIND.to_string()), -Vec3::Z),
-        (binds.bind(MOVE_RIGHT_BIND.to_string()), -Vec3::X),
-        (binds.bind(HOLD_SPRINT_BIND.to_string()), -Vec3::Y),
-        (binds.bind(JUMP_BIND.to_string()), Vec3::Y),
+        (binds.bind(MOVE_FORWARD_BIND), Vec3::Z),
+        (binds.bind(MOVE_LEFT_BIND), Vec3::X),
+        (binds.bind(MOVE_BACKWARD_BIND), -Vec3::Z),
+        (binds.bind(MOVE_RIGHT_BIND), -Vec3::X),
+        (binds.bind(HOLD_SPRINT_BIND), -Vec3::Y),
+        (binds.bind(JUMP_BIND), Vec3::Y),
     ]
     .iter()
     .cloned()

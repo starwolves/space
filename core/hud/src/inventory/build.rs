@@ -186,8 +186,7 @@ pub(crate) fn inventory_hud_key_press(
     focus: Res<TextInput>,
     binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(binds.bind(TOGGLE_INVENTORY.to_string())) && focus.focused_input.is_none()
-    {
+    if keys.just_pressed(binds.bind(TOGGLE_INVENTORY)) && focus.focused_input.is_none() {
         event2.send(OpenInventoryHud { open: !state.open });
     }
 }

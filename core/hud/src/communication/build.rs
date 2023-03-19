@@ -49,9 +49,7 @@ pub(crate) fn toggle_console_button(
     text_input: Res<TextInput>,
     binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(binds.bind(TOGGLE_CONSOLE_BIND.to_string()))
-        && text_input.focused_input.is_none()
-    {
+    if keys.just_pressed(binds.bind(TOGGLE_CONSOLE_BIND)) && text_input.focused_input.is_none() {
         state.is_displaying_console = true;
         match style_query.get_mut(state.chat_messages_node) {
             Ok(mut style) => {

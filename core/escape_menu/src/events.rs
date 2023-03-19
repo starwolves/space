@@ -39,7 +39,7 @@ pub(crate) fn esc_button_menu(
     keys: Res<KeyBinds>,
     keys2: Res<Input<KeyCode>>,
 ) {
-    if keys2.just_pressed(keys.bind(ESC_MENU_BIND.to_owned())) {
+    if keys2.just_pressed(keys.bind(ESC_MENU_BIND)) {
         events.send(ToggleEscapeMenu {
             enabled: !state.visible,
         });
