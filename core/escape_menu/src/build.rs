@@ -1,17 +1,23 @@
 use bevy::{
+    a11y::{
+        accesskit::{NodeBuilder, Role},
+        AccessibilityNode,
+    },
     prelude::{
-        AssetServer, BuildChildren, ButtonBundle, Color, Commands, Component, Entity, NodeBundle,
-        Res, Resource, TextBundle,
+        AssetServer, BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label,
+        NodeBundle, Res, Resource, TextBundle,
     },
     text::TextStyle,
     ui::{
-        AlignItems, Display, FlexDirection, FlexWrap, JustifyContent, Overflow, Size, Style, Val,
+        AlignItems, Display, FlexDirection, FlexWrap, JustifyContent, Overflow, Size, Style,
+        UiRect, Val,
     },
 };
 use resources::binds::KeyBinds;
 use ui::{
     button::ButtonVisuals,
     fonts::{ARIZONE_FONT, SOURCECODE_REGULAR_FONT},
+    scrolling::ScrollingList,
 };
 
 #[derive(Component)]
@@ -21,14 +27,22 @@ pub struct GeneralSection;
 #[derive(Component)]
 pub struct ControlsSection;
 #[derive(Component)]
+pub struct ControlsBGSection;
+#[derive(Component)]
 pub struct GraphicsSection;
+#[derive(Component)]
+pub struct GraphicsBGSection;
 
 #[derive(Resource)]
 pub struct EscapeMenuState {
     pub root: Entity,
     pub visible: bool,
     pub controls_section: Entity,
+    pub controls_bg_section: Entity,
+
     pub graphics_section: Entity,
+    pub graphics_bg_section: Entity,
+
     pub general_section: Entity,
 }
 #[derive(Component)]
@@ -40,9 +54,11 @@ pub struct GraphicsHeaderButton;
 
 pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let sourcecode_font = asset_server.load(ARIZONE_FONT);
-    let mut controls_section_entity = Entity::from_bits(0);
-    let mut graphics_section_entity = Entity::from_bits(0);
+    let mut controls_bg_section_entity = Entity::from_bits(0);
+    let mut graphics_bg_section_entity = Entity::from_bits(0);
     let mut general_section_entity = Entity::from_bits(0);
+    let mut controls_section = Entity::from_bits(0);
+    let mut graphics_section_entity = Entity::from_bits(0);
 
     let escape_root = commands
         .spawn(NodeBundle {
@@ -204,7 +220,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                         });
                                 });
                         });
-                    controls_section_entity = parent
+                    controls_bg_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.), Val::Percent(100.)),
@@ -216,9 +232,25 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             },
                             ..Default::default()
                         })
-                        .insert(ControlsSection)
+                        .with_children(|parent| {
+                            controls_section = parent
+                                .spawn((NodeBundle {
+                                    style: Style {
+                                        flex_direction: FlexDirection::Column,
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                },))
+                                .insert((
+                                    ScrollingList::default(),
+                                    AccessibilityNode(NodeBuilder::new(Role::List)),
+                                ))
+                                .insert(ControlsSection)
+                                .id();
+                        })
+                        .insert(ControlsBGSection)
                         .id();
-                    graphics_section_entity = parent
+                    graphics_bg_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.), Val::Percent(100.)),
@@ -228,7 +260,23 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             },
                             ..Default::default()
                         })
-                        .insert(GraphicsSection)
+                        .with_children(|parent| {
+                            graphics_section_entity = parent
+                                .spawn((NodeBundle {
+                                    style: Style {
+                                        flex_direction: FlexDirection::Column,
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                },))
+                                .insert((
+                                    ScrollingList::default(),
+                                    AccessibilityNode(NodeBuilder::new(Role::List)),
+                                ))
+                                .insert(GraphicsSection)
+                                .id();
+                        })
+                        .insert(GraphicsBGSection)
                         .id();
                     general_section_entity = parent
                         .spawn(NodeBundle {
@@ -315,9 +363,11 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
     commands.insert_resource(EscapeMenuState {
         root: escape_root,
         visible: false,
-        controls_section: controls_section_entity,
+        controls_section,
+        controls_bg_section: controls_bg_section_entity,
         graphics_section: graphics_section_entity,
         general_section: general_section_entity,
+        graphics_bg_section: graphics_bg_section_entity,
     })
 }
 #[derive(Component)]
@@ -337,35 +387,22 @@ pub(crate) fn build_controls_section(
     commands
         .entity(state.controls_section)
         .with_children(|parent| {
-            parent.spawn(NodeBundle {
-                style: Style {
-                    size: Size::new(Val::Percent(100.), Val::Percent(10.)),
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    flex_wrap: FlexWrap::Wrap,
-
-                    ..Default::default()
-                },
-                ..Default::default()
-            });
-
             for (bind_id, bind) in binds.list.iter() {
                 parent
                     .spawn(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Percent(60.), Val::Auto),
+                            size: Size::new(Val::Auto, Val::Auto),
                             flex_direction: FlexDirection::Row,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
                             flex_wrap: FlexWrap::Wrap,
+                            padding: UiRect::left(Val::Percent(2.5)),
                             ..Default::default()
                         },
                         ..Default::default()
                     })
+                    .insert((Label, AccessibilityNode(NodeBuilder::new(Role::ListItem))))
                     .with_children(|parent| {
                         parent.spawn(TextBundle::from_section(
-                            bind.name.clone(),
+                            bind.name.clone() + ": ",
                             TextStyle {
                                 font: source_code.clone(),
                                 font_size: 12.0,
@@ -396,7 +433,6 @@ pub(crate) fn build_controls_section(
                                             flex_direction: FlexDirection::Row,
                                             justify_content: JustifyContent::Center,
                                             align_items: AlignItems::Center,
-                                            flex_wrap: FlexWrap::Wrap,
                                             ..Default::default()
                                         },
                                         ..Default::default()
@@ -419,4 +455,14 @@ pub(crate) fn build_controls_section(
                     });
             }
         });
+}
+
+pub(crate) fn build_graphics_section(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    state: Res<EscapeMenuState>,
+) {
+    commands
+        .entity(state.graphics_section)
+        .with_children(|parent| {});
 }
