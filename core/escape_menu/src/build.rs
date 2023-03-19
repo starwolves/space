@@ -6,7 +6,11 @@ use bevy::{
     text::TextStyle,
     ui::{AlignItems, Display, FlexDirection, FlexWrap, JustifyContent, Size, Style, Val},
 };
-use ui::{button::ButtonVisuals, fonts::ARIZONE_FONT};
+use resources::binds::KeyBinds;
+use ui::{
+    button::ButtonVisuals,
+    fonts::{ARIZONE_FONT, SOURCECODE_REGULAR_FONT},
+};
 
 #[derive(Component)]
 pub struct EscapeMenuRoot;
@@ -21,6 +25,9 @@ pub struct GraphicsSection;
 pub struct EscapeMenuState {
     pub root: Entity,
     pub visible: bool,
+    pub controls_section: Entity,
+    pub graphics_section: Entity,
+    pub general_section: Entity,
 }
 #[derive(Component)]
 pub struct ControlsHeaderButton;
@@ -31,6 +38,10 @@ pub struct GraphicsHeaderButton;
 
 pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let sourcecode_font = asset_server.load(ARIZONE_FONT);
+    let mut controls_section_entity = Entity::from_bits(0);
+    let mut graphics_section_entity = Entity::from_bits(0);
+    let mut general_section_entity = Entity::from_bits(0);
+
     let escape_root = commands
         .spawn(NodeBundle {
             style: Style {
@@ -191,7 +202,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                         });
                                 });
                         });
-                    parent
+                    controls_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.), Val::Percent(100.)),
@@ -201,8 +212,9 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             },
                             ..Default::default()
                         })
-                        .insert(ControlsSection);
-                    parent
+                        .insert(ControlsSection)
+                        .id();
+                    graphics_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.), Val::Percent(100.)),
@@ -212,8 +224,9 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             },
                             ..Default::default()
                         })
-                        .insert(GraphicsSection);
-                    parent
+                        .insert(GraphicsSection)
+                        .id();
+                    general_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(100.), Val::Percent(100.)),
@@ -290,14 +303,115 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                                 });
                                         });
                                 });
-                        });
+                        })
+                        .id();
                 });
         })
         .id();
     commands.insert_resource(EscapeMenuState {
         root: escape_root,
         visible: false,
+        controls_section: controls_section_entity,
+        graphics_section: graphics_section_entity,
+        general_section: general_section_entity,
     })
 }
 #[derive(Component)]
 pub struct ExitGameButton;
+#[derive(Component)]
+pub struct BindButton {
+    pub bind_id: String,
+}
+
+pub(crate) fn build_controls_section(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    state: Res<EscapeMenuState>,
+    binds: Res<KeyBinds>,
+) {
+    let source_code = asset_server.load(SOURCECODE_REGULAR_FONT);
+    commands
+        .entity(state.controls_section)
+        .with_children(|parent| {
+            parent.spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    flex_wrap: FlexWrap::Wrap,
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
+
+            for (bind_id, bind) in binds.list.iter() {
+                parent
+                    .spawn(NodeBundle {
+                        style: Style {
+                            size: Size::new(Val::Percent(60.), Val::Percent(6.)),
+                            flex_direction: FlexDirection::Row,
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            flex_wrap: FlexWrap::Wrap,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    })
+                    .with_children(|parent| {
+                        parent.spawn(TextBundle::from_section(
+                            bind.name.clone(),
+                            TextStyle {
+                                font: source_code.clone(),
+                                font_size: 12.0,
+                                color: Color::WHITE.into(),
+                            },
+                        ));
+                        parent.spawn(TextBundle::from_section(
+                            bind.description.clone(),
+                            TextStyle {
+                                font: source_code.clone(),
+                                font_size: 12.0,
+                                color: Color::WHITE.into(),
+                            },
+                        ));
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(10.), Val::Percent(100.)),
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn(ButtonBundle {
+                                        style: Style {
+                                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                            flex_direction: FlexDirection::Row,
+                                            justify_content: JustifyContent::Center,
+                                            align_items: AlignItems::Center,
+                                            flex_wrap: FlexWrap::Wrap,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    })
+                                    .insert(ButtonVisuals::default())
+                                    .insert(BindButton {
+                                        bind_id: bind_id.clone(),
+                                    })
+                                    .with_children(|parent| {
+                                        parent.spawn(TextBundle::from_section(
+                                            format!("{:?}", bind.key_code),
+                                            TextStyle {
+                                                font: source_code.clone(),
+                                                font_size: 12.0,
+                                                color: Color::WHITE.into(),
+                                            },
+                                        ));
+                                    });
+                            });
+                    });
+            }
+        });
+}

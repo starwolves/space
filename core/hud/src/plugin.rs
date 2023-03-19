@@ -13,9 +13,12 @@ use crate::{
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
     hud::{create_hud, show_hud, ExpandedLeftContentHud},
-    input::text_tree_selection::{
-        create_text_tree_selection, hide_text_tree_selection, text_tree_select_button,
-        text_tree_select_submit_button, TextTreeInputSelectionState, TextTreeSelectionState,
+    input::{
+        binds::register_input,
+        text_tree_selection::{
+            create_text_tree_selection, hide_text_tree_selection, text_tree_select_button,
+            text_tree_select_submit_button, TextTreeInputSelectionState, TextTreeSelectionState,
+        },
     },
     inventory::{
         actions::{hide_actions, item_actions_button_events, slot_item_actions},
@@ -111,7 +114,8 @@ impl Plugin for HudPlugin {
                 .add_event::<DisplayChatMessage>()
                 .add_system(display_chat_message)
                 .add_system(update_server_stats)
-                .init_resource::<ServerStatsState>();
+                .init_resource::<ServerStatsState>()
+                .add_startup_system(register_input);
         }
     }
 }

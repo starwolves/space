@@ -15,7 +15,7 @@ use crate::{
     connections::configure,
     construction::{
         change_ghost_tile_request, client_mouse_click_input, create_select_cell_cam_state,
-        input_ghost_rotation, input_yplane_position, move_ylevel_plane,
+        input_ghost_rotation, input_yplane_position, move_ylevel_plane, register_input,
         select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, update_ghost_cell,
         ConstructionCellSelectionChanged, GhostTileLabel, SetYPlanePosition,
     },
@@ -92,7 +92,8 @@ impl Plugin for GridmapPlugin {
                 .add_system(input_ghost_rotation.after(GhostTileLabel::Update))
                 .add_system(client_mouse_click_input)
                 .add_system(add_cell_client)
-                .add_system(remove_cell_client);
+                .add_system(remove_cell_client)
+                .add_startup_system(register_input);
         }
 
         app.add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
