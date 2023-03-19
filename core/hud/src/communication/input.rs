@@ -5,10 +5,13 @@ use bevy::{
 use chat::net::ChatClientMessage;
 use console_commands::net::ClientSideConsoleInput;
 use networking::client::OutgoingReliableClientMessage;
-use resources::{hud::HudState, ui::TextInput};
+use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
 
-use crate::inventory::build::OpenHud;
+use crate::{
+    input::binds::{SUBMIT_CONSOLE_BIND, TOGGLE_CHAT},
+    inventory::build::OpenHud,
+};
 
 use super::build::HudCommunicationState;
 
@@ -20,10 +23,11 @@ pub(crate) fn text_input(
     mut net: EventWriter<OutgoingReliableClientMessage<ChatClientMessage>>,
     state: Res<HudCommunicationState>,
     mut console: EventWriter<ClientSideConsoleInput>,
+    binds: Res<KeyBinds>,
 ) {
     match text_input_state.focused_input {
         Some(focused_input_entity) => {
-            if keyboard.just_pressed(KeyCode::Return) {
+            if keyboard.just_pressed(binds.bind(SUBMIT_CONSOLE_BIND.to_string())) {
                 match text_node_query.get_mut(focused_input_entity) {
                     Ok((mut text_input_component, children)) => {
                         for child in children {
@@ -70,8 +74,9 @@ pub(crate) fn tab_communication_input_toggle(
     mut focus_event: EventWriter<FocusTextInput>,
     mut unfocus_event: EventWriter<UnfocusTextInput>,
     hud_state: Res<HudState>,
+    binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(KeyCode::Tab) {
+    if keys.just_pressed(binds.bind(TOGGLE_CHAT.to_string())) {
         let is_focused = hud_state.expanded;
 
         if is_focused {

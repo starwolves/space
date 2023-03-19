@@ -10,7 +10,7 @@ use bevy::{
     ui::{Display, FlexDirection, Interaction, Overflow, Size, Style, Val},
 };
 use cargo_toml::Manifest;
-use resources::{hud::HudState, ui::TextInput};
+use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::{
     button::ButtonVisuals,
     fonts::SOURCECODE_REGULAR_FONT,
@@ -18,7 +18,7 @@ use ui::{
     text_input::{CharacterFilter, FocusTextInput, TextInputNode},
 };
 
-use crate::inventory::build::OpenHud;
+use crate::{input::binds::TOGGLE_CONSOLE_BIND, inventory::build::OpenHud};
 
 use super::console::DisplayConsoleMessage;
 #[derive(Component)]
@@ -47,8 +47,11 @@ pub(crate) fn toggle_console_button(
     mut focus_event: EventWriter<FocusTextInput>,
     mut open_hud: EventWriter<OpenHud>,
     text_input: Res<TextInput>,
+    binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(KeyCode::Grave) && text_input.focused_input.is_none() {
+    if keys.just_pressed(binds.bind(TOGGLE_CONSOLE_BIND.to_string()))
+        && text_input.focused_input.is_none()
+    {
         state.is_displaying_console = true;
         match style_query.get_mut(state.chat_messages_node) {
             Ok(mut style) => {

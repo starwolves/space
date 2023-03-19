@@ -6,7 +6,10 @@ use bevy::{
     ui::{Display, Interaction, Style},
 };
 use hud::inventory::build::OpenHud;
-use resources::hud::HudState;
+use resources::{
+    binds::{KeyBind, KeyBinds},
+    hud::HudState,
+};
 
 use crate::build::{
     ControlsHeaderButton, ControlsSection, EscapeMenuState, ExitGameButton, GeneralHeaderButton,
@@ -17,12 +20,26 @@ pub struct ToggleEscapeMenu {
     pub enabled: bool,
 }
 
+pub const ESC_MENU_BIND: &str = "escMenu";
+
+pub(crate) fn register_input(mut keys: ResMut<KeyBinds>) {
+    keys.list.insert(
+        ESC_MENU_BIND.to_string(),
+        KeyBind {
+            key_code: KeyCode::Escape,
+            description: "Toggles the escape menu.".to_string(),
+            name: "Escape Menu".to_string(),
+        },
+    );
+}
+
 pub(crate) fn esc_button_menu(
-    keys: Res<Input<KeyCode>>,
     mut events: EventWriter<ToggleEscapeMenu>,
     state: Res<EscapeMenuState>,
+    keys: Res<KeyBinds>,
+    keys2: Res<Input<KeyCode>>,
 ) {
-    if keys.just_pressed(KeyCode::Escape) {
+    if keys2.just_pressed(keys.bind(ESC_MENU_BIND.to_owned())) {
         events.send(ToggleEscapeMenu {
             enabled: !state.visible,
         });

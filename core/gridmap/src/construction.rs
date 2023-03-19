@@ -16,6 +16,7 @@ use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
 use resources::{
+    binds::{KeyBind, KeyBinds},
     grid::{CellFace, TargetCell},
     hud::HudState,
 };
@@ -194,19 +195,78 @@ pub(crate) fn set_yplane_position(
     }
 }
 
+pub const YPLANE_MOVE_UP_BIND: &str = "yplaneMoveUp";
+pub const YPLANE_MOVE_DOWN_BIND: &str = "yplaneMoveDown";
+pub const ROTATE_CONSTRUCTION_LEFT_BIND: &str = "rotateMapConstructionLeft";
+pub const ROTATE_CONSTRUCTION_RIGHT_BIND: &str = "rotateMapConstructionRight";
+pub const ROTATE_CONSTRUCTION_UP_BIND: &str = "rotateMapConstructionUp";
+pub const ROTATE_CONSTRUCTION_DOWN_BIND: &str = "rotateMapConstructionDown";
+
+pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
+    binds.list.insert(
+        YPLANE_MOVE_UP_BIND.to_string(),
+        KeyBind {
+            key_code: KeyCode::E,
+            description: "Increase y-level of gridmap construction.".to_string(),
+            name: "Map Construction add height".to_string(),
+        },
+    );
+    binds.list.insert(
+        YPLANE_MOVE_DOWN_BIND.to_string(),
+        KeyBind {
+            key_code: KeyCode::Q,
+            description: "Decrease y-level of gridmap construction.".to_string(),
+            name: "Map Construction decrease height".to_string(),
+        },
+    );
+    binds.list.insert(
+        ROTATE_CONSTRUCTION_LEFT_BIND.to_string(),
+        KeyBind {
+            key_code: KeyCode::Left,
+            description: "Rotates map construction.".to_string(),
+            name: "Map Construction Rotate Left".to_string(),
+        },
+    );
+    binds.list.insert(
+        ROTATE_CONSTRUCTION_RIGHT_BIND.to_string(),
+        KeyBind {
+            key_code: KeyCode::Right,
+            description: "Rotates map construction.".to_string(),
+            name: "Map Construction Rotate Right".to_string(),
+        },
+    );
+    binds.list.insert(
+        ROTATE_CONSTRUCTION_UP_BIND.to_string(),
+        KeyBind {
+            key_code: KeyCode::Up,
+            description: "Rotates map construction.".to_string(),
+            name: "Map Construction Rotate Up".to_string(),
+        },
+    );
+    binds.list.insert(
+        ROTATE_CONSTRUCTION_DOWN_BIND.to_string(),
+        KeyBind {
+            key_code: KeyCode::Down,
+            description: "Rotates map construction.".to_string(),
+            name: "Map Construction Rotate Down".to_string(),
+        },
+    );
+}
+
 pub(crate) fn input_yplane_position(
     keys: Res<Input<KeyCode>>,
     state: Res<GridmapConstructionState>,
     mut events: EventWriter<SetYPlanePosition>,
     focus: Res<TextInput>,
+    binds: Res<KeyBinds>,
 ) {
     if state.is_constructing && focus.focused_input.is_none() {
-        if keys.just_pressed(KeyCode::Q) {
+        if keys.just_pressed(binds.bind(YPLANE_MOVE_DOWN_BIND.to_string())) {
             events.send(SetYPlanePosition {
                 y: state.y_level - 1,
             });
         }
-        if keys.just_pressed(KeyCode::E) {
+        if keys.just_pressed(binds.bind(YPLANE_MOVE_UP_BIND.to_string())) {
             events.send(SetYPlanePosition {
                 y: state.y_level + 1,
             });
@@ -219,6 +279,7 @@ pub(crate) fn input_ghost_rotation(
     gridmap: Res<Gridmap>,
     mut ghost_query: Query<&mut Transform, With<GhostTileComponent>>,
     mut events: EventReader<ConstructionCellSelectionChanged>,
+    binds: Res<KeyBinds>,
 ) {
     if !state.is_constructing {
         return;
@@ -229,17 +290,17 @@ pub(crate) fn input_ghost_rotation(
         changed = true;
     }
 
-    if keys.just_pressed(KeyCode::Left) {
+    if keys.just_pressed(binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND.to_string())) {
         // x
         changed = true;
     }
-    if keys.just_pressed(KeyCode::Right) {
+    if keys.just_pressed(binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND.to_string())) {
         changed = true;
     }
-    if keys.just_pressed(KeyCode::Down) {
+    if keys.just_pressed(binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND.to_string())) {
         changed = true;
     }
-    if keys.just_pressed(KeyCode::Up) {
+    if keys.just_pressed(binds.bind(ROTATE_CONSTRUCTION_UP_BIND.to_string())) {
         changed = true;
     }
     if !changed {
@@ -256,7 +317,9 @@ pub(crate) fn input_ghost_rotation(
                             let mut new_rotation = state.ghost_rotation;
                             match properties.cell_type {
                                 crate::grid::CellType::Wall => {
-                                    if keys.just_pressed(KeyCode::Left) {
+                                    if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND.to_string()),
+                                    ) {
                                         match state.ghost_face {
                                             CellFace::FrontWall => {
                                                 new_face = CellFace::LeftWall;
@@ -274,7 +337,9 @@ pub(crate) fn input_ghost_rotation(
                                                 warn!("Invalid wall rotation.");
                                             }
                                         }
-                                    } else if keys.just_pressed(KeyCode::Right) {
+                                    } else if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND.to_string()),
+                                    ) {
                                         match state.ghost_face {
                                             CellFace::FrontWall => {
                                                 new_face = CellFace::RightWall;
@@ -292,12 +357,16 @@ pub(crate) fn input_ghost_rotation(
                                                 warn!("Invalid wall rotation.");
                                             }
                                         }
-                                    } else if keys.just_pressed(KeyCode::Down) {
+                                    } else if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Y, PI);
                                         new_rotation = rotation.get_orthogonal_index();
-                                    } else if keys.just_pressed(KeyCode::Up) {
+                                    } else if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_UP_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Z, PI / 2.0);
@@ -305,17 +374,23 @@ pub(crate) fn input_ghost_rotation(
                                     }
                                 }
                                 crate::grid::CellType::Floor => {
-                                    if keys.just_pressed(KeyCode::Left) {
+                                    if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
                                         new_rotation = rotation.get_orthogonal_index();
-                                    } else if keys.just_pressed(KeyCode::Right) {
+                                    } else if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
                                         new_rotation = rotation.get_orthogonal_index();
-                                    } else if keys.just_pressed(KeyCode::Down) {
+                                    } else if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::X, PI);
@@ -323,17 +398,23 @@ pub(crate) fn input_ghost_rotation(
                                     }
                                 }
                                 crate::grid::CellType::Center => {
-                                    if keys.just_pressed(KeyCode::Left) {
+                                    if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::X, PI / 2.);
                                         new_rotation = rotation.get_orthogonal_index();
-                                    } else if keys.just_pressed(KeyCode::Right) {
+                                    } else if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Z, PI / 2.);
                                         new_rotation = rotation.get_orthogonal_index();
-                                    } else if keys.just_pressed(KeyCode::Down) {
+                                    } else if keys.just_pressed(
+                                        binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND.to_string()),
+                                    ) {
                                         let mut rotation = OrthogonalBases::default().bases
                                             [state.ghost_rotation as usize];
                                         rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);

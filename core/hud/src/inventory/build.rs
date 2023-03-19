@@ -10,10 +10,12 @@ use bevy::{
     ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
 use player::configuration::Boarded;
-use resources::{hud::HudState, ui::TextInput};
+use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::fonts::ARIZONE_FONT;
 
-use crate::{expand::ExpandInventoryHud, hud::ExpandedLeftContentHud};
+use crate::{
+    expand::ExpandInventoryHud, hud::ExpandedLeftContentHud, input::binds::TOGGLE_INVENTORY,
+};
 
 use super::slots::InventorySlotsNode;
 
@@ -182,8 +184,10 @@ pub(crate) fn inventory_hud_key_press(
 
     state: Res<InventoryHudState>,
     focus: Res<TextInput>,
+    binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(KeyCode::I) && focus.focused_input.is_none() {
+    if keys.just_pressed(binds.bind(TOGGLE_INVENTORY.to_string())) && focus.focused_input.is_none()
+    {
         event2.send(OpenInventoryHud { open: !state.open });
     }
 }
