@@ -16,7 +16,7 @@ use bevy::{
 use cargo_toml::Manifest;
 use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::{
-    button::ButtonVisuals,
+    button::SFButton,
     fonts::SOURCECODE_REGULAR_FONT,
     scrolling::ScrollingListInverted,
     text::COMMUNICATION_FONT_SIZE,
@@ -265,7 +265,7 @@ pub(crate) fn build_communication_ui(
                                         ..Default::default()
                                     },
                                     ToggleConsoleButton,
-                                    ButtonVisuals::default(),
+                                    SFButton::default(),
                                 ))
                                 .with_children(|parent| {
                                     parent.spawn(TextBundle::from_section(

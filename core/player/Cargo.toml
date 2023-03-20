@@ -24,6 +24,7 @@ bevy_atmosphere = { git = "https://github.com/BrandonDyer64/bevy_atmosphere.git"
 networking = { path = "../networking" }
 text_api = { path = "../text_api" }
 resources = { path = "../resources" }
+graphics = { path = "../graphics" }
 pawn = { path = "../pawn" }
 cameras = { path = "../cameras" }
 entity = { path = "../entity" }

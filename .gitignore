@@ -7,3 +7,4 @@ Cargo.lock
 /.vscode
 /benches/target
 rust-toolchain.toml
+/data/settings/*
