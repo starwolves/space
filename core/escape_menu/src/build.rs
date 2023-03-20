@@ -540,7 +540,7 @@ pub(crate) fn build_graphics_section(
                                 .spawn(NodeBundle {
                                     style: Style {
                                         size: Size::new(Val::Percent(5.), Val::Auto),
-                                        margin: UiRect::left(Val::Percent(1.5)),
+                                        margin: UiRect::left(Val::Percent(0.6)),
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
 
