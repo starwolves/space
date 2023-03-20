@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{
-        info, warn, Added, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands,
-        Component, Entity, EventReader, EventWriter, Parent, Query, Res, TextBundle, With,
+        warn, Added, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands, Component,
+        Entity, EventReader, EventWriter, Parent, Query, Res, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{BackgroundColor, Interaction, Style},
@@ -35,6 +35,7 @@ pub(crate) fn hlist_created(
                         style: Style {
                             ..Default::default()
                         },
+
                         background_color: Color::rgb(0.15, 0.15, 0.15).into(),
                         ..Default::default()
                     })
@@ -42,7 +43,7 @@ pub(crate) fn hlist_created(
                     .insert(HListSub { selection: i })
                     .with_children(|parent| {
                         parent.spawn(TextBundle::from_sections(vec![TextSection::new(
-                            selection.to_string(),
+                            " ".to_string() + selection + " ",
                             TextStyle {
                                 font: source_code.clone(),
                                 font_size: 12.,
@@ -62,11 +63,11 @@ pub(crate) fn hlist_created(
                     entity: hlist.selections_entities[s as usize],
                     id: s,
                     frozen: true,
+                    first_time_freeze: true,
                 });
             }
             None => {}
         }
-        hlist.selected = None;
     }
 }
 
@@ -91,13 +92,19 @@ pub(crate) fn hlist_input(
                         entity,
                         frozen: true,
                         id: hlist_sub.selection,
+                        first_time_freeze: false,
                     });
                     match hlist.selected {
                         Some(e) => {
+                            let ent = hlist.selections_entities[e as usize];
+                            if entity == ent {
+                                continue;
+                            }
                             freeze.send(FreezeButton {
-                                entity: hlist.selections_entities[e as usize],
+                                entity: ent,
                                 frozen: false,
                                 id: hlist_sub.selection,
+                                first_time_freeze: false,
                             });
                         }
                         None => {}
@@ -114,11 +121,12 @@ pub struct FreezeButton {
     pub entity: Entity,
     pub id: u8,
     pub frozen: bool,
+    pub first_time_freeze: bool,
 }
 
 pub(crate) fn freeze_button(
     mut events: EventReader<FreezeButton>,
-    mut query: Query<(&mut SFButton, &Parent)>,
+    mut query: Query<(&mut SFButton, &Parent), With<HListSub>>,
     mut bg_query: Query<&mut BackgroundColor>,
     mut hlist_query: Query<&mut HList>,
 ) {
@@ -132,7 +140,6 @@ pub(crate) fn freeze_button(
                 }
                 match bg_query.get_mut(event.entity) {
                     Ok(mut bg) => {
-                        info!("{:?}", event.entity);
                         *bg = b.pressed_color.into();
                     }
                     Err(_) => {
@@ -157,6 +164,9 @@ pub(crate) fn freeze_button(
                 match old_selection {
                     Some(old_ent) => match bg_query.get_mut(old_ent) {
                         Ok(mut bg) => {
+                            if event.first_time_freeze {
+                                continue;
+                            }
                             *bg = b.default_parent_color.into();
                         }
                         Err(_) => {
