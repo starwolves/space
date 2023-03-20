@@ -60,7 +60,7 @@ pub(crate) struct MainMenuExitButton;
 
 pub(crate) struct SpaceFrontiersHeader;
 use crate::events::SPACE_FRONTIERS_HEADER_TEXT_COLOR;
-use ui::button::ButtonVisuals;
+use ui::button::SFButton;
 
 pub(crate) fn on_submenu_connect_creation(
     query: Query<Entity, Added<IpAddressInput>>,
@@ -321,7 +321,7 @@ pub(crate) fn show_main_menu(
                                                     })
                                                     .insert((
                                                         MainMenuExitButton,
-                                                        ButtonVisuals::default(),
+                                                        SFButton::default(),
                                                     ))
                                                     .with_children(|parent| {
                                                         parent.spawn(()).insert(
@@ -361,7 +361,7 @@ pub(crate) fn show_main_menu(
                                                     })
                                                     .insert((
                                                         MainMenuSettingsButton,
-                                                        ButtonVisuals::default(),
+                                                        SFButton::default(),
                                                     ))
                                                     .with_children(|parent| {
                                                         parent.spawn(()).insert(
@@ -401,7 +401,7 @@ pub(crate) fn show_main_menu(
                                                     })
                                                     .insert((
                                                         MainMenuPlayButton,
-                                                        ButtonVisuals::default(),
+                                                        SFButton::default(),
                                                     ))
                                                     .with_children(|parent| {
                                                         parent.spawn(()).insert(
@@ -819,7 +819,7 @@ pub(crate) fn show_play_menu(
                                                         ..Default::default()
                                                     })
                                                     .insert((
-                                                        ButtonVisuals {
+                                                        SFButton {
                                                             pressed_color: Color::BLUE,
                                                             default_color_option: Some(
                                                                 HOVERED_BUTTON,

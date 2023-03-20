@@ -8,11 +8,12 @@ keywords = ["bevy", "camera"]
 edition = "2021"
 license = "MIT"
 
-[dependencies]
-approx = "0.5.1"
-serde = "1.0"
-resources = { path = "../resources" }
-
 [dependencies.bevy]
 version = "0.10.0"
 default-features = false
+
+[dependencies]
+approx = "0.5.1"
+serde = "1.0.150"
+
+resources = { path = "../resources" }

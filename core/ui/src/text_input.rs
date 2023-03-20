@@ -45,6 +45,7 @@ pub enum CharacterFilter {
     AccountName,
     ServerAddress,
     Chat,
+    Integer,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -348,6 +349,11 @@ pub(crate) fn input_characters(
                                                         valid_char = true;
                                                     }
                                                 }
+                                                CharacterFilter::Integer => {
+                                                    if char.is_numeric() {
+                                                        valid_char = true;
+                                                    }
+                                                }
                                             },
                                             None => {
                                                 valid_char = true;
@@ -394,6 +400,11 @@ pub(crate) fn input_characters(
                                                 || ev.char.is_ascii_alphanumeric()
                                                 || ev.char.is_ascii_graphic()
                                             {
+                                                valid_char = true;
+                                            }
+                                        }
+                                        CharacterFilter::Integer => {
+                                            if ev.char.is_numeric() {
                                                 valid_char = true;
                                             }
                                         }

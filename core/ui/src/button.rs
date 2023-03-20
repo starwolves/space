@@ -9,15 +9,16 @@ pub const PRESSED_BUTTON: Color = Color::rgb(0.49, 0.73, 0.91);
 /// Component for button visuals.
 
 #[derive(Component)]
-pub struct ButtonVisuals {
+pub struct SFButton {
     pub hovered_color: Color,
     pub pressed_color: Color,
     pub default_parent_color: Color,
     pub default_color_option: Option<Color>,
     pub color_parent: bool,
+    pub frozen: bool,
 }
 
-impl Default for ButtonVisuals {
+impl Default for SFButton {
     fn default() -> Self {
         Self {
             hovered_color: HOVERED_BUTTON,
@@ -25,6 +26,7 @@ impl Default for ButtonVisuals {
             default_parent_color: Color::rgb(0.15, 0.15, 0.15),
             default_color_option: None,
             color_parent: true,
+            frozen: false,
         }
     }
 }
@@ -38,7 +40,7 @@ use bevy::{
 
 pub(crate) fn button_hover_visuals(
     mut interaction_query: Query<
-        (Entity, &Interaction, &Parent, &ButtonVisuals),
+        (Entity, &Interaction, &Parent, &SFButton),
         (Changed<Interaction>, With<Button>),
     >,
     mut color_query: Query<&mut BackgroundColor>,
@@ -74,6 +76,9 @@ pub(crate) fn button_hover_visuals(
                 }
             }
             Interaction::Hovered => {
+                if button_visuals.frozen {
+                    continue;
+                }
                 if !primary.cursor.visible {
                     continue;
                 }
@@ -99,6 +104,9 @@ pub(crate) fn button_hover_visuals(
                 }
             }
             Interaction::None => {
+                if button_visuals.frozen {
+                    continue;
+                }
                 if button_visuals.color_parent {
                     match color_query.get_mut(parent.get()) {
                         Ok(mut c) => {

@@ -1,8 +1,8 @@
 [package]
-name = "escape_menu"
+name = "graphics"
 version = "0.0.3"
 authors = ["Nikita Ramses Abdoelrahman <ramses@starwolves.io>"]
-description = "The ESC menu."
+description = "Manages graphics preferences for performance and visual optimizations."
 homepage = "https://starwolves.io"
 repository = "https://gitlab.starwolves.io/starwolves/space"
 documentation = "https://docs.sf.starwolves.io"
@@ -16,8 +16,7 @@ version = "0.10.0"
 default-features = false
 
 [dependencies]
+serde = "1.0.150"
+ron = "0.8.0"
+
 resources = { path = "../resources" }
-hud = { path = "../hud" }
-ui = { path = "../ui" }
-main_menu= { path = "../main_menu" }
-graphics = { path = "../graphics" }

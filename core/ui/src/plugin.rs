@@ -4,6 +4,7 @@ use networking::messaging::{register_reliable_message, MessageSender};
 use crate::{
     button::button_hover_visuals,
     fonts::{init_fonts, Fonts},
+    hlist::{freeze_button, hlist_created, hlist_input, FreezeButton},
     net::{UiClientMessage, UiServerMessage},
     scrolling::{mouse_scroll, mouse_scroll_inverted},
     text_input::{
@@ -35,7 +36,11 @@ impl Plugin for UiPlugin {
                 .add_event::<SetText>()
                 .add_system(set_text_input_node_text)
                 .add_system(mouse_scroll_inverted)
-                .add_system(mouse_scroll);
+                .add_system(mouse_scroll)
+                .add_system(hlist_input)
+                .add_system(hlist_created)
+                .add_event::<FreezeButton>()
+                .add_system(freeze_button.before(hlist_created));
         }
         app.init_resource::<Fonts>().add_startup_system(init_fonts);
         register_reliable_message::<UiClientMessage>(app, MessageSender::Client);

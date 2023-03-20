@@ -1,7 +1,11 @@
-use bevy::prelude::{Camera3dBundle, Commands, EventReader, ResMut, Vec3};
+use bevy::{
+    core_pipeline::fxaa::Fxaa,
+    prelude::{Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3},
+};
 
 use bevy_atmosphere::prelude::AtmosphereCamera;
 use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraController};
+use graphics::settings::GraphicsSettings;
 use networking::client::IncomingReliableServerMessage;
 
 use crate::net::PlayerServerMessage;
@@ -14,12 +18,19 @@ pub(crate) fn spawn_debug_camera(
     mut messages: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     mut spawning: Local<bool>,
     mut state: ResMut<ActiveCamera>,
+    settings: Res<GraphicsSettings>,
 ) {
     // Skip one frame to prevent camera ambiguity.
     if *spawning {
         *spawning = false;
         let id = commands
-            .spawn(Camera3dBundle::default())
+            .spawn(Camera3dBundle {
+                camera: Camera {
+                    msaa_writeback: settings.msaa.is_enabled(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
             .insert(FpsCameraBundle::new(
                 FpsCameraController::default(),
                 Vec3::new(0., 1.8, 0.),
@@ -27,6 +38,10 @@ pub(crate) fn spawn_debug_camera(
                 Vec3::Y,
             ))
             .insert(AtmosphereCamera::default())
+            .insert(Fxaa {
+                enabled: settings.fxaa.is_some(),
+                ..Default::default()
+            })
             .id();
 
         state.option = Some(id);

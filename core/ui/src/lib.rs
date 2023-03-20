@@ -10,6 +10,8 @@ pub mod text_input;
 pub mod button;
 
 pub mod fonts;
+/// Horizontal list.
+pub mod hlist;
 /// The networking module of this crate.
 pub mod net;
 pub mod scrolling;

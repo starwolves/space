@@ -40,6 +40,7 @@ use controller::plugin::ControllerPlugin;
 use counter_windows::plugin::CounterWindowsPlugin;
 use entity::plugin::EntityPlugin;
 use escape_menu::plugin::EscapeMenuPlugin;
+use graphics::plugin::GraphicsPlugin;
 use gridmap::plugin::GridmapPlugin;
 use helmet_security::plugin::HelmetsPlugin;
 use hud::plugin::HudPlugin;
@@ -131,7 +132,8 @@ pub(crate) fn configure_and_start() {
         .add_plugin(EguiPlugin)
         .insert_resource(ClientInformation {
             version: APP_VERSION.to_string(),
-        });
+        })
+        .add_plugin(GraphicsPlugin);
     }
     app.add_plugin(AsanaPlugin)
         .add_plugin(GridmapPlugin)

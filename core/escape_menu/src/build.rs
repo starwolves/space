@@ -9,15 +9,18 @@ use bevy::{
     },
     text::TextStyle,
     ui::{
-        AlignItems, Display, FlexDirection, FlexWrap, JustifyContent, Overflow, Size, Style,
-        UiRect, Val,
+        AlignItems, Display, FlexDirection, FlexWrap, Interaction, JustifyContent, Overflow, Size,
+        Style, UiRect, Val,
     },
 };
+use graphics::settings::GraphicsSettings;
 use resources::binds::KeyBinds;
 use ui::{
-    button::ButtonVisuals,
+    button::SFButton,
     fonts::{ARIZONE_FONT, SOURCECODE_REGULAR_FONT},
+    hlist::HList,
     scrolling::ScrollingList,
+    text_input::{CharacterFilter, TextInputNode},
 };
 
 #[derive(Component)]
@@ -126,7 +129,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                             },
                                             ..Default::default()
                                         })
-                                        .insert(ButtonVisuals::default())
+                                        .insert(SFButton::default())
                                         .insert(ControlsHeaderButton)
                                         .with_children(|parent| {
                                             parent.spawn(TextBundle::from_section(
@@ -166,7 +169,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                             },
                                             ..Default::default()
                                         })
-                                        .insert(ButtonVisuals::default())
+                                        .insert(SFButton::default())
                                         .insert(GeneralHeaderButton)
                                         .with_children(|parent| {
                                             parent.spawn(TextBundle::from_section(
@@ -206,7 +209,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                             },
                                             ..Default::default()
                                         })
-                                        .insert(ButtonVisuals::default())
+                                        .insert(SFButton::default())
                                         .insert(GraphicsHeaderButton)
                                         .with_children(|parent| {
                                             parent.spawn(TextBundle::from_section(
@@ -341,7 +344,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                                     },
                                                     ..Default::default()
                                                 })
-                                                .insert(ButtonVisuals::default())
+                                                .insert(SFButton::default())
                                                 .insert(ExitGameButton)
                                                 .with_children(|parent| {
                                                     parent.spawn(TextBundle::from_section(
@@ -437,7 +440,7 @@ pub(crate) fn build_controls_section(
                                         },
                                         ..Default::default()
                                     })
-                                    .insert(ButtonVisuals::default())
+                                    .insert(SFButton::default())
                                     .insert(BindButton {
                                         bind_id: bind_id.clone(),
                                     })
@@ -461,8 +464,255 @@ pub(crate) fn build_graphics_section(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     state: Res<EscapeMenuState>,
+    settings: Res<GraphicsSettings>,
 ) {
+    let source_code = asset_server.load(SOURCECODE_REGULAR_FONT);
+
     commands
         .entity(state.graphics_section)
-        .with_children(|parent| {});
+        .with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Auto, Val::Auto),
+                        flex_direction: FlexDirection::Column,
+                        flex_wrap: FlexWrap::Wrap,
+                        padding: UiRect::new(
+                            Val::Percent(2.5),
+                            Val::Undefined,
+                            Val::Percent(2.5),
+                            Val::Undefined,
+                        ),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .insert((Label, AccessibilityNode(NodeBuilder::new(Role::ListItem))))
+                .with_children(|parent| {
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Resolution: ",
+                                TextStyle {
+                                    font: source_code.clone(),
+                                    font_size: 12.0,
+                                    color: Color::WHITE.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        size: Size::new(Val::Percent(5.), Val::Auto),
+                                        justify_content: JustifyContent::Center,
+                                        align_items: AlignItems::Center,
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert((
+                                    TextInputNode {
+                                        placeholder_active: true,
+                                        character_filter_option: Some(CharacterFilter::Integer),
+                                        placeholder_text_option: Some(
+                                            settings.resolution.0.to_string(),
+                                        ),
+                                        ..Default::default()
+                                    },
+                                    Interaction::default(),
+                                ))
+                                .with_children(|parent| {
+                                    parent.spawn(TextBundle::from_section(
+                                        settings.resolution.0.to_string(),
+                                        TextStyle {
+                                            font: source_code.clone(),
+                                            font_size: 12.,
+                                            color: Color::WHITE.into(),
+                                        },
+                                    ));
+                                });
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        size: Size::new(Val::Percent(5.), Val::Auto),
+                                        margin: UiRect::left(Val::Percent(1.5)),
+                                        justify_content: JustifyContent::Center,
+                                        align_items: AlignItems::Center,
+
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert((
+                                    TextInputNode {
+                                        placeholder_active: true,
+                                        character_filter_option: Some(CharacterFilter::Integer),
+                                        placeholder_text_option: Some(
+                                            settings.resolution.1.to_string(),
+                                        ),
+                                        ..Default::default()
+                                    },
+                                    Interaction::default(),
+                                ))
+                                .with_children(|parent| {
+                                    parent.spawn(TextBundle::from_section(
+                                        settings.resolution.1.to_string(),
+                                        TextStyle {
+                                            font: source_code.clone(),
+                                            font_size: 12.,
+                                            color: Color::WHITE.into(),
+                                        },
+                                    ));
+                                });
+                        });
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Window Mode: ",
+                                TextStyle {
+                                    font: source_code.clone(),
+                                    font_size: 12.0,
+                                    color: Color::WHITE.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.window_mode.clone() as u8),
+                                    selections: vec![
+                                        "Windowed".to_string(),
+                                        "Borderless Fullscreen".to_string(),
+                                        "Sized Fullscreen".to_string(),
+                                        "Fullscreen".to_string(),
+                                    ],
+                                    ..Default::default()
+                                });
+                        });
+
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Vsync: ",
+                                TextStyle {
+                                    font: source_code.clone(),
+                                    font_size: 12.0,
+                                    color: Color::WHITE.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.vsync as u8),
+                                    selections: vec!["Off".to_string(), "On".to_string()],
+                                    ..Default::default()
+                                });
+                        });
+
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Fxaa: ",
+                                TextStyle {
+                                    font: source_code.clone(),
+                                    font_size: 12.0,
+                                    color: Color::WHITE.into(),
+                                },
+                            ));
+                            let selected_i;
+                            match settings.fxaa.clone() {
+                                Some(fx) => {
+                                    selected_i = fx as u8 + 1;
+                                }
+                                None => {
+                                    selected_i = 0;
+                                }
+                            }
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(selected_i),
+                                    selections: vec![
+                                        "Off".to_string(),
+                                        "Low".to_string(),
+                                        "Medium".to_string(),
+                                        "High".to_string(),
+                                    ],
+                                    ..Default::default()
+                                });
+                        });
+
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Msaa: ",
+                                TextStyle {
+                                    font: source_code.clone(),
+                                    font_size: 12.0,
+                                    color: Color::WHITE.into(),
+                                },
+                            ));
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .insert(HList {
+                                    selected: Some(settings.msaa.clone() as u8),
+                                    selections: vec![
+                                        "Off".to_string(),
+                                        "Low".to_string(),
+                                        "Medium".to_string(),
+                                        "High".to_string(),
+                                    ],
+                                    ..Default::default()
+                                });
+                        });
+                });
+        });
 }
