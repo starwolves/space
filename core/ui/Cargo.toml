@@ -18,7 +18,6 @@ bevy_egui = { version = "0.20.0", default-features = false, features = [
 ] }
 networking = { path = "../networking" }
 resources = { path = "../resources" }
-player = { path = "../player" }
 
 [dependencies.bevy]
 version = "0.10.0"

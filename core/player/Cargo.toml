@@ -22,7 +22,6 @@ typename = "0.1.2"
 bevy_atmosphere = { git = "https://github.com/BrandonDyer64/bevy_atmosphere.git" , branch = "bevy-v0.10"  }
 
 networking = { path = "../networking" }
-text_api = { path = "../text_api" }
 resources = { path = "../resources" }
 graphics = { path = "../graphics" }
 pawn = { path = "../pawn" }

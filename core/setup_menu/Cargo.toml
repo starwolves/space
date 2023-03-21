@@ -23,5 +23,4 @@ networking = { path = "../networking" }
 resources = { path = "../resources" }
 player = { path = "../player" }
 motd = { path = "../motd" }
-text_api = { path = "../text_api" }
 controller = { path = "../controller" }
