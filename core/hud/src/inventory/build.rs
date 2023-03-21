@@ -159,9 +159,11 @@ pub(crate) fn open_inventory_hud(
         state.open = event.open;
         expand3.send(OpenHud { open: state.open });
         expand.send(ExpandInventoryHud { expand: state.open });
-        expand2.send(ExpandedLeftContentHud {
-            expanded: state.open,
-        });
+        if !state.open {
+            expand2.send(ExpandedLeftContentHud {
+                expanded: state.open,
+            });
+        }
     }
 }
 
