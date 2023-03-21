@@ -51,7 +51,7 @@ pub(crate) fn esc_button_menu(
     }
 }
 
-pub(crate) fn toggle_escape_menu(
+pub fn toggle_escape_menu(
     mut style_query: Query<&mut Style>,
     mut state: ResMut<EscapeMenuState>,
     mut events: EventReader<ToggleEscapeMenu>,

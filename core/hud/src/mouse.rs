@@ -23,7 +23,7 @@ pub(crate) fn grab_mouse_on_board(
 }
 pub struct GrabCursor;
 
-pub(crate) fn grab_cursor(
+pub fn grab_cursor(
     mut events: EventReader<GrabCursor>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
 
@@ -41,7 +41,7 @@ pub(crate) fn grab_cursor(
 
 pub struct ReleaseCursor;
 
-pub(crate) fn release_cursor(
+pub fn release_cursor(
     mut events: EventReader<ReleaseCursor>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
 ) {

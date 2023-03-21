@@ -91,7 +91,7 @@ impl Plugin for HudPlugin {
                 .add_system(window_unfocus_event)
                 .add_event::<GrabCursor>()
                 .add_event::<ReleaseCursor>()
-                .add_system(release_cursor)
+                .add_system(release_cursor.after(grab_cursor))
                 .add_system(grab_cursor.after(focus_state))
                 .add_system(text_input)
                 .add_system(receive_chat_message)

@@ -1,4 +1,5 @@
 use bevy::prelude::{App, ClearColor, IntoSystemConfig, Plugin, SystemSet};
+use hud::mouse::{grab_cursor, release_cursor};
 use resources::is_server::is_server;
 
 use crate::{
@@ -7,7 +8,10 @@ use crate::{
         startup_show_menu, AutoFillConnectSubMenu, EnableMainMenu, EnablePlayMenu, MainMenuLabel,
         MainMenuState, PlayMenuState, MAIN_BG_COLOR,
     },
-    events::{button_presses, connect_to_server_button, space_frontiers_link, starwolves_link},
+    events::{
+        button_presses, connect_to_server_button, space_frontiers_link, starwolves_link,
+        toggle_esc_menu,
+    },
     hide::{confirm_connection, hide_main_menu},
 };
 
@@ -38,7 +42,8 @@ impl Plugin for MainMenuPlugin {
                 .add_system(auto_fill_connect_menu)
                 .add_event::<AutoFillConnectSubMenu>()
                 .add_system(on_submenu_connect_creation)
-                .add_system(confirm_connection);
+                .add_system(confirm_connection)
+                .add_system(toggle_esc_menu.after(grab_cursor).after(release_cursor));
         }
     }
 }

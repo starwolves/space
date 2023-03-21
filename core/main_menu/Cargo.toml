@@ -22,3 +22,5 @@ resources = { path = "../resources"}
 ui = { path = "../ui"}
 networking = { path = "../networking" }
 player = { path = "../player" }
+escape_menu = { path = "../escape_menu" }
+hud = { path = "../hud" }

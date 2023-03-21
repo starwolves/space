@@ -17,7 +17,7 @@ use graphics::settings::GraphicsSettings;
 use resources::binds::KeyBinds;
 use ui::{
     button::SFButton,
-    fonts::{ARIZONE_FONT, SOURCECODE_REGULAR_FONT},
+    fonts::{ARIZONE_FONT, EMPIRE_FONT, SOURCECODE_REGULAR_FONT},
     hlist::HList,
     scrolling::ScrollingList,
     text_input::{CharacterFilter, TextInputNode},
@@ -56,7 +56,8 @@ pub struct GeneralHeaderButton;
 pub struct GraphicsHeaderButton;
 
 pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let sourcecode_font = asset_server.load(ARIZONE_FONT);
+    let arizone_font = asset_server.load(ARIZONE_FONT);
+    let empire_font = asset_server.load(EMPIRE_FONT);
     let mut controls_bg_section_entity = Entity::from_bits(0);
     let mut graphics_bg_section_entity = Entity::from_bits(0);
     let mut general_section_entity = Entity::from_bits(0);
@@ -135,7 +136,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                             parent.spawn(TextBundle::from_section(
                                                 "Controls".to_string(),
                                                 TextStyle {
-                                                    font: sourcecode_font.clone(),
+                                                    font: arizone_font.clone(),
                                                     font_size: 12.0,
                                                     color: Color::WHITE.into(),
                                                 },
@@ -175,7 +176,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                             parent.spawn(TextBundle::from_section(
                                                 "General".to_string(),
                                                 TextStyle {
-                                                    font: sourcecode_font.clone(),
+                                                    font: arizone_font.clone(),
                                                     font_size: 12.0,
                                                     color: Color::WHITE.into(),
                                                 },
@@ -215,7 +216,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                             parent.spawn(TextBundle::from_section(
                                                 "Graphics".to_string(),
                                                 TextStyle {
-                                                    font: sourcecode_font.clone(),
+                                                    font: arizone_font.clone(),
                                                     font_size: 12.0,
                                                     color: Color::WHITE.into(),
                                                 },
@@ -307,6 +308,28 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
+                                        size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                                        flex_direction: FlexDirection::Column,
+                                        justify_content: JustifyContent::Center,
+                                        align_items: AlignItems::Center,
+                                        flex_wrap: FlexWrap::Wrap,
+                                        ..Default::default()
+                                    },
+                                    ..Default::default()
+                                })
+                                .with_children(|parent| {
+                                    parent.spawn(TextBundle::from_section(
+                                        "Press ESCAPE to hide menu".to_string(),
+                                        TextStyle {
+                                            font: empire_font.clone(),
+                                            font_size: 12.0,
+                                            color: Color::WHITE.into(),
+                                        },
+                                    ));
+                                });
+                            parent
+                                .spawn(NodeBundle {
+                                    style: Style {
                                         size: Size::new(Val::Percent(100.), Val::Percent(6.)),
                                         flex_direction: FlexDirection::Column,
                                         justify_content: JustifyContent::Center,
@@ -350,7 +373,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                                     parent.spawn(TextBundle::from_section(
                                                         "Exit Game".to_string(),
                                                         TextStyle {
-                                                            font: sourcecode_font.clone(),
+                                                            font: arizone_font.clone(),
                                                             font_size: 12.0,
                                                             color: Color::WHITE.into(),
                                                         },

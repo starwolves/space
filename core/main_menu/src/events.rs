@@ -1,13 +1,17 @@
-use crate::build::MainMenuPlayButton;
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
-use bevy::prelude::warn;
+use crate::build::{MainMenuPlayButton, MainMenuState};
+use bevy::prelude::{warn, EventReader, Res};
 use bevy::prelude::{Changed, Color};
+use bevy::ui::{Display, Style};
 use bevy::{
     prelude::{Button, Query, With},
     ui::Interaction,
 };
 
 use bevy::prelude::EventWriter;
+use escape_menu::build::EscapeMenuState;
+use escape_menu::events::ToggleEscapeMenu;
+use hud::mouse::ReleaseCursor;
 
 use crate::build::EnablePlayMenu;
 use crate::build::MainMenuStarWolvesLink;
@@ -99,6 +103,33 @@ pub(crate) fn starwolves_link(
     }
 }
 
+pub(crate) fn toggle_esc_menu(
+    mut events: EventReader<ToggleEscapeMenu>,
+    mut style_query: Query<&mut Style>,
+    state: Res<MainMenuState>,
+    mut cursor: EventWriter<ReleaseCursor>,
+) {
+    for event in events.iter() {
+        match state.root {
+            Some(r) => match style_query.get_mut(r) {
+                Ok(mut style) => {
+                    cursor.send(ReleaseCursor);
+
+                    if event.enabled {
+                        style.display = Display::None;
+                    } else {
+                        style.display = Display::Flex;
+                    }
+                }
+                Err(_) => {
+                    warn!("Couldnt find esc menu root.");
+                }
+            },
+            None => {}
+        }
+    }
+}
+
 /// Manages text input UI nodes.
 use bevy::app::AppExit;
 
@@ -117,6 +148,8 @@ pub(crate) fn button_presses(
     >,
     mut play_events: EventWriter<EnablePlayMenu>,
     mut exit: EventWriter<AppExit>,
+    state: Res<EscapeMenuState>,
+    mut events: EventWriter<ToggleEscapeMenu>,
 ) {
     for (interaction, _) in &play_button_query {
         match *interaction {
@@ -128,7 +161,11 @@ pub(crate) fn button_presses(
     }
     for (interaction, _) in &settings_button_query {
         match *interaction {
-            Interaction::Clicked => {}
+            Interaction::Clicked => {
+                events.send(ToggleEscapeMenu {
+                    enabled: !state.visible,
+                });
+            }
             _ => (),
         }
     }
