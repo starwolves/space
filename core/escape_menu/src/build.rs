@@ -461,18 +461,19 @@ pub(crate) fn build_controls_section(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(97.), Val::Auto),
+                                    size: Size::new(Val::Percent(10.), Val::Percent(30.)),
                                     flex_direction: FlexDirection::RowReverse,
                                     flex_wrap: FlexWrap::Wrap,
                                     ..Default::default()
                                 },
+                                background_color: Color::WHITE.into(),
                                 ..Default::default()
                             })
                             .with_children(|parent| {
                                 parent
                                     .spawn(NodeBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(10.), Val::Auto),
+                                            size: Size::new(Val::Percent(100.), Val::Auto),
                                             ..Default::default()
                                         },
                                         ..Default::default()
