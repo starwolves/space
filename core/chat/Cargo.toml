@@ -16,16 +16,11 @@ version = "0.10.0"
 default-features = false
 
 [dependencies]
-voca_rs = "1.15.2"
 serde = "1.0.150"
 typename = "0.1.2"
 
 networking = { path = "../networking" }
 
-sfx = { path = "../sfx" }
-pawn = { path = "../pawn"}
-entity = { path = "../entity" }
-text_api = { path = "../text_api" }
 player = { path = "../player" }
 resources = { path = "../resources" }
 ui = { path = "../ui" }

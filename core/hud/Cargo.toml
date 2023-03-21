@@ -22,7 +22,6 @@ resources = { path = "../resources"}
 player = { path = "../player"}
 networking = { path = "../networking"}
 inventory = { path = "../inventory"}
-cameras = { path = "../cameras"}
 entity = { path = "../entity"}
 actions = { path = "../actions"}
 ui = { path = "../ui"}
