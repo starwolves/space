@@ -14,7 +14,10 @@ use chat::net::ChatServerMessage;
 use networking::client::IncomingReliableServerMessage;
 use ui::fonts::Fonts;
 
-use super::build::{HudCommunicationState, MESSAGES_DEFAULT_MAX_WIDTH};
+use super::{
+    build::{HudCommunicationState, MESSAGES_DEFAULT_MAX_WIDTH},
+    console::CommunicationTextBundle,
+};
 
 pub(crate) fn receive_chat_message(
     mut net: EventReader<IncomingReliableServerMessage<ChatServerMessage>>,
@@ -66,15 +69,17 @@ pub(crate) fn display_chat_message(
             })
             .insert((Label, AccessibilityNode(NodeBuilder::new(Role::ListItem))))
             .with_children(|parent| {
-                parent.spawn(
-                    TextBundle::from_sections(event.sections.clone()).with_style(Style {
-                        max_size: Size {
-                            width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
-                            height: Val::Undefined,
-                        },
-                        ..Default::default()
-                    }),
-                );
+                parent
+                    .spawn(
+                        TextBundle::from_sections(event.sections.clone()).with_style(Style {
+                            max_size: Size {
+                                width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
+                                height: Val::Undefined,
+                            },
+                            ..Default::default()
+                        }),
+                    )
+                    .insert(CommunicationTextBundle);
             })
             .id();
 

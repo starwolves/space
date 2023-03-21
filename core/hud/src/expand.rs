@@ -1,11 +1,15 @@
 use bevy::{
-    prelude::{warn, EventReader, Query, ResMut},
+    prelude::{warn, Entity, EventReader, Query, ResMut, With},
     ui::{Display, Size, Style, Val},
 };
 use resources::hud::HudState;
 
-use crate::hud::{
-    ExpandedLeftContentHud, LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH, LEFT_RIGHT_EDGE_HUD_WIDTH,
+use crate::{
+    communication::{
+        build::{MESSAGES_DEFAULT_MAX_WIDTH, MESSAGES_DEFAULT_MIN_WIDTH},
+        console::CommunicationTextBundle,
+    },
+    hud::{ExpandedLeftContentHud, LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH, LEFT_RIGHT_EDGE_HUD_WIDTH},
 };
 
 /// Event to expand the hud.
@@ -16,12 +20,27 @@ pub struct ExpandInventoryHud {
 pub(crate) fn expand_inventory_hud(
     mut events: EventReader<ExpandInventoryHud>,
     mut state: ResMut<HudState>,
-    mut node_query: Query<&mut Style>,
+    mut style_query: Query<&mut Style>,
     mut expand_event: EventReader<ExpandedLeftContentHud>,
+    text_query: Query<Entity, With<CommunicationTextBundle>>,
 ) {
     for event in expand_event.iter() {
         if event.expanded {
-            match node_query.get_mut(state.left_content_node) {
+            for ent in text_query.iter() {
+                match style_query.get_mut(ent) {
+                    Ok(mut st) => {
+                        st.max_size = Size {
+                            width: Val::Px(MESSAGES_DEFAULT_MIN_WIDTH),
+                            height: Val::Undefined,
+                        };
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find style.");
+                    }
+                }
+            }
+
+            match style_query.get_mut(state.left_content_node) {
                 Ok(mut style) => {
                     style.display = Display::Flex;
                 }
@@ -29,7 +48,7 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find left content node.");
                 }
             }
-            match node_query.get_mut(state.right_content_node) {
+            match style_query.get_mut(state.right_content_node) {
                 Ok(mut style) => {
                     style.display = Display::Flex;
                 }
@@ -37,7 +56,7 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find right content node.");
                 }
             }
-            match node_query.get_mut(state.left_edge_node) {
+            match style_query.get_mut(state.left_edge_node) {
                 Ok(mut style) => {
                     style.size =
                         Size::new(Val::Percent(LEFT_RIGHT_EDGE_HUD_WIDTH), Val::Percent(100.));
@@ -46,7 +65,7 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find right content node.");
                 }
             }
-            match node_query.get_mut(state.right_edge_node) {
+            match style_query.get_mut(state.right_edge_node) {
                 Ok(mut style) => {
                     style.size =
                         Size::new(Val::Percent(LEFT_RIGHT_EDGE_HUD_WIDTH), Val::Percent(100.));
@@ -55,7 +74,7 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find right content node.");
                 }
             }
-            match node_query.get_mut(state.center_content_node) {
+            match style_query.get_mut(state.center_content_node) {
                 Ok(mut style) => {
                     style.size = Size::new(Val::Percent(50.), Val::Percent(100.));
                 }
@@ -64,7 +83,20 @@ pub(crate) fn expand_inventory_hud(
                 }
             }
         } else {
-            match node_query.get_mut(state.left_content_node) {
+            for ent in text_query.iter() {
+                match style_query.get_mut(ent) {
+                    Ok(mut st) => {
+                        st.max_size = Size {
+                            width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
+                            height: Val::Undefined,
+                        };
+                    }
+                    Err(_) => {
+                        warn!("Couldnt find style.");
+                    }
+                }
+            }
+            match style_query.get_mut(state.left_content_node) {
                 Ok(mut style) => {
                     style.display = Display::None;
                 }
@@ -72,7 +104,7 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find left content node.");
                 }
             }
-            match node_query.get_mut(state.right_content_node) {
+            match style_query.get_mut(state.right_content_node) {
                 Ok(mut style) => {
                     style.display = Display::None;
                 }
@@ -80,7 +112,7 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find right content node.");
                 }
             }
-            match node_query.get_mut(state.left_edge_node) {
+            match style_query.get_mut(state.left_edge_node) {
                 Ok(mut style) => {
                     style.size = Size::new(
                         Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
@@ -91,7 +123,7 @@ pub(crate) fn expand_inventory_hud(
                     warn!("Couldnt find right content node.");
                 }
             }
-            match node_query.get_mut(state.right_edge_node) {
+            match style_query.get_mut(state.right_edge_node) {
                 Ok(mut style) => {
                     style.size = Size::new(
                         Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),

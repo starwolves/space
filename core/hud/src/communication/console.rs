@@ -4,8 +4,8 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        AssetServer, BuildChildren, Commands, EventReader, EventWriter, Label, NodeBundle, Res,
-        TextBundle,
+        AssetServer, BuildChildren, Commands, Component, EventReader, EventWriter, Label,
+        NodeBundle, Res, TextBundle,
     },
     text::{TextSection, TextStyle},
     ui::{FlexDirection, Size, Style, Val},
@@ -80,6 +80,9 @@ pub struct DisplayConsoleMessage {
     pub sections: Vec<TextSection>,
 }
 
+#[derive(Component)]
+pub struct CommunicationTextBundle;
+
 pub(crate) fn display_console_message(
     mut events: EventReader<DisplayConsoleMessage>,
     mut commands: Commands,
@@ -102,15 +105,17 @@ pub(crate) fn display_console_message(
             })
             .insert((Label, AccessibilityNode(NodeBuilder::new(Role::ListItem))))
             .with_children(|parent| {
-                parent.spawn(
-                    TextBundle::from_sections(sections.clone()).with_style(Style {
-                        max_size: Size {
-                            width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
-                            height: Val::Undefined,
-                        },
-                        ..Default::default()
-                    }),
-                );
+                parent
+                    .spawn(
+                        TextBundle::from_sections(sections.clone()).with_style(Style {
+                            max_size: Size {
+                                width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
+                                height: Val::Undefined,
+                            },
+                            ..Default::default()
+                        }),
+                    )
+                    .insert(CommunicationTextBundle);
             })
             .id();
 

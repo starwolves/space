@@ -337,3 +337,4 @@ pub(crate) fn console_welcome_message(
 }
 
 pub const MESSAGES_DEFAULT_MAX_WIDTH: f32 = 380.;
+pub const MESSAGES_DEFAULT_MIN_WIDTH: f32 = 100.;
