@@ -4,6 +4,7 @@ use resources::is_server::is_server;
 use crate::{
     build::{build_controls_section, build_escape_menu, build_graphics_section},
     events::{
+        apply_fxaa, apply_msaa, apply_vsync, apply_window_mode, appply_resolution,
         controls_section_button_pressed, esc_button_menu, exit_button_pressed,
         general_section_button_pressed, graphics_section_button_pressed, register_input,
         toggle_controls_menu_section, toggle_escape_menu, toggle_general_menu_section,
@@ -33,7 +34,12 @@ impl Plugin for EscapeMenuPlugin {
                 .add_system(general_section_button_pressed)
                 .add_system(graphics_section_button_pressed)
                 .add_system(controls_section_button_pressed)
-                .add_startup_system(register_input);
+                .add_startup_system(register_input)
+                .add_system(appply_resolution)
+                .add_system(apply_window_mode)
+                .add_system(apply_vsync)
+                .add_system(apply_fxaa)
+                .add_system(apply_msaa);
         }
     }
 }

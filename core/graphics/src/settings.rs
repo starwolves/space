@@ -2,9 +2,10 @@ use std::{fs, path::Path};
 
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
-    prelude::{EventReader, EventWriter, Msaa, Query, ResMut, Resource, With},
+    prelude::{DetectChanges, EventReader, EventWriter, Msaa, Query, Res, ResMut, Resource, With},
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
+use num_derive::FromPrimitive;
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
 
@@ -16,13 +17,13 @@ pub struct GraphicsSettings {
     pub fxaa: Option<SFFxaa>,
     pub msaa: SFMsaa,
 }
-#[derive(Default, Clone, Serialize, Deserialize)]
+#[derive(Default, Clone, Serialize, Deserialize, FromPrimitive, Debug)]
 pub enum SFMsaa {
-    Off,
-    Sample2,
+    Off = 0,
+    Sample2 = 1,
     #[default]
-    Sample4,
-    Sample8,
+    Sample4 = 2,
+    Sample8 = 3,
 }
 impl SFMsaa {
     pub fn to_msaa(&self) -> Msaa {
@@ -40,12 +41,12 @@ impl SFMsaa {
         }
     }
 }
-#[derive(Serialize, Deserialize, Default, Clone)]
+#[derive(Serialize, Deserialize, Default, Clone, FromPrimitive, Debug)]
 pub enum SFFxaa {
-    Low,
-    Medium,
+    Low = 0,
+    Medium = 1,
     #[default]
-    High,
+    High = 2,
 }
 impl SFFxaa {
     pub fn to_sensitivity(&self) -> Sensitivity {
@@ -56,13 +57,13 @@ impl SFFxaa {
         }
     }
 }
-#[derive(Serialize, Deserialize, Default, Clone)]
+#[derive(Serialize, Deserialize, Default, Clone, FromPrimitive, Debug)]
 pub enum SFWindowMode {
     #[default]
-    Windowed,
-    BorderlessFullscreen,
-    SizedFullscreen,
-    Fullscreen,
+    Windowed = 0,
+    BorderlessFullscreen = 1,
+    SizedFullscreen = 2,
+    Fullscreen = 3,
 }
 impl SFWindowMode {
     pub fn to_window_mode(&self) -> WindowMode {
@@ -218,5 +219,14 @@ pub(crate) fn set_msaa(
     for event in events.iter() {
         settings.msaa = event.mode.clone();
         *msaa = settings.msaa.to_msaa();
+    }
+}
+
+pub(crate) fn settings_to_ron(settings: Res<GraphicsSettings>) {
+    let path = Path::new("data").join("settings").join("graphics.ron");
+
+    if settings.is_changed() {
+        let settings_ron = ron::ser::to_string_pretty(&*settings, PrettyConfig::default()).unwrap();
+        fs::write(path, settings_ron).unwrap();
     }
 }

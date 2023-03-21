@@ -1,19 +1,24 @@
 use bevy::{
     app::AppExit,
     prelude::{
-        Button, Changed, EventReader, EventWriter, Input, KeyCode, Query, Res, ResMut, With,
+        warn, Button, Changed, Entity, EventReader, EventWriter, Input, KeyCode, Parent, Query,
+        Res, ResMut, With,
     },
     ui::{Display, Interaction, Style},
 };
+use graphics::settings::{SetFxaa, SetMsaa, SetResolution, SetVsync, SetWindowMode};
 use hud::inventory::build::OpenHud;
+use num_traits::FromPrimitive;
 use resources::{
     binds::{KeyBind, KeyBinds},
     hud::HudState,
 };
+use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
 use crate::build::{
-    ControlsBGSection, ControlsHeaderButton, EscapeMenuState, ExitGameButton, GeneralHeaderButton,
-    GeneralSection, GraphicsBGSection, GraphicsHeaderButton,
+    ControlsBGSection, ControlsHeaderButton, EscapeMenuState, ExitGameButton, FxaaHList,
+    GeneralHeaderButton, GeneralSection, GraphicsBGSection, GraphicsHeaderButton, MsaaHList,
+    ResolutionInputApply, ResolutionXInput, ResolutionYInput, VsyncHList, WindowModeHList,
 };
 
 pub struct ToggleEscapeMenu {
@@ -225,6 +230,217 @@ pub(crate) fn controls_section_button_pressed(
             }
             Interaction::Hovered => {}
             Interaction::None => {}
+        }
+    }
+}
+
+pub(crate) fn appply_resolution(
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<ResolutionInputApply>)>,
+    x_input: Query<&TextInputNode, With<ResolutionXInput>>,
+    y_input: Query<&TextInputNode, With<ResolutionYInput>>,
+    mut events: EventWriter<SetResolution>,
+) {
+    for interaction in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                let x = x_input.get_single().unwrap();
+                let y = y_input.get_single().unwrap();
+
+                events.send(SetResolution {
+                    resolution: (
+                        x.input.parse::<u32>().unwrap(),
+                        y.input.parse::<u32>().unwrap(),
+                    ),
+                });
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_window_mode(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&WindowModeHList>,
+    mut events: EventWriter<SetWindowMode>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+                        events.send(SetWindowMode { window_mode: mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+pub(crate) fn apply_vsync(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&VsyncHList>,
+    mut events: EventWriter<SetVsync>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        events.send(SetVsync { enabled: id != 0 });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+pub(crate) fn apply_fxaa(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&FxaaHList>,
+    mut events: EventWriter<SetFxaa>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        if id == 0 {
+                            mode = None;
+                        } else {
+                            match FromPrimitive::from_u8(id - 1) {
+                                Some(t) => {
+                                    mode = Some(t);
+                                }
+                                None => {
+                                    warn!("Couldnt convert window mode enum.");
+                                    continue;
+                                }
+                            }
+                        }
+                        events.send(SetFxaa { mode: mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+}
+
+pub(crate) fn apply_msaa(
+    interaction_query: Query<
+        (Entity, &Interaction, &Parent),
+        (Changed<Interaction>, With<SFButton>),
+    >,
+    parent_query: Query<&MsaaHList>,
+    mut events: EventWriter<SetMsaa>,
+    hlist_query: Query<&HList>,
+) {
+    for (entity, interaction, parent) in interaction_query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                match parent_query.get(**parent) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        continue;
+                    }
+                }
+                match hlist_query.get(**parent) {
+                    Ok(hlist) => {
+                        let id = hlist
+                            .selections_entities
+                            .iter()
+                            .position(|&r| r == entity)
+                            .unwrap() as u8;
+
+                        let mode;
+
+                        match FromPrimitive::from_u8(id) {
+                            Some(t) => {
+                                mode = t;
+                            }
+                            None => {
+                                warn!("Couldnt convert window mode enum.");
+                                continue;
+                            }
+                        }
+                        events.send(SetMsaa { mode: mode });
+                    }
+                    Err(_) => {
+                        warn!("Couildnt find apply window hlist.");
+                    }
+                }
+            }
+            _ => (),
         }
     }
 }

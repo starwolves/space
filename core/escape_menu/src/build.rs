@@ -460,6 +460,21 @@ pub(crate) fn build_controls_section(
         });
 }
 
+#[derive(Component)]
+pub struct ResolutionXInput;
+#[derive(Component)]
+pub struct ResolutionYInput;
+#[derive(Component)]
+pub struct WindowModeHList;
+#[derive(Component)]
+pub struct VsyncHList;
+#[derive(Component)]
+pub struct FxaaHList;
+#[derive(Component)]
+pub struct MsaaHList;
+#[derive(Component)]
+pub struct ResolutionInputApply;
+
 pub(crate) fn build_graphics_section(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -524,6 +539,7 @@ pub(crate) fn build_graphics_section(
                                         ),
                                         ..Default::default()
                                     },
+                                    ResolutionXInput,
                                     Interaction::default(),
                                 ))
                                 .with_children(|parent| {
@@ -557,6 +573,7 @@ pub(crate) fn build_graphics_section(
                                         ),
                                         ..Default::default()
                                     },
+                                    ResolutionYInput,
                                     Interaction::default(),
                                 ))
                                 .with_children(|parent| {
@@ -568,6 +585,36 @@ pub(crate) fn build_graphics_section(
                                             color: Color::WHITE.into(),
                                         },
                                     ));
+                                });
+
+                            parent
+                                .spawn(NodeBundle {
+                                    ..Default::default()
+                                })
+                                .with_children(|parent| {
+                                    parent
+                                        .spawn(ButtonBundle {
+                                            style: Style {
+                                                margin: UiRect::left(Val::Percent(0.6)),
+                                                justify_content: JustifyContent::Center,
+                                                align_items: AlignItems::Center,
+
+                                                ..Default::default()
+                                            },
+                                            ..Default::default()
+                                        })
+                                        .insert(SFButton::default())
+                                        .insert(ResolutionInputApply)
+                                        .with_children(|parent| {
+                                            parent.spawn(TextBundle::from_section(
+                                                " Apply ",
+                                                TextStyle {
+                                                    font: source_code.clone(),
+                                                    font_size: 12.,
+                                                    color: Color::WHITE.into(),
+                                                },
+                                            ));
+                                        });
                                 });
                         });
                     parent
@@ -602,7 +649,8 @@ pub(crate) fn build_graphics_section(
                                         "Fullscreen".to_string(),
                                     ],
                                     ..Default::default()
-                                });
+                                })
+                                .insert(WindowModeHList);
                         });
 
                     parent
@@ -632,7 +680,8 @@ pub(crate) fn build_graphics_section(
                                     selected: Some(settings.vsync as u8),
                                     selections: vec!["Off".to_string(), "On".to_string()],
                                     ..Default::default()
-                                });
+                                })
+                                .insert(VsyncHList);
                         });
 
                     parent
@@ -676,7 +725,8 @@ pub(crate) fn build_graphics_section(
                                         "High".to_string(),
                                     ],
                                     ..Default::default()
-                                });
+                                })
+                                .insert(FxaaHList);
                         });
 
                     parent
@@ -711,7 +761,8 @@ pub(crate) fn build_graphics_section(
                                         "High".to_string(),
                                     ],
                                     ..Default::default()
-                                });
+                                })
+                                .insert(MsaaHList);
                         });
                 });
         });
