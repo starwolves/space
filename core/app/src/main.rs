@@ -6,10 +6,13 @@ use asana::plugin::AsanaPlugin;
 use basic_console_commands::plugin::BasicConsoleCommandsPlugin;
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::diagnostic::DiagnosticsPlugin;
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::log::LogPlugin;
 use bevy::prelude::info;
 use bevy::prelude::App;
 use bevy::prelude::AssetPlugin;
+use bevy::prelude::FixedTime;
 use bevy::prelude::FrameCountPlugin;
 use bevy::prelude::HierarchyPlugin;
 use bevy::prelude::ImagePlugin;
@@ -178,5 +181,8 @@ pub(crate) fn configure_and_start() {
         .add_plugin(ControllerPlugin::default())
         .add_plugin(WorldPlugin)
         .add_plugin(HudPlugin)
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .insert_resource(FixedTime::new_from_secs(1. / 60.))
         .run();
 }
