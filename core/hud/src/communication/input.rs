@@ -1,6 +1,7 @@
 use bevy::{
-    prelude::{warn, Children, EventWriter, Input, KeyCode, Query, Res},
+    prelude::{warn, Children, EventWriter, Input, KeyCode, Query, Res, ResMut},
     text::Text,
+    ui::{Display, Style},
 };
 use chat::net::ChatClientMessage;
 use console_commands::net::ClientSideConsoleInput;
@@ -68,13 +69,15 @@ pub(crate) fn text_input(
 
 pub(crate) fn tab_communication_input_toggle(
     keys: Res<Input<KeyCode>>,
-    state: Res<HudCommunicationState>,
+    mut state: ResMut<HudCommunicationState>,
     mut open_hud: EventWriter<OpenHud>,
+    mut style_query: Query<&mut Style>,
 
     mut focus_event: EventWriter<FocusTextInput>,
     mut unfocus_event: EventWriter<UnfocusTextInput>,
     hud_state: Res<HudState>,
     binds: Res<KeyBinds>,
+    text_input: Res<TextInput>,
 ) {
     if keys.just_pressed(binds.bind(TOGGLE_CHAT)) {
         let is_focused = hud_state.expanded;
@@ -90,5 +93,25 @@ pub(crate) fn tab_communication_input_toggle(
         }
 
         open_hud.send(OpenHud { open: !is_focused });
+
+        if state.is_displaying_console && text_input.focused_input.is_none() {
+            state.is_displaying_console = false;
+            match style_query.get_mut(state.chat_messages_bg_node) {
+                Ok(mut style) => {
+                    style.display = Display::Flex;
+                }
+                Err(_) => {
+                    warn!("Couldnt find visibility component of chat messages node.");
+                }
+            }
+            match style_query.get_mut(state.console_messages_bg_node) {
+                Ok(mut style) => {
+                    style.display = Display::None;
+                }
+                Err(_) => {
+                    warn!("Couldnt find visibility component of console messages node.");
+                }
+            }
+        }
     }
 }
