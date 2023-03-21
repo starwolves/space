@@ -404,55 +404,79 @@ pub(crate) fn build_controls_section(
                     })
                     .insert((Label, AccessibilityNode(NodeBuilder::new(Role::ListItem))))
                     .with_children(|parent| {
-                        parent.spawn(TextBundle::from_section(
-                            bind.name.clone() + ": ",
-                            TextStyle {
-                                font: source_code.clone(),
-                                font_size: 12.0,
-                                color: Color::WHITE.into(),
-                            },
-                        ));
-                        parent.spawn(TextBundle::from_section(
-                            bind.description.clone(),
-                            TextStyle {
-                                font: source_code.clone(),
-                                font_size: 12.0,
-                                color: Color::WHITE.into(),
-                            },
-                        ));
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(10.), Val::Auto),
+                                    size: Size::new(Val::Auto, Val::Auto),
+                                    flex_direction: FlexDirection::Row,
+                                    flex_wrap: FlexWrap::Wrap,
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            })
+                            .with_children(|parent| {
+                                parent.spawn(TextBundle::from_section(
+                                    bind.name.clone() + ": ",
+                                    TextStyle {
+                                        font: source_code.clone(),
+                                        font_size: 12.0,
+                                        color: Color::WHITE.into(),
+                                    },
+                                ));
+                                parent.spawn(TextBundle::from_section(
+                                    bind.description.clone(),
+                                    TextStyle {
+                                        font: source_code.clone(),
+                                        font_size: 12.0,
+                                        color: Color::WHITE.into(),
+                                    },
+                                ));
+                            });
+                        parent
+                            .spawn(NodeBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(97.), Val::Auto),
+                                    flex_direction: FlexDirection::RowReverse,
+                                    flex_wrap: FlexWrap::Wrap,
                                     ..Default::default()
                                 },
                                 ..Default::default()
                             })
                             .with_children(|parent| {
                                 parent
-                                    .spawn(ButtonBundle {
+                                    .spawn(NodeBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(100.), Val::Auto),
-                                            flex_direction: FlexDirection::Row,
-                                            justify_content: JustifyContent::Center,
-                                            align_items: AlignItems::Center,
+                                            size: Size::new(Val::Percent(10.), Val::Auto),
                                             ..Default::default()
                                         },
                                         ..Default::default()
                                     })
-                                    .insert(SFButton::default())
-                                    .insert(BindButton {
-                                        bind_id: bind_id.clone(),
-                                    })
                                     .with_children(|parent| {
-                                        parent.spawn(TextBundle::from_section(
-                                            format!("{:?}", bind.key_code),
-                                            TextStyle {
-                                                font: source_code.clone(),
-                                                font_size: 12.0,
-                                                color: Color::WHITE.into(),
-                                            },
-                                        ));
+                                        parent
+                                            .spawn(ButtonBundle {
+                                                style: Style {
+                                                    size: Size::new(Val::Percent(100.), Val::Auto),
+                                                    flex_direction: FlexDirection::Row,
+                                                    justify_content: JustifyContent::Center,
+                                                    align_items: AlignItems::Center,
+                                                    ..Default::default()
+                                                },
+                                                ..Default::default()
+                                            })
+                                            .insert(SFButton::default())
+                                            .insert(BindButton {
+                                                bind_id: bind_id.clone(),
+                                            })
+                                            .with_children(|parent| {
+                                                parent.spawn(TextBundle::from_section(
+                                                    format!("{:?}", bind.key_code),
+                                                    TextStyle {
+                                                        font: source_code.clone(),
+                                                        font_size: 12.0,
+                                                        color: Color::WHITE.into(),
+                                                    },
+                                                ));
+                                            });
                                     });
                             });
                     });
