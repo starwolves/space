@@ -18,11 +18,11 @@
 
 ## Description
 
-*Space Frontiers is a next-generation online community multiplayer game in which players find themselves within a galaxy consisting of multiple sectors and spaceships. Active co-operative and PVP gameplay takes place in and around manned spaceships together with a strong foundation of social community-oriented gameplay features. Developed as a sandbox, shaped by the players.*
+*Are you ready for a next-generation online gaming experience that will take you to the stars? Look no further than Space Frontiers! In this thrilling multiplayer community game, you'll explore a vast galaxy filled with multiple sectors and spaceships. But that's just the beginning. With active co-operative and PVP gameplay, you'll battle it out in and around manned spaceships with players from around the world. And don't forget about the social community-oriented gameplay that will keep you coming back for more.*
 
-*Space frontiers seeks to deliver an experience that offers high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
+*But that's not all. Space Frontiers is a sandbox-style game that's shaped by the players. With client- and server-side content, mods, gamemodes, gameplay, moderation, and plugins all provided by decentralized gaming communities, you'll have endless possibilities for customization. And with a cloud of servers at your disposal, you'll have reliable computational power for the partially persistent Galaxy you host.*
 
-**There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
+*Think that's impressive? Space Frontiers can support galaxies with more than one thousand active players in real-time. So what are you waiting for? **Check out the gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI) and join the adventure today! .***
 
 ### Technology
 
