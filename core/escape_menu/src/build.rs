@@ -56,6 +56,7 @@ pub struct GeneralHeaderButton;
 pub struct GraphicsHeaderButton;
 
 pub const ESC_MENU_FONT_COLOR: Color = Color::DARK_GRAY;
+pub const ESC_MENU_FONT_SIZE: f32 = 13.;
 
 pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let arizone_font = asset_server.load(ARIZONE_FONT);
@@ -444,7 +445,7 @@ pub(crate) fn build_controls_section(
                                     bind.name.clone() + ": ",
                                     TextStyle {
                                         font: source_code.clone(),
-                                        font_size: 12.0,
+                                        font_size: ESC_MENU_FONT_SIZE,
                                         color: ESC_MENU_FONT_COLOR.into(),
                                     },
                                 ));
@@ -452,7 +453,7 @@ pub(crate) fn build_controls_section(
                                     bind.description.clone(),
                                     TextStyle {
                                         font: source_code.clone(),
-                                        font_size: 12.0,
+                                        font_size: ESC_MENU_FONT_SIZE,
                                         color: ESC_MENU_FONT_COLOR.into(),
                                     },
                                 ));
@@ -497,7 +498,7 @@ pub(crate) fn build_controls_section(
                                                     format!("{:?}", bind.key_code),
                                                     TextStyle {
                                                         font: source_code.clone(),
-                                                        font_size: 12.0,
+                                                        font_size: ESC_MENU_FONT_SIZE,
                                                         color: Color::WHITE.into(),
                                                     },
                                                 ));
@@ -565,7 +566,7 @@ pub(crate) fn build_graphics_section(
                                 "Resolution: ",
                                 TextStyle {
                                     font: source_code.clone(),
-                                    font_size: 12.0,
+                                    font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
@@ -596,7 +597,7 @@ pub(crate) fn build_graphics_section(
                                         settings.resolution.0.to_string(),
                                         TextStyle {
                                             font: source_code.clone(),
-                                            font_size: 12.,
+                                            font_size: ESC_MENU_FONT_SIZE,
                                             color: Color::WHITE.into(),
                                         },
                                     ));
@@ -630,7 +631,7 @@ pub(crate) fn build_graphics_section(
                                         settings.resolution.1.to_string(),
                                         TextStyle {
                                             font: source_code.clone(),
-                                            font_size: 12.,
+                                            font_size: ESC_MENU_FONT_SIZE,
                                             color: Color::WHITE.into(),
                                         },
                                     ));
@@ -659,7 +660,7 @@ pub(crate) fn build_graphics_section(
                                                 " Apply ",
                                                 TextStyle {
                                                     font: source_code.clone(),
-                                                    font_size: 12.,
+                                                    font_size: ESC_MENU_FONT_SIZE,
                                                     color: Color::WHITE.into(),
                                                 },
                                             ));
@@ -678,7 +679,7 @@ pub(crate) fn build_graphics_section(
                                 "Window Mode: ",
                                 TextStyle {
                                     font: source_code.clone(),
-                                    font_size: 12.0,
+                                    font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
@@ -714,7 +715,7 @@ pub(crate) fn build_graphics_section(
                                 "Vsync: ",
                                 TextStyle {
                                     font: source_code.clone(),
-                                    font_size: 12.0,
+                                    font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
@@ -745,7 +746,7 @@ pub(crate) fn build_graphics_section(
                                 "Fxaa: ",
                                 TextStyle {
                                     font: source_code.clone(),
-                                    font_size: 12.0,
+                                    font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
@@ -790,7 +791,7 @@ pub(crate) fn build_graphics_section(
                                 "Msaa: ",
                                 TextStyle {
                                     font: source_code.clone(),
-                                    font_size: 12.0,
+                                    font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
