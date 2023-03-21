@@ -55,6 +55,8 @@ pub struct GeneralHeaderButton;
 #[derive(Component)]
 pub struct GraphicsHeaderButton;
 
+pub const ESC_MENU_FONT_COLOR: Color = Color::DARK_GRAY;
+
 pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let arizone_font = asset_server.load(ARIZONE_FONT);
     let empire_font = asset_server.load(EMPIRE_FONT);
@@ -323,7 +325,7 @@ pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetS
                                         TextStyle {
                                             font: empire_font.clone(),
                                             font_size: 12.0,
-                                            color: Color::WHITE.into(),
+                                            color: ESC_MENU_FONT_COLOR.into(),
                                         },
                                     ));
                                 });
@@ -443,7 +445,7 @@ pub(crate) fn build_controls_section(
                                     TextStyle {
                                         font: source_code.clone(),
                                         font_size: 12.0,
-                                        color: Color::WHITE.into(),
+                                        color: ESC_MENU_FONT_COLOR.into(),
                                     },
                                 ));
                                 parent.spawn(TextBundle::from_section(
@@ -451,7 +453,7 @@ pub(crate) fn build_controls_section(
                                     TextStyle {
                                         font: source_code.clone(),
                                         font_size: 12.0,
-                                        color: Color::WHITE.into(),
+                                        color: ESC_MENU_FONT_COLOR.into(),
                                     },
                                 ));
                             });
@@ -564,7 +566,7 @@ pub(crate) fn build_graphics_section(
                                 TextStyle {
                                     font: source_code.clone(),
                                     font_size: 12.0,
-                                    color: Color::WHITE.into(),
+                                    color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
                             parent
@@ -677,7 +679,7 @@ pub(crate) fn build_graphics_section(
                                 TextStyle {
                                     font: source_code.clone(),
                                     font_size: 12.0,
-                                    color: Color::WHITE.into(),
+                                    color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
                             parent
@@ -713,7 +715,7 @@ pub(crate) fn build_graphics_section(
                                 TextStyle {
                                     font: source_code.clone(),
                                     font_size: 12.0,
-                                    color: Color::WHITE.into(),
+                                    color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
                             parent
@@ -744,7 +746,7 @@ pub(crate) fn build_graphics_section(
                                 TextStyle {
                                     font: source_code.clone(),
                                     font_size: 12.0,
-                                    color: Color::WHITE.into(),
+                                    color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
                             let selected_i;
@@ -789,7 +791,7 @@ pub(crate) fn build_graphics_section(
                                 TextStyle {
                                     font: source_code.clone(),
                                     font_size: 12.0,
-                                    color: Color::WHITE.into(),
+                                    color: ESC_MENU_FONT_COLOR.into(),
                                 },
                             ));
                             parent
