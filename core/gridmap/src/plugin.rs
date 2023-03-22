@@ -28,11 +28,10 @@ use crate::{
     graphics::set_cell_graphics,
     grid::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
-        remove_tile, remove_tile_net, AddGroup, AddTile, Gridmap, RemoveTile,
+        remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, Gridmap, RemoveTile,
     },
     init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
     net::{GridmapClientMessage, GridmapServerMessage},
-    wall::add_wall_group,
 };
 
 use super::{
@@ -113,7 +112,7 @@ impl Plugin for GridmapPlugin {
             .add_system(add_tile)
             .add_event::<AddTile>()
             .add_event::<AddGroup>()
-            .add_system(add_wall_group)
+            .add_system(spawn_group)
             .add_system(add_tile_collision)
             .add_system(remove_tile)
             .add_event::<RemoveTile>();

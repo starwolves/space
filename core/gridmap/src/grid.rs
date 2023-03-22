@@ -157,14 +157,12 @@ pub struct CellItem {
     /// Id of tile type.
     pub tile_type: u16,
     /// Instance id of gridmap group.
-    pub group_instance_id_option: Option<u32>,
+    pub group_id_option: Option<u16>,
     /// Entity belonging to item.
     pub entity: Option<Entity>,
-    /// Shared group entity for tile.
-    pub group_entity: Option<Entity>,
     /// Health of this tile.
     pub health: Health,
-    /// Rotation. Range of 0 - 24. See [ORTHOGONAL_BASES].
+    /// Rotation. Range of 0 - 24. See [OrthogonalBases].
     pub orientation: u8,
 }
 
@@ -243,7 +241,7 @@ pub struct Gridmap {
     pub blackcell_blocking_id: u16,
     pub main_cell_properties: HashMap<u16, TileProperties>,
     pub map_length_limit: MapLimits,
-    pub groups: Vec<HashMap<Vec3Int, u16>>,
+    pub groups: HashMap<u16, HashMap<Vec3Int, u16>>,
     pub group_instance_incremental: u32,
 }
 
@@ -270,6 +268,20 @@ impl Gridmap {
                                             continue;
                                         }
                                     };
+                                    let cell_item;
+
+                                    match item.group_id_option {
+                                        Some(group_id) => {
+                                            cell_item = RonItem::Group(GroupItem {
+                                                id: cell_item_id,
+                                                group_id: group_id,
+                                            });
+                                        }
+                                        None => {
+                                            cell_item = RonItem::Cell(cell_item_id);
+                                        }
+                                    }
+
                                     data.push(CellDataRon {
                                         id: self
                                             .get_id(CellIndexes {
@@ -277,7 +289,7 @@ impl Gridmap {
                                                 cell: cell_i,
                                             })
                                             .unwrap(),
-                                        item: RonItem::Cell(cell_item_id),
+                                        item: cell_item,
                                         orientation: item.orientation,
                                         face: face,
                                     });
@@ -321,7 +333,7 @@ impl Default for Gridmap {
             blackcell_blocking_id: 0,
             main_cell_properties: HashMap::default(),
             map_length_limit: MapLimits::default(),
-            groups: vec![],
+            groups: HashMap::default(),
             group_id_map: HashMap::default(),
             id_group_map: HashMap::default(),
             group_instance_incremental: 0,
@@ -575,7 +587,7 @@ pub struct AddTile {
     /// Rotation.
     pub orientation: u8,
     pub face: CellFace,
-    pub group_instance_id_option: Option<u32>,
+    pub group_id_option: Option<u32>,
     pub entity: Entity,
     pub default_map_spawn: bool,
 }
@@ -587,7 +599,7 @@ impl Default for AddTile {
             tile_type: 0,
             orientation: 0,
             face: CellFace::default(),
-            group_instance_id_option: None,
+            group_id_option: None,
             entity: Entity::from_bits(0),
             default_map_spawn: false,
         }
@@ -600,6 +612,8 @@ pub struct AddGroup {
     pub id: Vec3Int,
     /// Group id.
     pub group_id: u16,
+    /// Id of the main tile type.
+    pub tile_type: u16,
     /// Rotation.
     pub orientation: u8,
     pub face: CellFace,
@@ -610,7 +624,7 @@ use bevy::prelude::{EventReader, ResMut};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
 
 use crate::{
-    init::{CellDataRon, RonItem},
+    init::{CellDataRon, GroupItem, RonItem},
     net::{ConstructCell, GridmapServerMessage, NewCell},
 };
 
@@ -845,7 +859,7 @@ pub(crate) fn add_cell_client(
                     tile_type: new.tile_type,
                     orientation: new.orientation,
                     face: new.cell.face.clone(),
-                    group_instance_id_option: None,
+                    group_id_option: None,
                     entity: commands.spawn(()).id(),
                     default_map_spawn: false,
                 });
@@ -962,7 +976,6 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                         let new = Some(CellItem {
                             tile_type: add_tile_event.tile_type,
                             entity: Some(add_tile_event.entity),
-                            group_entity: None,
                             health: Health {
                                 health_flags: health_flags.clone(),
                                 health_container: HealthContainer::Structure(
@@ -971,7 +984,7 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                                 ..Default::default()
                             },
                             orientation: add_tile_event.orientation.clone(),
-                            group_instance_id_option: None,
+                            group_id_option: None,
                         });
 
                         match strict.face {
@@ -1116,5 +1129,37 @@ impl Orthogonal for Quat {
         }
 
         return 0;
+    }
+}
+
+pub(crate) fn spawn_group(
+    mut events: EventReader<AddGroup>,
+    mut gridmap_main: ResMut<Gridmap>,
+    mut set_tile: EventWriter<AddTile>,
+    mut commands: Commands,
+) {
+    for add_group_event in events.iter() {
+        match gridmap_main.groups.get(&add_group_event.tile_type) {
+            Some(tiles) => {
+                let mut i = 0;
+
+                for (local_id, tile_type) in tiles.iter() {
+                    set_tile.send(AddTile {
+                        id: add_group_event.id + *local_id,
+                        tile_type: *tile_type,
+                        orientation: add_group_event.orientation.clone(),
+                        face: add_group_event.face.clone(),
+                        group_id_option: Some(gridmap_main.group_instance_incremental + i + 1),
+                        entity: commands.spawn(()).id(),
+                        default_map_spawn: add_group_event.default_map_spawn,
+                    });
+                    i += 1;
+                }
+                gridmap_main.group_instance_incremental += i;
+            }
+            None => {
+                warn!("Couldnt find to be spawned group.");
+            }
+        }
     }
 }

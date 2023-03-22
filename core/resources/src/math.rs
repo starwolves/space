@@ -1,3 +1,5 @@
+use std::ops::{Add, Sub};
+
 use bevy::prelude::Vec3;
 use serde::{Deserialize, Serialize};
 
@@ -12,6 +14,30 @@ pub struct Vec3Int {
     pub x: i16,
     pub y: i16,
     pub z: i16,
+}
+
+impl Sub for Vec3Int {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
+impl Add for Vec3Int {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
 }
 
 /// Use this to obtain data from large gridmap layer resources.

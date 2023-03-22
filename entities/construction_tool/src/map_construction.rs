@@ -111,7 +111,7 @@ pub(crate) fn mouse_click_input(
                     tile_type: type_id,
                     orientation: construct.orientation,
                     face: construct.cell.face.clone(),
-                    group_instance_id_option: None,
+                    group_id_option: None,
                     entity: commands.spawn(()).id(),
                     default_map_spawn: false,
                 });

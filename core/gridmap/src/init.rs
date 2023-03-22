@@ -33,8 +33,9 @@ pub(crate) fn startup_map_tile_properties(
     } else {
         mesh_option = None;
     }
+    let id = *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap();
     main_cells_data.push(TileProperties {
-        id: *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
+        id: id,
         name: RichName {
             name: "aluminum wall".to_string(),
             n: true,
@@ -47,6 +48,7 @@ pub(crate) fn startup_map_tile_properties(
         ..Default::default()
     });
     let mut wall_group = HashMap::new();
+    let group_id = 0;
     wall_group.insert(
         Vec3Int { x: 0, y: 0, z: 0 },
         *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
@@ -55,13 +57,13 @@ pub(crate) fn startup_map_tile_properties(
         Vec3Int { x: 0, y: 1, z: 0 },
         *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
     );
-    gridmap_data.groups.push(wall_group);
+    gridmap_data.groups.insert(group_id, wall_group);
     gridmap_data
         .group_id_map
-        .insert("generic_wall_group_1".to_string(), 0);
+        .insert("generic_wall_group_1".to_string(), group_id);
     gridmap_data
         .id_group_map
-        .insert(0, "generic_wall_group_1".to_string());
+        .insert(group_id, "generic_wall_group_1".to_string());
     let mesh_option;
     if !is_server() {
         mesh_option = Some(assets.load("models/floor/floor.glb#Scene0"));
@@ -223,33 +225,32 @@ pub(crate) fn load_ron_gridmap(
                         break;
                     }
                 };
-
                 set_cell.send(AddTile {
                     id: cell_data.id,
                     face: cell_data.face.clone(),
                     orientation: cell_data.orientation.clone(),
                     tile_type: cell_item_id,
-                    group_instance_id_option: None,
+                    group_id_option: None,
                     entity: commands.spawn(()).id(),
                     default_map_spawn: true,
                 });
             }
             RonItem::Group(item) => {
-                let group_item_id;
+                let cell_item_id;
 
-                match gridmap_data.group_id_map.get(item) {
+                match gridmap_data.group_id_map.get(&item.id) {
                     Some(x) => {
-                        group_item_id = *x;
+                        cell_item_id = *x;
                     }
                     None => {
-                        warn!("Couldnt find item {}", item);
+                        warn!("Couldnt find group item id {}", item.id);
                         break;
                     }
                 };
-
                 set_group.send(AddGroup {
                     id: cell_data.id,
-                    group_id: group_item_id,
+                    tile_type: cell_item_id,
+                    group_id: item.group_id,
                     orientation: cell_data.orientation.clone(),
                     face: cell_data.face.clone(),
                     default_map_spawn: true,
@@ -277,5 +278,10 @@ pub struct CellDataRon {
 #[derive(Serialize, Deserialize)]
 pub enum RonItem {
     Cell(String),
-    Group(String),
+    Group(GroupItem),
+}
+#[derive(Serialize, Deserialize)]
+pub struct GroupItem {
+    pub id: String,
+    pub group_id: u16,
 }

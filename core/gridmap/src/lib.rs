@@ -29,4 +29,3 @@ pub mod net;
 pub mod plugin;
 /// Manage sensing authorization for gridmap examining.
 mod sensing_ability;
-pub mod wall;
