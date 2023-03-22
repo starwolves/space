@@ -29,13 +29,6 @@ pub(crate) fn configure(
 
         server.send(OutgoingReliableServerMessage {
             handle: event.handle,
-            message: GridmapServerMessage::ConfigOrderedCellsDetails1(
-                gridmap_data.ordered_details1_names.clone(),
-            ),
-        });
-
-        server.send(OutgoingReliableServerMessage {
-            handle: event.handle,
             message: GridmapServerMessage::ConfigPlaceableItemsSurfaces(
                 gridmap_data.placeable_items_cells_list.clone(),
             ),
