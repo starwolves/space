@@ -208,8 +208,9 @@ pub(crate) fn load_ron_gridmap(
         return;
     }
 
-    let current_map_main_data: Vec<CellDataRon> = bincode::deserialize(&current_map_main_raw_ron)
-        .expect("startup_build_map() Error parsing map main.ron String.");
+    let current_map_main_data: Vec<CellDataExport> =
+        bincode::deserialize(&current_map_main_raw_ron)
+            .expect("startup_build_map() Error parsing map main.ron String.");
 
     for cell_data in current_map_main_data.iter() {
         match &cell_data.item {
@@ -266,7 +267,7 @@ use player::boarding::{SpawnPoint, SpawnPoints};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-pub struct CellDataRon {
+pub struct CellDataExport {
     pub id: Vec3Int,
     /// Cell item id.
     pub item: RonItem,

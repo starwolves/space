@@ -282,7 +282,7 @@ impl Gridmap {
                                         }
                                     }
 
-                                    data.push(CellDataRon {
+                                    data.push(CellDataExport {
                                         id: self
                                             .get_id(CellIndexes {
                                                 chunk: chunk_i,
@@ -624,7 +624,7 @@ use bevy::prelude::{EventReader, ResMut};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
 
 use crate::{
-    init::{CellDataRon, GroupItem, RonItem},
+    init::{CellDataExport, GroupItem, RonItem},
     net::{ConstructCell, GridmapServerMessage, NewCell},
 };
 
