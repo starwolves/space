@@ -214,7 +214,7 @@ pub(crate) fn load_ron_gridmap(
 
     for cell_data in current_map_main_data.iter() {
         match &cell_data.item {
-            RonItem::Cell(item) => {
+            ItemExport::Cell(item) => {
                 let cell_item_id;
 
                 match gridmap_data.main_name_id_map.get(item) {
@@ -236,7 +236,7 @@ pub(crate) fn load_ron_gridmap(
                     default_map_spawn: true,
                 });
             }
-            RonItem::Group(item) => {
+            ItemExport::Group(item) => {
                 let cell_item_id;
 
                 match gridmap_data.group_id_map.get(&item.id) {
@@ -270,14 +270,14 @@ use serde::{Deserialize, Serialize};
 pub struct CellDataExport {
     pub id: Vec3Int,
     /// Cell item id.
-    pub item: RonItem,
+    pub item: ItemExport,
     /// Cell rotation.
     pub orientation: u8,
     pub face: CellFace,
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum RonItem {
+pub enum ItemExport {
     Cell(String),
     Group(GroupItem),
 }

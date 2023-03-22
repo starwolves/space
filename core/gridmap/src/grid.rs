@@ -272,13 +272,13 @@ impl Gridmap {
 
                                     match item.group_id_option {
                                         Some(group_id) => {
-                                            cell_item = RonItem::Group(GroupItem {
+                                            cell_item = ItemExport::Group(GroupItem {
                                                 id: cell_item_id,
                                                 group_id: group_id,
                                             });
                                         }
                                         None => {
-                                            cell_item = RonItem::Cell(cell_item_id);
+                                            cell_item = ItemExport::Cell(cell_item_id);
                                         }
                                     }
 
@@ -624,7 +624,7 @@ use bevy::prelude::{EventReader, ResMut};
 use entity::health::{HealthContainer, HealthFlag, StructureHealth};
 
 use crate::{
-    init::{CellDataExport, GroupItem, RonItem},
+    init::{CellDataExport, GroupItem, ItemExport},
     net::{ConstructCell, GridmapServerMessage, NewCell},
 };
 
