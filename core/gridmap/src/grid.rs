@@ -246,7 +246,7 @@ pub struct Gridmap {
 }
 
 impl Gridmap {
-    pub fn export_ron(&self) -> String {
+    pub fn export_binary(&self) -> Vec<u8> {
         let mut data = vec![];
         let mut chunk_i = 0;
         for chunk_option in &self.grid {
@@ -304,7 +304,7 @@ impl Gridmap {
             }
             chunk_i += 1;
         }
-        ron::to_string(&data).unwrap()
+        bincode::serialize(&data).unwrap()
     }
 }
 

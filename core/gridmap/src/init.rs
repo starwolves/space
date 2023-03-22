@@ -199,8 +199,8 @@ pub(crate) fn load_ron_gridmap(
     let main_ron = Path::new("data")
         .join("maps")
         .join("bullseye")
-        .join("main.ron");
-    let current_map_main_raw_ron: String = fs::read_to_string(main_ron)
+        .join("main.bin");
+    let current_map_main_raw_ron = fs::read(main_ron)
         .expect("startup_build_map() Error reading map main.ron file from drive.");
 
     if current_map_main_raw_ron.len() == 0 {
@@ -208,7 +208,7 @@ pub(crate) fn load_ron_gridmap(
         return;
     }
 
-    let current_map_main_data: Vec<CellDataRon> = ron::from_str(&current_map_main_raw_ron)
+    let current_map_main_data: Vec<CellDataRon> = bincode::deserialize(&current_map_main_raw_ron)
         .expect("startup_build_map() Error parsing map main.ron String.");
 
     for cell_data in current_map_main_data.iter() {

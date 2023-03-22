@@ -35,10 +35,10 @@ pub(crate) fn export_map(
                 let path = Path::new("data")
                     .join("maps")
                     .join("bullseye")
-                    .join(format!("main_export{}.ron", i));
+                    .join(format!("main_export{}.bin", i));
                 if !path.exists() {
                     let mut file = File::create(path.clone()).unwrap();
-                    file.write_all(gridmap.export_ron().as_bytes()).unwrap();
+                    file.write_all(&gridmap.export_binary()).unwrap();
                     match command.handle_option {
                         Some(handle) => {
                             net.send(OutgoingReliableServerMessage {
