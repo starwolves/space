@@ -1,6 +1,9 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, With};
-use gridmap::{grid::Gridmap, net::GridmapServerMessage};
+use gridmap::{
+    grid::{CellTypeName, Gridmap},
+    net::GridmapServerMessage,
+};
 use inventory::item::InventoryItem;
 
 use crate::construction_tool::{ConstructionTool, InputConstructionOptions, InputDeconstruct};
@@ -107,12 +110,16 @@ pub fn open_input_construction_options_ui(
     for event in events.iter() {
         match event.handle_option {
             Some(handle) => {
+                let mut names = vec![];
+                for name in gridmap.ordered_main_names.iter() {
+                    names.push(name.to_string());
+                }
                 net.send(OutgoingReliableServerMessage {
                     handle: handle,
                     message: UiServerMessage::TextTreeSelection(TextTreeSelection {
                         entity: event.entity,
                         id: CONSTRUCTION_OPTIONS_TEXT_LIST_ID.to_string(),
-                        entries: gridmap.ordered_main_names.clone(),
+                        entries: names,
                         text: "Select Construction".to_string(),
                     }),
                 });
@@ -264,7 +271,10 @@ pub(crate) fn construction_tool_select_construction_option(
     for event in input_events.iter() {
         if event.id == CONSTRUCTION_OPTIONS_TEXT_LIST_ID {
             match query.get_mut(event.entity) {
-                Ok(mut c) => match gridmap.main_name_id_map.get(&event.entry) {
+                Ok(mut c) => match gridmap
+                    .main_name_id_map
+                    .get(&CellTypeName(event.entry.clone()))
+                {
                     Some(type_id) => {
                         c.construction_option = Some(*type_id);
 

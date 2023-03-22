@@ -1,4 +1,5 @@
 use bevy::prelude::{Component, Entity};
+use gridmap::grid::CellTypeId;
 use resources::grid::TargetCell;
 
 /// The component.
@@ -6,7 +7,7 @@ use resources::grid::TargetCell;
 
 pub struct ConstructionTool {
     /// Currently selected construction cell option.
-    pub construction_option: Option<u16>,
+    pub construction_option: Option<CellTypeId>,
 }
 
 /// Player requested input event.

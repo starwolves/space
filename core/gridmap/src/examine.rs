@@ -12,7 +12,7 @@ use text_api::core::{
     FURTHER_ITALIC_FONT, HEALTHY_COLOR, UNHEALTHY_COLOR,
 };
 
-use crate::grid::{CellItem, Gridmap};
+use crate::grid::{CellItem, CellTypeId, Gridmap};
 
 /// Manage examining the gridmap.
 
@@ -448,7 +448,7 @@ pub fn examine_ship_cell(ship_cell: &CellItem, gridmap_data: &Res<Gridmap>) -> S
             .get_name()
         + ".[/font]\n";
 
-    if ship_cell.tile_type != 0 {
+    if ship_cell.tile_type != CellTypeId(0) {
         examine_text = gridmap_data
             .main_text_examine_desc
             .get(&ship_cell.tile_type)

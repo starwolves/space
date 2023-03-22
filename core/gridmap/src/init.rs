@@ -6,7 +6,10 @@ use entity::examine::RichName;
 use resources::math::Vec3Int;
 use resources::{core::TickRate, grid::CellFace, is_server::is_server};
 
-use crate::grid::{AddGroup, AddTile, CellType, Gridmap, TileProperties};
+use crate::grid::{
+    AddGroup, AddTile, CellType, CellTypeId, CellTypeName, Gridmap, GroupTypeId, GroupTypeName,
+    TileProperties,
+};
 
 /// Physics friction on placeable item surfaces.
 
@@ -33,7 +36,10 @@ pub(crate) fn startup_map_tile_properties(
     } else {
         mesh_option = None;
     }
-    let id = *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap();
+    let id = *gridmap_data
+        .main_name_id_map
+        .get(&CellTypeName("generic_wall_1".to_owned()))
+        .unwrap();
     main_cells_data.push(TileProperties {
         id: id,
         name: RichName {
@@ -48,22 +54,28 @@ pub(crate) fn startup_map_tile_properties(
         ..Default::default()
     });
     let mut wall_group = HashMap::new();
-    let group_id = 0;
+    let group_id = GroupTypeId(0);
     wall_group.insert(
         Vec3Int { x: 0, y: 0, z: 0 },
-        *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
+        *gridmap_data
+            .main_name_id_map
+            .get(&CellTypeName("generic_wall_1".to_string()))
+            .unwrap(),
     );
     wall_group.insert(
         Vec3Int { x: 0, y: 1, z: 0 },
-        *gridmap_data.main_name_id_map.get("generic_wall_1").unwrap(),
+        *gridmap_data
+            .main_name_id_map
+            .get(&CellTypeName("generic_wall_1".to_string()))
+            .unwrap(),
     );
     gridmap_data.groups.insert(group_id, wall_group);
     gridmap_data
         .group_id_map
-        .insert("generic_wall_group_1".to_string(), group_id);
+        .insert(GroupTypeName("generic_wall_group_1".to_string()), group_id);
     gridmap_data
         .id_group_map
-        .insert(group_id, "generic_wall_group_1".to_string());
+        .insert(group_id, GroupTypeName("generic_wall_group_1".to_string()));
     let mesh_option;
     if !is_server() {
         mesh_option = Some(assets.load("models/floor/floor.glb#Scene0"));
@@ -73,7 +85,7 @@ pub(crate) fn startup_map_tile_properties(
     main_cells_data.push(TileProperties {
         id: *gridmap_data
             .main_name_id_map
-            .get("generic_floor_1")
+            .get(&CellTypeName("generic_floor_1".to_string()))
             .unwrap(),
         name: RichName {
             name: "aluminum floor".to_string(),
@@ -88,7 +100,7 @@ pub(crate) fn startup_map_tile_properties(
         ..Default::default()
     });
 
-    gridmap_data.non_fov_blocking_cells_list.push(0);
+    gridmap_data.non_fov_blocking_cells_list.push(CellTypeId(0));
 
     for cell_properties in main_cells_data.iter() {
         gridmap_data
@@ -157,16 +169,19 @@ pub(crate) fn startup_misc_resources(
         ron::from_str(&current_map_mainordered_cells_raw_ron)
             .expect("Error parsing map mainordered.ron String.");
 
+    let mut current_map_mainordered_cells_typed: Vec<CellTypeName> = vec![];
+
     for (i, name) in current_map_mainordered_cells.iter().rev().enumerate() {
         gridmap_data
             .main_name_id_map
-            .insert(name.to_string(), i as u16);
+            .insert(CellTypeName(name.to_string()), CellTypeId(i as u16));
         gridmap_data
             .main_id_name_map
-            .insert(i as u16, name.to_string());
+            .insert(CellTypeId(i as u16), CellTypeName(name.to_string()));
+        current_map_mainordered_cells_typed.push(CellTypeName(name.to_string()));
     }
 
-    gridmap_data.ordered_main_names = current_map_mainordered_cells;
+    gridmap_data.ordered_main_names = current_map_mainordered_cells_typed;
 
     let spawnpoints_ron = Path::new("data")
         .join("maps")
@@ -222,7 +237,7 @@ pub(crate) fn load_ron_gridmap(
                         cell_item_id = *x;
                     }
                     None => {
-                        warn!("Couldnt find item {}", item);
+                        warn!("Couldnt find item {:?}", item);
                         break;
                     }
                 };
@@ -237,21 +252,20 @@ pub(crate) fn load_ron_gridmap(
                 });
             }
             ItemExport::Group(item) => {
-                let cell_item_id;
+                let group_id;
 
-                match gridmap_data.group_id_map.get(&item.id) {
-                    Some(x) => {
-                        cell_item_id = *x;
+                match gridmap_data.group_id_map.get(&item.name) {
+                    Some(id) => {
+                        group_id = id;
                     }
                     None => {
-                        warn!("Couldnt find group item id {}", item.id);
-                        break;
+                        warn!("Couldnt find group id.");
+                        continue;
                     }
-                };
+                }
                 set_group.send(AddGroup {
                     id: cell_data.id,
-                    tile_type: cell_item_id,
-                    group_id: item.group_id,
+                    group_id: *group_id,
                     orientation: cell_data.orientation.clone(),
                     face: cell_data.face.clone(),
                     default_map_spawn: true,
@@ -278,11 +292,11 @@ pub struct CellDataExport {
 
 #[derive(Serialize, Deserialize)]
 pub enum ItemExport {
-    Cell(String),
+    Cell(CellTypeName),
     Group(GroupItem),
 }
 #[derive(Serialize, Deserialize)]
 pub struct GroupItem {
-    pub id: String,
+    pub name: GroupTypeName,
     pub group_id: u16,
 }

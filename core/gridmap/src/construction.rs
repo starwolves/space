@@ -26,7 +26,7 @@ use resources::{
 };
 
 use crate::{
-    grid::{Gridmap, Orthogonal, OrthogonalBases},
+    grid::{CellTypeId, Gridmap, Orthogonal, OrthogonalBases},
     net::{ConstructCell, DeconstructCell, GridmapClientMessage, GridmapServerMessage},
 };
 
@@ -95,7 +95,7 @@ pub struct GridmapConstructionState {
 
 pub struct GhostTile {
     /// Id of tile type.
-    pub tile_type: u16,
+    pub tile_type: CellTypeId,
 }
 
 pub struct ShowYLevelPlane {

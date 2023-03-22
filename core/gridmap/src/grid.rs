@@ -1,4 +1,4 @@
-use std::{collections::HashMap, f32::consts::PI};
+use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 
 use bevy::{
     prelude::{
@@ -47,7 +47,7 @@ pub enum CellType {
 #[derive(Clone)]
 
 pub struct TileProperties {
-    pub id: u16,
+    pub id: CellTypeId,
     pub name: RichName,
     pub description: String,
     pub non_fov_blocker: bool,
@@ -70,7 +70,7 @@ pub struct TileProperties {
 impl Default for TileProperties {
     fn default() -> Self {
         Self {
-            id: 0,
+            id: CellTypeId(0),
             name: Default::default(),
             description: "".to_string(),
             non_fov_blocker: false,
@@ -155,10 +155,10 @@ impl GridCell {
 #[derive(Clone, Default, Debug)]
 pub struct CellItem {
     /// Id of tile type.
-    pub tile_type: u16,
+    pub tile_type: CellTypeId,
     /// Instance id of gridmap group.
     pub group_id_option: Option<u16>,
-    /// Entity belonging to item.
+    /// Entity belonging to cell item.
     pub entity: Option<Entity>,
     /// Health of this tile.
     pub health: Health,
@@ -214,34 +214,67 @@ pub enum GridmapUpdate {
     Added(NewCell),
     Removed,
 }
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Hash, PartialEq, Default)]
+/// Identifier used for exports and imports.
+pub struct CellTypeName(pub String);
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Hash, PartialEq, Default, Copy)]
+/// Each cell type name has a u16 id for efficiency.
+pub struct CellTypeId(pub u16);
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Hash, PartialEq, Default)]
+pub struct GroupTypeName(pub String);
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Hash, PartialEq, Default, Copy)]
+pub struct GroupTypeId(pub u16);
 
+impl Deref for CellTypeName {
+    type Target = String;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl Deref for CellTypeId {
+    type Target = u16;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl Deref for GroupTypeName {
+    type Target = String;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl Deref for GroupTypeId {
+    type Target = u16;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 /// Stores the main gridmap layer data, huge map data resource. In favor of having each ordinary tile having its own entity with its own sets of components.
-/// The hashmaps should probably be turned into arrays by converting Vec3Int into an index for performance reasons.
 #[derive(Resource)]
 pub struct Gridmap {
     pub grid: Vec<Option<GridmapChunk>>,
     pub updates: HashMap<TargetCell, AddedUpdate>,
-    pub non_fov_blocking_cells_list: Vec<u16>,
-    pub non_combat_obstacle_cells_list: Vec<u16>,
-    pub non_laser_obstacle_cells_list: Vec<u16>,
-    pub placeable_items_cells_list: Vec<u16>,
-    pub ordered_main_names: Vec<String>,
-    pub ordered_details1_names: Vec<String>,
-    pub main_name_id_map: HashMap<String, u16>,
-    pub main_id_name_map: HashMap<u16, String>,
-    pub group_id_map: HashMap<String, u16>,
-    pub id_group_map: HashMap<u16, String>,
-    pub details1_name_id_map: HashMap<String, u16>,
-    pub details1_id_name_map: HashMap<u16, String>,
-    pub main_text_names: HashMap<u16, RichName>,
-    pub details1_text_names: HashMap<u16, RichName>,
-    pub main_text_examine_desc: HashMap<u16, String>,
-    pub details1_text_examine_desc: HashMap<u16, String>,
-    pub blackcell_id: u16,
-    pub blackcell_blocking_id: u16,
-    pub main_cell_properties: HashMap<u16, TileProperties>,
+    pub non_fov_blocking_cells_list: Vec<CellTypeId>,
+    pub non_combat_obstacle_cells_list: Vec<CellTypeId>,
+    pub non_laser_obstacle_cells_list: Vec<CellTypeId>,
+    pub placeable_items_cells_list: Vec<CellTypeId>,
+    pub ordered_main_names: Vec<CellTypeName>,
+    pub ordered_details1_names: Vec<CellTypeName>,
+    pub main_name_id_map: HashMap<CellTypeName, CellTypeId>,
+    pub main_id_name_map: HashMap<CellTypeId, CellTypeName>,
+    pub group_id_map: HashMap<GroupTypeName, GroupTypeId>,
+    pub id_group_map: HashMap<GroupTypeId, GroupTypeName>,
+    pub details1_name_id_map: HashMap<CellTypeName, CellTypeId>,
+    pub details1_id_name_map: HashMap<CellTypeId, CellTypeName>,
+    pub main_text_names: HashMap<CellTypeId, RichName>,
+    pub details1_text_names: HashMap<CellTypeId, RichName>,
+    pub main_text_examine_desc: HashMap<CellTypeId, String>,
+    pub details1_text_examine_desc: HashMap<CellTypeId, String>,
+    pub blackcell_id: CellTypeId,
+    pub blackcell_blocking_id: CellTypeId,
+    pub main_cell_properties: HashMap<CellTypeId, TileProperties>,
     pub map_length_limit: MapLimits,
-    pub groups: HashMap<u16, HashMap<Vec3Int, u16>>,
+    pub groups: HashMap<GroupTypeId, HashMap<Vec3Int, CellTypeId>>,
     pub group_instance_incremental: u32,
 }
 
@@ -264,7 +297,7 @@ impl Gridmap {
                                             cell_item_id = x.clone();
                                         }
                                         None => {
-                                            warn!("Couldnt find item {}", item.tile_type);
+                                            warn!("Couldnt find item {:?}", item.tile_type);
                                             continue;
                                         }
                                     };
@@ -273,12 +306,14 @@ impl Gridmap {
                                     match item.group_id_option {
                                         Some(group_id) => {
                                             cell_item = ItemExport::Group(GroupItem {
-                                                id: cell_item_id,
+                                                name: GroupTypeName(cell_item_id.to_string()),
                                                 group_id: group_id,
                                             });
                                         }
                                         None => {
-                                            cell_item = ItemExport::Cell(cell_item_id);
+                                            cell_item = ItemExport::Cell(CellTypeName(
+                                                cell_item_id.to_string(),
+                                            ));
                                         }
                                     }
 
@@ -329,8 +364,8 @@ impl Default for Gridmap {
             details1_text_names: HashMap::default(),
             main_text_examine_desc: HashMap::default(),
             details1_text_examine_desc: HashMap::default(),
-            blackcell_id: 0,
-            blackcell_blocking_id: 0,
+            blackcell_id: CellTypeId(0),
+            blackcell_blocking_id: CellTypeId(0),
             main_cell_properties: HashMap::default(),
             map_length_limit: MapLimits::default(),
             groups: HashMap::default(),
@@ -583,7 +618,7 @@ impl Default for Cell {
 pub struct AddTile {
     pub id: Vec3Int,
     /// Id of tile type.
-    pub tile_type: u16,
+    pub tile_type: CellTypeId,
     /// Rotation.
     pub orientation: u8,
     pub face: CellFace,
@@ -596,7 +631,7 @@ impl Default for AddTile {
     fn default() -> Self {
         Self {
             id: Vec3Int::default(),
-            tile_type: 0,
+            tile_type: CellTypeId(0),
             orientation: 0,
             face: CellFace::default(),
             group_id_option: None,
@@ -611,9 +646,7 @@ impl Default for AddTile {
 pub struct AddGroup {
     pub id: Vec3Int,
     /// Group id.
-    pub group_id: u16,
-    /// Id of the main tile type.
-    pub tile_type: u16,
+    pub group_id: GroupTypeId,
     /// Rotation.
     pub orientation: u8,
     pub face: CellFace,
@@ -893,7 +926,7 @@ pub(crate) fn add_tile_collision(
                 cell_properties = x;
             }
             None => {
-                warn!("Unknown cellid {}. Initialization of gridmap cell in startup gridmap systems missing.", event.tile_type);
+                warn!("Unknown cellid {:?}. Initialization of gridmap cell in startup gridmap systems missing.", event.tile_type);
                 return;
             }
         }
@@ -1139,7 +1172,7 @@ pub(crate) fn spawn_group(
     mut commands: Commands,
 ) {
     for add_group_event in events.iter() {
-        match gridmap_main.groups.get(&add_group_event.tile_type) {
+        match gridmap_main.groups.get(&add_group_event.group_id) {
             Some(tiles) => {
                 let mut i = 0;
 

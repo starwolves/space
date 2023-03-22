@@ -4,6 +4,9 @@ use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
 
+use crate::grid::CellTypeId;
+use crate::grid::CellTypeName;
+
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
@@ -21,7 +24,7 @@ pub struct ConstructCell {
 pub struct NewCell {
     pub cell: TargetCell,
     pub orientation: u8,
-    pub tile_type: u16,
+    pub tile_type: CellTypeId,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DeconstructCell {
@@ -35,12 +38,12 @@ pub enum GridmapServerMessage {
     RemoveCell(TargetCell),
     AddCell(NewCell),
     FireProjectile(ProjectileData),
-    ConfigBlackCellID(u16, u16),
-    ConfigOrderedCellsMain(Vec<String>),
-    ConfigOrderedCellsDetails1(Vec<String>),
-    ConfigPlaceableItemsSurfaces(Vec<u16>),
-    ConfigNonBlockingCells(Vec<u16>),
-    GhostCellType(u16),
+    ConfigBlackCellID(CellTypeId, CellTypeId),
+    ConfigOrderedCellsMain(Vec<CellTypeName>),
+    ConfigOrderedCellsDetails1(Vec<CellTypeName>),
+    ConfigPlaceableItemsSurfaces(Vec<CellTypeId>),
+    ConfigNonBlockingCells(Vec<CellTypeId>),
+    GhostCellType(CellTypeId),
 }
 
 /// Contains information about the projectile and its visual graphics.
