@@ -1,14 +1,12 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::{fs, path::Path};
 
-use bevy::prelude::{info, warn, AssetServer, Commands, EventWriter, Res, ResMut, Transform};
+use bevy::prelude::{info, warn, Commands, EventWriter, Res, ResMut, Resource};
 use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
-use entity::examine::RichName;
 use resources::math::Vec3Int;
-use resources::{core::TickRate, grid::CellFace, is_server::is_server};
+use resources::{core::TickRate, grid::CellFace};
 
 use crate::grid::{
-    AddGroup, AddTile, CellType, CellTypeId, CellTypeName, Gridmap, GroupTypeId, GroupTypeName,
-    TileProperties,
+    AddGroup, AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeName, TileProperties,
 };
 
 /// Physics friction on placeable item surfaces.
@@ -19,90 +17,18 @@ use crate::grid::{
 //pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
 /// Initiate map resource meta-data.
+#[derive(Default, Resource)]
+pub struct InitTileProperties {
+    pub properties: Vec<TileProperties>,
+}
 
-pub(crate) fn startup_map_tile_properties(
+pub(crate) fn init_tile_properties(
     mut gridmap_data: ResMut<Gridmap>,
-    assets: Res<AssetServer>,
+    init: Res<InitTileProperties>,
 ) {
-    let mut main_cells_data = vec![];
-
-    let mut default_isometry = Transform::IDENTITY;
-
-    default_isometry.translation.y = -0.5;
-
-    let mesh_option;
-    if !is_server() {
-        mesh_option = Some(assets.load("models/wall/wall.glb#Scene0"));
-    } else {
-        mesh_option = None;
-    }
-    let id = *gridmap_data
-        .main_name_id_map
-        .get(&CellTypeName("generic_wall_1".to_owned()))
-        .unwrap();
-    main_cells_data.push(TileProperties {
-        id: id,
-        name: RichName {
-            name: "aluminum wall".to_string(),
-            n: true,
-            the: false,
-        },
-        description: "A generic wall tile.".to_string(),
-        constructable: true,
-        mesh_option,
-        cell_type: CellType::Wall,
-        ..Default::default()
-    });
-    let mut wall_group = HashMap::new();
-    let group_id = GroupTypeId(0);
-    wall_group.insert(
-        Vec3Int { x: 0, y: 0, z: 0 },
-        *gridmap_data
-            .main_name_id_map
-            .get(&CellTypeName("generic_wall_1".to_string()))
-            .unwrap(),
-    );
-    wall_group.insert(
-        Vec3Int { x: 0, y: 1, z: 0 },
-        *gridmap_data
-            .main_name_id_map
-            .get(&CellTypeName("generic_wall_1".to_string()))
-            .unwrap(),
-    );
-    gridmap_data.groups.insert(group_id, wall_group);
-    gridmap_data
-        .group_id_map
-        .insert(GroupTypeName("generic_wall_group_1".to_string()), group_id);
-    gridmap_data
-        .id_group_map
-        .insert(group_id, GroupTypeName("generic_wall_group_1".to_string()));
-    let mesh_option;
-    if !is_server() {
-        mesh_option = Some(assets.load("models/floor/floor.glb#Scene0"));
-    } else {
-        mesh_option = None;
-    }
-    main_cells_data.push(TileProperties {
-        id: *gridmap_data
-            .main_name_id_map
-            .get(&CellTypeName("generic_floor_1".to_string()))
-            .unwrap(),
-        name: RichName {
-            name: "aluminum floor".to_string(),
-            n: true,
-            the: false,
-        },
-        description: "A generic floor tile.".to_string(),
-        constructable: true,
-        floor_cell: true,
-        mesh_option,
-        cell_type: CellType::Floor,
-        ..Default::default()
-    });
-
     gridmap_data.non_fov_blocking_cells_list.push(CellTypeId(0));
 
-    for cell_properties in main_cells_data.iter() {
+    for cell_properties in init.properties.iter() {
         gridmap_data
             .main_text_names
             .insert(cell_properties.id, cell_properties.name.clone());
@@ -139,7 +65,7 @@ pub(crate) fn startup_map_tile_properties(
             .insert(cell_properties.id, cell_properties.clone());
     }
 
-    info!("Loaded {} gridmap cell types.", main_cells_data.len());
+    info!("Loaded {} gridmap cell types.", init.properties.len());
 }
 use player::spawn_points::SpawnPointRon;
 

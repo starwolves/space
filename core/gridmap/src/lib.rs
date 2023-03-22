@@ -24,6 +24,7 @@ pub mod graphics;
 pub mod grid;
 /// Initialize gridmap meta data.
 mod init;
+pub mod items;
 pub mod net;
 /// The Bevy plugin of this crate.
 pub mod plugin;

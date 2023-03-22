@@ -30,7 +30,11 @@ use crate::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
         remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, Gridmap, RemoveTile,
     },
-    init::{load_ron_gridmap, startup_map_tile_properties, startup_misc_resources},
+    init::{init_tile_properties, load_ron_gridmap, startup_misc_resources, InitTileProperties},
+    items::{
+        generic_floor::init_floor_properties, generic_wall::init_wall_properties,
+        generic_wall_group::init_wall_group_properties,
+    },
     net::{GridmapClientMessage, GridmapServerMessage},
 };
 
@@ -97,11 +101,14 @@ impl Plugin for GridmapPlugin {
 
         app.add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
-                startup_map_tile_properties
+                init_tile_properties
                     .in_set(StartupLabels::InitDefaultGridmapData)
                     .in_set(BuildingLabels::TriggerBuild)
                     .after(StartupLabels::MiscResources),
             )
+            .add_startup_system(init_floor_properties.before(init_tile_properties))
+            .add_startup_system(init_wall_group_properties.before(init_tile_properties))
+            .add_startup_system(init_wall_properties.before(init_tile_properties))
             .add_startup_system(
                 load_ron_gridmap
                     .in_set(StartupLabels::BuildGridmap)
@@ -115,7 +122,8 @@ impl Plugin for GridmapPlugin {
             .add_system(spawn_group)
             .add_system(add_tile_collision)
             .add_system(remove_tile)
-            .add_event::<RemoveTile>();
+            .add_event::<RemoveTile>()
+            .init_resource::<InitTileProperties>();
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);
