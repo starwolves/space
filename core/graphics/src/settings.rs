@@ -1,4 +1,7 @@
-use std::{fs, path::Path};
+use std::{
+    fs::{self, create_dir_all},
+    path::Path,
+};
 
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
@@ -98,6 +101,7 @@ pub(crate) fn setup_graphics_settings(
     mut msaa_events: EventWriter<SetMsaa>,
 ) {
     let path = Path::new("data").join("settings").join("graphics.ron");
+    let settings_folder = Path::new("data").join("settings");
 
     let mut generate_new_config = !path.exists();
 
@@ -112,6 +116,9 @@ pub(crate) fn setup_graphics_settings(
     }
 
     if generate_new_config {
+        if !settings_folder.exists() {
+            create_dir_all(settings_folder).unwrap();
+        }
         let settings_ron = ron::ser::to_string_pretty(&*settings, PrettyConfig::default()).unwrap();
         fs::write(path, settings_ron).unwrap();
     }
