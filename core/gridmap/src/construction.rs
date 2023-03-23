@@ -26,7 +26,7 @@ use resources::{
 };
 
 use crate::{
-    grid::{CellTypeId, Gridmap, Orthogonal, OrthogonalBases},
+    grid::{CellIds, Gridmap, Orthogonal, OrthogonalBases},
     net::{ConstructCell, DeconstructCell, GridmapClientMessage, GridmapServerMessage},
 };
 
@@ -95,7 +95,7 @@ pub struct GridmapConstructionState {
 
 pub struct GhostTile {
     /// Id of tile type.
-    pub tile_type: CellTypeId,
+    pub tile_type: CellIds,
 }
 
 pub struct ShowYLevelPlane {
@@ -310,8 +310,8 @@ pub(crate) fn input_ghost_rotation(
     match &state.ghost_tile {
         Some(ghost_tile) => match ghost_query.get_mut(state.ghost_entity) {
             Ok(mut ghost_transform) => match state.selected {
-                Some(selected_id) => {
-                    match gridmap.main_cell_properties.get(&ghost_tile.tile_type) {
+                Some(selected_id) => match ghost_tile.tile_type {
+                    CellIds::CellType(id) => match gridmap.main_cell_properties.get(&id) {
                         Some(properties) => {
                             let mut new_face = state.ghost_face.clone();
                             let mut new_rotation = state.ghost_rotation;
@@ -433,8 +433,9 @@ pub(crate) fn input_ghost_rotation(
                         None => {
                             warn!("Couldnt find cell properties.");
                         }
-                    }
-                }
+                    },
+                    CellIds::GroupType(id) => {}
+                },
                 None => {}
             },
             Err(_) => {
@@ -555,38 +556,41 @@ pub(crate) fn update_ghost_cell(
         match select_state.selected {
             Some(selected_id) => match ghost_tile.get_mut(select_state.ghost_entity) {
                 Ok((mut transform, mut scene)) => match &select_state.ghost_tile {
-                    Some(ghost) => match gridmap.main_cell_properties.get(&ghost.tile_type) {
-                        Some(properties) => {
-                            *scene = properties.mesh_option.clone().unwrap();
-                            let face;
-                            if event.changed_tile_type {
-                                select_state.ghost_rotation = 0;
-                                match properties.cell_type {
-                                    crate::grid::CellType::Wall => {
-                                        face = CellFace::FrontWall;
+                    Some(ghost) => match &ghost.tile_type {
+                        CellIds::CellType(id) => match gridmap.main_cell_properties.get(&id) {
+                            Some(properties) => {
+                                *scene = properties.mesh_option.clone().unwrap();
+                                let face;
+                                if event.changed_tile_type {
+                                    select_state.ghost_rotation = 0;
+                                    match properties.cell_type {
+                                        crate::grid::CellType::Wall => {
+                                            face = CellFace::FrontWall;
+                                        }
+                                        crate::grid::CellType::Floor => {
+                                            face = CellFace::Floor;
+                                        }
+                                        crate::grid::CellType::Center => {
+                                            face = CellFace::Center;
+                                        }
                                     }
-                                    crate::grid::CellType::Floor => {
-                                        face = CellFace::Floor;
-                                    }
-                                    crate::grid::CellType::Center => {
-                                        face = CellFace::Center;
-                                    }
+                                    select_state.ghost_face = face.clone();
+                                } else {
+                                    face = select_state.ghost_face.clone();
                                 }
-                                select_state.ghost_face = face.clone();
-                            } else {
-                                face = select_state.ghost_face.clone();
+                                *transform = gridmap.get_cell_transform(
+                                    TargetCell {
+                                        id: selected_id,
+                                        face: face,
+                                    },
+                                    select_state.ghost_rotation,
+                                );
                             }
-                            *transform = gridmap.get_cell_transform(
-                                TargetCell {
-                                    id: selected_id,
-                                    face: face,
-                                },
-                                select_state.ghost_rotation,
-                            );
-                        }
-                        None => {
-                            warn!("Coudlnt find tile.");
-                        }
+                            None => {
+                                warn!("Coudlnt find tile.");
+                            }
+                        },
+                        CellIds::GroupType(id) => {}
                     },
                     None => {}
                 },
@@ -608,7 +612,7 @@ pub(crate) fn change_ghost_tile_request(
         match &message.message {
             GridmapServerMessage::GhostCellType(type_id) => {
                 select_state.ghost_tile = Some(GhostTile {
-                    tile_type: *type_id,
+                    tile_type: type_id.clone(),
                 });
                 events.send(ConstructionCellSelectionChanged {
                     changed_tile_type: true,

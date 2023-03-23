@@ -97,7 +97,7 @@ pub(crate) fn mouse_click_input(
             GridmapClientMessage::ConstructCell(construct) => {
                 let type_id;
 
-                match construction_tool_component.construction_option {
+                match construction_tool_component.construction_option.clone() {
                     Some(i) => {
                         type_id = i;
                     }
@@ -106,15 +106,20 @@ pub(crate) fn mouse_click_input(
                     }
                 }
 
-                add_events.send(AddTile {
-                    id: construct.cell.id,
-                    tile_type: type_id,
-                    orientation: construct.orientation,
-                    face: construct.cell.face.clone(),
-                    group_id_option: None,
-                    entity: commands.spawn(()).id(),
-                    default_map_spawn: false,
-                });
+                match type_id {
+                    gridmap::grid::CellIds::CellType(id) => {
+                        add_events.send(AddTile {
+                            id: construct.cell.id,
+                            tile_type: id,
+                            orientation: construct.orientation,
+                            face: construct.cell.face.clone(),
+                            group_id_option: None,
+                            entity: commands.spawn(()).id(),
+                            default_map_spawn: false,
+                        });
+                    }
+                    gridmap::grid::CellIds::GroupType(id) => {}
+                }
             }
             GridmapClientMessage::DeconstructCell(deconstruct) => {
                 remove_events.send(RemoveTile {

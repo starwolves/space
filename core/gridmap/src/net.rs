@@ -4,6 +4,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
 
+use crate::grid::CellIds;
 use crate::grid::CellTypeId;
 use crate::grid::CellTypeName;
 
@@ -42,7 +43,7 @@ pub enum GridmapServerMessage {
     ConfigOrderedCellsMain(Vec<CellTypeName>),
     ConfigPlaceableItemsSurfaces(Vec<CellTypeId>),
     ConfigNonBlockingCells(Vec<CellTypeId>),
-    GhostCellType(CellTypeId),
+    GhostCellType(CellIds),
 }
 
 /// Contains information about the projectile and its visual graphics.

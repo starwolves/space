@@ -23,7 +23,7 @@ use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateLabel
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
     construction_tool_inventory_prequisite_check, construction_tool_select_construction_option,
-    deconstruct_action_prequisite_check, open_input_construction_options_ui,
+    deconstruct_action_prequisite_check, send_constructable_items,
 };
 use crate::construction_tool::ConstructionTool;
 use crate::map_construction::{
@@ -86,7 +86,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                     construction_tool_select_construction_option
                         .in_set(UpdateLabels::TextTreeInputSelection),
                 )
-                .add_system(open_input_construction_options_ui)
+                .add_system(send_constructable_items)
                 .add_system(mouse_click_input);
         } else {
             app.add_system(

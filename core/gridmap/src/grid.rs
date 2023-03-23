@@ -214,6 +214,21 @@ pub enum GridmapUpdate {
     Added(NewCell),
     Removed,
 }
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum CellIds {
+    CellType(CellTypeId),
+    GroupType(GroupTypeId),
+}
+
+impl CellIds {
+    pub fn to_string(&self) -> String {
+        match self {
+            CellIds::CellType(id) => id.to_string(),
+            CellIds::GroupType(id) => id.to_string(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, Hash, PartialEq, Default)]
 /// Identifier used for exports and imports.
 pub struct CellTypeName(pub String);

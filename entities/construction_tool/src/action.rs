@@ -1,7 +1,7 @@
 use actions::core::{Action, ActionData, ActionRequests, BuildingActions};
 use bevy::prelude::{warn, EventReader, EventWriter, Query, Res, ResMut, With};
 use gridmap::{
-    grid::{CellTypeName, Gridmap},
+    grid::{CellIds, CellTypeName, Gridmap, GroupTypeName},
     net::GridmapServerMessage,
 };
 use inventory::item::InventoryItem;
@@ -102,7 +102,7 @@ pub(crate) fn construction_tool_actions(
     }
 }
 
-pub fn open_input_construction_options_ui(
+pub fn send_constructable_items(
     mut events: EventReader<InputConstructionOptions>,
     mut net: EventWriter<OutgoingReliableServerMessage<UiServerMessage>>,
     gridmap: Res<Gridmap>,
@@ -112,6 +112,9 @@ pub fn open_input_construction_options_ui(
             Some(handle) => {
                 let mut names = vec![];
                 for name in gridmap.ordered_main_names.iter() {
+                    names.push(name.to_string());
+                }
+                for (name, _) in gridmap.group_id_map.iter() {
                     names.push(name.to_string());
                 }
                 net.send(OutgoingReliableServerMessage {
@@ -276,16 +279,33 @@ pub(crate) fn construction_tool_select_construction_option(
                     .get(&CellTypeName(event.entry.clone()))
                 {
                     Some(type_id) => {
-                        c.construction_option = Some(*type_id);
+                        c.construction_option = Some(CellIds::CellType(*type_id));
 
                         net.send(OutgoingReliableServerMessage {
                             handle: event.handle,
-                            message: GridmapServerMessage::GhostCellType(*type_id),
+                            message: GridmapServerMessage::GhostCellType(CellIds::CellType(
+                                *type_id,
+                            )),
                         });
                     }
-                    None => {
-                        warn!("couldnt find tile id.");
-                    }
+                    None => match gridmap
+                        .group_id_map
+                        .get(&GroupTypeName(event.entry.clone()))
+                    {
+                        Some(group_id) => {
+                            c.construction_option = Some(CellIds::GroupType(*group_id));
+
+                            net.send(OutgoingReliableServerMessage {
+                                handle: event.handle,
+                                message: GridmapServerMessage::GhostCellType(CellIds::GroupType(
+                                    *group_id,
+                                )),
+                            });
+                        }
+                        None => {
+                            warn!("couldnt find tile id.");
+                        }
+                    },
                 },
                 Err(_) => {
                     warn!("Couldnt find construction tool {:?}.", event.entity);
