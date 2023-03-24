@@ -1,9 +1,13 @@
-use std::{collections::HashMap, f32::consts::PI, ops::Deref};
+use std::{
+    collections::HashMap,
+    f32::consts::PI,
+    ops::{Deref, Mul},
+};
 
 use bevy::{
     prelude::{
         warn, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity, EventWriter, Handle,
-        Mat3, Quat, Query, Res, Resource, Transform, Without,
+        Mat3, Quat, Query, Res, Resource, Transform, Vec3, Without,
     },
     scene::Scene,
     transform::TransformBundle,
@@ -1184,10 +1188,32 @@ pub(crate) fn spawn_group(
                 let mut i = 0;
 
                 for (local_id, tile_type) in tiles.iter() {
+                    let int = &Vec3Int { x: 0, y: 0, z: 0 };
+
+                    let mut new_id = local_id.clone();
+
+                    if local_id != int {
+                        let mut point = Transform::from_translation(Vec3::new(
+                            local_id.x as f32,
+                            local_id.y as f32,
+                            local_id.z as f32,
+                        ));
+
+                        point.rotate(
+                            OrthogonalBases::default().bases[add_group_event.orientation as usize],
+                        );
+
+                        new_id = Vec3Int {
+                            x: point.translation.x as i16,
+                            y: point.translation.y as i16,
+                            z: point.translation.z as i16,
+                        }
+                    }
+
                     set_tile.send(AddTile {
-                        id: add_group_event.id + *local_id,
+                        id: add_group_event.id + new_id,
                         tile_type: *tile_type,
-                        orientation: add_group_event.orientation.clone(),
+                        orientation: add_group_event.orientation,
                         face: add_group_event.face.clone(),
                         group_id_option: Some(gridmap_main.group_instance_incremental + i + 1),
                         entity: commands.spawn(()).id(),
