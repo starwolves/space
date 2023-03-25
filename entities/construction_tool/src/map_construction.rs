@@ -2,7 +2,7 @@ use bevy::prelude::{warn, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::ClientEntityServerEntity;
 use gridmap::{
     construction::{GridmapConstructionState, ShowYLevelPlane},
-    grid::{AddTile, RemoveTile},
+    grid::{AddTile, Gridmap, RemoveTile},
     net::GridmapClientMessage,
 };
 use inventory::server::inventory::Inventory;
@@ -53,6 +53,7 @@ pub(crate) fn mouse_click_input(
     mut add_events: EventWriter<AddTile>,
     mut remove_events: EventWriter<RemoveTile>,
     mut commands: Commands,
+    gridmap: Res<Gridmap>,
 ) {
     for message in net.iter() {
         let client_entity;
@@ -94,7 +95,7 @@ pub(crate) fn mouse_click_input(
         }
 
         match &message.message {
-            GridmapClientMessage::ConstructCell(construct) => {
+            GridmapClientMessage::ConstructCells(construct) => {
                 let type_id;
 
                 match construction_tool_component.construction_option.clone() {
@@ -108,23 +109,46 @@ pub(crate) fn mouse_click_input(
 
                 match type_id {
                     gridmap::grid::CellIds::CellType(id) => {
-                        add_events.send(AddTile {
-                            id: construct.cell.id,
-                            tile_type: id,
-                            orientation: construct.orientation,
-                            face: construct.cell.face.clone(),
-                            group_id_option: None,
-                            entity: commands.spawn(()).id(),
-                            default_map_spawn: false,
-                        });
+                        for cell in construct.cells.iter() {
+                            add_events.send(AddTile {
+                                id: cell.id,
+                                tile_type: id,
+                                orientation: cell.orientation,
+                                face: cell.face.clone(),
+                                group_id_option: None,
+                                entity: commands.spawn(()).id(),
+                                default_map_spawn: false,
+                            });
+                        }
                     }
-                    gridmap::grid::CellIds::GroupType(id) => {}
+                    gridmap::grid::CellIds::GroupType(id) => {
+                        for cell in construct.cells.iter() {
+                            match gridmap.groups.get(&id) {
+                                Some(cells) => {
+                                    for (local_id, cell_type) in cells.iter() {
+                                        add_events.send(AddTile {
+                                            id: *local_id + cell.id,
+                                            tile_type: cell_type.tile_type,
+                                            orientation: cell.orientation,
+                                            face: cell.face.clone(),
+                                            group_id_option: None,
+                                            entity: commands.spawn(()).id(),
+                                            default_map_spawn: false,
+                                        });
+                                    }
+                                }
+                                None => {
+                                    warn!("Couldnt find group type.");
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            GridmapClientMessage::DeconstructCell(deconstruct) => {
-                remove_events.send(RemoveTile {
-                    cell: deconstruct.cell.clone(),
-                });
+            GridmapClientMessage::DeconstructCells(deconstruct) => {
+                for cell in deconstruct.cells.iter() {
+                    remove_events.send(RemoveTile { cell: cell.clone() });
+                }
             }
             _ => (),
         }

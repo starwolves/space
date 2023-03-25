@@ -92,7 +92,7 @@ impl Plugin for GridmapPlugin {
                 .add_system(update_ghost_cell.in_set(GhostTileLabel::Update))
                 .add_event::<ConstructionCellSelectionChanged>()
                 .add_system(change_ghost_tile_request)
-                .add_system(input_ghost_rotation.after(GhostTileLabel::Update))
+                .add_system(input_ghost_rotation.in_base_set(CoreSet::PostUpdate))
                 .add_system(client_mouse_click_input)
                 .add_system(add_cell_client)
                 .add_system(remove_cell_client)

@@ -1,5 +1,6 @@
 use bevy::prelude::Vec3;
 use resources::grid::TargetCell;
+use resources::grid::TargetCellWithOrientation;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -13,14 +14,14 @@ use crate::grid::CellTypeName;
 
 pub enum GridmapClientMessage {
     ExamineMap(i16, i16, i16),
-    ConstructCell(ConstructCell),
-    DeconstructCell(DeconstructCell),
+    ConstructCells(ConstructCell),
+    DeconstructCells(DeconstructCell),
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConstructCell {
-    pub cell: TargetCell,
-    pub orientation: u8,
+    pub cells: Vec<TargetCellWithOrientation>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewCell {
     pub cell: TargetCell,
@@ -29,7 +30,7 @@ pub struct NewCell {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DeconstructCell {
-    pub cell: TargetCell,
+    pub cells: Vec<TargetCell>,
 }
 
 /// Gets serialized and sent over the net, this is the server message.

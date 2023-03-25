@@ -1,8 +1,8 @@
 use bevy::{
     app::AppExit,
     prelude::{
-        warn, Button, Changed, Entity, EventReader, EventWriter, Input, KeyCode, Parent, Query,
-        Res, ResMut, With,
+        info, warn, Button, Changed, Entity, EventReader, EventWriter, Input, KeyCode, Parent,
+        Query, Res, ResMut, With,
     },
     ui::{Display, Interaction, Style},
 };
@@ -163,6 +163,7 @@ pub(crate) fn exit_button_pressed(
     for interaction in interaction_query.iter() {
         match interaction {
             Interaction::Clicked => {
+                info!("Exiting app.");
                 exit.send(AppExit);
             }
             Interaction::Hovered => {}

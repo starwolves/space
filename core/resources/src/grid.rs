@@ -19,3 +19,9 @@ pub struct TargetCell {
     pub id: Vec3Int,
     pub face: CellFace,
 }
+#[derive(PartialEq, Eq, Hash, Serialize, Deserialize, Debug, Clone)]
+pub struct TargetCellWithOrientation {
+    pub id: Vec3Int,
+    pub face: CellFace,
+    pub orientation: u8,
+}

@@ -1,6 +1,6 @@
 use crate::build::{MainMenuExitButton, MainMenuSettingsButton};
 use crate::build::{MainMenuPlayButton, MainMenuState};
-use bevy::prelude::{warn, EventReader, Res};
+use bevy::prelude::{info, warn, EventReader, Res};
 use bevy::prelude::{Changed, Color};
 use bevy::ui::{Display, Style};
 use bevy::{
@@ -172,6 +172,7 @@ pub(crate) fn button_presses(
     for (interaction, _) in &exit_button_query {
         match *interaction {
             Interaction::Clicked => {
+                info!("Exiting app.");
                 exit.send(AppExit);
             }
             _ => (),

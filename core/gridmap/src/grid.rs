@@ -1,8 +1,4 @@
-use std::{
-    collections::HashMap,
-    f32::consts::PI,
-    ops::{Deref, Mul},
-};
+use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 
 use bevy::{
     prelude::{
@@ -289,7 +285,7 @@ pub struct Gridmap {
     pub blackcell_blocking_id: CellTypeId,
     pub main_cell_properties: HashMap<CellTypeId, TileProperties>,
     pub map_length_limit: MapLimits,
-    pub groups: HashMap<GroupTypeId, HashMap<Vec3Int, CellTypeId>>,
+    pub groups: HashMap<GroupTypeId, HashMap<Vec3Int, FullCell>>,
     pub group_instance_incremental: u32,
 }
 
@@ -652,6 +648,13 @@ impl Default for AddTile {
     }
 }
 
+pub struct FullCell {
+    pub face: CellFace,
+    pub orientation: u8,
+    pub tile_type: CellTypeId,
+    pub entity_option: Option<Entity>,
+}
+
 /// Event to add a group of gridmap tiles.
 #[derive(Default)]
 pub struct AddGroup {
@@ -669,7 +672,7 @@ use entity::health::{HealthContainer, HealthFlag, StructureHealth};
 
 use crate::{
     init::{CellDataExport, GroupItem, ItemExport},
-    net::{ConstructCell, GridmapServerMessage, NewCell},
+    net::{GridmapServerMessage, NewCell},
 };
 
 pub(crate) fn remove_tile(
@@ -779,11 +782,6 @@ pub(crate) fn add_tile_net(
             face: event.face.clone(),
         };
 
-        let new_cell = ConstructCell {
-            cell: target.clone(),
-            orientation: event.orientation,
-        };
-
         if !event.default_map_spawn {
             for connected_player in connected_players.iter() {
                 if !connected_player.connected {
@@ -792,19 +790,19 @@ pub(crate) fn add_tile_net(
                 net.send(OutgoingReliableServerMessage {
                     handle: connected_player.handle,
                     message: GridmapServerMessage::AddCell(NewCell {
-                        cell: new_cell.cell.clone(),
-                        orientation: new_cell.orientation,
+                        cell: target.clone(),
+                        orientation: event.orientation,
                         tile_type: event.tile_type,
                     }),
                 });
                 received.push(connected_player.handle);
             }
             gridmap.updates.insert(
-                target,
+                target.clone(),
                 AddedUpdate {
                     cell: GridmapUpdate::Added(NewCell {
-                        cell: new_cell.cell,
-                        orientation: new_cell.orientation,
+                        cell: target,
+                        orientation: event.orientation,
                         tile_type: event.tile_type,
                     }),
                     players_received: received,
@@ -1212,7 +1210,7 @@ pub(crate) fn spawn_group(
 
                     set_tile.send(AddTile {
                         id: add_group_event.id + new_id,
-                        tile_type: *tile_type,
+                        tile_type: tile_type.tile_type,
                         orientation: add_group_event.orientation,
                         face: add_group_event.face.clone(),
                         group_id_option: Some(gridmap_main.group_instance_incremental + i + 1),
