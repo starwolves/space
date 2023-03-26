@@ -263,6 +263,120 @@ pub(crate) fn input_yplane_position(
         }
     }
 }
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+
+pub enum GhostTileLabel {
+    Update,
+}
+#[derive(Component)]
+pub struct GhostTileComponent;
+
+pub(crate) fn update_ghost_cell(
+    mut state: ResMut<GridmapConstructionState>,
+    gridmap: Res<Gridmap>,
+    mut events: EventReader<ConstructionCellSelectionChanged>,
+    mut commands: Commands,
+) {
+    if !state.is_constructing {
+        return;
+    }
+
+    for _ in events.iter() {
+        for (_, tile) in state.ghost_item.iter() {
+            match tile.ghost_entity_option {
+                Some(ghost_entity) => {
+                    commands.entity(ghost_entity).despawn_recursive();
+                }
+                None => {}
+            }
+        }
+
+        match state.group_id {
+            Some(groupid) => {
+                // Commands spawn group cells at correct positions with the right rotations.
+                state.ghost_item.clear();
+
+                match gridmap.groups.get(&groupid) {
+                    Some(group) => {
+                        for (local_id, tile) in group.iter() {
+                            match gridmap.main_cell_properties.get(&tile.tile_type) {
+                                Some(properties) => {
+                                    let ghost_entity = commands
+                                        .spawn(GhostTileComponent)
+                                        .insert(SceneBundle {
+                                            scene: properties.mesh_option.clone().unwrap(),
+                                            transform: Transform::default(),
+                                            ..Default::default()
+                                        })
+                                        .id();
+
+                                    let new_tile = GhostTile {
+                                        tile_type: tile.tile_type,
+                                        ghost_entity_option: Some(ghost_entity),
+                                        ghost_rotation: tile.orientation,
+                                        ghost_face: tile.face.clone(),
+                                    };
+
+                                    state.ghost_item.insert(*local_id, new_tile);
+                                }
+                                None => {
+                                    warn!("Couldnt find tiletype.");
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    None => {
+                        warn!("Couldnt find group.");
+                    }
+                }
+            }
+            None => {
+                // Commands spawn single cell.
+
+                let mut ids = vec![];
+                for (cell, _) in state.ghost_item.iter() {
+                    let i = &Vec3Int { x: 0, y: 0, z: 0 };
+                    if cell != i {
+                        ids.push(*cell);
+                    }
+                }
+                for c in ids {
+                    state.ghost_item.remove(&c);
+                }
+
+                match state.ghost_item.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
+                    Some(mut g) => match gridmap.main_cell_properties.get(&g.tile_type) {
+                        Some(properties) => {
+                            let ghost_entity = commands
+                                .spawn(GhostTileComponent)
+                                .insert(SceneBundle {
+                                    scene: properties.mesh_option.clone().unwrap(),
+                                    transform: Transform::default(),
+                                    ..Default::default()
+                                })
+                                .id();
+                            g.ghost_entity_option = Some(ghost_entity);
+                            match properties.cell_type {
+                                crate::grid::CellType::Wall => g.ghost_face = CellFace::default(),
+                                crate::grid::CellType::Floor => g.ghost_face = CellFace::Floor,
+                                crate::grid::CellType::Center => g.ghost_face = CellFace::Center,
+                            }
+                        }
+                        None => {
+                            warn!("Couldnt find tiletype.");
+                            continue;
+                        }
+                    },
+                    None => {
+                        warn!("No local tiletype.");
+                    }
+                }
+            }
+        }
+    }
+}
+
 pub(crate) fn input_ghost_rotation(
     keys: Res<Input<KeyCode>>,
     mut state: ResMut<GridmapConstructionState>,
@@ -325,6 +439,7 @@ pub(crate) fn input_ghost_rotation(
                 Ok(mut ghost_transform) => match state_selected {
                     Some(selected_id) => {
                         let mut new_face = tile.ghost_face.clone();
+
                         let mut new_rotation = tile.ghost_rotation;
 
                         let full_id = new_id + selected_id;
@@ -546,115 +661,6 @@ pub(crate) fn select_cell_in_front_camera(
         None => {}
     }
     state.selected = Some(n);
-}
-
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-
-pub enum GhostTileLabel {
-    Update,
-}
-#[derive(Component)]
-pub struct GhostTileComponent;
-
-pub(crate) fn update_ghost_cell(
-    mut state: ResMut<GridmapConstructionState>,
-    gridmap: Res<Gridmap>,
-    mut events: EventReader<ConstructionCellSelectionChanged>,
-    mut commands: Commands,
-) {
-    if !state.is_constructing {
-        return;
-    }
-
-    for _ in events.iter() {
-        for (_, tile) in state.ghost_item.iter() {
-            match tile.ghost_entity_option {
-                Some(ghost_entity) => {
-                    commands.entity(ghost_entity).despawn_recursive();
-                }
-                None => {}
-            }
-        }
-
-        match state.group_id {
-            Some(groupid) => {
-                // Commands spawn group cells at correct positions with the right rotations.
-                state.ghost_item.clear();
-
-                match gridmap.groups.get(&groupid) {
-                    Some(group) => {
-                        for (local_id, tile) in group.iter() {
-                            match gridmap.main_cell_properties.get(&tile.tile_type) {
-                                Some(properties) => {
-                                    let ghost_entity = commands
-                                        .spawn(GhostTileComponent)
-                                        .insert(SceneBundle {
-                                            scene: properties.mesh_option.clone().unwrap(),
-                                            transform: Transform::default(),
-                                            ..Default::default()
-                                        })
-                                        .id();
-
-                                    let new_tile = GhostTile {
-                                        tile_type: tile.tile_type,
-                                        ghost_entity_option: Some(ghost_entity),
-                                        ghost_rotation: tile.orientation,
-                                        ghost_face: tile.face.clone(),
-                                    };
-
-                                    state.ghost_item.insert(*local_id, new_tile);
-                                }
-                                None => {
-                                    warn!("Couldnt find tiletype.");
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    None => {
-                        warn!("Couldnt find group.");
-                    }
-                }
-            }
-            None => {
-                // Commands spawn single cell.
-
-                let mut ids = vec![];
-                for (cell, _) in state.ghost_item.iter() {
-                    let i = &Vec3Int { x: 0, y: 0, z: 0 };
-                    if cell != i {
-                        ids.push(*cell);
-                    }
-                }
-                for c in ids {
-                    state.ghost_item.remove(&c);
-                }
-
-                match state.ghost_item.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
-                    Some(mut g) => match gridmap.main_cell_properties.get(&g.tile_type) {
-                        Some(properties) => {
-                            let ghost_entity = commands
-                                .spawn(GhostTileComponent)
-                                .insert(SceneBundle {
-                                    scene: properties.mesh_option.clone().unwrap(),
-                                    transform: Transform::default(),
-                                    ..Default::default()
-                                })
-                                .id();
-                            g.ghost_entity_option = Some(ghost_entity);
-                        }
-                        None => {
-                            warn!("Couldnt find tiletype.");
-                            continue;
-                        }
-                    },
-                    None => {
-                        warn!("No local tiletype.");
-                    }
-                }
-            }
-        }
-    }
 }
 
 pub(crate) fn change_ghost_tile_request(
