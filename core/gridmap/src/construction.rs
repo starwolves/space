@@ -297,39 +297,88 @@ pub(crate) fn update_ghost_cell(
         match state.group_id {
             Some(groupid) => {
                 // Commands spawn group cells at correct positions with the right rotations.
-                state.ghost_item.clear();
 
-                match gridmap.groups.get(&groupid) {
-                    Some(group) => {
-                        for (local_id, tile) in group.iter() {
-                            match gridmap.main_cell_properties.get(&tile.tile_type) {
-                                Some(properties) => {
-                                    let ghost_entity = commands
-                                        .spawn(GhostTileComponent)
-                                        .insert(SceneBundle {
-                                            scene: properties.mesh_option.clone().unwrap(),
-                                            transform: Transform::default(),
-                                            ..Default::default()
-                                        })
-                                        .id();
-                                    let new_tile = GhostTile {
-                                        tile_type: tile.tile_type,
-                                        ghost_entity_option: Some(ghost_entity),
-                                        ghost_rotation: tile.orientation,
-                                        ghost_face: tile.face.clone(),
-                                    };
+                if changed.only_selection_changed {
+                    match gridmap.groups.get(&groupid) {
+                        Some(group) => {
+                            for (local_id, tile) in group.iter() {
+                                match gridmap.main_cell_properties.get(&tile.tile_type) {
+                                    Some(properties) => {
+                                        let prev_item;
 
-                                    state.ghost_item.insert(*local_id, new_tile);
-                                }
-                                None => {
-                                    warn!("Couldnt find tiletype.");
-                                    continue;
+                                        match state.ghost_item.get(local_id) {
+                                            Some(i) => {
+                                                prev_item = i;
+                                            }
+                                            None => {
+                                                warn!("Couldnt find prev item.");
+                                                continue;
+                                            }
+                                        }
+
+                                        let ghost_entity = commands
+                                            .spawn(GhostTileComponent)
+                                            .insert(SceneBundle {
+                                                scene: properties.mesh_option.clone().unwrap(),
+                                                transform: Transform::default(),
+                                                ..Default::default()
+                                            })
+                                            .id();
+                                        let new_tile = GhostTile {
+                                            tile_type: tile.tile_type,
+                                            ghost_entity_option: Some(ghost_entity),
+                                            ghost_rotation: prev_item.ghost_rotation,
+                                            ghost_face: prev_item.ghost_face.clone(),
+                                        };
+
+                                        state.ghost_item.insert(*local_id, new_tile);
+                                    }
+                                    None => {
+                                        warn!("Couldnt find tiletype.");
+                                        continue;
+                                    }
                                 }
                             }
                         }
+                        None => {
+                            warn!("Couldnt find group.");
+                        }
                     }
-                    None => {
-                        warn!("Couldnt find group.");
+                } else {
+                    state.ghost_item.clear();
+
+                    match gridmap.groups.get(&groupid) {
+                        Some(group) => {
+                            for (local_id, tile) in group.iter() {
+                                match gridmap.main_cell_properties.get(&tile.tile_type) {
+                                    Some(properties) => {
+                                        let ghost_entity = commands
+                                            .spawn(GhostTileComponent)
+                                            .insert(SceneBundle {
+                                                scene: properties.mesh_option.clone().unwrap(),
+                                                transform: Transform::default(),
+                                                ..Default::default()
+                                            })
+                                            .id();
+                                        let new_tile = GhostTile {
+                                            tile_type: tile.tile_type,
+                                            ghost_entity_option: Some(ghost_entity),
+                                            ghost_rotation: tile.orientation,
+                                            ghost_face: tile.face.clone(),
+                                        };
+
+                                        state.ghost_item.insert(*local_id, new_tile);
+                                    }
+                                    None => {
+                                        warn!("Couldnt find tiletype.");
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                        None => {
+                            warn!("Couldnt find group.");
+                        }
                     }
                 }
             }
