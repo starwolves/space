@@ -2,7 +2,7 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::{
     prelude::{
-        info, warn, AssetServer, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity,
+        warn, AssetServer, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity,
         EventReader, EventWriter, Input, KeyCode, MouseButton, Quat, Query, Res, ResMut, Resource,
         SystemSet, Transform, Vec3, Visibility, With,
     },
@@ -284,7 +284,7 @@ pub(crate) fn update_ghost_cell(
         return;
     }
 
-    for _ in events.iter() {
+    for changed in events.iter() {
         for (_, tile) in state.ghost_item.iter() {
             match tile.ghost_entity_option {
                 Some(ghost_entity) => {
@@ -312,7 +312,6 @@ pub(crate) fn update_ghost_cell(
                                             ..Default::default()
                                         })
                                         .id();
-
                                     let new_tile = GhostTile {
                                         tile_type: tile.tile_type,
                                         ghost_entity_option: Some(ghost_entity),
@@ -360,10 +359,16 @@ pub(crate) fn update_ghost_cell(
                                 })
                                 .id();
                             g.ghost_entity_option = Some(ghost_entity);
-                            match properties.cell_type {
-                                crate::grid::CellType::Wall => g.ghost_face = CellFace::default(),
-                                crate::grid::CellType::Floor => g.ghost_face = CellFace::Floor,
-                                crate::grid::CellType::Center => g.ghost_face = CellFace::Center,
+                            if !changed.only_selection_changed {
+                                match properties.cell_type {
+                                    crate::grid::CellType::Wall => {
+                                        g.ghost_face = CellFace::default()
+                                    }
+                                    crate::grid::CellType::Floor => g.ghost_face = CellFace::Floor,
+                                    crate::grid::CellType::Center => {
+                                        g.ghost_face = CellFace::Center
+                                    }
+                                }
                             }
                         }
                         None => {
@@ -556,7 +561,6 @@ pub(crate) fn input_ghost_rotation(
                                         }
                                     }
                                 }
-
                                 *ghost_transform = gridmap.get_cell_transform(
                                     TargetCell {
                                         id: full_id,
@@ -584,7 +588,7 @@ pub(crate) fn input_ghost_rotation(
 }
 
 pub struct ConstructionCellSelectionChanged {
-    pub changed_tile_type: bool,
+    pub only_selection_changed: bool,
 }
 
 pub(crate) fn select_cell_in_front_camera(
@@ -656,7 +660,7 @@ pub(crate) fn select_cell_in_front_camera(
         Some(s) => {
             if s != n {
                 events.send(ConstructionCellSelectionChanged {
-                    changed_tile_type: false,
+                    only_selection_changed: true,
                 });
             }
         }
@@ -701,7 +705,7 @@ pub(crate) fn change_ghost_tile_request(
                     }
                 }
                 events.send(ConstructionCellSelectionChanged {
-                    changed_tile_type: true,
+                    only_selection_changed: false,
                 });
             }
             _ => (),
@@ -745,11 +749,6 @@ pub(crate) fn client_mouse_click_input(
                 tile_type: tile.tile_type,
             });
         }
-        info!(
-            "construct_cells({}): {:?}",
-            construct_cells.len(),
-            construct_cells
-        );
         net.send(OutgoingReliableClientMessage {
             message: GridmapClientMessage::ConstructCells(ConstructCell {
                 cells: construct_cells,
