@@ -2,7 +2,7 @@ use bevy::prelude::{warn, Commands, EventReader, EventWriter, Query, Res};
 use entity::spawn::ClientEntityServerEntity;
 use gridmap::{
     construction::{GridmapConstructionState, ShowYLevelPlane},
-    grid::{AddTile, Gridmap, RemoveTile},
+    grid::{AddTile, RemoveTile},
     net::GridmapClientMessage,
 };
 use inventory::server::inventory::Inventory;
@@ -53,7 +53,6 @@ pub(crate) fn mouse_click_input(
     mut add_events: EventWriter<AddTile>,
     mut remove_events: EventWriter<RemoveTile>,
     mut commands: Commands,
-    gridmap: Res<Gridmap>,
 ) {
     for message in net.iter() {
         let client_entity;
@@ -121,26 +120,17 @@ pub(crate) fn mouse_click_input(
                             });
                         }
                     }
-                    gridmap::grid::CellIds::GroupType(id) => {
+                    gridmap::grid::CellIds::GroupType(_id) => {
                         for cell in construct.cells.iter() {
-                            match gridmap.groups.get(&id) {
-                                Some(cells) => {
-                                    for (local_id, cell_type) in cells.iter() {
-                                        add_events.send(AddTile {
-                                            id: *local_id + cell.id,
-                                            tile_type: cell_type.tile_type,
-                                            orientation: cell.orientation,
-                                            face: cell.face.clone(),
-                                            group_id_option: None,
-                                            entity: commands.spawn(()).id(),
-                                            default_map_spawn: false,
-                                        });
-                                    }
-                                }
-                                None => {
-                                    warn!("Couldnt find group type.");
-                                }
-                            }
+                            add_events.send(AddTile {
+                                id: cell.id,
+                                tile_type: cell.tile_type,
+                                orientation: cell.orientation,
+                                face: cell.face.clone(),
+                                group_id_option: None,
+                                entity: commands.spawn(()).id(),
+                                default_map_spawn: false,
+                            });
                         }
                     }
                 }

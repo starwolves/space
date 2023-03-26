@@ -1,6 +1,6 @@
 use bevy::prelude::Vec3;
 use resources::grid::TargetCell;
-use resources::grid::TargetCellWithOrientation;
+use resources::math::Vec3Int;
 use serde::Deserialize;
 use serde::Serialize;
 use typename::TypeName;
@@ -8,6 +8,7 @@ use typename::TypeName;
 use crate::grid::CellIds;
 use crate::grid::CellTypeId;
 use crate::grid::CellTypeName;
+use crate::grid::TargetCellWithOrientationWType;
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
@@ -19,9 +20,10 @@ pub enum GridmapClientMessage {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConstructCell {
-    pub cells: Vec<TargetCellWithOrientation>,
+    pub cells: Vec<TargetCellWithOrientationWType>,
+    // For when using groups to pass an absolute coordinate.
+    pub group_option: Option<Vec3Int>,
 }
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewCell {
     pub cell: TargetCell,

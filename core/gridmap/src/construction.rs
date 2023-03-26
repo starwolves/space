@@ -17,7 +17,7 @@ use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMe
 use physics::physics::{get_bit_masks, ColliderGroup};
 use resources::{
     binds::{KeyBind, KeyBinds},
-    grid::{CellFace, TargetCell, TargetCellWithOrientation},
+    grid::{CellFace, TargetCell},
     hud::HudState,
 };
 use resources::{
@@ -26,7 +26,10 @@ use resources::{
 };
 
 use crate::{
-    grid::{CellIds, CellTypeId, Gridmap, GroupTypeId, Orthogonal, OrthogonalBases},
+    grid::{
+        CellIds, CellTypeId, Gridmap, GroupTypeId, Orthogonal, OrthogonalBases,
+        TargetCellWithOrientationWType,
+    },
     net::{ConstructCell, DeconstructCell, GridmapClientMessage, GridmapServerMessage},
 };
 
@@ -554,7 +557,6 @@ pub(crate) fn input_ghost_rotation(
                                     }
                                 }
 
-                                info!("full_id {:?}, face: {:?}", full_id, new_face);
                                 *ghost_transform = gridmap.get_cell_transform(
                                     TargetCell {
                                         id: full_id,
@@ -736,16 +738,22 @@ pub(crate) fn client_mouse_click_input(
         let mut construct_cells = vec![];
 
         for (local_id, tile) in state.ghost_item.iter() {
-            construct_cells.push(TargetCellWithOrientation {
+            construct_cells.push(TargetCellWithOrientationWType {
                 id: cell_id + *local_id,
                 face: tile.ghost_face.clone(),
                 orientation: tile.ghost_rotation,
+                tile_type: tile.tile_type,
             });
         }
-
+        info!(
+            "construct_cells({}): {:?}",
+            construct_cells.len(),
+            construct_cells
+        );
         net.send(OutgoingReliableClientMessage {
             message: GridmapClientMessage::ConstructCells(ConstructCell {
                 cells: construct_cells,
+                group_option: Some(cell_id),
             }),
         });
     }

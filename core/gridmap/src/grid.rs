@@ -1227,3 +1227,11 @@ pub(crate) fn spawn_group(
         }
     }
 }
+
+#[derive(PartialEq, Eq, Hash, Serialize, Deserialize, Debug, Clone)]
+pub struct TargetCellWithOrientationWType {
+    pub id: Vec3Int,
+    pub face: CellFace,
+    pub orientation: u8,
+    pub tile_type: CellTypeId,
+}
