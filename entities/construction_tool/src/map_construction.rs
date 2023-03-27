@@ -114,7 +114,7 @@ pub(crate) fn mouse_click_input(
                                 tile_type: id,
                                 orientation: cell.orientation,
                                 face: cell.face.clone(),
-                                group_id_option: None,
+                                group_instance_id_option: None,
                                 entity: commands.spawn(()).id(),
                                 default_map_spawn: false,
                             });
@@ -127,7 +127,7 @@ pub(crate) fn mouse_click_input(
                                 tile_type: cell.tile_type,
                                 orientation: cell.orientation,
                                 face: cell.face.clone(),
-                                group_id_option: None,
+                                group_instance_id_option: None,
                                 entity: commands.spawn(()).id(),
                                 default_map_spawn: false,
                             });

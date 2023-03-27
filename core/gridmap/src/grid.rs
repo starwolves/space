@@ -316,9 +316,20 @@ impl Gridmap {
 
                                     match item.group_id_option {
                                         Some(group_id) => {
+                                            let name;
+                                            match self.main_id_name_map.get(&item.tile_type) {
+                                                Some(n) => {
+                                                    name = n;
+                                                }
+                                                None => {
+                                                    warn!("couldnt find name");
+                                                    continue;
+                                                }
+                                            }
                                             cell_item = ItemExport::Group(GroupItem {
                                                 name: GroupTypeName(cell_item_id.to_string()),
                                                 group_id: group_id,
+                                                cell: name.clone(),
                                             });
                                         }
                                         None => {
@@ -629,7 +640,7 @@ pub struct AddTile {
     /// Rotation.
     pub orientation: u8,
     pub face: CellFace,
-    pub group_id_option: Option<u32>,
+    pub group_instance_id_option: Option<u32>,
     pub entity: Entity,
     pub default_map_spawn: bool,
 }
@@ -641,7 +652,7 @@ impl Default for AddTile {
             tile_type: CellTypeId(0),
             orientation: 0,
             face: CellFace::default(),
-            group_id_option: None,
+            group_instance_id_option: None,
             entity: Entity::from_bits(0),
             default_map_spawn: false,
         }
@@ -901,7 +912,7 @@ pub(crate) fn add_cell_client(
                     tile_type: new.tile_type,
                     orientation: new.orientation,
                     face: new.cell.face.clone(),
-                    group_id_option: None,
+                    group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
                     default_map_spawn: false,
                 });
@@ -1026,7 +1037,7 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                                 ..Default::default()
                             },
                             orientation: add_tile_event.orientation.clone(),
-                            group_id_option: add_tile_event.group_id_option,
+                            group_id_option: add_tile_event.group_instance_id_option,
                         });
 
                         match strict.face {
@@ -1213,7 +1224,9 @@ pub(crate) fn spawn_group(
                         tile_type: tile_type.tile_type,
                         orientation: add_group_event.orientation,
                         face: add_group_event.face.clone(),
-                        group_id_option: Some(gridmap_main.group_instance_incremental + i + 1),
+                        group_instance_id_option: Some(
+                            gridmap_main.group_instance_incremental + i + 1,
+                        ),
                         entity: commands.spawn(()).id(),
                         default_map_spawn: add_group_event.default_map_spawn,
                     });

@@ -5,9 +5,7 @@ use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
 use resources::math::Vec3Int;
 use resources::{core::TickRate, grid::CellFace};
 
-use crate::grid::{
-    AddGroup, AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeName, TileProperties,
-};
+use crate::grid::{AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeName, TileProperties};
 
 /// Physics friction on placeable item surfaces.
 
@@ -131,9 +129,8 @@ pub(crate) fn startup_misc_resources(
 /// Build the gridmaps in their own resources from ron.
 
 pub(crate) fn load_ron_gridmap(
-    gridmap_data: Res<Gridmap>,
+    gridmap: Res<Gridmap>,
     mut set_cell: EventWriter<AddTile>,
-    mut set_group: EventWriter<AddGroup>,
     mut commands: Commands,
 ) {
     // Load map json data into real static bodies.
@@ -158,7 +155,7 @@ pub(crate) fn load_ron_gridmap(
             ItemExport::Cell(item) => {
                 let cell_item_id;
 
-                match gridmap_data.main_name_id_map.get(item) {
+                match gridmap.main_name_id_map.get(item) {
                     Some(x) => {
                         cell_item_id = *x;
                     }
@@ -172,28 +169,30 @@ pub(crate) fn load_ron_gridmap(
                     face: cell_data.face.clone(),
                     orientation: cell_data.orientation.clone(),
                     tile_type: cell_item_id,
-                    group_id_option: None,
+                    group_instance_id_option: None,
                     entity: commands.spawn(()).id(),
                     default_map_spawn: true,
                 });
             }
             ItemExport::Group(item) => {
-                let group_id;
-
-                match gridmap_data.group_id_map.get(&item.name) {
-                    Some(id) => {
-                        group_id = id;
+                let id;
+                match gridmap.main_name_id_map.get(&item.cell) {
+                    Some(n) => {
+                        id = n;
                     }
                     None => {
-                        warn!("Couldnt find group id.");
+                        warn!("couildnt find name");
                         continue;
                     }
                 }
-                set_group.send(AddGroup {
+
+                set_cell.send(AddTile {
                     id: cell_data.id,
-                    group_id: *group_id,
-                    orientation: cell_data.orientation.clone(),
                     face: cell_data.face.clone(),
+                    orientation: cell_data.orientation.clone(),
+                    tile_type: *id,
+                    group_instance_id_option: Some(item.group_id),
+                    entity: commands.spawn(()).id(),
                     default_map_spawn: true,
                 });
             }
@@ -225,4 +224,5 @@ pub enum ItemExport {
 pub struct GroupItem {
     pub name: GroupTypeName,
     pub group_id: u32,
+    pub cell: CellTypeName,
 }
