@@ -270,7 +270,7 @@ pub(crate) fn text_tree_select_button(
                 style.selected = false;
             }
             Err(_) => {
-                warn!("Couldnt find previous selection.");
+                //warn!("Couldnt find previous selection.");
             }
         },
         None => {}
