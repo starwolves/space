@@ -767,6 +767,7 @@ pub(crate) fn client_mouse_click_input(
     state: Res<GridmapConstructionState>,
     mut net: EventWriter<OutgoingReliableClientMessage<GridmapClientMessage>>,
     hud_state: Res<HudState>,
+    gridmap: Res<Gridmap>,
 ) {
     if !state.is_constructing || hud_state.expanded {
         return;
@@ -790,20 +791,36 @@ pub(crate) fn client_mouse_click_input(
 
         let mut construct_cells = vec![];
 
+        let mut block_construction = false;
+
         for (local_id, tile) in state.ghost_item.iter() {
-            construct_cells.push(TargetCellWithOrientationWType {
+            let target = TargetCellWithOrientationWType {
                 id: cell_id + *local_id,
                 face: tile.ghost_face.clone(),
                 orientation: tile.ghost_rotation,
                 tile_type: tile.tile_type,
+            };
+
+            if gridmap
+                .get_cell(TargetCell {
+                    id: target.id,
+                    face: target.face.clone(),
+                })
+                .is_some()
+            {
+                block_construction = true;
+            }
+
+            construct_cells.push(target);
+        }
+        if !block_construction {
+            net.send(OutgoingReliableClientMessage {
+                message: GridmapClientMessage::ConstructCells(ConstructCell {
+                    cells: construct_cells,
+                    group_option: Some(cell_id),
+                }),
             });
         }
-        net.send(OutgoingReliableClientMessage {
-            message: GridmapClientMessage::ConstructCells(ConstructCell {
-                cells: construct_cells,
-                group_option: Some(cell_id),
-            }),
-        });
     }
     if buttons.just_pressed(MouseButton::Right) {
         let cell_id;
