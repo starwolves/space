@@ -30,7 +30,10 @@ use crate::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
         remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, Gridmap, RemoveTile,
     },
-    init::{init_tile_properties, load_ron_gridmap, startup_misc_resources, InitTileProperties},
+    init::{
+        init_default_materials, init_tile_properties, load_ron_gridmap, startup_misc_resources,
+        InitTileProperties,
+    },
     items::{
         generic_floor::init_floor_properties, generic_wall::init_wall_properties,
         generic_wall_group::init_wall_group_properties,
@@ -96,7 +99,8 @@ impl Plugin for GridmapPlugin {
                 .add_system(client_mouse_click_input)
                 .add_system(add_cell_client)
                 .add_system(remove_cell_client)
-                .add_startup_system(register_input);
+                .add_startup_system(register_input)
+                .add_startup_system(init_default_materials);
         }
 
         app.add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))

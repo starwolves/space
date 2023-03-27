@@ -1,4 +1,7 @@
-use bevy::prelude::{AssetServer, Res, ResMut};
+use bevy::{
+    gltf::GltfMesh,
+    prelude::{AssetServer, Handle, Res, ResMut},
+};
 use entity::examine::RichName;
 use resources::is_server::is_server;
 
@@ -12,12 +15,13 @@ pub(crate) fn init_floor_properties(
     assets: Res<AssetServer>,
     mut init: ResMut<InitTileProperties>,
 ) {
-    let mesh_option;
+    let mesh_option: Option<Handle<GltfMesh>>;
     if !is_server() {
-        mesh_option = Some(assets.load("models/floor/floor.glb#Scene0"));
+        mesh_option = Some(assets.load("models/floor/floor.glb#Mesh0"));
     } else {
         mesh_option = None;
     }
+
     init.properties.push(TileProperties {
         id: *gridmap_data
             .main_name_id_map

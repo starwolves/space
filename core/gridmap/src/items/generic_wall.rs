@@ -17,7 +17,7 @@ pub(crate) fn init_wall_properties(
 
     let mesh_option;
     if !is_server() {
-        mesh_option = Some(assets.load("models/wall/wall.glb#Scene0"));
+        mesh_option = Some(assets.load("models/wall/wall.glb#Mesh0"));
     } else {
         mesh_option = None;
     }

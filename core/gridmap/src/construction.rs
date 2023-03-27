@@ -1,10 +1,12 @@
 use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::{
+    gltf::GltfMesh,
     prelude::{
-        warn, AssetServer, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity,
-        EventReader, EventWriter, Input, KeyCode, MouseButton, Quat, Query, Res, ResMut, Resource,
-        Transform, Vec3, Visibility, With,
+        warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
+        DespawnRecursiveExt, Entity, EventReader, EventWriter, Handle, Input, KeyCode, MouseButton,
+        PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3,
+        Visibility, With,
     },
     scene::SceneBundle,
     transform::TransformBundle,
@@ -36,7 +38,11 @@ use crate::{
 #[derive(Component)]
 pub struct SelectCellCameraYPlane;
 
-pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn create_select_cell_cam_state(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
     let plane_asset = asset_server.load("models/ylevel_grid_plane/plane.glb#Scene0");
 
     let masks = get_bit_masks(ColliderGroup::GridmapSelection);
@@ -61,6 +67,13 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
         })
         .id();
 
+    let m = materials.add(StandardMaterial {
+        base_color: Color::rgba(0., 255., 255., 0.5),
+        emissive: Color::WHITE,
+        alpha_mode: AlphaMode::Blend,
+
+        ..Default::default()
+    });
     commands.insert_resource(GridmapConstructionState {
         selected: None,
         y_level: 0,
@@ -69,6 +82,7 @@ pub fn create_select_cell_cam_state(mut commands: Commands, asset_server: Res<As
         y_plane_position: Vec2Int { x: 0, y: 0 },
         ghost_item: HashMap::default(),
         group_id: None,
+        ghost_material: m,
     });
 }
 
@@ -81,6 +95,7 @@ pub struct GridmapConstructionState {
     pub y_plane_position: Vec2Int,
     pub ghost_item: HashMap<Vec3Int, GhostTile>,
     pub group_id: Option<GroupTypeId>,
+    pub ghost_material: Handle<StandardMaterial>,
 }
 #[derive(Clone)]
 pub struct GhostTile {
@@ -266,6 +281,7 @@ pub(crate) fn input_yplane_position(
         }
     }
 }
+
 #[derive(Component)]
 pub struct GhostTileComponent;
 
@@ -274,6 +290,7 @@ pub(crate) fn update_ghost_cell(
     gridmap: Res<Gridmap>,
     mut events: EventReader<ConstructionCellSelectionChanged>,
     mut commands: Commands,
+    assets_gltfmesh: Res<Assets<GltfMesh>>,
 ) {
     if !state.is_constructing {
         return;
@@ -324,23 +341,41 @@ pub(crate) fn update_ghost_cell(
                                                 };
                                             }
                                         }
+                                        let mut t = gridmap.get_cell_transform(
+                                            TargetCell {
+                                                id: full_id + *local_id,
+                                                face: tile.face.clone(),
+                                            },
+                                            tile.orientation,
+                                        );
+                                        t.scale = Vec3::from([1.05; 3]);
 
-                                        let ghost_entity = commands
-                                            .spawn(GhostTileComponent)
-                                            .insert(SceneBundle {
-                                                scene: properties.mesh_option.clone().unwrap(),
-                                                transform: Transform::default(),
-                                                ..Default::default()
-                                            })
-                                            .id();
-                                        let new_tile = GhostTile {
-                                            tile_type: tile.tile_type,
-                                            ghost_entity_option: Some(ghost_entity),
-                                            ghost_rotation: prev_item.ghost_rotation,
-                                            ghost_face: prev_item.ghost_face.clone(),
-                                        };
+                                        match assets_gltfmesh
+                                            .get(&properties.mesh_option.clone().unwrap())
+                                        {
+                                            Some(gltf) => {
+                                                let ghost_entity = commands
+                                                    .spawn(GhostTileComponent)
+                                                    .insert(PbrBundle {
+                                                        mesh: gltf.primitives[0].mesh.clone(),
+                                                        material: state.ghost_material.clone(),
+                                                        transform: t,
+                                                        ..Default::default()
+                                                    })
+                                                    .id();
+                                                let new_tile = GhostTile {
+                                                    tile_type: tile.tile_type,
+                                                    ghost_entity_option: Some(ghost_entity),
+                                                    ghost_rotation: prev_item.ghost_rotation,
+                                                    ghost_face: prev_item.ghost_face.clone(),
+                                                };
 
-                                        state.ghost_item.insert(*local_id, new_tile);
+                                                state.ghost_item.insert(*local_id, new_tile);
+                                            }
+                                            None => {
+                                                warn!("Couldnt find ghost material asset gltf.");
+                                            }
+                                        }
                                     }
                                     None => {
                                         warn!("Couldnt find tiletype.");
@@ -361,30 +396,41 @@ pub(crate) fn update_ghost_cell(
                             for (local_id, tile) in group.iter() {
                                 match gridmap.main_cell_properties.get(&tile.tile_type) {
                                     Some(properties) => {
-                                        let t = gridmap.get_cell_transform(
+                                        let mut t = gridmap.get_cell_transform(
                                             TargetCell {
                                                 id: full_id + *local_id,
                                                 face: tile.face.clone(),
                                             },
                                             tile.orientation,
                                         );
+                                        t.scale = Vec3::from([1.05; 3]);
 
-                                        let ghost_entity = commands
-                                            .spawn(GhostTileComponent)
-                                            .insert(SceneBundle {
-                                                scene: properties.mesh_option.clone().unwrap(),
-                                                transform: t,
-                                                ..Default::default()
-                                            })
-                                            .id();
-                                        let new_tile = GhostTile {
-                                            tile_type: tile.tile_type,
-                                            ghost_entity_option: Some(ghost_entity),
-                                            ghost_rotation: tile.orientation,
-                                            ghost_face: tile.face.clone(),
-                                        };
+                                        match assets_gltfmesh
+                                            .get(&properties.mesh_option.clone().unwrap())
+                                        {
+                                            Some(mesh) => {
+                                                let ghost_entity = commands
+                                                    .spawn(GhostTileComponent)
+                                                    .insert(PbrBundle {
+                                                        mesh: mesh.primitives[0].mesh.clone(),
+                                                        material: state.ghost_material.clone(),
+                                                        transform: t,
+                                                        ..Default::default()
+                                                    })
+                                                    .id();
+                                                let new_tile = GhostTile {
+                                                    tile_type: tile.tile_type,
+                                                    ghost_entity_option: Some(ghost_entity),
+                                                    ghost_rotation: tile.orientation,
+                                                    ghost_face: tile.face.clone(),
+                                                };
 
-                                        state.ghost_item.insert(*local_id, new_tile);
+                                                state.ghost_item.insert(*local_id, new_tile);
+                                            }
+                                            None => {
+                                                warn!("Couldnt find ghost mesh asset gltf.");
+                                            }
+                                        }
                                     }
                                     None => {
                                         warn!("Couldnt find tiletype.");
@@ -412,36 +458,47 @@ pub(crate) fn update_ghost_cell(
                 for c in ids {
                     state.ghost_item.remove(&c);
                 }
-
+                let m = state.ghost_material.clone();
                 match state.ghost_item.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
                     Some(mut g) => match gridmap.main_cell_properties.get(&g.tile_type) {
                         Some(properties) => {
-                            let t = gridmap.get_cell_transform(
+                            let mut t = gridmap.get_cell_transform(
                                 TargetCell {
                                     id: full_id,
                                     face: g.ghost_face.clone(),
                                 },
                                 g.ghost_rotation,
                             );
+                            t.scale = Vec3::from([1.05; 3]);
 
-                            let ghost_entity = commands
-                                .spawn(GhostTileComponent)
-                                .insert(SceneBundle {
-                                    scene: properties.mesh_option.clone().unwrap(),
-                                    transform: t,
-                                    ..Default::default()
-                                })
-                                .id();
-                            g.ghost_entity_option = Some(ghost_entity);
-                            if !changed.only_selection_changed {
-                                match properties.cell_type {
-                                    crate::grid::CellType::Wall => {
-                                        g.ghost_face = CellFace::default()
+                            match assets_gltfmesh.get(&properties.mesh_option.clone().unwrap()) {
+                                Some(mesh) => {
+                                    let ghost_entity = commands
+                                        .spawn(GhostTileComponent)
+                                        .insert(PbrBundle {
+                                            mesh: mesh.primitives[0].mesh.clone(),
+                                            material: m,
+                                            transform: t,
+                                            ..Default::default()
+                                        })
+                                        .id();
+                                    g.ghost_entity_option = Some(ghost_entity);
+                                    if !changed.only_selection_changed {
+                                        match properties.cell_type {
+                                            crate::grid::CellType::Wall => {
+                                                g.ghost_face = CellFace::default()
+                                            }
+                                            crate::grid::CellType::Floor => {
+                                                g.ghost_face = CellFace::Floor
+                                            }
+                                            crate::grid::CellType::Center => {
+                                                g.ghost_face = CellFace::Center
+                                            }
+                                        }
                                     }
-                                    crate::grid::CellType::Floor => g.ghost_face = CellFace::Floor,
-                                    crate::grid::CellType::Center => {
-                                        g.ghost_face = CellFace::Center
-                                    }
+                                }
+                                None => {
+                                    warn!("gltf mesh not found.");
                                 }
                             }
                         }
@@ -642,6 +699,7 @@ pub(crate) fn input_ghost_rotation(
                                     },
                                     new_rotation,
                                 );
+                                ghost_transform.scale = Vec3::from([1.05; 3]);
                                 tile.ghost_face = new_face;
                                 tile.ghost_rotation = new_rotation;
                             }

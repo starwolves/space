@@ -1,11 +1,11 @@
 use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 
 use bevy::{
+    gltf::GltfMesh,
     prelude::{
         warn, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity, EventWriter, Handle,
         Mat3, Quat, Query, Res, Resource, Transform, Vec3, Without,
     },
-    scene::Scene,
     transform::TransformBundle,
 };
 use bevy_rapier3d::prelude::{
@@ -63,7 +63,7 @@ pub struct TileProperties {
     pub friction: f32,
     pub combine_rule: CoefficientCombineRule,
     /// Always available on client. Never available on server.
-    pub mesh_option: Option<Handle<Scene>>,
+    pub mesh_option: Option<Handle<GltfMesh>>,
     pub cell_type: CellType,
 }
 
