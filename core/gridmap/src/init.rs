@@ -224,5 +224,5 @@ pub enum ItemExport {
 #[derive(Serialize, Deserialize)]
 pub struct GroupItem {
     pub name: GroupTypeName,
-    pub group_id: u16,
+    pub group_id: u32,
 }

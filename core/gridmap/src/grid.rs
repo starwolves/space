@@ -157,7 +157,7 @@ pub struct CellItem {
     /// Id of tile type.
     pub tile_type: CellTypeId,
     /// Instance id of gridmap group.
-    pub group_id_option: Option<u16>,
+    pub group_id_option: Option<u32>,
     /// Entity belonging to cell item.
     pub entity: Option<Entity>,
     /// Health of this tile.
@@ -1026,7 +1026,7 @@ pub(crate) fn add_tile(mut events: EventReader<AddTile>, mut gridmap_main: ResMu
                                 ..Default::default()
                             },
                             orientation: add_tile_event.orientation.clone(),
-                            group_id_option: None,
+                            group_id_option: add_tile_event.group_id_option,
                         });
 
                         match strict.face {
