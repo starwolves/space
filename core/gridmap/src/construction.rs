@@ -4,7 +4,7 @@ use bevy::{
     prelude::{
         warn, AssetServer, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity,
         EventReader, EventWriter, Input, KeyCode, MouseButton, Quat, Query, Res, ResMut, Resource,
-        SystemSet, Transform, Vec3, Visibility, With,
+        Transform, Vec3, Visibility, With,
     },
     scene::SceneBundle,
     transform::TransformBundle,
@@ -266,11 +266,6 @@ pub(crate) fn input_yplane_position(
         }
     }
 }
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-
-pub enum GhostTileLabel {
-    Update,
-}
 #[derive(Component)]
 pub struct GhostTileComponent;
 
@@ -294,6 +289,16 @@ pub(crate) fn update_ghost_cell(
             }
         }
 
+        let full_id;
+        match state.selected {
+            Some(id) => {
+                full_id = id;
+            }
+            None => {
+                //warn!("None cell id selected.");
+                continue;
+            }
+        }
         match state.group_id {
             Some(groupid) => {
                 // Commands spawn group cells at correct positions with the right rotations.
@@ -308,11 +313,15 @@ pub(crate) fn update_ghost_cell(
 
                                         match state.ghost_item.get(local_id) {
                                             Some(i) => {
-                                                prev_item = i;
+                                                prev_item = i.clone();
                                             }
                                             None => {
-                                                warn!("Couldnt find prev item.");
-                                                continue;
+                                                prev_item = GhostTile {
+                                                    tile_type: tile.tile_type,
+                                                    ghost_entity_option: None,
+                                                    ghost_rotation: tile.orientation,
+                                                    ghost_face: tile.face.clone(),
+                                                };
                                             }
                                         }
 
@@ -352,11 +361,19 @@ pub(crate) fn update_ghost_cell(
                             for (local_id, tile) in group.iter() {
                                 match gridmap.main_cell_properties.get(&tile.tile_type) {
                                     Some(properties) => {
+                                        let t = gridmap.get_cell_transform(
+                                            TargetCell {
+                                                id: full_id + *local_id,
+                                                face: tile.face.clone(),
+                                            },
+                                            tile.orientation,
+                                        );
+
                                         let ghost_entity = commands
                                             .spawn(GhostTileComponent)
                                             .insert(SceneBundle {
                                                 scene: properties.mesh_option.clone().unwrap(),
-                                                transform: Transform::default(),
+                                                transform: t,
                                                 ..Default::default()
                                             })
                                             .id();
@@ -399,11 +416,19 @@ pub(crate) fn update_ghost_cell(
                 match state.ghost_item.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
                     Some(mut g) => match gridmap.main_cell_properties.get(&g.tile_type) {
                         Some(properties) => {
+                            let t = gridmap.get_cell_transform(
+                                TargetCell {
+                                    id: full_id,
+                                    face: g.ghost_face.clone(),
+                                },
+                                g.ghost_rotation,
+                            );
+
                             let ghost_entity = commands
                                 .spawn(GhostTileComponent)
                                 .insert(SceneBundle {
                                     scene: properties.mesh_option.clone().unwrap(),
-                                    transform: Transform::default(),
+                                    transform: t,
                                     ..Default::default()
                                 })
                                 .id();
@@ -426,7 +451,7 @@ pub(crate) fn update_ghost_cell(
                         }
                     },
                     None => {
-                        warn!("No local tiletype.");
+                        //warn!("No local tiletype.");
                     }
                 }
             }
