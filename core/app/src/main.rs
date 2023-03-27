@@ -91,7 +91,7 @@ pub(crate) fn configure_and_start() {
 
         app.add_plugin(LogPlugin::default())
             .add_plugin(TaskPoolPlugin {
-                task_pool_options: TaskPoolOptions::with_num_threads(4),
+                task_pool_options: TaskPoolOptions::with_num_threads(1),
             })
             .add_plugin(TypeRegistrationPlugin)
             .add_plugin(FrameCountPlugin)
