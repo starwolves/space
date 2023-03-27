@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemConfig, Plugin};
+use bevy::prelude::{resource_exists, App, IntoSystemConfig, Plugin};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
@@ -10,7 +10,7 @@ use entity::entity_types::register_entity_type;
 use entity::loading::load_entity;
 use entity::spawn::build_base_entities;
 
-use gridmap::construction::ShowYLevelPlane;
+use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane};
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudLabels;
 use inventory::client::items::active_item_display_camera;
@@ -97,7 +97,10 @@ impl Plugin for ConstructionToolAdminPlugin {
             .add_system(load_entity::<ConstructionToolType>)
             .add_system(link_base_mesh::<ConstructionToolType>)
             .add_system(active_item_display_camera::<ConstructionToolType>)
-            .add_system(construction_tool_enable_select_cell_in_front_camera);
+            .add_system(
+                construction_tool_enable_select_cell_in_front_camera
+                    .run_if(resource_exists::<GridmapConstructionState>()),
+            );
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{App, CoreSet, IntoSystemConfig, Plugin},
+    prelude::{resource_exists, App, CoreSet, IntoSystemConfig, Plugin},
     time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
@@ -17,7 +17,7 @@ use crate::{
         change_ghost_tile_request, client_mouse_click_input, create_select_cell_cam_state,
         input_ghost_rotation, input_yplane_position, move_ylevel_plane, register_input,
         select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, update_ghost_cell,
-        ConstructionCellSelectionChanged, SetYPlanePosition,
+        ConstructionCellSelectionChanged, GridmapConstructionState, SetYPlanePosition,
     },
     examine::{
         examine_grid, examine_map, examine_map_abilities, examine_map_health, finalize_examine_map,
@@ -82,21 +82,34 @@ impl Plugin for GridmapPlugin {
                 .add_system(remove_tile_net);
         } else {
             app.add_system(set_cell_graphics)
-                .add_startup_system(create_select_cell_cam_state)
+                .add_system(create_select_cell_cam_state)
                 .add_event::<SetYPlanePosition>()
-                .add_system(show_ylevel_plane)
-                .add_system(set_yplane_position)
-                .add_system(input_yplane_position)
-                .add_system(move_ylevel_plane)
+                .add_system(show_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()))
+                .add_system(
+                    set_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
+                )
+                .add_system(
+                    input_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
+                )
+                .add_system(move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()))
                 .add_system(
                     select_cell_in_front_camera
+                        .run_if(resource_exists::<GridmapConstructionState>())
                         .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
                 )
-                .add_system(update_ghost_cell)
+                .add_system(update_ghost_cell.run_if(resource_exists::<GridmapConstructionState>()))
                 .add_event::<ConstructionCellSelectionChanged>()
-                .add_system(change_ghost_tile_request)
-                .add_system(input_ghost_rotation.in_base_set(CoreSet::PostUpdate))
-                .add_system(client_mouse_click_input)
+                .add_system(
+                    change_ghost_tile_request.run_if(resource_exists::<GridmapConstructionState>()),
+                )
+                .add_system(
+                    input_ghost_rotation
+                        .in_base_set(CoreSet::PostUpdate)
+                        .run_if(resource_exists::<GridmapConstructionState>()),
+                )
+                .add_system(
+                    client_mouse_click_input.run_if(resource_exists::<GridmapConstructionState>()),
+                )
                 .add_system(add_cell_client)
                 .add_system(remove_cell_client)
                 .add_startup_system(register_input)

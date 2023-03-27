@@ -4,11 +4,10 @@ use bevy::{
     gltf::GltfMesh,
     prelude::{
         warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
-        DespawnRecursiveExt, Entity, EventReader, EventWriter, Handle, Input, KeyCode, MouseButton,
-        PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3,
-        Visibility, With,
+        DespawnRecursiveExt, Entity, EventReader, EventWriter, Handle, Input, KeyCode, Local,
+        MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform,
+        Vec3, Visibility, With,
     },
-    scene::SceneBundle,
     transform::TransformBundle,
 };
 use bevy_rapier3d::prelude::{
@@ -40,52 +39,63 @@ pub struct SelectCellCameraYPlane;
 
 pub fn create_select_cell_cam_state(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    assets_gltfmesh: Res<Assets<GltfMesh>>,
+    asset_server: Res<AssetServer>,
+    mut loaded: Local<bool>,
 ) {
-    let plane_asset = asset_server.load("models/ylevel_grid_plane/plane.glb#Scene0");
-
-    let masks = get_bit_masks(ColliderGroup::GridmapSelection);
-
-    let plane_entity = commands
-        .spawn(RigidBody::Fixed)
-        .insert(SelectCellCameraYPlane)
-        .insert(SceneBundle {
-            scene: plane_asset,
-            visibility: Visibility::Hidden,
-            transform: Transform::from_xyz(0.5, YPLANE_Y_OFFSET, 0.5),
-            ..Default::default()
-        })
-        .with_children(|parent| {
-            parent
-                .spawn(Collider::halfspace(Vec3::Y).unwrap())
-                .insert(TransformBundle::from(Transform::IDENTITY))
-                .insert(CollisionGroups::new(
-                    Group::from_bits(masks.0).unwrap(),
-                    Group::from_bits(masks.1).unwrap(),
-                ));
-        })
-        .id();
+    if *loaded {
+        return;
+    }
+    let plane_asset = asset_server.load("models/ylevel_grid_plane/plane.glb#Mesh0");
 
     let m = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 255., 255., 0.5),
         emissive: Color::WHITE,
         alpha_mode: AlphaMode::Blend,
-
         ..Default::default()
     });
-    commands.insert_resource(GridmapConstructionState {
-        selected: None,
-        y_level: 0,
-        y_plane: plane_entity,
-        is_constructing: false,
-        y_plane_position: Vec2Int { x: 0, y: 0 },
-        ghost_item: HashMap::default(),
-        group_id: None,
-        ghost_material: m,
-    });
+    let masks = get_bit_masks(ColliderGroup::GridmapSelection);
+
+    match assets_gltfmesh.get(&plane_asset) {
+        Some(mesh) => {
+            *loaded = true;
+            let plane_entity = commands
+                .spawn(RigidBody::Fixed)
+                .insert(SelectCellCameraYPlane)
+                .insert(PbrBundle {
+                    mesh: mesh.primitives[0].mesh.clone(),
+                    material: m.clone(),
+                    visibility: Visibility::Hidden,
+                    transform: Transform::from_xyz(0.5, YPLANE_Y_OFFSET, 0.5),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent
+                        .spawn(Collider::halfspace(Vec3::Y).unwrap())
+                        .insert(TransformBundle::from(Transform::IDENTITY))
+                        .insert(CollisionGroups::new(
+                            Group::from_bits(masks.0).unwrap(),
+                            Group::from_bits(masks.1).unwrap(),
+                        ));
+                })
+                .id();
+            commands.insert_resource(GridmapConstructionState {
+                selected: None,
+                y_level: 0,
+                y_plane: plane_entity,
+                is_constructing: false,
+                y_plane_position: Vec2Int { x: 0, y: 0 },
+                ghost_item: HashMap::default(),
+                group_id: None,
+                ghost_material: m,
+            });
+        }
+        None => {}
+    }
 }
 
+/// Doesnt exist until its assets are loaded.
 #[derive(Resource, Clone)]
 pub struct GridmapConstructionState {
     pub selected: Option<Vec3Int>,
