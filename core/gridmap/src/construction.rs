@@ -472,6 +472,17 @@ pub(crate) fn update_ghost_cell(
                 match state.ghost_item.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
                     Some(mut g) => match gridmap.main_cell_properties.get(&g.tile_type) {
                         Some(properties) => {
+                            if !changed.only_selection_changed {
+                                match properties.cell_type {
+                                    crate::grid::CellType::Wall => {
+                                        g.ghost_face = CellFace::default()
+                                    }
+                                    crate::grid::CellType::Floor => g.ghost_face = CellFace::Floor,
+                                    crate::grid::CellType::Center => {
+                                        g.ghost_face = CellFace::Center
+                                    }
+                                }
+                            }
                             let mut t = gridmap.get_cell_transform(
                                 TargetCell {
                                     id: full_id,
@@ -479,6 +490,7 @@ pub(crate) fn update_ghost_cell(
                                 },
                                 g.ghost_rotation,
                             );
+
                             t.scale = Vec3::from([1.05; 3]);
 
                             match assets_gltfmesh.get(&properties.mesh_option.clone().unwrap()) {
@@ -493,19 +505,6 @@ pub(crate) fn update_ghost_cell(
                                         })
                                         .id();
                                     g.ghost_entity_option = Some(ghost_entity);
-                                    if !changed.only_selection_changed {
-                                        match properties.cell_type {
-                                            crate::grid::CellType::Wall => {
-                                                g.ghost_face = CellFace::default()
-                                            }
-                                            crate::grid::CellType::Floor => {
-                                                g.ghost_face = CellFace::Floor
-                                            }
-                                            crate::grid::CellType::Center => {
-                                                g.ghost_face = CellFace::Center
-                                            }
-                                        }
-                                    }
                                 }
                                 None => {
                                     warn!("gltf mesh not found.");
@@ -709,6 +708,7 @@ pub(crate) fn input_ghost_rotation(
                                     },
                                     new_rotation,
                                 );
+
                                 ghost_transform.scale = Vec3::from([1.05; 3]);
                                 tile.ghost_face = new_face;
                                 tile.ghost_rotation = new_rotation;
