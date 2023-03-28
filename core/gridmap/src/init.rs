@@ -1,9 +1,6 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::{
-    info, warn, Assets, Color, Commands, EventWriter, Handle, Res, ResMut, Resource,
-    StandardMaterial,
-};
+use bevy::prelude::{info, warn, Commands, EventWriter, Res, ResMut, Resource};
 use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
 use resources::math::Vec3Int;
 use resources::{core::TickRate, grid::CellFace};
@@ -22,23 +19,6 @@ use crate::grid::{AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeName, Til
 #[derive(Default, Resource)]
 pub struct InitTileProperties {
     pub properties: Vec<TileProperties>,
-}
-#[derive(Resource)]
-pub struct DefaultGridMaterials {
-    pub gray_metallic: Handle<StandardMaterial>,
-}
-
-pub(crate) fn init_default_materials(
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut commands: Commands,
-) {
-    let m = materials.add(StandardMaterial {
-        base_color: Color::WHITE,
-        perceptual_roughness: 0.3,
-        metallic: 0.7,
-        ..Default::default()
-    });
-    commands.insert_resource(DefaultGridMaterials { gray_metallic: m });
 }
 
 pub(crate) fn init_tile_properties(mut gridmap: ResMut<Gridmap>, init: Res<InitTileProperties>) {

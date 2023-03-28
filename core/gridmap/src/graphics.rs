@@ -10,13 +10,13 @@ use resources::grid::TargetCell;
 
 use crate::grid::AddTile;
 use crate::grid::Gridmap;
-use crate::init::DefaultGridMaterials;
+use crate::items::generic_assets::GenericMaterials;
 
 pub(crate) fn set_cell_graphics(
     mut events: EventReader<AddTile>,
     gridmap_main: Res<Gridmap>,
     mut commands: Commands,
-    materials: Res<DefaultGridMaterials>,
+    materials: Res<GenericMaterials>,
     assets_gltfmesh: Res<Assets<GltfMesh>>,
 ) {
     for set_cell in events.iter() {

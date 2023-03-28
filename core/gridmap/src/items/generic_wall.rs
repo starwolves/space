@@ -7,7 +7,7 @@ use crate::{
     init::InitTileProperties,
 };
 
-use super::generic_meshes::GenericMeshes;
+use super::generic_assets::GenericMeshes;
 pub(crate) fn init_wall_properties(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,

@@ -7,10 +7,11 @@ use crate::{
     init::InitTileProperties,
 };
 
-use super::generic_meshes::GenericMeshes;
+use super::generic_assets::{GenericMaterials, GenericMeshes};
 pub(crate) fn init_glass_wall_properties(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
+    mats: Res<GenericMaterials>,
 ) {
     let mut default_isometry = Transform::IDENTITY;
 
@@ -33,6 +34,7 @@ pub(crate) fn init_glass_wall_properties(
         constructable: true,
         mesh_option,
         cell_type: CellType::Wall,
+        material_option: Some(mats.glass.clone()),
         ..Default::default()
     });
 }

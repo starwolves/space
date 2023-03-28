@@ -30,13 +30,14 @@ use crate::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
         remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, Gridmap, RemoveTile,
     },
-    init::{
-        init_default_materials, init_tile_properties, load_ron_gridmap, startup_misc_resources,
-        InitTileProperties,
-    },
+    init::{init_tile_properties, load_ron_gridmap, startup_misc_resources, InitTileProperties},
     items::{
-        generic_floor::init_floor_properties, generic_meshes::init_generic_meshes,
-        generic_wall::init_wall_properties, generic_wall_group::init_wall_group_properties,
+        generic_assets::{
+            init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
+        },
+        generic_floor::init_floor_properties,
+        generic_wall::init_wall_properties,
+        generic_wall_group::init_wall_group_properties,
         glass_wall::init_glass_wall_properties,
     },
     net::{GridmapClientMessage, GridmapServerMessage},
@@ -114,11 +115,12 @@ impl Plugin for GridmapPlugin {
                 .add_system(add_cell_client)
                 .add_system(remove_cell_client)
                 .add_startup_system(register_input)
-                .add_startup_system(init_default_materials);
+                .add_startup_system(init_default_materials)
+                .add_startup_system(init_generic_meshes.in_base_set(StartupSet::PreStartup));
         }
-
-        app.add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
-            .add_startup_system(init_generic_meshes.in_base_set(StartupSet::PreStartup))
+        app.init_resource::<GenericMaterials>()
+            .init_resource::<GenericMeshes>()
+            .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
                     .in_set(StartupLabels::InitDefaultGridmapData)
