@@ -4,8 +4,8 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        AssetServer, BuildChildren, Commands, Component, EventReader, EventWriter, Label,
-        NodeBundle, Res, TextBundle,
+        BuildChildren, Commands, Component, EventReader, EventWriter, Label, NodeBundle, Res,
+        TextBundle,
     },
     text::{TextSection, TextStyle},
     ui::{FlexDirection, Size, Style, Val},
@@ -22,15 +22,15 @@ pub fn console_input(
     mut events: EventReader<ClientSideConsoleInput>,
     mut net: EventWriter<OutgoingReliableClientMessage<ConsoleCommandsClientMessage>>,
     mut display: EventWriter<DisplayConsoleMessage>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
     for input in events.iter() {
-        let source = asset_server.load(SOURCECODE_REGULAR_FONT);
+        let source = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
         let section = TextSection::new(
             input.to_string(),
             TextStyle {
-                font: source,
+                font: source.clone(),
                 font_size: 12.0,
                 color: CONSOLE_FONT_COLOR,
             },
@@ -49,7 +49,6 @@ pub fn console_input(
 pub(crate) fn receive_console_message(
     mut net: EventReader<IncomingReliableServerMessage<ConsoleCommandsServerMessage>>,
     fonts: Res<Fonts>,
-    asset_server: Res<AssetServer>,
     mut events: EventWriter<DisplayConsoleMessage>,
 ) {
     for message in net.iter() {
@@ -61,8 +60,11 @@ pub(crate) fn receive_console_message(
                     sections.push(TextSection::new(
                         net_section.text.clone(),
                         TextStyle {
-                            font: asset_server
-                                .load(fonts.map.get(&net_section.font).expect("Font not loaded")),
+                            font: fonts
+                                .handles
+                                .get(fonts.map.get(&net_section.font).expect("Font not loaded"))
+                                .unwrap()
+                                .clone(),
                             font_size: net_section.font_size,
                             color: net_section.color,
                         },

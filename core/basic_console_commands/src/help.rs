@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{AssetServer, Color, EventReader, EventWriter, Res, ResMut},
+    prelude::{Color, EventReader, EventWriter, Res, ResMut},
     text::{TextSection, TextStyle},
 };
 use console_commands::{
@@ -7,7 +7,10 @@ use console_commands::{
     net::ClientSideConsoleInput,
 };
 use hud::communication::console::DisplayConsoleMessage;
-use ui::{fonts::SOURCECODE_REGULAR_FONT, text::COMMUNICATION_FONT_SIZE};
+use ui::{
+    fonts::{Fonts, SOURCECODE_REGULAR_FONT},
+    text::COMMUNICATION_FONT_SIZE,
+};
 
 pub(crate) fn add_help_command(mut commands: ResMut<AllConsoleCommands>) {
     commands.list.push(ConsoleCommand {
@@ -20,7 +23,7 @@ pub(crate) fn help_command(
     mut queue: EventReader<ClientSideConsoleInput>,
     mut console: EventWriter<DisplayConsoleMessage>,
     commands: Res<AllConsoleCommands>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
     for input in queue.iter() {
         if input.command != "help" {
@@ -48,12 +51,13 @@ pub(crate) fn help_command(
                 console_message += &format!("{}: {} \n\n", command.base, command.description);
             }
         }
+        let source_code = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
         console.send(DisplayConsoleMessage {
             sections: vec![TextSection {
                 value: console_message,
                 style: TextStyle {
-                    font: asset_server.load(SOURCECODE_REGULAR_FONT),
+                    font: source_code.clone(),
                     font_size: COMMUNICATION_FONT_SIZE,
                     color: Color::WHITE,
                     ..Default::default()

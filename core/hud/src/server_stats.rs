@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{
-        AssetServer, BuildChildren, Color, Commands, Component, EventReader, Handle, NodeBundle,
-        Query, Res, ResMut, Resource, TextBundle, With,
+        BuildChildren, Color, Commands, Component, EventReader, Handle, NodeBundle, Query, Res,
+        ResMut, Resource, TextBundle, With,
     },
     text::{Font, Text, TextSection, TextStyle},
     time::{Time, Timer, TimerMode},
@@ -10,16 +10,12 @@ use bevy::{
 use networking::client::IncomingReliableServerMessage;
 use player::net::PlayerServerMessage;
 use resources::hud::HudState;
-use ui::fonts::ARIZONE_FONT;
+use ui::fonts::{Fonts, ARIZONE_FONT};
 #[derive(Component)]
 pub struct ServerStats;
 
-pub(crate) fn build_server_stats(
-    state: Res<HudState>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-    let sourcecode_font = asset_server.load(ARIZONE_FONT);
+pub(crate) fn build_server_stats(state: Res<HudState>, mut commands: Commands, fonts: Res<Fonts>) {
+    let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
 
     commands
         .entity(state.top_edge_node)
@@ -38,7 +34,7 @@ pub(crate) fn build_server_stats(
                         .spawn(TextBundle::from_section(
                             "",
                             TextStyle {
-                                font: sourcecode_font.clone(),
+                                font: arizone_font.clone(),
                                 font_size: 6.0,
                                 color: Color::WHITE.into(),
                             },
@@ -93,7 +89,7 @@ pub(crate) fn update_server_stats(
     mut query: Query<&mut Text, With<ServerStats>>,
     mut state: ResMut<ServerStatsState>,
     time: Res<Time>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
     for message in net.iter() {
         let mut update = false;
@@ -119,7 +115,7 @@ pub(crate) fn update_server_stats(
 
         if update {
             let mut text = query.get_single_mut().unwrap();
-            text.sections = state.to_sections(asset_server.load(ARIZONE_FONT));
+            text.sections = state.to_sections(fonts.handles.get(ARIZONE_FONT).unwrap().clone());
         }
     }
 }

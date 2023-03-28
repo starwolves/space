@@ -1,14 +1,14 @@
 use bevy::{
     prelude::{
-        warn, AssetServer, BuildChildren, Color, Commands, Component, EventReader, NodeBundle,
-        Query, Res, ResMut, SystemSet, TextBundle, With,
+        warn, BuildChildren, Color, Commands, Component, EventReader, NodeBundle, Query, Res,
+        ResMut, SystemSet, TextBundle, With,
     },
     text::TextStyle,
     ui::{FlexDirection, Node, Size, Style, Val},
 };
 use inventory::client::slots::AddedSlot;
 use resources::math::Vec2Int;
-use ui::fonts::EMPIRE_FONT;
+use ui::fonts::{Fonts, EMPIRE_FONT};
 
 use super::build::{InventoryHudRootNode, InventoryHudState};
 
@@ -62,10 +62,10 @@ pub(crate) fn update_inventory_hud_slot(
     mut state: ResMut<InventoryHudState>,
     mut update_slot: EventReader<HudAddInventorySlot>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
     for event in update_slot.iter() {
-        let empire_font = asset_server.load(EMPIRE_FONT);
+        let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
 
         commands.entity(state.slots_node).with_children(|parent| {
             parent

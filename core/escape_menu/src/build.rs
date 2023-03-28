@@ -4,8 +4,8 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        AssetServer, BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label,
-        NodeBundle, Res, Resource, TextBundle,
+        BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label, NodeBundle, Res,
+        Resource, TextBundle,
     },
     text::TextStyle,
     ui::{
@@ -17,7 +17,7 @@ use graphics::settings::GraphicsSettings;
 use resources::binds::KeyBinds;
 use ui::{
     button::SFButton,
-    fonts::{ARIZONE_FONT, EMPIRE_FONT, SOURCECODE_REGULAR_FONT},
+    fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, SOURCECODE_REGULAR_FONT},
     hlist::HList,
     scrolling::ScrollingList,
     text_input::{CharacterFilter, TextInputNode},
@@ -55,12 +55,12 @@ pub struct GeneralHeaderButton;
 #[derive(Component)]
 pub struct GraphicsHeaderButton;
 
-pub const ESC_MENU_FONT_COLOR: Color = Color::DARK_GRAY;
-pub const ESC_MENU_FONT_SIZE: f32 = 13.;
+pub const ESC_MENU_FONT_COLOR: Color = Color::WHITE;
+pub const ESC_MENU_FONT_SIZE: f32 = 15.;
 
-pub(crate) fn build_escape_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let arizone_font = asset_server.load(ARIZONE_FONT);
-    let empire_font = asset_server.load(EMPIRE_FONT);
+pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
+    let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
+    let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
     let mut controls_bg_section_entity = Entity::from_bits(0);
     let mut graphics_bg_section_entity = Entity::from_bits(0);
     let mut general_section_entity = Entity::from_bits(0);
@@ -408,11 +408,13 @@ pub struct BindButton {
 
 pub(crate) fn build_controls_section(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
     state: Res<EscapeMenuState>,
     binds: Res<KeyBinds>,
 ) {
-    let source_code = asset_server.load(SOURCECODE_REGULAR_FONT);
+    let source_code = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
+    let font = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
+
     commands
         .entity(state.controls_section)
         .with_children(|parent| {
@@ -444,15 +446,15 @@ pub(crate) fn build_controls_section(
                                 parent.spawn(TextBundle::from_section(
                                     bind.name.clone() + ": ",
                                     TextStyle {
-                                        font: source_code.clone(),
+                                        font: font.clone(),
                                         font_size: ESC_MENU_FONT_SIZE,
                                         color: ESC_MENU_FONT_COLOR.into(),
                                     },
                                 ));
                                 parent.spawn(TextBundle::from_section(
-                                    bind.description.clone(),
+                                    bind.description.clone() + " ",
                                     TextStyle {
-                                        font: source_code.clone(),
+                                        font: font.clone(),
                                         font_size: ESC_MENU_FONT_SIZE,
                                         color: ESC_MENU_FONT_COLOR.into(),
                                     },
@@ -528,11 +530,12 @@ pub struct ResolutionInputApply;
 
 pub(crate) fn build_graphics_section(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
     state: Res<EscapeMenuState>,
     settings: Res<GraphicsSettings>,
 ) {
-    let source_code = asset_server.load(SOURCECODE_REGULAR_FONT);
+    let source_code = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
+    let font = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
     commands
         .entity(state.graphics_section)
@@ -566,7 +569,7 @@ pub(crate) fn build_graphics_section(
                             parent.spawn(TextBundle::from_section(
                                 "Resolution: ",
                                 TextStyle {
-                                    font: source_code.clone(),
+                                    font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
@@ -679,7 +682,7 @@ pub(crate) fn build_graphics_section(
                             parent.spawn(TextBundle::from_section(
                                 "Window Mode: ",
                                 TextStyle {
-                                    font: source_code.clone(),
+                                    font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
@@ -715,7 +718,7 @@ pub(crate) fn build_graphics_section(
                             parent.spawn(TextBundle::from_section(
                                 "Vsync: ",
                                 TextStyle {
-                                    font: source_code.clone(),
+                                    font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
@@ -746,7 +749,7 @@ pub(crate) fn build_graphics_section(
                             parent.spawn(TextBundle::from_section(
                                 "Fxaa: ",
                                 TextStyle {
-                                    font: source_code.clone(),
+                                    font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },
@@ -791,7 +794,7 @@ pub(crate) fn build_graphics_section(
                             parent.spawn(TextBundle::from_section(
                                 "Msaa: ",
                                 TextStyle {
-                                    font: source_code.clone(),
+                                    font: font.clone(),
                                     font_size: ESC_MENU_FONT_SIZE,
                                     color: ESC_MENU_FONT_COLOR.into(),
                                 },

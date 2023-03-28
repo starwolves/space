@@ -1,4 +1,4 @@
-use bevy::prelude::{info, EventReader, Resource};
+use bevy::prelude::{EventReader, Resource};
 use console_commands::commands::InputConsoleCommand;
 
 use bevy::prelude::{Commands, EventWriter, Res};
@@ -47,7 +47,6 @@ pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'sta
             if player_entity.rcon == false {
                 match console_command_event.handle_option {
                     Some(t) => {
-                        info!("Sent 1");
                         let section = NetTextSection {
                             text: "RCON status denied.".to_string(),
                             font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),

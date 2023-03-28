@@ -4,9 +4,8 @@ use actions::{
 };
 use bevy::{
     prelude::{
-        AssetServer, BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands,
-        Component, DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res,
-        TextBundle, With,
+        BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands, Component,
+        DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res, TextBundle, With,
     },
     text::TextStyle,
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Size, Style, Val},
@@ -15,7 +14,7 @@ use entity::spawn::PawnEntityId;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use player::configuration::Boarded;
 use resources::hud::HudState;
-use ui::fonts::{ARIZONE_FONT, EMPIRE_FONT};
+use ui::fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT};
 
 use crate::{
     hud::{ExpandedLeftContentHud, LeftContentHud},
@@ -33,7 +32,7 @@ pub(crate) fn slot_item_actions(
     hud_state: Res<HudState>,
     mut commands: Commands,
     children_query: Query<&Children>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
     mut expand_event: EventWriter<ExpandedLeftContentHud>,
 ) {
     if !inventory_state.open || !hud_state.expanded {
@@ -52,9 +51,9 @@ pub(crate) fn slot_item_actions(
                 }
 
                 let mut builder = commands.entity(hud_state.left_content_node);
+                let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
 
-                let arizone_font = asset_server.load(ARIZONE_FONT);
-                let empire_font = asset_server.load(EMPIRE_FONT);
+                let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
 
                 if data.len() == 0 {
                     continue;

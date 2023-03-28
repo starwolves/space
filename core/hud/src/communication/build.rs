@@ -6,9 +6,8 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        warn, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands, Component,
-        Entity, EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
-        With,
+        warn, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity,
+        EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{Display, FlexDirection, Interaction, Overflow, Size, Style, Val},
@@ -17,7 +16,7 @@ use cargo_toml::Manifest;
 use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::{
     button::SFButton,
-    fonts::SOURCECODE_REGULAR_FONT,
+    fonts::{Fonts, SOURCECODE_REGULAR_FONT},
     scrolling::ScrollingListInverted,
     text::COMMUNICATION_FONT_SIZE,
     text_input::{CharacterFilter, FocusTextInput, TextInputNode},
@@ -121,9 +120,9 @@ pub(crate) fn toggle_console_button(
 pub(crate) fn build_communication_ui(
     hud_state: Res<HudState>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
-    let sourcecode_font = asset_server.load(SOURCECODE_REGULAR_FONT);
+    let sourcecode_font = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
     let mut chat_messages_node = Entity::from_bits(0);
     let mut chat_messages_bg_node = Entity::from_bits(0);
@@ -295,7 +294,7 @@ pub const CONSOLE_FONT_COLOR: Color = Color::WHITE;
 
 pub(crate) fn console_welcome_message(
     mut events: EventWriter<DisplayConsoleMessage>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
     let cargo_toml_contents = fs::read_to_string("core/app/Cargo.toml").unwrap();
     let cargo = Manifest::from_slice(cargo_toml_contents.as_bytes()).unwrap();
@@ -328,7 +327,7 @@ pub(crate) fn console_welcome_message(
         sections: vec![TextSection::new(
             welcome_message,
             TextStyle {
-                font: asset_server.load(SOURCECODE_REGULAR_FONT),
+                font: fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap().clone(),
                 font_size: COMMUNICATION_FONT_SIZE,
                 color: CONSOLE_FONT_COLOR.into(),
             },

@@ -1,14 +1,14 @@
 use bevy::text::TextSection;
 use bevy::{
     prelude::{
-        AssetServer, BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, Component,
-        Entity, EventReader, EventWriter, NodeBundle, Res, ResMut, SystemSet, TextBundle,
+        BuildChildren, ButtonBundle, Camera2dBundle, Color, Commands, Component, Entity,
+        EventReader, EventWriter, NodeBundle, Res, ResMut, SystemSet, TextBundle,
     },
     text::TextStyle,
     ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val},
 };
 use resources::core::ClientInformation;
-use ui::fonts::{ARIZONE_FONT, EMPIRE_FONT, NESATHOBERYL_FONT};
+use ui::fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, FONT_AWESOME, NESATHOBERYL_FONT};
 
 /// Event.
 
@@ -77,7 +77,7 @@ pub(crate) fn show_main_menu(
     mut enable_events: EventReader<EnableMainMenu>,
     mut state: ResMut<MainMenuState>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
     client_information: Res<ClientInformation>,
     mut show_play_menu: EventWriter<EnablePlayMenu>,
 ) {
@@ -105,10 +105,10 @@ pub(crate) fn show_main_menu(
         let mut builder = commands.spawn(());
 
         let entity = builder.id();
-
-        let arizone_font = asset_server.load(ARIZONE_FONT);
-        let empire_font = asset_server.load(EMPIRE_FONT);
-        let nesathoberyl_font = asset_server.load(NESATHOBERYL_FONT);
+        let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
+        let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
+        let nesathoberyl_font = fonts.handles.get(NESATHOBERYL_FONT).unwrap();
+        let awesome_font = fonts.handles.get(FONT_AWESOME).unwrap();
 
         // Root node.
         builder
@@ -170,7 +170,7 @@ pub(crate) fn show_main_menu(
                                                 TextSection::new(
                                                     "© ",
                                                     TextStyle {
-                                                        font: nesathoberyl_font,
+                                                        font: nesathoberyl_font.clone(),
                                                         font_size: 12.0,
                                                         color: TEXT_COLOR,
                                                     },
@@ -235,8 +235,7 @@ pub(crate) fn show_main_menu(
                                             TextStyle {
                                                 font_size: 18.0,
                                                 color: TEXT_COLOR,
-                                                font: asset_server
-                                                    .load("fonts/FontAwesome6Free-Solid-900.otf"),
+                                                font: awesome_font.clone(),
                                             },
                                         ));
                                         parent.spawn(()).insert(
@@ -488,7 +487,7 @@ pub(crate) fn show_play_menu(
     mut show_events: EventReader<EnablePlayMenu>,
     mut state: ResMut<PlayMenuState>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
     root_node_query: Query<Entity, With<MainMainMenuRoot>>,
 ) {
     for event in show_events.iter() {
@@ -520,7 +519,7 @@ pub(crate) fn show_play_menu(
 
         commands.entity(root_node).add_child(entity);
         let mut builder = commands.entity(entity);
-        let arizone_font = asset_server.load(ARIZONE_FONT);
+        let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
 
         builder
             .insert(NodeBundle {

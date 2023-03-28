@@ -1,8 +1,8 @@
 use bevy::{
     prelude::{
-        warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
-        Component, DespawnRecursiveExt, Entity, EventReader, EventWriter, NodeBundle, Query, Res,
-        ResMut, Resource, TextBundle, With, Without,
+        warn, BuildChildren, Button, ButtonBundle, Changed, Color, Commands, Component,
+        DespawnRecursiveExt, Entity, EventReader, EventWriter, NodeBundle, Query, Res, ResMut,
+        Resource, TextBundle, With, Without,
     },
     text::TextStyle,
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Size, Style, Val},
@@ -10,7 +10,7 @@ use bevy::{
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use resources::hud::HudState;
 use ui::{
-    fonts::{ARIZONE_FONT, EMPIRE_FONT},
+    fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT},
     net::{TextTreeInput, TextTreeSelection, UiClientMessage, UiServerMessage},
 };
 
@@ -49,14 +49,14 @@ pub(crate) fn create_text_tree_selection(
     mut events: EventReader<IncomingReliableServerMessage<UiServerMessage>>,
     hud_state: Res<HudState>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
     mut state: ResMut<TextTreeInputSelectionState>,
 ) {
     for message in events.iter() {
         match &message.message {
             UiServerMessage::TextTreeSelection(selection) => {
-                let arizone_font = asset_server.load(ARIZONE_FONT);
-                let empire_font = asset_server.load(EMPIRE_FONT);
+                let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
+                let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
 
                 match state.entity {
                     Some(old_entity) => {

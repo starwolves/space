@@ -1,13 +1,16 @@
 use bevy::{
     prelude::{
-        warn, Added, AssetServer, BuildChildren, ButtonBundle, Changed, Color, Commands, Component,
-        Entity, EventReader, EventWriter, Parent, Query, Res, TextBundle, With,
+        warn, Added, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity,
+        EventReader, EventWriter, Parent, Query, Res, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{BackgroundColor, Interaction, Style},
 };
 
-use crate::{button::SFButton, fonts::SOURCECODE_REGULAR_FONT};
+use crate::{
+    button::SFButton,
+    fonts::{Fonts, SOURCECODE_REGULAR_FONT},
+};
 
 #[derive(Component, Default)]
 pub struct HList {
@@ -20,11 +23,11 @@ pub struct HList {
 pub(crate) fn hlist_created(
     mut query: Query<(Entity, &mut HList), Added<HList>>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
     mut events: EventWriter<FreezeButton>,
 ) {
     for (entity, mut hlist) in query.iter_mut() {
-        let source_code = asset_server.load(SOURCECODE_REGULAR_FONT);
+        let source_code = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
         commands.entity(entity).with_children(|parent| {
             let mut entities = vec![];
@@ -46,7 +49,7 @@ pub(crate) fn hlist_created(
                             " ".to_string() + selection + " ",
                             TextStyle {
                                 font: source_code.clone(),
-                                font_size: 12.,
+                                font_size: 15.,
                                 color: Color::WHITE,
                             },
                         )]));

@@ -2,16 +2,15 @@ use std::collections::HashMap;
 
 use bevy::{
     prelude::{
-        warn, AssetServer, BuildChildren, Color, Commands, Component, Entity, EventReader,
-        EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
-        Visibility, With,
+        warn, BuildChildren, Color, Commands, Component, Entity, EventReader, EventWriter, Input,
+        KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle, Visibility, With,
     },
     text::{Text, TextStyle},
     ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
 };
 use player::configuration::Boarded;
 use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
-use ui::fonts::ARIZONE_FONT;
+use ui::fonts::{Fonts, ARIZONE_FONT};
 
 use crate::{
     expand::ExpandInventoryHud, hud::ExpandedLeftContentHud, input::binds::TOGGLE_INVENTORY,
@@ -24,9 +23,9 @@ pub const INVENTORY_SLOTS_BG_COLOR: Color = Color::rgba(0.25, 0.25, 0.25, 0.9);
 pub(crate) fn create_inventory_hud(
     mut commands: Commands,
     hud_state: Res<HudState>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
-    let arizone_font = asset_server.load(ARIZONE_FONT);
+    let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
 
     let mut inventory_hud_color = Color::MIDNIGHT_BLUE;
     inventory_hud_color.set_a(0.9);
@@ -76,7 +75,7 @@ pub(crate) fn create_inventory_hud(
                                 text: Text::from_section(
                                     "Inventory".to_string(),
                                     TextStyle {
-                                        font: arizone_font,
+                                        font: arizone_font.clone(),
                                         font_size: 13.,
                                         color: Color::WHITE,
                                     },

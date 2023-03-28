@@ -4,8 +4,7 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        AssetServer, BuildChildren, Commands, EventReader, EventWriter, Label, NodeBundle, Res,
-        TextBundle,
+        BuildChildren, Commands, EventReader, EventWriter, Label, NodeBundle, Res, TextBundle,
     },
     text::{TextSection, TextStyle},
     ui::{FlexDirection, Size, Style, Val},
@@ -22,7 +21,6 @@ use super::{
 pub(crate) fn receive_chat_message(
     mut net: EventReader<IncomingReliableServerMessage<ChatServerMessage>>,
     fonts: Res<Fonts>,
-    asset_server: Res<AssetServer>,
     mut events: EventWriter<DisplayChatMessage>,
 ) {
     for message in net.iter() {
@@ -34,8 +32,11 @@ pub(crate) fn receive_chat_message(
                     sections.push(TextSection::new(
                         net_section.text.clone(),
                         TextStyle {
-                            font: asset_server
-                                .load(fonts.map.get(&net_section.font).expect("Font not loaded")),
+                            font: fonts
+                                .handles
+                                .get(fonts.map.get(&net_section.font).expect("Font not loaded"))
+                                .unwrap()
+                                .clone(),
                             font_size: net_section.font_size,
                             color: net_section.color,
                         },
