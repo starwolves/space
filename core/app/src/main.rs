@@ -1,5 +1,7 @@
 //! Launcher and loop initializer.
 
+use std::env::current_dir;
+
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
 use asana::plugin::AsanaPlugin;
@@ -82,8 +84,11 @@ fn live() {
 
 /// Version of this crate as defined in this Cargo.toml.
 const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const ASSET_FOLDER: &str = "../../assets";
 pub(crate) fn configure_and_start() {
+    let binding = current_dir().unwrap();
+    let mut test_path = binding.as_path();
+    let binding = test_path.join("assets");
+    test_path = binding.as_path();
     let mut app = App::new();
     if is_server() {
         let mut wgpu_settings = WgpuSettings::default();
@@ -96,7 +101,7 @@ pub(crate) fn configure_and_start() {
             .add_plugin(TypeRegistrationPlugin)
             .add_plugin(FrameCountPlugin)
             .add_plugin(AssetPlugin {
-                asset_folder: ASSET_FOLDER.to_string(),
+                asset_folder: test_path.to_str().unwrap().to_owned(),
                 ..Default::default()
             })
             .add_plugin(WindowPlugin::default())
@@ -125,7 +130,7 @@ pub(crate) fn configure_and_start() {
                     ..Default::default()
                 })
                 .set(AssetPlugin {
-                    asset_folder: ASSET_FOLDER.to_string(),
+                    asset_folder: test_path.to_str().unwrap().to_owned(),
                     ..Default::default()
                 }),
         )

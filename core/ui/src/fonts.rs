@@ -4,6 +4,7 @@ use bevy::{
     prelude::{AssetServer, Handle, Res, ResMut, Resource},
     text::Font,
 };
+use resources::is_server::is_server;
 
 pub const ARIZONE_FONT: &str = "fonts/ArizoneUnicaseRegular.ttf";
 pub const EMPIRE_FONT: &str = "fonts/AAbsoluteEmpire.ttf";
@@ -22,7 +23,9 @@ impl Fonts {
     pub fn add(&mut self, path: String, asset_server: &Res<AssetServer>) {
         self.map.insert(self.i, path.clone());
         self.inv_map.insert(path.clone(), self.i);
-        self.handles.insert(path.clone(), asset_server.load(path));
+        if !is_server() {
+            self.handles.insert(path.clone(), asset_server.load(path));
+        }
         self.i += 1;
     }
 }

@@ -1,5 +1,3 @@
-use std::fs;
-
 use bevy::{
     a11y::{
         accesskit::{NodeBuilder, Role},
@@ -12,7 +10,6 @@ use bevy::{
     text::{TextSection, TextStyle},
     ui::{Display, FlexDirection, Interaction, Overflow, Size, Style, Val},
 };
-use cargo_toml::Manifest;
 use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::{
     button::SFButton,
@@ -296,31 +293,8 @@ pub(crate) fn console_welcome_message(
     mut events: EventWriter<DisplayConsoleMessage>,
     fonts: Res<Fonts>,
 ) {
-    let cargo_toml_contents = fs::read_to_string("core/app/Cargo.toml").unwrap();
-    let cargo = Manifest::from_slice(cargo_toml_contents.as_bytes()).unwrap();
-
-    let mut bevy_version = "".to_string();
-
-    match cargo.dependencies.get("bevy").unwrap() {
-        cargo_toml::Dependency::Simple(v) => {
-            bevy_version = v.clone();
-        }
-        cargo_toml::Dependency::Detailed(v) => {
-            bevy_version = v.version.clone().unwrap();
-        }
-        _ => (),
-    }
-    let mut sf_version = "".to_string();
-
-    match cargo.package.unwrap().version {
-        cargo_toml::Inheritable::Set(v) => {
-            sf_version = v;
-        }
-        _ => (),
-    }
-
-    let welcome_message = format!("Space Frontiers v{}\n", sf_version)
-        + &format!("Bevy v{}\n", bevy_version)
+    let welcome_message = format!("Space Frontiers v{}\n", "0.0.3")
+        + &format!("Bevy v{}\n", "0.10.0")
         + "Write \"help\" for a list of available commands.";
 
     events.send(DisplayConsoleMessage {
