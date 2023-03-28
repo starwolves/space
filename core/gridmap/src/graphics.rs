@@ -20,7 +20,7 @@ pub(crate) fn set_cell_graphics(
     assets_gltfmesh: Res<Assets<GltfMesh>>,
 ) {
     for set_cell in events.iter() {
-        match gridmap_main.main_cell_properties.get(&set_cell.tile_type) {
+        match gridmap_main.tile_properties.get(&set_cell.tile_type) {
             Some(properties) => {
                 let transform = gridmap_main.get_cell_transform(
                     TargetCell {
@@ -29,11 +29,20 @@ pub(crate) fn set_cell_graphics(
                     },
                     set_cell.orientation,
                 );
+                let mat;
+                match &properties.material_option {
+                    Some(m) => {
+                        mat = m;
+                    }
+                    None => {
+                        mat = &materials.gray_metallic;
+                    }
+                }
                 match assets_gltfmesh.get(&properties.mesh_option.clone().unwrap()) {
                     Some(mesh) => {
                         commands.entity(set_cell.entity).insert(PbrBundle {
                             mesh: mesh.primitives[0].mesh.clone(),
-                            material: materials.gray_metallic.clone(),
+                            material: mat.clone(),
                             transform,
                             ..Default::default()
                         });

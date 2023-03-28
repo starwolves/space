@@ -334,7 +334,7 @@ pub(crate) fn update_ghost_cell(
                     match gridmap.groups.get(&groupid) {
                         Some(group) => {
                             for (local_id, tile) in group.iter() {
-                                match gridmap.main_cell_properties.get(&tile.tile_type) {
+                                match gridmap.tile_properties.get(&tile.tile_type) {
                                     Some(properties) => {
                                         let prev_item;
 
@@ -404,7 +404,7 @@ pub(crate) fn update_ghost_cell(
                     match gridmap.groups.get(&groupid) {
                         Some(group) => {
                             for (local_id, tile) in group.iter() {
-                                match gridmap.main_cell_properties.get(&tile.tile_type) {
+                                match gridmap.tile_properties.get(&tile.tile_type) {
                                     Some(properties) => {
                                         let mut t = gridmap.get_cell_transform(
                                             TargetCell {
@@ -470,7 +470,7 @@ pub(crate) fn update_ghost_cell(
                 }
                 let m = state.ghost_material.clone();
                 match state.ghost_item.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
-                    Some(mut g) => match gridmap.main_cell_properties.get(&g.tile_type) {
+                    Some(mut g) => match gridmap.tile_properties.get(&g.tile_type) {
                         Some(properties) => {
                             if !changed.only_selection_changed {
                                 match properties.cell_type {
@@ -592,7 +592,7 @@ pub(crate) fn input_ghost_rotation(
 
                         let full_id = new_id + selected_id;
 
-                        match gridmap.main_cell_properties.get(&tile.tile_type) {
+                        match gridmap.tile_properties.get(&tile.tile_type) {
                             Some(properties) => {
                                 match properties.cell_type {
                                     crate::grid::CellType::Wall => {

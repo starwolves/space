@@ -4,7 +4,7 @@ use bevy::{
     gltf::GltfMesh,
     prelude::{
         warn, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity, EventWriter, Handle,
-        Mat3, Quat, Query, Res, Resource, Transform, Vec3, Without,
+        Mat3, Quat, Query, Res, Resource, StandardMaterial, Transform, Vec3, Without,
     },
     transform::TransformBundle,
 };
@@ -64,6 +64,7 @@ pub struct TileProperties {
     pub combine_rule: CoefficientCombineRule,
     /// Always available on client. Never available on server.
     pub mesh_option: Option<Handle<GltfMesh>>,
+    pub material_option: Option<Handle<StandardMaterial>>,
     pub cell_type: CellType,
 }
 
@@ -86,6 +87,7 @@ impl Default for TileProperties {
             friction: 0.,
             combine_rule: CoefficientCombineRule::Min,
             mesh_option: None,
+            material_option: None,
             cell_type: CellType::Wall,
         }
     }
@@ -279,14 +281,69 @@ pub struct Gridmap {
     pub group_id_map: HashMap<GroupTypeName, GroupTypeId>,
     pub id_group_map: HashMap<GroupTypeId, GroupTypeName>,
     pub main_text_names: HashMap<CellTypeId, RichName>,
-    pub details1_text_names: HashMap<CellTypeId, RichName>,
     pub main_text_examine_desc: HashMap<CellTypeId, String>,
     pub blackcell_id: CellTypeId,
     pub blackcell_blocking_id: CellTypeId,
-    pub main_cell_properties: HashMap<CellTypeId, TileProperties>,
+    pub tile_properties: HashMap<CellTypeId, TileProperties>,
     pub map_length_limit: MapLimits,
     pub groups: HashMap<GroupTypeId, HashMap<Vec3Int, FullCell>>,
     pub group_instance_incremental: u32,
+}
+
+const EMPTY_CHUNK: Option<GridmapChunk> = None;
+
+impl Default for Gridmap {
+    fn default() -> Self {
+        Self {
+            grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
+            updates: HashMap::default(),
+            non_fov_blocking_cells_list: vec![],
+            non_combat_obstacle_cells_list: vec![],
+            non_laser_obstacle_cells_list: vec![],
+            placeable_items_cells_list: vec![],
+            ordered_main_names: vec![],
+            main_name_id_map: HashMap::default(),
+            main_id_name_map: HashMap::default(),
+            main_text_names: HashMap::default(),
+            main_text_examine_desc: HashMap::default(),
+            blackcell_id: CellTypeId(0),
+            blackcell_blocking_id: CellTypeId(0),
+            tile_properties: HashMap::default(),
+            map_length_limit: MapLimits::default(),
+            groups: HashMap::default(),
+            group_id_map: HashMap::default(),
+            id_group_map: HashMap::default(),
+            group_instance_incremental: 0,
+        }
+    }
+}
+/// Result for [get_indexes].
+#[derive(Clone, Copy, Debug)]
+pub struct CellIndexes {
+    pub chunk: usize,
+    pub cell: usize,
+}
+
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub enum StrictCellFace {
+    #[default]
+    FrontWall,
+    RightWall,
+    Floor,
+    Center,
+}
+
+pub struct StrictCell {
+    pub face: StrictCellFace,
+    pub id: Vec3Int,
+}
+
+/// Event to add a gridmap tile that can cover multiple cells.
+pub struct SetCell {
+    pub id: Vec3Int,
+    pub orientation: u8,
+    pub tile_id: u16,
+    pub face: CellFace,
 }
 
 impl Gridmap {
@@ -363,66 +420,6 @@ impl Gridmap {
         }
         bincode::serialize(&data).unwrap()
     }
-}
-
-const EMPTY_CHUNK: Option<GridmapChunk> = None;
-
-impl Default for Gridmap {
-    fn default() -> Self {
-        Self {
-            grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
-            updates: HashMap::default(),
-            non_fov_blocking_cells_list: vec![],
-            non_combat_obstacle_cells_list: vec![],
-            non_laser_obstacle_cells_list: vec![],
-            placeable_items_cells_list: vec![],
-            ordered_main_names: vec![],
-            main_name_id_map: HashMap::default(),
-            main_id_name_map: HashMap::default(),
-            main_text_names: HashMap::default(),
-            details1_text_names: HashMap::default(),
-            main_text_examine_desc: HashMap::default(),
-            blackcell_id: CellTypeId(0),
-            blackcell_blocking_id: CellTypeId(0),
-            main_cell_properties: HashMap::default(),
-            map_length_limit: MapLimits::default(),
-            groups: HashMap::default(),
-            group_id_map: HashMap::default(),
-            id_group_map: HashMap::default(),
-            group_instance_incremental: 0,
-        }
-    }
-}
-/// Result for [get_indexes].
-#[derive(Clone, Copy, Debug)]
-pub struct CellIndexes {
-    pub chunk: usize,
-    pub cell: usize,
-}
-
-#[derive(Serialize, Deserialize, Default, Debug)]
-pub enum StrictCellFace {
-    #[default]
-    FrontWall,
-    RightWall,
-    Floor,
-    Center,
-}
-
-pub struct StrictCell {
-    pub face: StrictCellFace,
-    pub id: Vec3Int,
-}
-
-/// Event to add a gridmap tile that can cover multiple cells.
-pub struct SetCell {
-    pub id: Vec3Int,
-    pub orientation: u8,
-    pub tile_id: u16,
-    pub face: CellFace,
-}
-
-impl Gridmap {
     pub fn get_indexes(&self, id: Vec3Int) -> CellIndexes {
         let map_half_length = ((self.map_length_limit.length as f32 * CHUNK_CUBIC_LENGTH as f32)
             * 0.5)
@@ -941,7 +938,7 @@ pub(crate) fn add_tile_collision(
 ) {
     for event in events.iter() {
         let cell_properties;
-        match gridmap_data.main_cell_properties.get(&event.tile_type) {
+        match gridmap_data.tile_properties.get(&event.tile_type) {
             Some(x) => {
                 cell_properties = x;
             }

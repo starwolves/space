@@ -40,41 +40,37 @@ pub(crate) fn init_tile_properties(
 ) {
     gridmap_data.non_fov_blocking_cells_list.push(CellTypeId(0));
 
-    for cell_properties in init.properties.iter() {
+    for properties in init.properties.iter() {
         gridmap_data
             .main_text_names
-            .insert(cell_properties.id, cell_properties.name.clone());
+            .insert(properties.id, properties.name.clone());
         gridmap_data
             .main_text_examine_desc
-            .insert(cell_properties.id, cell_properties.description.clone());
+            .insert(properties.id, properties.description.clone());
 
-        if cell_properties.non_fov_blocker {
-            gridmap_data
-                .non_fov_blocking_cells_list
-                .push(cell_properties.id);
+        if properties.non_fov_blocker {
+            gridmap_data.non_fov_blocking_cells_list.push(properties.id);
         }
 
-        if !cell_properties.combat_obstacle {
+        if !properties.combat_obstacle {
             gridmap_data
                 .non_combat_obstacle_cells_list
-                .push(cell_properties.id)
+                .push(properties.id)
         }
 
-        if cell_properties.placeable_item_surface {
-            gridmap_data
-                .placeable_items_cells_list
-                .push(cell_properties.id);
+        if properties.placeable_item_surface {
+            gridmap_data.placeable_items_cells_list.push(properties.id);
         }
 
-        if !cell_properties.laser_combat_obstacle {
+        if !properties.laser_combat_obstacle {
             gridmap_data
                 .non_laser_obstacle_cells_list
-                .push(cell_properties.id);
+                .push(properties.id);
         }
 
         gridmap_data
-            .main_cell_properties
-            .insert(cell_properties.id, cell_properties.clone());
+            .tile_properties
+            .insert(properties.id, properties.clone());
     }
 
     info!("Loaded {} gridmap cell types.", init.properties.len());
