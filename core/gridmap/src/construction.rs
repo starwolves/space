@@ -160,8 +160,9 @@ pub(crate) fn move_ylevel_plane(
         Some(camera_entity) => match camera_query.get(camera_entity) {
             Ok(look_transform) => {
                 let camera_cell_id = world_to_cell_id(look_transform.eye);
+
                 if state.y_plane_position.x != camera_cell_id.x
-                    && state.y_plane_position.y != camera_cell_id.z
+                    || state.y_plane_position.y != camera_cell_id.z
                 {
                     match ylevel_query.get_mut(state.y_plane) {
                         Ok(mut transform) => {
