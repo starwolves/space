@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{resource_exists, App, CoreSet, IntoSystemConfig, Plugin},
+    prelude::{resource_exists, App, CoreSet, IntoSystemConfig, Plugin, StartupSet},
     time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
@@ -35,8 +35,9 @@ use crate::{
         InitTileProperties,
     },
     items::{
-        generic_floor::init_floor_properties, generic_wall::init_wall_properties,
-        generic_wall_group::init_wall_group_properties, glass_wall::init_glass_wall_properties,
+        generic_floor::init_floor_properties, generic_meshes::init_generic_meshes,
+        generic_wall::init_wall_properties, generic_wall_group::init_wall_group_properties,
+        glass_wall::init_glass_wall_properties,
     },
     net::{GridmapClientMessage, GridmapServerMessage},
 };
@@ -117,6 +118,7 @@ impl Plugin for GridmapPlugin {
         }
 
         app.add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
+            .add_startup_system(init_generic_meshes.in_base_set(StartupSet::PreStartup))
             .add_startup_system(
                 init_tile_properties
                     .in_set(StartupLabels::InitDefaultGridmapData)

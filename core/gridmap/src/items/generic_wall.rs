@@ -1,4 +1,4 @@
-use bevy::prelude::{AssetServer, Res, ResMut, Transform};
+use bevy::prelude::{Res, ResMut, Transform};
 use entity::examine::RichName;
 use resources::is_server::is_server;
 
@@ -6,14 +6,19 @@ use crate::{
     grid::{CellType, CellTypeName, TileProperties},
     init::InitTileProperties,
 };
-pub(crate) fn init_wall_properties(assets: Res<AssetServer>, mut init: ResMut<InitTileProperties>) {
+
+use super::generic_meshes::GenericMeshes;
+pub(crate) fn init_wall_properties(
+    mut init: ResMut<InitTileProperties>,
+    meshes: Res<GenericMeshes>,
+) {
     let mut default_isometry = Transform::IDENTITY;
 
     default_isometry.translation.y = -0.5;
 
     let mesh_option;
     if !is_server() {
-        mesh_option = Some(assets.load("models/wall/wall.glb#Mesh0"));
+        mesh_option = Some(meshes.wall.clone());
     } else {
         mesh_option = None;
     }

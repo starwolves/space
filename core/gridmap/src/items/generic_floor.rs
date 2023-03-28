@@ -1,6 +1,6 @@
 use bevy::{
     gltf::GltfMesh,
-    prelude::{AssetServer, Handle, Res, ResMut},
+    prelude::{Handle, Res, ResMut},
 };
 use entity::examine::RichName;
 use resources::is_server::is_server;
@@ -10,13 +10,15 @@ use crate::{
     init::InitTileProperties,
 };
 
+use super::generic_meshes::GenericMeshes;
+
 pub(crate) fn init_floor_properties(
-    assets: Res<AssetServer>,
     mut init: ResMut<InitTileProperties>,
+    meshes: Res<GenericMeshes>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     if !is_server() {
-        mesh_option = Some(assets.load("models/floor/floor.glb#Mesh0"));
+        mesh_option = Some(meshes.floor.clone());
     } else {
         mesh_option = None;
     }
