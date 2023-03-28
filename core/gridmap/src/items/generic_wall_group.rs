@@ -7,7 +7,8 @@ use crate::grid::{CellTypeName, FullCell, Gridmap, GroupTypeId, GroupTypeName};
 
 pub(crate) fn init_wall_group_properties(mut gridmap_data: ResMut<Gridmap>) {
     let mut wall_group = HashMap::new();
-    let group_id = GroupTypeId(0);
+    let group_id = GroupTypeId(gridmap_data.group_type_incremental);
+    gridmap_data.group_type_incremental += 1;
     wall_group.insert(
         Vec3Int { x: 0, y: 0, z: 0 },
         FullCell {

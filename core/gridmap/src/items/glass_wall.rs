@@ -6,7 +6,10 @@ use crate::{
     grid::{CellType, CellTypeName, TileProperties},
     init::InitTileProperties,
 };
-pub(crate) fn init_wall_properties(assets: Res<AssetServer>, mut init: ResMut<InitTileProperties>) {
+pub(crate) fn init_glass_wall_properties(
+    assets: Res<AssetServer>,
+    mut init: ResMut<InitTileProperties>,
+) {
     let mut default_isometry = Transform::IDENTITY;
 
     default_isometry.translation.y = -0.5;
@@ -18,13 +21,13 @@ pub(crate) fn init_wall_properties(assets: Res<AssetServer>, mut init: ResMut<In
         mesh_option = None;
     }
     init.properties.push(TileProperties {
-        name_id: CellTypeName("generic_wall_1".to_string()),
+        name_id: CellTypeName("glass_wall_1".to_string()),
         name: RichName {
-            name: "aluminum wall".to_string(),
+            name: "glass wall".to_string(),
             n: true,
             the: false,
         },
-        description: "A generic wall tile.".to_string(),
+        description: "Glass.".to_string(),
         constructable: true,
         mesh_option,
         cell_type: CellType::Wall,

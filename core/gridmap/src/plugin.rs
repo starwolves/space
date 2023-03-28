@@ -36,7 +36,7 @@ use crate::{
     },
     items::{
         generic_floor::init_floor_properties, generic_wall::init_wall_properties,
-        generic_wall_group::init_wall_group_properties,
+        generic_wall_group::init_wall_group_properties, glass_wall::init_glass_wall_properties,
     },
     net::{GridmapClientMessage, GridmapServerMessage},
 };
@@ -124,8 +124,9 @@ impl Plugin for GridmapPlugin {
                     .after(StartupLabels::MiscResources),
             )
             .add_startup_system(init_floor_properties.before(init_tile_properties))
-            .add_startup_system(init_wall_group_properties.before(init_tile_properties))
+            .add_startup_system(init_wall_group_properties.after(init_tile_properties))
             .add_startup_system(init_wall_properties.before(init_tile_properties))
+            .add_startup_system(init_glass_wall_properties.before(init_tile_properties))
             .add_startup_system(
                 load_ron_gridmap
                     .in_set(StartupLabels::BuildGridmap)

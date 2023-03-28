@@ -47,7 +47,7 @@ pub enum CellType {
 #[derive(Clone)]
 
 pub struct TileProperties {
-    pub id: CellTypeId,
+    pub name_id: CellTypeName,
     pub name: RichName,
     pub description: String,
     pub non_fov_blocker: bool,
@@ -71,7 +71,7 @@ pub struct TileProperties {
 impl Default for TileProperties {
     fn default() -> Self {
         Self {
-            id: CellTypeId(0),
+            name_id: CellTypeName("".to_string()),
             name: Default::default(),
             description: "".to_string(),
             non_fov_blocker: false,
@@ -288,6 +288,8 @@ pub struct Gridmap {
     pub map_length_limit: MapLimits,
     pub groups: HashMap<GroupTypeId, HashMap<Vec3Int, FullCell>>,
     pub group_instance_incremental: u32,
+    pub tile_type_incremental: u16,
+    pub group_type_incremental: u16,
 }
 
 const EMPTY_CHUNK: Option<GridmapChunk> = None;
@@ -314,6 +316,8 @@ impl Default for Gridmap {
             group_id_map: HashMap::default(),
             id_group_map: HashMap::default(),
             group_instance_incremental: 0,
+            tile_type_incremental: 0,
+            group_type_incremental: 0,
         }
     }
 }

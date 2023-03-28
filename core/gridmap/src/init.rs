@@ -1,7 +1,8 @@
 use std::{fs, path::Path};
 
 use bevy::prelude::{
-    info, warn, Assets, Commands, EventWriter, Handle, Res, ResMut, Resource, StandardMaterial,
+    info, warn, Assets, Color, Commands, EventWriter, Handle, Res, ResMut, Resource,
+    StandardMaterial,
 };
 use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
 use resources::math::Vec3Int;
@@ -17,6 +18,7 @@ use crate::grid::{AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeName, Til
 //pub const PLACEABLE_FRICTION: CoefficientCombineRule = CoefficientCombineRule::Min;
 
 /// Initiate map resource meta-data.
+
 #[derive(Default, Resource)]
 pub struct InitTileProperties {
     pub properties: Vec<TileProperties>,
@@ -30,49 +32,56 @@ pub(crate) fn init_default_materials(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut commands: Commands,
 ) {
-    let m = materials.add(StandardMaterial::default());
+    let m = materials.add(StandardMaterial {
+        base_color: Color::WHITE,
+        perceptual_roughness: 0.3,
+        metallic: 0.7,
+        ..Default::default()
+    });
     commands.insert_resource(DefaultGridMaterials { gray_metallic: m });
 }
 
-pub(crate) fn init_tile_properties(
-    mut gridmap_data: ResMut<Gridmap>,
-    init: Res<InitTileProperties>,
-) {
-    gridmap_data.non_fov_blocking_cells_list.push(CellTypeId(0));
-
+pub(crate) fn init_tile_properties(mut gridmap: ResMut<Gridmap>, init: Res<InitTileProperties>) {
+    gridmap.non_fov_blocking_cells_list.push(CellTypeId(0));
+    let mut current_map_mainordered_cells_typed = vec![];
     for properties in init.properties.iter() {
-        gridmap_data
+        let gri_id = CellTypeId(gridmap.tile_type_incremental);
+        gridmap
             .main_text_names
-            .insert(properties.id, properties.name.clone());
-        gridmap_data
+            .insert(gri_id, properties.name.clone());
+        gridmap
             .main_text_examine_desc
-            .insert(properties.id, properties.description.clone());
+            .insert(gri_id, properties.description.clone());
 
         if properties.non_fov_blocker {
-            gridmap_data.non_fov_blocking_cells_list.push(properties.id);
+            gridmap.non_fov_blocking_cells_list.push(gri_id);
         }
 
         if !properties.combat_obstacle {
-            gridmap_data
-                .non_combat_obstacle_cells_list
-                .push(properties.id)
+            gridmap.non_combat_obstacle_cells_list.push(gri_id)
         }
 
         if properties.placeable_item_surface {
-            gridmap_data.placeable_items_cells_list.push(properties.id);
+            gridmap.placeable_items_cells_list.push(gri_id);
         }
 
         if !properties.laser_combat_obstacle {
-            gridmap_data
-                .non_laser_obstacle_cells_list
-                .push(properties.id);
+            gridmap.non_laser_obstacle_cells_list.push(gri_id);
         }
 
-        gridmap_data
-            .tile_properties
-            .insert(properties.id, properties.clone());
-    }
+        gridmap.tile_properties.insert(gri_id, properties.clone());
+        info!("initing {}", *properties.name_id);
+        gridmap
+            .main_name_id_map
+            .insert(properties.name_id.clone(), gri_id);
+        gridmap
+            .main_id_name_map
+            .insert(gri_id, properties.name_id.clone());
+        current_map_mainordered_cells_typed.push(properties.name_id.clone());
 
+        gridmap.tile_type_incremental += 1;
+    }
+    gridmap.ordered_main_names = current_map_mainordered_cells_typed;
     info!("Loaded {} gridmap cell types.", init.properties.len());
 }
 use player::spawn_points::SpawnPointRon;
@@ -80,7 +89,6 @@ use player::spawn_points::SpawnPointRon;
 /// Initiate other gridmap meta-datas from ron.
 
 pub(crate) fn startup_misc_resources(
-    mut gridmap_data: ResMut<Gridmap>,
     mut spawn_points_res: ResMut<SpawnPoints>,
     mut rapier_configuration: ResMut<RapierConfiguration>,
     tick_rate: Res<TickRate>,
@@ -92,30 +100,6 @@ pub(crate) fn startup_misc_resources(
         time_scale: 1.,
         substeps: 1,
     };
-
-    let mainordered_cells_ron = Path::new("data")
-        .join("maps")
-        .join("bullseye")
-        .join("mainordered.ron");
-    let current_map_mainordered_cells_raw_ron: String = fs::read_to_string(mainordered_cells_ron)
-        .expect("Error reading map mainordered.ron drive.");
-    let current_map_mainordered_cells: Vec<String> =
-        ron::from_str(&current_map_mainordered_cells_raw_ron)
-            .expect("Error parsing map mainordered.ron String.");
-
-    let mut current_map_mainordered_cells_typed: Vec<CellTypeName> = vec![];
-
-    for (i, name) in current_map_mainordered_cells.iter().rev().enumerate() {
-        gridmap_data
-            .main_name_id_map
-            .insert(CellTypeName(name.to_string()), CellTypeId(i as u16));
-        gridmap_data
-            .main_id_name_map
-            .insert(CellTypeId(i as u16), CellTypeName(name.to_string()));
-        current_map_mainordered_cells_typed.push(CellTypeName(name.to_string()));
-    }
-
-    gridmap_data.ordered_main_names = current_map_mainordered_cells_typed;
 
     let spawnpoints_ron = Path::new("data")
         .join("maps")

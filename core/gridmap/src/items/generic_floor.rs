@@ -6,12 +6,11 @@ use entity::examine::RichName;
 use resources::is_server::is_server;
 
 use crate::{
-    grid::{CellType, CellTypeName, Gridmap, TileProperties},
+    grid::{CellType, CellTypeName, TileProperties},
     init::InitTileProperties,
 };
 
 pub(crate) fn init_floor_properties(
-    gridmap_data: Res<Gridmap>,
     assets: Res<AssetServer>,
     mut init: ResMut<InitTileProperties>,
 ) {
@@ -23,10 +22,7 @@ pub(crate) fn init_floor_properties(
     }
 
     init.properties.push(TileProperties {
-        id: *gridmap_data
-            .main_name_id_map
-            .get(&CellTypeName("generic_floor_1".to_string()))
-            .unwrap(),
+        name_id: CellTypeName("generic_floor_1".to_string()),
         name: RichName {
             name: "aluminum floor".to_string(),
             n: true,
