@@ -32,7 +32,7 @@ You may not sell this Work.
 
 You may not change the Space Frontiers and StarWolves branding and copyright notices in the server or client (such as in graphical user interfaces).
 
-StarWolves.io account verification processes integrated in the code may not be disabled or modified in such ways that they no longer fully operate as intended. Once more authorization functionality has been implemented this means that the accepted internet connections the Work manages must provide evidence of valid authorization with the main StarWolves.io server as a prerequisite to not terminate the connection.
+Integrated starwolves.io account verifications integrated in the code may not be disabled or modified in such ways that they no longer fully operate as intended. Internet connections the Work manages must provide evidence of valid authorization with the main StarWolves.io server as a prerequisite to not terminate the connection.
 
 When modifying this Work please ensure to not support and to not create 3rd party clients without explicit agreements.
 
