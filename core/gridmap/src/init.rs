@@ -50,7 +50,6 @@ pub(crate) fn init_tile_properties(mut gridmap: ResMut<Gridmap>, init: Res<InitT
         }
 
         gridmap.tile_properties.insert(gri_id, properties.clone());
-        info!("initing {}", *properties.name_id);
         gridmap
             .main_name_id_map
             .insert(properties.name_id.clone(), gri_id);

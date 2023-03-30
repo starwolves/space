@@ -55,6 +55,7 @@ use line_arrow::plugin::LineArrowPlugin;
 use line_arrow::plugin::PointArrowPlugin;
 use main_menu::plugin::MainMenuPlugin;
 use map::plugin::MapPlugin;
+use metadata::MetadataPlugin;
 use motd::motd::MOTD;
 use networking::plugin::NetworkingPlugin;
 use pawn::plugin::PawnPlugin;
@@ -185,5 +186,6 @@ pub(crate) fn configure_and_start() {
         .add_plugin(WorldPlugin)
         .add_plugin(HudPlugin)
         .insert_resource(FixedTime::new_from_secs(1. / 60.))
+        .add_plugin(MetadataPlugin)
         .run();
 }

@@ -26,3 +26,4 @@ actions = { path = "../actions"}
 ui = { path = "../ui"}
 chat = { path = "../chat"}
 console_commands = { path = "../console_commands"}
+metadata = { path = "../metadata"}
