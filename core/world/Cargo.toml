@@ -15,5 +15,5 @@ bevy_atmosphere = { git = "https://github.com/BrandonDyer64/bevy_atmosphere.git"
 resources = { path = "../resources" }
 
 [dependencies.bevy]
-version = "0.10.0"
+version = "0.10.1"
 default-features = false

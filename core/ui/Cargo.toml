@@ -20,5 +20,5 @@ networking = { path = "../networking" }
 resources = { path = "../resources" }
 
 [dependencies.bevy]
-version = "0.10.0"
+version = "0.10.1"
 default-features = false
