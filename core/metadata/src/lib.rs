@@ -52,16 +52,16 @@ pub(crate) fn load_metadata(mut commands: Commands) {
         "Space Frontiers v{}.{}.{}",
         sf_version.major, sf_version.minor, sf_version.patch,
     );
-    info!(
-        "Bevy v{}.{}.{}",
-        bevy_version.major, bevy_version.minor, bevy_version.patch
-    );
     match &commit {
         Some(c) => {
             info!("Commit: {}", c);
         }
         None => {}
     }
+    info!(
+        "Bevy v{}.{}.{}",
+        bevy_version.major, bevy_version.minor, bevy_version.patch
+    );
 
     commands.insert_resource(MetadataResource {
         commit,
