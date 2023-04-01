@@ -20,3 +20,7 @@ opt-level = 0
 # Compile release
 [profile.release]
 lto = "thin"
+
+[profile.release-with-debug]
+inherits = "release"
+debug = true
