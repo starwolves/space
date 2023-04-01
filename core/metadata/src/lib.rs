@@ -7,6 +7,7 @@ use cargo_metadata::Metadata;
 pub struct MetadataResource {
     pub commit: Option<String>,
     pub data: Metadata,
+    pub is_binary_run: bool,
 }
 
 pub(crate) fn load_metadata(mut commands: Commands) {
@@ -22,13 +23,20 @@ pub(crate) fn load_metadata(mut commands: Commands) {
     let mut cmd = cargo_metadata::MetadataCommand::new();
 
     let cargo_metadata;
-    if metadata_path.exists() {
+    let meta_file_exists = metadata_path.exists();
+    if meta_file_exists {
         let dats = fs::read_to_string(metadata_path).unwrap();
         cargo_metadata = serde_json::from_str(&dats).unwrap();
     } else {
         cmd.manifest_path(Path::new("Cargo.toml"));
         cargo_metadata = cmd.exec().unwrap();
     }
+
+    info!(
+        "Running {} crates ({} internal)",
+        cargo_metadata.packages.len(),
+        cargo_metadata.workspace_members.len()
+    );
 
     let mut bevy_version_option = None;
     let mut sf_version_option = None;
@@ -66,6 +74,7 @@ pub(crate) fn load_metadata(mut commands: Commands) {
     commands.insert_resource(MetadataResource {
         commit,
         data: cargo_metadata.clone(),
+        is_binary_run: meta_file_exists,
     });
 }
 
