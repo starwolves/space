@@ -22,7 +22,9 @@
 
 *Space frontiers seeks to deliver an experience that offers high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
-**There are gameplay videos of Space Frontiers on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
+**[DOWNLOAD AND PLAY (CLICK ME).](https://starwolves.io/thread-13.html)**
+
+**There are gameplay videos of the old prototype on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
 
 ### Technology
 
@@ -62,7 +64,10 @@ There is community sovereignty, integrity, values and strong personalities toget
 
 ![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
-## Getting Started
+## How to play
+The easiest way to play the latest prototype is to obtain the weekly build [from the forum](https://starwolves.io/thread-13.html).
+
+## Compile from source
 
 ### Dependencies
 
