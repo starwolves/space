@@ -1,7 +1,8 @@
-use std::{fs, path::Path};
+use std::{env, fs, path::Path};
 
 use bevy::prelude::{info, warn, App, Commands, Plugin, Resource};
 use cargo_metadata::Metadata;
+use resources::is_server::is_server;
 
 #[derive(Resource)]
 pub struct MetadataResource {
@@ -23,8 +24,8 @@ pub(crate) fn load_metadata(mut commands: Commands) {
     let mut cmd = cargo_metadata::MetadataCommand::new();
 
     let cargo_metadata;
-    let meta_file_exists = metadata_path.exists();
-    if meta_file_exists {
+    let is_binary_run = metadata_path.exists();
+    if is_binary_run {
         let dats = fs::read_to_string(metadata_path).unwrap();
         cargo_metadata = serde_json::from_str(&dats).unwrap();
     } else {
@@ -74,8 +75,43 @@ pub(crate) fn load_metadata(mut commands: Commands) {
     commands.insert_resource(MetadataResource {
         commit,
         data: cargo_metadata.clone(),
-        is_binary_run: meta_file_exists,
+        is_binary_run,
     });
+    let args: Vec<_> = env::args().collect();
+    let mut logger_found = false;
+    for arg in args.iter() {
+        if arg == "--logger_enabled" {
+            logger_found = true;
+            break;
+        }
+    }
+    if !logger_found && is_binary_run {
+        if is_server() {
+            let server_script;
+            if cfg!(windows) {
+                server_script = "server.bat"
+            } else {
+                server_script = "server.sh"
+            }
+
+            warn!(
+                "Error logger is not enabled. Enable by running app with: {}",
+                server_script
+            );
+        } else {
+            let client_script;
+            if cfg!(windows) {
+                client_script = "SpaceFrontiers.bat"
+            } else {
+                client_script = "SpaceFrontiers.sh"
+            }
+
+            warn!(
+                "Error logger is not enabled. Enable by running app with: {}",
+                client_script
+            );
+        }
+    }
 }
 
 pub struct MetadataPlugin;
