@@ -101,9 +101,9 @@ pub(crate) fn load_metadata(mut commands: Commands) {
         } else {
             let client_script;
             if cfg!(windows) {
-                client_script = "SpaceFrontiers.bat"
+                client_script = "client.bat"
             } else {
-                client_script = "SpaceFrontiers.sh"
+                client_script = "client.sh"
             }
 
             warn!(
