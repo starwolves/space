@@ -9,4 +9,4 @@ echo "================================================================
 ================================================================
 ================================================================" >> server_error.log ;
 
-./SpaceFrontiers server --logger_enabled 2> >(tee -a server_error.log >&2)
+./app server --logger_enabled 2> >(tee -a server_error.log >&2)

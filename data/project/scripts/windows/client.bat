@@ -9,4 +9,4 @@ ECHO ================================================================
 ECHO ================================================================
 )>>client_error.log
 
-.\SpaceFrontiers.exe --logger_enabled 2>&1 2>>client_error.log
+.\app.exe --logger_enabled 2>&1 2>>client_error.log

@@ -10,4 +10,4 @@
 
 )>>server_error.log
 
-.\SpaceFrontiers.exe server --logger_enabled 2>&1 2>>server_error.log
+.\app.exe server --logger_enabled 2>&1 2>>server_error.log
