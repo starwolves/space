@@ -45,6 +45,12 @@ There is community sovereignty, integrity, values and strong personalities toget
 
 **Space Frontiers and the community are age rated 18+ 🔞. Minors may not be present without parental approval and parental supervision.**
 
+Brought to you by
+
+<a href="https://starwolves.io">
+<img src="/data/project/starwolveslogo_text.png?raw=true" data-canonical-src="/data/project/starwolveslogo_text.png?raw=true" width="175" height="175"/>
+</a>
+
 ### Features (All Moddable & Modular)
 
 * Decentralized gameplay, each community can host their own server. 👑
