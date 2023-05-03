@@ -1,6 +1,6 @@
-# Space Frontiers pre-alpha
-
 <img src="/data/project/sflogo.png?raw=true" data-canonical-src="/data/project/sflogo.png?raw=true" width="175" height="175"/>
+
+# Space Frontiers pre-alpha
 
 *"You gotta die for something." - STARWOLF*
 
