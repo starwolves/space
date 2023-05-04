@@ -1,8 +1,7 @@
-use std::{env, fs, path::Path};
+use std::{fs, path::Path};
 
 use bevy::prelude::{info, warn, App, Commands, Plugin, Resource};
 use cargo_metadata::Metadata;
-use resources::is_server::is_server;
 
 #[derive(Resource)]
 pub struct MetadataResource {
@@ -77,41 +76,6 @@ pub(crate) fn load_metadata(mut commands: Commands) {
         data: cargo_metadata.clone(),
         is_binary_run,
     });
-    let args: Vec<_> = env::args().collect();
-    let mut logger_found = false;
-    for arg in args.iter() {
-        if arg == "--logger_enabled" {
-            logger_found = true;
-            break;
-        }
-    }
-    if !logger_found && is_binary_run {
-        if is_server() {
-            let server_script;
-            if cfg!(windows) {
-                server_script = "server.bat"
-            } else {
-                server_script = "server.sh"
-            }
-
-            warn!(
-                "Error logger is not enabled. Enable by running app with: {}",
-                server_script
-            );
-        } else {
-            let client_script;
-            if cfg!(windows) {
-                client_script = "client.bat"
-            } else {
-                client_script = "client.sh"
-            }
-
-            warn!(
-                "Error logger is not enabled. Enable by running app with: {}",
-                client_script
-            );
-        }
-    }
 }
 
 pub struct MetadataPlugin;
