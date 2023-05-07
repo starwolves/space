@@ -22,7 +22,7 @@
 
 *Space frontiers seeks to deliver an experience that offers high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
-**[DOWNLOAD AND PLAY (CLICK ME).](https://starwolves.io/thread-13.html)**
+**[SUBSCRIBE AND PLAY (CLICK ME).](https://starwolves.io/thread-13.html)**
 
 **There are gameplay videos of the old prototype on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
 
@@ -70,8 +70,8 @@ Brought to you by
 
 ![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
-## How to play
-The easiest way to play the latest prototype is to obtain the weekly build [from the forum](https://starwolves.io/thread-13.html).
+## How to test-play
+As per  May 7th 2023 Space Frontiers is a subscription based (unfinished) product. Get the desktop launcher that automatically updates the game for anyone who supports the project on [the store](https://store.starwolves.io).
 
 ## Compile from source
 
@@ -147,4 +147,4 @@ The code of this repository is licensed under [the proprietary code license](htt
 
 ### AGPLv3 & CC BY-SA 4.0 Milestone
 
-In the much further future when a yet to be-decided amount of accounts have been sold: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International. When this happens the main code base will continue to be subject to the Contributor License Agreement. The official Space Frontiers server browser would continue to be sold on Steam with Steam community integration. This is all to continue long-term efforts to keep profits going that also get distributed to partnered communities. A CLA in the FOSS stage allows for exclusively Star Wolves to grant communities the right to potentially keep their server code closed-source and client-side code and assets protected.
+In the much further future when a yet to be-decided amount of accounts have been sold: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International. When this happens the main code base will continue to be subject to the Contributor License Agreement. The official Space Frontiers server browser would continue to be sold on Steam with Steam community integration. This is all to continue long-term efforts to keep profits going that also get distributed to partnered communities. A CLA in the FOSS stage allows for exclusively Starwolves to grant communities the right to potentially keep their server code closed-source and client-side code and assets protected.
