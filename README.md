@@ -22,7 +22,7 @@
 
 *Space frontiers seeks to deliver an experience that offers high amounts of supported players for decentralized gaming communities that provide their own selections of (both client- and server-side) content, mods, gamemodes, gameplay, moderation and plugins. Communities will be tasked to host a cloud of servers, rather than just a single server. This is to provide reliable authorative computational power for the partially persistent Galaxy they host. Each server within the cloud represents an active sub-sector of the Galaxy, usually with one spaceship. We intend to support galaxies with more than one thousand active players in real-time.*
 
-**[Support and play now (CLICK ME).](https://store.starwolves.io/)**
+**[Support and play today (link).](https://store.starwolves.io/)**
 
 **There are gameplay videos of the old prototype on [YouTube](https://youtu.be/Qa-Y_PxzeiI).**
 
@@ -51,7 +51,7 @@ Brought to you by
 <img src="/data/project/starwolveslogo_text.png?raw=true" data-canonical-src="/data/project/starwolveslogo_text.png?raw=true" width="175" height="175"/>
 </a>
 
-### Features (All Moddable & Modular)
+### Features (Including old prototype)
 
 * Decentralized gameplay, each community can host their own server. 👑
 * Parallelized Entity Component System architecture. 📡
@@ -70,7 +70,7 @@ Brought to you by
 
 ![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
-## Launcher
+## How to test-play (Launcher)
 You can get the official game launcher with automatic updates by supporting us on [the store](https://store.starwolves.io). After payment, simply login to get your download link.
 
 [Launcher source code](https://gitlab.starwolves.io/starwolves/launcher)
@@ -82,9 +82,9 @@ You can get the official game launcher with automatic updates by supporting us o
 * [Rust](https://www.rust-lang.org/)
 * [Bevy ECS dependencies](https://bevyengine.org/learn/book/getting-started/setup/#install-os-dependencies)
   
-### Executing Space Frontiers
+### Developing Space Frontiers
 
-To compile and run Space Frontiers:
+To compile Space Frontiers:
 
 * Select latest versioned branch from this repository and clone it.
 * In your terminal navigate to the project folder you have just obtained.
@@ -107,12 +107,12 @@ To run Space Frontiers at maximum performance with a slower compile time add the
 --release
 ```
 
-### Prototype Godot Client
+### Old Prototype Godot Client
 
-You can obtain the feature-rich 0.0.3-snap7 prototype client on [Discord](https://discord.gg/yYpMun9CTT).
+You can obtain the feature-rich but old prototype client on [Discord](https://discord.gg/yYpMun9CTT).
 Ensure your server has the right git branch with the same version as the obtained Godot client and not the master branch!
 
-The prototype client is built on top of a Godot 3.4 release.
+The old prototype client is built on top of a Godot 3.4 release.
 
 ### The new 1st person Bevy client
 
