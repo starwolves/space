@@ -70,8 +70,10 @@ Brought to you by
 
 ![Screenshot of Space Frontiers atmospherics simulation](/data/project/sfatmosss.png?raw=true)
 
-## How to test-play
-As per  May 7th 2023 Space Frontiers is a subscription based (unfinished) product. Get the desktop launcher that automatically updates the game for anyone who supports the project on [the store](https://store.starwolves.io).
+## Launcher
+You can get the official game launcher with automatic updates by supporting us on [the store](https://store.starwolves.io). After payment, simply login to get your download link.
+
+[Launcher source code](https://gitlab.starwolves.io/starwolves/launcher)
 
 ## Compile from source
 
