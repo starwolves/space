@@ -73,6 +73,8 @@ Brought to you by
 ## How to test-play (Launcher)
 You can get the official game launcher with automatic updates by supporting us on [the store](https://store.starwolves.io). After payment, simply login to get your download link.
 
+Being logged in with the launcher is a requirement to try out and play this codebase.
+
 [Launcher source code](https://gitlab.starwolves.io/starwolves/launcher)
 
 ## Compile from source
@@ -88,6 +90,8 @@ To compile Space Frontiers:
 
 * Select latest versioned branch from this repository and clone it.
 * In your terminal navigate to the project folder you have just obtained.
+
+Ensure you are logged in with the [Space Frontiers launcher](https://store.starwolves.io).
 
 To start the server run:
 
@@ -149,4 +153,4 @@ The code of this repository is licensed under [the proprietary code license](htt
 
 ### AGPLv3 & CC BY-SA 4.0 Milestone
 
-In the much further future after having obtained enough paid subscriptions: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International License. The code base would continue to be subject to the Contributor License Agreement.
+In the much further future after having obtained enough paid subscriptions: the codebase and assets for Space Frontiers at that moment and onwards will go Free Open Source (FOSS) under The GNU Affero General Public License version 3 and Attribution-ShareAlike 4.0 International License. The codebase would continue to be subject to the Contributor License Agreement.
