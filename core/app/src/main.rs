@@ -70,6 +70,7 @@ use resources::plugin::ResourcesPlugin;
 use setup_menu::plugin::SetupMenuPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
+use token::plugin::TokenPlugin;
 use ui::plugin::UiPlugin;
 use world::plugin::WorldPlugin;
 
@@ -142,7 +143,8 @@ pub(crate) fn configure_and_start() {
         })
         .add_plugin(GraphicsPlugin);
     }
-    app.add_plugin(AsanaPlugin)
+    app.add_plugin(TokenPlugin)
+        .add_plugin(AsanaPlugin)
         .add_plugin(GridmapPlugin)
         .add_plugin(ResourcesPlugin)
         .add_plugin(PawnPlugin)

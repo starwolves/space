@@ -8,6 +8,7 @@ use bevy::{
     ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val},
 };
 use resources::core::ClientInformation;
+use token::parse::Token;
 use ui::fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, FONT_AWESOME, NESATHOBERYL_FONT};
 
 /// Event.
@@ -489,6 +490,7 @@ pub(crate) fn show_play_menu(
     mut commands: Commands,
     fonts: Res<Fonts>,
     root_node_query: Query<Entity, With<MainMainMenuRoot>>,
+    token: Res<Token>,
 ) {
     for event in show_events.iter() {
         let mut root_node_option = None;
@@ -520,6 +522,7 @@ pub(crate) fn show_play_menu(
         commands.entity(root_node).add_child(entity);
         let mut builder = commands.entity(entity);
         let arizone_font = fonts.handles.get(ARIZONE_FONT).unwrap();
+        let empire_font = fonts.handles.get(EMPIRE_FONT).unwrap();
 
         builder
             .insert(NodeBundle {
@@ -574,17 +577,10 @@ pub(crate) fn show_play_menu(
                                     })
                                     // Menu elements.
                                     .with_children(|parent| {
-                                        // Label account name.
+                                        // Welcome label.
                                         parent
                                             .spawn(NodeBundle {
                                                 style: Style {
-                                                    margin: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Percent(1.),
-                                                    ),
-
                                                     size: Size::new(
                                                         Val::Percent(100.),
                                                         Val::Percent(5.),
@@ -599,12 +595,6 @@ pub(crate) fn show_play_menu(
                                                 parent
                                                     .spawn(NodeBundle {
                                                         style: Style {
-                                                            margin: UiRect::new(
-                                                                Val::Undefined,
-                                                                Val::Undefined,
-                                                                Val::Undefined,
-                                                                Val::Percent(1.),
-                                                            ),
                                                             justify_content: JustifyContent::Center,
                                                             ..Default::default()
                                                         },
@@ -613,72 +603,15 @@ pub(crate) fn show_play_menu(
                                                     })
                                                     .with_children(|parent| {
                                                         parent.spawn(TextBundle::from_section(
-                                                            "Account name:",
+                                                            format!("Welcome, {}.", token.name),
                                                             TextStyle {
-                                                                font: arizone_font.clone(),
+                                                                font: empire_font.clone(),
                                                                 font_size: 12.0,
                                                                 color: TEXT_COLOR,
                                                             },
                                                         ));
                                                     });
                                             });
-                                        // Input account name.
-                                        parent
-                                            .spawn(NodeBundle {
-                                                style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
-                                                    justify_content: JustifyContent::Center,
-                                                    ..Default::default()
-                                                },
-                                                background_color: SIDEBAR_COLOR.into(),
-                                                ..Default::default()
-                                            })
-                                            .with_children(|parent| {
-                                                let text = "Enter username..";
-                                                parent
-                                                    .spawn(NodeBundle {
-                                                        style: Style {
-                                                            size: Size::new(
-                                                                Val::Percent(25.),
-                                                                Val::Percent(100.),
-                                                            ),
-                                                            justify_content: JustifyContent::Center,
-                                                            align_items: AlignItems::Center,
-                                                            flex_wrap: FlexWrap::Wrap,
-                                                            ..Default::default()
-                                                        },
-                                                        background_color: INPUT_TEXT_BG.into(),
-                                                        ..Default::default()
-                                                    })
-                                                    .insert((
-                                                        TextInputNode {
-                                                            placeholder_active: true,
-                                                            character_filter_option: Some(
-                                                                CharacterFilter::AccountName,
-                                                            ),
-                                                            placeholder_text_option: Some(
-                                                                text.to_owned(),
-                                                            ),
-                                                            ..Default::default()
-                                                        },
-                                                        AccountNameInput,
-                                                        Interaction::default(),
-                                                    ))
-                                                    .with_children(|parent| {
-                                                        parent.spawn(TextBundle::from_section(
-                                                            text,
-                                                            TextStyle {
-                                                                font: arizone_font.clone(),
-                                                                font_size: 10.,
-                                                                color: TEXT_INPUT_COLOR,
-                                                            },
-                                                        ));
-                                                    });
-                                            });
-
                                         // Label server ip.
                                         parent
                                             .spawn(NodeBundle {
@@ -881,9 +814,6 @@ pub(crate) fn show_play_menu(
 }
 
 #[derive(Component)]
-pub struct AccountNameInput;
-
-#[derive(Component)]
 pub struct IpAddressInput;
 
 #[derive(Component)]
@@ -896,17 +826,9 @@ pub struct AutoFillConnectSubMenu;
 pub(crate) fn auto_fill_connect_menu(
     mut events: EventReader<AutoFillConnectSubMenu>,
     mut set_text: EventWriter<SetText>,
-    name_input_query: Query<Entity, With<AccountNameInput>>,
     server_address_input_query: Query<Entity, With<IpAddressInput>>,
 ) {
     for _ in events.iter() {
-        for entity in name_input_query.iter() {
-            set_text.send(SetText {
-                entity,
-                text: "starwolf".to_string(),
-            })
-        }
-
         for entity in server_address_input_query.iter() {
             set_text.send(SetText {
                 entity,

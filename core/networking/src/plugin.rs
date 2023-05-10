@@ -5,9 +5,10 @@ use resources::is_server::is_server;
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
-        confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
-        receive_incoming_reliable_server_messages, receive_incoming_unreliable_server_messages,
-        ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
+        assign_token_to_server, confirm_connection, connect_to_server, connected,
+        is_client_connected, on_disconnect, receive_incoming_reliable_server_messages,
+        receive_incoming_unreliable_server_messages, AssignTokenToServer, ConnectToServer,
+        Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
         IncomingRawUnreliableServerMessage,
     },
     messaging::{
@@ -42,9 +43,11 @@ impl Plugin for NetworkingPlugin {
                         .in_set(TypenamesLabel::SendRawEvents),
                 );
         } else {
-            app.add_plugin(RenetClientPlugin::default())
+            app.add_event::<ConnectToServer>()
+                .add_plugin(RenetClientPlugin::default())
+                .add_system(assign_token_to_server)
                 .add_system(connect_to_server)
-                .add_event::<ConnectToServer>()
+                .add_event::<AssignTokenToServer>()
                 .init_resource::<ConnectionPreferences>()
                 .init_resource::<Connection>()
                 .add_system(

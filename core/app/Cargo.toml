@@ -43,6 +43,7 @@ basic_console_commands = { path = "../basic_console_commands" }
 physics = { path = "../physics" }
 world = { path = "../world" }
 graphics = { path = "../graphics" }
+token = { path = "../token" }
 
 setup_menu = { path = "../setup_menu" }
 escape_menu = { path = "../escape_menu" }

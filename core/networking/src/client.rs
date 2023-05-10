@@ -7,12 +7,13 @@ use bevy::prelude::{info, Resource};
 use bevy_renet::renet::{
     ChannelConfig, ClientAuthentication, ReliableChannelConfig, RenetClient, RenetConnectionConfig,
 };
+use token::parse::Token;
 
 use crate::server::PROTOCOL_ID;
 
 /// Resource containing needed for the server.
 
-#[derive(Default, Resource)]
+#[derive(Default, Resource, Clone)]
 pub struct ConnectionPreferences {
     pub account_name: String,
     pub server_address: String,
@@ -20,6 +21,7 @@ pub struct ConnectionPreferences {
 
 /// Event that triggers a new server connection.
 
+pub struct AssignTokenToServer;
 pub struct ConnectToServer;
 
 use crate::server::SERVER_PORT;
@@ -35,6 +37,48 @@ use bevy::prelude::ResMut;
 use bevy_renet::renet::ConnectToken;
 
 use crate::server::PRIV_KEY;
+
+#[derive(Serialize, Deserialize)]
+struct Response {
+    pub valid: bool,
+}
+
+pub(crate) fn assign_token_to_server(
+    mut events: EventReader<AssignTokenToServer>,
+    token: Res<Token>,
+    preferences: Res<ConnectionPreferences>,
+    mut connect: EventWriter<ConnectToServer>,
+) {
+    for _ in events.iter() {
+        match ureq::post("https://store.starwolves.io/token_assign_server").send_form(&[
+            ("token", &token.token),
+            ("serverAddress", &preferences.server_address),
+        ]) {
+            Ok(raw_response) => match raw_response.into_string() {
+                Ok(string_response) => {
+                    match serde_json::from_str::<Response>(&string_response) {
+                        Ok(response) => {
+                            if !response.valid {
+                                warn!("Provided token is not valid. Please ensure you are logged into the launcher. Try restarting it.");
+                            } else {
+                                connect.send(ConnectToServer);
+                            }
+                        }
+                        Err(rr) => {
+                            warn!("Failed to parse response: {:?}", rr);
+                        }
+                    };
+                }
+                Err(rr) => {
+                    warn!("Failed to assign token to server: {}", rr);
+                }
+            },
+            Err(rr) => {
+                warn!("Could not assign token to server: {:?}", rr);
+            }
+        }
+    }
+}
 
 pub(crate) fn connect_to_server(
     mut event: EventReader<ConnectToServer>,

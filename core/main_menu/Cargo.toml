@@ -24,3 +24,4 @@ networking = { path = "../networking" }
 player = { path = "../player" }
 escape_menu = { path = "../escape_menu" }
 hud = { path = "../hud" }
+token = { path = "../token" }
