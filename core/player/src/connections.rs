@@ -13,7 +13,7 @@ use bevy_renet::renet::ServerEvent;
 pub(crate) fn server_events(mut server_events: EventReader<ServerEvent>, server: Res<RenetServer>) {
     for event in server_events.iter() {
         match event {
-            ServerEvent::ClientConnected(handle, _) => {
+            ServerEvent::ClientConnected(handle, token) => {
                 let client_address;
 
                 match server.client_addr(*handle) {

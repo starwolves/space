@@ -1905,6 +1905,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ehttp"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "80b69a6f9168b96c0ae04763bec27a8b06b34343c334dd2703a4ec21f0f5e110"
+dependencies = [
+ "js-sys",
+ "ureq",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2155,9 +2168,9 @@ checksum = "bfb8371b6fb2aeb2d280374607aeabfc99d95c72edfe51692e42d3d7f0d08531"
 
 [[package]]
 name = "futures-lite"
-version = "1.12.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7694489acd39452c77daa48516b894c153f192c3578d5a839b62c58099fcbf48"
+checksum = "49a9d51ce47660b1e808d3c990b4709f2f415d928835a17dfd16991515c46bce"
 dependencies = [
  "fastrand",
  "futures-core",
@@ -3142,17 +3155,18 @@ dependencies = [
 name = "networking"
 version = "0.0.3"
 dependencies = [
- "async-channel",
  "bevy",
  "bevy_renet",
  "bincode",
+ "ehttp",
+ "form_urlencoded",
+ "futures-lite",
  "local_ipaddress",
  "resources",
  "serde",
  "serde_json",
  "token",
  "typename",
- "ureq",
 ]
 
 [[package]]

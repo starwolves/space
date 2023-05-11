@@ -3,10 +3,14 @@ use std::{
     time::SystemTime,
 };
 
-use bevy::prelude::{info, Resource};
+use bevy::{
+    prelude::{error, info, Resource},
+    tasks::{AsyncComputeTaskPool, Task},
+};
 use bevy_renet::renet::{
     ChannelConfig, ClientAuthentication, ReliableChannelConfig, RenetClient, RenetConnectionConfig,
 };
+use futures_lite::future;
 use token::parse::Token;
 
 use crate::server::PROTOCOL_ID;
@@ -38,46 +42,83 @@ use bevy_renet::renet::ConnectToken;
 
 use crate::server::PRIV_KEY;
 
+pub fn token_assign_server(
+    mut events: EventReader<AssignTokenToServer>,
+    mut commands: Commands,
+    token: Res<Token>,
+    preferences: Res<ConnectionPreferences>,
+) {
+    for _ in events.iter() {
+        let data = vec![
+            ("token", token.token.clone()),
+            ("serverAddress", preferences.server_address.clone()),
+        ];
+
+        let x = TokenAssignServer {
+            task: AsyncComputeTaskPool::get().spawn(async move {
+                let encoded = form_urlencoded::Serializer::new(String::new())
+                    .extend_pairs(data)
+                    .finish();
+
+                info!("{}", encoded);
+                let mut post = ehttp::Request::post(
+                    format!("https://store.starwolves.io/token_assign_server"),
+                    encoded.into_bytes(),
+                );
+                post.headers = ehttp::headers(&[
+                    ("Accept", "*/*"),
+                    (
+                        "Content-Type",
+                        "application/x-www-form-urlencoded; charset=utf-8",
+                    ),
+                ]);
+                ehttp::fetch_blocking(&post).expect("Error with HTTP call")
+            }),
+        };
+
+        commands.insert_resource(x);
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 struct Response {
     pub valid: bool,
 }
 
-pub(crate) fn assign_token_to_server(
-    mut events: EventReader<AssignTokenToServer>,
-    token: Res<Token>,
-    preferences: Res<ConnectionPreferences>,
+#[derive(Resource)]
+pub struct TokenAssignServer {
+    pub task: Task<ehttp::Response>,
+}
+pub fn process_response(
+    mut commands: Commands,
+    mut task: ResMut<TokenAssignServer>,
     mut connect: EventWriter<ConnectToServer>,
 ) {
-    for _ in events.iter() {
-        match ureq::post("https://store.starwolves.io/token_assign_server").send_form(&[
-            ("token", &token.token),
-            ("serverAddress", &preferences.server_address),
-        ]) {
-            Ok(raw_response) => match raw_response.into_string() {
-                Ok(string_response) => {
-                    match serde_json::from_str::<Response>(&string_response) {
-                        Ok(response) => {
-                            if !response.valid {
-                                warn!("Provided token is not valid. Please ensure you are logged into the launcher. Try restarting it.");
-                            } else {
-                                connect.send(ConnectToServer);
-                            }
-                        }
-                        Err(rr) => {
-                            warn!("Failed to parse response: {:?}", rr);
-                        }
-                    };
+    if let Some(response) = future::block_on(future::poll_once(&mut task.task)) {
+        // Process the response
+        match serde_json::from_slice::<Response>(response.bytes.as_slice()) {
+            Ok(d) => {
+                if !d.valid {
+                    warn!("Invalid token. Log in with the launcher. Try restarting it.");
+                } else {
+                    connect.send(ConnectToServer);
                 }
-                Err(rr) => {
-                    warn!("Failed to assign token to server: {}", rr);
-                }
-            },
-            Err(rr) => {
-                warn!("Could not assign token to server: {:?}", rr);
+            }
+            Err(e) => {
+                error!("Unexpected response: {:?}", e);
             }
         }
+
+        // Dispose of the consumed HTTP Call by deleting the Entity from ECS
+        commands.remove_resource::<TokenAssignServer>()
     }
+}
+
+use std::convert::TryInto;
+
+fn convert<T, const N: usize>(v: Vec<T>) -> [T; N] {
+    v.try_into()
+        .unwrap_or_else(|v: Vec<T>| panic!("Expected a Vec of length {} but it was {}", N, v.len()))
 }
 
 pub(crate) fn connect_to_server(
@@ -86,6 +127,7 @@ pub(crate) fn connect_to_server(
     preferences: Res<ConnectionPreferences>,
     mut connection_state: ResMut<Connection>,
     mut client: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
+    token: Res<Token>,
 ) {
     for _ in event.iter() {
         match connection_state.status {
@@ -160,6 +202,9 @@ pub(crate) fn connect_to_server(
 
                 info!("Connecting to {}...", socket_address);
 
+                let token = token.token.as_bytes();
+                let token_sized: &[u8; 256] = &convert(token.to_vec());
+
                 match ConnectToken::generate(
                     current_time,
                     PROTOCOL_ID,
@@ -167,7 +212,7 @@ pub(crate) fn connect_to_server(
                     client_id,
                     120,
                     vec![socket_address],
-                    None,
+                    Some(token_sized),
                     &PRIV_KEY,
                 ) {
                     Ok(connect_token) => {
