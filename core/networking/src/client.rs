@@ -42,13 +42,23 @@ use bevy_renet::renet::ConnectToken;
 
 use crate::server::PRIV_KEY;
 
+#[derive(Resource, Default)]
+pub struct AssigningServerToken {
+    pub bool: bool,
+}
+
 pub fn token_assign_server(
     mut events: EventReader<AssignTokenToServer>,
     mut commands: Commands,
     token: Res<Token>,
     preferences: Res<ConnectionPreferences>,
+    mut state: ResMut<AssigningServerToken>,
 ) {
     for _ in events.iter() {
+        if state.bool {
+            continue;
+        }
+        state.bool = true;
         let data = vec![
             ("token", token.token.clone()),
             ("serverAddress", preferences.server_address.clone()),
@@ -60,7 +70,6 @@ pub fn token_assign_server(
                     .extend_pairs(data)
                     .finish();
 
-                info!("{}", encoded);
                 let mut post = ehttp::Request::post(
                     format!("https://store.starwolves.io/token_assign_server"),
                     encoded.into_bytes(),
@@ -93,6 +102,7 @@ pub fn process_response(
     mut commands: Commands,
     mut task: ResMut<TokenAssignServer>,
     mut connect: EventWriter<ConnectToServer>,
+    mut state: ResMut<AssigningServerToken>,
 ) {
     if let Some(response) = future::block_on(future::poll_once(&mut task.task)) {
         // Process the response
@@ -110,7 +120,8 @@ pub fn process_response(
         }
 
         // Dispose of the consumed HTTP Call by deleting the Entity from ECS
-        commands.remove_resource::<TokenAssignServer>()
+        commands.remove_resource::<TokenAssignServer>();
+        state.bool = false;
     }
 }
 

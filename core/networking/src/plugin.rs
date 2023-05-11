@@ -8,8 +8,8 @@ use crate::{
         confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
         process_response, receive_incoming_reliable_server_messages,
         receive_incoming_unreliable_server_messages, token_assign_server, AssignTokenToServer,
-        ConnectToServer, Connection, ConnectionPreferences, IncomingRawReliableServerMessage,
-        IncomingRawUnreliableServerMessage, TokenAssignServer,
+        AssigningServerToken, ConnectToServer, Connection, ConnectionPreferences,
+        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -51,6 +51,7 @@ impl Plugin for NetworkingPlugin {
                 .add_event::<AssignTokenToServer>()
                 .init_resource::<ConnectionPreferences>()
                 .init_resource::<Connection>()
+                .init_resource::<AssigningServerToken>()
                 .add_system(
                     receive_incoming_reliable_server_messages
                         .in_base_set(CoreSet::PreUpdate)
