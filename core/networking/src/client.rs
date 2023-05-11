@@ -112,6 +112,7 @@ pub fn process_response(
                     warn!("Invalid token. Log in with the launcher. Try restarting it.");
                 } else {
                     connect.send(ConnectToServer);
+                    info!("[Starwolves.io] Token assigned to new connection.");
                 }
             }
             Err(e) => {

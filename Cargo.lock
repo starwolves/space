@@ -3665,13 +3665,18 @@ dependencies = [
  "bevy_atmosphere",
  "bevy_renet",
  "cameras",
+ "ehttp",
  "entity",
+ "form_urlencoded",
+ "futures-lite",
  "graphics",
+ "local_ipaddress",
  "networking",
  "pawn",
  "rand",
  "resources",
  "serde",
+ "serde_json",
  "typename",
 ]
 

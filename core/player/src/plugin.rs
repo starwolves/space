@@ -3,7 +3,7 @@ use crate::boarding::{player_boarded, PlayerBoarded, SpawnPoints};
 use crate::configuration::{
     client_receive_pawnid, finished_configuration, server_new_client_configuration, Boarded,
 };
-use crate::connections::{AuthidI, SendServerConfiguration};
+use crate::connections::{process_response, AuthidI, SendServerConfiguration};
 use crate::debug_camera::spawn_debug_camera;
 use crate::net::PlayerServerMessage;
 use crate::{
@@ -47,6 +47,7 @@ impl Plugin for PlayerPlugin {
                 .add_event::<InputUIInputTransmitText>()
                 .add_system(finished_configuration.after(ConfigurationLabel::Main))
                 .add_system(server_events.before(ConfigurationLabel::SpawnEntity))
+                .add_system(process_response)
                 .add_system(account_verification)
                 .init_resource::<Accounts>()
                 .add_event::<PlayerBoarded>()
