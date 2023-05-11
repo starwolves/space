@@ -3010,7 +3010,6 @@ version = "0.0.3"
 dependencies = [
  "bevy",
  "cargo_metadata",
- "resources",
  "serde_json",
 ]
 
