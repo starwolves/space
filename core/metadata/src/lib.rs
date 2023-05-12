@@ -32,6 +32,7 @@ pub(crate) fn load_metadata(mut commands: Commands) {
         cargo_metadata = cmd.exec().unwrap();
     }
 
+    info!("Space Frontiers binaries, codebase and assets fall under proprietary licenses. See files: LICENSE, LICENSE_ASSETS.");
     info!(
         "Running {} crates ({} internal)",
         cargo_metadata.packages.len(),
