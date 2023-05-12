@@ -81,7 +81,6 @@ pub(crate) fn souls(
             // Where the souls of the players are       |
             //   while they're connected.               V
             NetworkingClientMessage::HeartBeat => { /* <3 */ }
-            _ => (),
         }
     }
 }
@@ -91,7 +90,6 @@ pub(crate) fn souls(
 
 pub enum NetworkingClientMessage {
     HeartBeat,
-    Account(String),
 }
 
 /// Gets serialized and sent over the net, this is the client message.

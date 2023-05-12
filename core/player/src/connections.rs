@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use bevy::prelude::{
-    error, Commands, DespawnRecursiveExt, Entity, EventReader, Query, Res, ResMut,
+    error, Commands, DespawnRecursiveExt, Entity, EventReader, EventWriter, Query, Res, ResMut,
 };
 
 pub struct PlayerAwaitingBoarding {
@@ -100,11 +102,20 @@ struct Response {
     pub valid: bool,
     pub name: String,
 }
+/// Player accounts stored with handles.
+#[derive(Default, Resource)]
 
+pub struct Accounts {
+    pub list: HashMap<u64, String>,
+}
 pub fn process_response(
     mut commands: Commands,
     mut query: Query<(Entity, &mut VerifyToken)>,
     mut server: ResMut<RenetServer>,
+    mut accounts: ResMut<Accounts>,
+    mut used_names: ResMut<UsedNames>,
+    mut outgoing: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
+    mut configure: EventWriter<SendServerConfiguration>,
 ) {
     for (entity, mut token) in query.iter_mut() {
         if let Some(response) = future::block_on(future::poll_once(&mut token.task)) {
@@ -119,6 +130,20 @@ pub fn process_response(
                         server.disconnect(token.handle);
                     } else {
                         info!("[Starwolves.io] Successfully verified [{}]", token.handle);
+
+                        used_names.used_account_names.push(d.name.clone());
+                        accounts.list.insert(token.handle, d.name.clone());
+
+                        outgoing.send(OutgoingReliableServerMessage {
+                            handle: token.handle,
+                            message: NetworkingServerMessage::Awoo,
+                        });
+
+                        configure.send(SendServerConfiguration {
+                            handle: token.handle,
+                        });
+
+                        info!("Set account name {} for {}", d.name, token.handle);
                     }
 
                     commands.entity(entity).despawn_recursive();
@@ -134,7 +159,10 @@ pub fn process_response(
 use bevy::prelude::Component;
 use bevy::prelude::Resource;
 use futures_lite::future;
+use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage};
 use serde::{Deserialize, Serialize};
+
+use crate::names::UsedNames;
 
 /// The component for entities int he boarding phase.
 #[derive(Component)]

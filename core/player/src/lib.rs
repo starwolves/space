@@ -1,7 +1,5 @@
 //! Crate manages several player specific logic, such as loading in and processing the character setup UI.
 
-/// Manage supplied account name of connections.
-pub mod account;
 /// Manage player boarding.
 pub mod boarding;
 /// Configure the client on server connection.

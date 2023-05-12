@@ -3,13 +3,13 @@ use bevy::prelude::{Added, Commands, Entity, EventWriter, Query, ResMut};
 use construction_tool::spawn::ConstructionToolType;
 use entity::entity_types::EntityType;
 use networking::server::{ConnectedPlayer, HandleToEntity};
+use player::connections::Accounts;
 use player::names::UsedNames;
 
 use bevy::prelude::warn;
 use bevy::prelude::Res;
 use pawn::pawn::Spawning;
 use pawn::pawn::{PawnDesignation, SpawnPawnData};
-use player::account::Accounts;
 
 use entity::spawn::EntityBuildData;
 use setup_menu::core::SetupUiUserDataSets;

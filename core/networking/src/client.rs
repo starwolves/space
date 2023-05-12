@@ -35,7 +35,6 @@ use bevy::prelude::EventReader;
 use bevy::prelude::Res;
 use std::net::IpAddr;
 
-use crate::server::NetworkingClientMessage;
 use bevy::prelude::ResMut;
 
 use bevy_renet::renet::ConnectToken;
@@ -138,7 +137,6 @@ pub(crate) fn connect_to_server(
     mut commands: Commands,
     preferences: Res<ConnectionPreferences>,
     mut connection_state: ResMut<Connection>,
-    mut client: EventWriter<OutgoingReliableClientMessage<NetworkingClientMessage>>,
     token: Res<Token>,
 ) {
     for _ in event.iter() {
@@ -236,11 +234,6 @@ pub(crate) fn connect_to_server(
                         )
                         .unwrap();
 
-                        client.send(OutgoingReliableClientMessage {
-                            message: NetworkingClientMessage::Account(
-                                preferences.account_name.clone(),
-                            ),
-                        });
                         commands.insert_resource(renet_client);
 
                         connection_state.status = ConnectionStatus::Connecting;

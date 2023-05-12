@@ -2,7 +2,7 @@ use bevy::prelude::{info, warn, Color, EventReader, EventWriter, Query, Res};
 use networking::server::{
     ConnectedPlayer, IncomingReliableClientMessage, OutgoingReliableServerMessage,
 };
-use player::account::Accounts;
+use player::connections::Accounts;
 use ui::{
     fonts::{Fonts, SOURCECODE_REGULAR_FONT},
     text::{NetTextSection, COMMUNICATION_FONT_SIZE},
