@@ -8,10 +8,7 @@ use crate::{
 };
 
 use super::generic_assets::GenericMeshes;
-pub(crate) fn init_wall_properties(
-    mut init: ResMut<InitTileProperties>,
-    meshes: Res<GenericMeshes>,
-) {
+pub(crate) fn init_generic_wall(mut init: ResMut<InitTileProperties>, meshes: Res<GenericMeshes>) {
     let mut default_isometry = Transform::IDENTITY;
 
     default_isometry.translation.y = -0.5;
@@ -23,7 +20,7 @@ pub(crate) fn init_wall_properties(
         mesh_option = None;
     }
     init.properties.push(TileProperties {
-        name_id: CellTypeName("generic_wall_1".to_string()),
+        name_id: CellTypeName("generic_wall".to_string()),
         name: RichName {
             name: "aluminum wall".to_string(),
             n: true,

@@ -1,4 +1,6 @@
 pub mod generic_assets;
+pub mod generic_diagonal_ceiling;
+pub mod generic_diagonal_floor;
 pub mod generic_floor;
 pub mod generic_wall;
 pub mod generic_wall_group;

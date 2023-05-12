@@ -8,7 +8,7 @@ use crate::{
 };
 
 use super::generic_assets::{GenericMaterials, GenericMeshes};
-pub(crate) fn init_glass_wall_properties(
+pub(crate) fn init_glass_wall(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
     mats: Res<GenericMaterials>,
@@ -24,7 +24,7 @@ pub(crate) fn init_glass_wall_properties(
         mesh_option = None;
     }
     init.properties.push(TileProperties {
-        name_id: CellTypeName("glass_wall_1".to_string()),
+        name_id: CellTypeName("glass_wall".to_string()),
         name: RichName {
             name: "glass wall".to_string(),
             n: true,

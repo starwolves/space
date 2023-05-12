@@ -9,6 +9,7 @@ use bevy::{
 pub struct GenericMeshes {
     pub wall: Handle<GltfMesh>,
     pub floor: Handle<GltfMesh>,
+    pub diagonal_template: Handle<GltfMesh>,
 }
 
 pub(crate) fn init_generic_meshes(
@@ -19,6 +20,7 @@ pub(crate) fn init_generic_meshes(
 ) {
     res.wall = assets.load("models/wall/wall.glb#Mesh0");
     res.floor = assets.load("models/floor/floor.glb#Mesh0");
+    res.diagonal_template = assets.load("models/diagonal_template/diagonal_template.glb#Mesh0");
 
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),

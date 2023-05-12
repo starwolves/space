@@ -137,6 +137,7 @@ pub(crate) fn load_ron_gridmap(
                         break;
                     }
                 };
+
                 set_cell.send(AddTile {
                     id: cell_data.id,
                     face: cell_data.face.clone(),

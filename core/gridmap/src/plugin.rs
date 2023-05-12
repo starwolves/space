@@ -35,10 +35,12 @@ use crate::{
         generic_assets::{
             init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
         },
-        generic_floor::init_floor_properties,
-        generic_wall::init_wall_properties,
-        generic_wall_group::init_wall_group_properties,
-        glass_wall::init_glass_wall_properties,
+        generic_diagonal_ceiling::init_generic_diagonal_ceiling,
+        generic_diagonal_floor::init_generic_diagonal_floor,
+        generic_floor::init_generic_floor,
+        generic_wall::init_generic_wall,
+        generic_wall_group::init_generic_wall_group,
+        glass_wall::init_glass_wall,
     },
     net::{GridmapClientMessage, GridmapServerMessage},
 };
@@ -127,10 +129,12 @@ impl Plugin for GridmapPlugin {
                     .in_set(BuildingLabels::TriggerBuild)
                     .after(StartupLabels::MiscResources),
             )
-            .add_startup_system(init_floor_properties.before(init_tile_properties))
-            .add_startup_system(init_wall_group_properties.after(init_tile_properties))
-            .add_startup_system(init_wall_properties.before(init_tile_properties))
-            .add_startup_system(init_glass_wall_properties.before(init_tile_properties))
+            .add_startup_system(init_generic_floor.before(init_tile_properties))
+            .add_startup_system(init_generic_wall_group.after(init_tile_properties))
+            .add_startup_system(init_generic_wall.before(init_tile_properties))
+            .add_startup_system(init_glass_wall.before(init_tile_properties))
+            .add_startup_system(init_generic_diagonal_floor.before(init_tile_properties))
+            .add_startup_system(init_generic_diagonal_ceiling.before(init_tile_properties))
             .add_startup_system(
                 load_ron_gridmap
                     .in_set(StartupLabels::BuildGridmap)

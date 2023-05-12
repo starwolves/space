@@ -5,7 +5,7 @@ use resources::{grid::CellFace, math::Vec3Int};
 
 use crate::grid::{CellTypeName, FullCell, Gridmap, GroupTypeId, GroupTypeName};
 
-pub(crate) fn init_wall_group_properties(mut gridmap_data: ResMut<Gridmap>) {
+pub(crate) fn init_generic_wall_group(mut gridmap_data: ResMut<Gridmap>) {
     let mut wall_group = HashMap::new();
     let group_id = GroupTypeId(gridmap_data.group_type_incremental);
     gridmap_data.group_type_incremental += 1;
@@ -16,7 +16,7 @@ pub(crate) fn init_wall_group_properties(mut gridmap_data: ResMut<Gridmap>) {
             orientation: 0,
             tile_type: *gridmap_data
                 .main_name_id_map
-                .get(&CellTypeName("generic_wall_1".to_string()))
+                .get(&CellTypeName("generic_wall".to_string()))
                 .unwrap(),
             entity_option: None,
         },
@@ -28,7 +28,7 @@ pub(crate) fn init_wall_group_properties(mut gridmap_data: ResMut<Gridmap>) {
             orientation: 0,
             tile_type: *gridmap_data
                 .main_name_id_map
-                .get(&CellTypeName("generic_wall_1".to_string()))
+                .get(&CellTypeName("generic_wall".to_string()))
                 .unwrap(),
             entity_option: None,
         },
@@ -36,8 +36,8 @@ pub(crate) fn init_wall_group_properties(mut gridmap_data: ResMut<Gridmap>) {
     gridmap_data.groups.insert(group_id, wall_group);
     gridmap_data
         .group_id_map
-        .insert(GroupTypeName("generic_wall_group_1".to_string()), group_id);
+        .insert(GroupTypeName("generic_wall_group".to_string()), group_id);
     gridmap_data
         .id_group_map
-        .insert(group_id, GroupTypeName("generic_wall_group_1".to_string()));
+        .insert(group_id, GroupTypeName("generic_wall_group".to_string()));
 }

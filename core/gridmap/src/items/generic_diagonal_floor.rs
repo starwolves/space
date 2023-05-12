@@ -12,26 +12,29 @@ use crate::{
 
 use super::generic_assets::GenericMeshes;
 
-pub(crate) fn init_generic_floor(mut init: ResMut<InitTileProperties>, meshes: Res<GenericMeshes>) {
+pub(crate) fn init_generic_diagonal_floor(
+    mut init: ResMut<InitTileProperties>,
+    meshes: Res<GenericMeshes>,
+) {
     let mesh_option: Option<Handle<GltfMesh>>;
     if !is_server() {
-        mesh_option = Some(meshes.floor.clone());
+        mesh_option = Some(meshes.diagonal_template.clone());
     } else {
         mesh_option = None;
     }
 
     init.properties.push(TileProperties {
-        name_id: CellTypeName("generic_floor".to_string()),
+        name_id: CellTypeName("generic_diagonal_floor".to_string()),
         name: RichName {
-            name: "aluminum floor".to_string(),
+            name: "diagonal aluminum floor".to_string(),
             n: true,
             the: false,
         },
-        description: "A generic floor tile.".to_string(),
+        description: "A generic diagonal floor tile.".to_string(),
         constructable: true,
         floor_cell: true,
         mesh_option,
-        cell_type: CellType::Floor,
+        cell_type: CellType::Center,
         ..Default::default()
     });
 }
