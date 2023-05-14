@@ -306,7 +306,6 @@ pub(crate) fn update_ghost_cell(
     if !state.is_constructing {
         return;
     }
-
     for changed in events.iter() {
         for (_, tile) in state.ghost_item.iter() {
             match tile.ghost_entity_option {
@@ -587,7 +586,7 @@ pub(crate) fn input_ghost_rotation(
             Some(ghost_entity) => match ghost_query.get_mut(ghost_entity) {
                 Ok(mut ghost_transform) => match state_selected {
                     Some(selected_id) => {
-                        let mut new_face = tile.ghost_face.clone();
+                        let mut new_face;
 
                         let mut new_rotation = tile.ghost_rotation;
 
@@ -595,6 +594,7 @@ pub(crate) fn input_ghost_rotation(
 
                         match gridmap.tile_properties.get(&tile.tile_type) {
                             Some(properties) => {
+                                new_face = properties.cell_type.default_face();
                                 match properties.cell_type {
                                     crate::grid::CellType::Wall => {
                                         if keys

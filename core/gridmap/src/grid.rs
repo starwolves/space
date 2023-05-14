@@ -36,15 +36,25 @@ impl Default for MapLimits {
         Self { length: 32 }
     }
 }
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum CellType {
     Wall,
     Floor,
     Center,
 }
 
+impl CellType {
+    pub fn default_face(&self) -> CellFace {
+        match self {
+            CellType::Wall => CellFace::FrontWall,
+            CellType::Floor => CellFace::Floor,
+            CellType::Center => CellFace::Center,
+        }
+    }
+}
+
 /// Gridmap meta-data set.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 
 pub struct TileProperties {
     pub name_id: CellTypeName,
