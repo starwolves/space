@@ -473,15 +473,7 @@ pub(crate) fn update_ghost_cell(
                     Some(mut g) => match gridmap.tile_properties.get(&g.tile_type) {
                         Some(properties) => {
                             if !changed.only_selection_changed {
-                                match properties.cell_type {
-                                    crate::grid::CellType::Wall => {
-                                        g.ghost_face = CellFace::default()
-                                    }
-                                    crate::grid::CellType::Floor => g.ghost_face = CellFace::Floor,
-                                    crate::grid::CellType::Center => {
-                                        g.ghost_face = CellFace::Center
-                                    }
-                                }
+                                g.ghost_face = properties.cell_type.default_face();
                             }
                             let mut t = gridmap.get_cell_transform(
                                 TargetCell {
@@ -700,6 +692,40 @@ pub(crate) fn input_ghost_rotation(
                                             rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
                                             new_rotation = rotation.get_orthogonal_index();
                                         }
+                                    }
+                                    crate::grid::CellType::Diagonal => {
+                                        let rotations = vec![0, 16, 3, 19];
+
+                                        let mut rot_i = 0;
+                                        for rot in rotations.iter() {
+                                            if tile.ghost_rotation == *rot {
+                                                break;
+                                            }
+                                            rot_i += 1;
+                                        }
+                                        if keys.just_pressed(
+                                            binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND),
+                                        ) {
+                                            rot_i += 1;
+
+                                            if rot_i > 3 {
+                                                rot_i = 0;
+                                            }
+                                        } else if keys
+                                            .just_pressed(binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND))
+                                        {
+                                            if rot_i == 0 {
+                                                rot_i = 3;
+                                            } else {
+                                                rot_i -= 1;
+                                            }
+                                        }
+
+                                        let new_rot = rotations[rot_i];
+
+                                        let rotation =
+                                            OrthogonalBases::default().bases[new_rot as usize];
+                                        new_rotation = rotation.get_orthogonal_index();
                                     }
                                 }
                                 *ghost_transform = gridmap.get_cell_transform(

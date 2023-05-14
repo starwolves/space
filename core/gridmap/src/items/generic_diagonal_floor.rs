@@ -34,7 +34,7 @@ pub(crate) fn init_generic_diagonal_floor(
         constructable: true,
         floor_cell: true,
         mesh_option,
-        cell_type: CellType::Center,
+        cell_type: CellType::Diagonal,
         ..Default::default()
     });
 }

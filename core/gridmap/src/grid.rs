@@ -41,6 +41,7 @@ pub enum CellType {
     Wall,
     Floor,
     Center,
+    Diagonal,
 }
 
 impl CellType {
@@ -49,6 +50,7 @@ impl CellType {
             CellType::Wall => CellFace::FrontWall,
             CellType::Floor => CellFace::Floor,
             CellType::Center => CellFace::Center,
+            CellType::Diagonal => CellFace::Center,
         }
     }
 }
