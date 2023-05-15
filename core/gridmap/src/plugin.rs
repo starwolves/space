@@ -32,6 +32,12 @@ use crate::{
     },
     init::{init_tile_properties, load_ron_gridmap, startup_misc_resources, InitTileProperties},
     items::{
+        general_half_diagonal_ceiling::{
+            init_generic_half_diagonal_ceiling_high, init_generic_half_diagonal_ceiling_low,
+        },
+        general_half_diagonal_floor::{
+            init_generic_half_diagonal_floor_high, init_generic_half_diagonal_floor_low,
+        },
         generic_assets::{
             init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
         },
@@ -156,6 +162,26 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_diagonal_ceiling
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_half_diagonal_ceiling_low
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_half_diagonal_floor_low
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_half_diagonal_ceiling_high
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_half_diagonal_floor_high
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
             )
