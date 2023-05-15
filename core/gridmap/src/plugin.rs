@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{resource_exists, App, CoreSet, IntoSystemConfig, Plugin, StartupSet},
+    prelude::{resource_exists, App, CoreSet, IntoSystemConfig, Plugin},
     time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
@@ -118,7 +118,7 @@ impl Plugin for GridmapPlugin {
                 .add_system(remove_cell_client)
                 .add_startup_system(register_input)
                 .add_startup_system(init_default_materials)
-                .add_startup_system(init_generic_meshes.in_base_set(StartupSet::PreStartup));
+                .add_startup_system(init_generic_meshes);
         }
         app.init_resource::<GenericMaterials>()
             .init_resource::<GenericMeshes>()
@@ -129,12 +129,36 @@ impl Plugin for GridmapPlugin {
                     .in_set(BuildingLabels::TriggerBuild)
                     .after(StartupLabels::MiscResources),
             )
-            .add_startup_system(init_generic_floor.before(init_tile_properties))
-            .add_startup_system(init_generic_wall_group.after(init_tile_properties))
-            .add_startup_system(init_generic_wall.before(init_tile_properties))
-            .add_startup_system(init_glass_wall.before(init_tile_properties))
-            .add_startup_system(init_generic_diagonal_floor.before(init_tile_properties))
-            .add_startup_system(init_generic_diagonal_ceiling.before(init_tile_properties))
+            .add_startup_system(
+                init_generic_floor
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_wall_group
+                    .after(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_wall
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_glass_wall
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_diagonal_floor
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_generic_diagonal_ceiling
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
             .add_startup_system(
                 load_ron_gridmap
                     .in_set(StartupLabels::BuildGridmap)
