@@ -94,10 +94,6 @@ pub(crate) fn set_action_header_name(
             None => {
                 let gridmap = building.target_cell_option.clone().unwrap();
 
-                let names;
-
-                names = gridmap_main.main_text_names.clone();
-
                 let item_id;
 
                 match gridmap_main.get_cell(gridmap) {
@@ -110,7 +106,15 @@ pub(crate) fn set_action_header_name(
                     }
                 }
 
-                action_data_request.set_id(names.get(&item_id).unwrap().get_name().to_string());
+                action_data_request.set_id(
+                    gridmap_main
+                        .tile_properties
+                        .get(&item_id)
+                        .unwrap()
+                        .name
+                        .get_name()
+                        .to_string(),
+                );
             }
         }
     }
@@ -442,17 +446,19 @@ pub fn examine_ship_cell(ship_cell: &CellItem, gridmap_data: &Res<Gridmap>) -> S
         + "]"
         + "You examine the "
         + &gridmap_data
-            .main_text_names
+            .tile_properties
             .get(&ship_cell.tile_type)
             .unwrap()
+            .name
             .get_name()
         + ".[/font]\n";
 
     if ship_cell.tile_type != CellTypeId(0) {
-        examine_text = gridmap_data
-            .main_text_examine_desc
+        examine_text = &gridmap_data
+            .tile_properties
             .get(&ship_cell.tile_type)
-            .unwrap();
+            .unwrap()
+            .description;
     } else {
         examine_text = EXAMINATION_EMPTY;
     }

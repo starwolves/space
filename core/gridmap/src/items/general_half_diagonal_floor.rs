@@ -34,7 +34,10 @@ pub(crate) fn init_generic_half_diagonal_floor_low(
         constructable: false,
         floor_cell: true,
         mesh_option,
-        cell_type: CellType::Diagonal,
+        cell_type: CellType::Center,
+        vertical_rotation: false,
+        x_rotations: vec![0, 16, 3, 19],
+
         ..Default::default()
     });
 }
@@ -60,7 +63,10 @@ pub(crate) fn init_generic_half_diagonal_floor_high(
         constructable: false,
         floor_cell: true,
         mesh_option,
-        cell_type: CellType::Diagonal,
+        cell_type: CellType::Center,
+        vertical_rotation: false,
+        x_rotations: vec![0, 16, 3, 19],
+
         ..Default::default()
     });
 }

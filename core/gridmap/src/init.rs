@@ -22,34 +22,11 @@ pub struct InitTileProperties {
 }
 
 pub(crate) fn init_tile_properties(mut gridmap: ResMut<Gridmap>, init: Res<InitTileProperties>) {
-    gridmap.non_fov_blocking_cells_list.push(CellTypeId(0));
     let mut current_map_mainordered_cells_typed = vec![];
     for properties in init.properties.iter() {
         let gri_id = CellTypeId(gridmap.tile_type_incremental);
-        gridmap
-            .main_text_names
-            .insert(gri_id, properties.name.clone());
-        gridmap
-            .main_text_examine_desc
-            .insert(gri_id, properties.description.clone());
-
-        if properties.non_fov_blocker {
-            gridmap.non_fov_blocking_cells_list.push(gri_id);
-        }
-
-        if !properties.combat_obstacle {
-            gridmap.non_combat_obstacle_cells_list.push(gri_id)
-        }
-
-        if properties.placeable_item_surface {
-            gridmap.placeable_items_cells_list.push(gri_id);
-        }
-
-        if !properties.laser_combat_obstacle {
-            gridmap.non_laser_obstacle_cells_list.push(gri_id);
-        }
-
         gridmap.tile_properties.insert(gri_id, properties.clone());
+
         gridmap
             .main_name_id_map
             .insert(properties.name_id.clone(), gri_id);

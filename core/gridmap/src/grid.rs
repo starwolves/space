@@ -41,7 +41,6 @@ pub enum CellType {
     Wall,
     Floor,
     Center,
-    Diagonal,
 }
 
 impl CellType {
@@ -50,7 +49,6 @@ impl CellType {
             CellType::Wall => CellFace::FrontWall,
             CellType::Floor => CellFace::Floor,
             CellType::Center => CellFace::Center,
-            CellType::Diagonal => CellFace::Center,
         }
     }
 }
@@ -69,6 +67,7 @@ pub struct TileProperties {
     pub collider: Collider,
     pub collider_position: Transform,
     pub constructable: bool,
+    pub vertical_rotation: bool,
     pub floor_cell: bool,
     pub atmospherics_blocker: bool,
     pub atmospherics_pushes_up: bool,
@@ -78,6 +77,8 @@ pub struct TileProperties {
     pub mesh_option: Option<Handle<GltfMesh>>,
     pub material_option: Option<Handle<StandardMaterial>>,
     pub cell_type: CellType,
+    pub x_rotations: Vec<u8>,
+    pub y_rotations: Vec<u8>,
 }
 
 impl Default for TileProperties {
@@ -101,15 +102,19 @@ impl Default for TileProperties {
             mesh_option: None,
             material_option: None,
             cell_type: CellType::Wall,
+            x_rotations: vec![],
+            y_rotations: vec![],
+            vertical_rotation: false,
         }
     }
 }
 
 pub fn get_cell_a_name(ship_cell: &CellItem, gridmap_data: &Res<Gridmap>) -> String {
     gridmap_data
-        .main_text_names
+        .tile_properties
         .get(&ship_cell.tile_type)
         .unwrap()
+        .name
         .get_a_name()
 }
 #[derive(Clone, Default, Debug)]
@@ -283,25 +288,17 @@ impl Deref for GroupTypeId {
 pub struct Gridmap {
     pub grid: Vec<Option<GridmapChunk>>,
     pub updates: HashMap<TargetCell, AddedUpdate>,
-    pub non_fov_blocking_cells_list: Vec<CellTypeId>,
-    pub non_combat_obstacle_cells_list: Vec<CellTypeId>,
-    pub non_laser_obstacle_cells_list: Vec<CellTypeId>,
-    pub placeable_items_cells_list: Vec<CellTypeId>,
     pub ordered_main_names: Vec<CellTypeName>,
-    pub main_name_id_map: HashMap<CellTypeName, CellTypeId>,
-    pub main_id_name_map: HashMap<CellTypeId, CellTypeName>,
     pub group_id_map: HashMap<GroupTypeName, GroupTypeId>,
     pub id_group_map: HashMap<GroupTypeId, GroupTypeName>,
-    pub main_text_names: HashMap<CellTypeId, RichName>,
-    pub main_text_examine_desc: HashMap<CellTypeId, String>,
-    pub blackcell_id: CellTypeId,
-    pub blackcell_blocking_id: CellTypeId,
     pub tile_properties: HashMap<CellTypeId, TileProperties>,
     pub map_length_limit: MapLimits,
     pub groups: HashMap<GroupTypeId, HashMap<Vec3Int, FullCell>>,
     pub group_instance_incremental: u32,
     pub tile_type_incremental: u16,
     pub group_type_incremental: u16,
+    pub main_name_id_map: HashMap<CellTypeName, CellTypeId>,
+    pub main_id_name_map: HashMap<CellTypeId, CellTypeName>,
 }
 
 const EMPTY_CHUNK: Option<GridmapChunk> = None;
@@ -311,17 +308,7 @@ impl Default for Gridmap {
         Self {
             grid: vec![EMPTY_CHUNK; GRID_CHUNK_AMOUNT],
             updates: HashMap::default(),
-            non_fov_blocking_cells_list: vec![],
-            non_combat_obstacle_cells_list: vec![],
-            non_laser_obstacle_cells_list: vec![],
-            placeable_items_cells_list: vec![],
             ordered_main_names: vec![],
-            main_name_id_map: HashMap::default(),
-            main_id_name_map: HashMap::default(),
-            main_text_names: HashMap::default(),
-            main_text_examine_desc: HashMap::default(),
-            blackcell_id: CellTypeId(0),
-            blackcell_blocking_id: CellTypeId(0),
             tile_properties: HashMap::default(),
             map_length_limit: MapLimits::default(),
             groups: HashMap::default(),
@@ -330,6 +317,8 @@ impl Default for Gridmap {
             group_instance_incremental: 0,
             tile_type_incremental: 0,
             group_type_incremental: 0,
+            main_name_id_map: HashMap::default(),
+            main_id_name_map: HashMap::default(),
         }
     }
 }

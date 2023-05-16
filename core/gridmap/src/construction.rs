@@ -670,62 +670,100 @@ pub(crate) fn input_ghost_rotation(
                                         }
                                     }
                                     crate::grid::CellType::Center => {
-                                        if keys
-                                            .just_pressed(binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND))
-                                        {
-                                            let mut rotation = OrthogonalBases::default().bases
-                                                [tile.ghost_rotation as usize];
-                                            rotation *= Quat::from_axis_angle(Vec3::X, PI / 2.);
-                                            new_rotation = rotation.get_orthogonal_index();
-                                        } else if keys.just_pressed(
-                                            binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND),
-                                        ) {
-                                            let mut rotation = OrthogonalBases::default().bases
-                                                [tile.ghost_rotation as usize];
-                                            rotation *= Quat::from_axis_angle(Vec3::Z, PI / 2.);
-                                            new_rotation = rotation.get_orthogonal_index();
-                                        } else if keys
-                                            .just_pressed(binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND))
-                                        {
-                                            let mut rotation = OrthogonalBases::default().bases
-                                                [tile.ghost_rotation as usize];
-                                            rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
-                                            new_rotation = rotation.get_orthogonal_index();
-                                        }
-                                    }
-                                    crate::grid::CellType::Diagonal => {
-                                        let rotations = vec![0, 16, 3, 19];
-
-                                        let mut rot_i = 0;
-                                        for rot in rotations.iter() {
-                                            if tile.ghost_rotation == *rot {
-                                                break;
+                                        if properties.x_rotations.len() > 0 {
+                                            let mut rot_i = 0;
+                                            for rot in properties.x_rotations.iter() {
+                                                if tile.ghost_rotation == *rot {
+                                                    break;
+                                                }
+                                                rot_i += 1;
                                             }
-                                            rot_i += 1;
-                                        }
-                                        if keys.just_pressed(
-                                            binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND),
-                                        ) {
-                                            rot_i += 1;
+                                            if keys.just_pressed(
+                                                binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND),
+                                            ) {
+                                                rot_i += 1;
 
-                                            if rot_i > 3 {
-                                                rot_i = 0;
+                                                if rot_i > properties.x_rotations.len() - 1 {
+                                                    rot_i = 0;
+                                                }
+                                            } else if keys.just_pressed(
+                                                binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND),
+                                            ) {
+                                                if rot_i == 0 {
+                                                    rot_i = properties.x_rotations.len() - 1;
+                                                } else {
+                                                    rot_i -= 1;
+                                                }
                                             }
-                                        } else if keys
-                                            .just_pressed(binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND))
-                                        {
-                                            if rot_i == 0 {
-                                                rot_i = 3;
+
+                                            let new_rot = properties.x_rotations[rot_i];
+
+                                            let rotation =
+                                                OrthogonalBases::default().bases[new_rot as usize];
+                                            new_rotation = rotation.get_orthogonal_index();
+                                        } else {
+                                            if keys.just_pressed(
+                                                binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND),
+                                            ) {
+                                                let mut rotation = OrthogonalBases::default().bases
+                                                    [tile.ghost_rotation as usize];
+                                                rotation *= Quat::from_axis_angle(Vec3::X, PI / 2.);
+                                                new_rotation = rotation.get_orthogonal_index();
+                                            } else if keys.just_pressed(
+                                                binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND),
+                                            ) {
+                                                let mut rotation = OrthogonalBases::default().bases
+                                                    [tile.ghost_rotation as usize];
+                                                rotation *= Quat::from_axis_angle(Vec3::Z, PI / 2.);
+                                                new_rotation = rotation.get_orthogonal_index();
+                                            }
+                                        }
+
+                                        if properties.vertical_rotation {
+                                            if properties.y_rotations.len() > 0 {
+                                                let mut rot_i = 0;
+                                                for rot in properties.y_rotations.iter() {
+                                                    if tile.ghost_rotation == *rot {
+                                                        break;
+                                                    }
+                                                    rot_i += 1;
+                                                }
+                                                if keys.just_pressed(
+                                                    binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND),
+                                                ) {
+                                                    rot_i += 1;
+
+                                                    if rot_i > properties.y_rotations.len() - 1 {
+                                                        rot_i = 0;
+                                                    }
+                                                } else if keys.just_pressed(
+                                                    binds.bind(ROTATE_CONSTRUCTION_UP_BIND),
+                                                ) {
+                                                    if rot_i == 0 {
+                                                        rot_i = properties.y_rotations.len() - 1;
+                                                    } else {
+                                                        rot_i -= 1;
+                                                    }
+                                                }
+
+                                                let new_rot = properties.y_rotations[rot_i];
+
+                                                let rotation = OrthogonalBases::default().bases
+                                                    [new_rot as usize];
+                                                new_rotation = rotation.get_orthogonal_index();
                                             } else {
-                                                rot_i -= 1;
+                                                if keys.just_pressed(
+                                                    binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND),
+                                                ) {
+                                                    let mut rotation = OrthogonalBases::default()
+                                                        .bases
+                                                        [tile.ghost_rotation as usize];
+                                                    rotation *=
+                                                        Quat::from_axis_angle(Vec3::Y, PI / 2.);
+                                                    new_rotation = rotation.get_orthogonal_index();
+                                                }
                                             }
                                         }
-
-                                        let new_rot = rotations[rot_i];
-
-                                        let rotation =
-                                            OrthogonalBases::default().bases[new_rot as usize];
-                                        new_rotation = rotation.get_orthogonal_index();
                                     }
                                 }
                                 *ghost_transform = gridmap.get_cell_transform(

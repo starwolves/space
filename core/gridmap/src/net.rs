@@ -42,10 +42,8 @@ pub enum GridmapServerMessage {
     RemoveCell(TargetCell),
     AddCell(NewCell),
     FireProjectile(ProjectileData),
-    ConfigBlackCellID(CellTypeId, CellTypeId),
     ConfigOrderedCellsMain(Vec<CellTypeName>),
     ConfigPlaceableItemsSurfaces(Vec<CellTypeId>),
-    ConfigNonBlockingCells(Vec<CellTypeId>),
     GhostCellType(CellIds),
 }
 
