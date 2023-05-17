@@ -5,7 +5,10 @@ use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
 use resources::math::Vec3Int;
 use resources::{core::TickRate, grid::CellFace};
 
-use crate::grid::{AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeName, TileProperties};
+use crate::grid::{
+    AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeId, GroupTypeName, TileGroup,
+    TileProperties,
+};
 
 /// Physics friction on placeable item surfaces.
 
@@ -21,9 +24,16 @@ pub struct InitTileProperties {
     pub properties: Vec<TileProperties>,
 }
 
+#[derive(Default, Resource)]
+pub struct InitTileGroups {
+    pub groups: Vec<TileGroup>,
+}
+
 pub(crate) fn init_tile_properties(mut gridmap: ResMut<Gridmap>, init: Res<InitTileProperties>) {
     let mut current_map_mainordered_cells_typed = vec![];
-    for properties in init.properties.iter() {
+    let mut properties_ordered = init.properties.clone();
+    properties_ordered.sort_by(|a, b: &TileProperties| a.name_id.cmp(&b.name_id));
+    for properties in properties_ordered.iter() {
         let gri_id = CellTypeId(gridmap.tile_type_incremental);
         gridmap.tile_properties.insert(gri_id, properties.clone());
 
@@ -39,6 +49,27 @@ pub(crate) fn init_tile_properties(mut gridmap: ResMut<Gridmap>, init: Res<InitT
     }
     gridmap.ordered_main_names = current_map_mainordered_cells_typed;
     info!("Loaded {} gridmap cell types.", init.properties.len());
+}
+
+pub(crate) fn init_tile_groups(mut gridmap: ResMut<Gridmap>, init_group: Res<InitTileGroups>) {
+    let mut groups_ordered = init_group.groups.clone();
+    groups_ordered.sort_by(|a, b: &TileGroup| a.name_id.cmp(&b.name_id));
+
+    for groups in groups_ordered.iter() {
+        let group_id = GroupTypeId(gridmap.group_type_incremental);
+        gridmap.groups.insert(group_id, groups.map.clone());
+
+        gridmap
+            .group_id_map
+            .insert(groups.name_id.clone(), group_id);
+        gridmap
+            .id_group_map
+            .insert(group_id, groups.name_id.clone());
+
+        gridmap.group_type_incremental += 1;
+    }
+
+    info!("Loaded {} gridmap group types.", groups_ordered.len());
 }
 use player::spawn_points::SpawnPointRon;
 

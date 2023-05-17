@@ -3,15 +3,15 @@ use entity::examine::RichName;
 use resources::is_server::is_server;
 
 use crate::{
-    grid::{CellType, CellTypeName, TileProperties},
-    init::InitTileProperties,
+    grid::{CellType, CellTypeName, TileGroup, TileProperties},
+    init::{InitTileGroups, InitTileProperties},
 };
 
 use std::collections::HashMap;
 
 use resources::{grid::CellFace, math::Vec3Int};
 
-use crate::grid::{FullCell, Gridmap, GroupTypeId, GroupTypeName};
+use crate::grid::{FullCell, Gridmap, GroupTypeName};
 
 use super::generic_assets::GenericMeshes;
 
@@ -40,10 +40,11 @@ pub(crate) fn init_generic_wall(mut init: ResMut<InitTileProperties>, meshes: Re
         ..Default::default()
     });
 }
-pub(crate) fn init_generic_wall_group(mut gridmap_data: ResMut<Gridmap>) {
+pub(crate) fn init_generic_wall_group(
+    gridmap_data: Res<Gridmap>,
+    mut groups: ResMut<InitTileGroups>,
+) {
     let mut wall_group = HashMap::new();
-    let group_id = GroupTypeId(gridmap_data.group_type_incremental);
-    gridmap_data.group_type_incremental += 1;
     wall_group.insert(
         Vec3Int { x: 0, y: 0, z: 0 },
         FullCell {
@@ -68,11 +69,9 @@ pub(crate) fn init_generic_wall_group(mut gridmap_data: ResMut<Gridmap>) {
             entity_option: None,
         },
     );
-    gridmap_data.groups.insert(group_id, wall_group);
-    gridmap_data
-        .group_id_map
-        .insert(GroupTypeName("generic_wall_group".to_string()), group_id);
-    gridmap_data
-        .id_group_map
-        .insert(group_id, GroupTypeName("generic_wall_group".to_string()));
+
+    groups.groups.push(TileGroup {
+        name_id: GroupTypeName("generic_wall_group".to_string()),
+        map: wall_group,
+    });
 }

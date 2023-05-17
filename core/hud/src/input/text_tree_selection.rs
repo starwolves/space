@@ -216,6 +216,7 @@ pub struct TextTreeSelectionSubmitButton;
 pub struct TextTreeSelectionState {
     pub selected: Option<SelectedTree>,
 }
+#[derive(Debug)]
 pub struct SelectedTree {
     pub node_entity: Entity,
     pub selection: TextTreeSelection,
@@ -252,6 +253,7 @@ pub(crate) fn text_tree_select_button(
                     selection: component.data.clone(),
                     entry: component.entry.clone(),
                 });
+
                 match style_query.get_mut(entity) {
                     Ok(mut stil) => {
                         stil.selected = true;

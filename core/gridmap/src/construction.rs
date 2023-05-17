@@ -395,7 +395,7 @@ pub(crate) fn update_ghost_cell(
                             }
                         }
                         None => {
-                            warn!("Couldnt find group.");
+                            warn!("Couldnt find group. (1): {:?}", groupid);
                         }
                     }
                 } else {

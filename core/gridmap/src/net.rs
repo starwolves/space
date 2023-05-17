@@ -43,7 +43,6 @@ pub enum GridmapServerMessage {
     AddCell(NewCell),
     FireProjectile(ProjectileData),
     ConfigOrderedCellsMain(Vec<CellTypeName>),
-    ConfigPlaceableItemsSurfaces(Vec<CellTypeId>),
     GhostCellType(CellIds),
 }
 

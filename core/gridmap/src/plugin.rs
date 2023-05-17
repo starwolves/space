@@ -30,10 +30,14 @@ use crate::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
         remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, Gridmap, RemoveTile,
     },
-    init::{init_tile_properties, load_ron_gridmap, startup_misc_resources, InitTileProperties},
+    init::{
+        init_tile_groups, init_tile_properties, load_ron_gridmap, startup_misc_resources,
+        InitTileGroups, InitTileProperties,
+    },
     items::{
         general_half_diagonal_ceiling::{
-            init_generic_half_diagonal_ceiling_high, init_generic_half_diagonal_ceiling_low,
+            init_generic_half_diagonal_ceiling_group, init_generic_half_diagonal_ceiling_high,
+            init_generic_half_diagonal_ceiling_low,
         },
         general_half_diagonal_floor::{
             init_generic_half_diagonal_floor_high, init_generic_half_diagonal_floor_low,
@@ -134,6 +138,7 @@ impl Plugin for GridmapPlugin {
                     .in_set(BuildingLabels::TriggerBuild)
                     .after(StartupLabels::MiscResources),
             )
+            .add_startup_system(init_tile_groups.after(init_tile_properties))
             .add_startup_system(
                 init_generic_floor
                     .before(init_tile_properties)
@@ -142,7 +147,14 @@ impl Plugin for GridmapPlugin {
             .add_startup_system(
                 init_generic_wall_group
                     .after(init_tile_properties)
-                    .after(init_generic_meshes),
+                    .after(init_generic_meshes)
+                    .before(init_tile_groups),
+            )
+            .add_startup_system(
+                init_generic_half_diagonal_ceiling_group
+                    .after(init_tile_properties)
+                    .after(init_generic_meshes)
+                    .before(init_tile_groups),
             )
             .add_startup_system(
                 init_generic_wall
@@ -198,7 +210,8 @@ impl Plugin for GridmapPlugin {
             .add_system(add_tile_collision)
             .add_system(remove_tile)
             .add_event::<RemoveTile>()
-            .init_resource::<InitTileProperties>();
+            .init_resource::<InitTileProperties>()
+            .init_resource::<InitTileGroups>();
 
         register_reliable_message::<GridmapClientMessage>(app, MessageSender::Client);
         register_reliable_message::<GridmapServerMessage>(app, MessageSender::Server);

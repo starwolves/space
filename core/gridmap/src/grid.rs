@@ -56,6 +56,14 @@ impl CellType {
 /// Gridmap meta-data set.
 #[derive(Clone, Debug)]
 
+pub struct TileGroup {
+    pub name_id: GroupTypeName,
+    pub map: HashMap<Vec3Int, FullCell>,
+}
+
+/// Gridmap meta-data set.
+#[derive(Clone, Debug)]
+
 pub struct TileProperties {
     pub name_id: CellTypeName,
     pub name: RichName,
@@ -660,7 +668,7 @@ impl Default for AddTile {
         }
     }
 }
-
+#[derive(Clone, Debug)]
 pub struct FullCell {
     pub face: CellFace,
     pub orientation: u8,
