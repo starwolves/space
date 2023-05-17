@@ -112,7 +112,14 @@ pub fn send_constructable_items(
             Some(handle) => {
                 let mut names = vec![];
                 for name in gridmap.ordered_main_names.iter() {
-                    names.push(name.to_string());
+                    for (_id, prop) in gridmap.tile_properties.iter() {
+                        if prop.name_id == *name {
+                            if prop.constructable {
+                                names.push(name.to_string());
+                            }
+                            break;
+                        }
+                    }
                 }
                 for (name, _) in gridmap.group_id_map.iter() {
                     names.push(name.to_string());
