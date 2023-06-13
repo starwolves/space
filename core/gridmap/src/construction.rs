@@ -3,7 +3,7 @@ use std::{collections::HashMap, f32::consts::PI};
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        info, warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
+        warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
         DespawnRecursiveExt, Entity, EventReader, EventWriter, Handle, Input, KeyCode, Local,
         MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform,
         Vec3, Visibility, With,
@@ -340,6 +340,13 @@ pub(crate) fn update_ghost_cell(
                                 Some(properties) => {
                                     let prev_item;
 
+                                    let f;
+                                    if !changed.only_selection_changed {
+                                        f = properties.cell_type.default_face();
+                                    } else {
+                                        f = tile.face.clone();
+                                    }
+
                                     match state.ghost_item.get(local_id) {
                                         Some(i) => {
                                             prev_item = i.clone();
@@ -349,28 +356,17 @@ pub(crate) fn update_ghost_cell(
                                                 tile_type: tile.tile_type,
                                                 ghost_entity_option: None,
                                                 ghost_rotation: tile.orientation,
-                                                ghost_face: tile.face.clone(),
+                                                ghost_face: f.clone(),
                                             };
                                         }
                                     }
                                     let mut t = gridmap.get_cell_transform(
                                         TargetCell {
                                             id: full_id + *local_id,
-                                            face: tile.face.clone(),
+                                            face: f,
                                         },
                                         tile.orientation,
                                     );
-
-                                    info!("local transform data0:");
-                                    info!(
-                                        "{:?}",
-                                        TargetCell {
-                                            id: full_id + *local_id,
-                                            face: tile.face.clone(),
-                                        }
-                                    );
-                                    info!("{:?}", tile.orientation);
-                                    info!("{:?}", t);
 
                                     t.scale = Vec3::from([1.05; 3]);
 
@@ -724,6 +720,7 @@ pub(crate) fn input_ghost_rotation(
                                         }
                                     }
                                 }
+
                                 *ghost_transform = gridmap.get_cell_transform(
                                     TargetCell {
                                         id: full_id,
