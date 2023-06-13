@@ -3,7 +3,7 @@ use std::{collections::HashMap, f32::consts::PI};
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
+        info, warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
         DespawnRecursiveExt, Entity, EventReader, EventWriter, Handle, Input, KeyCode, Local,
         MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform,
         Vec3, Visibility, With,
@@ -330,128 +330,86 @@ pub(crate) fn update_ghost_cell(
             Some(groupid) => {
                 // Commands spawn group cells at correct positions with the right rotations.
 
-                if changed.only_selection_changed {
-                    match gridmap.groups.get(&groupid) {
-                        Some(group) => {
-                            for (local_id, tile) in group.iter() {
-                                match gridmap.tile_properties.get(&tile.tile_type) {
-                                    Some(properties) => {
-                                        let prev_item;
+                if !changed.only_selection_changed {
+                    state.ghost_item.clear();
+                }
+                match gridmap.groups.get(&groupid) {
+                    Some(group) => {
+                        for (local_id, tile) in group.iter() {
+                            match gridmap.tile_properties.get(&tile.tile_type) {
+                                Some(properties) => {
+                                    let prev_item;
 
-                                        match state.ghost_item.get(local_id) {
-                                            Some(i) => {
-                                                prev_item = i.clone();
-                                            }
-                                            None => {
-                                                prev_item = GhostTile {
-                                                    tile_type: tile.tile_type,
-                                                    ghost_entity_option: None,
-                                                    ghost_rotation: tile.orientation,
-                                                    ghost_face: tile.face.clone(),
-                                                };
-                                            }
+                                    match state.ghost_item.get(local_id) {
+                                        Some(i) => {
+                                            prev_item = i.clone();
                                         }
-                                        let mut t = gridmap.get_cell_transform(
-                                            TargetCell {
-                                                id: full_id + *local_id,
-                                                face: tile.face.clone(),
-                                            },
-                                            tile.orientation,
-                                        );
-                                        t.scale = Vec3::from([1.05; 3]);
-
-                                        match assets_gltfmesh
-                                            .get(&properties.mesh_option.clone().unwrap())
-                                        {
-                                            Some(gltf) => {
-                                                let ghost_entity = commands
-                                                    .spawn(GhostTileComponent)
-                                                    .insert(PbrBundle {
-                                                        mesh: gltf.primitives[0].mesh.clone(),
-                                                        material: state.ghost_material.clone(),
-                                                        transform: t,
-                                                        ..Default::default()
-                                                    })
-                                                    .id();
-                                                let new_tile = GhostTile {
-                                                    tile_type: tile.tile_type,
-                                                    ghost_entity_option: Some(ghost_entity),
-                                                    ghost_rotation: prev_item.ghost_rotation,
-                                                    ghost_face: prev_item.ghost_face.clone(),
-                                                };
-
-                                                state.ghost_item.insert(*local_id, new_tile);
-                                            }
-                                            None => {
-                                                warn!("Couldnt find ghost material asset gltf.");
-                                            }
+                                        None => {
+                                            prev_item = GhostTile {
+                                                tile_type: tile.tile_type,
+                                                ghost_entity_option: None,
+                                                ghost_rotation: tile.orientation,
+                                                ghost_face: tile.face.clone(),
+                                            };
                                         }
                                     }
-                                    None => {
-                                        warn!("Couldnt find tiletype.");
-                                        continue;
+                                    let mut t = gridmap.get_cell_transform(
+                                        TargetCell {
+                                            id: full_id + *local_id,
+                                            face: tile.face.clone(),
+                                        },
+                                        tile.orientation,
+                                    );
+
+                                    info!("local transform data0:");
+                                    info!(
+                                        "{:?}",
+                                        TargetCell {
+                                            id: full_id + *local_id,
+                                            face: tile.face.clone(),
+                                        }
+                                    );
+                                    info!("{:?}", tile.orientation);
+                                    info!("{:?}", t);
+
+                                    t.scale = Vec3::from([1.05; 3]);
+
+                                    match assets_gltfmesh
+                                        .get(&properties.mesh_option.clone().unwrap())
+                                    {
+                                        Some(gltf) => {
+                                            let ghost_entity = commands
+                                                .spawn(GhostTileComponent)
+                                                .insert(PbrBundle {
+                                                    mesh: gltf.primitives[0].mesh.clone(),
+                                                    material: state.ghost_material.clone(),
+                                                    transform: t,
+                                                    ..Default::default()
+                                                })
+                                                .id();
+                                            let new_tile = GhostTile {
+                                                tile_type: tile.tile_type,
+                                                ghost_entity_option: Some(ghost_entity),
+                                                ghost_rotation: prev_item.ghost_rotation,
+                                                ghost_face: prev_item.ghost_face.clone(),
+                                            };
+
+                                            state.ghost_item.insert(*local_id, new_tile);
+                                        }
+                                        None => {
+                                            warn!("Couldnt find ghost material asset gltf.");
+                                        }
                                     }
                                 }
+                                None => {
+                                    warn!("Couldnt find tiletype.");
+                                    continue;
+                                }
                             }
-                        }
-                        None => {
-                            warn!("Couldnt find group. (1): {:?}", groupid);
                         }
                     }
-                } else {
-                    state.ghost_item.clear();
-
-                    match gridmap.groups.get(&groupid) {
-                        Some(group) => {
-                            for (local_id, tile) in group.iter() {
-                                match gridmap.tile_properties.get(&tile.tile_type) {
-                                    Some(properties) => {
-                                        let mut t = gridmap.get_cell_transform(
-                                            TargetCell {
-                                                id: full_id + *local_id,
-                                                face: tile.face.clone(),
-                                            },
-                                            tile.orientation,
-                                        );
-                                        t.scale = Vec3::from([1.05; 3]);
-
-                                        match assets_gltfmesh
-                                            .get(&properties.mesh_option.clone().unwrap())
-                                        {
-                                            Some(mesh) => {
-                                                let ghost_entity = commands
-                                                    .spawn(GhostTileComponent)
-                                                    .insert(PbrBundle {
-                                                        mesh: mesh.primitives[0].mesh.clone(),
-                                                        material: state.ghost_material.clone(),
-                                                        transform: t,
-                                                        ..Default::default()
-                                                    })
-                                                    .id();
-                                                let new_tile = GhostTile {
-                                                    tile_type: tile.tile_type,
-                                                    ghost_entity_option: Some(ghost_entity),
-                                                    ghost_rotation: tile.orientation,
-                                                    ghost_face: tile.face.clone(),
-                                                };
-
-                                                state.ghost_item.insert(*local_id, new_tile);
-                                            }
-                                            None => {
-                                                warn!("Couldnt find ghost mesh asset gltf.");
-                                            }
-                                        }
-                                    }
-                                    None => {
-                                        warn!("Couldnt find tiletype.");
-                                        continue;
-                                    }
-                                }
-                            }
-                        }
-                        None => {
-                            warn!("Couldnt find group.");
-                        }
+                    None => {
+                        warn!("Couldnt find group. (1): {:?}", groupid);
                     }
                 }
             }
@@ -911,6 +869,7 @@ pub(crate) fn change_ghost_tile_request(
                         select_state.group_id = Some(*id);
                     }
                 }
+
                 events.send(ConstructionCellSelectionChanged {
                     only_selection_changed: false,
                 });
