@@ -38,7 +38,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_low(
         mesh_option,
         cell_type: CellType::Center,
         vertical_rotation: false,
-        x_rotations: vec![0, 16, 3, 19],
+        x_rotations: vec![0, 16, 8, 19],
         ..Default::default()
     });
 }
@@ -66,7 +66,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_high(
         mesh_option,
         cell_type: CellType::Center,
         vertical_rotation: false,
-        x_rotations: vec![0, 16, 3, 19],
+        x_rotations: vec![0, 16, 8, 19],
         ..Default::default()
     });
 }
