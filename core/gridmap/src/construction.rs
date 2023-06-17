@@ -86,9 +86,10 @@ pub fn create_select_cell_cam_state(
                 y_plane: plane_entity,
                 is_constructing: false,
                 y_plane_position: Vec2Int { x: 0, y: 0 },
-                ghost_item: HashMap::default(),
+                ghost_items: HashMap::default(),
                 group_id: None,
                 ghost_material: m,
+                rotated_ghost_ids: HashMap::default(),
             });
         }
         None => {}
@@ -103,11 +104,12 @@ pub struct GridmapConstructionState {
     pub y_plane: Entity,
     pub is_constructing: bool,
     pub y_plane_position: Vec2Int,
-    pub ghost_item: HashMap<Vec3Int, GhostTile>,
+    pub ghost_items: HashMap<Vec3Int, GhostTile>,
+    pub rotated_ghost_ids: HashMap<Vec3Int, Vec3Int>,
     pub group_id: Option<GroupTypeId>,
     pub ghost_material: Handle<StandardMaterial>,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct GhostTile {
     /// Id of tile type.
     pub tile_type: CellTypeId,
@@ -307,7 +309,7 @@ pub(crate) fn update_ghost_cell(
         return;
     }
     for changed in events.iter() {
-        for (_, tile) in state.ghost_item.iter() {
+        for (_, tile) in state.ghost_items.iter() {
             match tile.ghost_entity_option {
                 Some(ghost_entity) => {
                     commands.entity(ghost_entity).despawn_recursive();
@@ -331,7 +333,8 @@ pub(crate) fn update_ghost_cell(
                 // Commands spawn group cells at correct positions with the right rotations.
 
                 if !changed.only_selection_changed {
-                    state.ghost_item.clear();
+                    state.ghost_items.clear();
+                    state.rotated_ghost_ids.clear();
                 }
                 match gridmap.groups.get(&groupid) {
                     Some(group) => {
@@ -347,7 +350,7 @@ pub(crate) fn update_ghost_cell(
                                         f = tile.face.clone();
                                     }
 
-                                    match state.ghost_item.get(local_id) {
+                                    match state.ghost_items.get(local_id) {
                                         Some(i) => {
                                             prev_item = i.clone();
                                         }
@@ -390,7 +393,7 @@ pub(crate) fn update_ghost_cell(
                                                 ghost_face: prev_item.ghost_face.clone(),
                                             };
 
-                                            state.ghost_item.insert(*local_id, new_tile);
+                                            state.ghost_items.insert(*local_id, new_tile);
                                         }
                                         None => {
                                             warn!("Couldnt find ghost material asset gltf.");
@@ -413,17 +416,17 @@ pub(crate) fn update_ghost_cell(
                 // Commands spawn single cell.
 
                 let mut ids = vec![];
-                for (cell, _) in state.ghost_item.iter() {
+                for (cell, _) in state.ghost_items.iter() {
                     let i = &Vec3Int { x: 0, y: 0, z: 0 };
                     if cell != i {
                         ids.push(*cell);
                     }
                 }
                 for c in ids {
-                    state.ghost_item.remove(&c);
+                    state.ghost_items.remove(&c);
                 }
                 let m = state.ghost_material.clone();
-                match state.ghost_item.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
+                match state.ghost_items.get_mut(&Vec3Int { x: 0, y: 0, z: 0 }) {
                     Some(mut g) => match gridmap.tile_properties.get(&g.tile_type) {
                         Some(properties) => {
                             if !changed.only_selection_changed {
@@ -507,92 +510,12 @@ pub(crate) fn input_ghost_rotation(
 
     let state_selected = state.selected.clone();
 
-    for (local_id, tile) in state.ghost_item.iter_mut() {
+    let mut new_ids: HashMap<Vec3Int, Vec3Int> = HashMap::default();
+
+    for (local_id, tile) in state.ghost_items.iter_mut() {
         let int = &Vec3Int { x: 0, y: 0, z: 0 };
 
         let mut new_id = local_id.clone();
-
-        if local_id != int {
-            let mut point = Vec3::new(local_id.x as f32, local_id.y as f32, local_id.z as f32);
-            let relative_rotation;
-            let properties;
-            match gridmap.tile_properties.get(&tile.tile_type) {
-                Some(p) => {
-                    properties = p;
-                }
-                None => {
-                    warn!("Couldnt find tiletype. {:?}", tile.tile_type);
-                    continue;
-                }
-            }
-
-            if !properties.vertical_rotation {
-                let x_rotations;
-
-                if properties.x_rotations.len() > 0 {
-                    x_rotations = properties.x_rotations.clone();
-                } else {
-                    warn!("Rotation of this tiletype is not yet supported.");
-                    continue;
-                }
-
-                relative_rotation = x_rotations
-                    .iter()
-                    .position(|&r| r == tile.ghost_rotation)
-                    .unwrap();
-            } else {
-                let y_rotations;
-
-                if properties.y_rotations.len() > 0 {
-                    y_rotations = properties.y_rotations.clone();
-                } else {
-                    warn!("Rotation of this tiletype is not yet supported.");
-                    continue;
-                }
-
-                relative_rotation = y_rotations
-                    .iter()
-                    .position(|&r| r == tile.ghost_rotation)
-                    .unwrap();
-            }
-
-            let mut quat;
-            if !properties.vertical_rotation {
-                match relative_rotation {
-                    0 => quat = Quat::from_rotation_y(0. * PI),
-                    1 => quat = Quat::from_rotation_y(1.5 * PI),
-                    2 => quat = Quat::from_rotation_y(1. * PI),
-                    3 => quat = Quat::from_rotation_y(0.5 * PI),
-                    _ => {
-                        warn!("Relative rotation is not supported.");
-                        continue;
-                    }
-                }
-            } else {
-                match relative_rotation {
-                    0 => quat = Quat::from_rotation_z(0. * PI),
-                    1 => quat = Quat::from_rotation_z(1.5 * PI),
-                    2 => quat = Quat::from_rotation_z(1. * PI),
-                    3 => quat = Quat::from_rotation_z(0.5 * PI),
-                    _ => {
-                        warn!("Relative vrotation is not supported.");
-                        continue;
-                    }
-                }
-            }
-            quat = quat.normalize();
-            point = quat.mul_vec3(point);
-
-            if relative_rotation == 2 || relative_rotation == 3 {
-                point = -point;
-            }
-
-            new_id = Vec3Int {
-                x: point.x as i16,
-                y: point.y as i16,
-                z: point.z as i16,
-            };
-        }
 
         match tile.ghost_entity_option {
             Some(ghost_entity) => match ghost_query.get_mut(ghost_entity) {
@@ -601,8 +524,6 @@ pub(crate) fn input_ghost_rotation(
                         let mut new_face;
 
                         let mut new_rotation = tile.ghost_rotation;
-
-                        let full_id = new_id + selected_id;
 
                         match gridmap.tile_properties.get(&tile.tile_type) {
                             Some(properties) => {
@@ -787,6 +708,99 @@ pub(crate) fn input_ghost_rotation(
                                     }
                                 }
 
+                                if local_id != int {
+                                    let mut point = Vec3::new(
+                                        local_id.x as f32,
+                                        local_id.y as f32,
+                                        local_id.z as f32,
+                                    );
+                                    let relative_rotation;
+                                    let properties;
+                                    match gridmap.tile_properties.get(&tile.tile_type) {
+                                        Some(p) => {
+                                            properties = p;
+                                        }
+                                        None => {
+                                            warn!("Couldnt find tiletype. {:?}", tile.tile_type);
+                                            continue;
+                                        }
+                                    }
+
+                                    if !properties.vertical_rotation {
+                                        let x_rotations;
+
+                                        if properties.x_rotations.len() > 0 {
+                                            x_rotations = properties.x_rotations.clone();
+                                        } else {
+                                            warn!(
+                                                "Rotation of this tiletype is not yet supported."
+                                            );
+                                            continue;
+                                        }
+
+                                        relative_rotation = x_rotations
+                                            .iter()
+                                            .position(|&r| r == new_rotation)
+                                            .unwrap();
+                                    } else {
+                                        let y_rotations;
+
+                                        if properties.y_rotations.len() > 0 {
+                                            y_rotations = properties.y_rotations.clone();
+                                        } else {
+                                            warn!(
+                                                "Rotation of this tiletype is not yet supported."
+                                            );
+                                            continue;
+                                        }
+
+                                        relative_rotation = y_rotations
+                                            .iter()
+                                            .position(|&r| r == new_rotation)
+                                            .unwrap();
+                                    }
+
+                                    let mut quat;
+                                    if !properties.vertical_rotation {
+                                        match relative_rotation {
+                                            0 => quat = Quat::from_rotation_y(0. * PI),
+                                            1 => quat = Quat::from_rotation_y(1.5 * PI),
+                                            2 => quat = Quat::from_rotation_y(1. * PI),
+                                            3 => quat = Quat::from_rotation_y(0.5 * PI),
+                                            _ => {
+                                                warn!("Relative rotation is not supported.");
+                                                continue;
+                                            }
+                                        }
+                                    } else {
+                                        match relative_rotation {
+                                            0 => quat = Quat::from_rotation_z(0. * PI),
+                                            1 => quat = Quat::from_rotation_z(1.5 * PI),
+                                            2 => quat = Quat::from_rotation_z(1. * PI),
+                                            3 => quat = Quat::from_rotation_z(0.5 * PI),
+                                            _ => {
+                                                warn!("Relative vrotation is not supported.");
+                                                continue;
+                                            }
+                                        }
+                                    }
+                                    quat = quat.normalize();
+                                    point = quat.mul_vec3(point);
+
+                                    if relative_rotation == 2 || relative_rotation == 3 {
+                                        point = -point;
+                                    }
+
+                                    new_id = Vec3Int {
+                                        x: point.x as i16,
+                                        y: point.y as i16,
+                                        z: point.z as i16,
+                                    };
+                                    new_ids.insert(*local_id, new_id);
+                                }
+
+                                let full_id = new_id + selected_id;
+
                                 *ghost_transform = gridmap.get_cell_transform(
                                     TargetCell {
                                         id: full_id,
@@ -811,6 +825,12 @@ pub(crate) fn input_ghost_rotation(
                 }
             },
             None => {}
+        }
+    }
+
+    if new_ids.len() > 0 {
+        for (old_id, new_id) in new_ids {
+            state.rotated_ghost_ids.insert(old_id, new_id);
         }
     }
 }
@@ -908,14 +928,14 @@ pub(crate) fn change_ghost_tile_request(
                 match type_id {
                     CellIds::CellType(id) => {
                         match select_state
-                            .ghost_item
+                            .ghost_items
                             .get_mut(&Vec3Int { x: 0, y: 0, z: 0 })
                         {
                             Some(tile) => {
                                 tile.tile_type = *id;
                             }
                             None => {
-                                select_state.ghost_item.insert(
+                                select_state.ghost_items.insert(
                                     Vec3Int { x: 0, y: 0, z: 0 },
                                     GhostTile {
                                         tile_type: *id,
@@ -954,7 +974,7 @@ pub(crate) fn client_mouse_click_input(
     }
 
     if buttons.just_pressed(MouseButton::Left) {
-        if state.ghost_item.len() == 0 {
+        if state.ghost_items.len() == 0 {
             return;
         }
 
@@ -973,9 +993,16 @@ pub(crate) fn client_mouse_click_input(
 
         let mut block_construction = false;
 
-        for (local_id, tile) in state.ghost_item.iter() {
+        for (local_id, tile) in state.ghost_items.iter() {
+            let used_id;
+
+            match state.rotated_ghost_ids.get(local_id) {
+                Some(new_id) => used_id = new_id,
+                None => used_id = local_id,
+            }
+
             let target = TargetCellWithOrientationWType {
-                id: cell_id + *local_id,
+                id: cell_id + *used_id,
                 face: tile.ghost_face.clone(),
                 orientation: tile.ghost_rotation,
                 tile_type: tile.tile_type,
@@ -1016,7 +1043,7 @@ pub(crate) fn client_mouse_click_input(
 
         let mut construct_cells = vec![];
 
-        for (local_id, tile) in state.ghost_item.iter() {
+        for (local_id, tile) in state.ghost_items.iter() {
             construct_cells.push(TargetCell {
                 id: cell_id + *local_id,
                 face: tile.ghost_face.clone(),
