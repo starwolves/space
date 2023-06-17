@@ -787,15 +787,16 @@ pub(crate) fn input_ghost_rotation(
                                     quat = quat.normalize();
                                     point = quat.mul_vec3(point);
 
-                                    if relative_rotation == 2 || relative_rotation == 3 {
+                                    /*if relative_rotation == 2 || relative_rotation == 3 {
                                         point = -point;
-                                    }
+                                    }*/
 
                                     new_id = Vec3Int {
                                         x: point.x as i16,
                                         y: point.y as i16,
                                         z: point.z as i16,
                                     };
+
                                     new_ids.insert(*local_id, new_id);
                                 }
 

@@ -38,7 +38,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_low(
         mesh_option,
         cell_type: CellType::Center,
         vertical_rotation: false,
-        x_rotations: vec![0, 16, 8, 20],
+        x_rotations: vec![0, 16, 10, 22],
         ..Default::default()
     });
 }
@@ -66,7 +66,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_high(
         mesh_option,
         cell_type: CellType::Center,
         vertical_rotation: false,
-        x_rotations: vec![0, 16, 8, 20],
+        x_rotations: vec![0, 16, 10, 22],
         ..Default::default()
     });
 }
@@ -76,7 +76,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_group(
 ) {
     let mut wall_group = HashMap::new();
     wall_group.insert(
-        Vec3Int { x: 0, y: 0, z: 0 },
+        Vec3Int { x: -1, y: 0, z: 0 },
         FullCell {
             face: CellFace::default(),
             orientation: 0,
@@ -90,7 +90,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_group(
         },
     );
     wall_group.insert(
-        Vec3Int { x: 1, y: 0, z: 0 },
+        Vec3Int { x: 0, y: 0, z: 0 },
         FullCell {
             face: CellFace::default(),
             orientation: 0,
