@@ -40,7 +40,8 @@ use crate::{
             init_generic_half_diagonal_ceiling_low,
         },
         general_half_diagonal_floor::{
-            init_generic_half_diagonal_floor_high, init_generic_half_diagonal_floor_low,
+            init_generic_half_diagonal_floor_group, init_generic_half_diagonal_floor_high,
+            init_generic_half_diagonal_floor_low,
         },
         generic_assets::{
             init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
@@ -152,6 +153,12 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_half_diagonal_ceiling_group
+                    .after(init_tile_properties)
+                    .after(init_generic_meshes)
+                    .before(init_tile_groups),
+            )
+            .add_startup_system(
+                init_generic_half_diagonal_floor_group
                     .after(init_tile_properties)
                     .after(init_generic_meshes)
                     .before(init_tile_groups),

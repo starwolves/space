@@ -1,13 +1,15 @@
+use std::collections::HashMap;
+
 use bevy::{
     gltf::GltfMesh,
     prelude::{Handle, Res, ResMut},
 };
 use entity::examine::RichName;
-use resources::is_server::is_server;
+use resources::{grid::CellFace, is_server::is_server, math::Vec3Int};
 
 use crate::{
-    grid::{CellType, CellTypeName, TileProperties},
-    init::InitTileProperties,
+    grid::{CellType, CellTypeName, FullCell, Gridmap, GroupTypeName, TileGroup, TileProperties},
+    init::{InitTileGroups, InitTileProperties},
 };
 
 use super::generic_assets::GenericMeshes;
@@ -36,7 +38,7 @@ pub(crate) fn init_generic_half_diagonal_floor_low(
         mesh_option,
         cell_type: CellType::Center,
         vertical_rotation: false,
-        x_rotations: vec![0, 16, 8, 20],
+        x_rotations: vec![0, 16, 10, 22],
         ..Default::default()
     });
 }
@@ -64,7 +66,44 @@ pub(crate) fn init_generic_half_diagonal_floor_high(
         mesh_option,
         cell_type: CellType::Center,
         vertical_rotation: false,
-        x_rotations: vec![0, 16, 8, 20],
+        x_rotations: vec![0, 16, 10, 22],
         ..Default::default()
+    });
+}
+pub(crate) fn init_generic_half_diagonal_floor_group(
+    gridmap_data: Res<Gridmap>,
+    mut groups: ResMut<InitTileGroups>,
+) {
+    let mut wall_group = HashMap::new();
+    wall_group.insert(
+        Vec3Int { x: -1, y: 0, z: 0 },
+        FullCell {
+            face: CellFace::default(),
+            orientation: 0,
+            tile_type: *gridmap_data
+                .main_name_id_map
+                .get(&CellTypeName(
+                    "generic_half_diagonal_floor_high".to_string(),
+                ))
+                .unwrap(),
+            entity_option: None,
+        },
+    );
+    wall_group.insert(
+        Vec3Int { x: 0, y: 0, z: 0 },
+        FullCell {
+            face: CellFace::default(),
+            orientation: 0,
+            tile_type: *gridmap_data
+                .main_name_id_map
+                .get(&CellTypeName("generic_half_diagonal_floor_low".to_string()))
+                .unwrap(),
+            entity_option: None,
+        },
+    );
+
+    groups.groups.push(TileGroup {
+        name_id: GroupTypeName("generic_half_diagonal_floor_group".to_string()),
+        map: wall_group,
     });
 }
