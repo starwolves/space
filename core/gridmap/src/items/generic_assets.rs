@@ -20,8 +20,8 @@ pub(crate) fn init_generic_meshes(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut mats: ResMut<GenericMaterials>,
 ) {
-    res.wall = assets.load("models/wall/wall.glb#Mesh0");
-    res.floor = assets.load("models/floor/floor.glb#Mesh0");
+    res.wall = assets.load("models/wall_template/wall.glb#Mesh0");
+    res.floor = assets.load("models/floor_template/floor.glb#Mesh0");
     res.diagonal_template = assets.load("models/diagonal_template/diagonal_template.glb#Mesh0");
     res.half_diagonal_template_low =
         assets.load("models/half_diagonal_template/half_diagonal_template_low.glb#Mesh0");
