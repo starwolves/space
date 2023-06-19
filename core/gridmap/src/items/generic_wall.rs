@@ -1,6 +1,5 @@
 use bevy::prelude::{
-    AlphaMode, AssetServer, Assets, Color, Handle, Res, ResMut, Resource, StandardMaterial,
-    Transform,
+    AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial, Transform,
 };
 use entity::examine::RichName;
 use resources::is_server::is_server;
