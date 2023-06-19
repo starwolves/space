@@ -1,6 +1,6 @@
 use bevy::{
     gltf::GltfMesh,
-    prelude::{Handle, Res, ResMut},
+    prelude::{AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
 };
 use entity::examine::RichName;
 use resources::is_server::is_server;
@@ -12,12 +12,43 @@ use crate::{
 
 use super::generic_assets::GenericMeshes;
 
-pub(crate) fn init_generic_floor(mut init: ResMut<InitTileProperties>, meshes: Res<GenericMeshes>) {
+#[derive(Default, Resource)]
+pub struct GenericFloorMaterial {
+    pub material_handle: Handle<StandardMaterial>,
+}
+
+pub(crate) fn init_generic_floor_material(
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut res: ResMut<GenericFloorMaterial>,
+) {
+    let albedo_texture_handle =
+        asset_server.load("models/floor_template/generic/generic_floor_base.png");
+    let metallic_roughness_texture_handle =
+        asset_server.load("models/floor_template/generic/generic_floor_metal_rough.png");
+
+    let material_handle = materials.add(StandardMaterial {
+        base_color_texture: Some(albedo_texture_handle.clone()),
+        metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        ..Default::default()
+    });
+    res.material_handle = material_handle;
+}
+
+pub(crate) fn init_generic_floor(
+    mut init: ResMut<InitTileProperties>,
+    meshes: Res<GenericMeshes>,
+    mat: Res<GenericFloorMaterial>,
+) {
     let mesh_option: Option<Handle<GltfMesh>>;
+    let material_option;
+
     if !is_server() {
         mesh_option = Some(meshes.floor.clone());
+        material_option = Some(mat.material_handle.clone());
     } else {
         mesh_option = None;
+        material_option = None;
     }
 
     init.properties.push(TileProperties {
@@ -32,6 +63,7 @@ pub(crate) fn init_generic_floor(mut init: ResMut<InitTileProperties>, meshes: R
         floor_cell: true,
         mesh_option,
         cell_type: CellType::Floor,
+        material_option,
         ..Default::default()
     });
 }

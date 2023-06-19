@@ -48,7 +48,7 @@ use crate::{
         },
         generic_diagonal_ceiling::init_generic_diagonal_ceiling,
         generic_diagonal_floor::init_generic_diagonal_floor,
-        generic_floor::init_generic_floor,
+        generic_floor::{init_generic_floor, init_generic_floor_material, GenericFloorMaterial},
         generic_wall::{
             init_generic_wall, init_generic_wall_group, init_generic_wall_material,
             GenericWallMaterial,
@@ -132,11 +132,13 @@ impl Plugin for GridmapPlugin {
                 .add_startup_system(register_input)
                 .add_startup_system(init_default_materials)
                 .add_startup_system(init_generic_meshes)
-                .add_startup_system(init_generic_wall_material.before(init_generic_wall));
+                .add_startup_system(init_generic_wall_material.before(init_generic_wall))
+                .add_startup_system(init_generic_floor_material.before(init_generic_floor));
         }
         app.init_resource::<GenericMaterials>()
             .init_resource::<GenericMeshes>()
             .init_resource::<GenericWallMaterial>()
+            .init_resource::<GenericFloorMaterial>()
             .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
