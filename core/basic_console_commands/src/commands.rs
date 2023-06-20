@@ -24,6 +24,9 @@ pub fn coords(
     connected_players: Query<&Transform, With<ConnectedPlayer>>,
 ) {
     for console_command_event in queue.iter() {
+        if console_command_event.input.command != "coords" {
+            continue;
+        }
         let player_transform;
         match connected_players.get(console_command_event.entity) {
             Ok(s) => {
