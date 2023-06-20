@@ -1,4 +1,4 @@
-use bevy::prelude::{EventReader, Resource};
+use bevy::prelude::{warn, EventReader, Resource, With};
 use console_commands::commands::InputConsoleCommand;
 
 use bevy::prelude::{Commands, EventWriter, Res};
@@ -16,6 +16,48 @@ use ui::text::{
 };
 
 /// Perform entity console commands.
+
+pub fn coords(
+    mut queue: EventReader<InputConsoleCommand>,
+    mut server: EventWriter<OutgoingReliableServerMessage<ConsoleCommandsServerMessage>>,
+    fonts: Res<Fonts>,
+    connected_players: Query<&Transform, With<ConnectedPlayer>>,
+) {
+    for console_command_event in queue.iter() {
+        let player_transform;
+        match connected_players.get(console_command_event.entity) {
+            Ok(s) => {
+                player_transform = s;
+            }
+            Err(_rr) => {
+                warn!(
+                    "Could not get player transform for coords command: {:?}",
+                    console_command_event.entity
+                );
+                continue;
+            }
+        }
+
+        let section = NetTextSection {
+            text: format!("coordinates: {:?}", player_transform.translation),
+            font: *fonts.inv_map.get(SOURCECODE_REGULAR_FONT).unwrap(),
+            font_size: COMMUNICATION_FONT_SIZE,
+            color: CONSOLE_SUCCESS_COLOR,
+        };
+
+        match console_command_event.handle_option {
+            Some(t) => {
+                server.send(OutgoingReliableServerMessage {
+                    handle: t,
+                    message: ConsoleCommandsServerMessage::ConsoleWriteLine(ConsoleLine {
+                        sections: vec![section],
+                    }),
+                });
+            }
+            None => {}
+        }
+    }
+}
 
 pub fn rcon_entity_console_commands<T: EntityType + Default + Send + Sync + 'static>(
     mut queue: EventReader<InputConsoleCommand>,

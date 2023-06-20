@@ -35,4 +35,10 @@ pub(crate) fn initialize_console_commands_2(mut commands: ResMut<AllConsoleComma
             ("player_selector".to_string(), ConsoleArgVariant::String),
         ],
     });
+
+    commands.list.push(ConsoleCommand {
+        base: "coords".to_string(),
+        description: "Get your current 3D world coordinates.".to_string(),
+        args: vec![],
+    });
 }
