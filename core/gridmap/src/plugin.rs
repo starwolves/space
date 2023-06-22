@@ -37,11 +37,13 @@ use crate::{
     items::{
         general_half_diagonal_ceiling::{
             init_generic_half_diagonal_ceiling_group, init_generic_half_diagonal_ceiling_high,
-            init_generic_half_diagonal_ceiling_low,
+            init_generic_half_diagonal_ceiling_low, init_generic_half_diagonal_ceiling_material,
+            GenericHalfDiagonalCeilingMaterial,
         },
         general_half_diagonal_floor::{
             init_generic_half_diagonal_floor_group, init_generic_half_diagonal_floor_high,
-            init_generic_half_diagonal_floor_low,
+            init_generic_half_diagonal_floor_low, init_generic_half_diagonal_floor_material,
+            GenericHalfDiagonalFloorMaterial,
         },
         generic_assets::{
             init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
@@ -133,12 +135,24 @@ impl Plugin for GridmapPlugin {
                 .add_startup_system(init_default_materials)
                 .add_startup_system(init_generic_meshes)
                 .add_startup_system(init_generic_wall_material.before(init_generic_wall))
-                .add_startup_system(init_generic_floor_material.before(init_generic_floor));
+                .add_startup_system(init_generic_floor_material.before(init_generic_floor))
+                .add_startup_system(
+                    init_generic_half_diagonal_floor_material
+                        .before(init_generic_half_diagonal_floor_low)
+                        .before(init_generic_half_diagonal_floor_high),
+                )
+                .add_startup_system(
+                    init_generic_half_diagonal_ceiling_material
+                        .before(init_generic_half_diagonal_ceiling_low)
+                        .before(init_generic_half_diagonal_ceiling_high),
+                );
         }
         app.init_resource::<GenericMaterials>()
             .init_resource::<GenericMeshes>()
             .init_resource::<GenericWallMaterial>()
+            .init_resource::<GenericHalfDiagonalFloorMaterial>()
             .init_resource::<GenericFloorMaterial>()
+            .init_resource::<GenericHalfDiagonalCeilingMaterial>()
             .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
