@@ -1,3 +1,4 @@
+pub mod bridge_floor;
 pub mod general_half_diagonal_ceiling;
 pub mod general_half_diagonal_floor;
 pub mod generic_assets;

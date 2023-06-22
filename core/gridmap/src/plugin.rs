@@ -35,6 +35,10 @@ use crate::{
         InitTileGroups, InitTileProperties,
     },
     items::{
+        bridge_floor::{
+            init_bridge_floor_material, init_corner2_bridge_floor, init_corner_bridge_floor,
+            init_filled_bridge_floor, init_half_bridge_floor, BridgeFloorMaterial,
+        },
         general_half_diagonal_ceiling::{
             init_generic_half_diagonal_ceiling_group, init_generic_half_diagonal_ceiling_high,
             init_generic_half_diagonal_ceiling_low, init_generic_half_diagonal_ceiling_material,
@@ -145,6 +149,13 @@ impl Plugin for GridmapPlugin {
                     init_generic_half_diagonal_ceiling_material
                         .before(init_generic_half_diagonal_ceiling_low)
                         .before(init_generic_half_diagonal_ceiling_high),
+                )
+                .add_startup_system(
+                    init_bridge_floor_material
+                        .before(init_filled_bridge_floor)
+                        .before(init_half_bridge_floor)
+                        .before(init_corner_bridge_floor)
+                        .before(init_corner2_bridge_floor),
                 );
         }
         app.init_resource::<GenericMaterials>()
@@ -153,6 +164,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<GenericHalfDiagonalFloorMaterial>()
             .init_resource::<GenericFloorMaterial>()
             .init_resource::<GenericHalfDiagonalCeilingMaterial>()
+            .init_resource::<BridgeFloorMaterial>()
             .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
@@ -221,6 +233,26 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_half_diagonal_floor_high
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_filled_bridge_floor
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_half_bridge_floor
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_corner_bridge_floor
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_corner2_bridge_floor
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
             )
