@@ -26,7 +26,6 @@ impl FpsCameraPlugin {
         }
     }
 }
-
 impl Plugin for FpsCameraPlugin {
     fn build(&self, app: &mut App) {
         let app = app
@@ -38,6 +37,7 @@ impl Plugin for FpsCameraPlugin {
         if !self.override_input_system {
             app.add_system(default_input_map);
         }
+        // app.add_system(print_camera_position);
     }
 }
 

@@ -7,7 +7,7 @@ use crate::{
         setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa, SetResolution, SetVsync,
         SetWindowMode,
     },
-    tonemapping::{toggle_tonemapping_method, PerMethodSettings},
+    tonemapping::PerMethodSettings,
 };
 
 pub struct GraphicsPlugin;
@@ -28,8 +28,8 @@ impl Plugin for GraphicsPlugin {
                 .add_system(set_msaa)
                 .add_system(set_fxaa)
                 .add_system(settings_to_ron)
-                .init_resource::<PerMethodSettings>()
-                .add_system(toggle_tonemapping_method);
+                .init_resource::<PerMethodSettings>();
+            //.add_system(toggle_tonemapping_method);
         }
     }
 }
