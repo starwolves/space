@@ -587,20 +587,35 @@ pub(crate) fn input_ghost_rotation(
                                         }
                                     }
                                     crate::grid::CellType::Floor => {
+                                        let rotations = vec![0, 22, 10, 16];
+                                        let mut rotation_i = 0;
+                                        for rot in rotations.iter() {
+                                            if rot == &tile.ghost_rotation {
+                                                break;
+                                            }
+                                            rotation_i += 1;
+                                        }
+                                        let rotation_i_increased;
+                                        if rotation_i == rotations.len() - 1 {
+                                            rotation_i_increased = 0;
+                                        } else {
+                                            rotation_i_increased = rotation_i + 1;
+                                        }
+                                        let rotation_i_decreased;
+                                        if rotation_i == 0 {
+                                            rotation_i_decreased = rotations.len() - 1;
+                                        } else {
+                                            rotation_i_decreased = rotation_i - 1;
+                                        }
+
                                         if keys
                                             .just_pressed(binds.bind(ROTATE_CONSTRUCTION_LEFT_BIND))
                                         {
-                                            let mut rotation = OrthogonalBases::default().bases
-                                                [tile.ghost_rotation as usize];
-                                            rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
-                                            new_rotation = rotation.get_orthogonal_index();
+                                            new_rotation = rotations[rotation_i_increased];
                                         } else if keys.just_pressed(
                                             binds.bind(ROTATE_CONSTRUCTION_RIGHT_BIND),
                                         ) {
-                                            let mut rotation = OrthogonalBases::default().bases
-                                                [tile.ghost_rotation as usize];
-                                            rotation *= Quat::from_axis_angle(Vec3::Y, PI / 2.);
-                                            new_rotation = rotation.get_orthogonal_index();
+                                            new_rotation = rotations[rotation_i_decreased];
                                         } else if keys
                                             .just_pressed(binds.bind(ROTATE_CONSTRUCTION_DOWN_BIND))
                                         {
