@@ -63,6 +63,13 @@ use crate::{
             init_reinforced_glass_floor, init_reinforced_glass_floor_material,
             ReinforcedGlassFloorMaterial,
         },
+        reinforced_glass_half_diagonal::{
+            init_reinforced_glass_half_diagonal_ceiling_group,
+            init_reinforced_glass_half_diagonal_ceiling_high,
+            init_reinforced_glass_half_diagonal_ceiling_low,
+            init_reinforced_glass_half_diagonal_ceiling_material,
+            HalfDiagonalReinforcedGlassMaterial,
+        },
         reinforced_glass_wall::{
             init_reinforced_glass_wall, init_reinforced_glass_wall_material,
             ReinforcedGlassWallMaterial,
@@ -165,6 +172,11 @@ impl Plugin for GridmapPlugin {
                         .before(init_corner2_bridge_floor),
                 )
                 .add_startup_system(
+                    init_reinforced_glass_half_diagonal_ceiling_material
+                        .before(init_reinforced_glass_half_diagonal_ceiling_low)
+                        .before(init_reinforced_glass_half_diagonal_ceiling_high),
+                )
+                .add_startup_system(
                     init_reinforced_glass_wall_material.before(init_reinforced_glass_wall),
                 )
                 .add_startup_system(
@@ -180,6 +192,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<BridgeFloorMaterial>()
             .init_resource::<ReinforcedGlassWallMaterial>()
             .init_resource::<ReinforcedGlassFloorMaterial>()
+            .init_resource::<HalfDiagonalReinforcedGlassMaterial>()
             .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
@@ -201,6 +214,12 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_half_diagonal_ceiling_group
+                    .after(init_tile_properties)
+                    .after(init_generic_meshes)
+                    .before(init_tile_groups),
+            )
+            .add_startup_system(
+                init_reinforced_glass_half_diagonal_ceiling_group
                     .after(init_tile_properties)
                     .after(init_generic_meshes)
                     .before(init_tile_groups),
@@ -242,12 +261,22 @@ impl Plugin for GridmapPlugin {
                     .after(init_generic_meshes),
             )
             .add_startup_system(
+                init_reinforced_glass_half_diagonal_ceiling_low
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
                 init_generic_half_diagonal_floor_low
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
             )
             .add_startup_system(
                 init_generic_half_diagonal_ceiling_high
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_reinforced_glass_half_diagonal_ceiling_high
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
             )

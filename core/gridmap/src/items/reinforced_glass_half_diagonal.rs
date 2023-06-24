@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     gltf::GltfMesh,
-    prelude::{AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
+    prelude::{AlphaMode, AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
 };
 use entity::examine::RichName;
 use resources::{grid::CellFace, is_server::is_server, math::Vec3Int};
@@ -15,45 +15,47 @@ use crate::{
 use super::generic_assets::GenericMeshes;
 
 #[derive(Default, Resource)]
-pub struct GenericHalfDiagonalCeilingMaterial {
+pub struct HalfDiagonalReinforcedGlassMaterial {
     pub high_material_handle: Handle<StandardMaterial>,
     pub low_material_handle: Handle<StandardMaterial>,
 }
 
-pub(crate) fn init_generic_half_diagonal_ceiling_material(
+pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_material(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut res: ResMut<GenericHalfDiagonalCeilingMaterial>,
+    mut res: ResMut<HalfDiagonalReinforcedGlassMaterial>,
 ) {
     let albedo_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/high_base.png");
+        asset_server.load("models/half_diagonal_template/reinforced_glass/high_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/high_metal_rough.png");
+        asset_server.load("models/half_diagonal_template/reinforced_glass/high_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        alpha_mode: AlphaMode::Blend,
         ..Default::default()
     });
     res.high_material_handle = material_handle;
 
     let albedo_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/low_base.png");
+        asset_server.load("models/half_diagonal_template/reinforced_glass/low_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/low_metal_rough.png");
+        asset_server.load("models/half_diagonal_template/reinforced_glass/low_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        alpha_mode: AlphaMode::Blend,
         ..Default::default()
     });
     res.low_material_handle = material_handle;
 }
 
-pub(crate) fn init_generic_half_diagonal_ceiling_low(
+pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_low(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
-    mat: Res<GenericHalfDiagonalCeilingMaterial>,
+    mat: Res<HalfDiagonalReinforcedGlassMaterial>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
@@ -67,7 +69,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_low(
     }
 
     init.properties.push(TileProperties {
-        name_id: CellTypeName("generic_half_diagonal_ceiling_low".to_string()),
+        name_id: CellTypeName("reinforced_glass_half_diagonal_low".to_string()),
         name: RichName {
             name: "diagonal aluminum ceiling".to_string(),
             n: true,
@@ -84,10 +86,10 @@ pub(crate) fn init_generic_half_diagonal_ceiling_low(
         ..Default::default()
     });
 }
-pub(crate) fn init_generic_half_diagonal_ceiling_high(
+pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_high(
     mut init: ResMut<InitTileProperties>,
     meshes: Res<GenericMeshes>,
-    mat: Res<GenericHalfDiagonalCeilingMaterial>,
+    mat: Res<HalfDiagonalReinforcedGlassMaterial>,
 ) {
     let mesh_option: Option<Handle<GltfMesh>>;
     let material_option;
@@ -101,7 +103,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_high(
     }
 
     init.properties.push(TileProperties {
-        name_id: CellTypeName("generic_half_diagonal_ceiling_high".to_string()),
+        name_id: CellTypeName("reinforced_glass_half_diagonal_high".to_string()),
         name: RichName {
             name: "diagonal aluminum ceiling".to_string(),
             n: true,
@@ -118,7 +120,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_high(
         ..Default::default()
     });
 }
-pub(crate) fn init_generic_half_diagonal_ceiling_group(
+pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_group(
     gridmap_data: Res<Gridmap>,
     mut groups: ResMut<InitTileGroups>,
 ) {
@@ -131,7 +133,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_group(
             tile_type: *gridmap_data
                 .main_name_id_map
                 .get(&CellTypeName(
-                    "generic_half_diagonal_ceiling_high".to_string(),
+                    "reinforced_glass_half_diagonal_high".to_string(),
                 ))
                 .unwrap(),
             entity_option: None,
@@ -145,7 +147,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_group(
             tile_type: *gridmap_data
                 .main_name_id_map
                 .get(&CellTypeName(
-                    "generic_half_diagonal_ceiling_low".to_string(),
+                    "reinforced_glass_half_diagonal_low".to_string(),
                 ))
                 .unwrap(),
             entity_option: None,
@@ -153,7 +155,7 @@ pub(crate) fn init_generic_half_diagonal_ceiling_group(
     );
 
     groups.groups.push(TileGroup {
-        name_id: GroupTypeName("generic_half_diagonal_ceiling_group".to_string()),
+        name_id: GroupTypeName("reinforced_glass_half_diagonal_group".to_string()),
         map: wall_group,
     });
 }
