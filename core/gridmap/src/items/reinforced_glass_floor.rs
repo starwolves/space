@@ -1,6 +1,6 @@
 use bevy::{
     gltf::GltfMesh,
-    prelude::{AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
+    prelude::{AlphaMode, AssetServer, Assets, Handle, Res, ResMut, Resource, StandardMaterial},
 };
 use entity::examine::RichName;
 use resources::is_server::is_server;
@@ -30,6 +30,7 @@ pub(crate) fn init_reinforced_glass_floor_material(
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        alpha_mode: AlphaMode::Blend,
         ..Default::default()
     });
     res.material_handle = material_handle;
