@@ -59,7 +59,10 @@ use crate::{
             init_generic_wall, init_generic_wall_group, init_generic_wall_material,
             GenericWallMaterial,
         },
-        glass_wall::init_glass_wall,
+        reinforced_glass_wall::{
+            init_reinforced_glass_wall, init_reinforced_glass_wall_material,
+            ReinforcedGlassWallMaterial,
+        },
     },
     net::{GridmapClientMessage, GridmapServerMessage},
 };
@@ -156,6 +159,9 @@ impl Plugin for GridmapPlugin {
                         .before(init_half_bridge_floor)
                         .before(init_corner_bridge_floor)
                         .before(init_corner2_bridge_floor),
+                )
+                .add_startup_system(
+                    init_reinforced_glass_wall_material.before(init_reinforced_glass_wall),
                 );
         }
         app.init_resource::<GenericMaterials>()
@@ -165,6 +171,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<GenericFloorMaterial>()
             .init_resource::<GenericHalfDiagonalCeilingMaterial>()
             .init_resource::<BridgeFloorMaterial>()
+            .init_resource::<ReinforcedGlassWallMaterial>()
             .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
@@ -202,7 +209,7 @@ impl Plugin for GridmapPlugin {
                     .after(init_generic_meshes),
             )
             .add_startup_system(
-                init_glass_wall
+                init_reinforced_glass_wall
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
             )

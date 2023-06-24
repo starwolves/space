@@ -6,4 +6,4 @@ pub mod generic_diagonal_ceiling;
 pub mod generic_diagonal_floor;
 pub mod generic_floor;
 pub mod generic_wall;
-pub mod glass_wall;
+pub mod reinforced_glass_wall;
