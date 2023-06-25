@@ -171,30 +171,34 @@ pub(crate) fn create_text_tree_selection(
                                                         });
                                                 });
                                         }
-                                    });
-                                parent
-                                    .spawn(ButtonBundle {
-                                        style: Style {
-                                            size: Size::new(Val::Percent(65.), Val::Percent(3.)),
-                                            justify_content: JustifyContent::Center,
-                                            align_items: AlignItems::Center,
-                                            ..Default::default()
-                                        },
-                                        background_color: ACTIONS_HUD_BG_COLOR.into(),
 
-                                        ..Default::default()
-                                    })
-                                    .insert(ButtonSelectionStyle::default())
-                                    .insert(TextTreeSelectionSubmitButton)
-                                    .with_children(|parent| {
-                                        parent.spawn(TextBundle::from_section(
-                                            "Submit".clone(),
-                                            TextStyle {
-                                                font_size: 13.0,
-                                                color: Color::WHITE,
-                                                font: empire_font.clone(),
-                                            },
-                                        ));
+                                        parent
+                                            .spawn(ButtonBundle {
+                                                style: Style {
+                                                    size: Size::new(
+                                                        Val::Percent(35.),
+                                                        Val::Percent(30.),
+                                                    ),
+                                                    justify_content: JustifyContent::Center,
+                                                    align_items: AlignItems::Center,
+                                                    ..Default::default()
+                                                },
+                                                background_color: ACTIONS_HUD_BG_COLOR.into(),
+
+                                                ..Default::default()
+                                            })
+                                            .insert(ButtonSelectionStyle::default())
+                                            .insert(TextTreeSelectionSubmitButton)
+                                            .with_children(|parent| {
+                                                parent.spawn(TextBundle::from_section(
+                                                    "Submit".clone(),
+                                                    TextStyle {
+                                                        font_size: 13.0,
+                                                        color: Color::WHITE,
+                                                        font: empire_font.clone(),
+                                                    },
+                                                ));
+                                            });
                                     });
                             })
                             .id();
