@@ -35,6 +35,11 @@ use crate::{
         InitTileGroups, InitTileProperties,
     },
     items::{
+        bridge_diagonal_ceiling::{
+            init_bridge_half_diagonal_ceiling_group, init_bridge_half_diagonal_ceiling_high,
+            init_bridge_half_diagonal_ceiling_low, init_bridge_half_diagonal_ceiling_material,
+            BridgeHalfDiagonalCeilingMaterial,
+        },
         bridge_floor::{
             init_bridge_floor_material, init_corner2_bridge_floor, init_corner_bridge_floor,
             init_filled_bridge_floor, init_half_bridge_floor, BridgeFloorMaterial,
@@ -42,22 +47,22 @@ use crate::{
         bridge_wall::{
             init_bridge_wall, init_bridge_wall_group, init_bridge_wall_material, BridgeWallMaterial,
         },
-        general_half_diagonal_ceiling::{
-            init_generic_half_diagonal_ceiling_group, init_generic_half_diagonal_ceiling_high,
-            init_generic_half_diagonal_ceiling_low, init_generic_half_diagonal_ceiling_material,
-            GenericHalfDiagonalCeilingMaterial,
-        },
-        general_half_diagonal_floor::{
-            init_generic_half_diagonal_floor_group, init_generic_half_diagonal_floor_high,
-            init_generic_half_diagonal_floor_low, init_generic_half_diagonal_floor_material,
-            GenericHalfDiagonalFloorMaterial,
-        },
         generic_assets::{
             init_default_materials, init_generic_meshes, GenericMaterials, GenericMeshes,
         },
         generic_diagonal_ceiling::init_generic_diagonal_ceiling,
         generic_diagonal_floor::init_generic_diagonal_floor,
         generic_floor::{init_generic_floor, init_generic_floor_material, GenericFloorMaterial},
+        generic_half_diagonal_ceiling::{
+            init_generic_half_diagonal_ceiling_group, init_generic_half_diagonal_ceiling_high,
+            init_generic_half_diagonal_ceiling_low, init_generic_half_diagonal_ceiling_material,
+            GenericHalfDiagonalCeilingMaterial,
+        },
+        generic_half_diagonal_floor::{
+            init_generic_half_diagonal_floor_group, init_generic_half_diagonal_floor_high,
+            init_generic_half_diagonal_floor_low, init_generic_half_diagonal_floor_material,
+            GenericHalfDiagonalFloorMaterial,
+        },
         generic_wall::{
             init_generic_wall, init_generic_wall_group, init_generic_wall_material,
             GenericWallMaterial,
@@ -169,6 +174,11 @@ impl Plugin for GridmapPlugin {
                         .before(init_generic_half_diagonal_ceiling_high),
                 )
                 .add_startup_system(
+                    init_bridge_half_diagonal_ceiling_material
+                        .before(init_bridge_half_diagonal_ceiling_low)
+                        .before(init_bridge_half_diagonal_ceiling_high),
+                )
+                .add_startup_system(
                     init_bridge_floor_material
                         .before(init_filled_bridge_floor)
                         .before(init_half_bridge_floor)
@@ -198,6 +208,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<ReinforcedGlassFloorMaterial>()
             .init_resource::<HalfDiagonalReinforcedGlassMaterial>()
             .init_resource::<BridgeWallMaterial>()
+            .init_resource::<BridgeHalfDiagonalCeilingMaterial>()
             .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
@@ -225,6 +236,12 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_half_diagonal_ceiling_group
+                    .after(init_tile_properties)
+                    .after(init_generic_meshes)
+                    .before(init_tile_groups),
+            )
+            .add_startup_system(
+                init_bridge_half_diagonal_ceiling_group
                     .after(init_tile_properties)
                     .after(init_generic_meshes)
                     .before(init_tile_groups),
@@ -277,6 +294,11 @@ impl Plugin for GridmapPlugin {
                     .after(init_generic_meshes),
             )
             .add_startup_system(
+                init_bridge_half_diagonal_ceiling_low
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
                 init_reinforced_glass_half_diagonal_ceiling_low
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
@@ -288,6 +310,11 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_half_diagonal_ceiling_high
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_bridge_half_diagonal_ceiling_high
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
             )

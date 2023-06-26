@@ -1,11 +1,12 @@
+pub mod bridge_diagonal_ceiling;
 pub mod bridge_floor;
 pub mod bridge_wall;
-pub mod general_half_diagonal_ceiling;
-pub mod general_half_diagonal_floor;
 pub mod generic_assets;
 pub mod generic_diagonal_ceiling;
 pub mod generic_diagonal_floor;
 pub mod generic_floor;
+pub mod generic_half_diagonal_ceiling;
+pub mod generic_half_diagonal_floor;
 pub mod generic_wall;
 pub mod reinforced_glass_floor;
 pub mod reinforced_glass_half_diagonal;
