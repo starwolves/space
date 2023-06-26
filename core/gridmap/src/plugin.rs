@@ -39,6 +39,9 @@ use crate::{
             init_bridge_floor_material, init_corner2_bridge_floor, init_corner_bridge_floor,
             init_filled_bridge_floor, init_half_bridge_floor, BridgeFloorMaterial,
         },
+        bridge_wall::{
+            init_bridge_wall, init_bridge_wall_group, init_bridge_wall_material, BridgeWallMaterial,
+        },
         general_half_diagonal_ceiling::{
             init_generic_half_diagonal_ceiling_group, init_generic_half_diagonal_ceiling_high,
             init_generic_half_diagonal_ceiling_low, init_generic_half_diagonal_ceiling_material,
@@ -153,6 +156,7 @@ impl Plugin for GridmapPlugin {
                 .add_startup_system(init_default_materials)
                 .add_startup_system(init_generic_meshes)
                 .add_startup_system(init_generic_wall_material.before(init_generic_wall))
+                .add_startup_system(init_bridge_wall_material.before(init_bridge_wall))
                 .add_startup_system(init_generic_floor_material.before(init_generic_floor))
                 .add_startup_system(
                     init_generic_half_diagonal_floor_material
@@ -193,6 +197,7 @@ impl Plugin for GridmapPlugin {
             .init_resource::<ReinforcedGlassWallMaterial>()
             .init_resource::<ReinforcedGlassFloorMaterial>()
             .init_resource::<HalfDiagonalReinforcedGlassMaterial>()
+            .init_resource::<BridgeWallMaterial>()
             .add_startup_system(startup_misc_resources.in_set(StartupLabels::MiscResources))
             .add_startup_system(
                 init_tile_properties
@@ -208,6 +213,12 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_wall_group
+                    .after(init_tile_properties)
+                    .after(init_generic_meshes)
+                    .before(init_tile_groups),
+            )
+            .add_startup_system(
+                init_bridge_wall_group
                     .after(init_tile_properties)
                     .after(init_generic_meshes)
                     .before(init_tile_groups),
@@ -232,6 +243,11 @@ impl Plugin for GridmapPlugin {
             )
             .add_startup_system(
                 init_generic_wall
+                    .before(init_tile_properties)
+                    .after(init_generic_meshes),
+            )
+            .add_startup_system(
+                init_bridge_wall
                     .before(init_tile_properties)
                     .after(init_generic_meshes),
             )
