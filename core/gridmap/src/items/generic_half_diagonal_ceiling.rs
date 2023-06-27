@@ -33,6 +33,9 @@ pub(crate) fn init_generic_half_diagonal_ceiling_material(
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        perceptual_roughness: 0.2,
+        metallic: 0.91,
+
         ..Default::default()
     });
     res.high_material_handle = material_handle;
@@ -45,6 +48,9 @@ pub(crate) fn init_generic_half_diagonal_ceiling_material(
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
+        perceptual_roughness: 0.2,
+        metallic: 0.91,
+
         ..Default::default()
     });
     res.low_material_handle = material_handle;
