@@ -46,7 +46,11 @@ pub struct PointLightType {
 impl Default for PointLightType {
     fn default() -> Self {
         Self {
-            light: Default::default(),
+            light: PointLight {
+                shadows_enabled: true,
+                intensity: 1200.,
+                ..Default::default()
+            },
             identifier: SF_CONTENT_PREFIX.to_string() + "point_light",
         }
     }
