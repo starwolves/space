@@ -31,7 +31,7 @@ pub(crate) fn init_generic_meshes(
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),
         perceptual_roughness: 0.6,
-        metallic: 0.95,
+        metallic: 0.96,
         alpha_mode: AlphaMode::Blend,
         ..Default::default()
     });

@@ -34,7 +34,7 @@ pub(crate) fn init_bridge_floor_material(
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
 
         perceptual_roughness: 0.6,
-        metallic: 0.95,
+        metallic: 0.96,
         ..Default::default()
     });
     res.filled_handle = material_handle;
@@ -49,7 +49,7 @@ pub(crate) fn init_bridge_floor_material(
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
 
         perceptual_roughness: 0.6,
-        metallic: 0.95,
+        metallic: 0.96,
         ..Default::default()
     });
     res.half_handle = material_handle;
@@ -63,7 +63,7 @@ pub(crate) fn init_bridge_floor_material(
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
 
         perceptual_roughness: 0.6,
-        metallic: 0.95,
+        metallic: 0.96,
         ..Default::default()
     });
     res.corner_handle = material_handle;
@@ -76,7 +76,7 @@ pub(crate) fn init_bridge_floor_material(
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
         perceptual_roughness: 0.6,
-        metallic: 0.95,
+        metallic: 0.96,
         ..Default::default()
     });
     res.corner2_handle = material_handle;
