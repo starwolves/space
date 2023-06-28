@@ -30,8 +30,8 @@ pub(crate) fn init_generic_meshes(
 
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),
-        perceptual_roughness: 0.2,
-        metallic: 0.91,
+        perceptual_roughness: 0.6,
+        metallic: 0.95,
         alpha_mode: AlphaMode::Blend,
         ..Default::default()
     });
@@ -50,7 +50,7 @@ pub(crate) fn init_default_materials(
 ) {
     let m = materials.add(StandardMaterial {
         base_color: Color::WHITE,
-        perceptual_roughness: 0.2,
+        perceptual_roughness: 0.6,
         metallic: 0.7,
         ..Default::default()
     });

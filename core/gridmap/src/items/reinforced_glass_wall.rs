@@ -29,8 +29,8 @@ pub(crate) fn init_reinforced_glass_wall_material(
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
         alpha_mode: AlphaMode::Blend,
-        perceptual_roughness: 0.2,
-        metallic: 0.91,
+        perceptual_roughness: 0.6,
+        metallic: 0.95,
 
         ..Default::default()
     });
