@@ -25,10 +25,9 @@ pub(crate) fn init_bridge_floor_material(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut res: ResMut<BridgeFloorMaterial>,
 ) {
-    let albedo_texture_handle =
-        asset_server.load("models/floor_template/bridge/filled_floor_base.png");
+    let albedo_texture_handle = asset_server.load("models/floor_template/bridge/filled_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/floor_template/generic/generic_floor_metal_rough.png");
+        asset_server.load("models/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
@@ -41,9 +40,9 @@ pub(crate) fn init_bridge_floor_material(
     res.filled_handle = material_handle;
 
     let albedo_texture_handle =
-        asset_server.load("models/floor_template/bridge/half_floor_base.png");
+        asset_server.load("models/floor_template/bridge/half_filled_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/floor_template/generic/generic_floor_metal_rough.png");
+        asset_server.load("models/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
@@ -55,10 +54,9 @@ pub(crate) fn init_bridge_floor_material(
     });
     res.half_handle = material_handle;
 
-    let albedo_texture_handle =
-        asset_server.load("models/floor_template/bridge/corner_floor_base.png");
+    let albedo_texture_handle = asset_server.load("models/floor_template/bridge/corner_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/floor_template/generic/generic_floor_metal_rough.png");
+        asset_server.load("models/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
@@ -70,10 +68,9 @@ pub(crate) fn init_bridge_floor_material(
     });
     res.corner_handle = material_handle;
 
-    let albedo_texture_handle =
-        asset_server.load("models/floor_template/bridge/corner2_floor_base.png");
+    let albedo_texture_handle = asset_server.load("models/floor_template/bridge/corner2_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/floor_template/generic/generic_floor_metal_rough.png");
+        asset_server.load("models/floor_template/bridge/filled_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
