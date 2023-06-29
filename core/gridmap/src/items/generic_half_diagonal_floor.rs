@@ -33,8 +33,8 @@ pub(crate) fn init_generic_half_diagonal_floor_material(
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
-        perceptual_roughness: 0.6,
-        metallic: 0.96,
+        perceptual_roughness: 0.9,
+        metallic: 0.97,
 
         ..Default::default()
     });
@@ -48,8 +48,8 @@ pub(crate) fn init_generic_half_diagonal_floor_material(
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
-        perceptual_roughness: 0.6,
-        metallic: 0.96,
+        perceptual_roughness: 0.9,
+        metallic: 0.97,
 
         ..Default::default()
     });

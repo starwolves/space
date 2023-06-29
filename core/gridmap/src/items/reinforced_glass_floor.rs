@@ -31,8 +31,8 @@ pub(crate) fn init_reinforced_glass_floor_material(
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
         alpha_mode: AlphaMode::Blend,
-        perceptual_roughness: 0.6,
-        metallic: 0.96,
+        perceptual_roughness: 0.9,
+        metallic: 0.97,
 
         ..Default::default()
     });
