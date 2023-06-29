@@ -4,6 +4,8 @@
     (entity_type:"sf::point_light",translation:(-5.0,1.9,-8.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
     (entity_type:"sf::point_light",translation:(-5.0,1.9,8.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
 
+    (entity_type:"sf::point_light",translation:(.0,2.9,-15.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
+
     (entity_type:"sf::point_light",translation:(-4.0,3.9,-32.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
     (entity_type:"sf::point_light",translation:(-4.0,3.9,-22.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
     (entity_type:"sf::point_light",translation:(4.0,3.9,-32.0),rotation:(0.0,0.0,0.0,1.0),scale:(1.0,1.0,1.0),data:""),
