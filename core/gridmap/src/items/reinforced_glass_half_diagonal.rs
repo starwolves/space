@@ -34,6 +34,8 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_material(
         base_color_texture: Some(albedo_texture_handle.clone()),
         metallic_roughness_texture: Some(metallic_roughness_texture_handle.clone()),
         alpha_mode: AlphaMode::Blend,
+        perceptual_roughness: 0.6,
+        metallic: 0.96,
         ..Default::default()
     });
     res.high_material_handle = material_handle;
@@ -49,7 +51,6 @@ pub(crate) fn init_reinforced_glass_half_diagonal_ceiling_material(
         alpha_mode: AlphaMode::Blend,
         perceptual_roughness: 0.6,
         metallic: 0.96,
-
         ..Default::default()
     });
     res.low_material_handle = material_handle;
