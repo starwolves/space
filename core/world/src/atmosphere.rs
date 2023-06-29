@@ -20,7 +20,7 @@ pub(crate) fn add_atmosphere(mut commands: Commands) {
             ..Default::default()
         },
         transform: Transform {
-            rotation: Quat::from_rotation_y(-PI * 1.),
+            rotation: Quat::from_rotation_y(-PI * 1.).mul_quat(Quat::from_rotation_x(-PI * 0.1)),
             ..Default::default()
         },
         ..Default::default()
