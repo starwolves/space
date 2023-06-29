@@ -134,7 +134,8 @@ pub(crate) fn configure_and_start() {
                 .set(AssetPlugin {
                     asset_folder: test_path.to_str().unwrap().to_owned(),
                     ..Default::default()
-                }),
+                })
+                .set(ImagePlugin::default_nearest()),
         )
         .insert_resource(WinitSettings::game())
         .add_plugin(EguiPlugin)
