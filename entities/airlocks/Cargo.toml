@@ -16,7 +16,9 @@ default-features = false
 
 
 [dependencies]
-bevy_rapier3d = "0.21.0"
+bevy_rapier3d = { version = "0.21.0", features = [
+    "enhanced-determinism",
+]}
 const_format = "0.2.30"
 
 entity = { path = "../../core/entity" }
