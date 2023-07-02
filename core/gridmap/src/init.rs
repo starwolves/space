@@ -1,9 +1,8 @@
 use std::{fs, path::Path};
 
 use bevy::prelude::{info, warn, Commands, EventWriter, Res, ResMut, Resource};
-use bevy_rapier3d::plugin::{RapierConfiguration, TimestepMode};
+use resources::grid::CellFace;
 use resources::math::Vec3Int;
-use resources::{core::TickRate, grid::CellFace};
 
 use crate::grid::{
     AddTile, CellTypeId, CellTypeName, Gridmap, GroupTypeId, GroupTypeName, TileGroup,
@@ -75,19 +74,7 @@ use player::spawn_points::SpawnPointRon;
 
 /// Initiate other gridmap meta-datas from ron.
 
-pub(crate) fn startup_misc_resources(
-    mut spawn_points_res: ResMut<SpawnPoints>,
-    mut rapier_configuration: ResMut<RapierConfiguration>,
-    tick_rate: Res<TickRate>,
-) {
-    // Init Bevy Rapier physics.
-
-    rapier_configuration.timestep_mode = TimestepMode::Variable {
-        max_dt: 1. / tick_rate.physics_rate as f32,
-        time_scale: 1.,
-        substeps: 1,
-    };
-
+pub(crate) fn startup_misc_resources(mut spawn_points_res: ResMut<SpawnPoints>) {
     let spawnpoints_ron = Path::new("data")
         .join("maps")
         .join("bullseye")

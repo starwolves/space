@@ -12,8 +12,6 @@ pub mod counter_window_events;
 mod counter_window_tick_timers;
 /// Manage entity updates.
 mod entity_update;
-/// Manage physics events.
-pub mod physics_events;
 /// The Bevy plugin of this crate.
 pub mod plugin;
 /// Spawner.

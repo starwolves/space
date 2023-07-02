@@ -71,7 +71,7 @@ pub fn facing_direction_to_direction(direction: &FacingDirection) -> Vec2 {
         FacingDirection::Left => Vec2::new(-1., 0.),
     }
 }
-use bevy_rapier3d::na::Quaternion;
+use bevy_xpbd_3d::parry::na::Quaternion;
 use entity::entity_types::EntityType;
 use networking::server::ConnectedPlayer;
 

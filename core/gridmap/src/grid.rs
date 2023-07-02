@@ -3,14 +3,12 @@ use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        warn, BuildChildren, Commands, Component, DespawnRecursiveExt, Entity, EventWriter, Handle,
-        Mat3, Quat, Query, Res, Resource, StandardMaterial, Transform, Vec3, Without,
+        warn, Commands, Component, DespawnRecursiveExt, Entity, EventWriter, Handle, Mat3, Quat,
+        Query, Res, Resource, StandardMaterial, Transform, Vec3, Without,
     },
     transform::TransformBundle,
 };
-use bevy_rapier3d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, RigidBody,
-};
+use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, CollisionLayers, Friction, RigidBody};
 use entity::{examine::RichName, health::Health};
 use networking::{
     client::IncomingReliableServerMessage,
@@ -62,7 +60,7 @@ pub struct TileGroup {
 }
 
 /// Gridmap meta-data set.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 
 pub struct TileProperties {
     pub name_id: CellTypeName,
@@ -80,7 +78,7 @@ pub struct TileProperties {
     pub atmospherics_blocker: bool,
     pub atmospherics_pushes_up: bool,
     pub friction: f32,
-    pub combine_rule: CoefficientCombineRule,
+    pub combine_rule: CoefficientCombine,
     /// Always available on client. Never available on server.
     pub mesh_option: Option<Handle<GltfMesh>>,
     pub material_option: Option<Handle<StandardMaterial>>,
@@ -106,7 +104,7 @@ impl Default for TileProperties {
             atmospherics_blocker: true,
             atmospherics_pushes_up: false,
             friction: 0.,
-            combine_rule: CoefficientCombineRule::Min,
+            combine_rule: CoefficientCombine::Min,
             mesh_option: None,
             material_option: None,
             cell_type: CellType::Wall,
@@ -974,7 +972,7 @@ pub(crate) fn add_tile_collision(
 
         let mut entity_builder = commands.entity(event.entity);
         entity_builder
-            .insert(RigidBody::Fixed)
+            .insert(RigidBody::Static)
             .insert(Cell { id: event.id });
 
         if is_server() {
@@ -986,19 +984,13 @@ pub(crate) fn add_tile_collision(
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        let mut friction_component = Friction::coefficient(cell_properties.friction);
+        let mut friction_component = Friction::new(cell_properties.friction);
         friction_component.combine_rule = cell_properties.combine_rule;
 
-        entity_builder.with_children(|children| {
-            children
-                .spawn(cell_properties.collider.clone())
-                .insert(collider_position)
-                .insert(friction_component)
-                .insert(CollisionGroups::new(
-                    Group::from_bits(masks.0).unwrap(),
-                    Group::from_bits(masks.1).unwrap(),
-                ));
-        });
+        entity_builder
+            //     .insert(collider_position)
+            .insert(friction_component)
+            .insert(CollisionLayers::from_bits(masks.0, masks.1));
     }
 }
 

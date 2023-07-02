@@ -10,9 +10,7 @@ use bevy::{
     },
     transform::TransformBundle,
 };
-use bevy_rapier3d::prelude::{
-    Collider, CollisionGroups, Group, QueryFilter, RapierContext, RigidBody,
-};
+use bevy_xpbd_3d::prelude::{Collider, CollisionLayers, RigidBody};
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
@@ -61,7 +59,7 @@ pub fn create_select_cell_cam_state(
         Some(mesh) => {
             *loaded = true;
             let plane_entity = commands
-                .spawn(RigidBody::Fixed)
+                .spawn(RigidBody::Static)
                 .insert(SelectCellCameraYPlane)
                 .insert(PbrBundle {
                     mesh: mesh.primitives[0].mesh.clone(),
@@ -72,12 +70,9 @@ pub fn create_select_cell_cam_state(
                 })
                 .with_children(|parent| {
                     parent
-                        .spawn(Collider::halfspace(Vec3::Y).unwrap())
+                        .spawn(Collider::halfspace(Vec3::Y))
                         .insert(TransformBundle::from(Transform::IDENTITY))
-                        .insert(CollisionGroups::new(
-                            Group::from_bits(masks.0).unwrap(),
-                            Group::from_bits(masks.1).unwrap(),
-                        ));
+                        .insert(CollisionLayers::from_bits(masks.0, masks.1));
                 })
                 .id();
             commands.insert_resource(GridmapConstructionState {
@@ -854,7 +849,7 @@ pub(crate) fn input_ghost_rotation(
 pub struct ConstructionCellSelectionChanged {
     pub only_selection_changed: bool,
 }
-
+/*
 pub(crate) fn select_cell_in_front_camera(
     camera_query: Query<&LookTransform>,
     active_camera: Res<ActiveCamera>,
@@ -932,7 +927,7 @@ pub(crate) fn select_cell_in_front_camera(
     }
     state.selected = Some(n);
 }
-
+*/
 pub(crate) fn change_ghost_tile_request(
     mut net: EventReader<IncomingReliableServerMessage<GridmapServerMessage>>,
     mut events: EventWriter<ConstructionCellSelectionChanged>,

@@ -1,6 +1,6 @@
 use bevy::math::{Mat4, Quat, Vec3};
 use bevy::prelude::{Commands, EventReader, Transform};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction};
 use combat::attack::DEFAULT_INVENTORY_ITEM_DAMAGE;
 use entity::entity_macros::Identity;
 use entity::entity_types::EntityType;
@@ -104,8 +104,8 @@ impl InventoryItemBuilder for ConstructionToolType {
 
 impl RigidBodyBuilder<NoData> for ConstructionToolType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
-        let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
-        friction.combine_rule = CoefficientCombineRule::Multiply;
+        let mut friction = Friction::new(STANDARD_BODY_FRICTION);
+        friction.combine_rule = CoefficientCombine::Multiply;
 
         RigidBodyBundle {
             collider: Collider::cuboid(0.11 * 1.5, 0.1 * 1.5, 0.13 * 1.5),

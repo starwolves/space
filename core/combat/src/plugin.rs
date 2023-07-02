@@ -12,8 +12,8 @@ use crate::{
     active_attacks::{cache_attacks, ActiveAttackIncrement, ActiveAttacks},
     apply_damage::{start_apply_damage, HealthCombatHitResult},
     attack::{Attack, QueryCombatHitResult},
-    melee_queries::{melee_direct, MeleeDirectQuery},
-    projectile_queries::{projectile_attack, ProjectileQuery},
+    melee_queries::MeleeDirectQuery,
+    projectile_queries::ProjectileQuery,
 };
 
 pub struct CombatPlugin;
@@ -21,7 +21,7 @@ pub struct CombatPlugin;
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(
+            /*app.add_system(
                 melee_direct
                     .after(CombatLabels::WeaponHandler)
                     .in_set(CombatLabels::Query),
@@ -30,8 +30,8 @@ impl Plugin for CombatPlugin {
                 projectile_attack
                     .after(CombatLabels::WeaponHandler)
                     .in_set(CombatLabels::Query),
-            )
-            .add_system(
+            )*/
+            app.add_system(
                 start_apply_damage
                     .in_set(CombatLabels::StartApplyDamage)
                     .before(CombatLabels::FinalizeApplyDamage)

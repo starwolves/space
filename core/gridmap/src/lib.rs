@@ -7,8 +7,6 @@
 //! The gridmap is split up into multiple layers that can both exist peacefully on the same tiles. One is a "main" layer which includes the main ship construction parts, like walls and floors and tile entities that block other wall constructions. Whereas the "details1" layer is for added details on each gridmap cell, like posters, small lights, repeated visual effects and indicators etc.
 //! Not all tiles are their own traditional entity with their own components, in fact most tiles that have no expected special behaviour have their data stored in a resource rather than as an individual entity with an ID for performance reasons.
 
-/// Check if an entity can reach another entity.
-pub mod can_reach_entity;
 /// Configuration to send to newly connected clients.
 pub mod connections;
 pub mod construction;

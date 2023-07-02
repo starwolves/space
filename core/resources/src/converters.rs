@@ -1,11 +1,9 @@
 use bevy::{
     math::{Quat, Vec3},
-    prelude::Transform,
+    prelude::{Mat3, Transform},
 };
-use bevy_rapier3d::{
-    na::Quaternion,
-    rapier::math::{Isometry, Real, Rotation, Translation},
-};
+
+use crate::math::Vec2Int;
 
 /// Error message for vector3.
 const STRING_VEC3_TO_VEC3_CANNOT_PARSE_MESSAGE: &str =
@@ -66,119 +64,6 @@ pub fn _string_vec2_to_vec2_int(string_vector: &str) -> Vec2Int {
     }
 }
 
-/// Convert transforms.
-pub fn transform_to_isometry(transform: Transform) -> Isometry<Real> {
-    let translation: Translation<f32> = Vec3::new(
-        transform.translation.x,
-        transform.translation.y,
-        transform.translation.z,
-    )
-    .into();
-
-    let quaternion = Quaternion::new(
-        transform.rotation.w,
-        transform.rotation.x,
-        transform.rotation.y,
-        transform.rotation.z,
-    );
-
-    let rotation = Rotation::from_quaternion(quaternion);
-
-    Isometry::<Real> {
-        translation: translation,
-        rotation: rotation,
-    }
-}
-/// Convert transforms.
-pub fn isometry_to_transform(isometry: Isometry<Real>) -> Transform {
-    let translation = Vec3::new(
-        isometry.translation.x,
-        isometry.translation.y,
-        isometry.translation.z,
-    );
-
-    let rotation = Quat::from_xyzw(
-        isometry.rotation.i,
-        isometry.rotation.j,
-        isometry.rotation.k,
-        isometry.rotation.w,
-    );
-
-    Transform {
-        translation: translation,
-        rotation: rotation,
-        scale: Vec3::new(1., 1., 1.),
-    }
-}
-use crate::math::Vec2Int;
-use bevy::math::Mat3;
-
-pub fn string_color_to_color(string_color: &str) -> (f32, f32, f32, f32) {
-    let string_values: Vec<&str> = string_color.split(",").collect();
-
-    let mut red_color = 0.;
-    let mut green_color = 0.;
-    let mut blue_color = 0.;
-    let mut alpha_color = 0.;
-
-    let mut i: u8 = 0;
-    for string_value in string_values {
-        match i {
-            0 => {
-                red_color = string_value.parse::<f32>().unwrap();
-            }
-            1 => {
-                green_color = string_value.parse::<f32>().unwrap();
-            }
-            2 => {
-                blue_color = string_value.parse::<f32>().unwrap();
-            }
-            3 => {
-                alpha_color = string_value.parse::<f32>().unwrap();
-            }
-            _ => (),
-        }
-
-        i += 1;
-    }
-
-    (red_color, green_color, blue_color, alpha_color)
-}
-
-pub fn string_quat_to_quat(string_quad: &str) -> Quat {
-    let new_string = string_quad.replace(&['(', ')', ' '][..], "");
-
-    let string_values: Vec<&str> = new_string.split(",").collect();
-
-    let mut x = 0.;
-    let mut y = 0.;
-    let mut z = 0.;
-    let mut w = 0.;
-
-    let mut i: u8 = 0;
-
-    for string_value in string_values {
-        match i {
-            0 => {
-                x = string_value.parse::<f32>().unwrap();
-            }
-            1 => {
-                y = string_value.parse::<f32>().unwrap();
-            }
-            2 => {
-                z = string_value.parse::<f32>().unwrap();
-            }
-            3 => {
-                w = string_value.parse::<f32>().unwrap();
-            }
-            _ => (),
-        }
-
-        i += 1;
-    }
-
-    Quat::from_xyzw(x, y, z, w)
-}
 const STRING_TRANSFORM_TO_TRANSFORM_CANNOT_PARSE_MESSAGE: &str =
     "main.rs string_transform_to_transform() Error cannot parse floats of transform.";
 

@@ -14,7 +14,6 @@ use crate::{
         toggle_open_action_prequisite_check,
     },
     counter_window_events::CounterWindow,
-    physics_events::physics_events,
 };
 
 use super::{
@@ -37,7 +36,6 @@ impl Plugin for CounterWindowsPlugin {
                 .add_system(counter_window_tick_timers)
                 .add_system(counter_window_events)
                 .add_system(counter_window_default_map_added)
-                .add_system(physics_events)
                 .add_event::<InputCounterWindowToggleOpen>()
                 .add_event::<CounterWindowLockOpen>()
                 .add_event::<CounterWindowLockClosed>()

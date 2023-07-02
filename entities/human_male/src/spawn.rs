@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use bevy::prelude::{warn, Commands, EventReader, EventWriter, Transform, Vec3};
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Dominance, Friction, LockedAxes};
+use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction};
 use entity::{
     entity_data::{WorldMode, WorldModes},
     entity_macros::Identity,
@@ -152,15 +152,11 @@ pub const R: f32 = 0.5;
 
 impl RigidBodyBuilder<NoData> for HumanMaleType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
-        let mut friction = Friction::coefficient(CHARACTER_FLOOR_FRICTION);
-        friction.combine_rule = CoefficientCombineRule::Min;
+        let mut friction = Friction::new(CHARACTER_FLOOR_FRICTION);
+        friction.combine_rule = CoefficientCombine::Min;
 
         RigidBodyBundle {
-            collider: Collider::capsule(
-                Vec3::new(0.0, 0.0 + R, 0.0).into(),
-                Vec3::new(0.0, 1.8 - R, 0.0).into(),
-                R,
-            ),
+            collider: Collider::capsule(R, 1.8 - R),
             collider_transform: Transform::from_translation(Vec3::new(0., 0.011, -0.004)),
             collider_friction: friction,
             rigidbody_dynamic: true,
@@ -261,10 +257,6 @@ pub fn build_human_males(
                 ..Default::default()
             },
         ));
-
-        spawner
-            .insert(Dominance::group(10))
-            .insert(LockedAxes::ROTATION_LOCKED);
     }
 }
 

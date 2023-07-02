@@ -4,7 +4,9 @@ use bevy::math::Vec3;
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 use bevy::prelude::Transform;
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use bevy_xpbd_3d::prelude::CoefficientCombine;
+use bevy_xpbd_3d::prelude::Collider;
+use bevy_xpbd_3d::prelude::Friction;
 use entity::entity_macros::Identity;
 use entity::entity_types::EntityType;
 use entity::examine::Examinable;
@@ -120,8 +122,8 @@ impl InventoryItemBuilder for JumpsuitType {
 
 impl RigidBodyBuilder<NoData> for JumpsuitType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
-        let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
-        friction.combine_rule = CoefficientCombineRule::Multiply;
+        let mut friction = Friction::new(STANDARD_BODY_FRICTION);
+        friction.combine_rule = CoefficientCombine::Multiply;
 
         RigidBodyBundle {
             collider: Collider::cuboid(0.269, 0.377, 0.098),

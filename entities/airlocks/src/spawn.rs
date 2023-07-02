@@ -5,7 +5,7 @@ use bevy::{
     math::Vec3,
     prelude::{warn, Commands, EventReader, Transform},
 };
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction};
 use const_format::concatcp;
 use entity::{
     entity_data::EntityGroup,
@@ -93,8 +93,8 @@ pub const DEFAULT_AIRLOCK_Y: f32 = 1.;
 
 impl RigidBodyBuilder<NoData> for AirlockType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
-        let mut friction = Friction::coefficient(0.);
-        friction.combine_rule = CoefficientCombineRule::Multiply;
+        let mut friction = Friction::new(0.);
+        friction.combine_rule = CoefficientCombine::Multiply;
 
         RigidBodyBundle {
             collider: Collider::cuboid(1., 1., 0.2),

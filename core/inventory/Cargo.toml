@@ -17,9 +17,7 @@ default-features = false
 [dependencies]
 serde = "1.0.150"
 typename = "0.1.2"
-bevy_rapier3d = { version = "0.21.0", features = [
-    "enhanced-determinism",
-]}
+bevy_xpbd_3d = "0.1.0"
 
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }

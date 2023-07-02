@@ -3,6 +3,7 @@ use bevy::{
     prelude::{Entity, Local, Query, Res, Transform, With},
     time::Time,
 };
+use bevy_xpbd_3d::prelude::{LinearVelocity, RigidBody};
 use networking::server::UnreliableServerMessage;
 
 /// All transform interpolation rates.
@@ -22,7 +23,6 @@ enum InterpolationPriorityRates {
 pub(crate) struct InterpolationFrame {
     pub i: u8,
 }
-use bevy_rapier3d::prelude::Velocity;
 use networking::server::HandleToEntity;
 
 use bevy::prelude::EventWriter;
@@ -30,7 +30,6 @@ use entity::entity_data::CachedBroadcastTransform;
 use entity::sensable::Sensable;
 use networking::server::OutgoingUnreliableServerMessage;
 
-use bevy_rapier3d::prelude::RigidBody;
 use networking::server::ConnectedPlayer;
 
 use crate::rigid_body::RigidBodyStatus;
@@ -46,7 +45,7 @@ pub(crate) fn broadcast_interpolation_transforms(
             Entity,
             &Sensable,
             &Transform,
-            &Velocity,
+            &LinearVelocity,
             &mut CachedBroadcastTransform,
             Option<&ConnectedPlayer>,
             &RigidBodyStatus,
@@ -79,7 +78,7 @@ pub(crate) fn broadcast_interpolation_transforms(
         let rigid_body_position = rigid_body_position_component;
 
         let rigid_body_translation = rigid_body_position.translation;
-        let rigid_body_velocity = rigid_body_velocity_component.linvel;
+        let rigid_body_velocity = **rigid_body_velocity_component;
         let rigid_body_rotation = rigid_body_position.rotation;
 
         let this_transform = Transform {

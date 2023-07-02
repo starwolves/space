@@ -5,7 +5,9 @@ use bevy::{
     math::Vec3,
     prelude::{warn, Commands, EventReader, GlobalTransform, Transform},
 };
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction, Group};
+use bevy_xpbd_3d::prelude::{
+    CoefficientCombine, Collider, CollisionLayers, Friction, RigidBody, Sensor,
+};
 use entity::{
     entity_data::{EntityData, EntityGroup},
     entity_macros::Identity,
@@ -80,8 +82,8 @@ impl BaseEntityBuilder<NoData> for CounterWindowType {
 
 impl RigidBodyBuilder<NoData> for CounterWindowType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
-        let mut friction = Friction::coefficient(0.);
-        friction.combine_rule = CoefficientCombineRule::Average;
+        let mut friction = Friction::new(0.);
+        friction.combine_rule = CoefficientCombine::Average;
 
         RigidBodyBundle {
             collider: Collider::cuboid(0.1, 0.5, 1.),
@@ -96,8 +98,6 @@ impl RigidBodyBuilder<NoData> for CounterWindowType {
         }
     }
 }
-
-use bevy_rapier3d::prelude::{ActiveEvents, CollisionGroups, RigidBody, Sensor};
 
 pub const COUNTER_WINDOW_COLLISION_Y: f32 = 0.5;
 
@@ -130,12 +130,12 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
                 ..Default::default()
             });
 
-        let rigid_body = RigidBody::Fixed;
+        let rigid_body = RigidBody::Static;
 
         let masks = get_bit_masks(ColliderGroup::Standard);
 
-        let mut friction = Friction::coefficient(0.);
-        friction.combine_rule = CoefficientCombineRule::Average;
+        let mut friction = Friction::new(0.);
+        friction.combine_rule = CoefficientCombine::Average;
 
         let sensor = Sensor;
 
@@ -163,11 +163,7 @@ pub fn build_counter_windows<T: Send + Sync + 'static>(
                             .insert(Transform::from_translation(Vec3::new(0., -1., 0.)))
                             .insert(GlobalTransform::default())
                             .insert(friction)
-                            .insert(CollisionGroups::new(
-                                Group::from_bits(masks.0).unwrap(),
-                                Group::from_bits(masks.1).unwrap(),
-                            ))
-                            .insert(ActiveEvents::COLLISION_EVENTS)
+                            .insert(CollisionLayers::from_bits(masks.0, masks.1))
                             .insert(sensor);
                     });
             });

@@ -6,7 +6,7 @@ use bevy::{
     },
     time::Timer,
 };
-use bevy_rapier3d::prelude::{Collider, CollisionGroups, Group};
+use bevy_xpbd_3d::prelude::{Collider, CollisionLayers};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use networking::server::NetworkingChatServerMessage;
 use pawn::pawn::{Pawn, ShipAuthorization, ShipAuthorizationEnum};
@@ -43,7 +43,7 @@ pub(crate) fn counter_window_events(
         &Children,
         &mut Examinable,
     )>,
-    mut counter_window_colliders: Query<&mut CollisionGroups, With<Collider>>,
+    mut counter_window_colliders: Query<&mut CollisionLayers, With<Collider>>,
     counter_window_sensor_query: Query<&CounterWindowSensor>,
     pawn_query: Query<(&Pawn, &ShipAuthorization)>,
     mut auto_destroy_timers: ResMut<SfxAutoDestroyTimers>,
@@ -283,8 +283,7 @@ pub(crate) fn counter_window_events(
 
                     let masks = get_bit_masks(ColliderGroup::Standard);
 
-                    collision_groups.memberships = Group::from_bits(masks.0).unwrap();
-                    collision_groups.filters = Group::from_bits(masks.1).unwrap();
+                    *collision_groups = CollisionLayers::from_bits(masks.0, masks.1);
 
                     counter_window_component.access_lights =
                         CounterWindowAccessLightsStatus::Neutral;
@@ -529,8 +528,7 @@ pub(crate) fn counter_window_events(
 
             let masks = get_bit_masks(ColliderGroup::NoCollision);
 
-            collision_groups.memberships = Group::from_bits(masks.0).unwrap();
-            collision_groups.filters = Group::from_bits(masks.1).unwrap();
+            *collision_groups = CollisionLayers::from_bits(masks.0, masks.1);
 
             counter_window_component.open_timer = Some(open_timer())
         } else {

@@ -1,5 +1,6 @@
 use bevy::prelude::{Commands, Entity, EventReader};
 use bevy::prelude::{EventWriter, Query, Res};
+use bevy_xpbd_3d::prelude::RigidBody;
 use entity::net::{EntityServerMessage, LoadEntity};
 use entity::spawn::{EntityBuildData, SpawnEntity};
 use entity::spawning_events::SpawnClientEntity;
@@ -81,7 +82,6 @@ pub fn build_inventory_items<T: InventoryItemBuilder + 'static>(
 
 use bevy::prelude::warn;
 use bevy::prelude::Transform;
-use bevy_rapier3d::prelude::RigidBody;
 use entity::entity_data::personalise;
 use entity::entity_data::WorldModes;
 
@@ -133,7 +133,7 @@ pub(crate) fn spawn_entity_for_client(
                                 is_interpolated = false;
                             }
                         },
-                        RigidBody::Fixed => {}
+                        RigidBody::Static => {}
                         _ => {
                             warn!("Unexpected rigidbody type.");
                             continue;

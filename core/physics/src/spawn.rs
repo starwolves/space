@@ -2,13 +2,9 @@ use crate::{
     physics::{get_bit_masks, ColliderGroup},
     rigid_body::{RigidBodyData, RigidBodyStatus},
 };
-use bevy::{
-    hierarchy::BuildChildren,
-    prelude::{Commands, Entity, EventReader, GlobalTransform, Transform},
-};
-use bevy_rapier3d::prelude::{
-    ActiveEvents, Collider, CollisionGroups, Damping, ExternalForce, ExternalImpulse, Friction,
-    GravityScale, Group, RigidBody, Sleeping, Velocity,
+use bevy::prelude::{Commands, Entity, EventReader, GlobalTransform, Transform};
+use bevy_xpbd_3d::prelude::{
+    Collider, CollisionLayers, ExternalForce, Friction, LinearVelocity, RigidBody, Sleeping,
 };
 use entity::spawn::EntityBuildData;
 
@@ -35,16 +31,14 @@ impl Default for RigidBodyBundle {
 pub struct RigidBodyBuildData {
     pub rigidbody_dynamic: bool,
     pub rigid_transform: Transform,
-    pub external_impulse: ExternalImpulse,
     pub external_force: ExternalForce,
-    pub velocity: Velocity,
-    pub gravity_scale: GravityScale,
+    pub velocity: LinearVelocity,
     pub sleeping: Sleeping,
     pub entity_is_stored_item: bool,
     pub collider: Collider,
     pub collider_transform: Transform,
     pub collider_friction: Friction,
-    pub collider_collision_groups: CollisionGroups,
+    pub collider_collision_groups: CollisionLayers,
     pub collision_events: bool,
 }
 
@@ -54,19 +48,14 @@ impl Default for RigidBodyBuildData {
         Self {
             rigidbody_dynamic: false,
             rigid_transform: Transform::default(),
-            external_impulse: ExternalImpulse::default(),
             external_force: ExternalForce::default(),
-            velocity: Velocity::default(),
-            gravity_scale: GravityScale::default(),
+            velocity: LinearVelocity::default(),
             sleeping: Sleeping::default(),
             entity_is_stored_item: false,
             collider: Collider::cuboid(0.2, 0.2, 0.2),
             collider_transform: Transform::default(),
             collider_friction: Friction::default(),
-            collider_collision_groups: CollisionGroups::new(
-                Group::from_bits(masks.0).unwrap(),
-                Group::from_bits(masks.1).unwrap(),
-            ),
+            collider_collision_groups: CollisionLayers::from_bits(masks.0, masks.1),
             collision_events: false,
         }
     }
@@ -83,39 +72,23 @@ pub fn rigidbody_builder(
     let masks;
 
     if is_showcase {
-        rigidbody = RigidBody::Fixed;
-        masks = get_bit_masks(ColliderGroup::NoCollision);
+        rigidbody = RigidBody::Static;
+        let m = get_bit_masks(ColliderGroup::NoCollision);
+        masks = CollisionLayers::from_bits(m.0, m.1);
     } else if rigidbody_spawn_data.rigidbody_dynamic {
         rigidbody = RigidBody::Dynamic;
         match rigidbody_spawn_data.entity_is_stored_item {
             true => {
-                masks = get_bit_masks(ColliderGroup::NoCollision);
+                let m = get_bit_masks(ColliderGroup::NoCollision);
+                masks = CollisionLayers::from_bits(m.0, m.1);
             }
             false => {
-                masks = (
-                    rigidbody_spawn_data
-                        .collider_collision_groups
-                        .memberships
-                        .bits(),
-                    rigidbody_spawn_data
-                        .collider_collision_groups
-                        .filters
-                        .bits(),
-                );
+                masks = rigidbody_spawn_data.collider_collision_groups;
             }
         }
     } else {
-        rigidbody = RigidBody::Fixed;
-        masks = (
-            rigidbody_spawn_data
-                .collider_collision_groups
-                .memberships
-                .bits(),
-            rigidbody_spawn_data
-                .collider_collision_groups
-                .filters
-                .bits(),
-        );
+        rigidbody = RigidBody::Static;
+        masks = rigidbody_spawn_data.collider_collision_groups;
     }
 
     let mut builder = commands.entity(entity);
@@ -124,51 +97,29 @@ pub fn rigidbody_builder(
         .insert(GlobalTransform::default())
         .insert(rigidbody)
         .insert(rigidbody_spawn_data.rigid_transform)
-        .insert(rigidbody_spawn_data.external_impulse)
         .insert(rigidbody_spawn_data.external_force)
         .insert(rigidbody_spawn_data.velocity)
         .insert(RigidBodyData {
-            friction: rigidbody_spawn_data.collider_friction.coefficient,
+            dynamic_friction: rigidbody_spawn_data.collider_friction.dynamic_coefficient,
+            static_friction: rigidbody_spawn_data.collider_friction.static_coefficient,
             friction_combine_rule: rigidbody_spawn_data.collider_friction.combine_rule,
         });
 
     let mut rigidbody_enabled = true;
 
     if rigidbody_spawn_data.entity_is_stored_item {
-        builder.insert((
-            GravityScale(0.),
-            Sleeping {
-                sleeping: true,
-                ..Default::default()
-            },
-            Damping {
-                linear_damping: 10000.,
-                angular_damping: 10000.,
-            },
-        ));
+        builder.insert(Sleeping);
         rigidbody_enabled = false;
     } else {
         builder
             .insert(Sleeping::default())
-            .insert(rigidbody_spawn_data.gravity_scale)
-            .insert(Damping::default())
             .insert(RigidBodyStatus { enabled: true });
     }
-    builder.with_children(|children| {
-        let mut child_builder = children.spawn(());
-        child_builder
-            .insert(rigidbody_spawn_data.collider)
-            .insert(rigidbody_spawn_data.collider_transform)
-            .insert(rigidbody_spawn_data.collider_friction)
-            .insert(CollisionGroups::new(
-                Group::from_bits(masks.0).unwrap(),
-                Group::from_bits(masks.1).unwrap(),
-            ));
-
-        if rigidbody_spawn_data.collision_events {
-            child_builder.insert(ActiveEvents::COLLISION_EVENTS);
-        }
-    });
+    builder
+        .insert(rigidbody_spawn_data.collider)
+        .insert(rigidbody_spawn_data.collider_transform)
+        .insert(rigidbody_spawn_data.collider_friction)
+        .insert(masks);
 
     match rigidbody_spawn_data.entity_is_stored_item {
         true => {

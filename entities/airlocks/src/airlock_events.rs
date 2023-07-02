@@ -2,7 +2,6 @@ use bevy::{
     hierarchy::Children,
     prelude::{warn, Commands, Entity, EventReader, Query, ResMut, Transform},
 };
-use bevy_rapier3d::prelude::{CollisionGroups, Group};
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use pawn::pawn::{Pawn, ShipAuthorization};
 use resources::math::{world_to_cell_id, Vec2Int};
@@ -29,7 +28,6 @@ pub struct AirLockOpenRequest {
 use networking::server::NetworkingChatServerMessage;
 
 use bevy::prelude::EventWriter;
-use physics::physics::{get_bit_masks, ColliderGroup};
 
 use networking::server::OutgoingReliableServerMessage;
 /// Manage air lock events.
@@ -46,7 +44,6 @@ pub(crate) fn airlock_events(
     mut airlock_lock_close_event: EventReader<AirlockLockClosed>,
     mut unlock_events: EventReader<AirlockUnlock>,
     mut server: EventWriter<OutgoingReliableServerMessage<NetworkingChatServerMessage>>,
-    mut collision_groups: Query<&mut CollisionGroups>,
 ) {
     let mut close_requests = vec![];
     let mut open_requests = vec![];
@@ -170,7 +167,7 @@ pub(crate) fn airlock_events(
         }
     }
 
-    for (mut airlock_component, airlock_entity, _examinable_component, children) in
+    for (mut airlock_component, airlock_entity, _examinable_component, _children) in
         airlock_query.iter_mut()
     {
         let rigid_body_position_component;
@@ -218,31 +215,6 @@ pub(crate) fn airlock_events(
                 if timer_component.finished() == true {
                     timer_component.pause();
                     timer_component.reset();
-
-                    let mut child_collider_entity = None;
-
-                    for child in children.iter() {
-                        match collision_groups.get(*child) {
-                            Ok(_t) => {
-                                child_collider_entity = Some(*child);
-                            }
-                            Err(_) => {}
-                        }
-                    }
-
-                    match child_collider_entity {
-                        Some(e) => {
-                            let mut r = collision_groups.get_mut(e).unwrap();
-                            let masks = get_bit_masks(ColliderGroup::Standard);
-
-                            r.memberships = Group::from_bits(masks.0).unwrap();
-                            r.filters = Group::from_bits(masks.1).unwrap();
-                        }
-                        None => {
-                            warn!("Couldnt find collider child");
-                            continue;
-                        }
-                    }
 
                     airlock_component.access_lights = AccessLightsStatus::Neutral;
 
@@ -319,13 +291,11 @@ pub(crate) fn airlock_events(
         let airlock_components_result = airlock_query.get_mut(request.opened);
 
         let mut airlock_component;
-        let children;
         let airlock_static_transform_component;
 
         match airlock_components_result {
             Ok(result) => {
                 airlock_component = result.0;
-                children = result.3;
             }
             Err(_err) => {
                 continue;
@@ -404,31 +374,6 @@ pub(crate) fn airlock_events(
             };
             airlock_component.status = AirlockStatus::Open;
             airlock_component.access_lights = AccessLightsStatus::Granted;
-
-            let mut collision_child_option = None;
-
-            for child in children.iter() {
-                match collision_groups.get(*child) {
-                    Ok(_col) => {
-                        collision_child_option = Some(*child);
-                    }
-                    Err(_rr) => {}
-                }
-            }
-
-            match collision_child_option {
-                Some(ent) => {
-                    let mut r = collision_groups.get_mut(ent).unwrap();
-
-                    let masks = get_bit_masks(ColliderGroup::NoCollision);
-
-                    r.memberships = Group::from_bits(masks.0).unwrap();
-                    r.filters = Group::from_bits(masks.1).unwrap();
-                }
-                None => {
-                    warn!("Couldnt find collider child..");
-                }
-            }
 
             airlock_component.open_timer_option = Some(open_timer());
 

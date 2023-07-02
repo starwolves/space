@@ -16,9 +16,7 @@ version = "0.10.1"
 default-features = false
 
 [dependencies]
-bevy_rapier3d = { version = "0.21.0", features = [
-    "enhanced-determinism",
-]}
+bevy_xpbd_3d = "0.1.0"
 
 rand = "0.8.5"
 

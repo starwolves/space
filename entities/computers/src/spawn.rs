@@ -2,7 +2,7 @@ use bevy::{
     math::{Mat4, Quat, Vec3},
     prelude::{Commands, EventReader, Transform},
 };
-use bevy_rapier3d::prelude::{CoefficientCombineRule, Collider, Friction};
+use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction};
 use entity::{
     entity_macros::Identity,
     entity_types::EntityType,
@@ -54,8 +54,8 @@ impl BaseEntityBuilder<NoData> for ComputerType {
 
 impl RigidBodyBuilder<NoData> for ComputerType {
     fn get_bundle(&self, _spawn_data: &EntityBuildData, _entity_data: NoData) -> RigidBodyBundle {
-        let mut friction = Friction::coefficient(STANDARD_BODY_FRICTION);
-        friction.combine_rule = CoefficientCombineRule::Min;
+        let mut friction = Friction::new(STANDARD_BODY_FRICTION);
+        friction.combine_rule = CoefficientCombine::Min;
 
         RigidBodyBundle {
             collider: Collider::cuboid(1., 0.7, 1.),

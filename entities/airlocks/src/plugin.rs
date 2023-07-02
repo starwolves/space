@@ -14,7 +14,6 @@ use crate::{
     airlock_events::{
         AirLockLockOpen, AirlockCollision, AirlockLockClosed, AirlockUnlock, InputAirlockToggleOpen,
     },
-    physics_events::physics_events,
     resources::Airlock,
 };
 
@@ -42,7 +41,6 @@ impl Plugin for AirLocksPlugin {
                 .add_system(airlock_tick_timers)
                 .add_system(airlock_events)
                 .add_system(airlock_default_map_added)
-                .add_system(physics_events)
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>()
                 .add_system(
