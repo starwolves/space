@@ -1,15 +1,10 @@
-use std::{
-    net::{SocketAddr, UdpSocket},
-    time::SystemTime,
-};
+use std::{net::SocketAddr, time::SystemTime};
 
 use bevy::{
-    prelude::{error, info, Resource},
+    prelude::{error, info, Event, Resource},
     tasks::{AsyncComputeTaskPool, Task},
 };
-use bevy_renet::renet::{
-    ChannelConfig, ClientAuthentication, ReliableChannelConfig, RenetClient, RenetConnectionConfig,
-};
+use bevy_renet::renet::{transport::ConnectToken, ConnectionConfig, DefaultChannel, RenetClient};
 use futures_lite::future;
 use token::parse::Token;
 
@@ -24,8 +19,9 @@ pub struct ConnectionPreferences {
 }
 
 /// Event that triggers a new server connection.
-
+#[derive(Event)]
 pub struct AssignTokenToServer;
+#[derive(Event)]
 pub struct ConnectToServer;
 
 use crate::server::SERVER_PORT;
@@ -36,8 +32,6 @@ use bevy::prelude::Res;
 use std::net::IpAddr;
 
 use bevy::prelude::ResMut;
-
-use bevy_renet::renet::ConnectToken;
 
 use crate::server::PRIV_KEY;
 
@@ -178,33 +172,8 @@ pub(crate) fn connect_to_server(
 
                 let socket_address: SocketAddr = SocketAddr::new(ip_address, port as u16);
 
-                let socket;
-                match UdpSocket::bind(local_ipaddress::get().unwrap_or_default() + ":0") {
-                    Ok(s) => {
-                        socket = s;
-                    }
-                    Err(err) => {
-                        warn!("Failed to bind udp socket: {}", err);
-                        continue;
-                    }
-                }
+                let channels_config = DefaultChannel::config();
 
-                let channels_config = vec![
-                    ChannelConfig::Reliable(ReliableChannelConfig {
-                        packet_budget: 6000,
-                        max_message_size: 5900,
-                        ..Default::default()
-                    }),
-                    ChannelConfig::Unreliable(Default::default()),
-                    ChannelConfig::Chunk(Default::default()),
-                ];
-
-                let connection_config = RenetConnectionConfig {
-                    send_channels_config: channels_config.clone(),
-                    receive_channels_config: channels_config,
-
-                    ..Default::default()
-                };
                 let current_time = SystemTime::now()
                     .duration_since(SystemTime::UNIX_EPOCH)
                     .unwrap();
@@ -225,14 +194,12 @@ pub(crate) fn connect_to_server(
                     Some(token_sized),
                     &PRIV_KEY,
                 ) {
-                    Ok(connect_token) => {
-                        let renet_client = RenetClient::new(
-                            current_time,
-                            socket,
-                            connection_config,
-                            ClientAuthentication::Secure { connect_token },
-                        )
-                        .unwrap();
+                    Ok(_connect_token) => {
+                        let renet_client = RenetClient::new(ConnectionConfig {
+                            server_channels_config: channels_config.clone(),
+                            client_channels_config: channels_config,
+                            ..Default::default()
+                        });
 
                         commands.insert_resource(renet_client);
 
@@ -423,12 +390,12 @@ pub(crate) fn deserialize_incoming_reliable_server_message<
     }
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-
+#[derive(Event)]
 pub struct IncomingReliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
 }
 ///  Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-
+#[derive(Event)]
 pub struct IncomingUnreliableServerMessage<T: TypeName + Send + Sync + Serialize> {
     pub message: T,
 }
@@ -471,24 +438,25 @@ pub(crate) fn receive_incoming_reliable_server_messages(
 }
 
 /// Event to send unreliable messages from client to server.
-
+#[derive(Event)]
 pub struct OutgoingUnreliableClientMessage<T: TypeName + Send + Sync + 'static> {
     pub message: T,
 }
 /// Event to send reliable messages from client to server.
 
+#[derive(Event)]
 pub struct OutgoingReliableClientMessage<T: TypeName + Send + Sync + 'static> {
     pub message: T,
 }
 
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_reliable_message].
-
+#[derive(Event)]
 pub(crate) struct IncomingRawReliableServerMessage {
     pub message: ReliableMessage,
 }
 
 /// Event to when received reliable message from server. Messages that you receive with this event must be initiated from a plugin builder with [crate::messaging::init_unreliable_message].
-
+#[derive(Event)]
 pub(crate) struct IncomingRawUnreliableServerMessage {
     pub message: UnreliableMessage,
 }
@@ -544,12 +512,15 @@ pub(crate) fn on_disconnect(
     mut connected_state: ResMut<Connection>,
     mut commands: Commands,
 ) {
-    match client.disconnected() {
-        Some(d) => {
-            warn!("Disconnected from server: [{}]", d);
+    match client.is_disconnected() {
+        true => {
+            warn!(
+                "Disconnected from server: [{:?}]",
+                client.disconnect_reason()
+            );
             connected_state.status = ConnectionStatus::None;
             commands.remove_resource::<RenetClient>();
         }
-        None => {}
+        false => {}
     }
 }

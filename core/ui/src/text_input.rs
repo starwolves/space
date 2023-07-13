@@ -1,4 +1,4 @@
-use bevy::prelude::{Color, Component, Entity, SystemSet};
+use bevy::prelude::{Color, Component, Entity, Event, SystemSet};
 use bevy::window::{PrimaryWindow, Window};
 use bevy::{
     prelude::{Changed, Query},
@@ -85,7 +85,7 @@ pub(crate) fn ui_events(
 
         if !input_has_focus {
             match *interaction {
-                Interaction::Clicked => {
+                Interaction::Pressed => {
                     if !primary.cursor.visible {
                         continue;
                     }
@@ -114,14 +114,14 @@ use bevy::text::Text;
 use bevy::{prelude::EventReader, window::ReceivedCharacter};
 
 /// Event to unfocus the currently focused text input.
-#[derive(Default)]
+#[derive(Default, Event)]
 
 pub struct UnfocusTextInput {
     pub entity_option: Option<Entity>,
 }
 
 /// Event to focus a new text input.
-
+#[derive(Event)]
 pub struct FocusTextInput {
     pub entity: Entity,
 }
@@ -308,7 +308,8 @@ pub(crate) fn input_characters(
 
                         let mut is_pasting = false;
 
-                        if (keys.pressed(KeyCode::LControl) || keys.pressed(KeyCode::RControl))
+                        if (keys.pressed(KeyCode::ControlLeft)
+                            || keys.pressed(KeyCode::ControlRight))
                             && keys.pressed(KeyCode::V)
                         {
                             if !*pasting {
@@ -460,7 +461,7 @@ pub(crate) fn input_characters(
 }
 
 /// Event that sets the content of the given TextInputNode
-
+#[derive(Event)]
 pub struct SetText {
     pub entity: Entity,
     pub text: String,
@@ -538,7 +539,7 @@ pub(crate) fn incoming_messages(
     }
 }
 /// Client text tree input selection event.
-
+#[derive(Event)]
 pub struct TextTreeInputSelection {
     /// Handle of the submitter of the selection.
     pub handle: u64,

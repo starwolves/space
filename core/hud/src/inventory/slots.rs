@@ -1,10 +1,10 @@
 use bevy::{
     prelude::{
-        warn, BuildChildren, Color, Commands, Component, EventReader, NodeBundle, Query, Res,
-        ResMut, SystemSet, TextBundle, With,
+        warn, BuildChildren, Color, Commands, Component, Event, EventReader, NodeBundle, Query,
+        Res, ResMut, SystemSet, TextBundle, With,
     },
     text::TextStyle,
-    ui::{FlexDirection, Node, Size, Style, Val},
+    ui::{FlexDirection, Node, Style, Val},
 };
 use inventory::client::slots::AddedSlot;
 use resources::math::Vec2Int;
@@ -54,7 +54,8 @@ pub(crate) fn scale_slots(
         let new_width = width * x_multiplier;
         let new_height = new_width * scaler;
 
-        style.size = Size::new(Val::Px(new_width), Val::Px(new_height));
+        style.width = Val::Px(new_width);
+        style.height = Val::Px(new_height);
     }
 }
 
@@ -83,7 +84,8 @@ pub(crate) fn update_inventory_hud_slot(
                     parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Px(16.)),
+                                width: Val::Percent(100.),
+                                height: Val::Px(16.),
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -104,8 +106,8 @@ pub(crate) fn update_inventory_hud_slot(
                     let slot_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
-
+                                width: Val::Percent(100.),
+                                height: Val::Px(100.),
                                 ..Default::default()
                             },
                             background_color: gray.into(),
@@ -120,7 +122,7 @@ pub(crate) fn update_inventory_hud_slot(
         });
     }
 }
-
+#[derive(Event)]
 pub struct HudAddInventorySlot {
     pub slot: AddedSlot,
 }

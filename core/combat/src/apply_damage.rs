@@ -1,4 +1,4 @@
-use bevy::prelude::{warn, Entity, EventReader, EventWriter, Query, Res, ResMut, Resource};
+use bevy::prelude::{warn, Entity, Event, EventReader, EventWriter, Query, Res, ResMut, Resource};
 use entity::health::{HealthComponent, HealthContainer};
 use gridmap::grid::{AddTile, Gridmap};
 use inventory::server::combat::{DamageModel, MeleeCombat, ProjectileCombat};
@@ -24,7 +24,7 @@ pub struct CellHit {
 }
 
 /// Event with combat results for health processing.
-
+#[derive(Event)]
 pub struct HealthCombatHitResult {
     pub incremented_id: u64,
     pub entities_hits: Vec<EntityHit>,

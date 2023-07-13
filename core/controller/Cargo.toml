@@ -9,13 +9,13 @@ documentation = "https://docs.sf.starwolves.io"
 license-file = "LICENSE"
 edition = "2021"
 [dependencies.bevy]
-version = "0.10.1"
+version = "0.11.0"
 default-features = false
 
 
 
 [dependencies]
-bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
+bevy_renet = { git = "https://github.com/Olle-Lukowski/renet.git" , rev = "a5c508d" }
 serde = "1.0.150"
 typename = "0.1.2"
 

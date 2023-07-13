@@ -1,3 +1,4 @@
+use bevy::prelude::Event;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 use ui::text::NetTextSection;
@@ -23,7 +24,7 @@ pub enum ConsoleCommandsClientMessage {
 }
 
 /// Event for new input console commands.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Event)]
 pub struct ClientSideConsoleInput {
     pub command: String,
     pub args: Vec<String>,

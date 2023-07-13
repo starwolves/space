@@ -1,4 +1,4 @@
-use bevy::prelude::{EventReader, EventWriter, ResMut};
+use bevy::prelude::{Event, EventReader, EventWriter, ResMut};
 use networking::client::IncomingReliableServerMessage;
 
 use crate::{
@@ -6,7 +6,7 @@ use crate::{
     server::inventory::{Inventory, Slot},
 };
 
-#[derive(Clone)]
+#[derive(Clone, Event)]
 pub struct AddedSlot {
     pub slot: Slot,
     pub id: u8,

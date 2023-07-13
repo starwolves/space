@@ -1,5 +1,5 @@
-use bevy::prelude::Resource;
 use bevy::prelude::{Entity, SystemSet};
+use bevy::prelude::{Event, Resource};
 use networking::server::ConsoleArgVariant;
 use serde::{Deserialize, Serialize};
 
@@ -7,7 +7,6 @@ use crate::net::ClientSideConsoleInput;
 
 /// Resource containing all registered custom console commands.
 #[derive(Default, Resource)]
-
 pub struct AllConsoleCommands {
     pub list: Vec<ConsoleCommand>,
 }
@@ -26,7 +25,7 @@ pub enum ConsoleCommandsLabels {
 }
 
 /// Client input console command message event.
-
+#[derive(Event)]
 pub struct InputConsoleCommand {
     /// The connection handle tied to the entity performing the command.
     pub handle_option: Option<u64>,

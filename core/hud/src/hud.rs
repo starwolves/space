@@ -1,8 +1,9 @@
 use bevy::{
     prelude::{
-        warn, BuildChildren, Commands, Component, Entity, EventReader, NodeBundle, Query, Res, With,
+        warn, BuildChildren, Commands, Component, Entity, Event, EventReader, NodeBundle, Query,
+        Res, With,
     },
-    ui::{Display, FlexDirection, Size, Style, Val},
+    ui::{Display, FlexDirection, Style, Val},
 };
 use networking::client::IncomingReliableServerMessage;
 use player::net::PlayerServerMessage;
@@ -36,7 +37,7 @@ pub struct LeftContentHud;
 pub struct CenterContentHud;
 #[derive(Component)]
 pub struct RightContentHud;
-
+#[derive(Event)]
 pub struct ExpandedLeftContentHud {
     pub expanded: bool,
 }
@@ -65,7 +66,8 @@ pub fn create_hud(mut commands: Commands) {
     builder
         .insert(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
                 display: Display::None,
                 ..Default::default()
@@ -76,7 +78,8 @@ pub fn create_hud(mut commands: Commands) {
             top_edge = parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                        width: Val::Percent(100.),
+                        height: Val::Percent(10.),
                         flex_direction: FlexDirection::RowReverse,
 
                         ..Default::default()
@@ -88,7 +91,8 @@ pub fn create_hud(mut commands: Commands) {
             center = parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.), Val::Percent(80.)),
+                        width: Val::Percent(100.),
+                        height: Val::Percent(80.),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -98,10 +102,8 @@ pub fn create_hud(mut commands: Commands) {
                     left = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(
-                                    Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
-                                    Val::Percent(100.),
-                                ),
+                                width: Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
+                                height: Val::Percent(100.),
                                 flex_direction: FlexDirection::ColumnReverse,
 
                                 ..Default::default()
@@ -114,10 +116,9 @@ pub fn create_hud(mut commands: Commands) {
                         .spawn(NodeBundle {
                             style: Style {
                                 display: Display::None,
-                                size: Size::new(
-                                    Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
-                                    Val::Percent(100.),
-                                ),
+
+                                width: Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
+                                height: Val::Percent(100.),
                                 ..Default::default()
                             },
 
@@ -128,7 +129,8 @@ pub fn create_hud(mut commands: Commands) {
                     center_content = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(50.), Val::Percent(100.)),
+                                width: Val::Percent(50.),
+                                height: Val::Percent(100.),
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -139,10 +141,9 @@ pub fn create_hud(mut commands: Commands) {
                         .spawn(NodeBundle {
                             style: Style {
                                 display: Display::None,
-                                size: Size::new(
-                                    Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
-                                    Val::Percent(100.),
-                                ),
+
+                                width: Val::Percent(LEFT_RIGHT_CONTENT_HUD_WIDTH),
+                                height: Val::Percent(100.),
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -152,10 +153,8 @@ pub fn create_hud(mut commands: Commands) {
                     right = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(
-                                    Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
-                                    Val::Percent(100.),
-                                ),
+                                width: Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
+                                height: Val::Percent(100.),
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -167,7 +166,8 @@ pub fn create_hud(mut commands: Commands) {
             bottom_edge = parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                        width: Val::Percent(100.),
+                        height: Val::Percent(10.),
                         ..Default::default()
                     },
                     ..Default::default()

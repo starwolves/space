@@ -1,4 +1,4 @@
-use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostUpdate, Update};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
@@ -33,48 +33,45 @@ impl Plugin for CounterWindowsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_event::<CounterWindowSensorCollision>()
-                .add_system(counter_window_tick_timers)
-                .add_system(counter_window_events)
-                .add_system(counter_window_default_map_added)
+                .add_systems(
+                    Update,
+                    (
+                        counter_window_tick_timers,
+                        counter_window_default_map_added,
+                        counter_window_events,
+                        health_combat_hit_result_sfx::<CounterWindow>
+                            .after(CombatLabels::FinalizeApplyDamage),
+                        toggle_open_action_prequisite_check
+                            .in_set(ActionsLabels::Approve)
+                            .after(ActionsLabels::Build),
+                        lock_open_action_prequisite_check
+                            .in_set(ActionsLabels::Approve)
+                            .after(ActionsLabels::Build),
+                        counter_window_actions
+                            .in_set(ActionsLabels::Action)
+                            .after(ActionsLabels::Approve),
+                        build_actions
+                            .in_set(ActionsLabels::Build)
+                            .after(ActionsLabels::Init),
+                    ),
+                )
                 .add_event::<InputCounterWindowToggleOpen>()
                 .add_event::<CounterWindowLockOpen>()
                 .add_event::<CounterWindowLockClosed>()
                 .add_event::<CounterWindowUnlock>()
-                .add_system(
-                    counter_window_update
-                        .in_base_set(CoreSet::PostUpdate)
-                        .in_set(PostUpdateLabels::EntityUpdate),
-                )
-                .add_system(
-                    health_combat_hit_result_sfx::<CounterWindow>
-                        .after(CombatLabels::FinalizeApplyDamage),
-                )
-                .add_system(
-                    toggle_open_action_prequisite_check
-                        .in_set(ActionsLabels::Approve)
-                        .after(ActionsLabels::Build),
-                )
-                .add_system(
-                    lock_open_action_prequisite_check
-                        .in_set(ActionsLabels::Approve)
-                        .after(ActionsLabels::Build),
-                )
-                .add_system(
-                    counter_window_actions
-                        .in_set(ActionsLabels::Action)
-                        .after(ActionsLabels::Approve),
-                )
-                .add_system(
-                    build_actions
-                        .in_set(ActionsLabels::Build)
-                        .after(ActionsLabels::Init),
+                .add_systems(
+                    PostUpdate,
+                    counter_window_update.in_set(PostUpdateLabels::EntityUpdate),
                 );
         }
         register_entity_type::<CounterWindowType>(app);
-        app.add_system(
-            build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
-        )
-        .add_system((build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild))
-        .add_system((build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild));
+        app.add_systems(
+            Update,
+            (
+                build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
+                (build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
+                (build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
+            ),
+        );
     }
 }

@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemConfig, Plugin, StartupSet};
+use bevy::prelude::{App, Plugin, PostStartup, Startup, Update};
 use resources::is_server::is_server;
 
 use crate::{
@@ -18,28 +18,34 @@ pub struct EscapeMenuPlugin;
 impl Plugin for EscapeMenuPlugin {
     fn build(&self, app: &mut App) {
         if !is_server() {
-            app.add_startup_system(build_escape_menu)
-                .add_startup_system(build_controls_section.in_base_set(StartupSet::PostStartup))
-                .add_startup_system(build_graphics_section.in_base_set(StartupSet::PostStartup))
-                .add_system(toggle_escape_menu)
+            app.add_systems(Startup, (build_escape_menu, register_input))
+                .add_systems(
+                    PostStartup,
+                    (build_graphics_section, build_controls_section),
+                )
+                .add_systems(
+                    Update,
+                    (
+                        toggle_escape_menu,
+                        esc_button_menu,
+                        toggle_general_menu_section,
+                        toggle_graphics_menu_section,
+                        toggle_controls_menu_section,
+                        exit_button_pressed,
+                        general_section_button_pressed,
+                        graphics_section_button_pressed,
+                        controls_section_button_pressed,
+                        appply_resolution,
+                        apply_window_mode,
+                        apply_vsync,
+                        apply_fxaa,
+                        apply_msaa,
+                    ),
+                )
                 .add_event::<ToggleEscapeMenu>()
-                .add_system(esc_button_menu)
-                .add_system(toggle_general_menu_section)
-                .add_system(toggle_graphics_menu_section)
-                .add_system(toggle_controls_menu_section)
                 .add_event::<ToggleGeneralSection>()
                 .add_event::<ToggleGraphicsSection>()
-                .add_event::<ToggleControlsSection>()
-                .add_system(exit_button_pressed)
-                .add_system(general_section_button_pressed)
-                .add_system(graphics_section_button_pressed)
-                .add_system(controls_section_button_pressed)
-                .add_startup_system(register_input)
-                .add_system(appply_resolution)
-                .add_system(apply_window_mode)
-                .add_system(apply_vsync)
-                .add_system(apply_fxaa)
-                .add_system(apply_msaa);
+                .add_event::<ToggleControlsSection>();
         }
     }
 }

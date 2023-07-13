@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{EventReader, EventWriter, Query, Res, ResMut, Resource, With},
+    prelude::{Event, EventReader, EventWriter, Query, Res, ResMut, Resource, With},
     window::{CursorGrabMode, PrimaryWindow, Window, WindowFocused},
 };
 use networking::client::IncomingReliableServerMessage;
@@ -21,6 +21,7 @@ pub(crate) fn grab_mouse_on_board(
         }
     }
 }
+#[derive(Event)]
 pub struct GrabCursor;
 
 pub fn grab_cursor(
@@ -38,7 +39,7 @@ pub fn grab_cursor(
         primary.cursor.visible = false;
     }
 }
-
+#[derive(Event)]
 pub struct ReleaseCursor;
 
 pub fn release_cursor(

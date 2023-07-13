@@ -26,7 +26,7 @@ use combat::health_ui::ClientHealthUICache;
 use networking::server::{ConnectedPlayer, HandleToEntity};
 
 /// Manage client connection events.
-
+#[allow(unused_variables)]
 pub(crate) fn connections(
     mut handle_to_entity: ResMut<HandleToEntity>,
     mut reader: EventReader<ServerEvent>,
@@ -35,10 +35,10 @@ pub(crate) fn connections(
 ) {
     for event in reader.iter() {
         match event {
-            ServerEvent::ClientConnected(_, _) => {}
-            ServerEvent::ClientDisconnected(handle) => {
+            ServerEvent::ClientConnected { client_id } => {}
+            ServerEvent::ClientDisconnected { client_id, reason } => {
                 let entity;
-                match handle_to_entity.map.get(handle) {
+                match handle_to_entity.map.get(client_id) {
                     Some(ent) => {
                         entity = Some(*ent);
                         match connected_players.get_mut(*ent) {
@@ -59,7 +59,7 @@ pub(crate) fn connections(
                         continue;
                     }
                 }
-                handle_to_entity.map.remove(handle);
+                handle_to_entity.map.remove(client_id);
                 match entity {
                     Some(ent) => {
                         handle_to_entity.inv_map.remove(&ent);

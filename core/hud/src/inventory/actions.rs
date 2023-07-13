@@ -8,7 +8,7 @@ use bevy::{
         DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res, TextBundle, With,
     },
     text::TextStyle,
-    ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Size, Style, Val},
+    ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
 use entity::spawn::PawnEntityId;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
@@ -66,7 +66,8 @@ pub(crate) fn slot_item_actions(
                     parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                width: Val::Percent(100.),
+                                height: Val::Percent(100.),
                                 flex_direction: FlexDirection::Column,
                                 align_items: AlignItems::Center,
                                 ..Default::default()
@@ -78,7 +79,8 @@ pub(crate) fn slot_item_actions(
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.), Val::Percent(3.)),
+                                        width: Val::Percent(100.),
+                                        height: Val::Percent(3.),
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
 
@@ -98,8 +100,8 @@ pub(crate) fn slot_item_actions(
                                 });
                             parent.spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.), Val::Percent(8.)),
-
+                                    width: Val::Percent(100.),
+                                    height: Val::Percent(8.),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -107,7 +109,8 @@ pub(crate) fn slot_item_actions(
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(65.), Val::Percent(36.)),
+                                        width: Val::Percent(65.),
+                                        height: Val::Percent(36.),
                                         flex_direction: FlexDirection::Column,
                                         ..Default::default()
                                     },
@@ -126,10 +129,8 @@ pub(crate) fn slot_item_actions(
                                                 style: Style {
                                                     justify_content: JustifyContent::Center,
                                                     align_items: AlignItems::Center,
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(10.),
-                                                    ),
+                                                    width: Val::Percent(100.),
+                                                    height: Val::Percent(10.),
                                                     ..Default::default()
                                                 },
 
@@ -139,10 +140,8 @@ pub(crate) fn slot_item_actions(
                                                 parent
                                                     .spawn(ButtonBundle {
                                                         style: Style {
-                                                            size: Size::new(
-                                                                Val::Percent(100.),
-                                                                Val::Percent(100.),
-                                                            ),
+                                                            width: Val::Percent(100.),
+                                                            height: Val::Percent(100.),
                                                             justify_content: JustifyContent::Center,
                                                             align_items: AlignItems::Center,
                                                             ..Default::default()
@@ -186,7 +185,7 @@ pub(crate) fn item_actions_button_events(
 ) {
     for (interaction, component) in interaction_query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 net.send(OutgoingReliableClientMessage {
                     message: ActionsClientMessage::TabPressed(TabPressed {
                         id: component.data.id.clone(),

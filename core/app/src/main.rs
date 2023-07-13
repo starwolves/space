@@ -1,6 +1,7 @@
 //! Launcher and loop initializer.
 
 use std::env::current_dir;
+use std::time::Duration;
 
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
@@ -16,8 +17,9 @@ use bevy::prelude::FixedTime;
 use bevy::prelude::FrameCountPlugin;
 use bevy::prelude::HierarchyPlugin;
 use bevy::prelude::ImagePlugin;
-use bevy::prelude::IntoSystemConfig;
+use bevy::prelude::IntoSystemConfigs;
 use bevy::prelude::PluginGroup;
+use bevy::prelude::Startup;
 use bevy::prelude::TaskPoolOptions;
 use bevy::prelude::TaskPoolPlugin;
 use bevy::prelude::TypeRegistrationPlugin;
@@ -64,6 +66,7 @@ use pistol_l1::plugin::PistolL1Plugin;
 use player::plugin::PlayerPlugin;
 use point_light::plugin::PointLightPlugin;
 use resources::core::ClientInformation;
+use resources::core::TickRate;
 use resources::is_server::is_server;
 use resources::labels::StartupLabels;
 use resources::plugin::ResourcesPlugin;
@@ -96,27 +99,30 @@ pub(crate) fn configure_and_start() {
         let mut wgpu_settings = WgpuSettings::default();
         wgpu_settings.backends = None;
 
-        app.add_plugin(LogPlugin::default())
-            .add_plugin(TaskPoolPlugin {
+        app.add_plugins(LogPlugin::default())
+            .add_plugins(TaskPoolPlugin {
                 task_pool_options: TaskPoolOptions::with_num_threads(1),
             })
-            .add_plugin(TypeRegistrationPlugin)
-            .add_plugin(FrameCountPlugin)
-            .add_plugin(AssetPlugin {
+            .add_plugins(TypeRegistrationPlugin)
+            .add_plugins(FrameCountPlugin)
+            .add_plugins(AssetPlugin {
                 asset_folder: test_path.to_str().unwrap().to_owned(),
                 ..Default::default()
             })
-            .add_plugin(WindowPlugin::default())
-            .add_plugin(ScheduleRunnerPlugin::default())
-            .add_plugin(TimePlugin::default())
-            .add_plugin(TransformPlugin::default())
-            .add_plugin(HierarchyPlugin::default())
-            .add_plugin(DiagnosticsPlugin::default())
-            .add_plugin(ScenePlugin::default())
-            .add_plugin(RenderPlugin {
+            .add_plugins(WindowPlugin::default())
+            .init_resource::<TickRate>()
+            .add_plugins(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f32(
+                1. / TickRate::default().bevy_rate as f32,
+            )))
+            .add_plugins(TimePlugin::default())
+            .add_plugins(TransformPlugin::default())
+            .add_plugins(HierarchyPlugin::default())
+            .add_plugins(DiagnosticsPlugin::default())
+            .add_plugins(ScenePlugin::default())
+            .add_plugins(RenderPlugin {
                 wgpu_settings: wgpu_settings,
             })
-            .add_plugin(ImagePlugin::default());
+            .add_plugins(ImagePlugin::default());
     } else {
         app.add_plugins(
             DefaultPlugins
@@ -138,57 +144,58 @@ pub(crate) fn configure_and_start() {
                 .set(ImagePlugin::default_nearest()),
         )
         .insert_resource(WinitSettings::game())
-        .add_plugin(EguiPlugin)
+        .add_plugins(EguiPlugin)
         .insert_resource(ClientInformation {
             version: APP_VERSION.to_string(),
         })
-        .add_plugin(GraphicsPlugin);
+        .add_plugins(GraphicsPlugin);
     }
-    app.add_plugin(TokenPlugin)
-        .add_plugin(AsanaPlugin)
-        .add_plugin(GridmapPlugin)
-        .add_plugin(ResourcesPlugin)
-        .add_plugin(PawnPlugin)
-        .add_plugin(HumanMalePlugin)
-        .add_plugin(SfxPlugin)
-        .add_plugin(EntityPlugin)
-        .add_plugin(ConsoleCommandsPlugin)
-        .add_plugin(ConstructionToolAdminPlugin)
-        .add_plugin(ActionsPlugin)
-        .add_plugin(MapPlugin)
-        .add_plugin(AirLocksPlugin)
-        .add_plugin(CounterWindowsPlugin)
-        .add_plugin(InventoryPlugin)
-        .add_plugin(NetworkingPlugin)
-        .add_plugin(HumanoidPlugin)
-        .add_plugin(ComputersPlugin)
-        .add_plugin(CombatPlugin)
-        .add_plugin(JumpsuitsPlugin)
-        .add_plugin(HelmetsPlugin)
-        .add_plugin(PistolL1Plugin)
-        .add_plugin(LineArrowPlugin)
-        .add_plugin(PointArrowPlugin)
-        .add_plugin(SoundsPlugin)
-        .add_plugin(ChatPlugin)
-        .add_plugin(UiPlugin)
-        .add_plugin(PlayerPlugin)
-        .add_plugin(SetupMenuPlugin)
-        .add_plugin(PhysicsPlugin)
-        .add_plugin(PointLightPlugin)
-        .add_plugin(BasicConsoleCommandsPlugin {
+    app.add_plugins(TokenPlugin)
+        .add_plugins(AsanaPlugin)
+        .add_plugins(GridmapPlugin)
+        .add_plugins(ResourcesPlugin)
+        .add_plugins(PawnPlugin)
+        .add_plugins(HumanMalePlugin)
+        .add_plugins(SfxPlugin)
+        .add_plugins(EntityPlugin)
+        .add_plugins(ConsoleCommandsPlugin)
+        .add_plugins(ConstructionToolAdminPlugin)
+        .add_plugins(ActionsPlugin)
+        .add_plugins(MapPlugin)
+        .add_plugins(AirLocksPlugin)
+        .add_plugins(CounterWindowsPlugin)
+        .add_plugins(InventoryPlugin)
+        .add_plugins(NetworkingPlugin)
+        .add_plugins(HumanoidPlugin)
+        .add_plugins(ComputersPlugin)
+        .add_plugins(CombatPlugin)
+        .add_plugins(JumpsuitsPlugin)
+        .add_plugins(HelmetsPlugin)
+        .add_plugins(PistolL1Plugin)
+        .add_plugins(LineArrowPlugin)
+        .add_plugins(PointArrowPlugin)
+        .add_plugins(SoundsPlugin)
+        .add_plugins(ChatPlugin)
+        .add_plugins(UiPlugin)
+        .add_plugins(PlayerPlugin)
+        .add_plugins(SetupMenuPlugin)
+        .add_plugins(PhysicsPlugin)
+        .add_plugins(PointLightPlugin)
+        .add_plugins(BasicConsoleCommandsPlugin {
             give_all_rcon: true,
         })
-        .add_startup_system(
+        .add_systems(
+            Startup,
             live.in_set(StartupLabels::ServerIsLive)
                 .after(StartupLabels::InitAtmospherics),
         )
         .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
-        .add_plugin(MainMenuPlugin)
-        .add_plugin(EscapeMenuPlugin)
-        .add_plugin(ControllerPlugin::default())
-        .add_plugin(WorldPlugin)
-        .add_plugin(HudPlugin)
+        .add_plugins(MainMenuPlugin)
+        .add_plugins(EscapeMenuPlugin)
+        .add_plugins(ControllerPlugin::default())
+        .add_plugins(WorldPlugin)
+        .add_plugins(HudPlugin)
         .insert_resource(FixedTime::new_from_secs(1. / 60.))
-        .add_plugin(MetadataPlugin)
+        .add_plugins(MetadataPlugin)
         .run();
 }

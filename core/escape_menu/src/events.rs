@@ -1,8 +1,8 @@
 use bevy::{
     app::AppExit,
     prelude::{
-        info, warn, Button, Changed, Entity, EventReader, EventWriter, Input, KeyCode, Parent,
-        Query, Res, ResMut, With,
+        info, warn, Button, Changed, Entity, Event, EventReader, EventWriter, Input, KeyCode,
+        Parent, Query, Res, ResMut, With,
     },
     ui::{Display, Interaction, Style},
 };
@@ -20,7 +20,7 @@ use crate::build::{
     GeneralHeaderButton, GeneralSection, GraphicsBGSection, GraphicsHeaderButton, MsaaHList,
     ResolutionInputApply, ResolutionXInput, ResolutionYInput, VsyncHList, WindowModeHList,
 };
-
+#[derive(Event)]
 pub struct ToggleEscapeMenu {
     pub enabled: bool,
 }
@@ -90,13 +90,15 @@ pub fn toggle_escape_menu(
         }
     }
 }
-
+#[derive(Event)]
 pub struct ToggleGeneralSection {
     pub enabled: bool,
 }
+#[derive(Event)]
 pub struct ToggleGraphicsSection {
     pub enabled: bool,
 }
+#[derive(Event)]
 pub struct ToggleControlsSection {
     pub enabled: bool,
 }
@@ -162,7 +164,7 @@ pub(crate) fn exit_button_pressed(
 ) {
     for interaction in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 info!("Exiting app.");
                 exit.send(AppExit);
             }
@@ -184,7 +186,7 @@ pub(crate) fn general_section_button_pressed(
 ) {
     for interaction in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 events.send(ToggleGeneralSection { enabled: true });
             }
             Interaction::Hovered => {}
@@ -205,7 +207,7 @@ pub(crate) fn graphics_section_button_pressed(
 ) {
     for interaction in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 events.send(ToggleGraphicsSection { enabled: true });
             }
             Interaction::Hovered => {}
@@ -226,7 +228,7 @@ pub(crate) fn controls_section_button_pressed(
 ) {
     for interaction in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 events.send(ToggleControlsSection { enabled: true });
             }
             Interaction::Hovered => {}
@@ -243,7 +245,7 @@ pub(crate) fn appply_resolution(
 ) {
     for interaction in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 let x = x_input.get_single().unwrap();
                 let y = y_input.get_single().unwrap();
 
@@ -270,7 +272,7 @@ pub(crate) fn apply_window_mode(
 ) {
     for (entity, interaction, parent) in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 match parent_query.get(**parent) {
                     Ok(_) => {}
                     Err(_) => {
@@ -318,7 +320,7 @@ pub(crate) fn apply_vsync(
 ) {
     for (entity, interaction, parent) in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 match parent_query.get(**parent) {
                     Ok(_) => {}
                     Err(_) => {
@@ -355,7 +357,7 @@ pub(crate) fn apply_fxaa(
 ) {
     for (entity, interaction, parent) in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 match parent_query.get(**parent) {
                     Ok(_) => {}
                     Err(_) => {
@@ -408,7 +410,7 @@ pub(crate) fn apply_msaa(
 ) {
     for (entity, interaction, parent) in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 match parent_query.get(**parent) {
                     Ok(_) => {}
                     Err(_) => {

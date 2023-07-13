@@ -1,4 +1,4 @@
-use bevy::prelude::{Component, Entity};
+use bevy::prelude::{Component, Entity, Event};
 use gridmap::grid::CellIds;
 use resources::grid::TargetCell;
 
@@ -11,7 +11,7 @@ pub struct ConstructionTool {
 }
 
 /// Player requested input event.
-
+#[derive(Event)]
 pub struct InputConstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -21,7 +21,7 @@ pub struct InputConstruct {
     pub belonging_entity: Entity,
 }
 /// Player requested input event.
-
+#[derive(Event)]
 pub struct InputConstructionOptions {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,
@@ -29,7 +29,7 @@ pub struct InputConstructionOptions {
     pub entity: Entity,
 }
 /// Player requested input event.
-
+#[derive(Event)]
 pub struct InputDeconstruct {
     /// Connection handle that fired this input.
     pub handle_option: Option<u64>,

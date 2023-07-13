@@ -2,7 +2,7 @@ use airlocks::airlock_events::{AirlockCloseRequest, LockedStatus};
 use bevy::{
     hierarchy::Children,
     prelude::{
-        info, warn, Commands, Component, Entity, EventReader, Query, ResMut, Transform, With,
+        info, warn, Commands, Component, Entity, Event, EventReader, Query, ResMut, Transform, With,
     },
     time::Timer,
 };
@@ -684,7 +684,7 @@ pub fn denied_timer() -> Timer {
 }
 
 /// Counter window sensor collision event.
-
+#[derive(Event)]
 pub struct CounterWindowSensorCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
@@ -696,7 +696,7 @@ pub struct CounterWindowSensorCollision {
 }
 
 /// Counter window toggle open event.
-
+#[derive(Event)]
 pub struct InputCounterWindowToggleOpen {
     pub handle_option: Option<u64>,
 
@@ -704,7 +704,7 @@ pub struct InputCounterWindowToggleOpen {
     pub opened: Entity,
 }
 /// Counter window lock open event.
-
+#[derive(Event)]
 pub struct CounterWindowLockOpen {
     pub handle_option: Option<u64>,
 
@@ -713,7 +713,7 @@ pub struct CounterWindowLockOpen {
 }
 
 /// Counter window lock closed event.
-
+#[derive(Event)]
 pub struct CounterWindowLockClosed {
     pub handle_option: Option<u64>,
 
@@ -722,7 +722,7 @@ pub struct CounterWindowLockClosed {
 }
 
 /// Counter window unlock event.
-
+#[derive(Event)]
 pub struct CounterWindowUnlock {
     pub handle_option: Option<u64>,
 

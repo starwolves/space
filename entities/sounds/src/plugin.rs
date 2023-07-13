@@ -1,6 +1,6 @@
 use crate::ambience;
 use ambience::ambience_sfx::startup_ambience;
-use bevy::prelude::{App, Plugin};
+use bevy::prelude::{App, Plugin, Startup};
 use resources::is_server::is_server;
 
 pub struct SoundsPlugin;
@@ -8,7 +8,7 @@ pub struct SoundsPlugin;
 impl Plugin for SoundsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_startup_system(startup_ambience);
+            app.add_systems(Startup, startup_ambience);
         }
     }
 }

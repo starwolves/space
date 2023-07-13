@@ -17,7 +17,7 @@ pub(crate) fn button_style_events(
 ) {
     for (interaction, mut bg_color, style) in interaction_query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 let mut midnight = ACTIONS_HUD_BG_COLOR;
                 midnight.set_a(1.);
                 *bg_color = midnight.into();

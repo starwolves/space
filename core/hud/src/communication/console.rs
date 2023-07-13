@@ -4,11 +4,11 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        BuildChildren, Commands, Component, EventReader, EventWriter, Label, NodeBundle, Res,
-        TextBundle,
+        BuildChildren, Commands, Component, Event, EventReader, EventWriter, Label, NodeBundle,
+        Res, TextBundle,
     },
     text::{TextSection, TextStyle},
-    ui::{FlexDirection, Size, Style, Val},
+    ui::{FlexDirection, Style, Val},
 };
 use console_commands::net::{
     ClientSideConsoleInput, ConsoleCommandsClientMessage, ConsoleCommandsServerMessage,
@@ -77,7 +77,7 @@ pub(crate) fn receive_console_message(
         }
     }
 }
-
+#[derive(Event)]
 pub struct DisplayConsoleMessage {
     pub sections: Vec<TextSection>,
 }
@@ -98,9 +98,9 @@ pub(crate) fn display_console_message(
         let text_section = commands
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Auto, Val::Auto),
                     flex_direction: FlexDirection::Row,
-
+                    width: Val::Auto,
+                    height: Val::Auto,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -110,10 +110,8 @@ pub(crate) fn display_console_message(
                 parent
                     .spawn(
                         TextBundle::from_sections(sections.clone()).with_style(Style {
-                            max_size: Size {
-                                width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
-                                height: Val::Undefined,
-                            },
+                            max_width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
+                            max_height: Val::Px(0.),
                             ..Default::default()
                         }),
                     )

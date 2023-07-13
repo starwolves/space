@@ -1,11 +1,11 @@
-use bevy::prelude::{EventReader, EventWriter, ResMut, Resource};
+use bevy::prelude::{Event, EventReader, EventWriter, ResMut, Resource};
 use inventory::{
     client::slots::AddedSlot, net::InventoryServerMessage, server::inventory::ItemAddedToSlot,
 };
 use networking::client::IncomingReliableServerMessage;
 
 use super::{items::HudAddItemToSlot, slots::HudAddInventorySlot};
-
+#[derive(Event)]
 pub struct RequeueHudAddItemToSlot {
     pub queued: HudAddItemToSlot,
 }

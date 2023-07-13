@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{
         warn, Added, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity,
-        EventReader, EventWriter, Parent, Query, Res, TextBundle, With,
+        Event, EventReader, EventWriter, Parent, Query, Res, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{BackgroundColor, Interaction, Style},
@@ -89,7 +89,7 @@ pub(crate) fn hlist_input(
 ) {
     for (entity, interaction, parent, hlist_sub) in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => match hlist_query.get(**parent) {
+            Interaction::Pressed => match hlist_query.get(**parent) {
                 Ok(hlist) => {
                     freeze.send(FreezeButton {
                         entity,
@@ -119,7 +119,7 @@ pub(crate) fn hlist_input(
         }
     }
 }
-
+#[derive(Event)]
 pub struct FreezeButton {
     pub entity: Entity,
     pub id: u8,

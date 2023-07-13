@@ -28,7 +28,7 @@ pub(crate) fn mouse_scroll_inverted(
 
             scrolling_list.position += dy;
             scrolling_list.position = scrolling_list.position.clamp(0., max_scroll);
-            style.position.top = Val::Px(scrolling_list.position);
+            style.top = Val::Px(scrolling_list.position);
         }
     }
 }
@@ -56,7 +56,7 @@ pub(crate) fn mouse_scroll(
 
             scrolling_list.position += dy;
             scrolling_list.position = scrolling_list.position.clamp(-max_scroll, 0.);
-            style.position.top = Val::Px(scrolling_list.position);
+            style.top = Val::Px(scrolling_list.position);
         }
     }
 }

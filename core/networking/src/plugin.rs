@@ -1,4 +1,4 @@
-use bevy::prelude::{resource_exists, App, CoreSet, IntoSystemConfig, Plugin};
+use bevy::prelude::{resource_exists, App, IntoSystemConfigs, Plugin, PreUpdate, Startup, Update};
 use bevy_renet::{renet::RenetClient, RenetClientPlugin, RenetServerPlugin};
 use resources::is_server::is_server;
 
@@ -27,51 +27,60 @@ pub struct NetworkingPlugin;
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_plugin(RenetServerPlugin::default())
+            app.add_plugins(RenetServerPlugin)
                 .insert_resource(startup_server_listen_connections())
-                .add_system(souls)
+                .add_systems(Update, souls)
                 .add_event::<IncomingRawReliableClientMessage>()
                 .add_event::<IncomingRawUnreliableClientMessage>()
-                .add_system(
-                    receive_incoming_reliable_client_messages
-                        .in_base_set(CoreSet::PreUpdate)
-                        .in_set(TypenamesLabel::SendRawEvents),
+                .add_systems(
+                    PreUpdate,
+                    receive_incoming_reliable_client_messages.in_set(TypenamesLabel::SendRawEvents),
                 )
-                .add_system(
+                .add_systems(
+                    PreUpdate,
                     receive_incoming_unreliable_client_messages
-                        .in_base_set(CoreSet::PreUpdate)
                         .in_set(TypenamesLabel::SendRawEvents),
                 );
         } else {
-            app.add_system(token_assign_server)
-                .add_system(process_response.run_if(resource_exists::<TokenAssignServer>()))
-                .add_event::<ConnectToServer>()
-                .add_plugin(RenetClientPlugin::default())
-                .add_system(connect_to_server)
-                .add_event::<AssignTokenToServer>()
-                .init_resource::<ConnectionPreferences>()
-                .init_resource::<Connection>()
-                .init_resource::<AssigningServerToken>()
-                .add_system(
-                    receive_incoming_reliable_server_messages
-                        .in_base_set(CoreSet::PreUpdate)
-                        .in_set(TypenamesLabel::SendRawEvents)
-                        .run_if(resource_exists::<RenetClient>()),
-                )
-                .add_system(
-                    receive_incoming_unreliable_server_messages
-                        .in_base_set(CoreSet::PreUpdate)
-                        .in_set(TypenamesLabel::SendRawEvents)
-                        .run_if(resource_exists::<RenetClient>()),
-                )
-                .add_event::<IncomingRawReliableServerMessage>()
-                .add_event::<IncomingRawUnreliableServerMessage>()
-                .add_system(confirm_connection.run_if(is_client_connected))
-                .add_system(on_disconnect.run_if(connected));
+            app.add_systems(
+                Update,
+                (
+                    process_response.run_if(resource_exists::<TokenAssignServer>()),
+                    token_assign_server,
+                    connect_to_server,
+                ),
+            )
+            .add_event::<ConnectToServer>()
+            .add_plugins(RenetClientPlugin)
+            .add_event::<AssignTokenToServer>()
+            .init_resource::<ConnectionPreferences>()
+            .init_resource::<Connection>()
+            .init_resource::<AssigningServerToken>()
+            .add_systems(
+                PreUpdate,
+                receive_incoming_reliable_server_messages
+                    .in_set(TypenamesLabel::SendRawEvents)
+                    .run_if(resource_exists::<RenetClient>()),
+            )
+            .add_systems(
+                PreUpdate,
+                receive_incoming_unreliable_server_messages
+                    .in_set(TypenamesLabel::SendRawEvents)
+                    .run_if(resource_exists::<RenetClient>()),
+            )
+            .add_event::<IncomingRawReliableServerMessage>()
+            .add_event::<IncomingRawUnreliableServerMessage>()
+            .add_systems(
+                Update,
+                (
+                    confirm_connection.run_if(is_client_connected),
+                    on_disconnect.run_if(connected),
+                ),
+            );
         }
 
         app.init_resource::<Typenames>()
-            .add_startup_system(generate_typenames.after(TypenamesLabel::Generate));
+            .add_systems(Startup, generate_typenames.after(TypenamesLabel::Generate));
         register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
         register_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);
         register_reliable_message::<NetworkingChatServerMessage>(app, MessageSender::Server);

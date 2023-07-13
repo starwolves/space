@@ -11,11 +11,11 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.10.1"
+version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_xpbd_3d = "0.1.0"
+bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", branch = "main"}
 const_format = "0.2.30"
 
 entity = { path = "../../core/entity" }

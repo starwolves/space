@@ -1,6 +1,6 @@
 use bevy::{
     hierarchy::Children,
-    prelude::{warn, Commands, Entity, EventReader, Query, ResMut, Transform},
+    prelude::{warn, Commands, Entity, Event, EventReader, Query, ResMut, Transform},
 };
 use entity::{entity_data::EntityGroup, examine::Examinable};
 use pawn::pawn::{Pawn, ShipAuthorization};
@@ -473,7 +473,7 @@ pub(crate) fn airlock_events(
 }
 
 /// Air lock collision event.
-
+#[derive(Event)]
 pub struct AirlockCollision {
     pub collider1_entity: Entity,
     pub collider2_entity: Entity,
@@ -486,7 +486,7 @@ pub struct AirlockCollision {
 }
 
 /// Air lock toggle open event.
-
+#[derive(Event)]
 pub struct InputAirlockToggleOpen {
     pub handle_option: Option<u64>,
 
@@ -494,7 +494,7 @@ pub struct InputAirlockToggleOpen {
     pub opened: Entity,
 }
 /// Air lock , lock the door to open event.
-
+#[derive(Event)]
 pub struct AirLockLockOpen {
     pub handle_option: Option<u64>,
 
@@ -502,7 +502,7 @@ pub struct AirLockLockOpen {
     pub locker: Entity,
 }
 /// Air lock , lock the door to closed event.
-
+#[derive(Event)]
 pub struct AirlockLockClosed {
     pub handle_option: Option<u64>,
 
@@ -510,7 +510,7 @@ pub struct AirlockLockClosed {
     pub locker: Entity,
 }
 /// Unlock the air lock event.
-
+#[derive(Event)]
 pub struct AirlockUnlock {
     pub handle_option: Option<u64>,
     pub locked: Entity,

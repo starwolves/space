@@ -1,4 +1,4 @@
-use bevy::prelude::{Query, ResMut, Resource, Transform};
+use bevy::prelude::{Event, Query, ResMut, Resource, Transform};
 use doryen_fov::{FovAlgorithm, MapData};
 use entity::senser::{to_doryen_coordinates, Senser, WORLD_WIDTH_CELLS};
 use resources::math::{world_to_cell_id, Vec2Int};
@@ -8,7 +8,7 @@ use crate::net::ProjectileData;
 pub const FOV_DISTANCE: usize = 23;
 
 /// An event for a projectile that exists for a frame so the FOV for its projectile path can be calculated and the projectile will be displayed on the appropiate client's screens.
-
+#[derive(Event)]
 pub struct ProjectileFOV {
     pub laser_projectile: ProjectileData,
 }

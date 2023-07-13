@@ -5,7 +5,9 @@ use std::{
 
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
-    prelude::{DetectChanges, EventReader, EventWriter, Msaa, Query, Res, ResMut, Resource, With},
+    prelude::{
+        DetectChanges, Event, EventReader, EventWriter, Msaa, Query, Res, ResMut, Resource, With,
+    },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
 use num_derive::FromPrimitive;
@@ -139,7 +141,7 @@ pub(crate) fn setup_graphics_settings(
         mode: settings.msaa.clone(),
     });
 }
-
+#[derive(Event)]
 pub struct SetResolution {
     pub resolution: (u32, u32),
 }
@@ -157,6 +159,7 @@ pub(crate) fn set_resolution(
         settings.resolution = (event.resolution.0, event.resolution.1);
     }
 }
+#[derive(Event)]
 pub struct SetVsync {
     pub enabled: bool,
 }
@@ -176,7 +179,7 @@ pub(crate) fn set_vsync(
         settings.vsync = event.enabled;
     }
 }
-
+#[derive(Event)]
 pub struct SetWindowMode {
     pub window_mode: SFWindowMode,
 }
@@ -193,6 +196,7 @@ pub(crate) fn set_window_mode(
         settings.window_mode = event.window_mode.clone();
     }
 }
+#[derive(Event)]
 pub struct SetFxaa {
     pub mode: Option<SFFxaa>,
 }
@@ -215,6 +219,7 @@ pub(crate) fn set_fxaa(
         }
     }
 }
+#[derive(Event)]
 pub struct SetMsaa {
     pub mode: SFMsaa,
 }

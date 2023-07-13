@@ -1,4 +1,5 @@
 use bevy::prelude::warn;
+use bevy::prelude::Event;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Res;
 use networking::server::UIInputAction;
@@ -27,7 +28,7 @@ pub enum UIInputNodeClass {
 }
 
 /// Event as client input , interaction with UI.
-
+#[derive(Event)]
 pub struct InputUIInput {
     /// Handle of the connection that input this.
     pub handle: u64,

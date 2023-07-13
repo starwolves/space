@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Update};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
@@ -20,13 +20,23 @@ pub struct ComputersPlugin;
 impl Plugin for ComputersPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(computer_added).add_system(
-                health_combat_hit_result_sfx::<Computer>.after(CombatLabels::FinalizeApplyDamage),
+            app.add_systems(
+                Update,
+                (
+                    health_combat_hit_result_sfx::<Computer>
+                        .after(CombatLabels::FinalizeApplyDamage),
+                    computer_added,
+                ),
             );
         }
         register_entity_type::<ComputerType>(app);
-        app.add_system(build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild))
-            .add_system((build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild));
+        app.add_systems(
+            Update,
+            (
+                (build_rigid_bodies::<ComputerType>).after(BuildingLabels::TriggerBuild),
+                build_computers::<ComputerType>.after(BuildingLabels::TriggerBuild),
+                (build_base_entities::<ComputerType>).after(BuildingLabels::TriggerBuild),
+            ),
+        );
     }
 }

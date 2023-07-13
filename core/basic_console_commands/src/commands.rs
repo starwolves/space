@@ -1,4 +1,4 @@
-use bevy::prelude::{warn, EventReader, Resource, With};
+use bevy::prelude::{warn, Event, EventReader, Resource, With};
 use console_commands::commands::InputConsoleCommand;
 
 use bevy::prelude::{Commands, EventWriter, Res};
@@ -139,6 +139,7 @@ use entity::spawn::spawn_entity;
 use gridmap::get_spawn_position::entity_spawn_position_for_player;
 
 /// Event for spawning in entities with the rcon command.
+#[derive(Event)]
 pub struct RconSpawnEntity<T: EntityType + Send + Sync + 'static> {
     pub entity_type: T,
     pub target_selector: String,
@@ -279,6 +280,7 @@ pub fn rcon_spawn_entity<T: EntityType + Clone + Send + Sync + 'static>(
 use networking::server::NetworkingChatServerMessage;
 
 /// Event for spawning in entities with the rcon command.
+#[derive(Event)]
 pub struct RconSpawnHeldEntity<T> {
     pub entity_type: T,
     pub target_selector: String,

@@ -9,8 +9,7 @@ use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
     connections::{server_events, PlayerAwaitingBoarding},
 };
-use bevy::prelude::IntoSystemConfig;
-use bevy::prelude::{App, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, SystemSet, Update};
 use cameras::controllers::fps::FpsCameraPlugin;
 use cameras::LookTransformPlugin;
 use networking::{
@@ -33,28 +32,30 @@ impl Plugin for PlayerPlugin {
         if is_server() {
             app.add_event::<SendServerConfiguration>()
                 .init_resource::<HandleToEntity>()
-                .add_system(done_boarding)
+                .add_systems(
+                    Update,
+                    (
+                        done_boarding,
+                        server_new_client_configuration
+                            .in_set(ConfigurationLabel::SpawnEntity)
+                            .before(ConfigurationLabel::Main),
+                        finished_configuration.after(ConfigurationLabel::Main),
+                        server_events.before(ConfigurationLabel::SpawnEntity),
+                        process_response,
+                        player_boarded,
+                    ),
+                )
                 .init_resource::<AuthidI>()
                 .init_resource::<BoardingAnnouncements>()
                 .add_event::<InputUIInputTransmitText>()
                 .add_event::<PlayerAwaitingBoarding>()
-                .add_system(
-                    server_new_client_configuration
-                        .in_set(ConfigurationLabel::SpawnEntity)
-                        .before(ConfigurationLabel::Main),
-                )
                 .add_event::<InputUIInputTransmitText>()
-                .add_system(finished_configuration.after(ConfigurationLabel::Main))
-                .add_system(server_events.before(ConfigurationLabel::SpawnEntity))
-                .add_system(process_response)
                 .init_resource::<Accounts>()
-                .add_event::<PlayerBoarded>()
-                .add_system(player_boarded);
+                .add_event::<PlayerBoarded>();
         } else {
-            app.add_system(client_receive_pawnid)
-                .add_system(spawn_debug_camera)
-                .add_plugin(LookTransformPlugin)
-                .add_plugin(FpsCameraPlugin::default())
+            app.add_systems(Update, (client_receive_pawnid, spawn_debug_camera))
+                .add_plugins(LookTransformPlugin)
+                .add_plugins(FpsCameraPlugin::default())
                 .init_resource::<Boarded>();
         }
         app.init_resource::<SpawnPoints>();

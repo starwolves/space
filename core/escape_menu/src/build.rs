@@ -9,8 +9,8 @@ use bevy::{
     },
     text::TextStyle,
     ui::{
-        AlignItems, Display, FlexDirection, FlexWrap, Interaction, JustifyContent, Overflow, Size,
-        Style, UiRect, Val,
+        AlignItems, Display, FlexDirection, FlexWrap, Interaction, JustifyContent, Overflow, Style,
+        UiRect, Val,
     },
 };
 use graphics::settings::GraphicsSettings;
@@ -70,7 +70,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
     let escape_root = commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
                 display: Display::None,
                 align_items: AlignItems::Center,
@@ -84,7 +85,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(50.0), Val::Percent(60.0)),
+                        width: Val::Percent(50.0),
+                        height: Val::Percent(60.0),
                         flex_direction: FlexDirection::Column,
                         ..Default::default()
                     },
@@ -95,7 +97,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                     parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Percent(7.)),
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(7.0),
                                 flex_direction: FlexDirection::Row,
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
@@ -109,10 +112,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(
-                                            Val::Percent(33.333333),
-                                            Val::Percent(100.),
-                                        ),
+                                        width: Val::Percent(33.333333),
+                                        height: Val::Percent(100.0),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -121,10 +122,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                     parent
                                         .spawn(ButtonBundle {
                                             style: Style {
-                                                size: Size::new(
-                                                    Val::Percent(100.),
-                                                    Val::Percent(100.),
-                                                ),
+                                                width: Val::Percent(100.),
+                                                height: Val::Percent(100.0),
                                                 flex_direction: FlexDirection::Row,
                                                 justify_content: JustifyContent::Center,
                                                 align_items: AlignItems::Center,
@@ -149,10 +148,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(
-                                            Val::Percent(33.333333),
-                                            Val::Percent(100.),
-                                        ),
+                                        width: Val::Percent(33.333333),
+                                        height: Val::Percent(100.0),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -161,10 +158,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                     parent
                                         .spawn(ButtonBundle {
                                             style: Style {
-                                                size: Size::new(
-                                                    Val::Percent(100.),
-                                                    Val::Percent(100.),
-                                                ),
+                                                width: Val::Percent(100.0),
+                                                height: Val::Percent(100.0),
                                                 flex_direction: FlexDirection::Row,
                                                 justify_content: JustifyContent::Center,
                                                 align_items: AlignItems::Center,
@@ -189,10 +184,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(
-                                            Val::Percent(33.333333),
-                                            Val::Percent(100.),
-                                        ),
+                                        width: Val::Percent(33.333333),
+                                        height: Val::Percent(100.0),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -201,10 +194,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                     parent
                                         .spawn(ButtonBundle {
                                             style: Style {
-                                                size: Size::new(
-                                                    Val::Percent(100.),
-                                                    Val::Percent(100.),
-                                                ),
+                                                width: Val::Percent(100.),
+                                                height: Val::Percent(100.),
                                                 flex_direction: FlexDirection::Row,
                                                 justify_content: JustifyContent::Center,
                                                 align_items: AlignItems::Center,
@@ -230,10 +221,11 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                     controls_bg_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                width: Val::Percent(100.),
+                                height: Val::Percent(100.),
                                 display: Display::None,
                                 flex_direction: FlexDirection::Column,
-                                overflow: Overflow::Hidden,
+                                overflow: Overflow::clip(),
 
                                 ..Default::default()
                             },
@@ -260,7 +252,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                     graphics_bg_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                width: Val::Percent(100.),
+                                height: Val::Percent(100.),
                                 display: Display::None,
                                 flex_direction: FlexDirection::Column,
                                 ..Default::default()
@@ -288,7 +281,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                     general_section_entity = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                width: Val::Percent(100.),
+                                height: Val::Percent(100.),
                                 display: Display::None,
                                 flex_direction: FlexDirection::Column,
                                 ..Default::default()
@@ -299,7 +293,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                         .with_children(|parent| {
                             parent.spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                                    width: Val::Percent(100.),
+                                    height: Val::Percent(10.),
                                     flex_direction: FlexDirection::Column,
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -311,7 +306,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                                        width: Val::Percent(100.),
+                                        height: Val::Percent(10.),
                                         flex_direction: FlexDirection::Column,
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
@@ -333,7 +329,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.), Val::Percent(6.)),
+                                        width: Val::Percent(100.),
+                                        height: Val::Percent(6.),
                                         flex_direction: FlexDirection::Column,
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
@@ -346,10 +343,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                     parent
                                         .spawn(NodeBundle {
                                             style: Style {
-                                                size: Size::new(
-                                                    Val::Percent(35.),
-                                                    Val::Percent(100.),
-                                                ),
+                                                width: Val::Percent(35.),
+                                                height: Val::Percent(100.),
                                                 ..Default::default()
                                             },
                                             ..Default::default()
@@ -358,10 +353,8 @@ pub(crate) fn build_escape_menu(mut commands: Commands, fonts: Res<Fonts>) {
                                             parent
                                                 .spawn(ButtonBundle {
                                                     style: Style {
-                                                        size: Size::new(
-                                                            Val::Percent(100.),
-                                                            Val::Percent(100.),
-                                                        ),
+                                                        width: Val::Percent(100.),
+                                                        height: Val::Percent(100.),
                                                         flex_direction: FlexDirection::Row,
                                                         justify_content: JustifyContent::Center,
                                                         align_items: AlignItems::Center,
@@ -422,7 +415,8 @@ pub(crate) fn build_controls_section(
                 parent
                     .spawn(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Auto, Val::Auto),
+                            width: Val::Auto,
+                            height: Val::Auto,
                             flex_direction: FlexDirection::Row,
                             flex_wrap: FlexWrap::Wrap,
                             padding: UiRect::left(Val::Percent(2.5)),
@@ -435,7 +429,8 @@ pub(crate) fn build_controls_section(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Auto, Val::Auto),
+                                    width: Val::Auto,
+                                    height: Val::Auto,
                                     flex_direction: FlexDirection::Row,
                                     flex_wrap: FlexWrap::Wrap,
                                     ..Default::default()
@@ -463,7 +458,8 @@ pub(crate) fn build_controls_section(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(10.), Val::Percent(30.)),
+                                    width: Val::Percent(10.),
+                                    height: Val::Percent(30.),
                                     flex_direction: FlexDirection::RowReverse,
                                     flex_wrap: FlexWrap::Wrap,
                                     ..Default::default()
@@ -475,7 +471,8 @@ pub(crate) fn build_controls_section(
                                 parent
                                     .spawn(NodeBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(100.), Val::Auto),
+                                            width: Val::Percent(100.),
+                                            height: Val::Auto,
                                             ..Default::default()
                                         },
                                         ..Default::default()
@@ -484,7 +481,8 @@ pub(crate) fn build_controls_section(
                                         parent
                                             .spawn(ButtonBundle {
                                                 style: Style {
-                                                    size: Size::new(Val::Percent(100.), Val::Auto),
+                                                    width: Val::Percent(100.),
+                                                    height: Val::Auto,
                                                     flex_direction: FlexDirection::Row,
                                                     justify_content: JustifyContent::Center,
                                                     align_items: AlignItems::Center,
@@ -543,14 +541,15 @@ pub(crate) fn build_graphics_section(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Auto, Val::Auto),
+                        width: Val::Auto,
+                        height: Val::Auto,
                         flex_direction: FlexDirection::Column,
                         flex_wrap: FlexWrap::Wrap,
                         padding: UiRect::new(
                             Val::Percent(2.5),
-                            Val::Undefined,
+                            Val::Px(0.),
                             Val::Percent(2.5),
-                            Val::Undefined,
+                            Val::Px(0.),
                         ),
                         ..Default::default()
                     },
@@ -577,7 +576,8 @@ pub(crate) fn build_graphics_section(
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(5.), Val::Auto),
+                                        width: Val::Percent(5.),
+                                        height: Val::Auto,
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
                                         ..Default::default()
@@ -609,7 +609,8 @@ pub(crate) fn build_graphics_section(
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(5.), Val::Auto),
+                                        width: Val::Percent(5.),
+                                        height: Val::Auto,
                                         margin: UiRect::left(Val::Percent(0.6)),
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,

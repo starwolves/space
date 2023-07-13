@@ -1,5 +1,5 @@
 use crate::controller::ControllerInput;
-use bevy::prelude::{warn, Entity, EventReader, Query, Vec2};
+use bevy::prelude::{warn, Entity, Event, EventReader, Query, Vec2};
 use resources::math::Vec3Int;
 
 /// Manage player input and apply to controller.
@@ -41,72 +41,72 @@ pub(crate) fn apply_movement_input_controller(
 }
 
 /// Client attack cell input event.
-
+#[derive(Event)]
 pub struct InputAttackCell {
     pub entity: Entity,
     pub id: Vec3Int,
 }
 
 /// Client input toggle combat mode event.
-
+#[derive(Event)]
 pub struct InputToggleCombatMode {
     pub entity: Entity,
 }
 
 /// Client input toggle auto move event.
-
+#[derive(Event)]
 pub struct InputToggleAutoMove {
     pub entity: Entity,
 }
 
 /// Client input attack entity event.
-
+#[derive(Event)]
 pub struct InputAttackEntity {
     pub entity: Entity,
     pub target_entity_bits: u64,
 }
 
 /// Client input alt item attack event.
-
+#[derive(Event)]
 pub struct InputAltItemAttack {
     pub entity: Entity,
 }
 
 /// Client input mouse action event.
-
+#[derive(Event)]
 pub struct InputMouseAction {
     pub entity: Entity,
     pub pressed: bool,
 }
 /// Client input select body part event.
-
+#[derive(Event)]
 pub struct InputSelectBodyPart {
     pub entity: Entity,
     pub body_part: String,
 }
 
 /// Client input movement event.
-
+#[derive(Event)]
 pub struct InputMovementInput {
     pub player_entity: Entity,
     pub vector: Vec2,
 }
 
 /// Client input sprinting event.
-
+#[derive(Event)]
 pub struct InputSprinting {
     pub entity: Entity,
     pub is_sprinting: bool,
 }
 
 /// Client input build graphics event.
-
+#[derive(Event)]
 pub struct InputBuildGraphics {
     pub handle: u64,
 }
 
 /// Client input mouse direction update event.
-
+#[derive(Event)]
 pub struct InputMouseDirectionUpdate {
     pub entity: Entity,
     pub direction: f32,

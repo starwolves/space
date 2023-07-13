@@ -11,7 +11,7 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.10.1"
+version = "0.11.0"
 default-features = false
 
 [dependencies]
@@ -24,8 +24,8 @@ form_urlencoded = "1.1.0"
 futures-lite = "1.13.0"
 serde_json = "1.0.95"
 
-bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
-bevy_atmosphere = { git = "https://github.com/BrandonDyer64/bevy_atmosphere.git" , branch = "bevy-v0.10"  }
+bevy_renet = { git = "https://github.com/Olle-Lukowski/renet.git" , rev = "a5c508d" }
+bevy_atmosphere = { git = "https://github.com/GodGotzi/bevy_atmosphere.git" , rev = "c279833" }
 networking = { path = "../networking" }
 resources = { path = "../resources" }
 graphics = { path = "../graphics" }

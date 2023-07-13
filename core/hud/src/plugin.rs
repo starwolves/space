@@ -1,4 +1,6 @@
-use bevy::prelude::{not, resource_exists, App, IntoSystemConfig, Plugin, StartupSet};
+use bevy::prelude::{
+    not, resource_exists, App, IntoSystemConfigs, Plugin, PostStartup, Startup, Update,
+};
 use console_commands::net::ClientSideConsoleInput;
 use resources::is_server::is_server;
 
@@ -50,72 +52,85 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         if !is_server() {
             app.add_event::<ExpandInventoryHud>()
-                .add_system(expand_inventory_hud)
-                .add_startup_system(create_inventory_hud.in_base_set(StartupSet::PostStartup))
-                .add_startup_system(create_hud)
-                .add_startup_system(build_server_stats.in_base_set(StartupSet::PostStartup))
-                .add_startup_system(build_communication_ui.in_base_set(StartupSet::PostStartup))
-                .add_event::<OpenHud>()
-                .add_system(inventory_hud_key_press)
-                .add_system(open_hud)
-                .add_system(
-                    queue_inventory_updates.run_if(not(resource_exists::<InventoryHudState>())),
+                .add_systems(
+                    Update,
+                    (
+                        (
+                            open_hud,
+                            expand_inventory_hud,
+                            inventory_hud_key_press,
+                            inventory_net_updates,
+                            update_inventory_hud_slot.in_set(InventoryHudLabels::UpdateSlot),
+                            requeue_hud_add_item_to_slot.after(InventoryHudLabels::QueueUpdate),
+                            slot_item_button_events,
+                            scale_slots,
+                            change_active_item,
+                            right_mouse_click_item,
+                            slot_item_actions,
+                            show_hud,
+                            hide_actions,
+                            item_actions_button_events,
+                            create_text_tree_selection,
+                            button_style_events,
+                            hide_text_tree_selection,
+                            text_tree_select_button,
+                            changed_focus,
+                            text_tree_select_submit_button,
+                        ),
+                        (
+                            grab_mouse_on_board,
+                            grab_mouse_hud_expand,
+                            window_unfocus_event,
+                            release_cursor.after(grab_cursor),
+                            grab_cursor.after(focus_state),
+                            text_input,
+                            receive_chat_message,
+                            tab_communication_input_toggle,
+                            open_inventory_hud.after(open_hud),
+                            toggle_console_button,
+                            console_input,
+                            receive_console_message,
+                            display_console_message,
+                            focus_state,
+                            display_chat_message,
+                            update_server_stats,
+                        ),
+                    ),
                 )
-                .add_system(inventory_net_updates)
-                .add_system(update_inventory_hud_slot.in_set(InventoryHudLabels::UpdateSlot))
+                .add_systems(
+                    Startup,
+                    (
+                        queue_inventory_updates.run_if(not(resource_exists::<InventoryHudState>())),
+                        create_inventory_hud,
+                        create_hud,
+                        register_input,
+                    ),
+                )
+                .add_systems(
+                    PostStartup,
+                    (
+                        build_server_stats,
+                        build_communication_ui,
+                        console_welcome_message.after(build_communication_ui),
+                    ),
+                )
+                .add_event::<OpenHud>()
                 .add_event::<HudAddItemToSlot>()
                 .add_event::<HudAddInventorySlot>()
                 .init_resource::<InventoryUpdatesQueue>()
-                .add_system(requeue_hud_add_item_to_slot.after(InventoryHudLabels::QueueUpdate))
                 .add_event::<RequeueHudAddItemToSlot>()
-                .add_system(scale_slots)
-                .add_system(slot_item_button_events)
-                .add_system(change_active_item)
                 .init_resource::<HoveringSlotItem>()
-                .add_system(right_mouse_click_item)
-                .add_system(slot_item_actions)
-                .add_system(show_hud)
-                .add_system(hide_actions)
-                .add_system(item_actions_button_events)
-                .add_system(create_text_tree_selection)
-                .add_system(button_style_events)
                 .init_resource::<TextTreeInputSelectionState>()
-                .add_system(hide_text_tree_selection)
-                .add_system(text_tree_select_button)
                 .init_resource::<TextTreeSelectionState>()
-                .add_system(changed_focus)
-                .add_system(text_tree_select_submit_button)
-                .add_system(grab_mouse_on_board)
-                .add_system(grab_mouse_hud_expand)
                 .add_event::<ExpandedLeftContentHud>()
-                .add_system(window_unfocus_event)
                 .add_event::<GrabCursor>()
                 .add_event::<ReleaseCursor>()
-                .add_system(release_cursor.after(grab_cursor))
-                .add_system(grab_cursor.after(focus_state))
-                .add_system(text_input)
-                .add_system(receive_chat_message)
-                .add_system(tab_communication_input_toggle)
-                .add_system(open_inventory_hud.after(open_hud))
                 .add_event::<OpenInventoryHud>()
-                .add_system(toggle_console_button)
                 .add_event::<ClientSideConsoleInput>()
-                .add_system(console_input)
-                .add_system(receive_console_message)
-                .add_startup_system(
-                    console_welcome_message
-                        .in_base_set(StartupSet::PostStartup)
-                        .after(build_communication_ui),
-                )
                 .add_event::<DisplayConsoleMessage>()
-                .add_system(display_console_message)
                 .init_resource::<FocusState>()
-                .add_system(focus_state)
                 .add_event::<DisplayChatMessage>()
-                .add_system(display_chat_message)
-                .add_system(update_server_stats)
-                .init_resource::<ServerStatsState>()
-                .add_startup_system(register_input);
+                .init_resource::<ServerStatsState>();
         }
     }
 }

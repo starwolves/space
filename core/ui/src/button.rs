@@ -50,7 +50,7 @@ pub(crate) fn button_hover_visuals(
         let primary = primary_query.get_single().unwrap();
 
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 if button_visuals.color_parent {
                     if !primary.cursor.visible {
                         continue;

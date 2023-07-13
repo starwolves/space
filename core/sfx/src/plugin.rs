@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{App, CoreSchedule, CoreSet, IntoSystemAppConfig, IntoSystemConfig, Plugin},
+    prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostUpdate, Update},
     time::common_conditions::on_fixed_timer,
 };
 use entity::{entity_data::InterpolationSet, entity_types::register_entity_type};
@@ -25,23 +25,20 @@ pub struct SfxPlugin;
 impl Plugin for SfxPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(
+            app.add_systems(
+                FixedUpdate,
                 tick_timers_slowed
-                    .in_schedule(CoreSchedule::FixedUpdate)
                     .in_set(InterpolationSet::Main)
                     .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.))),
             )
-            .add_system(
-                sfx_update
-                    .in_base_set(CoreSet::PostUpdate)
-                    .in_set(PostUpdateLabels::EntityUpdate),
+            .add_systems(
+                PostUpdate,
+                (
+                    sfx_update.in_set(PostUpdateLabels::EntityUpdate),
+                    repeating_sfx_update.in_set(PostUpdateLabels::EntityUpdate),
+                ),
             )
-            .add_system(
-                repeating_sfx_update
-                    .in_base_set(CoreSet::PostUpdate)
-                    .in_set(PostUpdateLabels::EntityUpdate),
-            )
-            .add_system(free_sfx)
+            .add_systems(Update, free_sfx)
             .init_resource::<SfxAutoDestroyTimers>();
         }
         register_reliable_message::<SfxServerMessage>(app, MessageSender::Server);

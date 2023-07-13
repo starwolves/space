@@ -1,5 +1,6 @@
 use bevy::prelude::Commands;
 use bevy::prelude::Entity;
+use bevy::prelude::Event;
 use bevy::prelude::EventReader;
 use bevy::prelude::EventWriter;
 use bevy::prelude::Query;
@@ -10,13 +11,14 @@ use crate::net::EntityServerMessage;
 use crate::sensable::Sensable;
 
 ///Despawn sensable component event.
-
+#[derive(Event)]
 pub struct DespawnClientEntity {
     pub entity: Entity,
 }
 use networking::server::OutgoingReliableServerMessage;
 
 /// Event to load in entity for client.
+#[derive(Event)]
 pub struct SpawnClientEntity {
     pub entity: Entity,
     pub loader_handle: u64,

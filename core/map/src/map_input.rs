@@ -1,7 +1,7 @@
 use crate::map::Map;
 use bevy::{
     math::Vec2,
-    prelude::{Entity, EventReader, Query, Resource},
+    prelude::{Entity, Event, EventReader, Query, Resource},
 };
 use entity::senser::WORLD_WIDTH_CELLS;
 use resources::math::Vec2Int;
@@ -88,7 +88,7 @@ impl MapData {
 }
 
 /// Client input change display mode mini-map event.
-
+#[derive(Event)]
 pub struct InputMapChangeDisplayMode {
     pub handle: u64,
     pub entity: Entity,
@@ -104,7 +104,7 @@ pub enum MapInput {
 }
 
 /// Client map input event.
-
+#[derive(Event)]
 pub struct InputMap {
     pub handle: u64,
     pub entity: Entity,
@@ -112,7 +112,7 @@ pub struct InputMap {
 }
 
 /// Client map request display modes event.
-
+#[derive(Event)]
 pub struct InputMapRequestOverlay {
     pub handle: u64,
     pub entity: Entity,

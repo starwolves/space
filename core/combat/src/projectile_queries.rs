@@ -1,6 +1,6 @@
 use bevy::{
     math::Vec3,
-    prelude::{Component, Entity, EventReader, EventWriter, Query, With},
+    prelude::{Component, Entity, Event, EventReader, EventWriter, Query, With},
 };
 use inventory::server::combat::ProjectileCombat;
 use resources::math::Vec3Int;
@@ -8,7 +8,7 @@ use resources::math::Vec3Int;
 use crate::attack::Attack;
 
 /// The projectile attack physics query.
-
+#[derive(Event)]
 pub struct ProjectileQuery {
     /// Entity id of the attacker.
     pub attacker_entity: Entity,
@@ -27,7 +27,7 @@ pub struct ProjectileQuery {
 }
 
 /// In case projectile hit nothing as an event.
-
+#[derive(Event)]
 pub struct ProjectileBlank {
     /// Hit point location.
     pub hit_point: Vec3,

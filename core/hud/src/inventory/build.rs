@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use bevy::{
     prelude::{
-        warn, BuildChildren, Color, Commands, Component, Entity, EventReader, EventWriter, Input,
-        KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle, Visibility, With,
+        warn, BuildChildren, Color, Commands, Component, Entity, Event, EventReader, EventWriter,
+        Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle, Visibility, With,
     },
     text::{Text, TextStyle},
-    ui::{AlignItems, FlexDirection, JustifyContent, Size, Style, UiRect, Val},
+    ui::{AlignItems, FlexDirection, JustifyContent, Style, UiRect, Val},
 };
 use player::configuration::Boarded;
 use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
@@ -41,7 +41,8 @@ pub(crate) fn create_inventory_hud(
     root_builder
         .insert(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.),
+                height: Val::Percent(100.),
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 ..Default::default()
@@ -54,7 +55,8 @@ pub(crate) fn create_inventory_hud(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(3.0)),
+                        width: Val::Percent(100.),
+                        height: Val::Percent(3.),
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
@@ -87,13 +89,14 @@ pub(crate) fn create_inventory_hud(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(97.5), Val::Percent(95.75)),
+                        width: Val::Percent(97.5),
+                        height: Val::Percent(95.75),
                         justify_content: JustifyContent::Center,
                         padding: UiRect::new(
-                            Val::Undefined,
-                            Val::Undefined,
+                            Val::Px(0.),
+                            Val::Px(0.),
                             Val::Percent(1.25),
-                            Val::Undefined,
+                            Val::Px(0.),
                         ),
                         ..Default::default()
                     },
@@ -104,8 +107,8 @@ pub(crate) fn create_inventory_hud(
                     slots_node = parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(97.5), Val::Percent(100.)),
-
+                                width: Val::Percent(97.5),
+                                height: Val::Percent(100.),
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -191,10 +194,11 @@ pub(crate) fn inventory_hud_key_press(
         event2.send(OpenInventoryHud { open: !state.open });
     }
 }
-
+#[derive(Event)]
 pub struct OpenHud {
     pub open: bool,
 }
+#[derive(Event)]
 pub struct OpenInventoryHud {
     pub open: bool,
 }

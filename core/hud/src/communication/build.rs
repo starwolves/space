@@ -8,7 +8,7 @@ use bevy::{
         EventWriter, Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::{TextSection, TextStyle},
-    ui::{Display, FlexDirection, Interaction, Overflow, Size, Style, Val},
+    ui::{Display, FlexDirection, Interaction, Overflow, Style, Val},
 };
 use metadata::MetadataResource;
 use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
@@ -82,7 +82,7 @@ pub(crate) fn toggle_console_button(
 
     for interaction in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 state.is_displaying_console = !state.is_displaying_console;
 
                 match style_query.get_mut(state.chat_messages_bg_node) {
@@ -134,9 +134,10 @@ pub(crate) fn build_communication_ui(
             chat_messages_bg_node = parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.), Val::Percent(35.)),
+                        width: Val::Percent(100.),
+                        height: Val::Percent(35.),
                         flex_direction: FlexDirection::ColumnReverse,
-                        overflow: Overflow::Hidden,
+                        overflow: Overflow::clip(),
 
                         ..Default::default()
                     },
@@ -165,10 +166,11 @@ pub(crate) fn build_communication_ui(
             console_messages_bg_node = parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.), Val::Percent(35.)),
+                        width: Val::Percent(100.),
+                        height: Val::Percent(35.),
                         flex_direction: FlexDirection::ColumnReverse,
                         display: Display::None,
-                        overflow: Overflow::Hidden,
+                        overflow: Overflow::clip(),
                         ..Default::default()
                     },
                     background_color: Color::rgba(0.25, 0.25, 0.25, 0.4).into(),
@@ -201,7 +203,8 @@ pub(crate) fn build_communication_ui(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(29.18), Val::Percent(100.)),
+                        width: Val::Percent(29.18),
+                        height: Val::Percent(100.),
                         flex_direction: FlexDirection::Column,
                         ..Default::default()
                     },
@@ -211,7 +214,8 @@ pub(crate) fn build_communication_ui(
                     let text = "...".to_string();
                     let mut builder = parent.spawn(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Percent(100.), Val::Percent(50.)),
+                            width: Val::Percent(100.),
+                            height: Val::Percent(50.),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -244,8 +248,8 @@ pub(crate) fn build_communication_ui(
                     parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(3.3), Val::Percent(25.)),
-
+                                width: Val::Percent(3.3),
+                                height: Val::Percent(25.),
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -256,7 +260,8 @@ pub(crate) fn build_communication_ui(
                                     ButtonBundle {
                                         background_color: Color::DARK_GRAY.into(),
                                         style: Style {
-                                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                            width: Val::Percent(100.),
+                                            height: Val::Percent(100.),
                                             ..Default::default()
                                         },
                                         ..Default::default()

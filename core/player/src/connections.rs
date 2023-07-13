@@ -1,9 +1,11 @@
 use std::collections::HashMap;
+use std::net::SocketAddr;
 
 use bevy::prelude::{
-    error, Commands, DespawnRecursiveExt, Entity, EventReader, EventWriter, Query, Res, ResMut,
+    error, Commands, DespawnRecursiveExt, Entity, Event, EventReader, EventWriter, Query, Res,
+    ResMut,
 };
-
+#[derive(Event)]
 pub struct PlayerAwaitingBoarding {
     pub handle: u64,
 }
@@ -23,43 +25,57 @@ pub struct VerifyToken {
 
 pub(crate) fn server_events(
     mut server_events: EventReader<ServerEvent>,
-    server: Res<RenetServer>,
     mut commands: Commands,
+    server_data: Res<NetcodeServerTransport>,
 ) {
     for event in server_events.iter() {
         let server_addr = local_ipaddress::get().unwrap_or_default();
 
         match event {
-            ServerEvent::ClientConnected(handle, header) => {
+            ServerEvent::ClientConnected { client_id } => {
                 let client_address;
-
-                match server.client_addr(*handle) {
-                    Some(ip) => {
+                client_address = SocketAddr::new(
+                    local_ipaddress::get().unwrap_or_default().parse().unwrap(),
+                    57713,
+                );
+                /*match server_data.netcode_server.client_addr(*client_id) {
+                    Ok(info) => {
                         client_address = ip;
                     }
-                    None => {
-                        warn!("Couldn't get address from [{}]", handle);
+                    Err(err) => {
+                        warn!("Couldn't get address from [{}]: {}", client_id, err);
                         continue;
                     }
-                };
+                };*/
 
-                let token;
+                let client_ip = client_address.ip().to_string();
 
-                match String::from_utf8((**header).to_vec()) {
-                    Ok(t) => {
-                        token = t;
+                let raw_token;
+                match server_data.user_data(*client_id) {
+                    Some(r) => {
+                        raw_token = r;
                     }
-                    Err(rr) => {
-                        warn!("Couldn't decode token from [{}]: {}", handle, rr);
+                    None => {
+                        warn!("Couldnt get user data.");
                         continue;
                     }
                 }
 
-                let client_ip = client_address.ip().to_string();
+                let token;
+
+                match String::from_utf8((raw_token).to_vec()) {
+                    Ok(t) => {
+                        token = t;
+                    }
+                    Err(rr) => {
+                        warn!("Couldn't decode token from [{}]: {}", client_id, rr);
+                        continue;
+                    }
+                }
 
                 let is_local = server_addr == client_ip;
 
-                info!("Incoming connection [{}] [{:?}]", handle, client_address);
+                info!("Incoming connection [{}] [{:?}]", client_id, client_address);
                 let data = vec![
                     ("token", token),
                     ("userAddress", client_ip),
@@ -85,13 +101,13 @@ pub(crate) fn server_events(
                         ]);
                         ehttp::fetch_blocking(&post).expect("Error with HTTP call")
                     }),
-                    handle: *handle,
+                    handle: *client_id,
                 };
 
                 commands.spawn(x);
             }
-            ServerEvent::ClientDisconnected(handle) => {
-                info!("[{}] has disconnected.", handle);
+            ServerEvent::ClientDisconnected { client_id, reason } => {
+                info!("[{}] has disconnected: {}.", client_id, reason);
             }
         }
     }
@@ -158,6 +174,7 @@ pub fn process_response(
 
 use bevy::prelude::Component;
 use bevy::prelude::Resource;
+use bevy_renet::renet::transport::NetcodeServerTransport;
 use futures_lite::future;
 use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage};
 use serde::{Deserialize, Serialize};
@@ -175,7 +192,7 @@ pub struct SetupPhase;
 pub struct OnBoard;
 
 /// Event for sending server configuration to newly connected client. Done after client account is verified.
-
+#[derive(Event)]
 pub struct SendServerConfiguration {
     pub handle: u64,
 }

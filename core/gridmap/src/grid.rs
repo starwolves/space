@@ -3,8 +3,8 @@ use std::{collections::HashMap, f32::consts::PI, ops::Deref};
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        warn, Commands, Component, DespawnRecursiveExt, Entity, EventWriter, Handle, Mat3, Quat,
-        Query, Res, Resource, StandardMaterial, Transform, Vec3, Without,
+        warn, Commands, Component, DespawnRecursiveExt, Entity, Event, EventWriter, Handle, Mat3,
+        Quat, Query, Res, Resource, StandardMaterial, Transform, Vec3, Without,
     },
     transform::TransformBundle,
 };
@@ -613,7 +613,7 @@ pub enum AdjacentTileDirection {
 }
 
 /// Remove gridmap cell event.
-
+#[derive(Event)]
 pub struct RemoveTile {
     pub cell: TargetCell,
 }
@@ -641,6 +641,7 @@ impl Default for Cell {
 }
 
 /// Event to add a gridmap tile.
+#[derive(Event)]
 pub struct AddTile {
     pub id: Vec3Int,
     /// Id of tile type.
@@ -675,7 +676,7 @@ pub struct FullCell {
 }
 
 /// Event to add a group of gridmap tiles.
-#[derive(Default)]
+#[derive(Default, Event)]
 pub struct AddGroup {
     pub id: Vec3Int,
     /// Group id.
@@ -693,7 +694,6 @@ use crate::{
     init::{CellDataExport, GroupItem, ItemExport},
     net::{GridmapServerMessage, NewCell},
 };
-
 pub(crate) fn remove_tile(
     mut events: EventReader<RemoveTile>,
     mut gridmap: ResMut<Gridmap>,

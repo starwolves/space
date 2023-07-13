@@ -5,7 +5,7 @@ use bevy::{
         Resource, TextBundle, With, Without,
     },
     text::TextStyle,
-    ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Size, Style, Val},
+    ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use resources::hud::HudState;
@@ -71,7 +71,8 @@ pub(crate) fn create_text_tree_selection(
                         let root = parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                    width: Val::Percent(100.),
+                                    height: Val::Percent(100.),
                                     flex_direction: FlexDirection::Column,
                                     align_items: AlignItems::Center,
                                     ..Default::default()
@@ -84,7 +85,8 @@ pub(crate) fn create_text_tree_selection(
                                 parent
                                     .spawn(NodeBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(100.), Val::Percent(3.)),
+                                            width: Val::Percent(100.),
+                                            height: Val::Percent(3.),
                                             justify_content: JustifyContent::Center,
                                             align_items: AlignItems::Center,
 
@@ -104,8 +106,8 @@ pub(crate) fn create_text_tree_selection(
                                     });
                                 parent.spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.), Val::Percent(8.)),
-
+                                        width: Val::Percent(100.),
+                                        height: Val::Percent(8.),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -113,7 +115,8 @@ pub(crate) fn create_text_tree_selection(
                                 parent
                                     .spawn(NodeBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(65.), Val::Percent(36.)),
+                                            width: Val::Percent(65.),
+                                            height: Val::Percent(36.),
                                             flex_direction: FlexDirection::Column,
                                             ..Default::default()
                                         },
@@ -127,10 +130,8 @@ pub(crate) fn create_text_tree_selection(
                                                     style: Style {
                                                         justify_content: JustifyContent::Center,
                                                         align_items: AlignItems::Center,
-                                                        size: Size::new(
-                                                            Val::Percent(100.),
-                                                            Val::Percent(10.),
-                                                        ),
+                                                        width: Val::Percent(100.),
+                                                        height: Val::Percent(10.),
                                                         ..Default::default()
                                                     },
 
@@ -140,10 +141,8 @@ pub(crate) fn create_text_tree_selection(
                                                     parent
                                                         .spawn(ButtonBundle {
                                                             style: Style {
-                                                                size: Size::new(
-                                                                    Val::Percent(100.),
-                                                                    Val::Percent(100.),
-                                                                ),
+                                                                width: Val::Percent(100.),
+                                                                height: Val::Percent(100.),
                                                                 justify_content:
                                                                     JustifyContent::Center,
                                                                 align_items: AlignItems::Center,
@@ -175,10 +174,8 @@ pub(crate) fn create_text_tree_selection(
                                         parent
                                             .spawn(ButtonBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(35.),
-                                                        Val::Percent(30.),
-                                                    ),
+                                                    width: Val::Percent(35.),
+                                                    height: Val::Percent(30.),
                                                     justify_content: JustifyContent::Center,
                                                     align_items: AlignItems::Center,
                                                     ..Default::default()
@@ -242,7 +239,7 @@ pub(crate) fn text_tree_select_button(
     let mut old_entity = None;
     for (entity, interaction, component) in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 match &state.selected {
                     Some(e) => {
                         if e.node_entity == entity {
@@ -297,7 +294,7 @@ pub(crate) fn text_tree_select_submit_button(
 ) {
     for interaction in interaction_query.iter() {
         match interaction {
-            Interaction::Clicked => match &state.selected {
+            Interaction::Pressed => match &state.selected {
                 Some(tree) => {
                     net.send(OutgoingReliableClientMessage {
                         message: UiClientMessage::TextTreeInput(TextTreeInput {

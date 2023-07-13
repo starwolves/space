@@ -1,5 +1,5 @@
 use actions::core::{BuildingActions, ListActionDataRequests};
-use bevy::prelude::{warn, Entity, EventReader, Query, Res, ResMut, Resource};
+use bevy::prelude::{warn, Entity, Event, EventReader, Query, Res, ResMut, Resource};
 use entity::{
     examine::Examinable,
     health::HealthContainer,
@@ -297,8 +297,7 @@ pub fn finalize_grid_examine_input(
     }
 }
 /// Examine map message event.
-#[derive(Clone)]
-
+#[derive(Clone, Event)]
 pub struct InputExamineMap {
     pub handle: u64,
     pub entity: Entity,

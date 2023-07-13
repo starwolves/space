@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{IntoSystemConfig, Resource, SystemSet};
+use bevy::prelude::{IntoSystemConfigs, Resource, Startup, SystemSet, Update};
 
 /// Resource containing all registered entity types with [init_entity_type].
 #[derive(Default, Resource)]
@@ -59,9 +59,15 @@ use bevy::prelude::App;
 use resources::labels::BuildingLabels;
 
 pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut App) {
-    app.add_startup_system(store_entity_type::<T>.in_set(EntityTypeLabel::Register))
-        .add_event::<SpawnEntity<T>>()
-        .add_system((build_raw_entities::<T>).after(BuildingLabels::TriggerBuild));
+    app.add_systems(
+        Startup,
+        store_entity_type::<T>.in_set(EntityTypeLabel::Register),
+    )
+    .add_event::<SpawnEntity<T>>()
+    .add_systems(
+        Update,
+        (build_raw_entities::<T>).after(BuildingLabels::TriggerBuild),
+    );
 }
 
 use bevy::prelude::{Commands, EventReader, EventWriter};

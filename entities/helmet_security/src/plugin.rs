@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Update};
 use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
@@ -24,26 +24,30 @@ pub struct HelmetsPlugin;
 impl Plugin for HelmetsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(
-                melee_attack_handler::<Helmet>
-                    .in_set(CombatLabels::WeaponHandler)
-                    .after(CombatLabels::CacheAttack),
-            )
-            .add_system(
-                attack_sfx::<Helmet>
-                    .after(CombatLabels::WeaponHandler)
-                    .after(CombatLabels::Query),
-            )
-            .add_system(
-                health_combat_hit_result_sfx::<Helmet>.after(CombatLabels::FinalizeApplyDamage),
+            app.add_systems(
+                Update,
+                (
+                    melee_attack_handler::<Helmet>
+                        .in_set(CombatLabels::WeaponHandler)
+                        .after(CombatLabels::CacheAttack),
+                    attack_sfx::<Helmet>
+                        .after(CombatLabels::WeaponHandler)
+                        .after(CombatLabels::Query),
+                    health_combat_hit_result_sfx::<Helmet>.after(CombatLabels::FinalizeApplyDamage),
+                ),
             );
         }
         register_entity_type::<HelmetType>(app);
         register_basic_console_commands_for_type::<HelmetType>(app);
         register_basic_console_commands_for_inventory_item_type::<HelmetType>(app);
-        app.add_system(build_helmets::<HelmetType>.after(BuildingLabels::TriggerBuild))
-            .add_system((build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_rigid_bodies::<HelmetType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild));
+        app.add_systems(
+            Update,
+            (
+                build_helmets::<HelmetType>.after(BuildingLabels::TriggerBuild),
+                (build_base_entities::<HelmetType>).after(BuildingLabels::TriggerBuild),
+                (build_rigid_bodies::<HelmetType>).after(BuildingLabels::TriggerBuild),
+                (build_inventory_items::<HelmetType>).after(BuildingLabels::TriggerBuild),
+            ),
+        );
     }
 }

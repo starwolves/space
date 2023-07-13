@@ -1,4 +1,4 @@
-use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, Plugin, PostUpdate, Update};
 use bevy_xpbd_3d::prelude::PhysicsPlugins;
 use resources::is_server::is_server;
 
@@ -12,11 +12,13 @@ pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(rigidbody_link_transform)
-                .add_system(broadcast_interpolation_transforms);
+            app.add_systems(
+                Update,
+                (rigidbody_link_transform, broadcast_interpolation_transforms),
+            );
         }
-        app.add_plugins(PhysicsPlugins)
-            .add_system(disable_rigidbodies.in_base_set(CoreSet::PostUpdate))
-            .add_startup_system(setup_timestep);
+        app.add_plugins(PhysicsPlugins::default())
+            .add_systems(PostUpdate, disable_rigidbodies)
+            .add_systems(Update, setup_timestep);
     }
 }

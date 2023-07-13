@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use bevy::prelude::Resource;
 use bevy::prelude::{warn, Component, Entity, EventReader, Query, Res, ResMut};
+use bevy::prelude::{Event, Resource};
 
 /// Resource with a list of actions being built this frame.
 
@@ -320,7 +320,7 @@ pub(crate) fn init_action_request_building(
 }
 
 /// Client input list actions entity event.
-#[derive(Clone)]
+#[derive(Clone, Event)]
 pub struct InputListActions {
     pub action_taker: Entity,
     pub action_taker_item: Option<Entity>,
@@ -332,7 +332,7 @@ pub struct InputListActions {
 }
 
 /// Client initiates execution of an action event.
-
+#[derive(Event)]
 pub struct InputAction {
     /// Action ID.
     pub fired_action_id: String,

@@ -1,6 +1,6 @@
 use bevy::{
-    prelude::{warn, Entity, EventReader, Query, ResMut, With},
-    ui::{Display, Size, Style, Val},
+    prelude::{warn, Entity, Event, EventReader, Query, ResMut, With},
+    ui::{Display, Style, Val},
 };
 use resources::hud::HudState;
 
@@ -13,6 +13,7 @@ use crate::{
 };
 
 /// Event to expand the hud.
+#[derive(Event)]
 pub struct ExpandInventoryHud {
     pub expand: bool,
 }
@@ -29,10 +30,8 @@ pub(crate) fn expand_inventory_hud(
             for ent in text_query.iter() {
                 match style_query.get_mut(ent) {
                     Ok(mut st) => {
-                        st.max_size = Size {
-                            width: Val::Px(MESSAGES_DEFAULT_MIN_WIDTH),
-                            height: Val::Undefined,
-                        };
+                        st.max_width = Val::Px(MESSAGES_DEFAULT_MIN_WIDTH);
+                        st.max_height = Val::Px(0.);
                     }
                     Err(_) => {
                         warn!("Couldnt find style.");
@@ -58,8 +57,8 @@ pub(crate) fn expand_inventory_hud(
             }
             match style_query.get_mut(state.left_edge_node) {
                 Ok(mut style) => {
-                    style.size =
-                        Size::new(Val::Percent(LEFT_RIGHT_EDGE_HUD_WIDTH), Val::Percent(100.));
+                    style.width = Val::Percent(LEFT_RIGHT_EDGE_HUD_WIDTH);
+                    style.height = Val::Percent(100.);
                 }
                 Err(_) => {
                     warn!("Couldnt find right content node.");
@@ -67,8 +66,8 @@ pub(crate) fn expand_inventory_hud(
             }
             match style_query.get_mut(state.right_edge_node) {
                 Ok(mut style) => {
-                    style.size =
-                        Size::new(Val::Percent(LEFT_RIGHT_EDGE_HUD_WIDTH), Val::Percent(100.));
+                    style.width = Val::Percent(LEFT_RIGHT_EDGE_HUD_WIDTH);
+                    style.height = Val::Percent(100.);
                 }
                 Err(_) => {
                     warn!("Couldnt find right content node.");
@@ -76,7 +75,8 @@ pub(crate) fn expand_inventory_hud(
             }
             match style_query.get_mut(state.center_content_node) {
                 Ok(mut style) => {
-                    style.size = Size::new(Val::Percent(50.), Val::Percent(100.));
+                    style.width = Val::Percent(50.);
+                    style.height = Val::Percent(100.);
                 }
                 Err(_) => {
                     warn!("Couldnt find right content node.");
@@ -86,10 +86,8 @@ pub(crate) fn expand_inventory_hud(
             for ent in text_query.iter() {
                 match style_query.get_mut(ent) {
                     Ok(mut st) => {
-                        st.max_size = Size {
-                            width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
-                            height: Val::Undefined,
-                        };
+                        st.max_width = Val::Px(MESSAGES_DEFAULT_MAX_WIDTH);
+                        st.max_height = Val::Px(0.);
                     }
                     Err(_) => {
                         warn!("Couldnt find style.");
@@ -114,10 +112,8 @@ pub(crate) fn expand_inventory_hud(
             }
             match style_query.get_mut(state.left_edge_node) {
                 Ok(mut style) => {
-                    style.size = Size::new(
-                        Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
-                        Val::Percent(100.),
-                    );
+                    style.width = Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH);
+                    style.height = Val::Percent(100.);
                 }
                 Err(_) => {
                     warn!("Couldnt find right content node.");
@@ -125,10 +121,8 @@ pub(crate) fn expand_inventory_hud(
             }
             match style_query.get_mut(state.right_edge_node) {
                 Ok(mut style) => {
-                    style.size = Size::new(
-                        Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH),
-                        Val::Percent(100.),
-                    );
+                    style.width = Val::Percent(LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH);
+                    style.height = Val::Percent(100.);
                 }
                 Err(_) => {
                     warn!("Couldnt find right content node.");

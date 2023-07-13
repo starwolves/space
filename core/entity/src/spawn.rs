@@ -6,7 +6,7 @@ use crate::{
     net::LoadEntity,
     showcase::{Showcase, ShowcaseData},
 };
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Resource, Transform};
+use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, Transform};
 use serde::Deserialize;
 
 use crate::{
@@ -217,7 +217,7 @@ impl Default for EntityBuildData {
 }
 
 /// Standard spawn event.
-
+#[derive(Event)]
 pub struct SpawnEntity<T> {
     pub spawn_data: EntityBuildData,
     pub entity_type: T,

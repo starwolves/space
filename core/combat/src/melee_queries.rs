@@ -1,6 +1,6 @@
 use bevy::{
     math::Vec3,
-    prelude::{Component, Entity, EventReader, EventWriter, Query, With},
+    prelude::{Component, Entity, Event, EventReader, EventWriter, Query, With},
 };
 use inventory::server::combat::{MeleeCombat, ProjectileCombat};
 use resources::math::Vec3Int;
@@ -8,6 +8,7 @@ use resources::math::Vec3Int;
 use crate::attack::{Attack, CombatType};
 
 /// When a melee attack hit nothing as an event.
+#[derive(Event)]
 pub struct MeleeBlank {
     pub incremented_id: u64,
 }
@@ -36,7 +37,7 @@ pub struct AttackResult {
 }
 
 /// The melee physics query event.
-
+#[derive(Event)]
 pub struct MeleeDirectQuery {
     /// The entity id of the attacker.
     pub attacker_entity: Entity,

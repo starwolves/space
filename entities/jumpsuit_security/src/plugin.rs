@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{App, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Update};
 use combat::{
     melee_queries::melee_attack_handler,
     sfx::{attack_sfx, health_combat_hit_result_sfx},
@@ -24,28 +24,31 @@ pub struct JumpsuitsPlugin;
 impl Plugin for JumpsuitsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(
-                melee_attack_handler::<Jumpsuit>
-                    .in_set(CombatLabels::WeaponHandler)
-                    .after(CombatLabels::CacheAttack),
-            )
-            .add_system(
-                attack_sfx::<Jumpsuit>
-                    .after(CombatLabels::WeaponHandler)
-                    .after(CombatLabels::Query),
-            )
-            .add_system(
-                health_combat_hit_result_sfx::<Jumpsuit>.after(CombatLabels::FinalizeApplyDamage),
+            app.add_systems(
+                Update,
+                (
+                    melee_attack_handler::<Jumpsuit>
+                        .in_set(CombatLabels::WeaponHandler)
+                        .after(CombatLabels::CacheAttack),
+                    attack_sfx::<Jumpsuit>
+                        .after(CombatLabels::WeaponHandler)
+                        .after(CombatLabels::Query),
+                    health_combat_hit_result_sfx::<Jumpsuit>
+                        .after(CombatLabels::FinalizeApplyDamage),
+                ),
             );
         }
         register_entity_type::<JumpsuitType>(app);
         register_basic_console_commands_for_type::<JumpsuitType>(app);
         register_basic_console_commands_for_inventory_item_type::<JumpsuitType>(app);
-        app.add_system(build_jumpsuits::<JumpsuitType>.after(BuildingLabels::TriggerBuild))
-            .add_system((build_base_entities::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_rigid_bodies::<JumpsuitType>).after(BuildingLabels::TriggerBuild))
-            .add_system(
+        app.add_systems(
+            Update,
+            (
+                build_jumpsuits::<JumpsuitType>.after(BuildingLabels::TriggerBuild),
+                (build_base_entities::<JumpsuitType>).after(BuildingLabels::TriggerBuild),
+                (build_rigid_bodies::<JumpsuitType>).after(BuildingLabels::TriggerBuild),
                 (build_inventory_items::<JumpsuitType>).after(BuildingLabels::TriggerBuild),
-            );
+            ),
+        );
     }
 }

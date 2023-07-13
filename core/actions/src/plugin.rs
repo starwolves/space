@@ -1,4 +1,4 @@
-use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate, Update};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::ActionsLabels};
 
@@ -16,26 +16,28 @@ pub struct ActionsPlugin;
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(init_action_data_listing.in_set(ActionsLabels::Init))
-                .add_system(
-                    list_action_data_from_actions_component
+            app.add_systems(
+                Update,
+                (
+                    init_action_data_listing.in_set(ActionsLabels::Init),
+                    list_action_data_from_actions_component,
+                    list_action_data_finalizer
+                        .after(ActionsLabels::Approve)
                         .after(ActionsLabels::Init)
                         .in_set(ActionsLabels::Build),
-                )
-                .add_system(list_action_data_finalizer.after(ActionsLabels::Approve))
-                .init_resource::<BuildingActions>()
-                .init_resource::<ActionIncremented>()
-                .init_resource::<ListActionDataRequests>()
-                .add_system(init_action_request_building.in_set(ActionsLabels::Init))
-                .add_system(
+                    init_action_request_building.in_set(ActionsLabels::Init),
                     clear_action_building
                         .in_set(ActionsLabels::Clear)
                         .before(ActionsLabels::Init),
-                )
-                .init_resource::<ActionRequests>()
-                .add_system(incoming_messages.in_base_set(CoreSet::PreUpdate))
-                .add_event::<InputListActions>()
-                .add_event::<InputAction>();
+                ),
+            )
+            .add_systems(PreUpdate, incoming_messages)
+            .init_resource::<BuildingActions>()
+            .init_resource::<ActionIncremented>()
+            .init_resource::<ListActionDataRequests>()
+            .init_resource::<ActionRequests>()
+            .add_event::<InputListActions>()
+            .add_event::<InputAction>();
         }
 
         register_reliable_message::<ActionsClientMessage>(app, MessageSender::Client);

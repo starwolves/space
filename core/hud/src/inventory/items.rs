@@ -2,10 +2,10 @@ use actions::net::{ActionsClientMessage, TabData};
 use bevy::{
     prelude::{
         info, warn, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
-        Component, Entity, EventReader, EventWriter, ImageBundle, Input, MouseButton, NodeBundle,
-        Query, Res, ResMut, Resource, With,
+        Component, Entity, Event, EventReader, EventWriter, ImageBundle, Input, MouseButton,
+        NodeBundle, Query, Res, ResMut, Resource, With,
     },
-    ui::{BackgroundColor, Interaction, PositionType, Size, Style, UiImage, UiRect, Val},
+    ui::{BackgroundColor, Interaction, PositionType, Style, UiImage, Val},
 };
 use entity::{
     entity_types::{EntityType, EntityTypes},
@@ -126,14 +126,14 @@ pub fn update_inventory_hud_add_item_to_slot<
         commands.entity(slot_entity).with_children(|parent| {
             let mut builder = parent.spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(width), Val::Percent(height)),
+                    width: Val::Percent(width),
+                    height: Val::Percent(height),
                     position_type: PositionType::Absolute,
-                    position: UiRect::new(
-                        Val::Percent(x),
-                        Val::Undefined,
-                        Val::Undefined,
-                        Val::Percent(y),
-                    ),
+                    left: Val::Percent(x),
+                    right: Val::Px(0.),
+                    top: Val::Px(0.),
+                    bottom: Val::Percent(y),
+
                     ..Default::default()
                 },
                 background_color: ITEM_SPACE_BG_COLOR.into(),
@@ -155,7 +155,8 @@ pub fn update_inventory_hud_add_item_to_slot<
                     parent
                         .spawn(ImageBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                width: Val::Percent(100.),
+                                height: Val::Percent(100.),
                                 ..Default::default()
                             },
                             image: UiImage::from(item_image),
@@ -165,7 +166,8 @@ pub fn update_inventory_hud_add_item_to_slot<
                             parent
                                 .spawn(ButtonBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                        width: Val::Percent(100.),
+                                        height: Val::Percent(100.),
                                         ..Default::default()
                                     },
                                     background_color: empty_color.into(),
@@ -177,7 +179,7 @@ pub fn update_inventory_hud_add_item_to_slot<
         });
     }
 }
-#[derive(Clone)]
+#[derive(Clone, Event)]
 pub struct HudAddItemToSlot {
     pub item: ItemAddedToSlot,
 }
@@ -232,7 +234,7 @@ pub(crate) fn slot_item_button_events(
     for (interaction, component) in interaction_query.iter() {
         match slot_items_query.get_mut(component.data_parent) {
             Ok((slot_item_hud, mut background_color)) => match *interaction {
-                Interaction::Clicked => {
+                Interaction::Pressed => {
                     match inventory.active_item {
                         Some(item) => {
                             if item == slot_item_hud.entity {

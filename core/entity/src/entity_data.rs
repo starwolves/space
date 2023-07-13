@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{Changed, Component, Entity, EventWriter, Query, Res, SystemSet, Transform},
+    prelude::{Changed, Component, Entity, Event, EventWriter, Query, Res, SystemSet, Transform},
     time::Time,
 };
 use entity_macros::Identity;
@@ -88,7 +88,7 @@ pub enum InterpolationSet {
 pub struct DefaultMapEntity;
 
 /// Event about spawning entities from ron.
-
+#[derive(Event)]
 pub struct RawSpawnEvent {
     pub raw_entity: RawEntityRon,
 }

@@ -5,7 +5,7 @@ use bevy::{
     },
     text::{Font, Text, TextSection, TextStyle},
     time::{Time, Timer, TimerMode},
-    ui::{Size, Style, Val},
+    ui::{Style, Val},
 };
 use networking::client::IncomingReliableServerMessage;
 use player::net::PlayerServerMessage;
@@ -23,7 +23,8 @@ pub(crate) fn build_server_stats(state: Res<HudState>, mut commands: Commands, f
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(5.), Val::Percent(21.)),
+                        width: Val::Percent(5.),
+                        height: Val::Percent(21.),
                         ..Default::default()
                     },
                     background_color: Color::rgba(0., 0., 1., 0.2).into(),

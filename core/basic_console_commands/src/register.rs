@@ -4,10 +4,10 @@ pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default 
 ) {
     if is_server() {
         app.add_event::<RconSpawnEntity<T>>()
-            .add_system(rcon_entity_console_commands::<T>);
+            .add_systems(Update, rcon_entity_console_commands::<T>);
     }
 }
-use bevy::prelude::App;
+use bevy::prelude::{App, Update};
 use entity::entity_types::EntityType;
 
 use crate::commands::{
@@ -21,8 +21,10 @@ pub fn register_basic_console_commands_for_inventory_item_type<
 ) {
     if is_server() {
         app.add_event::<RconSpawnEntity<T>>()
-            .add_system(rcon_entity_console_commands::<T>)
-            .add_system(rcon_spawn_entity::<T>)
+            .add_systems(
+                Update,
+                (rcon_entity_console_commands::<T>, rcon_spawn_entity::<T>),
+            )
             .add_event::<RconSpawnHeldEntity<T>>();
     }
 }

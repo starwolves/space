@@ -1,4 +1,4 @@
-use bevy::prelude::{info, warn, Color, EventReader, EventWriter, Query, Res};
+use bevy::prelude::{info, warn, Color, Event, EventReader, EventWriter, Query, Res};
 use networking::server::{
     ConnectedPlayer, IncomingReliableClientMessage, OutgoingReliableServerMessage,
 };
@@ -9,7 +9,7 @@ use ui::{
 };
 
 use crate::net::{ChatClientMessage, ChatMessage, ChatServerMessage};
-
+#[derive(Event)]
 pub struct GlobalChatMessage {
     pub message: String,
     pub sender: u64,

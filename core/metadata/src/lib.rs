@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use bevy::prelude::{info, warn, App, Commands, Plugin, Resource};
+use bevy::prelude::{info, warn, App, Commands, Plugin, Resource, Startup};
 use cargo_metadata::Metadata;
 
 #[derive(Resource)]
@@ -83,6 +83,6 @@ pub struct MetadataPlugin;
 
 impl Plugin for MetadataPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(load_metadata);
+        app.add_systems(Startup, load_metadata);
     }
 }

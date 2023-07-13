@@ -1,6 +1,8 @@
 use std::time::Duration;
 
-use bevy::prelude::{App, CoreSchedule, CoreSet, IntoSystemAppConfig, IntoSystemConfig, Plugin};
+use bevy::prelude::{
+    App, FixedUpdate, IntoSystemConfigs, Plugin, PostUpdate, PreUpdate, Startup, Update,
+};
 use bevy::time::common_conditions::on_fixed_timer;
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::is_server::is_server;
@@ -25,42 +27,39 @@ pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(
+            app.add_systems(
+                FixedUpdate,
                 broadcast_position_updates
-                    .in_schedule(CoreSchedule::FixedUpdate)
                     .in_set(InterpolationSet::Main)
                     .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.))),
             )
-            .add_system(
-                world_mode_update
-                    .in_set(PostUpdateLabels::EntityUpdate)
-                    .in_base_set(CoreSet::PostUpdate),
+            .add_systems(
+                PostUpdate,
+                (
+                    despawn_entity.after(PostUpdateLabels::VisibleChecker),
+                    finalize_examine_entity.before(PostUpdateLabels::EntityUpdate),
+                    visible_checker
+                        .in_set(PostUpdateLabels::VisibleChecker)
+                        .after(PostUpdateLabels::SendEntityUpdates),
+                    world_mode_update.in_set(PostUpdateLabels::EntityUpdate),
+                ),
             )
-            .add_system(
-                visible_checker
-                    .in_set(PostUpdateLabels::VisibleChecker)
-                    .after(PostUpdateLabels::SendEntityUpdates)
-                    .in_base_set(CoreSet::PostUpdate),
+            .add_systems(
+                Update,
+                (
+                    examine_entity.after(ActionsLabels::Action),
+                    examine_entity_health.after(ActionsLabels::Action),
+                ),
             )
-            .add_system(
-                despawn_entity
-                    .in_base_set(CoreSet::PostUpdate)
-                    .after(PostUpdateLabels::VisibleChecker),
-            )
-            .add_system(
-                finalize_examine_entity
-                    .before(PostUpdateLabels::EntityUpdate)
-                    .in_base_set(CoreSet::PostUpdate),
-            )
-            .add_system(examine_entity_health.after(ActionsLabels::Action))
             .init_resource::<ExamineEntityMessages>()
-            .add_system(finalize_entity_examine_input.in_base_set(CoreSet::PreUpdate))
-            .add_system(examine_entity.after(ActionsLabels::Action))
-            .add_system(incoming_messages.in_base_set(CoreSet::PreUpdate))
+            .add_systems(
+                PreUpdate,
+                (finalize_entity_examine_input, incoming_messages),
+            )
             .add_event::<InputExamineEntity>()
-            .add_system(
+            .add_systems(
+                PostUpdate,
                 finalize_entity_updates
-                    .in_base_set(CoreSet::PostUpdate)
                     .after(PostUpdateLabels::EntityUpdate)
                     .in_set(PostUpdateLabels::SendEntityUpdates),
             )
@@ -72,11 +71,14 @@ impl Plugin for EntityPlugin {
         }
         app.add_event::<RawSpawnEvent>()
             .init_resource::<EntityTypes>()
-            .add_startup_system(finalize_register_entity_types.after(EntityTypeLabel::Register))
-            .add_startup_system(
-                load_ron_entities
-                    .after(StartupLabels::BuildGridmap)
-                    .in_set(StartupLabels::InitEntities),
+            .add_systems(
+                Startup,
+                (
+                    finalize_register_entity_types.after(EntityTypeLabel::Register),
+                    load_ron_entities
+                        .after(StartupLabels::BuildGridmap)
+                        .in_set(StartupLabels::InitEntities),
+                ),
             );
         register_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         register_reliable_message::<EntityClientMessage>(app, MessageSender::Client);

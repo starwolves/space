@@ -29,13 +29,13 @@ impl FpsCameraPlugin {
 impl Plugin for FpsCameraPlugin {
     fn build(&self, app: &mut App) {
         let app = app
-            .add_system(on_controller_enabled_changed.in_base_set(CoreSet::PreUpdate))
-            .add_system(control_system)
+            .add_systems(PreUpdate, on_controller_enabled_changed)
+            .add_systems(Update, control_system)
             .add_event::<ControlEvent>()
             .init_resource::<ActiveCamera>()
-            .add_startup_system(create_input_map);
+            .add_systems(Startup, create_input_map);
         if !self.override_input_system {
-            app.add_system(default_input_map);
+            app.add_systems(Update, default_input_map);
         }
         // app.add_system(print_camera_position);
     }
@@ -44,7 +44,6 @@ impl Plugin for FpsCameraPlugin {
 #[derive(Bundle)]
 pub struct FpsCameraBundle {
     controller: FpsCameraController,
-    #[bundle]
     look_transform: LookTransformBundle,
     transform: Transform,
 }
@@ -85,6 +84,7 @@ impl Default for FpsCameraController {
     }
 }
 
+#[derive(Event)]
 pub enum ControlEvent {
     Rotate(Vec2),
     TranslateEye(Vec3),
@@ -143,7 +143,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
     map.list.insert(
         HOLD_SPRINT_BIND.to_string(),
         KeyBind {
-            key_code: KeyCode::LShift,
+            key_code: KeyCode::ShiftLeft,
             description: "Hold to sprint.".to_string(),
             name: "Sprint".to_string(),
         },

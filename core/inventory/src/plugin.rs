@@ -1,4 +1,4 @@
-use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostUpdate, Startup, Update};
 use console_commands::commands::{ConsoleCommand, ConsoleCommandsLabels};
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::{is_server::is_server, labels::PostUpdateLabels};
@@ -27,32 +27,40 @@ pub struct InventoryPlugin;
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(
-                inventory_item_update
-                    .in_base_set(CoreSet::PostUpdate)
-                    .in_set(PostUpdateLabels::EntityUpdate),
+            app.add_systems(
+                PostUpdate,
+                inventory_item_update.in_set(PostUpdateLabels::EntityUpdate),
             )
-            .add_system(
-                add_item_to_slot
-                    .before(SpawnItemLabel::SpawnHeldItem)
-                    .after(InventorySlotLabel::AddSlotToInventory),
+            .add_systems(
+                Update,
+                (
+                    add_item_to_slot
+                        .before(SpawnItemLabel::SpawnHeldItem)
+                        .after(InventorySlotLabel::AddSlotToInventory),
+                    added_item_to_slot,
+                    add_slot_to_inventory.in_set(InventorySlotLabel::AddSlotToInventory),
+                    process_request_set_active_item,
+                    spawn_entity_for_client,
+                ),
             )
-            .add_event::<ItemAddedToSlot>()
-            .add_system(added_item_to_slot)
-            .add_system(add_slot_to_inventory.in_set(InventorySlotLabel::AddSlotToInventory))
-            .add_system(process_request_set_active_item)
-            .add_system(spawn_entity_for_client);
+            .add_event::<ItemAddedToSlot>();
         } else {
-            app.add_system(client_item_added_to_slot.after(ClientBuildInventoryLabel::AddSlot))
-                .add_system(client_slot_added.in_set(ClientBuildInventoryLabel::AddSlot))
-                .init_resource::<Inventory>()
-                .add_event::<AddedSlot>()
-                .add_system(set_active_item)
-                .add_event::<ActiveItemCamera>();
+            app.add_systems(
+                Update,
+                (
+                    client_item_added_to_slot.after(ClientBuildInventoryLabel::AddSlot),
+                    set_active_item,
+                    client_slot_added.in_set(ClientBuildInventoryLabel::AddSlot),
+                ),
+            )
+            .init_resource::<Inventory>()
+            .add_event::<AddedSlot>()
+            .add_event::<ActiveItemCamera>();
         }
         app.add_event::<AddItemToSlot>()
             .add_event::<AddSlot>()
-            .add_startup_system(
+            .add_systems(
+                Startup,
                 initialize_console_commands.before(ConsoleCommandsLabels::Finalize),
             );
         register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);

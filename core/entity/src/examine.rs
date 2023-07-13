@@ -5,6 +5,7 @@ use crate::senser::Senser;
 use std::collections::BTreeMap;
 
 use bevy::prelude::Entity;
+use bevy::prelude::Event;
 use bevy::prelude::Resource;
 use bevy::prelude::{warn, Query, Res};
 use bevy::prelude::{Component, EventReader, ResMut, SystemSet};
@@ -585,7 +586,7 @@ pub(crate) fn examine_entity_health(
 }
 
 /// Input examine entity event.
-#[derive(Clone)]
+#[derive(Clone, Event)]
 
 pub struct InputExamineEntity {
     pub handle: u64,

@@ -5,7 +5,7 @@ use bevy::{
 };
 
 /// Component with boarding data.
-
+#[derive(Event)]
 pub struct BoardingPlayer {
     pub player_handle: u64,
     pub player_character_name: String,
@@ -21,12 +21,13 @@ use crate::net::PlayerServerMessage;
 use crate::spawn_points::SpawnPointRon;
 
 use crate::connections::{OnBoard, SetupPhase};
-use bevy::prelude::{EventWriter, Transform};
+use bevy::prelude::{Event, EventWriter, Transform};
 use bevy::time::TimerMode;
 use networking::server::OutgoingReliableServerMessage;
 use pawn::pawn::Spawning;
 
 /// Event that fires when a player has successfully boarded.
+#[derive(Event)]
 pub struct PlayerBoarded {
     pub handle: u64,
     pub entity: Entity,
@@ -112,7 +113,7 @@ pub(crate) fn done_boarding(
 pub struct SoftPlayer;
 
 /// Client input submitting text event.
-
+#[derive(Event)]
 pub struct InputUIInputTransmitText {
     /// Handle of the connection that input this.
     pub handle: u64,

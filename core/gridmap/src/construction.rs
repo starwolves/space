@@ -4,9 +4,9 @@ use bevy::{
     gltf::GltfMesh,
     prelude::{
         warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
-        DespawnRecursiveExt, Entity, EventReader, EventWriter, Handle, Input, KeyCode, Local,
-        MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform,
-        Vec3, Visibility, With,
+        DespawnRecursiveExt, Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode,
+        Local, MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial,
+        Transform, Vec3, Visibility, With,
     },
     transform::TransformBundle,
 };
@@ -112,7 +112,7 @@ pub struct GhostTile {
     pub ghost_rotation: u8,
     pub ghost_face: CellFace,
 }
-
+#[derive(Event)]
 pub struct ShowYLevelPlane {
     pub show: bool,
 }
@@ -186,7 +186,7 @@ pub(crate) fn move_ylevel_plane(
         }
     }
 }
-
+#[derive(Event)]
 pub struct SetYPlanePosition {
     pub y: i16,
 }
@@ -845,7 +845,7 @@ pub(crate) fn input_ghost_rotation(
         }
     }
 }
-
+#[derive(Event)]
 pub struct ConstructionCellSelectionChanged {
     pub only_selection_changed: bool,
 }

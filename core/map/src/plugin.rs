@@ -1,4 +1,4 @@
-use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate, Update};
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender,
 };
@@ -24,19 +24,22 @@ impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.init_resource::<MapData>()
-                .add_system(change_map_overlay.in_set(MapLabels::ChangeMode))
-                .add_system(request_map_overlay)
-                .add_system(map_input.in_set(MapLabels::ChangeMode))
-                .init_resource::<MapHolders>()
-                .add_system(incoming_messages.in_base_set(CoreSet::PreUpdate))
+                .add_systems(
+                    Update,
+                    (
+                        request_map_overlay,
+                        change_map_overlay.in_set(MapLabels::ChangeMode),
+                        map_input.in_set(MapLabels::ChangeMode),
+                        configure
+                            .in_set(ConfigurationLabel::Main)
+                            .after(ConfigurationLabel::SpawnEntity),
+                    ),
+                )
+                .add_systems(PreUpdate, incoming_messages)
                 .add_event::<InputMapChangeDisplayMode>()
                 .add_event::<InputMap>()
                 .add_event::<InputMapRequestOverlay>()
-                .add_system(
-                    configure
-                        .in_set(ConfigurationLabel::Main)
-                        .after(ConfigurationLabel::SpawnEntity),
-                );
+                .init_resource::<MapHolders>();
         }
         register_reliable_message::<MapServerMessage>(app, MessageSender::Server);
         register_unreliable_message::<MapUnreliableClientMessage>(app, MessageSender::Client);

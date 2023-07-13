@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup, Update};
 use hud::communication::console::console_input;
 use resources::is_server::is_server;
 
@@ -16,16 +16,14 @@ pub struct BasicConsoleCommandsPlugin {
 impl Plugin for BasicConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(rcon_console_commands)
+            app.add_systems(Update, (rcon_console_commands, export_map, coords))
                 .insert_resource::<GiveAllRCON>(GiveAllRCON {
                     give: self.give_all_rcon,
-                })
-                .add_system(export_map)
-                .add_system(coords);
+                });
         } else {
-            app.add_startup_system(add_help_command)
-                .add_system(help_command.after(console_input));
+            app.add_systems(Startup, add_help_command)
+                .add_systems(Update, help_command.after(console_input));
         }
-        app.add_startup_system(add_export_map_command);
+        app.add_systems(Startup, add_export_map_command);
     }
 }

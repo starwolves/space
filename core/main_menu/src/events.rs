@@ -46,7 +46,7 @@ pub(crate) fn space_frontiers_link(
         }
 
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 starwolves_text.style.color = Color::BLUE.into();
                 match open::that("http://github.com/starwolves/space") {
                     Ok(_) => {}
@@ -85,7 +85,7 @@ pub(crate) fn starwolves_link(
         }
 
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 starwolves_text.style.color = Color::BLUE.into();
                 match open::that("http://starwolves.io") {
                     Ok(_) => {}
@@ -154,7 +154,7 @@ pub(crate) fn button_presses(
 ) {
     for (interaction, _) in &play_button_query {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 play_events.send(EnablePlayMenu { enable: true });
             }
             _ => (),
@@ -162,7 +162,7 @@ pub(crate) fn button_presses(
     }
     for (interaction, _) in &settings_button_query {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 events.send(ToggleEscapeMenu {
                     enabled: !state.visible,
                 });
@@ -172,7 +172,7 @@ pub(crate) fn button_presses(
     }
     for (interaction, _) in &exit_button_query {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 info!("Exiting app.");
                 exit.send(AppExit);
             }
@@ -200,7 +200,7 @@ pub(crate) fn connect_to_server_button(
 ) {
     for (_, interaction) in button_query.iter() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 let mut server_address_input_entity_option = None;
 
                 for (entity, _, _) in server_address_input_query.iter() {

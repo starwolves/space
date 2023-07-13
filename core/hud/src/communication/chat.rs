@@ -4,10 +4,11 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        BuildChildren, Commands, EventReader, EventWriter, Label, NodeBundle, Res, TextBundle,
+        BuildChildren, Commands, Event, EventReader, EventWriter, Label, NodeBundle, Res,
+        TextBundle,
     },
     text::{TextSection, TextStyle},
-    ui::{FlexDirection, Size, Style, Val},
+    ui::{FlexDirection, Style, Val},
 };
 use chat::net::ChatServerMessage;
 use networking::client::IncomingReliableServerMessage;
@@ -47,7 +48,7 @@ pub(crate) fn receive_chat_message(
         }
     }
 }
-
+#[derive(Event)]
 pub struct DisplayChatMessage {
     pub sections: Vec<TextSection>,
 }
@@ -61,9 +62,9 @@ pub(crate) fn display_chat_message(
         let text_section = commands
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Auto, Val::Auto),
+                    width: Val::Auto,
+                    height: Val::Auto,
                     flex_direction: FlexDirection::Row,
-
                     ..Default::default()
                 },
                 ..Default::default()
@@ -73,10 +74,8 @@ pub(crate) fn display_chat_message(
                 parent
                     .spawn(
                         TextBundle::from_sections(event.sections.clone()).with_style(Style {
-                            max_size: Size {
-                                width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
-                                height: Val::Undefined,
-                            },
+                            max_width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
+                            max_height: Val::Px(0.),
                             ..Default::default()
                         }),
                     )

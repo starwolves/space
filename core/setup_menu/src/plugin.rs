@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemConfig, Plugin};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Update};
 use controller::networking::InputUIInput;
 use networking::{
     client::is_client_connected,
@@ -20,21 +20,24 @@ pub struct SetupMenuPlugin;
 impl Plugin for SetupMenuPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_system(ui_input_boarding)
-                .add_system(initialize_setupui.in_set(BuildingLabels::TriggerBuild))
-                .add_event::<InputUIInput>()
-                .add_system(
+            app.add_systems(
+                Update,
+                (
+                    ui_input_boarding,
+                    initialize_setupui.in_set(BuildingLabels::TriggerBuild),
                     configure
                         .in_set(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
-                )
-                .add_system(new_clients_enable_setupui)
-                .init_resource::<SetupUiState>()
-                .add_system(setupui_loaded)
-                .add_system(receive_input_character_name)
-                .init_resource::<SetupUiUserDataSets>();
+                    new_clients_enable_setupui,
+                    setupui_loaded,
+                    receive_input_character_name,
+                ),
+            )
+            .add_event::<InputUIInput>()
+            .init_resource::<SetupUiState>()
+            .init_resource::<SetupUiUserDataSets>();
         } else {
-            app.add_system(client_setup_ui.run_if(is_client_connected));
+            app.add_systems(Update, client_setup_ui.run_if(is_client_connected));
         }
 
         register_reliable_message::<SetupUiServerMessage>(app, MessageSender::Server);

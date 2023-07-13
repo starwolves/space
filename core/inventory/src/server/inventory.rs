@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{
-    warn, Component, Entity, EventReader, EventWriter, Query, Resource, SystemSet,
+    warn, Component, Entity, Event, EventReader, EventWriter, Query, Resource, SystemSet,
 };
 use networking::server::{ConnectedPlayer, OutgoingReliableServerMessage};
 use resources::math::Vec2Int;
@@ -30,6 +30,7 @@ pub struct Slot {
     pub size: Vec2Int,
 }
 /// Event that adds an inventory item entity to an inventory slot.
+#[derive(Event)]
 pub struct AddItemToSlot {
     pub slot_id: u8,
     pub inventory_entity: Entity,
@@ -38,6 +39,7 @@ pub struct AddItemToSlot {
 }
 
 /// Adds a slot to an inventory.
+#[derive(Event)]
 pub struct AddSlot {
     pub inventory_entity: Entity,
     pub slot: Slot,
@@ -65,7 +67,7 @@ pub enum SpawnItemLabel {
 }
 
 /// Event that fires when an item was successfully added to an inventory slot.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Event)]
 pub struct ItemAddedToSlot {
     pub slot_id: u8,
     pub inventory_entity: Entity,

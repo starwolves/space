@@ -5,14 +5,14 @@ use bevy::{
         EventReader, EventWriter, NodeBundle, Res, ResMut, SystemSet, TextBundle,
     },
     text::TextStyle,
-    ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Size, Style, UiRect, Val},
+    ui::{AlignItems, FlexDirection, FlexWrap, JustifyContent, Style, UiRect, Val},
 };
 use resources::core::ClientInformation;
 use token::parse::Token;
 use ui::fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, FONT_AWESOME, NESATHOBERYL_FONT};
 
 /// Event.
-
+#[derive(Event)]
 pub struct EnableMainMenu {
     pub enable: bool,
 }
@@ -115,7 +115,8 @@ pub(crate) fn show_main_menu(
         builder
             .insert(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     ..Default::default()
                 },
 
@@ -128,7 +129,8 @@ pub(crate) fn show_main_menu(
                     .spawn(())
                     .insert(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Percent(25.0), Val::Percent(100.0)),
+                            width: Val::Percent(25.0),
+                            height: Val::Percent(100.0),
                             flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
                         },
@@ -141,12 +143,13 @@ pub(crate) fn show_main_menu(
                             .spawn(())
                             .insert(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Undefined),
+                                    width: Val::Percent(100.0),
+                                    height: Val::Px(0.),
                                     justify_content: JustifyContent::Center,
                                     padding: UiRect::new(
-                                        Val::Undefined,
-                                        Val::Undefined,
-                                        Val::Undefined,
+                                        Val::Px(0.),
+                                        Val::Px(0.),
+                                        Val::Px(0.),
                                         Val::Percent(2.5),
                                     ),
                                     ..Default::default()
@@ -196,13 +199,14 @@ pub(crate) fn show_main_menu(
                             .spawn(())
                             .insert(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Percent(80.0)),
+                                    width: Val::Percent(100.0),
+                                    height: Val::Percent(80.0),
                                     flex_direction: FlexDirection::Column,
                                     padding: UiRect::new(
-                                        Val::Undefined,
-                                        Val::Undefined,
+                                        Val::Px(0.),
+                                        Val::Px(0.),
                                         Val::Percent(10.),
-                                        Val::Undefined,
+                                        Val::Px(0.),
                                     ),
                                     ..Default::default()
                                 },
@@ -215,13 +219,14 @@ pub(crate) fn show_main_menu(
                                     .spawn(())
                                     .insert(NodeBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(100.0), Val::Undefined),
+                                            width: Val::Percent(100.0),
+                                            height: Val::Px(0.),
                                             align_items: AlignItems::Center,
                                             flex_wrap: FlexWrap::Wrap,
                                             margin: UiRect::new(
-                                                Val::Undefined,
-                                                Val::Undefined,
-                                                Val::Undefined,
+                                                Val::Px(0.),
+                                                Val::Px(0.),
+                                                Val::Px(0.),
                                                 Val::Percent(25.),
                                             ),
                                             flex_direction: FlexDirection::ColumnReverse,
@@ -250,9 +255,9 @@ pub(crate) fn show_main_menu(
                                             )
                                             .with_style(Style {
                                                 margin: UiRect::new(
-                                                    Val::Undefined,
-                                                    Val::Undefined,
-                                                    Val::Undefined,
+                                                    Val::Px(0.),
+                                                    Val::Px(0.),
+                                                    Val::Px(0.),
                                                     Val::Percent(3.),
                                                 ),
                                                 ..Default::default()
@@ -271,9 +276,9 @@ pub(crate) fn show_main_menu(
                                                 )
                                                 .with_style(Style {
                                                     margin: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Undefined,
+                                                        Val::Px(0.),
+                                                        Val::Px(0.),
+                                                        Val::Px(0.),
                                                         Val::Percent(3.),
                                                     ),
                                                     ..Default::default()
@@ -286,7 +291,8 @@ pub(crate) fn show_main_menu(
                                     .spawn(())
                                     .insert(NodeBundle {
                                         style: Style {
-                                            size: Size::new(Val::Percent(100.0), Val::Undefined),
+                                            width: Val::Percent(100.0),
+                                            height: Val::Px(0.),
                                             align_items: AlignItems::Center,
                                             flex_wrap: FlexWrap::Wrap,
                                             flex_direction: FlexDirection::ColumnReverse,
@@ -300,10 +306,8 @@ pub(crate) fn show_main_menu(
                                             .spawn(())
                                             .insert(NodeBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.0),
-                                                        Val::Undefined,
-                                                    ),
+                                                    width: Val::Percent(100.0),
+                                                    height: Val::Px(0.),
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
                                                     flex_direction: FlexDirection::ColumnReverse,
@@ -340,10 +344,8 @@ pub(crate) fn show_main_menu(
                                             .spawn(())
                                             .insert(NodeBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.0),
-                                                        Val::Undefined,
-                                                    ),
+                                                    width: Val::Percent(100.0),
+                                                    height: Val::Px(0.),
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
                                                     flex_direction: FlexDirection::ColumnReverse,
@@ -380,10 +382,8 @@ pub(crate) fn show_main_menu(
                                             .spawn(())
                                             .insert(NodeBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.0),
-                                                        Val::Undefined,
-                                                    ),
+                                                    width: Val::Percent(100.0),
+                                                    height: Val::Px(0.),
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
                                                     flex_direction: FlexDirection::ColumnReverse,
@@ -425,7 +425,8 @@ pub(crate) fn show_main_menu(
                     .spawn(())
                     .insert(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Percent(75.0), Val::Percent(100.0)),
+                            width: Val::Percent(75.0),
+                            height: Val::Percent(100.0),
                             ..Default::default()
                         },
                         background_color: MAIN_BG_COLOR.into(),
@@ -437,7 +438,8 @@ pub(crate) fn show_main_menu(
                             .spawn(())
                             .insert(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                                    width: Val::Percent(100.0),
+                                    height: Val::Percent(100.0),
                                     ..Default::default()
                                 },
                                 background_color: MAIN_BG_COLOR.into(),
@@ -462,7 +464,7 @@ pub struct MainMenuStarWolvesLink;
 pub struct MainMainMenuRoot;
 
 /// Event that enables play menu belonging to the main menu.
-
+#[derive(Event)]
 pub struct EnablePlayMenu {
     pub enable: bool,
 }
@@ -474,9 +476,9 @@ pub struct PlayMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
 }
-use bevy::prelude::With;
 use bevy::prelude::{warn, Resource};
 use bevy::prelude::{Added, Query};
+use bevy::prelude::{Event, With};
 use bevy::ui::Interaction;
 
 use ui::button::HOVERED_BUTTON;
@@ -527,7 +529,8 @@ pub(crate) fn show_play_menu(
         builder
             .insert(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     ..Default::default()
@@ -540,7 +543,8 @@ pub(crate) fn show_play_menu(
                 parent
                     .spawn(NodeBundle {
                         style: Style {
-                            size: Size::new(Val::Percent(60.), Val::Percent(60.)),
+                            width: Val::Percent(60.0),
+                            height: Val::Percent(60.0),
                             flex_wrap: FlexWrap::Wrap,
                             flex_direction: FlexDirection::ColumnReverse,
                             ..Default::default()
@@ -553,8 +557,8 @@ pub(crate) fn show_play_menu(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.), Val::Percent(90.)),
-
+                                    width: Val::Percent(100.0),
+                                    height: Val::Percent(90.0),
                                     ..Default::default()
                                 },
                                 background_color: SIDEBAR_COLOR.into(),
@@ -569,7 +573,8 @@ pub(crate) fn show_play_menu(
                                             justify_content: JustifyContent::Center,
 
                                             flex_direction: FlexDirection::Column,
-                                            size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                                            width: Val::Percent(100.0),
+                                            height: Val::Percent(100.0),
                                             ..Default::default()
                                         },
                                         background_color: SIDEBAR_COLOR.into(),
@@ -581,10 +586,8 @@ pub(crate) fn show_play_menu(
                                         parent
                                             .spawn(NodeBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
+                                                    width: Val::Percent(100.0),
+                                                    height: Val::Percent(5.0),
                                                     justify_content: JustifyContent::Center,
                                                     ..Default::default()
                                                 },
@@ -617,15 +620,13 @@ pub(crate) fn show_play_menu(
                                             .spawn(NodeBundle {
                                                 style: Style {
                                                     margin: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
+                                                        Val::Px(0.),
+                                                        Val::Px(0.),
                                                         Val::Percent(3.),
                                                         Val::Percent(1.),
                                                     ),
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
+                                                    width: Val::Percent(100.0),
+                                                    height: Val::Percent(5.0),
                                                     justify_content: JustifyContent::Center,
                                                     ..Default::default()
                                                 },
@@ -657,15 +658,13 @@ pub(crate) fn show_play_menu(
                                         parent
                                             .spawn(NodeBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
+                                                    width: Val::Percent(100.0),
+                                                    height: Val::Percent(5.0),
                                                     justify_content: JustifyContent::Center,
                                                     margin: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Undefined,
+                                                        Val::Px(0.),
+                                                        Val::Px(0.),
+                                                        Val::Px(0.),
                                                         Val::Percent(7.),
                                                     ),
                                                     ..Default::default()
@@ -678,10 +677,8 @@ pub(crate) fn show_play_menu(
                                                 parent
                                                     .spawn(NodeBundle {
                                                         style: Style {
-                                                            size: Size::new(
-                                                                Val::Percent(25.),
-                                                                Val::Percent(100.),
-                                                            ),
+                                                            width: Val::Percent(25.0),
+                                                            height: Val::Percent(100.0),
                                                             justify_content: JustifyContent::Center,
                                                             align_items: AlignItems::Center,
                                                             flex_wrap: FlexWrap::Wrap,
@@ -719,14 +716,12 @@ pub(crate) fn show_play_menu(
                                         parent
                                             .spawn(NodeBundle {
                                                 style: Style {
-                                                    size: Size::new(
-                                                        Val::Percent(100.),
-                                                        Val::Percent(5.),
-                                                    ),
+                                                    width: Val::Percent(100.0),
+                                                    height: Val::Percent(5.0),
                                                     margin: UiRect::new(
-                                                        Val::Undefined,
-                                                        Val::Undefined,
-                                                        Val::Undefined,
+                                                        Val::Px(0.),
+                                                        Val::Px(0.),
+                                                        Val::Px(0.),
                                                         Val::Percent(10.),
                                                     ),
                                                     justify_content: JustifyContent::Center,
@@ -739,10 +734,8 @@ pub(crate) fn show_play_menu(
                                                 parent
                                                     .spawn(ButtonBundle {
                                                         style: Style {
-                                                            size: Size::new(
-                                                                Val::Percent(100.),
-                                                                Val::Percent(100.),
-                                                            ),
+                                                            width: Val::Percent(100.0),
+                                                            height: Val::Percent(100.0),
                                                             justify_content: JustifyContent::Center,
                                                             align_items: AlignItems::Center,
                                                             flex_wrap: FlexWrap::Wrap,
@@ -780,7 +773,8 @@ pub(crate) fn show_play_menu(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.), Val::Percent(10.)),
+                                    width: Val::Percent(100.0),
+                                    height: Val::Percent(10.0),
                                     justify_content: JustifyContent::Center,
                                     ..Default::default()
                                 },
@@ -820,7 +814,7 @@ pub struct IpAddressInput;
 pub struct ConnectToServerButton;
 
 /// Event that triggers auto fill.
-
+#[derive(Event)]
 pub struct AutoFillConnectSubMenu;
 
 pub(crate) fn auto_fill_connect_menu(

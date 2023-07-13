@@ -1,4 +1,4 @@
-use bevy::prelude::{App, CoreSet, IntoSystemConfig, Plugin, SystemSet};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostUpdate, SystemSet, Update};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
@@ -37,45 +37,44 @@ impl Plugin for AirLocksPlugin {
             app.add_event::<AirlockCollision>()
                 .add_event::<InputAirlockToggleOpen>()
                 .add_event::<AirLockLockOpen>()
-                .add_system(airlock_added)
-                .add_system(airlock_tick_timers)
-                .add_system(airlock_events)
-                .add_system(airlock_default_map_added)
+                .add_systems(
+                    Update,
+                    (
+                        airlock_added,
+                        airlock_tick_timers,
+                        airlock_default_map_added,
+                        airlock_events,
+                        health_combat_hit_result_sfx::<Airlock>
+                            .after(CombatLabels::FinalizeApplyDamage),
+                        toggle_open_action_prequisite_check
+                            .in_set(ActionsLabels::Approve)
+                            .after(ActionsLabels::Build),
+                        lock_action_prequisite_check
+                            .in_set(ActionsLabels::Approve)
+                            .after(ActionsLabels::Build),
+                        airlock_actions
+                            .in_set(ActionsLabels::Action)
+                            .after(ActionsLabels::Approve),
+                        build_actions
+                            .in_set(ActionsLabels::Build)
+                            .after(ActionsLabels::Init),
+                    ),
+                )
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>()
-                .add_system(
-                    airlock_update
-                        .in_set(PostUpdateLabels::EntityUpdate)
-                        .in_base_set(CoreSet::PostUpdate),
-                )
-                .add_system(
-                    health_combat_hit_result_sfx::<Airlock>
-                        .after(CombatLabels::FinalizeApplyDamage),
-                )
-                .add_system(
-                    toggle_open_action_prequisite_check
-                        .in_set(ActionsLabels::Approve)
-                        .after(ActionsLabels::Build),
-                )
-                .add_system(
-                    lock_action_prequisite_check
-                        .in_set(ActionsLabels::Approve)
-                        .after(ActionsLabels::Build),
-                )
-                .add_system(
-                    airlock_actions
-                        .in_set(ActionsLabels::Action)
-                        .after(ActionsLabels::Approve),
-                )
-                .add_system(
-                    build_actions
-                        .in_set(ActionsLabels::Build)
-                        .after(ActionsLabels::Init),
+                .add_systems(
+                    PostUpdate,
+                    airlock_update.in_set(PostUpdateLabels::EntityUpdate),
                 );
         }
-        app.add_system(build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild))
-            .add_system((build_rigid_bodies::<AirlockType>).after(BuildingLabels::TriggerBuild))
-            .add_system((build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild));
+        app.add_systems(
+            Update,
+            (
+                build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild),
+                (build_rigid_bodies::<AirlockType>).after(BuildingLabels::TriggerBuild),
+                (build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild),
+            ),
+        );
         register_entity_type::<AirlockType>(app);
     }
 }

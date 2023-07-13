@@ -1,6 +1,6 @@
 use bevy::prelude::{
-    warn, BuildChildren, Commands, Entity, EventReader, EventWriter, Query, Res, ResMut, SystemSet,
-    Transform, Vec3, Visibility,
+    warn, BuildChildren, Commands, Entity, Event, EventReader, EventWriter, Query, Res, ResMut,
+    SystemSet, Transform, Vec3, Visibility,
 };
 use cameras::controllers::fps::ActiveCamera;
 use entity::{entity_data::EntityData, entity_types::EntityType, spawn::ClientEntityServerEntity};
@@ -42,6 +42,7 @@ pub enum ClientBuildInventoryLabel {
 }
 
 /// Event that fires when an item becomes acive selected and displayed in front of first person camera.
+#[derive(Event)]
 pub struct ActiveItemCamera {
     pub client_entity: Entity,
 }
