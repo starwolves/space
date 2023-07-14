@@ -119,7 +119,10 @@ pub(crate) fn configure_and_start() {
             .add_plugins(RenderPlugin {
                 wgpu_settings: wgpu_settings,
             })
-            .add_plugins(ImagePlugin::default());
+            .add_plugins(ImagePlugin::default())
+            .add_plugins(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f32(
+                1. / TickRate::default().bevy_rate as f32,
+            )));
     } else {
         app.add_plugins(
             DefaultPlugins
@@ -192,11 +195,10 @@ pub(crate) fn configure_and_start() {
         .add_plugins(ControllerPlugin::default())
         .add_plugins(WorldPlugin)
         .add_plugins(HudPlugin)
-        .insert_resource(FixedTime::new_from_secs(1. / 60.))
+        .insert_resource(FixedTime::new_from_secs(
+            1. / TickRate::default().bevy_rate as f32,
+        ))
         .add_plugins(MetadataPlugin)
         .init_resource::<TickRate>()
-        .add_plugins(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f32(
-            1. / TickRate::default().bevy_rate as f32,
-        )))
         .run();
 }
