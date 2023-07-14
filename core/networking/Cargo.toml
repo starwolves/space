@@ -16,7 +16,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_renet = { git = "https://github.com/Olle-Lukowski/renet.git" , rev = "a5c508d" }
+bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
 bincode = "1.3.3"
 local_ipaddress = "0.1.3"
 serde = "1.0.150"

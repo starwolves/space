@@ -5,9 +5,12 @@ use bevy::{
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
-use bevy_renet::renet::{ConnectionConfig, DefaultChannel, RenetServer};
+use bevy_renet::renet::{
+    transport::{NetcodeServerTransport, ServerAuthentication, ServerConfig},
+    ConnectionConfig, RenetServer,
+};
 
 /// The network port the server will listen use for connections.
 
@@ -21,18 +24,34 @@ pub(crate) const PRIV_KEY: [u8; 32] = *b"(=^.^=)(=^.^=)(=^.^=)(=^.^=)(=^.";
 
 /// Start server and open and listen to port.
 
-pub(crate) fn startup_server_listen_connections() -> RenetServer {
-    let channels_config = DefaultChannel::config();
+pub(crate) fn startup_server_listen_connections() -> (RenetServer, NetcodeServerTransport) {
+    let public_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
+        .parse()
+        .unwrap();
+    let socket = UdpSocket::bind(public_addr).unwrap();
+    let renet_server = RenetServer::new(ConnectionConfig::default());
 
-    let renet_server = RenetServer::new(ConnectionConfig {
-        server_channels_config: channels_config.clone(),
-        client_channels_config: channels_config,
-        ..Default::default()
-    });
+    let server_config = ServerConfig {
+        max_clients: 128,
+        protocol_id: PROTOCOL_ID,
+        public_addr,
+        authentication: ServerAuthentication::Secure {
+            private_key: PRIV_KEY,
+        },
+    };
+    let current_time = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
 
-    info!("Listening to connections.");
+    let transport = NetcodeServerTransport::new(current_time, server_config, socket).unwrap();
+    let server_addr: String =
+        (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
+            .parse()
+            .unwrap();
 
-    renet_server
+    info!("Listening to connections on [{}].", server_addr);
+
+    (renet_server, transport)
 }
 
 use bevy::prelude::EventReader;

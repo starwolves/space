@@ -101,7 +101,6 @@ impl Plugin for HudPlugin {
                     Startup,
                     (
                         queue_inventory_updates.run_if(not(resource_exists::<InventoryHudState>())),
-                        create_inventory_hud,
                         create_hud,
                         register_input,
                     ),
@@ -109,6 +108,7 @@ impl Plugin for HudPlugin {
                 .add_systems(
                     PostStartup,
                     (
+                        create_inventory_hud,
                         build_server_stats,
                         build_communication_ui,
                         console_welcome_message.after(build_communication_ui),

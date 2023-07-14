@@ -57,6 +57,23 @@ impl Default for PerMethodSettings {
     }
 }
 
+pub fn init_tonemap(
+    mut tonemapping: Query<&mut Tonemapping>,
+    mut color_grading: Query<&mut ColorGrading>,
+    per_method_settings: Res<PerMethodSettings>,
+) {
+    for mut method in tonemapping.iter_mut() {
+        for mut color_grading in color_grading.iter_mut() {
+            *method = Tonemapping::ReinhardLuminance;
+
+            *color_grading = *per_method_settings
+                .settings
+                .get::<Tonemapping>(&method)
+                .unwrap();
+        }
+    }
+}
+
 pub fn toggle_tonemapping_method(
     keys: Res<Input<KeyCode>>,
     mut tonemapping: Query<&mut Tonemapping>,

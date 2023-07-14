@@ -3,7 +3,6 @@ use bevy::{
     prelude::{Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3},
 };
 
-use bevy_atmosphere::prelude::AtmosphereCamera;
 use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraController};
 use graphics::settings::GraphicsSettings;
 use networking::client::IncomingReliableServerMessage;
@@ -37,7 +36,7 @@ pub(crate) fn spawn_debug_camera(
                 Vec3::new(0., 1.8, -2.),
                 Vec3::Y,
             ))
-            .insert(AtmosphereCamera::default())
+            // .insert(AtmosphereCamera::default())
             .insert(Fxaa {
                 enabled: settings.fxaa.is_some(),
                 ..Default::default()

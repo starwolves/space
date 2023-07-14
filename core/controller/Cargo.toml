@@ -15,7 +15,7 @@ default-features = false
 
 
 [dependencies]
-bevy_renet = { git = "https://github.com/Olle-Lukowski/renet.git" , rev = "a5c508d" }
+bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
 serde = "1.0.150"
 typename = "0.1.2"
 

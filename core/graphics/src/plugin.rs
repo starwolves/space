@@ -7,7 +7,7 @@ use crate::{
         setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa, SetResolution, SetVsync,
         SetWindowMode,
     },
-    tonemapping::PerMethodSettings,
+    tonemapping::{init_tonemap, PerMethodSettings},
 };
 
 pub struct GraphicsPlugin;
@@ -28,7 +28,7 @@ impl Plugin for GraphicsPlugin {
             )
             .add_event::<SetResolution>()
             .init_resource::<GraphicsSettings>()
-            .add_systems(Startup, setup_graphics_settings)
+            .add_systems(Startup, (setup_graphics_settings, init_tonemap))
             .add_event::<SetWindowMode>()
             .add_event::<SetVsync>()
             .add_event::<SetFxaa>()

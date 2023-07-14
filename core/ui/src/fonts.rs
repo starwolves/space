@@ -30,7 +30,7 @@ impl Fonts {
     }
 }
 
-pub(crate) fn init_fonts(mut fonts: ResMut<Fonts>, asset_server: Res<AssetServer>) {
+pub fn init_fonts(mut fonts: ResMut<Fonts>, asset_server: Res<AssetServer>) {
     fonts.add(ARIZONE_FONT.to_string(), &asset_server);
     fonts.add(EMPIRE_FONT.to_string(), &asset_server);
     fonts.add(NESATHOBERYL_FONT.to_string(), &asset_server);

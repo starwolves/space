@@ -16,7 +16,7 @@ default-features = false
 
 [dependencies]
 vector2math = "0.13.0"
-bevy_renet = { git = "https://github.com/Olle-Lukowski/renet.git" , rev = "a5c508d" }
+bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
 const_format = "0.2.30"
 
 networking = { path = "../networking" }

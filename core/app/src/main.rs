@@ -95,6 +95,7 @@ pub(crate) fn configure_and_start() {
     let binding = test_path.join("assets");
     test_path = binding.as_path();
     let mut app = App::new();
+
     if is_server() {
         let mut wgpu_settings = WgpuSettings::default();
         wgpu_settings.backends = None;
@@ -110,10 +111,6 @@ pub(crate) fn configure_and_start() {
                 ..Default::default()
             })
             .add_plugins(WindowPlugin::default())
-            .init_resource::<TickRate>()
-            .add_plugins(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f32(
-                1. / TickRate::default().bevy_rate as f32,
-            )))
             .add_plugins(TimePlugin::default())
             .add_plugins(TransformPlugin::default())
             .add_plugins(HierarchyPlugin::default())
@@ -197,5 +194,9 @@ pub(crate) fn configure_and_start() {
         .add_plugins(HudPlugin)
         .insert_resource(FixedTime::new_from_secs(1. / 60.))
         .add_plugins(MetadataPlugin)
+        .init_resource::<TickRate>()
+        .add_plugins(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f32(
+            1. / TickRate::default().bevy_rate as f32,
+        )))
         .run();
 }

@@ -27,8 +27,10 @@ pub struct NetworkingPlugin;
 impl Plugin for NetworkingPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
+            let res = startup_server_listen_connections();
             app.add_plugins(RenetServerPlugin)
-                .insert_resource(startup_server_listen_connections())
+                .insert_resource(res.0)
+                .insert_resource(res.1)
                 .add_systems(Update, souls)
                 .add_event::<IncomingRawReliableClientMessage>()
                 .add_event::<IncomingRawUnreliableClientMessage>()

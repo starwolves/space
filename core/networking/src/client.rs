@@ -1,10 +1,16 @@
-use std::{net::SocketAddr, time::SystemTime};
+use std::{
+    net::{SocketAddr, UdpSocket},
+    time::SystemTime,
+};
 
 use bevy::{
     prelude::{error, info, Event, Resource},
     tasks::{AsyncComputeTaskPool, Task},
 };
-use bevy_renet::renet::{transport::ConnectToken, ConnectionConfig, DefaultChannel, RenetClient};
+use bevy_renet::renet::{
+    transport::{ClientAuthentication, ConnectToken, NetcodeClientTransport},
+    ConnectionConfig, DefaultChannel, RenetClient,
+};
 use futures_lite::future;
 use token::parse::Token;
 
@@ -169,11 +175,20 @@ pub(crate) fn connect_to_server(
                         continue;
                     }
                 }
+                let socket;
+                match UdpSocket::bind(local_ipaddress::get().unwrap_or_default() + ":0") {
+                    Ok(s) => {
+                        socket = s;
+                    }
+                    Err(err) => {
+                        warn!("Failed to bind udp socket: {}", err);
+                        continue;
+                    }
+                }
 
                 let socket_address: SocketAddr = SocketAddr::new(ip_address, port as u16);
 
                 let channels_config = DefaultChannel::config();
-
                 let current_time = SystemTime::now()
                     .duration_since(SystemTime::UNIX_EPOCH)
                     .unwrap();
@@ -194,14 +209,21 @@ pub(crate) fn connect_to_server(
                     Some(token_sized),
                     &PRIV_KEY,
                 ) {
-                    Ok(_connect_token) => {
+                    Ok(connect_token) => {
                         let renet_client = RenetClient::new(ConnectionConfig {
                             server_channels_config: channels_config.clone(),
                             client_channels_config: channels_config,
                             ..Default::default()
                         });
 
+                        let authentication = ClientAuthentication::Secure { connect_token };
+
+                        let transport =
+                            NetcodeClientTransport::new(current_time, authentication, socket)
+                                .unwrap();
+
                         commands.insert_resource(renet_client);
+                        commands.insert_resource(transport);
 
                         connection_state.status = ConnectionStatus::Connecting;
                     }
