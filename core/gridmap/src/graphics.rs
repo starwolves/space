@@ -3,6 +3,7 @@ use bevy::prelude::Assets;
 use bevy::prelude::Commands;
 use bevy::prelude::EventReader;
 
+use bevy::prelude::info;
 use bevy::prelude::warn;
 use bevy::prelude::PbrBundle;
 use bevy::prelude::Res;
@@ -38,12 +39,13 @@ pub(crate) fn set_cell_graphics(
                         mat = &materials.gray_metallic;
                     }
                 }
+                info!("set_cell: {:?}", transform);
                 match assets_gltfmesh.get(&properties.mesh_option.clone().unwrap()) {
                     Some(mesh) => {
                         commands.entity(set_cell.entity).insert(PbrBundle {
                             mesh: mesh.primitives[0].mesh.clone(),
                             material: mat.clone(),
-                            transform,
+                            global_transform: transform.into(),
                             ..Default::default()
                         });
                     }
