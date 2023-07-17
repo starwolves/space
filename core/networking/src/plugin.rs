@@ -1,5 +1,9 @@
 use bevy::prelude::{resource_exists, App, IntoSystemConfigs, Plugin, PreUpdate, Startup, Update};
-use bevy_renet::{renet::RenetClient, RenetClientPlugin, RenetServerPlugin};
+use bevy_renet::{
+    renet::RenetClient,
+    transport::{NetcodeClientPlugin, NetcodeServerPlugin},
+    RenetClientPlugin, RenetServerPlugin,
+};
 use resources::is_server::is_server;
 
 use super::server::{souls, startup_server_listen_connections};
@@ -29,6 +33,7 @@ impl Plugin for NetworkingPlugin {
         if is_server() {
             let res = startup_server_listen_connections();
             app.add_plugins(RenetServerPlugin)
+                .add_plugins(NetcodeServerPlugin)
                 .insert_resource(res.0)
                 .insert_resource(res.1)
                 .add_systems(Update, souls)
@@ -54,6 +59,7 @@ impl Plugin for NetworkingPlugin {
             )
             .add_event::<ConnectToServer>()
             .add_plugins(RenetClientPlugin)
+            .add_plugins(NetcodeClientPlugin)
             .add_event::<AssignTokenToServer>()
             .init_resource::<ConnectionPreferences>()
             .init_resource::<Connection>()

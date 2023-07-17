@@ -28,7 +28,7 @@ pub(crate) fn startup_server_listen_connections() -> (RenetServer, NetcodeServer
     let public_addr = (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
         .parse()
         .unwrap();
-    let socket = UdpSocket::bind(public_addr).unwrap();
+    let socket: UdpSocket = UdpSocket::bind(public_addr).unwrap();
     let renet_server = RenetServer::new(ConnectionConfig::default());
 
     let server_config = ServerConfig {
@@ -44,12 +44,8 @@ pub(crate) fn startup_server_listen_connections() -> (RenetServer, NetcodeServer
         .unwrap();
 
     let transport = NetcodeServerTransport::new(current_time, server_config, socket).unwrap();
-    let server_addr: String =
-        (local_ipaddress::get().unwrap_or_default() + ":" + &SERVER_PORT.to_string())
-            .parse()
-            .unwrap();
 
-    info!("Listening to connections on [{}].", server_addr);
+    info!("Listening to connections on [{}].", public_addr);
 
     (renet_server, transport)
 }
