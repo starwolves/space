@@ -1,6 +1,6 @@
 use bevy::{
     core_pipeline::fxaa::Fxaa,
-    prelude::{info, Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3},
+    prelude::{Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3},
 };
 
 use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraController};
@@ -21,7 +21,6 @@ pub(crate) fn spawn_debug_camera(
 ) {
     // Skip one frame to prevent camera ambiguity.
     if *spawning {
-        info!("yah");
         *spawning = false;
         let id = commands
             .spawn(Camera3dBundle {
