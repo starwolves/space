@@ -2483,6 +2483,7 @@ name = "graphics"
 version = "0.0.3"
 dependencies = [
  "bevy",
+ "cameras",
  "num-derive",
  "num-traits",
  "resources",

@@ -24,17 +24,18 @@ impl Plugin for GraphicsPlugin {
                     set_resolution,
                     set_vsync,
                     set_window_mode,
+                    init_tonemap,
                 ),
             )
             .add_event::<SetResolution>()
             .init_resource::<GraphicsSettings>()
-            .add_systems(Startup, (setup_graphics_settings, init_tonemap))
+            .add_systems(Startup, setup_graphics_settings)
             .add_event::<SetWindowMode>()
             .add_event::<SetVsync>()
             .add_event::<SetFxaa>()
             .add_event::<SetMsaa>()
             .init_resource::<PerMethodSettings>();
-            //.add_system(toggle_tonemapping_method);
+            //.add_systems(Update, toggle_tonemapping_method);
         }
     }
 }

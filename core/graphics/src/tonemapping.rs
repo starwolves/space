@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use bevy::{
     core_pipeline::tonemapping::Tonemapping,
-    prelude::{Input, KeyCode, Query, Res, Resource},
+    prelude::{Added, Input, KeyCode, Query, Res, Resource},
     render::view::ColorGrading,
 };
+use cameras::controllers::fps::FpsCameraController;
 
 #[derive(Resource)]
 pub struct PerMethodSettings {
@@ -61,15 +62,18 @@ pub fn init_tonemap(
     mut tonemapping: Query<&mut Tonemapping>,
     mut color_grading: Query<&mut ColorGrading>,
     per_method_settings: Res<PerMethodSettings>,
+    added: Query<&FpsCameraController, Added<FpsCameraController>>,
 ) {
-    for mut method in tonemapping.iter_mut() {
-        for mut color_grading in color_grading.iter_mut() {
-            *method = Tonemapping::ReinhardLuminance;
+    for _ in added.iter() {
+        for mut method in tonemapping.iter_mut() {
+            for mut color_grading in color_grading.iter_mut() {
+                *method = Tonemapping::ReinhardLuminance;
 
-            *color_grading = *per_method_settings
-                .settings
-                .get::<Tonemapping>(&method)
-                .unwrap();
+                *color_grading = *per_method_settings
+                    .settings
+                    .get::<Tonemapping>(&method)
+                    .unwrap();
+            }
         }
     }
 }
