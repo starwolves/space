@@ -1,5 +1,10 @@
-use bevy::prelude::{
-    resource_exists, App, IntoSystemConfigs, Plugin, PostUpdate, PreUpdate, Startup, Update,
+use std::time::Duration;
+
+use bevy::{
+    prelude::{
+        resource_exists, App, IntoSystemConfigs, Plugin, PostUpdate, PreUpdate, Startup, Update,
+    },
+    time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
 use player::plugin::ConfigurationLabel;
@@ -13,7 +18,7 @@ use crate::{
     construction::{
         change_ghost_tile_request, client_mouse_click_input, create_select_cell_cam_state,
         input_ghost_rotation, input_yplane_position, move_ylevel_plane, register_input,
-        set_yplane_position, show_ylevel_plane, update_ghost_cell,
+        select_cell_in_front_camera, set_yplane_position, show_ylevel_plane, update_ghost_cell,
         ConstructionCellSelectionChanged, GridmapConstructionState, SetYPlanePosition,
     },
     examine::{
@@ -136,14 +141,12 @@ impl Plugin for GridmapPlugin {
                     move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
                     update_ghost_cell.run_if(resource_exists::<GridmapConstructionState>()),
                     change_ghost_tile_request.run_if(resource_exists::<GridmapConstructionState>()),
+                    select_cell_in_front_camera
+                        .run_if(resource_exists::<GridmapConstructionState>())
+                        .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
                 ),
             )
             .add_event::<SetYPlanePosition>()
-            /*.add_system(
-                select_cell_in_front_camera
-                    .run_if(resource_exists::<GridmapConstructionState>())
-                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
-            )*/
             .add_event::<ConstructionCellSelectionChanged>()
             .add_systems(
                 PostUpdate,

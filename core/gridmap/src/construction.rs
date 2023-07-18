@@ -3,14 +3,16 @@ use std::{collections::HashMap, f32::consts::PI};
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        warn, AlphaMode, AssetServer, Assets, BuildChildren, Color, Commands, Component,
-        DespawnRecursiveExt, Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode,
-        Local, MouseButton, PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial,
-        Transform, Vec3, Visibility, With,
+        warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, DespawnRecursiveExt,
+        Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode, Local, MouseButton,
+        PbrBundle, Quat, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3,
+        Visibility, With,
     },
     transform::TransformBundle,
 };
-use bevy_xpbd_3d::prelude::{Collider, CollisionLayers, RigidBody};
+use bevy_xpbd_3d::prelude::{
+    Collider, CollisionLayers, RigidBody, SpatialQuery, SpatialQueryFilter,
+};
 use cameras::{controllers::fps::ActiveCamera, LookTransform};
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use physics::physics::{get_bit_masks, ColliderGroup};
@@ -68,12 +70,9 @@ pub fn create_select_cell_cam_state(
                     transform: Transform::from_xyz(0.5, YPLANE_Y_OFFSET, 0.5),
                     ..Default::default()
                 })
-                .with_children(|parent| {
-                    parent
-                        .spawn(Collider::halfspace(Vec3::Y))
-                        .insert(TransformBundle::from(Transform::IDENTITY))
-                        .insert(CollisionLayers::from_bits(masks.0, masks.1));
-                })
+                .insert(Collider::cuboid(5000., 0.1, 5000.))
+                .insert(TransformBundle::from(Transform::IDENTITY))
+                .insert(CollisionLayers::from_bits(masks.0, masks.1))
                 .id();
             commands.insert_resource(GridmapConstructionState {
                 selected: None,
@@ -849,11 +848,11 @@ pub(crate) fn input_ghost_rotation(
 pub struct ConstructionCellSelectionChanged {
     pub only_selection_changed: bool,
 }
-/*
+
 pub(crate) fn select_cell_in_front_camera(
     camera_query: Query<&LookTransform>,
     active_camera: Res<ActiveCamera>,
-    rapier_context: Res<RapierContext>,
+    spatial_query: SpatialQuery,
     mut state: ResMut<GridmapConstructionState>,
     mut events: EventWriter<ConstructionCellSelectionChanged>,
 ) {
@@ -894,16 +893,12 @@ pub(crate) fn select_cell_in_front_camera(
     let solid = true;
     let collider_groups = get_bit_masks(ColliderGroup::GridmapSelection);
 
-    let filter = QueryFilter::new().groups(CollisionGroups::new(
-        Group::from_bits(collider_groups.0).unwrap(),
-        Group::from_bits(collider_groups.1).unwrap(),
-    ));
+    let filter = SpatialQueryFilter::new().with_masks_from_bits(collider_groups.1);
 
     let intersection_position;
 
-    if let Some((_entity, toi)) = rapier_context.cast_ray(ray_pos, ray_dir, max_toi, solid, filter)
-    {
-        intersection_position = ray_pos + ray_dir * toi;
+    if let Some(hit) = spatial_query.cast_ray(ray_pos, ray_dir, max_toi, solid, filter) {
+        intersection_position = ray_pos + ray_dir * hit.time_of_impact;
     } else {
         return;
     }
@@ -927,7 +922,7 @@ pub(crate) fn select_cell_in_front_camera(
     }
     state.selected = Some(n);
 }
-*/
+
 pub(crate) fn change_ghost_tile_request(
     mut net: EventReader<IncomingReliableServerMessage<GridmapServerMessage>>,
     mut events: EventWriter<ConstructionCellSelectionChanged>,
