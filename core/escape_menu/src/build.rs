@@ -459,7 +459,7 @@ pub(crate) fn build_controls_section(
                             .spawn(NodeBundle {
                                 style: Style {
                                     width: Val::Percent(10.),
-                                    height: Val::Percent(30.),
+                                    height: Val::Percent(100.),
                                     flex_direction: FlexDirection::RowReverse,
                                     flex_wrap: FlexWrap::Wrap,
                                     ..Default::default()
@@ -662,7 +662,7 @@ pub(crate) fn build_graphics_section(
                                         .insert(ResolutionInputApply)
                                         .with_children(|parent| {
                                             parent.spawn(TextBundle::from_section(
-                                                " Apply ",
+                                                "Apply",
                                                 TextStyle {
                                                     font: source_code.clone(),
                                                     font_size: ESC_MENU_FONT_SIZE,

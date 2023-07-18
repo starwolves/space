@@ -130,8 +130,8 @@ pub fn update_inventory_hud_add_item_to_slot<
                     height: Val::Percent(height),
                     position_type: PositionType::Absolute,
                     left: Val::Percent(x),
-                    right: Val::Px(0.),
-                    top: Val::Px(0.),
+                    right: Val::Auto,
+                    top: Val::Auto,
                     bottom: Val::Percent(y),
 
                     ..Default::default()

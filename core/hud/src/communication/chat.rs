@@ -75,7 +75,7 @@ pub(crate) fn display_chat_message(
                     .spawn(
                         TextBundle::from_sections(event.sections.clone()).with_style(Style {
                             max_width: Val::Px(MESSAGES_DEFAULT_MAX_WIDTH),
-                            max_height: Val::Px(0.),
+                            max_height: Val::Auto,
                             ..Default::default()
                         }),
                     )

@@ -31,7 +31,7 @@ pub(crate) fn expand_inventory_hud(
                 match style_query.get_mut(ent) {
                     Ok(mut st) => {
                         st.max_width = Val::Px(MESSAGES_DEFAULT_MIN_WIDTH);
-                        st.max_height = Val::Px(0.);
+                        st.max_height = Val::Auto;
                     }
                     Err(_) => {
                         warn!("Couldnt find style.");
@@ -87,7 +87,7 @@ pub(crate) fn expand_inventory_hud(
                 match style_query.get_mut(ent) {
                     Ok(mut st) => {
                         st.max_width = Val::Px(MESSAGES_DEFAULT_MAX_WIDTH);
-                        st.max_height = Val::Px(0.);
+                        st.max_height = Val::Auto;
                     }
                     Err(_) => {
                         warn!("Couldnt find style.");

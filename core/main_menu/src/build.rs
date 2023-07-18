@@ -144,7 +144,7 @@ pub(crate) fn show_main_menu(
                             .insert(NodeBundle {
                                 style: Style {
                                     width: Val::Percent(100.0),
-                                    height: Val::Px(0.),
+                                    height: Val::Auto,
                                     justify_content: JustifyContent::Center,
                                     padding: UiRect::new(
                                         Val::Px(0.),
@@ -220,7 +220,7 @@ pub(crate) fn show_main_menu(
                                     .insert(NodeBundle {
                                         style: Style {
                                             width: Val::Percent(100.0),
-                                            height: Val::Px(0.),
+                                            height: Val::Auto,
                                             align_items: AlignItems::Center,
                                             flex_wrap: FlexWrap::Wrap,
                                             margin: UiRect::new(
@@ -292,7 +292,7 @@ pub(crate) fn show_main_menu(
                                     .insert(NodeBundle {
                                         style: Style {
                                             width: Val::Percent(100.0),
-                                            height: Val::Px(0.),
+                                            height: Val::Auto,
                                             align_items: AlignItems::Center,
                                             flex_wrap: FlexWrap::Wrap,
                                             flex_direction: FlexDirection::ColumnReverse,
@@ -307,7 +307,7 @@ pub(crate) fn show_main_menu(
                                             .insert(NodeBundle {
                                                 style: Style {
                                                     width: Val::Percent(100.0),
-                                                    height: Val::Px(0.),
+                                                    height: Val::Auto,
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
                                                     flex_direction: FlexDirection::ColumnReverse,
@@ -345,7 +345,7 @@ pub(crate) fn show_main_menu(
                                             .insert(NodeBundle {
                                                 style: Style {
                                                     width: Val::Percent(100.0),
-                                                    height: Val::Px(0.),
+                                                    height: Val::Auto,
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
                                                     flex_direction: FlexDirection::ColumnReverse,
@@ -383,7 +383,7 @@ pub(crate) fn show_main_menu(
                                             .insert(NodeBundle {
                                                 style: Style {
                                                     width: Val::Percent(100.0),
-                                                    height: Val::Px(0.),
+                                                    height: Val::Auto,
                                                     align_items: AlignItems::Center,
                                                     flex_wrap: FlexWrap::Wrap,
                                                     flex_direction: FlexDirection::ColumnReverse,
