@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use bevy::prelude::{warn, Commands, EventReader, EventWriter, Transform, Vec3};
-use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction};
+use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction, LockedAxes};
 use entity::{
     entity_data::{WorldMode, WorldModes},
     entity_macros::Identity,
@@ -84,7 +84,6 @@ use bevy::prelude::Res;
 use entity::entity_types::EntityTypes;
 use entity::net::EntityServerMessage;
 /// Human male spawner.
-
 pub fn build_base_human_males<T: BaseEntityBuilder<HumanMaleBuildData> + 'static>(
     mut spawn_events: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
@@ -257,6 +256,13 @@ pub fn build_human_males(
                 ..Default::default()
             },
         ));
+
+        spawner.insert(
+            LockedAxes::new()
+                .lock_rotation_x()
+                .lock_rotation_z()
+                .lock_rotation_y(),
+        );
     }
 }
 
