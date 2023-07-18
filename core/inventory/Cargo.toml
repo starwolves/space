@@ -17,7 +17,7 @@ default-features = false
 [dependencies]
 serde = "1.0.150"
 typename = "0.1.2"
-bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", branch = "main"}
+bevy_xpbd_3d = "0.2.0"
 
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }

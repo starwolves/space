@@ -15,7 +15,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", branch = "main"}
+bevy_xpbd_3d = "0.2.0"
 
 entity = { path = "../../core/entity" }
 gridmap = { path = "../../core/gridmap" }
