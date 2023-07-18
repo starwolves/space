@@ -17,7 +17,7 @@ use resources::hud::HudState;
 use ui::fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT};
 
 use crate::{
-    hud::{ExpandedLeftContentHud, LeftContentHud},
+    build::{ExpandedLeftContentHud, LeftContentHud},
     style::button::ButtonSelectionStyle,
 };
 

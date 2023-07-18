@@ -1,4 +1,5 @@
 use std::{
+    f32::consts::PI,
     fs::{self, create_dir_all},
     path::Path,
 };
@@ -6,13 +7,32 @@ use std::{
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
-        DetectChanges, Event, EventReader, EventWriter, Msaa, Query, Res, ResMut, Resource, With,
+        AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event,
+        EventReader, EventWriter, Msaa, Quat, Query, Res, ResMut, Resource, Transform, With,
     },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
 use num_derive::FromPrimitive;
 use ron::ser::PrettyConfig;
 use serde::{Deserialize, Serialize};
+
+pub(crate) fn init_light(mut commands: Commands) {
+    commands.insert_resource(AmbientLight {
+        brightness: 0.,
+        ..Default::default()
+    });
+    commands.spawn(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            shadows_enabled: true,
+            ..Default::default()
+        },
+        transform: Transform {
+            rotation: Quat::from_rotation_y(-PI * 1.).mul_quat(Quat::from_rotation_x(-PI * 0.1)),
+            ..Default::default()
+        },
+        ..Default::default()
+    });
+}
 
 #[derive(Resource, Serialize, Deserialize)]
 pub struct GraphicsSettings {

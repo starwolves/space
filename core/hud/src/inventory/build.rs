@@ -13,7 +13,7 @@ use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
 use ui::fonts::{Fonts, ARIZONE_FONT};
 
 use crate::{
-    expand::ExpandInventoryHud, hud::ExpandedLeftContentHud, input::binds::TOGGLE_INVENTORY,
+    build::ExpandedLeftContentHud, expand::ExpandInventoryHud, input::binds::TOGGLE_INVENTORY,
 };
 
 use super::slots::InventorySlotsNode;

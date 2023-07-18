@@ -3,9 +3,9 @@ use resources::is_server::is_server;
 
 use crate::{
     settings::{
-        set_fxaa, set_msaa, set_resolution, set_vsync, set_window_mode, settings_to_ron,
-        setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa, SetResolution, SetVsync,
-        SetWindowMode,
+        init_light, set_fxaa, set_msaa, set_resolution, set_vsync, set_window_mode,
+        settings_to_ron, setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa,
+        SetResolution, SetVsync, SetWindowMode,
     },
     tonemapping::{init_tonemap, PerMethodSettings},
 };
@@ -27,6 +27,7 @@ impl Plugin for GraphicsPlugin {
                     init_tonemap,
                 ),
             )
+            .add_systems(Startup, init_light)
             .add_event::<SetResolution>()
             .init_resource::<GraphicsSettings>()
             .add_systems(Startup, setup_graphics_settings)

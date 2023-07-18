@@ -5,11 +5,13 @@ use bevy::{
 use resources::hud::HudState;
 
 use crate::{
+    build::{
+        ExpandedLeftContentHud, LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH, LEFT_RIGHT_EDGE_HUD_WIDTH,
+    },
     communication::{
         build::{MESSAGES_DEFAULT_MAX_WIDTH, MESSAGES_DEFAULT_MIN_WIDTH},
         console::CommunicationTextBundle,
     },
-    hud::{ExpandedLeftContentHud, LEFT_RIGHT_EDGE_HUD_EXPANDED_WIDTH, LEFT_RIGHT_EDGE_HUD_WIDTH},
 };
 
 /// Event to expand the hud.

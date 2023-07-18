@@ -10,20 +10,5 @@ pub(crate) fn add_atmosphere(mut commands: Commands) {
         sun_position: Vec3::new(0., 0., -1.),
         ..Default::default()
     }));
-    commands.insert_resource(AmbientLight {
-        brightness: 0.,
-        ..Default::default()
-    });
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            shadows_enabled: true,
-            ..Default::default()
-        },
-        transform: Transform {
-            rotation: Quat::from_rotation_y(-PI * 1.).mul_quat(Quat::from_rotation_x(-PI * 0.1)),
-            ..Default::default()
-        },
-        ..Default::default()
-    });
 }
 */

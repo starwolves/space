@@ -107,7 +107,7 @@ pub(crate) fn update_inventory_hud_slot(
                         .spawn(NodeBundle {
                             style: Style {
                                 width: Val::Percent(100.),
-                                height: Val::Px(100.),
+                                height: Val::Px(200.),
                                 ..Default::default()
                             },
                             background_color: gray.into(),

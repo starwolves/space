@@ -5,6 +5,7 @@ use console_commands::net::ClientSideConsoleInput;
 use resources::is_server::is_server;
 
 use crate::{
+    build::{create_hud, show_hud, ExpandedLeftContentHud},
     communication::{
         build::{build_communication_ui, console_welcome_message, toggle_console_button},
         chat::{display_chat_message, receive_chat_message, DisplayChatMessage},
@@ -14,7 +15,6 @@ use crate::{
         input::{tab_communication_input_toggle, text_input},
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
-    hud::{create_hud, show_hud, ExpandedLeftContentHud},
     input::{
         binds::register_input,
         text_tree_selection::{
