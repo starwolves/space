@@ -2,6 +2,7 @@ use std::{collections::HashMap, f32::consts::PI};
 
 use bevy::{
     gltf::GltfMesh,
+    pbr::{NotShadowCaster, NotShadowReceiver},
     prelude::{
         warn, AlphaMode, AssetServer, Assets, Color, Commands, Component, DespawnRecursiveExt,
         Entity, Event, EventReader, EventWriter, Handle, Input, KeyCode, Local, MouseButton,
@@ -53,6 +54,7 @@ pub fn create_select_cell_cam_state(
         base_color: Color::rgba(0., 255., 255., 0.5),
         emissive: Color::WHITE,
         alpha_mode: AlphaMode::Blend,
+        unlit: true,
         ..Default::default()
     });
     let masks = get_bit_masks(ColliderGroup::GridmapSelection);
@@ -73,6 +75,8 @@ pub fn create_select_cell_cam_state(
                 .insert(Collider::cuboid(5000., 0.1, 5000.))
                 .insert(TransformBundle::from(Transform::IDENTITY))
                 .insert(CollisionLayers::from_bits(masks.0, masks.1))
+                .insert(NotShadowCaster)
+                .insert(NotShadowReceiver)
                 .id();
             commands.insert_resource(GridmapConstructionState {
                 selected: None,
@@ -379,6 +383,8 @@ pub(crate) fn update_ghost_cell(
                                                     transform: t,
                                                     ..Default::default()
                                                 })
+                                                .insert(NotShadowCaster)
+                                                .insert(NotShadowReceiver)
                                                 .id();
                                             let new_tile = GhostTile {
                                                 tile_type: tile.tile_type,
@@ -446,6 +452,8 @@ pub(crate) fn update_ghost_cell(
                                             transform: t,
                                             ..Default::default()
                                         })
+                                        .insert(NotShadowCaster)
+                                        .insert(NotShadowReceiver)
                                         .id();
                                     g.ghost_entity_option = Some(ghost_entity);
                                 }
