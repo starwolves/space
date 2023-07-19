@@ -203,7 +203,7 @@ pub(crate) fn build_communication_ui(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        width: Val::Percent(29.18),
+                        width: Val::Percent(27.),
                         height: Val::Percent(100.),
                         flex_direction: FlexDirection::Column,
                         ..Default::default()
