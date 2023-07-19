@@ -1,6 +1,9 @@
 use bevy::{
     core_pipeline::fxaa::Fxaa,
-    prelude::{Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3},
+    prelude::{
+        Camera, Camera3dBundle, Commands, ComputedVisibility, EventReader, Res, ResMut, Vec3,
+        VisibilityBundle,
+    },
 };
 
 use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraController};
@@ -41,6 +44,7 @@ pub(crate) fn spawn_debug_camera(
                 enabled: settings.fxaa.is_some(),
                 ..Default::default()
             })
+            .insert(VisibilityBundle::default())
             .id();
 
         state.option = Some(id);
