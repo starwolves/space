@@ -43,7 +43,7 @@ pub enum CombatLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum UpdateLabels {
+pub enum UpdateSets {
     ProcessMovementInput,
     DropCurrentItem,
     StandardCharacters,

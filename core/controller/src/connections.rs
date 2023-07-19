@@ -1,26 +1,10 @@
 use crate::controller::ControllerInput;
-use bevy::prelude::{EventReader, Res};
-use player::connections::SendServerConfiguration;
-
-pub(crate) fn configure(
-    mut config_events: EventReader<SendServerConfiguration>,
-    handle_to_entity: Res<HandleToEntity>,
-    mut commands: Commands,
-) {
-    for event in config_events.iter() {
-        match handle_to_entity.map.get(&event.handle) {
-            Some(entity) => {
-                commands.entity(*entity).insert(ControllerInput::default());
-            }
-            None => {}
-        }
-    }
-}
+use bevy::prelude::EventReader;
 
 use bevy::prelude::warn;
 
 use bevy::prelude::Vec2;
-use bevy::prelude::{Commands, Query, ResMut};
+use bevy::prelude::{Query, ResMut};
 use bevy_renet::renet::ServerEvent;
 use combat::health_ui::ClientHealthUICache;
 use networking::server::{ConnectedPlayer, HandleToEntity};

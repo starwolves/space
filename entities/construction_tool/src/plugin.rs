@@ -18,7 +18,7 @@ use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
-use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateLabels};
+use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateSets};
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
@@ -70,7 +70,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                             .in_set(ActionsLabels::Build)
                             .after(ActionsLabels::Init),
                         construction_tool_select_construction_option
-                            .in_set(UpdateLabels::TextTreeInputSelection),
+                            .in_set(UpdateSets::TextTreeInputSelection),
                         send_constructable_items,
                         mouse_click_input,
                     ),

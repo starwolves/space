@@ -10,7 +10,7 @@ use bevy::{
     text::{TextAlignment, TextStyle},
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
-use entity::spawn::PawnEntityId;
+use entity::spawn::PawnId;
 use networking::client::{IncomingReliableServerMessage, OutgoingReliableClientMessage};
 use player::configuration::Boarded;
 use resources::hud::HudState;
@@ -186,7 +186,7 @@ pub(crate) fn item_actions_button_events(
         (Changed<Interaction>, With<Button>),
     >,
     mut net: EventWriter<OutgoingReliableClientMessage<ActionsClientMessage>>,
-    pawn: Res<PawnEntityId>,
+    pawn: Res<PawnId>,
 ) {
     for (interaction, component) in interaction_query.iter_mut() {
         match interaction {
@@ -194,7 +194,7 @@ pub(crate) fn item_actions_button_events(
                 net.send(OutgoingReliableClientMessage {
                     message: ActionsClientMessage::TabPressed(TabPressed {
                         id: component.data.id.clone(),
-                        action_taker: pawn.option.expect("Pawn not yet initialized."),
+                        action_taker: pawn.server.expect("Pawn not yet initialized."),
                         target_cell_option: None,
                         target_entity_option: component.data.target_entity_option,
                         action_taker_item: None,

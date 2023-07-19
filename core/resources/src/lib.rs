@@ -12,6 +12,7 @@ pub mod content;
 pub mod converters;
 pub mod grid;
 pub mod hud;
+pub mod input;
 pub mod is_server;
 pub mod math;
 /// The Bevy ECS plugin of this crate.

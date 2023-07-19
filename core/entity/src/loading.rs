@@ -65,6 +65,7 @@ pub fn load_entity<T: Send + Sync + 'static + Default + EntityType>(
                             correct_transform: false,
                             holder_entity_option: load_entity.holder_entity,
                             entity: c_id,
+                            server_entity: Some(load_entity.entity),
                             ..Default::default()
                         },
                         entity_type: entity_default,

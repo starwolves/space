@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use bevy::prelude::{warn, Commands, EventReader, EventWriter, Transform, Vec3};
+use bevy::prelude::{info, warn, Commands, EventReader, EventWriter, ResMut, Transform, Vec3};
 use bevy_xpbd_3d::prelude::{CoefficientCombine, Collider, Friction, LockedAxes};
 use entity::{
     entity_data::{WorldMode, WorldModes},
@@ -12,7 +12,7 @@ use entity::{
     senser::Senser,
     spawn::{
         base_entity_builder, BaseEntityBuilder, BaseEntityBundle, BaseEntityData, EntityBuildData,
-        NoData, SpawnEntity,
+        NoData, PawnId, SpawnEntity,
     },
 };
 use humanoid::humanoid::{Humanoid, HUMAN_MALE_ENTITY_NAME};
@@ -177,8 +177,22 @@ use controller::controller::ControllerInput;
 pub fn build_human_males(
     mut commands: Commands,
     mut spawn_events: EventReader<SpawnEntity<HumanMaleType>>,
+    mut pawn_id: ResMut<PawnId>,
 ) {
     for spawn_event in spawn_events.iter() {
+        match pawn_id.server {
+            Some(server_id) => match spawn_event.spawn_data.server_entity {
+                Some(ent) => {
+                    if server_id == ent {
+                        pawn_id.client = Some(spawn_event.spawn_data.entity);
+                        info!("Client pawn id: {:?}", spawn_event.spawn_data.entity);
+                    }
+                }
+                None => {}
+            },
+            None => {}
+        }
+
         let mut spawner = commands.entity(spawn_event.spawn_data.entity);
 
         let spawn_pawn_data = spawn_event.entity_type.get_spawn_pawn_data();
@@ -198,7 +212,6 @@ pub fn build_human_males(
                 pawn_component,
                 ControllerInput::default(),
             ));
-
             match spawn_pawn_data.designation {
                 PawnDesignation::Player => {
                     match spawn_pawn_data.connected_player_option {
@@ -291,6 +304,7 @@ pub fn spawn_held_item<T: Send + Sync + Default + 'static>(
                     showcase_data_option: spawn_event.spawn_data.showcase_data_option.clone(),
                     entity: return_entity,
                     held_entity_option: Some(return_entity),
+                    server_entity: spawn_event.spawn_data.server_entity,
                 },
                 entity_type: T::default(),
             });

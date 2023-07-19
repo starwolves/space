@@ -2,7 +2,7 @@ use crate::boarding::SoftPlayer;
 use bevy::prelude::{Commands, EventReader, Res, ResMut, Resource};
 
 use bevy::prelude::EventWriter;
-use entity::spawn::PawnEntityId;
+use entity::spawn::PawnId;
 
 use crate::connections::{AuthidI, SendServerConfiguration};
 use crate::net::PlayerServerMessage;
@@ -91,14 +91,14 @@ pub struct Boarded {
 
 pub(crate) fn client_receive_pawnid(
     mut client: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
-    mut id: ResMut<PawnEntityId>,
+    mut id: ResMut<PawnId>,
     mut boarded: ResMut<Boarded>,
 ) {
     for message in client.iter() {
         match message.message {
             PlayerServerMessage::PawnId(entity_bits) => {
-                id.option = Some(entity_bits);
-                info!("Server assigned entity {:?}.", id.option.unwrap());
+                id.server = Some(entity_bits);
+                info!("Server assigned entity {:?}.", id.server.unwrap());
             }
             PlayerServerMessage::Boarded => {
                 info!("Boarded!");

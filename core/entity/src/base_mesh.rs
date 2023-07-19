@@ -5,14 +5,14 @@ use bevy::{
 
 use crate::{
     entity_types::EntityType,
-    spawn::{ClientEntityServerEntity, PawnEntityId, SpawnEntity},
+    spawn::{ClientEntityServerEntity, PawnId, SpawnEntity},
 };
 
 pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
     asset_server: Res<AssetServer>,
     mut spawner: EventReader<SpawnEntity<T>>,
     mut commands: Commands,
-    id: Res<PawnEntityId>,
+    id: Res<PawnId>,
     map: Res<ClientEntityServerEntity>,
 ) {
     for spawn in spawner.iter() {
@@ -30,7 +30,7 @@ pub fn link_base_mesh<T: Send + Sync + 'static + EntityType + Default>(
 
         let mut visibility = Visibility::default();
 
-        match id.option {
+        match id.server {
             Some(o) => match map.map.get(&o) {
                 Some(op) => {
                     if spawn.spawn_data.entity == *op {

@@ -199,6 +199,8 @@ pub struct EntityBuildData {
     /// If the entity is spawned in a showcase find its data here.
     pub showcase_data_option: Option<ShowcaseData>,
     pub entity: Entity,
+    /// For client to keep reference to server-side entity id.
+    pub server_entity: Option<Entity>,
 }
 
 impl Default for EntityBuildData {
@@ -212,6 +214,7 @@ impl Default for EntityBuildData {
             raw_entity_option: None,
             showcase_data_option: None,
             entity: Entity::from_bits(0),
+            server_entity: None,
         }
     }
 }
@@ -273,6 +276,7 @@ pub struct ClientEntityServerEntity {
 
 #[derive(Resource, Default)]
 /// Resource stores the server-side entity ID of the players pawn. Useful for the client to store.
-pub struct PawnEntityId {
-    pub option: Option<Entity>,
+pub struct PawnId {
+    pub server: Option<Entity>,
+    pub client: Option<Entity>,
 }

@@ -11,7 +11,6 @@ use crate::input::InputAttackCell;
 use crate::input::InputAttackEntity;
 use crate::input::InputMouseAction;
 use crate::input::InputMovementInput;
-use crate::input::InputSelectBodyPart;
 use crate::input::InputSprinting;
 use crate::input::InputToggleAutoMove;
 use crate::input::InputToggleCombatMode;
@@ -61,7 +60,6 @@ pub(crate) fn incoming_messages(
     mut input_mouse_action: EventWriter<InputMouseAction>,
     mut mouse_direction_update: EventWriter<InputMouseDirectionUpdate>,
     input_tuple: (
-        EventWriter<InputSelectBodyPart>,
         EventWriter<InputToggleAutoMove>,
         EventWriter<InputAttackEntity>,
         EventWriter<InputAltItemAttack>,
@@ -69,7 +67,6 @@ pub(crate) fn incoming_messages(
     ),
 ) {
     let (
-        mut input_select_body_part,
         mut input_toggle_auto_move,
         mut input_attack_entity,
         mut input_alt_item_attack,
@@ -102,8 +99,12 @@ pub(crate) fn incoming_messages(
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {
                         movement_input_event.send(InputMovementInput {
-                            vector: movement_input,
                             player_entity: *player_entity,
+                            pressed: movement_input.pressed,
+                            up: movement_input.up,
+                            left: movement_input.left,
+                            right: movement_input.right,
+                            down: movement_input.down,
                         });
                     }
                     None => {
@@ -159,19 +160,6 @@ pub(crate) fn incoming_messages(
                 }
             }
 
-            ControllerClientMessage::SelectBodyPart(body_part) => {
-                match handle_to_entity.map.get(&message.handle) {
-                    Some(player_entity) => {
-                        input_select_body_part.send(InputSelectBodyPart {
-                            entity: *player_entity,
-                            body_part,
-                        });
-                    }
-                    None => {
-                        warn!("Couldn't find player_entity belonging to SelectBodyPart sender handle.");
-                    }
-                }
-            }
             ControllerClientMessage::ToggleAutoMove => {
                 match handle_to_entity.map.get(&message.handle) {
                     Some(player_entity) => {

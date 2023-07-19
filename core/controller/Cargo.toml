@@ -24,3 +24,4 @@ networking = { path = "../networking" }
 pawn = { path = "../pawn" }
 combat = { path = "../combat"}
 resources = { path = "../resources"}
+entity = { path = "../entity"}

@@ -1,4 +1,4 @@
-use bevy::prelude::{EventWriter, Query, Vec2};
+use bevy::prelude::{EventWriter, Query};
 use networking::server::{OutgoingReliableServerMessage, UIInputAction};
 
 use player::net::PlayerServerMessage;
@@ -15,6 +15,14 @@ use crate::networking::UIInputNodeClass;
 pub enum ControllerUnreliableClientMessage {
     MouseDirectionUpdate(f32, u64),
 }
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct MovementInput {
+    pub up: bool,
+    pub left: bool,
+    pub right: bool,
+    pub down: bool,
+    pub pressed: bool,
+}
 
 /// Gets serialized and sent over the net, this is the client message.
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
@@ -22,12 +30,11 @@ pub enum ControllerUnreliableClientMessage {
 pub enum ControllerClientMessage {
     UIInput(UIInputNodeClass, UIInputAction, String, String),
     UIInputTransmitData(String, String, String),
-    MovementInput(Vec2),
+    MovementInput(MovementInput),
     SprintInput(bool),
     BuildGraphics,
     ToggleCombatModeInput,
     InputMouseAction(bool),
-    SelectBodyPart(String),
     ToggleAutoMove,
     AttackEntity(u64),
     AltItemAttack,

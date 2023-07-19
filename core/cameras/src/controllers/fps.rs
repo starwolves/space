@@ -9,8 +9,12 @@ use bevy::{
     transform::components::Transform,
 };
 use resources::{
-    binds::{KeyBind, KeyBinds},
+    binds::KeyBinds,
     hud::HudState,
+    input::{
+        HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND,
+        MOVE_RIGHT_BIND,
+    },
 };
 use serde::{Deserialize, Serialize};
 
@@ -32,8 +36,7 @@ impl Plugin for FpsCameraPlugin {
             .add_systems(PreUpdate, on_controller_enabled_changed)
             .add_systems(Update, control_system)
             .add_event::<ControlEvent>()
-            .init_resource::<ActiveCamera>()
-            .add_systems(Startup, create_input_map);
+            .init_resource::<ActiveCamera>();
         if !self.override_input_system {
             app.add_systems(Update, default_input_map);
         }
@@ -91,64 +94,6 @@ pub enum ControlEvent {
 }
 
 define_on_controller_enabled_changed!(FpsCameraController);
-
-pub const MOVE_FORWARD_BIND: &str = "moveForward";
-pub const MOVE_BACKWARD_BIND: &str = "moveBackward";
-pub const MOVE_LEFT_BIND: &str = "moveLeft";
-pub const MOVE_RIGHT_BIND: &str = "moveRight";
-pub const JUMP_BIND: &str = "jump";
-pub const HOLD_SPRINT_BIND: &str = "holdSprint";
-
-pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
-    map.list.insert(
-        MOVE_FORWARD_BIND.to_string(),
-        KeyBind {
-            key_code: KeyCode::W,
-            description: "Moves the player forward.".to_string(),
-            name: "Move Forward".to_string(),
-        },
-    );
-    map.list.insert(
-        MOVE_BACKWARD_BIND.to_string(),
-        KeyBind {
-            key_code: KeyCode::S,
-            description: "Moves the player backward.".to_string(),
-            name: "Move Backward".to_string(),
-        },
-    );
-    map.list.insert(
-        MOVE_LEFT_BIND.to_string(),
-        KeyBind {
-            key_code: KeyCode::A,
-            description: "Moves the player left.".to_string(),
-            name: "Move Left".to_string(),
-        },
-    );
-    map.list.insert(
-        MOVE_RIGHT_BIND.to_string(),
-        KeyBind {
-            key_code: KeyCode::D,
-            description: "Moves the player right.".to_string(),
-            name: "Move Right".to_string(),
-        },
-    );
-    map.list.insert(
-        JUMP_BIND.to_string(),
-        KeyBind {
-            key_code: KeyCode::Space,
-            description: "Jump into the air.".to_string(),
-            name: "Jump".to_string(),
-        },
-    );
-    map.list.insert(
-        HOLD_SPRINT_BIND.to_string(),
-        KeyBind {
-            key_code: KeyCode::ShiftLeft,
-            description: "Hold to sprint.".to_string(),
-            name: "Sprint".to_string(),
-        },
-    );
-}
 
 pub fn default_input_map(
     mut events: EventWriter<ControlEvent>,

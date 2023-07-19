@@ -1670,6 +1670,7 @@ dependencies = [
  "bevy",
  "bevy_renet",
  "combat",
+ "entity",
  "networking",
  "pawn",
  "player",
