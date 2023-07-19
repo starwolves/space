@@ -7,7 +7,7 @@ use bevy::{
         BuildChildren, Button, ButtonBundle, Changed, Children, Color, Commands, Component,
         DespawnRecursiveExt, EventReader, EventWriter, NodeBundle, Query, Res, TextBundle, With,
     },
-    text::TextStyle,
+    text::{TextAlignment, TextStyle},
     ui::{AlignItems, FlexDirection, Interaction, JustifyContent, Style, Val},
 };
 use entity::spawn::PawnEntityId;
@@ -130,7 +130,7 @@ pub(crate) fn slot_item_actions(
                                                     justify_content: JustifyContent::Center,
                                                     align_items: AlignItems::Center,
                                                     width: Val::Percent(100.),
-                                                    height: Val::Percent(10.),
+                                                    //height: Val::Percent(15.),
                                                     ..Default::default()
                                                 },
 
@@ -156,14 +156,19 @@ pub(crate) fn slot_item_actions(
                                                     })
                                                     .insert(ButtonSelectionStyle::default())
                                                     .with_children(|parent| {
-                                                        parent.spawn(TextBundle::from_section(
-                                                            net_action.text.clone(),
-                                                            TextStyle {
-                                                                font_size: 13.0,
-                                                                color: Color::WHITE,
-                                                                font: empire_font.clone(),
-                                                            },
-                                                        ));
+                                                        parent.spawn(
+                                                            TextBundle::from_section(
+                                                                net_action.text.clone(),
+                                                                TextStyle {
+                                                                    font_size: 13.0,
+                                                                    color: Color::WHITE,
+                                                                    font: empire_font.clone(),
+                                                                },
+                                                            )
+                                                            .with_text_alignment(
+                                                                TextAlignment::Center,
+                                                            ),
+                                                        );
                                                     });
                                             });
                                     }
