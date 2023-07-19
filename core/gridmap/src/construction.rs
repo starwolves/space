@@ -88,6 +88,7 @@ pub fn create_select_cell_cam_state(
                 group_id: None,
                 ghost_material: m,
                 rotated_ghost_ids: HashMap::default(),
+                first_show: false,
             });
         }
         None => {}
@@ -106,6 +107,7 @@ pub struct GridmapConstructionState {
     pub rotated_ghost_ids: HashMap<Vec3Int, Vec3Int>,
     pub group_id: Option<GroupTypeId>,
     pub ghost_material: Handle<StandardMaterial>,
+    pub first_show: bool,
 }
 #[derive(Clone, Debug)]
 pub struct GhostTile {
@@ -136,6 +138,7 @@ pub(crate) fn show_ylevel_plane(
                 }
                 *visibility = visibility2;
                 state.is_constructing = event.show;
+                state.first_show = true;
                 if event.show {
                     events2.send(SetYPlanePosition { y: state.y_level });
                 }
@@ -163,7 +166,9 @@ pub(crate) fn move_ylevel_plane(
 
                 if state.y_plane_position.x != camera_cell_id.x
                     || state.y_plane_position.y != camera_cell_id.z
+                    || state.first_show
                 {
+                    state.first_show = false;
                     match ylevel_query.get_mut(state.y_plane) {
                         Ok(mut transform) => {
                             let new_transform = cell_id_to_world(camera_cell_id);
