@@ -1,8 +1,8 @@
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        warn, AssetServer, Assets, Color, Commands, Handle, Local, PbrBundle, Res, ResMut,
-        Resource, StandardMaterial, Transform,
+        warn, AssetServer, Assets, Commands, Handle, Local, PbrBundle, Res, ResMut, Resource,
+        StandardMaterial, Transform,
     },
 };
 #[derive(Resource)]
