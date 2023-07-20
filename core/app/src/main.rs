@@ -75,7 +75,6 @@ use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
 use token::plugin::TokenPlugin;
 use ui::plugin::UiPlugin;
-use world::plugin::WorldPlugin;
 
 /// The function that launches the server on application start.
 fn main() {
@@ -193,7 +192,6 @@ pub(crate) fn configure_and_start() {
         .add_plugins(MainMenuPlugin)
         .add_plugins(EscapeMenuPlugin)
         .add_plugins(ControllerPlugin::default())
-        .add_plugins(WorldPlugin)
         .add_plugins(HudPlugin)
         .insert_resource(FixedTime::new_from_secs(
             1. / TickRate::default().bevy_rate as f32,

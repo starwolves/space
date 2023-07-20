@@ -13,6 +13,9 @@ edition = "2021"
 [dependencies.bevy]
 version = "0.11.0"
 default-features = false
+features = [
+    "jpeg"
+]
 
 [dependencies]
 
@@ -41,7 +44,6 @@ ui = { path = "../ui" }
 player = { path = "../player" }
 basic_console_commands = { path = "../basic_console_commands" }
 physics = { path = "../physics" }
-world = { path = "../world" }
 graphics = { path = "../graphics" }
 token = { path = "../token" }
 

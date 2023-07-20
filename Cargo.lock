@@ -277,7 +277,6 @@ dependencies = [
  "sounds",
  "token",
  "ui",
- "world",
 ]
 
 [[package]]
@@ -5395,15 +5394,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81a2094c43cc94775293eaa0e499fbc30048a6d824ac82c0351a8c0bf9112529"
 dependencies = [
  "memchr",
-]
-
-[[package]]
-name = "world"
-version = "0.0.3"
-dependencies = [
- "bevy",
- "bevy_atmosphere",
- "resources",
 ]
 
 [[package]]

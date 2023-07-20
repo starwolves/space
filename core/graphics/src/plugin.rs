@@ -2,6 +2,7 @@ use bevy::prelude::{App, Plugin, Startup, Update};
 use resources::is_server::is_server;
 
 use crate::{
+    panorama::{init_milky_way, init_panorama_sphere},
     settings::{
         init_light, set_fxaa, set_msaa, set_resolution, set_vsync, set_window_mode,
         settings_to_ron, setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa,
@@ -25,9 +26,10 @@ impl Plugin for GraphicsPlugin {
                     set_vsync,
                     set_window_mode,
                     init_tonemap,
+                    init_milky_way,
                 ),
             )
-            .add_systems(Startup, init_light)
+            .add_systems(Startup, (init_panorama_sphere, init_light))
             .add_event::<SetResolution>()
             .init_resource::<GraphicsSettings>()
             .add_systems(Startup, setup_graphics_settings)
@@ -36,7 +38,9 @@ impl Plugin for GraphicsPlugin {
             .add_event::<SetFxaa>()
             .add_event::<SetMsaa>()
             .init_resource::<PerMethodSettings>();
-            //.add_systems(Update, toggle_tonemapping_method);
+            /*.add_plugins(AtmospherePlugin)
+            .add_systems(Startup, add_atmosphere)
+            .add_systems(Update, toggle_tonemapping_method);*/
         }
     }
 }
