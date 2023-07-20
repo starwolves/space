@@ -27,7 +27,7 @@ pub(crate) fn init_milky_way(
     if !*loaded {
         *loaded = true;
         let mut transform = Transform::default();
-        transform.scale *= 5000.;
+        transform.scale *= 10000.;
         let material = materials.add(StandardMaterial {
             base_color_texture: Some(
                 asset_server.load("models/panorama_spherical/milky_way_eso0932a.jpg"),
