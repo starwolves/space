@@ -26,9 +26,9 @@ pub(crate) fn init_generic_half_diagonal_ceiling_material(
     mut res: ResMut<GenericHalfDiagonalCeilingMaterial>,
 ) {
     let albedo_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/high_base.png");
+        asset_server.load("gridmap/half_diagonal_template/generic/ceiling/high_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/high_metal_rough.png");
+        asset_server.load("gridmap/half_diagonal_template/generic/ceiling/high_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
@@ -41,9 +41,9 @@ pub(crate) fn init_generic_half_diagonal_ceiling_material(
     res.high_material_handle = material_handle;
 
     let albedo_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/low_base.png");
+        asset_server.load("gridmap/half_diagonal_template/generic/ceiling/low_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/half_diagonal_template/generic/ceiling/low_metal_rough.png");
+        asset_server.load("gridmap/half_diagonal_template/generic/ceiling/low_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),

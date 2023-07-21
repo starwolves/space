@@ -1,10 +1,13 @@
 use bevy::{
-    core_pipeline::fxaa::Fxaa,
-    prelude::{Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3, VisibilityBundle},
+    core_pipeline::{fxaa::Fxaa, tonemapping::Tonemapping, Skybox},
+    prelude::{
+        AssetServer, Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3,
+        VisibilityBundle,
+    },
 };
 
 use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraController};
-use graphics::settings::GraphicsSettings;
+use graphics::{settings::GraphicsSettings, skybox::SkyboxHandle};
 use networking::client::IncomingReliableServerMessage;
 
 use crate::net::PlayerServerMessage;
@@ -18,6 +21,7 @@ pub(crate) fn spawn_debug_camera(
     mut spawning: Local<bool>,
     mut state: ResMut<ActiveCamera>,
     settings: Res<GraphicsSettings>,
+    handle: Res<SkyboxHandle>,
 ) {
     // Skip one frame to prevent camera ambiguity.
     if *spawning {
@@ -28,8 +32,10 @@ pub(crate) fn spawn_debug_camera(
                     msaa_writeback: settings.msaa.is_enabled(),
                     ..Default::default()
                 },
+                tonemapping: Tonemapping::ReinhardLuminance,
                 ..Default::default()
             })
+            .insert(Skybox(handle.h.clone_weak()))
             .insert(FpsCameraBundle::new(
                 FpsCameraController::default(),
                 Vec3::new(0., 1.8, 0.),

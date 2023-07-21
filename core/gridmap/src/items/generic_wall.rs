@@ -28,9 +28,9 @@ pub(crate) fn init_generic_wall_material(
     mut res: ResMut<GenericWallMaterial>,
 ) {
     let albedo_texture_handle =
-        asset_server.load("models/wall_template/generic/generic_wall_base.png");
+        asset_server.load("gridmap/wall_template/generic/generic_wall_base.png");
     let metallic_roughness_texture_handle =
-        asset_server.load("models/wall_template/generic/generic_wall_metal_rough.png");
+        asset_server.load("gridmap/wall_template/generic/generic_wall_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),

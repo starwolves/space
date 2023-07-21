@@ -48,7 +48,7 @@ pub fn create_select_cell_cam_state(
     if *loaded {
         return;
     }
-    let plane_asset = asset_server.load("models/ylevel_grid_plane/plane.glb#Mesh0");
+    let plane_asset = asset_server.load("gridmap/ylevel_grid_plane/plane.glb#Mesh0");
 
     let m = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 255., 255., 0.5),

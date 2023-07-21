@@ -22,10 +22,10 @@ pub(crate) fn init_reinforced_glass_floor_material(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut res: ResMut<ReinforcedGlassFloorMaterial>,
 ) {
-    let albedo_texture_handle =
-        asset_server.load("models/floor_template/reinforced_glass/reinforced_glass_floor_base.png");
+    let albedo_texture_handle = asset_server
+        .load("gridmap/floor_template/reinforced_glass/reinforced_glass_floor_base.png");
     let metallic_roughness_texture_handle = asset_server
-        .load("models/floor_template/reinforced_glass/reinforced_glass_floor_metal_rough.png");
+        .load("gridmap/floor_template/reinforced_glass/reinforced_glass_floor_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),

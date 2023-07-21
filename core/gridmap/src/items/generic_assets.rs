@@ -20,13 +20,13 @@ pub(crate) fn init_generic_meshes(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut mats: ResMut<GenericMaterials>,
 ) {
-    res.wall = assets.load("models/wall_template/wall.glb#Mesh0");
-    res.floor = assets.load("models/floor_template/floor.glb#Mesh0");
-    res.diagonal_template = assets.load("models/diagonal_template/diagonal_template.glb#Mesh0");
+    res.wall = assets.load("gridmap/wall_template/wall.glb#Mesh0");
+    res.floor = assets.load("gridmap/floor_template/floor.glb#Mesh0");
+    res.diagonal_template = assets.load("gridmap/diagonal_template/diagonal_template.glb#Mesh0");
     res.half_diagonal_template_low =
-        assets.load("models/half_diagonal_template/half_diagonal_template_low.glb#Mesh0");
+        assets.load("gridmap/half_diagonal_template/half_diagonal_template_low.glb#Mesh0");
     res.half_diagonal_template_high =
-        assets.load("models/half_diagonal_template/half_diagonal_template_high.glb#Mesh0");
+        assets.load("gridmap/half_diagonal_template/half_diagonal_template_high.glb#Mesh0");
 
     let mat = materials.add(StandardMaterial {
         base_color: Color::rgba(0., 1., 0., 0.5),

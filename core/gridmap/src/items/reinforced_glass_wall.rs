@@ -21,9 +21,9 @@ pub(crate) fn init_reinforced_glass_wall_material(
     mut res: ResMut<ReinforcedGlassWallMaterial>,
 ) {
     let albedo_texture_handle =
-        asset_server.load("models/wall_template/reinforced_glass/reinforced_glass_wall_base.png");
+        asset_server.load("gridmap/wall_template/reinforced_glass/reinforced_glass_wall_base.png");
     let metallic_roughness_texture_handle = asset_server
-        .load("models/wall_template/reinforced_glass/reinforced_glass_wall_metal_rough.png");
+        .load("gridmap/wall_template/reinforced_glass/reinforced_glass_wall_metal_rough.png");
 
     let material_handle = materials.add(StandardMaterial {
         base_color_texture: Some(albedo_texture_handle.clone()),
