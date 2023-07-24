@@ -15,7 +15,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_xpbd_3d = "0.2.0"
+bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"]}
 const_format = "0.2.30"
 
 entity = { path = "../../core/entity" }
