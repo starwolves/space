@@ -285,8 +285,6 @@ pub struct OutgoingBuffer {
 
 pub(crate) fn step_buffer(mut res: ResMut<OutgoingBuffer>, mut client: ResMut<RenetClient>) {
     for message in res.reliable.iter() {
-        info!("Sending message 2.");
-
         client.send_message(RENET_RELIABLE_CHANNEL_ID, message.clone())
     }
     for message in res.unreliable.iter() {
@@ -335,7 +333,6 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
         }) {
             Ok(bits) => {
                 client.reliable.push(bits);
-                info!("Sending message 1.");
             }
             Err(_) => {
                 warn!("Failed to serialize unreliable message.");
@@ -477,8 +474,6 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     while let Some(message) = client.receive_message(RENET_RELIABLE_CHANNEL_ID) {
         match bincode::deserialize::<ReliableMessage>(&message) {
             Ok(msg) => {
-                info!("received server message.");
-
                 events.send(IncomingRawReliableServerMessage { message: msg });
             }
             Err(_) => {

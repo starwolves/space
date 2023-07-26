@@ -75,12 +75,14 @@ impl Plugin for EntityPlugin {
             .init_resource::<EntityTypes>()
             .add_systems(
                 Startup,
-                (
-                    finalize_register_entity_types.after(EntityTypeLabel::Register),
-                    load_ron_entities
-                        .after(StartupSet::BuildGridmap)
-                        .in_set(StartupSet::InitEntities),
-                ),
+                (finalize_register_entity_types.after(EntityTypeLabel::Register),),
+            )
+            .add_systems(
+                FixedUpdate,
+                load_ron_entities
+                    .after(StartupSet::BuildGridmap)
+                    .in_set(MainSet::PreUpdate)
+                    .in_set(StartupSet::InitEntities),
             );
         register_reliable_message::<EntityServerMessage>(app, MessageSender::Server);
         register_reliable_message::<EntityClientMessage>(app, MessageSender::Client);

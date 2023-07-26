@@ -381,7 +381,6 @@ pub(crate) fn receive_incoming_reliable_client_messages(
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
             match bincode::deserialize::<ReliableMessage>(&message) {
                 Ok(msg) => {
-                    info!("received client message.");
                     events.send(IncomingRawReliableClientMessage {
                         message: msg,
                         handle,

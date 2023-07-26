@@ -6,7 +6,7 @@ use crate::{
     net::LoadEntity,
     showcase::{Showcase, ShowcaseData},
 };
-use bevy::prelude::{Commands, Entity, Event, EventReader, EventWriter, Resource, Transform};
+use bevy::prelude::{info, Commands, Entity, Event, EventReader, EventWriter, Resource, Transform};
 use serde::Deserialize;
 
 use crate::{
@@ -77,6 +77,7 @@ impl Default for BaseEntityData {
 /// Spawn a base entity.
 
 pub fn base_entity_builder(commands: &mut Commands, data: BaseEntityData, entity: Entity) {
+    info!("spawn.");
     let mut builder = commands.entity(entity);
     builder.insert((
         EntityData {

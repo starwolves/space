@@ -205,6 +205,13 @@ impl Plugin for GridmapPlugin {
             .init_resource::<BridgeWallMaterial>()
             .init_resource::<BridgeHalfDiagonalCeilingMaterial>()
             .add_systems(
+                FixedUpdate,
+                load_ron_gridmap
+                    .in_set(StartupSet::BuildGridmap)
+                    .in_set(MainSet::PreUpdate)
+                    .after(StartupSet::InitDefaultGridmapData),
+            )
+            .add_systems(
                 Startup,
                 (
                     (
@@ -297,9 +304,6 @@ impl Plugin for GridmapPlugin {
                         init_corner2_bridge_floor
                             .before(init_tile_properties)
                             .after(init_generic_meshes),
-                        load_ron_gridmap
-                            .in_set(StartupSet::BuildGridmap)
-                            .after(StartupSet::InitDefaultGridmapData),
                     ),
                 ),
             )

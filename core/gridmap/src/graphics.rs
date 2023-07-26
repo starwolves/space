@@ -43,7 +43,7 @@ pub(crate) fn set_cell_graphics(
                         commands.entity(set_cell.entity).insert(PbrBundle {
                             mesh: mesh.primitives[0].mesh.clone(),
                             material: mat.clone(),
-                            global_transform: transform.into(),
+                            transform: transform.into(),
                             ..Default::default()
                         });
                     }
