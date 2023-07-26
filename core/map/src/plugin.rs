@@ -1,9 +1,12 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender,
 };
 use player::plugin::ConfigurationLabel;
-use resources::{is_server::is_server, labels::MapLabels};
+use resources::{
+    is_server::is_server,
+    sets::{MainSet, MapSet},
+};
 
 use crate::{
     connections::configure,
@@ -25,17 +28,18 @@ impl Plugin for MapPlugin {
         if is_server() {
             app.init_resource::<MapData>()
                 .add_systems(
-                    Update,
+                    FixedUpdate,
                     (
                         request_map_overlay,
-                        change_map_overlay.in_set(MapLabels::ChangeMode),
-                        map_input.in_set(MapLabels::ChangeMode),
+                        change_map_overlay.in_set(MapSet::ChangeMode),
+                        map_input.in_set(MapSet::ChangeMode),
                         configure
                             .in_set(ConfigurationLabel::Main)
                             .after(ConfigurationLabel::SpawnEntity),
-                    ),
+                    )
+                        .in_set(MainSet::Update),
                 )
-                .add_systems(PreUpdate, incoming_messages)
+                .add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
                 .add_event::<InputMapChangeDisplayMode>()
                 .add_event::<InputMap>()
                 .add_event::<InputMapRequestOverlay>()

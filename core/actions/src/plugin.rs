@@ -1,6 +1,9 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use networking::messaging::{register_reliable_message, MessageSender};
-use resources::{is_server::is_server, labels::ActionsLabels};
+use resources::{
+    is_server::is_server,
+    sets::{ActionsSet, MainSet},
+};
 
 use crate::{
     core::{
@@ -17,24 +20,25 @@ impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
-                    init_action_data_listing.in_set(ActionsLabels::Init),
+                    init_action_data_listing.in_set(ActionsSet::Init),
                     list_action_data_from_actions_component
-                        .after(ActionsLabels::Init)
-                        .in_set(ActionsLabels::Build),
-                    list_action_data_finalizer.after(ActionsLabels::Approve),
-                    init_action_request_building.in_set(ActionsLabels::Init),
+                        .after(ActionsSet::Init)
+                        .in_set(ActionsSet::Build),
+                    list_action_data_finalizer.after(ActionsSet::Approve),
+                    init_action_request_building.in_set(ActionsSet::Init),
                     clear_action_building
-                        .in_set(ActionsLabels::Clear)
-                        .before(ActionsLabels::Init),
-                ),
+                        .in_set(ActionsSet::Clear)
+                        .before(ActionsSet::Init),
+                )
+                    .in_set(MainSet::Update),
             )
             .init_resource::<BuildingActions>()
             .init_resource::<ActionIncremented>()
             .init_resource::<ListActionDataRequests>()
             .init_resource::<ActionRequests>()
-            .add_systems(PreUpdate, incoming_messages)
+            .add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
             .add_event::<InputListActions>()
             .add_event::<InputAction>();
         }

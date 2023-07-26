@@ -1,19 +1,20 @@
-use bevy::prelude::{resource_exists, App, IntoSystemConfigs, Plugin, PreUpdate, Startup, Update};
+use bevy::prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use bevy_renet::{
     renet::RenetClient,
     transport::{NetcodeClientPlugin, NetcodeServerPlugin},
     RenetClientPlugin, RenetServerPlugin,
 };
-use resources::is_server::is_server;
+use resources::{is_server::is_server, sets::MainSet};
 
 use super::server::{souls, startup_server_listen_connections};
 use crate::{
     client::{
         confirm_connection, connect_to_server, connected, is_client_connected, on_disconnect,
         process_response, receive_incoming_reliable_server_messages,
-        receive_incoming_unreliable_server_messages, token_assign_server, AssignTokenToServer,
-        AssigningServerToken, ConnectToServer, Connection, ConnectionPreferences,
-        IncomingRawReliableServerMessage, IncomingRawUnreliableServerMessage, TokenAssignServer,
+        receive_incoming_unreliable_server_messages, step_buffer, token_assign_server,
+        AssignTokenToServer, AssigningServerToken, ConnectToServer, Connection,
+        ConnectionPreferences, IncomingRawReliableServerMessage,
+        IncomingRawUnreliableServerMessage, OutgoingBuffer, TokenAssignServer,
     },
     messaging::{
         generate_typenames, register_reliable_message, register_unreliable_message, MessageSender,
@@ -25,6 +26,7 @@ use crate::{
         NetworkingChatServerMessage, NetworkingClientMessage, NetworkingServerMessage,
         UnreliableServerMessage,
     },
+    sync::{setup_client_tickrate_stamp, step_tickrate_stamp, TickRateStamp},
 };
 pub struct NetworkingPlugin;
 
@@ -36,26 +38,31 @@ impl Plugin for NetworkingPlugin {
                 .add_plugins(NetcodeServerPlugin)
                 .insert_resource(res.0)
                 .insert_resource(res.1)
-                .add_systems(Update, souls)
+                .add_systems(FixedUpdate, souls.in_set(MainSet::Update))
                 .add_event::<IncomingRawReliableClientMessage>()
                 .add_event::<IncomingRawUnreliableClientMessage>()
                 .add_systems(
-                    PreUpdate,
-                    receive_incoming_reliable_client_messages.in_set(TypenamesLabel::SendRawEvents),
+                    FixedUpdate,
+                    receive_incoming_reliable_client_messages
+                        .in_set(TypenamesLabel::SendRawEvents)
+                        .in_set(MainSet::PreUpdate),
                 )
                 .add_systems(
-                    PreUpdate,
+                    FixedUpdate,
                     receive_incoming_unreliable_client_messages
-                        .in_set(TypenamesLabel::SendRawEvents),
+                        .in_set(TypenamesLabel::SendRawEvents)
+                        .in_set(MainSet::PreUpdate),
                 );
         } else {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     process_response.run_if(resource_exists::<TokenAssignServer>()),
                     token_assign_server,
-                    connect_to_server,
-                ),
+                    connect_to_server.after(process_response),
+                    setup_client_tickrate_stamp,
+                )
+                    .in_set(MainSet::Update),
             )
             .add_event::<ConnectToServer>()
             .add_plugins(RenetClientPlugin)
@@ -65,29 +72,41 @@ impl Plugin for NetworkingPlugin {
             .init_resource::<Connection>()
             .init_resource::<AssigningServerToken>()
             .add_systems(
-                PreUpdate,
+                FixedUpdate,
                 receive_incoming_reliable_server_messages
                     .in_set(TypenamesLabel::SendRawEvents)
-                    .run_if(resource_exists::<RenetClient>()),
+                    .run_if(resource_exists::<RenetClient>())
+                    .in_set(MainSet::PreUpdate),
             )
             .add_systems(
-                PreUpdate,
+                FixedUpdate,
                 receive_incoming_unreliable_server_messages
                     .in_set(TypenamesLabel::SendRawEvents)
-                    .run_if(resource_exists::<RenetClient>()),
+                    .run_if(resource_exists::<RenetClient>())
+                    .in_set(MainSet::PreUpdate),
             )
             .add_event::<IncomingRawReliableServerMessage>()
             .add_event::<IncomingRawUnreliableServerMessage>()
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     confirm_connection.run_if(is_client_connected),
                     on_disconnect.run_if(connected),
-                ),
+                )
+                    .in_set(MainSet::Update),
+            )
+            .init_resource::<OutgoingBuffer>()
+            .add_systems(
+                FixedUpdate,
+                step_buffer
+                    .run_if(resource_exists::<RenetClient>())
+                    .in_set(MainSet::PostUpdate),
             );
         }
 
-        app.init_resource::<Typenames>()
+        app.init_resource::<TickRateStamp>()
+            .add_systems(FixedUpdate, step_tickrate_stamp.in_set(MainSet::PreUpdate))
+            .init_resource::<Typenames>()
             .add_systems(Startup, generate_typenames.after(TypenamesLabel::Generate));
         register_reliable_message::<NetworkingClientMessage>(app, MessageSender::Client);
         register_unreliable_message::<UnreliableServerMessage>(app, MessageSender::Server);

@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate, Startup, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use networking::messaging::{register_reliable_message, MessageSender};
 
 use crate::{
@@ -13,25 +13,26 @@ use crate::{
         TextTreeInputSelection, UnfocusTextInput,
     },
 };
-use resources::{is_server::is_server, ui::TextInput};
+use resources::{is_server::is_server, sets::MainSet, ui::TextInput};
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_systems(PreUpdate, incoming_messages)
+            app.add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
                 .add_event::<TextTreeInputSelection>();
         } else {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     ui_events.in_set(TextInputLabel::UiEvents),
                     focus_events
                         .before(TextInputLabel::UiEvents)
                         .in_set(TextInputLabel::MousePressUnfocus),
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     input_mouse_press_unfocus.before(TextInputLabel::MousePressUnfocus),
                     input_characters,
@@ -42,7 +43,8 @@ impl Plugin for UiPlugin {
                     hlist_input,
                     hlist_created,
                     freeze_button.before(hlist_created),
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .init_resource::<TextInput>()
             .add_event::<UnfocusTextInput>()

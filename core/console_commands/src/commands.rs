@@ -20,7 +20,7 @@ pub struct ConsoleCommand {
 /// Label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum ConsoleCommandsLabels {
+pub enum ConsoleCommandsSet {
     Finalize,
 }
 

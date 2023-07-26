@@ -2,14 +2,17 @@ use crate::boarding::{player_boarded, PlayerBoarded, SpawnPoints};
 use crate::configuration::{
     client_receive_pawnid, finished_configuration, server_new_client_configuration, Boarded,
 };
-use crate::connections::{process_response, Accounts, AuthidI, SendServerConfiguration};
+use crate::connections::{
+    buffer_server_events, clear_buffer, process_response, Accounts, AuthidI,
+    SendServerConfiguration, ServerEventBuffer,
+};
 use crate::debug_camera::spawn_debug_camera;
 use crate::net::PlayerServerMessage;
 use crate::{
     boarding::{done_boarding, BoardingAnnouncements, InputUIInputTransmitText},
     connections::{server_events, PlayerAwaitingBoarding},
 };
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, SystemSet, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet, Update};
 use cameras::controllers::fps::FpsCameraPlugin;
 use cameras::LookTransformPlugin;
 use networking::{
@@ -17,6 +20,7 @@ use networking::{
     server::HandleToEntity,
 };
 use resources::is_server::is_server;
+use resources::sets::MainSet;
 
 /// Atmospherics systems ordering label.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
@@ -32,18 +36,23 @@ impl Plugin for PlayerPlugin {
         if is_server() {
             app.add_event::<SendServerConfiguration>()
                 .init_resource::<HandleToEntity>()
+                .add_systems(Update, buffer_server_events)
+                .add_systems(FixedUpdate, (clear_buffer.in_set(MainSet::PostUpdate),))
                 .add_systems(
-                    Update,
+                    FixedUpdate,
                     (
                         done_boarding,
                         server_new_client_configuration
                             .in_set(ConfigurationLabel::SpawnEntity)
                             .before(ConfigurationLabel::Main),
                         finished_configuration.after(ConfigurationLabel::Main),
-                        server_events.before(ConfigurationLabel::SpawnEntity),
+                        server_events
+                            .after(buffer_server_events)
+                            .before(ConfigurationLabel::SpawnEntity),
                         process_response,
                         player_boarded,
-                    ),
+                    )
+                        .in_set(MainSet::Update),
                 )
                 .init_resource::<AuthidI>()
                 .init_resource::<BoardingAnnouncements>()
@@ -51,12 +60,16 @@ impl Plugin for PlayerPlugin {
                 .add_event::<PlayerAwaitingBoarding>()
                 .add_event::<InputUIInputTransmitText>()
                 .init_resource::<Accounts>()
-                .add_event::<PlayerBoarded>();
+                .add_event::<PlayerBoarded>()
+                .init_resource::<ServerEventBuffer>();
         } else {
-            app.add_systems(Update, (client_receive_pawnid, spawn_debug_camera))
-                .add_plugins(LookTransformPlugin)
-                .add_plugins(FpsCameraPlugin::default())
-                .init_resource::<Boarded>();
+            app.add_systems(
+                FixedUpdate,
+                (client_receive_pawnid, spawn_debug_camera).in_set(MainSet::Update),
+            )
+            .add_plugins(LookTransformPlugin)
+            .add_plugins(FpsCameraPlugin::default())
+            .init_resource::<Boarded>();
         }
         app.init_resource::<SpawnPoints>();
         register_reliable_message::<PlayerServerMessage>(app, MessageSender::Server);

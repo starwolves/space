@@ -1,5 +1,5 @@
-use bevy::prelude::{App, Plugin, Startup, Update};
-use resources::is_server::is_server;
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use resources::{is_server::is_server, sets::MainSet};
 
 use crate::{
     settings::{
@@ -17,7 +17,7 @@ impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
         if !is_server() {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     settings_to_ron,
                     set_fxaa,
@@ -25,7 +25,8 @@ impl Plugin for GraphicsPlugin {
                     set_resolution,
                     set_vsync,
                     set_window_mode,
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_systems(
                 Startup,
@@ -40,7 +41,7 @@ impl Plugin for GraphicsPlugin {
             .init_resource::<PerMethodSettings>();
             /*.add_plugins(AtmospherePlugin)
             .add_systems(Startup, add_atmosphere)*/
-            //.add_systems(Update, toggle_tonemapping_method);
+            //.add_systems(FixedUpdate, toggle_tonemapping_method);
         }
     }
 }

@@ -1,8 +1,9 @@
 use bevy::prelude::Resource;
+use serde::{Deserialize, Serialize};
 
 /// Resource containing the tickrate of the server loop.
 
-#[derive(Resource)]
+#[derive(Resource, Serialize, Deserialize, Debug, Clone)]
 pub struct TickRate {
     pub physics_rate: u8,
     pub bevy_rate: u8,

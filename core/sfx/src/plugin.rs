@@ -1,12 +1,15 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostUpdate, Update},
+    prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin},
     time::common_conditions::on_fixed_timer,
 };
 use entity::{entity_data::InterpolationSet, entity_types::register_entity_type};
 use networking::messaging::{register_reliable_message, MessageSender};
-use resources::{is_server::is_server, labels::PostUpdateLabels};
+use resources::{
+    is_server::is_server,
+    sets::{MainSet, PostUpdateSet},
+};
 
 use crate::{
     builder::{AmbienceSfxEntityType, RepeatingSfxEntityType, SfxEntityType},
@@ -29,16 +32,18 @@ impl Plugin for SfxPlugin {
                 FixedUpdate,
                 tick_timers_slowed
                     .in_set(InterpolationSet::Main)
-                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.))),
+                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.)))
+                    .in_set(MainSet::Update),
             )
             .add_systems(
-                PostUpdate,
+                FixedUpdate,
                 (
-                    sfx_update.in_set(PostUpdateLabels::EntityUpdate),
-                    repeating_sfx_update.in_set(PostUpdateLabels::EntityUpdate),
-                ),
+                    sfx_update.in_set(PostUpdateSet::EntityUpdate),
+                    repeating_sfx_update.in_set(PostUpdateSet::EntityUpdate),
+                )
+                    .in_set(MainSet::PostUpdate),
             )
-            .add_systems(Update, free_sfx)
+            .add_systems(FixedUpdate, free_sfx.in_set(MainSet::Update))
             .init_resource::<SfxAutoDestroyTimers>();
         }
         register_reliable_message::<SfxServerMessage>(app, MessageSender::Server);

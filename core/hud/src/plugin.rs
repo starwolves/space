@@ -1,8 +1,8 @@
 use bevy::prelude::{
-    not, resource_exists, App, IntoSystemConfigs, Plugin, PostStartup, Startup, Update,
+    not, resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup,
 };
 use console_commands::net::ClientSideConsoleInput;
-use resources::is_server::is_server;
+use resources::{is_server::is_server, sets::MainSet};
 
 use crate::{
     build::{create_hud, show_hud, ExpandedLeftContentHud},
@@ -36,7 +36,7 @@ use crate::{
             inventory_net_updates, queue_inventory_updates, InventoryUpdatesQueue,
             RequeueHudAddItemToSlot,
         },
-        slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudLabels},
+        slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudSet},
     },
     mouse::{
         focus_state, grab_cursor, grab_mouse_hud_expand, grab_mouse_on_board, release_cursor,
@@ -53,15 +53,15 @@ impl Plugin for HudPlugin {
         if !is_server() {
             app.add_event::<ExpandInventoryHud>()
                 .add_systems(
-                    Update,
+                    FixedUpdate,
                     (
                         (
                             open_hud,
                             expand_inventory_hud,
                             inventory_hud_key_press,
                             inventory_net_updates,
-                            update_inventory_hud_slot.in_set(InventoryHudLabels::UpdateSlot),
-                            requeue_hud_add_item_to_slot.after(InventoryHudLabels::QueueUpdate),
+                            update_inventory_hud_slot.in_set(InventoryHudSet::UpdateSlot),
+                            requeue_hud_add_item_to_slot.after(InventoryHudSet::QueueUpdate),
                             slot_item_button_events,
                             scale_slots,
                             change_active_item,
@@ -76,7 +76,8 @@ impl Plugin for HudPlugin {
                             text_tree_select_button,
                             changed_focus,
                             text_tree_select_submit_button,
-                        ),
+                        )
+                            .in_set(MainSet::Update),
                         (
                             grab_mouse_on_board,
                             grab_mouse_hud_expand,
@@ -94,7 +95,8 @@ impl Plugin for HudPlugin {
                             focus_state,
                             display_chat_message,
                             update_server_stats,
-                        ),
+                        )
+                            .in_set(MainSet::Update),
                     ),
                 )
                 .add_systems(

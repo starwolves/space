@@ -1,28 +1,30 @@
 use crate::controller::ControllerInput;
-use bevy::prelude::EventReader;
 
 use bevy::prelude::warn;
+use bevy::prelude::Res;
 
 use bevy::prelude::Vec2;
 use bevy::prelude::{Query, ResMut};
 use bevy_renet::renet::ServerEvent;
 use combat::health_ui::ClientHealthUICache;
 use networking::server::{ConnectedPlayer, HandleToEntity};
+use player::connections::ServerEventBuffer;
 
 /// Manage client connection events.
 #[allow(unused_variables)]
 pub(crate) fn connections(
     mut handle_to_entity: ResMut<HandleToEntity>,
-    mut reader: EventReader<ServerEvent>,
+    buffer: Res<ServerEventBuffer>,
     mut connected_players: Query<(&mut ConnectedPlayer, &mut ControllerInput)>,
     mut client_health_ui_cache: ResMut<ClientHealthUICache>,
 ) {
-    for event in reader.iter() {
+    for e in buffer.buffer.iter() {
+        let event = e.renet_event();
         match event {
             ServerEvent::ClientConnected { client_id } => {}
             ServerEvent::ClientDisconnected { client_id, reason } => {
                 let entity;
-                match handle_to_entity.map.get(client_id) {
+                match handle_to_entity.map.get(&client_id) {
                     Some(ent) => {
                         entity = Some(*ent);
                         match connected_players.get_mut(*ent) {
@@ -43,7 +45,7 @@ pub(crate) fn connections(
                         continue;
                     }
                 }
-                handle_to_entity.map.remove(client_id);
+                handle_to_entity.map.remove(&client_id);
                 match entity {
                     Some(ent) => {
                         handle_to_entity.inv_map.remove(&ent);

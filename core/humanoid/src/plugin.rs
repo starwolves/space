@@ -1,9 +1,9 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use combat::{chat::attacked_by_chat, sfx::health_combat_hit_result_sfx};
 use player::names::UsedNames;
 use resources::{
     is_server::is_server,
-    labels::{ActionsLabels, CombatLabels, UpdateSets},
+    sets::{ActionsSet, CombatSet, MainSet, UpdateSet},
 };
 
 use crate::{
@@ -23,19 +23,22 @@ impl Plugin for HumanoidPlugin {
                         .after(UpdateLabels::ProcessMovementInput),
                 )*/
                 .add_systems(
-                    Update,
+                    FixedUpdate,
                     (
-                        examine_entity.after(ActionsLabels::Action),
+                        examine_entity.after(ActionsSet::Action),
                         health_combat_hit_result_sfx::<Humanoid>
-                            .after(CombatLabels::FinalizeApplyDamage),
-                        attacked_by_chat::<Humanoid>.after(CombatLabels::Query),
-                    ),
+                            .after(CombatSet::FinalizeApplyDamage),
+                        attacked_by_chat::<Humanoid>.after(CombatSet::Query),
+                    )
+                        .in_set(MainSet::Update),
                 )
                 .init_resource::<UsedNames>();
         }
         app.add_systems(
-            Update,
-            humanoid_movement.in_set(UpdateSets::StandardCharacters),
+            FixedUpdate,
+            humanoid_movement
+                .in_set(UpdateSet::StandardCharacters)
+                .in_set(MainSet::Update),
         );
     }
 }

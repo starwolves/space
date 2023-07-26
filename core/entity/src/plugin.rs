@@ -1,12 +1,10 @@
 use std::time::Duration;
 
-use bevy::prelude::{
-    App, FixedUpdate, IntoSystemConfigs, Plugin, PostUpdate, PreUpdate, Startup, Update,
-};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use bevy::time::common_conditions::on_fixed_timer;
 use networking::messaging::{register_reliable_message, MessageSender};
 use resources::is_server::is_server;
-use resources::labels::{ActionsLabels, PostUpdateLabels, StartupLabels};
+use resources::sets::{ActionsSet, MainSet, PostUpdateSet, StartupSet};
 
 use crate::entity_data::{world_mode_update, InterpolationSet, RawSpawnEvent};
 use crate::entity_types::{finalize_register_entity_types, EntityTypeLabel, EntityTypes};
@@ -31,37 +29,41 @@ impl Plugin for EntityPlugin {
                 FixedUpdate,
                 broadcast_position_updates
                     .in_set(InterpolationSet::Main)
-                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.))),
+                    .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 2.)))
+                    .in_set(MainSet::Update),
             )
             .add_systems(
-                PostUpdate,
+                FixedUpdate,
                 (
-                    despawn_entity.after(PostUpdateLabels::VisibleChecker),
-                    finalize_examine_entity.before(PostUpdateLabels::EntityUpdate),
+                    despawn_entity.after(PostUpdateSet::VisibleChecker),
+                    finalize_examine_entity.before(PostUpdateSet::EntityUpdate),
                     visible_checker
-                        .in_set(PostUpdateLabels::VisibleChecker)
-                        .after(PostUpdateLabels::SendEntityUpdates),
-                    world_mode_update.in_set(PostUpdateLabels::EntityUpdate),
-                ),
+                        .in_set(PostUpdateSet::VisibleChecker)
+                        .after(PostUpdateSet::SendEntityUpdates),
+                    world_mode_update.in_set(PostUpdateSet::EntityUpdate),
+                )
+                    .in_set(MainSet::PostUpdate),
             )
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
-                    examine_entity.after(ActionsLabels::Action),
-                    examine_entity_health.after(ActionsLabels::Action),
-                ),
+                    examine_entity.after(ActionsSet::Action),
+                    examine_entity_health.after(ActionsSet::Action),
+                )
+                    .in_set(MainSet::Update),
             )
             .init_resource::<ExamineEntityMessages>()
             .add_systems(
-                PreUpdate,
-                (finalize_entity_examine_input, incoming_messages),
+                FixedUpdate,
+                (finalize_entity_examine_input, incoming_messages).in_set(MainSet::PreUpdate),
             )
             .add_event::<InputExamineEntity>()
             .add_systems(
-                PostUpdate,
+                FixedUpdate,
                 finalize_entity_updates
-                    .after(PostUpdateLabels::EntityUpdate)
-                    .in_set(PostUpdateLabels::SendEntityUpdates),
+                    .after(PostUpdateSet::EntityUpdate)
+                    .in_set(PostUpdateSet::SendEntityUpdates)
+                    .in_set(MainSet::PostUpdate),
             )
             .add_event::<DespawnClientEntity>()
             .add_event::<SpawnClientEntity>();
@@ -76,8 +78,8 @@ impl Plugin for EntityPlugin {
                 (
                     finalize_register_entity_types.after(EntityTypeLabel::Register),
                     load_ron_entities
-                        .after(StartupLabels::BuildGridmap)
-                        .in_set(StartupLabels::InitEntities),
+                        .after(StartupSet::BuildGridmap)
+                        .in_set(StartupSet::InitEntities),
                 ),
             );
         register_reliable_message::<EntityServerMessage>(app, MessageSender::Server);

@@ -1,5 +1,5 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
-use resources::is_server::is_server;
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup};
+use resources::{is_server::is_server, sets::MainSet};
 use ui::fonts::init_fonts;
 
 use crate::{
@@ -28,7 +28,7 @@ impl Plugin for EscapeMenuPlugin {
                 (build_graphics_section, build_controls_section),
             )
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     toggle_escape_menu,
                     esc_button_menu,
@@ -44,7 +44,8 @@ impl Plugin for EscapeMenuPlugin {
                     apply_vsync,
                     apply_fxaa,
                     apply_msaa,
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_event::<ToggleEscapeMenu>()
             .add_event::<ToggleGeneralSection>()

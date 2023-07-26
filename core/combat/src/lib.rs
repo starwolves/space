@@ -1,6 +1,6 @@
 //! For combat and damage applications.
 //! Modular systems to process attacks, including physics attacks, chat hooks and sound effect hooks.
-//! Happens in a modular way so correct interaction with the combat systems relies on systems ordering and labels.
+//! Happens in a modular way so correct interaction with the combat systems relies on systems ordering and sets.
 //! Damage applications can be modified by systems and inventory item handler systems allow you to configure how certain weapons interact with this crate.
 //! Combat events also allow for modular damage flags, health flags, damage multipliers and more.
 

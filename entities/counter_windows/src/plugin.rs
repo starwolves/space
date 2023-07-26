@@ -1,11 +1,11 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostUpdate, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::{
     is_server::is_server,
-    labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels},
+    sets::{ActionsSet, BuildingSet, CombatSet, MainSet, PostUpdateSet},
 };
 
 use crate::{
@@ -34,44 +34,48 @@ impl Plugin for CounterWindowsPlugin {
         if is_server() {
             app.add_event::<CounterWindowSensorCollision>()
                 .add_systems(
-                    Update,
+                    FixedUpdate,
                     (
                         counter_window_tick_timers,
                         counter_window_default_map_added,
                         counter_window_events,
                         health_combat_hit_result_sfx::<CounterWindow>
-                            .after(CombatLabels::FinalizeApplyDamage),
+                            .after(CombatSet::FinalizeApplyDamage),
                         toggle_open_action_prequisite_check
-                            .in_set(ActionsLabels::Approve)
-                            .after(ActionsLabels::Build),
+                            .in_set(ActionsSet::Approve)
+                            .after(ActionsSet::Build),
                         lock_open_action_prequisite_check
-                            .in_set(ActionsLabels::Approve)
-                            .after(ActionsLabels::Build),
+                            .in_set(ActionsSet::Approve)
+                            .after(ActionsSet::Build),
                         counter_window_actions
-                            .in_set(ActionsLabels::Action)
-                            .after(ActionsLabels::Approve),
+                            .in_set(ActionsSet::Action)
+                            .after(ActionsSet::Approve),
                         build_actions
-                            .in_set(ActionsLabels::Build)
-                            .after(ActionsLabels::Init),
-                    ),
+                            .in_set(ActionsSet::Build)
+                            .after(ActionsSet::Init),
+                    )
+                        .in_set(MainSet::Update),
                 )
                 .add_event::<InputCounterWindowToggleOpen>()
                 .add_event::<CounterWindowLockOpen>()
                 .add_event::<CounterWindowLockClosed>()
                 .add_event::<CounterWindowUnlock>()
                 .add_systems(
-                    PostUpdate,
-                    counter_window_update.in_set(PostUpdateLabels::EntityUpdate),
+                    FixedUpdate,
+                    counter_window_update
+                        .in_set(PostUpdateSet::EntityUpdate)
+                        .in_set(MainSet::PostUpdate),
                 );
         }
         register_entity_type::<CounterWindowType>(app);
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
-                build_counter_windows::<CounterWindowType>.after(BuildingLabels::TriggerBuild),
-                (build_rigid_bodies::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
-                (build_base_entities::<CounterWindowType>).after(BuildingLabels::TriggerBuild),
-            ),
+                build_counter_windows::<CounterWindowType>.after(BuildingSet::TriggerBuild),
+                (build_rigid_bodies::<CounterWindowType>).after(BuildingSet::TriggerBuild),
+                (build_base_entities::<CounterWindowType>).after(BuildingSet::TriggerBuild),
+            )
+                .in_set(MainSet::Update),
         );
     }
 }

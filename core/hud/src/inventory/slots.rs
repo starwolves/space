@@ -19,7 +19,7 @@ pub struct SlotHud {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum InventoryHudLabels {
+pub enum InventoryHudSet {
     UpdateSlot,
     QueueUpdate,
 }

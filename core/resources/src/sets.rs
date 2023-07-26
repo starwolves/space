@@ -2,7 +2,7 @@ use bevy::prelude::SystemSet;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum StartupLabels {
+pub enum StartupSet {
     ConsoleCommands,
     MiscResources,
     InitDefaultGridmapData,
@@ -14,14 +14,14 @@ pub enum StartupLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum MapLabels {
+pub enum MapSet {
     ChangeMode,
     MapInput,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum ActionsLabels {
+pub enum ActionsSet {
     Clear,
     Init,
     Build,
@@ -31,7 +31,7 @@ pub enum ActionsLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum CombatLabels {
+pub enum CombatSet {
     RegisterAttacks,
     CacheAttack,
     WeaponHandler,
@@ -43,7 +43,7 @@ pub enum CombatLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum UpdateSets {
+pub enum UpdateSet {
     ProcessMovementInput,
     DropCurrentItem,
     StandardCharacters,
@@ -53,7 +53,7 @@ pub enum UpdateSets {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum PostUpdateLabels {
+pub enum PostUpdateSet {
     EntityUpdate,
     SendEntityUpdates,
     VisibleChecker,
@@ -62,7 +62,15 @@ pub enum PostUpdateLabels {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum BuildingLabels {
+pub enum BuildingSet {
     TriggerBuild,
     NormalBuild,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+
+pub enum MainSet {
+    PreUpdate,
+    Update,
+    PostUpdate,
 }

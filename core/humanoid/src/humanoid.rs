@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use bevy::{
-    prelude::{warn, Component, Entity, EventReader, Query, ResMut},
+    prelude::{warn, Component, Entity, Query, Res, ResMut},
     time::{Timer, TimerMode},
 };
 use controller::controller::ControllerInput;
 use entity::health::DamageFlag;
+use player::connections::ServerEventBuffer;
 
 use std::time::Duration;
 
@@ -93,12 +94,13 @@ pub(crate) fn humanoid_movement(humanoids: Query<(&Humanoid, &ControllerInput)>)
 pub fn on_player_disconnect(
     mut humanoids: Query<&mut Humanoid>,
     handle_to_entity: ResMut<HandleToEntity>,
-    mut reader: EventReader<ServerEvent>,
+    reader: Res<ServerEventBuffer>,
 ) {
-    for event in reader.iter() {
+    for e in reader.buffer.iter() {
+        let event = e.renet_event();
         match event {
             ServerEvent::ClientDisconnected { client_id, reason } => {
-                match handle_to_entity.map.get(client_id) {
+                match handle_to_entity.map.get(&client_id) {
                     Some(ent) => match humanoids.get_mut(*ent) {
                         Ok(mut humanoid_component) => {
                             humanoid_component.current_lower_animation_state =

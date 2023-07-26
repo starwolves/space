@@ -68,8 +68,8 @@ use point_light::plugin::PointLightPlugin;
 use resources::core::ClientInformation;
 use resources::core::TickRate;
 use resources::is_server::is_server;
-use resources::labels::StartupLabels;
 use resources::plugin::ResourcesPlugin;
+use resources::sets::StartupSet;
 use setup_menu::plugin::SetupMenuPlugin;
 use sfx::plugin::SfxPlugin;
 use sounds::plugin::SoundsPlugin;
@@ -185,8 +185,8 @@ pub(crate) fn configure_and_start() {
         })
         .add_systems(
             Startup,
-            live.in_set(StartupLabels::ServerIsLive)
-                .after(StartupLabels::InitAtmospherics),
+            live.in_set(StartupSet::ServerIsLive)
+                .after(StartupSet::InitAtmospherics),
         )
         .insert_resource(MOTD::new_default(APP_VERSION.to_string()))
         .add_plugins(MainMenuPlugin)

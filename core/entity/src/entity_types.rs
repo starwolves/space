@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{IntoSystemConfigs, Resource, Startup, SystemSet, Update};
+use bevy::prelude::{FixedUpdate, IntoSystemConfigs, Resource, Startup, SystemSet};
 
 /// Resource containing all registered entity types with [init_entity_type].
 #[derive(Default, Resource)]
@@ -56,7 +56,7 @@ dyn_clone::clone_trait_object!(EntityType);
 pub type BoxedEntityType = Box<dyn EntityType>;
 use crate::spawn::SpawnEntity;
 use bevy::prelude::App;
-use resources::labels::BuildingLabels;
+use resources::sets::BuildingSet;
 
 pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut App) {
     app.add_systems(
@@ -65,8 +65,8 @@ pub fn register_entity_type<T: EntityType + Clone + Default + 'static>(app: &mut
     )
     .add_event::<SpawnEntity<T>>()
     .add_systems(
-        Update,
-        (build_raw_entities::<T>).after(BuildingLabels::TriggerBuild),
+        FixedUpdate,
+        (build_raw_entities::<T>).after(BuildingSet::TriggerBuild),
     );
 }
 

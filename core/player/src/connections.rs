@@ -12,8 +12,8 @@ pub struct PlayerAwaitingBoarding {
 use bevy::prelude::info;
 use bevy::prelude::warn;
 use bevy::tasks::{AsyncComputeTaskPool, Task};
-use bevy_renet::renet::RenetServer;
 use bevy_renet::renet::ServerEvent;
+use bevy_renet::renet::{DisconnectReason, RenetServer};
 
 /// Networking connect and disconnect events.
 
@@ -22,13 +22,70 @@ pub struct VerifyToken {
     pub task: Task<ehttp::Response>,
     pub handle: u64,
 }
+#[derive(Resource, Default)]
+pub struct ServerEventBuffer {
+    pub buffer: Vec<SFServerEvent>,
+}
+
+pub enum SFServerEvent {
+    ClientConnected {
+        client_id: u64,
+    },
+    ClientDisconnected {
+        client_id: u64,
+        reason: DisconnectReason,
+    },
+}
+
+impl SFServerEvent {
+    pub fn new(t: &ServerEvent) -> Self {
+        match t {
+            ServerEvent::ClientConnected { client_id } => SFServerEvent::ClientConnected {
+                client_id: *client_id,
+            },
+            ServerEvent::ClientDisconnected { client_id, reason } => {
+                SFServerEvent::ClientDisconnected {
+                    client_id: *client_id,
+                    reason: *reason,
+                }
+            }
+        }
+    }
+    pub fn renet_event(&self) -> ServerEvent {
+        match self {
+            SFServerEvent::ClientConnected { client_id } => ServerEvent::ClientConnected {
+                client_id: *client_id,
+            },
+            SFServerEvent::ClientDisconnected { client_id, reason } => {
+                ServerEvent::ClientDisconnected {
+                    client_id: *client_id,
+                    reason: *reason,
+                }
+            }
+        }
+    }
+}
+
+pub(crate) fn buffer_server_events(
+    mut server_events: EventReader<ServerEvent>,
+    mut buffer: ResMut<ServerEventBuffer>,
+) {
+    for event in server_events.iter() {
+        buffer.buffer.push(SFServerEvent::new(event));
+    }
+}
+
+pub(crate) fn clear_buffer(mut server_events: ResMut<ServerEventBuffer>) {
+    server_events.buffer.clear();
+}
 
 pub(crate) fn server_events(
-    mut server_events: EventReader<ServerEvent>,
+    server_events: Res<ServerEventBuffer>,
     mut commands: Commands,
     server_data: Res<NetcodeServerTransport>,
 ) {
-    for event in server_events.iter() {
+    for e in server_events.buffer.iter() {
+        let event = e.renet_event();
         let server_addr = local_ipaddress::get().unwrap_or_default();
 
         match event {
@@ -51,7 +108,7 @@ pub(crate) fn server_events(
                 let client_ip = client_address.ip().to_string();
 
                 let raw_token;
-                match server_data.user_data(*client_id) {
+                match server_data.user_data(client_id) {
                     Some(r) => {
                         raw_token = r;
                     }
@@ -101,7 +158,7 @@ pub(crate) fn server_events(
                         ]);
                         ehttp::fetch_blocking(&post).expect("Error with HTTP call")
                     }),
-                    handle: *client_id,
+                    handle: client_id,
                 };
 
                 commands.spawn(x);
@@ -132,6 +189,8 @@ pub fn process_response(
     mut used_names: ResMut<UsedNames>,
     mut outgoing: EventWriter<OutgoingReliableServerMessage<NetworkingServerMessage>>,
     mut configure: EventWriter<SendServerConfiguration>,
+    stamp: Res<TickRateStamp>,
+    tickrate: Res<TickRate>,
 ) {
     for (entity, mut token) in query.iter_mut() {
         if let Some(response) = future::block_on(future::poll_once(&mut token.task)) {
@@ -152,7 +211,10 @@ pub fn process_response(
 
                         outgoing.send(OutgoingReliableServerMessage {
                             handle: token.handle,
-                            message: NetworkingServerMessage::Awoo,
+                            message: NetworkingServerMessage::Awoo(StartSync {
+                                tick_rate: tickrate.clone(),
+                                stamp: stamp.clone(),
+                            }),
                         });
 
                         configure.send(SendServerConfiguration {
@@ -176,7 +238,9 @@ use bevy::prelude::Component;
 use bevy::prelude::Resource;
 use bevy_renet::renet::transport::NetcodeServerTransport;
 use futures_lite::future;
-use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage};
+use networking::server::{NetworkingServerMessage, OutgoingReliableServerMessage, StartSync};
+use networking::sync::TickRateStamp;
+use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 
 use crate::names::UsedNames;

@@ -1,6 +1,6 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use entity::entity_types::register_entity_type;
-use resources::labels::BuildingLabels;
+use resources::sets::{BuildingSet, MainSet};
 
 use crate::spawn::{build_point_lights, PointLightType};
 
@@ -9,8 +9,10 @@ pub struct PointLightPlugin;
 impl Plugin for PointLightPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            (build_point_lights::<PointLightType>).after(BuildingLabels::TriggerBuild),
+            FixedUpdate,
+            (build_point_lights::<PointLightType>)
+                .after(BuildingSet::TriggerBuild)
+                .in_set(MainSet::Update),
         );
         register_entity_type::<PointLightType>(app);
     }

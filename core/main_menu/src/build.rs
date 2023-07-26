@@ -35,8 +35,14 @@ pub enum MainMenuLabel {
 
 /// Shows main menu when the client starts.
 
-pub(crate) fn startup_show_menu(mut enable_events: EventWriter<EnableMainMenu>) {
-    enable_events.send(EnableMainMenu { enable: true });
+pub(crate) fn startup_show_menu(
+    mut enable_events: EventWriter<EnableMainMenu>,
+    mut state: Local<bool>,
+) {
+    if !*state {
+        *state = true;
+        enable_events.send(EnableMainMenu { enable: true });
+    }
 }
 
 pub const SIDEBAR_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
@@ -476,7 +482,7 @@ pub struct PlayMenuState {
     pub enabled: bool,
     pub root: Option<Entity>,
 }
-use bevy::prelude::{warn, Resource};
+use bevy::prelude::{warn, Local, Resource};
 use bevy::prelude::{Added, Query};
 use bevy::prelude::{Event, With};
 use bevy::ui::Interaction;

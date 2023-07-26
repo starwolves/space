@@ -1,10 +1,10 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostUpdate, SystemSet, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
 use combat::sfx::health_combat_hit_result_sfx;
 use entity::entity_types::register_entity_type;
 use entity::spawn::build_base_entities;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
-use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, PostUpdateLabels};
+use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, PostUpdateSet};
 
 use crate::{
     actions::{
@@ -38,42 +38,46 @@ impl Plugin for AirLocksPlugin {
                 .add_event::<InputAirlockToggleOpen>()
                 .add_event::<AirLockLockOpen>()
                 .add_systems(
-                    Update,
+                    FixedUpdate,
                     (
                         airlock_added,
                         airlock_tick_timers,
                         airlock_default_map_added,
                         airlock_events,
                         health_combat_hit_result_sfx::<Airlock>
-                            .after(CombatLabels::FinalizeApplyDamage),
+                            .after(CombatSet::FinalizeApplyDamage),
                         toggle_open_action_prequisite_check
-                            .in_set(ActionsLabels::Approve)
-                            .after(ActionsLabels::Build),
+                            .in_set(ActionsSet::Approve)
+                            .after(ActionsSet::Build),
                         lock_action_prequisite_check
-                            .in_set(ActionsLabels::Approve)
-                            .after(ActionsLabels::Build),
+                            .in_set(ActionsSet::Approve)
+                            .after(ActionsSet::Build),
                         airlock_actions
-                            .in_set(ActionsLabels::Action)
-                            .after(ActionsLabels::Approve),
+                            .in_set(ActionsSet::Action)
+                            .after(ActionsSet::Approve),
                         build_actions
-                            .in_set(ActionsLabels::Build)
-                            .after(ActionsLabels::Init),
-                    ),
+                            .in_set(ActionsSet::Build)
+                            .after(ActionsSet::Init),
+                    )
+                        .in_set(MainSet::Update),
                 )
                 .add_event::<AirlockLockClosed>()
                 .add_event::<AirlockUnlock>()
                 .add_systems(
-                    PostUpdate,
-                    airlock_update.in_set(PostUpdateLabels::EntityUpdate),
+                    FixedUpdate,
+                    airlock_update
+                        .in_set(PostUpdateSet::EntityUpdate)
+                        .in_set(MainSet::PostUpdate),
                 );
         }
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
-                build_airlocks::<AirlockType>.after(BuildingLabels::TriggerBuild),
-                (build_rigid_bodies::<AirlockType>).after(BuildingLabels::TriggerBuild),
-                (build_base_entities::<AirlockType>).after(BuildingLabels::TriggerBuild),
-            ),
+                build_airlocks::<AirlockType>.after(BuildingSet::TriggerBuild),
+                (build_rigid_bodies::<AirlockType>).after(BuildingSet::TriggerBuild),
+                (build_base_entities::<AirlockType>).after(BuildingSet::TriggerBuild),
+            )
+                .in_set(MainSet::Update),
         );
         register_entity_type::<AirlockType>(app);
     }

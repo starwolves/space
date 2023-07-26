@@ -1,6 +1,6 @@
-use bevy::prelude::{Added, Changed, Commands, Component, Entity, Query, Res};
-use bevy_xpbd_3d::{prelude::Sleeping, resources::PhysicsTimestep};
-use resources::{core::TickRate, math::Vec3Int};
+use bevy::prelude::{Added, Changed, Commands, Component, Entity, Query};
+use bevy_xpbd_3d::prelude::Sleeping;
+use resources::math::Vec3Int;
 
 use crate::rigid_body::RigidBodyStatus;
 
@@ -80,9 +80,4 @@ impl Default for RigidBodyLinkTransform {
             active: true,
         }
     }
-}
-
-pub(crate) fn setup_timestep(mut commands: Commands, tick_rate: Res<TickRate>) {
-    // Init Bevy Rapier physics.
-    commands.insert_resource(PhysicsTimestep::Fixed(1. / tick_rate.physics_rate as f32));
 }

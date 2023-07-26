@@ -14,7 +14,7 @@ use bevy_renet::renet::{
 use futures_lite::future;
 use token::parse::Token;
 
-use crate::server::PROTOCOL_ID;
+use crate::{server::PROTOCOL_ID, sync::TickRateStamp};
 
 /// Resource containing needed for the server.
 
@@ -142,6 +142,7 @@ pub(crate) fn connect_to_server(
     for _ in event.iter() {
         match connection_state.status {
             ConnectionStatus::None => {
+                info!("Connect to server.");
                 let address;
                 let port;
 
@@ -275,11 +276,33 @@ use crate::plugin::RENET_RELIABLE_CHANNEL_ID;
 
 use serde::Serialize;
 use typename::TypeName;
+
+#[derive(Resource, Default)]
+pub struct OutgoingBuffer {
+    pub reliable: Vec<Vec<u8>>,
+    pub unreliable: Vec<Vec<u8>>,
+}
+
+pub(crate) fn step_buffer(mut res: ResMut<OutgoingBuffer>, mut client: ResMut<RenetClient>) {
+    for message in res.reliable.iter() {
+        info!("Sending message 2.");
+
+        client.send_message(RENET_RELIABLE_CHANNEL_ID, message.clone())
+    }
+    for message in res.unreliable.iter() {
+        client.send_message(RENET_UNRELIABLE_CHANNEL_ID, message.clone())
+    }
+
+    res.reliable.clear();
+    res.unreliable.clear();
+}
+
 /// Serializes and sends the outgoing reliable client messages.
 pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingReliableClientMessage<T>>,
-    mut client: ResMut<RenetClient>,
+    mut client: ResMut<OutgoingBuffer>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
 ) {
     for message in events.iter() {
         let net;
@@ -305,16 +328,17 @@ pub(crate) fn send_outgoing_reliable_client_messages<T: TypeName + Send + Sync +
                 continue;
             }
         }
-
         match bincode::serialize(&ReliableMessage {
             serialized: bin,
             typename_net: *net,
+            stamp: stamp.stamp,
         }) {
             Ok(bits) => {
-                client.send_message(RENET_RELIABLE_CHANNEL_ID, bits);
+                client.reliable.push(bits);
+                info!("Sending message 1.");
             }
             Err(_) => {
-                warn!("Failed to serialize reliable message.");
+                warn!("Failed to serialize unreliable message.");
                 continue;
             }
         }
@@ -325,11 +349,13 @@ use crate::messaging::UnreliableMessage;
 /// Serializes and sends the outgoing unreliable client messages.
 pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync + Serialize>(
     mut events: EventReader<OutgoingUnreliableClientMessage<T>>,
-    mut client: ResMut<RenetClient>,
+    mut client: ResMut<OutgoingBuffer>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
 ) {
     for message in events.iter() {
         let net;
+
         match typenames
             .unreliable_net_types
             .get(&message.message.type_name_of())
@@ -356,9 +382,10 @@ pub(crate) fn send_outgoing_unreliable_client_messages<T: TypeName + Send + Sync
         match bincode::serialize(&UnreliableMessage {
             serialized: bin,
             typename_net: *net,
+            stamp: stamp.stamp,
         }) {
             Ok(bits) => {
-                client.send_message(RENET_UNRELIABLE_CHANNEL_ID, bits);
+                client.reliable.push(bits);
             }
             Err(_) => {
                 warn!("Failed to serialize unreliable message.");
@@ -450,6 +477,8 @@ pub(crate) fn receive_incoming_reliable_server_messages(
     while let Some(message) = client.receive_message(RENET_RELIABLE_CHANNEL_ID) {
         match bincode::deserialize::<ReliableMessage>(&message) {
             Ok(msg) => {
+                info!("received server message.");
+
                 events.send(IncomingRawReliableServerMessage { message: msg });
             }
             Err(_) => {
@@ -521,7 +550,7 @@ pub(crate) fn confirm_connection(
     for message in client1.iter() {
         let player_message = message.message.clone();
         match player_message {
-            NetworkingServerMessage::Awoo => {
+            NetworkingServerMessage::Awoo(_) => {
                 connected_state.status = ConnectionStatus::Connected;
                 info!("Connected.");
             }

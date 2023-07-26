@@ -4,7 +4,7 @@
 pub mod core;
 
 /// Systems ordering labels.
-pub mod labels;
+pub mod sets;
 
 pub mod binds;
 pub mod content;

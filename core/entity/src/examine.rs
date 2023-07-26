@@ -138,7 +138,7 @@ impl Default for RichName {
 /// System label for systems ordering.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
-pub enum ExamineLabels {
+pub enum ExamineSet {
     Start,
     Default,
 }

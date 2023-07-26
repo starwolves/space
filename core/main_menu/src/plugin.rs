@@ -1,6 +1,7 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, Startup, SystemSet, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, SystemSet};
 use hud::mouse::{grab_cursor, release_cursor};
-use resources::is_server::is_server;
+use networking::client::token_assign_server;
+use resources::{is_server::is_server, sets::MainSet};
 
 use crate::{
     build::{
@@ -27,24 +28,30 @@ impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         if is_server() == false {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     show_main_menu.in_set(MainMenuLabel::BuildMainMenu),
                     hide_main_menu,
                     button_presses,
                     starwolves_link,
                     space_frontiers_link,
-                    connect_to_server_button,
+                    connect_to_server_button.before(token_assign_server),
                     auto_fill_connect_menu,
                     on_submenu_connect_creation,
-                    confirm_connection,
+                    confirm_connection.before(hide_main_menu),
                     toggle_esc_menu.after(grab_cursor).after(release_cursor),
                     show_play_menu.before(MainMenuLabel::BuildMainMenu),
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_event::<EnableMainMenu>()
             .init_resource::<MainMenuState>()
-            .add_systems(Startup, startup_show_menu)
+            .add_systems(
+                FixedUpdate,
+                startup_show_menu
+                    .in_set(MainSet::Update)
+                    .before(hide_main_menu),
+            )
             .add_event::<EnablePlayMenu>()
             .init_resource::<PlayMenuState>()
             .add_event::<AutoFillConnectSubMenu>();

@@ -2,6 +2,7 @@ use bevy::{
     math::{Vec2, Vec3},
     prelude::{info, Component, Entity, Event, Quat, Resource},
 };
+use resources::core::TickRate;
 use serde::{Deserialize, Serialize};
 use typename::TypeName;
 
@@ -52,7 +53,10 @@ pub(crate) fn startup_server_listen_connections() -> (RenetServer, NetcodeServer
 
 use bevy::prelude::EventReader;
 
-use crate::messaging::{ReliableMessage, UnreliableMessage};
+use crate::{
+    messaging::{ReliableMessage, UnreliableMessage},
+    sync::TickRateStamp,
+};
 
 /// Obtain player souls, mwahahhaa. (=^.^=)
 
@@ -81,7 +85,12 @@ pub enum NetworkingClientMessage {
 #[derive(Serialize, Deserialize, Debug, Clone, TypeName)]
 
 pub enum NetworkingServerMessage {
-    Awoo,
+    Awoo(StartSync),
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct StartSync {
+    pub tick_rate: TickRate,
+    pub stamp: TickRateStamp,
 }
 
 /// This message gets sent at high intervals.
@@ -178,6 +187,7 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
     mut events: EventReader<OutgoingUnreliableServerMessage<T>>,
     mut server: ResMut<RenetServer>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
 ) {
     for message in events.iter() {
         let net;
@@ -207,6 +217,7 @@ pub(crate) fn send_outgoing_unreliable_server_messages<T: TypeName + Send + Sync
         match bincode::serialize(&UnreliableMessage {
             serialized: bin,
             typename_net: *net,
+            stamp: stamp.stamp,
         }) {
             Ok(bits) => {
                 server.send_message(message.handle, RENET_UNRELIABLE_CHANNEL_ID, bits);
@@ -227,6 +238,7 @@ pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync +
     mut events: EventReader<OutgoingReliableServerMessage<T>>,
     mut server: ResMut<RenetServer>,
     typenames: Res<Typenames>,
+    stamp: Res<TickRateStamp>,
 ) {
     for message in events.iter() {
         let net;
@@ -259,6 +271,7 @@ pub(crate) fn send_outgoing_reliable_server_messages<T: TypeName + Send + Sync +
         match bincode::serialize(&ReliableMessage {
             serialized: bin,
             typename_net: *net,
+            stamp: stamp.stamp,
         }) {
             Ok(bits) => {
                 server.send_message(message.handle, RENET_RELIABLE_CHANNEL_ID, bits);
@@ -368,6 +381,7 @@ pub(crate) fn receive_incoming_reliable_client_messages(
         while let Some(message) = server.receive_message(handle, RENET_RELIABLE_CHANNEL_ID) {
             match bincode::deserialize::<ReliableMessage>(&message) {
                 Ok(msg) => {
+                    info!("received client message.");
                     events.send(IncomingRawReliableClientMessage {
                         message: msg,
                         handle,

@@ -10,3 +10,5 @@ pub mod messaging;
 pub mod plugin;
 /// General server-side client input manager.
 pub mod server;
+/// Tickrate synchronization.
+pub mod sync;

@@ -2,7 +2,7 @@ use basic_console_commands::register::{
     register_basic_console_commands_for_inventory_item_type,
     register_basic_console_commands_for_type,
 };
-use bevy::prelude::{resource_exists, App, IntoSystemConfigs, Plugin, Update};
+use bevy::prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin};
 use combat::melee_queries::melee_attack_handler;
 use combat::sfx::{attack_sfx, health_combat_hit_result_sfx};
 use entity::base_mesh::link_base_mesh;
@@ -12,13 +12,13 @@ use entity::spawn::build_base_entities;
 
 use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane};
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
-use hud::inventory::slots::InventoryHudLabels;
+use hud::inventory::slots::InventoryHudSet;
 use inventory::client::items::active_item_display_camera;
 use inventory::server::inventory::SpawnItemLabel;
 use inventory::spawn_item::build_inventory_items;
 use physics::spawn::build_rigid_bodies;
 use resources::is_server::is_server;
-use resources::labels::{ActionsLabels, BuildingLabels, CombatLabels, UpdateSets};
+use resources::sets::{ActionsSet, BuildingSet, CombatSet, MainSet, UpdateSet};
 
 use crate::action::{
     build_actions, construct_action_prequisite_check, construction_tool_actions,
@@ -44,67 +44,69 @@ impl Plugin for ConstructionToolAdminPlugin {
                 .add_event::<InputDeconstruct>()
                 .add_event::<InputConstructionOptions>()
                 .add_systems(
-                    Update,
+                    FixedUpdate,
                     (
                         melee_attack_handler::<ConstructionTool>
-                            .in_set(CombatLabels::WeaponHandler)
-                            .after(CombatLabels::CacheAttack),
+                            .in_set(CombatSet::WeaponHandler)
+                            .after(CombatSet::CacheAttack),
                         attack_sfx::<ConstructionTool>
-                            .after(CombatLabels::WeaponHandler)
-                            .after(CombatLabels::Query),
+                            .after(CombatSet::WeaponHandler)
+                            .after(CombatSet::Query),
                         health_combat_hit_result_sfx::<ConstructionTool>
-                            .after(CombatLabels::FinalizeApplyDamage),
+                            .after(CombatSet::FinalizeApplyDamage),
                         construction_tool_inventory_prequisite_check
-                            .in_set(ActionsLabels::Approve)
-                            .after(ActionsLabels::Build),
+                            .in_set(ActionsSet::Approve)
+                            .after(ActionsSet::Build),
                         deconstruct_action_prequisite_check
-                            .in_set(ActionsLabels::Approve)
-                            .after(ActionsLabels::Build),
+                            .in_set(ActionsSet::Approve)
+                            .after(ActionsSet::Build),
                         construct_action_prequisite_check
-                            .in_set(ActionsLabels::Approve)
-                            .after(ActionsLabels::Build),
+                            .in_set(ActionsSet::Approve)
+                            .after(ActionsSet::Build),
                         construction_tool_actions
-                            .in_set(ActionsLabels::Action)
-                            .after(ActionsLabels::Approve),
+                            .in_set(ActionsSet::Action)
+                            .after(ActionsSet::Approve),
                         build_actions
-                            .in_set(ActionsLabels::Build)
-                            .after(ActionsLabels::Init),
+                            .in_set(ActionsSet::Build)
+                            .after(ActionsSet::Init),
                         construction_tool_select_construction_option
-                            .in_set(UpdateSets::TextTreeInputSelection),
+                            .in_set(UpdateSet::TextTreeInputSelection),
                         send_constructable_items,
                         mouse_click_input,
-                    ),
+                    )
+                        .in_set(MainSet::Update),
                 );
         } else {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     update_inventory_hud_add_item_to_slot::<ConstructionToolType>
-                        .after(InventoryHudLabels::UpdateSlot)
-                        .in_set(InventoryHudLabels::QueueUpdate),
+                        .after(InventoryHudSet::UpdateSlot)
+                        .in_set(InventoryHudSet::QueueUpdate),
                     load_entity::<ConstructionToolType>,
                     link_base_mesh::<ConstructionToolType>,
                     active_item_display_camera::<ConstructionToolType>,
                     construction_tool_enable_select_cell_in_front_camera
                         .run_if(resource_exists::<GridmapConstructionState>()),
-                ),
+                )
+                    .in_set(MainSet::Update),
             );
         }
         register_entity_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_type::<ConstructionToolType>(app);
         register_basic_console_commands_for_inventory_item_type::<ConstructionToolType>(app);
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
-                build_construction_tools::<ConstructionToolType>
-                    .after(BuildingLabels::TriggerBuild),
-                (build_rigid_bodies::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
-                (build_base_entities::<ConstructionToolType>).after(BuildingLabels::TriggerBuild),
+                build_construction_tools::<ConstructionToolType>.after(BuildingSet::TriggerBuild),
+                (build_rigid_bodies::<ConstructionToolType>).after(BuildingSet::TriggerBuild),
+                (build_base_entities::<ConstructionToolType>).after(BuildingSet::TriggerBuild),
                 (build_inventory_items::<ConstructionToolType>)
-                    .after(BuildingLabels::TriggerBuild)
+                    .after(BuildingSet::TriggerBuild)
                     .after(SpawnItemLabel::SpawnHeldItem)
                     .in_set(SpawnItemLabel::AddingComponent),
-            ),
+            )
+                .in_set(MainSet::Update),
         )
         .add_event::<ShowYLevelPlane>();
     }

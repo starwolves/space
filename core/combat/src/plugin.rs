@@ -1,6 +1,6 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostUpdate, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use resources::is_server::is_server;
-use resources::labels::{CombatLabels, PostUpdateLabels};
+use resources::sets::{CombatSet, MainSet, PostUpdateSet};
 
 use crate::apply_damage::{finalize_apply_damage, ActiveApplyDamage};
 use crate::chat::hit_query_chat_cells;
@@ -32,18 +32,19 @@ impl Plugin for CombatPlugin {
                     .in_set(CombatLabels::Query),
             )*/
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     start_apply_damage
-                        .in_set(CombatLabels::StartApplyDamage)
-                        .before(CombatLabels::FinalizeApplyDamage)
-                        .after(CombatLabels::Query),
+                        .in_set(CombatSet::StartApplyDamage)
+                        .before(CombatSet::FinalizeApplyDamage)
+                        .after(CombatSet::Query),
                     finalize_apply_damage
-                        .in_set(CombatLabels::FinalizeApplyDamage)
-                        .after(CombatLabels::StartApplyDamage)
-                        .after(CombatLabels::Query),
-                    hit_query_chat_cells.after(CombatLabels::FinalizeApplyDamage),
-                ),
+                        .in_set(CombatSet::FinalizeApplyDamage)
+                        .after(CombatSet::StartApplyDamage)
+                        .after(CombatSet::Query),
+                    hit_query_chat_cells.after(CombatSet::FinalizeApplyDamage),
+                )
+                    .in_set(MainSet::Update),
             )
             /*.add_system(
                 blanks_chat
@@ -60,19 +61,22 @@ impl Plugin for CombatPlugin {
             .add_event::<ProjectileBlank>()
             .add_event::<MeleeBlank>()
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     cache_attacks
-                        .after(CombatLabels::RegisterAttacks)
-                        .before(CombatLabels::Query)
-                        .in_set(CombatLabels::CacheAttack),
-                    health_combat_hit_result_sfx_cells.after(CombatLabels::FinalizeApplyDamage),
-                ),
+                        .after(CombatSet::RegisterAttacks)
+                        .before(CombatSet::Query)
+                        .in_set(CombatSet::CacheAttack),
+                    health_combat_hit_result_sfx_cells.after(CombatSet::FinalizeApplyDamage),
+                )
+                    .in_set(MainSet::Update),
             )
             .init_resource::<ActiveApplyDamage>()
             .add_systems(
-                PostUpdate,
-                health_ui_update.in_set(PostUpdateLabels::EntityUpdate),
+                FixedUpdate,
+                health_ui_update
+                    .in_set(PostUpdateSet::EntityUpdate)
+                    .in_set(MainSet::PostUpdate),
             )
             .init_resource::<ClientHealthUICache>();
         }

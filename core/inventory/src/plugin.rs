@@ -1,7 +1,10 @@
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PostUpdate, Startup, Update};
-use console_commands::commands::{ConsoleCommand, ConsoleCommandsLabels};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use console_commands::commands::{ConsoleCommand, ConsoleCommandsSet};
 use networking::messaging::{register_reliable_message, MessageSender};
-use resources::{is_server::is_server, labels::PostUpdateLabels};
+use resources::{
+    is_server::is_server,
+    sets::{MainSet, PostUpdateSet},
+};
 
 use crate::{
     client::{
@@ -28,11 +31,13 @@ impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_systems(
-                PostUpdate,
-                inventory_item_update.in_set(PostUpdateLabels::EntityUpdate),
+                FixedUpdate,
+                inventory_item_update
+                    .in_set(PostUpdateSet::EntityUpdate)
+                    .in_set(MainSet::PostUpdate),
             )
             .add_systems(
-                Update,
+                FixedUpdate,
                 (
                     add_item_to_slot
                         .before(SpawnItemLabel::SpawnHeldItem)
@@ -41,17 +46,19 @@ impl Plugin for InventoryPlugin {
                     add_slot_to_inventory.in_set(InventorySlotLabel::AddSlotToInventory),
                     process_request_set_active_item,
                     spawn_entity_for_client,
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_event::<ItemAddedToSlot>();
         } else {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     client_item_added_to_slot.after(ClientBuildInventoryLabel::AddSlot),
                     set_active_item,
                     client_slot_added.in_set(ClientBuildInventoryLabel::AddSlot),
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .init_resource::<Inventory>()
             .add_event::<AddedSlot>()
@@ -61,7 +68,7 @@ impl Plugin for InventoryPlugin {
             .add_event::<AddSlot>()
             .add_systems(
                 Startup,
-                initialize_console_commands.before(ConsoleCommandsLabels::Finalize),
+                initialize_console_commands.before(ConsoleCommandsSet::Finalize),
             );
         register_reliable_message::<InventoryServerMessage>(app, MessageSender::Server);
         register_reliable_message::<InventoryClientMessage>(app, MessageSender::Client);

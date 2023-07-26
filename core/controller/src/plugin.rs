@@ -8,7 +8,7 @@ use crate::input::{
 };
 use crate::net::{ControllerClientMessage, ControllerUnreliableClientMessage};
 use crate::networking::incoming_messages;
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, PreUpdate, Startup, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 
 use bevy::time::common_conditions::on_fixed_timer;
 use networking::messaging::{
@@ -16,7 +16,7 @@ use networking::messaging::{
 };
 use player::boarding::BoardingPlayer;
 use resources::is_server::is_server;
-use resources::labels::UpdateSets;
+use resources::sets::{MainSet, UpdateSet};
 
 use super::net::{send_server_time, update_player_count};
 
@@ -29,25 +29,30 @@ impl Plugin for ControllerPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
             app.add_systems(
-                Update,
+                FixedUpdate,
                 (
                     send_server_time.run_if(on_fixed_timer(Duration::from_secs_f32(2.))),
                     update_player_count.run_if(on_fixed_timer(Duration::from_secs_f32(10.))),
                     connections,
-                ),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_event::<BoardingPlayer>()
-            .add_systems(PreUpdate, incoming_messages);
+            .add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate));
         } else {
             app.add_systems(Startup, create_input_map).add_systems(
-                Update,
-                get_client_input.before(UpdateSets::StandardCharacters),
+                FixedUpdate,
+                get_client_input
+                    .before(UpdateSet::StandardCharacters)
+                    .in_set(MainSet::Update),
             );
         }
 
         app.add_systems(
-            Update,
-            controller_input.before(UpdateSets::StandardCharacters),
+            FixedUpdate,
+            controller_input
+                .before(UpdateSet::StandardCharacters)
+                .in_set(MainSet::Update),
         )
         .add_event::<InputMovementInput>()
         .add_event::<InputAttackCell>()

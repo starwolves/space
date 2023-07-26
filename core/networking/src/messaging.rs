@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{App, IntoSystemConfigs, PostUpdate, PreUpdate, Startup, SystemSet};
+use bevy::prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Startup, SystemSet};
 use bevy::prelude::{ResMut, Resource};
+use bevy_renet::renet::RenetClient;
+use resources::sets::MainSet;
 use typename::TypeName;
 
 /// Resource containing typenames and smaller 16-bit netcode representations. Needed to identify Rust types sent over the net.
@@ -69,7 +71,7 @@ pub enum MessageSender {
     Both,
 }
 
-use crate::client::is_client_connected;
+use crate::client::step_buffer;
 use crate::{
     client::{
         deserialize_incoming_reliable_server_message, send_outgoing_reliable_client_messages,
@@ -111,29 +113,38 @@ pub fn register_reliable_message<
 
     app.add_event::<OutgoingReliableServerMessage<T>>();
     if server_is_sender && is_server() {
-        app.add_systems(PostUpdate, send_outgoing_reliable_server_messages::<T>);
+        app.add_systems(
+            FixedUpdate,
+            send_outgoing_reliable_server_messages::<T>.in_set(MainSet::PostUpdate),
+        );
     }
     app.add_event::<IncomingReliableServerMessage<T>>();
     if server_is_sender && !is_server() {
         app.add_systems(
-            PreUpdate,
-            deserialize_incoming_reliable_server_message::<T>.after(TypenamesLabel::SendRawEvents),
+            FixedUpdate,
+            deserialize_incoming_reliable_server_message::<T>
+                .after(TypenamesLabel::SendRawEvents)
+                .in_set(MainSet::PreUpdate),
         );
     }
     app.add_event::<OutgoingReliableClientMessage<T>>();
 
     if client_is_sender && !is_server() {
         app.add_systems(
-            PostUpdate,
-            send_outgoing_reliable_client_messages::<T>.run_if(is_client_connected),
+            FixedUpdate,
+            send_outgoing_reliable_client_messages::<T>
+                .in_set(MainSet::PostUpdate)
+                .before(step_buffer),
         );
     }
     app.add_event::<IncomingReliableClientMessage<T>>();
 
     if client_is_sender && is_server() {
         app.add_systems(
-            PreUpdate,
-            deserialize_incoming_reliable_client_message::<T>.after(TypenamesLabel::SendRawEvents),
+            FixedUpdate,
+            deserialize_incoming_reliable_client_message::<T>
+                .after(TypenamesLabel::SendRawEvents)
+                .in_set(MainSet::PreUpdate),
         );
     }
 }
@@ -180,29 +191,37 @@ pub fn register_unreliable_message<
     }
     if server_is_sender && is_server() {
         app.add_event::<OutgoingUnreliableServerMessage<T>>()
-            .add_systems(PostUpdate, send_outgoing_unreliable_server_messages::<T>);
+            .add_systems(
+                FixedUpdate,
+                send_outgoing_unreliable_server_messages::<T>.in_set(MainSet::PostUpdate),
+            );
     }
     if server_is_sender && !is_server() {
         app.add_event::<IncomingUnreliableServerMessage<T>>()
             .add_systems(
-                PreUpdate,
+                FixedUpdate,
                 deserialize_incoming_unreliable_server_message::<T>
-                    .after(TypenamesLabel::SendRawEvents),
+                    .after(TypenamesLabel::SendRawEvents)
+                    .in_set(MainSet::PreUpdate),
             );
     }
     if client_is_sender && !is_server() {
         app.add_event::<OutgoingUnreliableClientMessage<T>>()
             .add_systems(
-                PostUpdate,
-                send_outgoing_unreliable_client_messages::<T>.run_if(is_client_connected),
+                FixedUpdate,
+                send_outgoing_unreliable_client_messages::<T>
+                    .in_set(MainSet::PostUpdate)
+                    .run_if(resource_exists::<RenetClient>())
+                    .before(step_buffer),
             );
     }
     if client_is_sender && is_server() {
         app.add_event::<IncomingUnreliableClientMessage<T>>()
             .add_systems(
-                PreUpdate,
+                FixedUpdate,
                 deserialize_incoming_unreliable_client_message::<T>
-                    .after(TypenamesLabel::SendRawEvents),
+                    .after(TypenamesLabel::SendRawEvents)
+                    .in_set(MainSet::PreUpdate),
             );
     }
 }
@@ -213,6 +232,7 @@ pub fn register_unreliable_message<
 pub(crate) struct ReliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u16,
+    pub stamp: u8,
 }
 /// Wrapper for unreliable messages.
 #[derive(Serialize, Deserialize)]
@@ -220,6 +240,7 @@ pub(crate) struct ReliableMessage {
 pub(crate) struct UnreliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u8,
+    pub stamp: u8,
 }
 
 /// Returns an option containing the desired reliable netcode message.
