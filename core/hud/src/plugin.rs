@@ -100,20 +100,20 @@ impl Plugin for HudPlugin {
                     ),
                 )
                 .add_systems(
-                    Startup,
+                    FixedUpdate,
                     (
                         queue_inventory_updates.run_if(not(resource_exists::<InventoryHudState>())),
-                        create_hud,
-                        register_input,
-                    ),
+                        console_welcome_message,
+                    )
+                        .in_set(MainSet::Update),
                 )
+                .add_systems(Startup, (create_hud, register_input))
                 .add_systems(
                     PostStartup,
                     (
                         create_inventory_hud,
                         build_server_stats,
                         build_communication_ui,
-                        console_welcome_message.after(build_communication_ui),
                     ),
                 )
                 .add_event::<OpenHud>()
