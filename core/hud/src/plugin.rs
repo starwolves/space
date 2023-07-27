@@ -82,19 +82,27 @@ impl Plugin for HudPlugin {
                         )
                             .in_set(MainSet::Update),
                         (
-                            grab_mouse_on_board,
+                            grab_mouse_on_board
+                                .before(grab_cursor)
+                                .before(release_cursor),
                             grab_mouse_hud_expand
                                 .before(grab_cursor)
                                 .before(release_cursor),
-                            window_unfocus_event,
+                            window_unfocus_event
+                                .before(TextInputLabel::MousePressUnfocus)
+                                .before(grab_cursor)
+                                .before(release_cursor),
                             release_cursor.after(grab_cursor),
                             grab_cursor.after(focus_state),
                             text_input,
                             receive_chat_message,
                             tab_communication_input_toggle
-                                .before(TextInputLabel::MousePressUnfocus),
+                                .before(TextInputLabel::MousePressUnfocus)
+                                .before(grab_mouse_hud_expand),
                             open_inventory_hud.after(open_hud),
-                            toggle_console_button.before(TextInputLabel::MousePressUnfocus),
+                            toggle_console_button
+                                .before(TextInputLabel::MousePressUnfocus)
+                                .before(grab_mouse_hud_expand),
                             console_input,
                             receive_console_message,
                             display_console_message,
@@ -108,7 +116,10 @@ impl Plugin for HudPlugin {
                             .in_set(MainSet::Update),
                     ),
                 )
-                .add_systems(Update, window_focus_buffer)
+                .add_systems(
+                    Update,
+                    window_focus_buffer.after(TextInputLabel::MousePressUnfocus),
+                )
                 .add_systems(
                     FixedUpdate,
                     clear_window_focus_buffer.in_set(MainSet::PostUpdate),

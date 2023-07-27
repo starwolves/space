@@ -9,9 +9,9 @@ use bevy::{
 };
 
 use bevy::prelude::EventWriter;
-use escape_menu::build::EscapeMenuState;
 use escape_menu::events::ToggleEscapeMenu;
 use hud::mouse::ReleaseCursor;
+use resources::hud::EscapeMenuState;
 use token::parse::Token;
 
 use crate::build::EnablePlayMenu;

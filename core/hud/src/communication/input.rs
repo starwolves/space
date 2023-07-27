@@ -6,7 +6,11 @@ use bevy::{
 use chat::net::ChatClientMessage;
 use console_commands::net::ClientSideConsoleInput;
 use networking::client::OutgoingReliableClientMessage;
-use resources::{hud::HudState, input::InputBuffer, ui::TextInput};
+use resources::{
+    hud::{EscapeMenuState, HudState},
+    input::InputBuffer,
+    ui::TextInput,
+};
 use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
 
 use crate::{
@@ -76,7 +80,11 @@ pub(crate) fn tab_communication_input_toggle(
     mut unfocus_event: EventWriter<UnfocusTextInput>,
     hud_state: Res<HudState>,
     text_input: Res<TextInput>,
+    esc_state: Res<EscapeMenuState>,
 ) {
+    if esc_state.visible {
+        return;
+    }
     if keys.just_pressed(TOGGLE_CHAT) {
         let is_focused = hud_state.expanded;
 

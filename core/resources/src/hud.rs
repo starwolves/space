@@ -12,3 +12,16 @@ pub struct HudState {
     pub top_edge_node: Entity,
     pub bottom_edge_node: Entity,
 }
+
+#[derive(Resource)]
+pub struct EscapeMenuState {
+    pub root: Entity,
+    pub visible: bool,
+    pub controls_section: Entity,
+    pub controls_bg_section: Entity,
+
+    pub graphics_section: Entity,
+    pub graphics_bg_section: Entity,
+
+    pub general_section: Entity,
+}

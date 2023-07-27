@@ -5,7 +5,7 @@ use bevy::{
     },
     prelude::{
         BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label, NodeBundle, Res,
-        Resource, TextBundle,
+        TextBundle,
     },
     text::TextStyle,
     ui::{
@@ -14,7 +14,7 @@ use bevy::{
     },
 };
 use graphics::settings::GraphicsSettings;
-use resources::binds::KeyBinds;
+use resources::{binds::KeyBinds, hud::EscapeMenuState};
 use ui::{
     button::SFButton,
     fonts::{Fonts, ARIZONE_FONT, EMPIRE_FONT, SOURCECODE_REGULAR_FONT},
@@ -36,18 +36,6 @@ pub struct GraphicsSection;
 #[derive(Component)]
 pub struct GraphicsBGSection;
 
-#[derive(Resource)]
-pub struct EscapeMenuState {
-    pub root: Entity,
-    pub visible: bool,
-    pub controls_section: Entity,
-    pub controls_bg_section: Entity,
-
-    pub graphics_section: Entity,
-    pub graphics_bg_section: Entity,
-
-    pub general_section: Entity,
-}
 #[derive(Component)]
 pub struct ControlsHeaderButton;
 #[derive(Component)]

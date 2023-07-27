@@ -11,15 +11,15 @@ use hud::inventory::build::OpenHud;
 use num_traits::FromPrimitive;
 use resources::{
     binds::{KeyBind, KeyBinds},
-    hud::HudState,
+    hud::{EscapeMenuState, HudState},
     input::InputBuffer,
 };
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
 use crate::build::{
-    ControlsBGSection, ControlsHeaderButton, EscapeMenuState, ExitGameButton, FxaaHList,
-    GeneralHeaderButton, GeneralSection, GraphicsBGSection, GraphicsHeaderButton, MsaaHList,
-    ResolutionInputApply, ResolutionXInput, ResolutionYInput, VsyncHList, WindowModeHList,
+    ControlsBGSection, ControlsHeaderButton, ExitGameButton, FxaaHList, GeneralHeaderButton,
+    GeneralSection, GraphicsBGSection, GraphicsHeaderButton, MsaaHList, ResolutionInputApply,
+    ResolutionXInput, ResolutionYInput, VsyncHList, WindowModeHList,
 };
 #[derive(Event)]
 pub struct ToggleEscapeMenu {
