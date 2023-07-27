@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
+    prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PreStartup, Startup},
     time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
@@ -163,7 +163,7 @@ impl Plugin for GridmapPlugin {
                 (add_cell_client, remove_cell_client).in_set(MainSet::Update),
             )
             .add_systems(
-                Startup,
+                PreStartup,
                 (
                     init_generic_meshes,
                     register_input,

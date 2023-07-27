@@ -19,6 +19,7 @@ use bevy::prelude::ImagePlugin;
 use bevy::prelude::IntoSystemConfigs;
 use bevy::prelude::PluginGroup;
 use bevy::prelude::Startup;
+use bevy::prelude::TaskPoolOptions;
 use bevy::prelude::TaskPoolPlugin;
 use bevy::prelude::TypeRegistrationPlugin;
 use bevy::render::settings::WgpuSettings;
@@ -93,6 +94,10 @@ pub(crate) fn configure_and_start() {
     test_path = binding.as_path();
     let mut app = App::new();
 
+    let task_pool = TaskPoolPlugin {
+        task_pool_options: TaskPoolOptions::with_num_threads(4),
+    };
+
     if is_server() {
         let mut wgpu_settings = WgpuSettings::default();
         wgpu_settings.backends = None;
@@ -115,7 +120,7 @@ pub(crate) fn configure_and_start() {
             })
             .add_plugins(ImagePlugin::default())
             .add_plugins(ScheduleRunnerPlugin::default())
-            .add_plugins(TaskPoolPlugin::default());
+            .add_plugins(task_pool);
     } else {
         app.add_plugins(
             DefaultPlugins
@@ -134,7 +139,8 @@ pub(crate) fn configure_and_start() {
                     asset_folder: test_path.to_str().unwrap().to_owned(),
                     ..Default::default()
                 })
-                .set(ImagePlugin::default_nearest()),
+                .set(ImagePlugin::default_nearest())
+                .set(task_pool),
         )
         .insert_resource(WinitSettings::game())
         .add_plugins(EguiPlugin)

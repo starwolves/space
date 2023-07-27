@@ -102,7 +102,8 @@ impl Plugin for HudPlugin {
                             open_inventory_hud.after(open_hud),
                             toggle_console_button
                                 .before(TextInputLabel::MousePressUnfocus)
-                                .before(grab_mouse_hud_expand),
+                                .before(grab_mouse_hud_expand)
+                                .before(open_hud),
                             console_input,
                             receive_console_message,
                             display_console_message,
