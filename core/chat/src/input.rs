@@ -1,4 +1,4 @@
-use bevy::prelude::{info, warn, Color, Event, EventReader, EventWriter, Query, Res};
+use bevy::prelude::{warn, Color, Event, EventReader, EventWriter, Query, Res};
 use networking::server::{
     ConnectedPlayer, IncomingReliableClientMessage, OutgoingReliableServerMessage,
 };
@@ -55,8 +55,6 @@ pub(crate) fn broadcast_global_chat_message(
             .inv_map
             .get(SOURCECODE_REGULAR_FONT)
             .expect("Could not get font.");
-
-        info!("Yes.");
 
         let sender_name_section = NetTextSection {
             text: sender_name.to_string() + ": ",
