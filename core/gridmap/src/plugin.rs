@@ -5,7 +5,7 @@ use bevy::{
     time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
-use player::plugin::ConfigurationLabel;
+use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     is_server::is_server,
     sets::{ActionsSet, BuildingSet, MainSet, PostUpdateSet, StartupSet},
@@ -110,6 +110,7 @@ impl Plugin for GridmapPlugin {
                     examine_map_abilities.after(ActionsSet::Action),
                     examine_grid.after(ActionsSet::Action),
                     configure
+                        .after(process_response)
                         .in_set(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
                     add_tile_net,

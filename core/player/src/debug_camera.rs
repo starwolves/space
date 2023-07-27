@@ -1,6 +1,8 @@
 use bevy::{
     core_pipeline::{fxaa::Fxaa, tonemapping::Tonemapping, Skybox},
-    prelude::{Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3, VisibilityBundle},
+    prelude::{
+        info, Camera, Camera3dBundle, Commands, EventReader, Res, ResMut, Vec3, VisibilityBundle,
+    },
 };
 
 use cameras::controllers::fps::{ActiveCamera, FpsCameraBundle, FpsCameraController};

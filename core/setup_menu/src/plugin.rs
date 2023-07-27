@@ -4,7 +4,7 @@ use networking::{
     client::is_client_connected,
     messaging::{register_reliable_message, MessageSender},
 };
-use player::plugin::ConfigurationLabel;
+use player::{boarding::done_boarding, connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     is_server::is_server,
     sets::{BuildingSet, MainSet},
@@ -26,11 +26,12 @@ impl Plugin for SetupMenuPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    ui_input_boarding,
+                    ui_input_boarding.before(done_boarding),
                     initialize_setupui.in_set(BuildingSet::TriggerBuild),
                     configure
                         .in_set(ConfigurationLabel::Main)
-                        .after(ConfigurationLabel::SpawnEntity),
+                        .after(ConfigurationLabel::SpawnEntity)
+                        .after(process_response),
                     new_clients_enable_setupui,
                     setupui_loaded,
                     receive_input_character_name,

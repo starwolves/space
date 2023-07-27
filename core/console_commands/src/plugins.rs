@@ -1,6 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
 use networking::messaging::{register_reliable_message, MessageSender};
-use player::plugin::ConfigurationLabel;
+use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     is_server::is_server,
     sets::{BuildingSet, MainSet, StartupSet},
@@ -25,6 +25,7 @@ impl Plugin for ConsoleCommandsPlugin {
                 .add_systems(
                     FixedUpdate,
                     configure
+                        .after(process_response)
                         .in_set(ConfigurationLabel::Main)
                         .in_set(MainSet::Update)
                         .after(ConfigurationLabel::SpawnEntity),

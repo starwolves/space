@@ -2,7 +2,7 @@ use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin};
 use networking::messaging::{
     register_reliable_message, register_unreliable_message, MessageSender,
 };
-use player::plugin::ConfigurationLabel;
+use player::{connections::process_response, plugin::ConfigurationLabel};
 use resources::{
     is_server::is_server,
     sets::{MainSet, MapSet},
@@ -35,7 +35,8 @@ impl Plugin for MapPlugin {
                         map_input.in_set(MapSet::ChangeMode),
                         configure
                             .in_set(ConfigurationLabel::Main)
-                            .after(ConfigurationLabel::SpawnEntity),
+                            .after(ConfigurationLabel::SpawnEntity)
+                            .after(process_response),
                     )
                         .in_set(MainSet::Update),
                 )

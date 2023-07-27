@@ -5,6 +5,7 @@ use entity::{base_mesh::link_base_mesh, entity_types::register_entity_type, load
 
 use inventory::server::inventory::SpawnItemLabel;
 use physics::spawn::build_rigid_bodies;
+use player::boarding::player_boarded;
 use resources::{
     is_server::is_server,
     sets::{BuildingSet, CombatSet, MainSet},
@@ -31,10 +32,7 @@ impl Plugin for HumanMalePlugin {
                 )
                     .in_set(MainSet::Update),
             )
-            .add_systems(
-                FixedUpdate,
-                spawn_boarding_player.in_set(MainSet::PostUpdate),
-            );
+            .add_systems(FixedUpdate, spawn_boarding_player.before(player_boarded));
         } else {
             app.add_systems(
                 FixedUpdate,

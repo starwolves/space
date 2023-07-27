@@ -38,7 +38,7 @@ use bevy::prelude::info;
 
 /// Do some logic when a player has successfully boarded.
 
-pub(crate) fn player_boarded(
+pub fn player_boarded(
     mut events: EventReader<PlayerBoarded>,
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
 ) {
@@ -64,7 +64,7 @@ pub(crate) fn player_boarded(
 
 /// Perform initialization of spawning player.
 
-pub(crate) fn done_boarding(
+pub fn done_boarding(
     mut spawn_points: ResMut<SpawnPoints>,
     mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
     mut boarding_player_event: EventReader<BoardingPlayer>,

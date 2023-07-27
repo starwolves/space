@@ -1,7 +1,6 @@
 //! Launcher and loop initializer.
 
 use std::env::current_dir;
-use std::time::Duration;
 
 use actions::plugin::ActionsPlugin;
 use airlocks::plugin::AirLocksPlugin;
@@ -20,7 +19,6 @@ use bevy::prelude::ImagePlugin;
 use bevy::prelude::IntoSystemConfigs;
 use bevy::prelude::PluginGroup;
 use bevy::prelude::Startup;
-use bevy::prelude::TaskPoolOptions;
 use bevy::prelude::TaskPoolPlugin;
 use bevy::prelude::TypeRegistrationPlugin;
 use bevy::render::settings::WgpuSettings;
@@ -100,9 +98,6 @@ pub(crate) fn configure_and_start() {
         wgpu_settings.backends = None;
 
         app.add_plugins(LogPlugin::default())
-            .add_plugins(TaskPoolPlugin {
-                task_pool_options: TaskPoolOptions::with_num_threads(1),
-            })
             .add_plugins(TypeRegistrationPlugin)
             .add_plugins(FrameCountPlugin)
             .add_plugins(AssetPlugin {
@@ -119,9 +114,8 @@ pub(crate) fn configure_and_start() {
                 wgpu_settings: wgpu_settings,
             })
             .add_plugins(ImagePlugin::default())
-            .add_plugins(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f32(
-                1. / TickRate::default().bevy_rate as f32,
-            )));
+            .add_plugins(ScheduleRunnerPlugin::default())
+            .add_plugins(TaskPoolPlugin::default());
     } else {
         app.add_plugins(
             DefaultPlugins

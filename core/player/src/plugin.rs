@@ -44,11 +44,15 @@ impl Plugin for PlayerPlugin {
                         done_boarding,
                         server_new_client_configuration
                             .in_set(ConfigurationLabel::SpawnEntity)
-                            .before(ConfigurationLabel::Main),
-                        finished_configuration.after(ConfigurationLabel::Main),
+                            .before(ConfigurationLabel::Main)
+                            .after(process_response),
+                        finished_configuration
+                            .after(ConfigurationLabel::Main)
+                            .after(process_response),
                         server_events
                             .after(buffer_server_events)
-                            .before(ConfigurationLabel::SpawnEntity),
+                            .before(ConfigurationLabel::SpawnEntity)
+                            .after(process_response),
                         process_response,
                         player_boarded,
                     )
