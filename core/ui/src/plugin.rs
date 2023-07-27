@@ -1,4 +1,4 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup, Update};
 use networking::messaging::{register_reliable_message, MessageSender};
 
 use crate::{
@@ -21,37 +21,29 @@ impl Plugin for UiPlugin {
             app.add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
                 .add_event::<TextTreeInputSelection>();
         } else {
-            app.add_systems(
-                FixedUpdate,
-                (
-                    ui_events.in_set(TextInputLabel::UiEvents),
-                    focus_events
-                        .before(TextInputLabel::UiEvents)
-                        .in_set(TextInputLabel::MousePressUnfocus),
+            app.add_systems(Update, input_characters)
+                .add_systems(
+                    FixedUpdate,
+                    (
+                        input_mouse_press_unfocus.before(TextInputLabel::MousePressUnfocus),
+                        ui_events.before(TextInputLabel::MousePressUnfocus),
+                        focus_events.in_set(TextInputLabel::MousePressUnfocus),
+                        button_hover_visuals,
+                        set_text_input_node_text,
+                        mouse_scroll_inverted,
+                        mouse_scroll,
+                        hlist_input,
+                        hlist_created,
+                        freeze_button.before(hlist_created),
+                    )
+                        .in_set(MainSet::Update),
                 )
-                    .in_set(MainSet::Update),
-            )
-            .add_systems(
-                FixedUpdate,
-                (
-                    input_mouse_press_unfocus.before(TextInputLabel::MousePressUnfocus),
-                    input_characters,
-                    button_hover_visuals,
-                    set_text_input_node_text,
-                    mouse_scroll_inverted,
-                    mouse_scroll,
-                    hlist_input,
-                    hlist_created,
-                    freeze_button.before(hlist_created),
-                )
-                    .in_set(MainSet::Update),
-            )
-            .init_resource::<TextInput>()
-            .add_event::<UnfocusTextInput>()
-            .add_event::<FocusTextInput>()
-            .add_event::<SetText>()
-            .add_event::<FreezeButton>()
-            .add_systems(Startup, register_input);
+                .init_resource::<TextInput>()
+                .add_event::<UnfocusTextInput>()
+                .add_event::<FocusTextInput>()
+                .add_event::<SetText>()
+                .add_event::<FreezeButton>()
+                .add_systems(Startup, register_input);
         }
         app.init_resource::<Fonts>()
             .add_systems(Startup, init_fonts);

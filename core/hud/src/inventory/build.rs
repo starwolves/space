@@ -169,7 +169,7 @@ pub(crate) fn open_inventory_hud(
     }
 }
 
-pub(crate) fn open_hud(
+pub fn open_hud(
     boarded: Res<Boarded>,
     mut events: EventReader<OpenHud>,
     mut state: ResMut<HudState>,

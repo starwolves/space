@@ -1,5 +1,6 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup};
-use hud::mouse::grab_mouse_hud_expand;
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
+use graphics::settings::set_vsync;
+use hud::{inventory::build::open_hud, mouse::grab_mouse_hud_expand};
 use resources::{is_server::is_server, sets::MainSet};
 use ui::fonts::init_fonts;
 
@@ -29,20 +30,39 @@ impl Plugin for EscapeMenuPlugin {
                 (build_graphics_section, build_controls_section),
             )
             .add_systems(
+                Update,
+                (
+                    toggle_general_menu_section
+                        .after(general_section_button_pressed)
+                        .after(graphics_section_button_pressed)
+                        .after(controls_section_button_pressed),
+                    toggle_graphics_menu_section
+                        .after(general_section_button_pressed)
+                        .after(graphics_section_button_pressed)
+                        .after(controls_section_button_pressed),
+                    toggle_controls_menu_section
+                        .after(general_section_button_pressed)
+                        .after(graphics_section_button_pressed)
+                        .after(controls_section_button_pressed),
+                ),
+            )
+            .add_systems(
                 FixedUpdate,
                 (
-                    toggle_escape_menu.before(grab_mouse_hud_expand),
+                    toggle_escape_menu
+                        .before(grab_mouse_hud_expand)
+                        .before(open_hud)
+                        .before(toggle_general_menu_section)
+                        .before(toggle_graphics_menu_section)
+                        .before(toggle_controls_menu_section),
                     esc_button_menu.before(toggle_escape_menu),
-                    toggle_general_menu_section,
-                    toggle_graphics_menu_section,
-                    toggle_controls_menu_section,
                     exit_button_pressed,
-                    general_section_button_pressed,
+                    general_section_button_pressed.before(toggle_general_menu_section),
                     graphics_section_button_pressed,
                     controls_section_button_pressed,
                     appply_resolution,
                     apply_window_mode,
-                    apply_vsync,
+                    apply_vsync.before(set_vsync),
                     apply_fxaa,
                     apply_msaa,
                 )

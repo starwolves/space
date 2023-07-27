@@ -256,7 +256,6 @@ use bevy::time::TimerMode;
 use bevy::{prelude::Local, time::Timer};
 use bevy_egui::EguiClipboard;
 use resources::binds::{KeyBind, KeyBinds};
-use resources::input::InputBuffer;
 use resources::ui::TextInput;
 use std::time::Duration;
 
@@ -314,7 +313,9 @@ pub(crate) fn input_characters(
     mut char_evr: EventReader<ReceivedCharacter>,
     mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
-    keys: Res<InputBuffer>,
+    keys: Res<Input<KeyCode>>,
+    keys2: Res<KeyBinds>,
+
     time: Res<Time>,
     clipboard: Res<EguiClipboard>,
     mut pasting: Local<bool>,
@@ -354,9 +355,9 @@ pub(crate) fn input_characters(
 
                         let mut is_pasting = false;
 
-                        if (keys.just_pressed(COPY_PASTE_CTRL)
-                            || keys.just_pressed(COPY_PASTE_CTRL_RIGHT))
-                            && keys.just_pressed(COPY_PASTE_V)
+                        if (keys.just_pressed(keys2.bind(COPY_PASTE_CTRL)))
+                            || keys.just_pressed(keys2.bind(COPY_PASTE_CTRL_RIGHT))
+                                && keys.just_pressed(keys2.bind(COPY_PASTE_V))
                         {
                             if !*pasting {
                                 *pasting = true;
@@ -467,12 +468,12 @@ pub(crate) fn input_characters(
                             input_node.input = input_node.input.to_string();
                         }
 
-                        if keys.just_pressed(INPUT_BACK) {
+                        if keys.just_pressed(keys2.bind(INPUT_BACK)) {
                             input_node.input.pop();
 
                             *backspace_init_timer =
                                 Timer::new(Duration::from_millis(300), TimerMode::Once);
-                        } else if keys.pressed(INPUT_BACK) {
+                        } else if keys.pressed(keys2.bind(INPUT_BACK)) {
                             let delta_time = time.delta();
                             backspace_timer.tick(delta_time);
                             backspace_init_timer.tick(delta_time);
@@ -489,7 +490,7 @@ pub(crate) fn input_characters(
                                     input_node.input.pop();
                                 }
                             }
-                        } else if keys.just_released(INPUT_BACK) {
+                        } else if keys.just_released(keys2.bind(INPUT_BACK)) {
                             backspace_timer.pause();
                         }
                         text.value = input_node.input.clone();

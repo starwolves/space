@@ -3,6 +3,7 @@ use bevy::prelude::{
 };
 use console_commands::net::ClientSideConsoleInput;
 use resources::{is_server::is_server, sets::MainSet};
+use ui::text_input::TextInputLabel;
 
 use crate::{
     build::{create_hud, show_hud, ExpandedLeftContentHud},
@@ -58,7 +59,7 @@ impl Plugin for HudPlugin {
                     FixedUpdate,
                     (
                         (
-                            open_hud,
+                            open_hud.after(tab_communication_input_toggle),
                             expand_inventory_hud,
                             inventory_hud_key_press,
                             inventory_net_updates,
@@ -82,15 +83,18 @@ impl Plugin for HudPlugin {
                             .in_set(MainSet::Update),
                         (
                             grab_mouse_on_board,
-                            grab_mouse_hud_expand,
+                            grab_mouse_hud_expand
+                                .before(grab_cursor)
+                                .before(release_cursor),
                             window_unfocus_event,
                             release_cursor.after(grab_cursor),
                             grab_cursor.after(focus_state),
                             text_input,
                             receive_chat_message,
-                            tab_communication_input_toggle,
+                            tab_communication_input_toggle
+                                .before(TextInputLabel::MousePressUnfocus),
                             open_inventory_hud.after(open_hud),
-                            toggle_console_button,
+                            toggle_console_button.before(TextInputLabel::MousePressUnfocus),
                             console_input,
                             receive_console_message,
                             display_console_message,

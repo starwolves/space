@@ -38,7 +38,7 @@ impl Plugin for FpsCameraPlugin {
             .add_event::<ControlEvent>()
             .init_resource::<ActiveCamera>();
         if !self.override_input_system {
-            app.add_systems(Update, default_input_map);
+            app.add_systems(Update, default_input_map.before(control_system));
         }
         // app.add_system(print_camera_position);
     }

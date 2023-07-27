@@ -412,6 +412,9 @@ pub(crate) fn build_controls_section(
         .entity(state.controls_section)
         .with_children(|parent| {
             for (bind_id, bind) in binds.list.iter() {
+                if !bind.customizable {
+                    continue;
+                }
                 parent
                     .spawn(NodeBundle {
                         style: Style {

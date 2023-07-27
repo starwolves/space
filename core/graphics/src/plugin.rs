@@ -25,7 +25,12 @@ impl Plugin for GraphicsPlugin {
                     set_resolution,
                     set_vsync,
                     set_window_mode,
-                    setup_graphics_settings,
+                    setup_graphics_settings
+                        .before(set_fxaa)
+                        .before(set_msaa)
+                        .before(set_resolution)
+                        .before(set_vsync)
+                        .before(set_window_mode),
                 )
                     .in_set(MainSet::Update),
             )

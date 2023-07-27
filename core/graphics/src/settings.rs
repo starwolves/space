@@ -190,7 +190,7 @@ pub struct SetVsync {
     pub enabled: bool,
 }
 
-pub(crate) fn set_vsync(
+pub fn set_vsync(
     mut events: EventReader<SetVsync>,
     mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
     mut settings: ResMut<GraphicsSettings>,
@@ -261,9 +261,8 @@ pub(crate) fn set_msaa(
 }
 
 pub(crate) fn settings_to_ron(settings: Res<GraphicsSettings>) {
-    let path = Path::new("data").join("settings").join("graphics.ron");
-
     if settings.is_changed() {
+        let path = Path::new("data").join("settings").join("graphics.ron");
         let settings_ron = ron::ser::to_string_pretty(&*settings, PrettyConfig::default()).unwrap();
         fs::write(path, settings_ron).unwrap();
     }
