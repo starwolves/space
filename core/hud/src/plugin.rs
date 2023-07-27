@@ -1,5 +1,5 @@
 use bevy::prelude::{
-    not, resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup,
+    not, resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update,
 };
 use console_commands::net::ClientSideConsoleInput;
 use resources::{is_server::is_server, sets::MainSet};
@@ -39,8 +39,9 @@ use crate::{
         slots::{scale_slots, update_inventory_hud_slot, HudAddInventorySlot, InventoryHudSet},
     },
     mouse::{
-        focus_state, grab_cursor, grab_mouse_hud_expand, grab_mouse_on_board, release_cursor,
-        window_unfocus_event, FocusState, GrabCursor, ReleaseCursor,
+        clear_window_focus_buffer, focus_state, grab_cursor, grab_mouse_hud_expand,
+        grab_mouse_on_board, release_cursor, window_focus_buffer, window_unfocus_event, FocusState,
+        GrabCursor, ReleaseCursor, WindowFocusBuffer,
     },
     server_stats::{build_server_stats, update_server_stats, ServerStatsState},
     style::button::{button_style_events, changed_focus},
@@ -52,6 +53,7 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         if !is_server() {
             app.add_event::<ExpandInventoryHud>()
+                .init_resource::<WindowFocusBuffer>()
                 .add_systems(
                     FixedUpdate,
                     (
@@ -95,17 +97,17 @@ impl Plugin for HudPlugin {
                             focus_state,
                             display_chat_message,
                             update_server_stats,
+                            queue_inventory_updates
+                                .run_if(not(resource_exists::<InventoryHudState>())),
+                            console_welcome_message,
                         )
                             .in_set(MainSet::Update),
                     ),
                 )
+                .add_systems(Update, window_focus_buffer)
                 .add_systems(
                     FixedUpdate,
-                    (
-                        queue_inventory_updates.run_if(not(resource_exists::<InventoryHudState>())),
-                        console_welcome_message,
-                    )
-                        .in_set(MainSet::Update),
+                    clear_window_focus_buffer.in_set(MainSet::PostUpdate),
                 )
                 .add_systems(Startup, (create_hud, register_input))
                 .add_systems(

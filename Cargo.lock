@@ -515,28 +515,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_atmosphere"
-version = "0.6.0"
-source = "git+https://github.com/GodGotzi/bevy_atmosphere.git?rev=c279833#c2798330449dcee5d6e53171502aac6f1b5cb884"
-dependencies = [
- "bevy",
- "bevy_atmosphere_macros",
- "cfg-if",
-]
-
-[[package]]
-name = "bevy_atmosphere_macros"
-version = "0.2.0"
-source = "git+https://github.com/GodGotzi/bevy_atmosphere.git?rev=c279833#c2798330449dcee5d6e53171502aac6f1b5cb884"
-dependencies = [
- "bevy_macro_utils 0.10.1",
- "proc-macro-crate",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
 name = "bevy_audio"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -598,7 +576,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1477347b17df781756ba0dfd677e2975e57e930752cd3cd42e6cdd8fdaa3223"
 dependencies = [
- "bevy_macro_utils 0.11.0",
+ "bevy_macro_utils",
  "quote",
  "syn 2.0.25",
 ]
@@ -645,7 +623,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a15ff7fcafdb8fe464ddd300b4860a76d5c6f9d684472e4bf21852d6f0ff3991"
 dependencies = [
- "bevy_macro_utils 0.11.0",
+ "bevy_macro_utils",
  "proc-macro2",
  "quote",
  "syn 2.0.25",
@@ -669,7 +647,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6bdf808dbdc68a0c519e09026c627bda85250205a40ac02794866bff254d6b56"
 dependencies = [
- "bevy_macro_utils 0.11.0",
+ "bevy_macro_utils",
  "encase_derive_impl",
 ]
 
@@ -826,17 +804,6 @@ dependencies = [
 
 [[package]]
 name = "bevy_macro_utils"
-version = "0.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b2fee53b2497cdc3bffff2ddf52afa751242424a5fd0d51d227d4dab081d0d9"
-dependencies = [
- "quote",
- "syn 1.0.109",
- "toml_edit",
-]
-
-[[package]]
-name = "bevy_macro_utils"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd3868e555723249fde3786891f35893b3001b2be4efb51f431467cb7fc378cd"
@@ -922,7 +889,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e974d78eaf1b45e1b4146711b5c16e37c24234e12f3a52f5f2e28332c969d3c"
 dependencies = [
- "bevy_macro_utils 0.11.0",
+ "bevy_macro_utils",
  "bit-set",
  "proc-macro2",
  "quote",
@@ -986,7 +953,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07c4d937f966644f5e1e3c9157736acdd36286bcce06142ff9ad25cd71348c09"
 dependencies = [
- "bevy_macro_utils 0.11.0",
+ "bevy_macro_utils",
  "proc-macro2",
  "quote",
  "syn 2.0.25",
@@ -1534,13 +1501,11 @@ name = "combat"
 version = "0.0.3"
 dependencies = [
  "bevy",
- "bevy_xpbd_3d",
  "chat",
  "entity",
  "gridmap",
  "inventory",
  "networking",
- "physics",
  "rand",
  "resources",
  "sfx",
@@ -2486,7 +2451,6 @@ name = "graphics"
 version = "0.0.3"
 dependencies = [
  "bevy",
- "cameras",
  "num-derive",
  "num-traits",
  "resources",
@@ -3858,7 +3822,6 @@ name = "player"
 version = "0.0.3"
 dependencies = [
  "bevy",
- "bevy_atmosphere",
  "bevy_renet",
  "cameras",
  "ehttp",

@@ -13,6 +13,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
             key_code: KeyCode::Grave,
             description: "Toggle the developer console with console commands.".to_string(),
             name: "Toggle Console".to_string(),
+            customizable: true,
         },
     );
     binds.list.insert(
@@ -21,6 +22,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
             key_code: KeyCode::Return,
             description: "Submits the given console input.".to_string(),
             name: "Submit Console Input".to_string(),
+            customizable: true,
         },
     );
     binds.list.insert(
@@ -29,6 +31,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
             key_code: KeyCode::Tab,
             description: "Toggle the chat to communicate with players.".to_string(),
             name: "Toggle Chat".to_string(),
+            customizable: true,
         },
     );
     binds.list.insert(
@@ -37,6 +40,7 @@ pub(crate) fn register_input(mut binds: ResMut<KeyBinds>) {
             key_code: KeyCode::I,
             description: "Toggles the inventory heads up display.".to_string(),
             name: "Toggle Inventory HUD".to_string(),
+            customizable: true,
         },
     );
 }

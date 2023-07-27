@@ -255,8 +255,54 @@ use bevy::time::Time;
 use bevy::time::TimerMode;
 use bevy::{prelude::Local, time::Timer};
 use bevy_egui::EguiClipboard;
+use resources::binds::{KeyBind, KeyBinds};
+use resources::input::InputBuffer;
 use resources::ui::TextInput;
 use std::time::Duration;
+
+pub const COPY_PASTE_CTRL: &str = "CONTROL_COPY";
+pub const COPY_PASTE_CTRL_RIGHT: &str = "CONTROL_COPY_RIGHT";
+pub const COPY_PASTE_V: &str = "COPY_V";
+pub const INPUT_BACK: &str = "INPUT_BACK";
+
+pub(crate) fn register_input(mut map: ResMut<KeyBinds>) {
+    map.list.insert(
+        COPY_PASTE_CTRL.to_string(),
+        KeyBind {
+            key_code: KeyCode::ControlLeft,
+            description: "For copy pasting.".to_string(),
+            name: "Control button.".to_string(),
+            customizable: false,
+        },
+    );
+    map.list.insert(
+        COPY_PASTE_CTRL_RIGHT.to_string(),
+        KeyBind {
+            key_code: KeyCode::ControlRight,
+            description: "For copy pasting.".to_string(),
+            name: "Right control button.".to_string(),
+            customizable: false,
+        },
+    );
+    map.list.insert(
+        COPY_PASTE_V.to_string(),
+        KeyBind {
+            key_code: KeyCode::V,
+            description: "For copy pasting.".to_string(),
+            name: "V button.".to_string(),
+            customizable: false,
+        },
+    );
+    map.list.insert(
+        INPUT_BACK.to_string(),
+        KeyBind {
+            key_code: KeyCode::Back,
+            description: "For removing text from input.".to_string(),
+            name: "Return key.".to_string(),
+            customizable: false,
+        },
+    );
+}
 
 /// Register characters input and output as displayed text inside input node. Also manages ctrl+v paste.
 
@@ -268,7 +314,7 @@ pub(crate) fn input_characters(
     mut char_evr: EventReader<ReceivedCharacter>,
     mut text_input_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<InputBuffer>,
     time: Res<Time>,
     clipboard: Res<EguiClipboard>,
     mut pasting: Local<bool>,
@@ -308,9 +354,9 @@ pub(crate) fn input_characters(
 
                         let mut is_pasting = false;
 
-                        if (keys.pressed(KeyCode::ControlLeft)
-                            || keys.pressed(KeyCode::ControlRight))
-                            && keys.pressed(KeyCode::V)
+                        if (keys.just_pressed(COPY_PASTE_CTRL)
+                            || keys.just_pressed(COPY_PASTE_CTRL_RIGHT))
+                            && keys.just_pressed(COPY_PASTE_V)
                         {
                             if !*pasting {
                                 *pasting = true;
@@ -421,12 +467,12 @@ pub(crate) fn input_characters(
                             input_node.input = input_node.input.to_string();
                         }
 
-                        if keys.just_pressed(KeyCode::Back) {
+                        if keys.just_pressed(INPUT_BACK) {
                             input_node.input.pop();
 
                             *backspace_init_timer =
                                 Timer::new(Duration::from_millis(300), TimerMode::Once);
-                        } else if keys.pressed(KeyCode::Back) {
+                        } else if keys.pressed(INPUT_BACK) {
                             let delta_time = time.delta();
                             backspace_timer.tick(delta_time);
                             backspace_init_timer.tick(delta_time);
@@ -443,7 +489,7 @@ pub(crate) fn input_characters(
                                     input_node.input.pop();
                                 }
                             }
-                        } else if keys.just_released(KeyCode::Back) {
+                        } else if keys.just_released(INPUT_BACK) {
                             backspace_timer.pause();
                         }
                         text.value = input_node.input.clone();

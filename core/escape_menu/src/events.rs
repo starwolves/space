@@ -1,8 +1,8 @@
 use bevy::{
     app::AppExit,
     prelude::{
-        info, warn, Button, Changed, Entity, Event, EventReader, EventWriter, Input, KeyCode,
-        Parent, Query, Res, ResMut, With,
+        info, warn, Button, Changed, Entity, Event, EventReader, EventWriter, KeyCode, Parent,
+        Query, Res, ResMut, With,
     },
     ui::{Display, Interaction, Style},
 };
@@ -12,6 +12,7 @@ use num_traits::FromPrimitive;
 use resources::{
     binds::{KeyBind, KeyBinds},
     hud::HudState,
+    input::InputBuffer,
 };
 use ui::{button::SFButton, hlist::HList, text_input::TextInputNode};
 
@@ -34,6 +35,7 @@ pub(crate) fn register_input(mut keys: ResMut<KeyBinds>) {
             key_code: KeyCode::Escape,
             description: "Toggles the escape menu.".to_string(),
             name: "Escape Menu".to_string(),
+            customizable: true,
         },
     );
 }
@@ -41,10 +43,9 @@ pub(crate) fn register_input(mut keys: ResMut<KeyBinds>) {
 pub(crate) fn esc_button_menu(
     mut events: EventWriter<ToggleEscapeMenu>,
     state: Res<EscapeMenuState>,
-    keys: Res<KeyBinds>,
-    keys2: Res<Input<KeyCode>>,
+    keys2: Res<InputBuffer>,
 ) {
-    if keys2.just_pressed(keys.bind(ESC_MENU_BIND)) {
+    if keys2.just_pressed(ESC_MENU_BIND) {
         events.send(ToggleEscapeMenu {
             enabled: !state.visible,
         });

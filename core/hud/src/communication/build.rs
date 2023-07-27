@@ -5,14 +5,13 @@ use bevy::{
     },
     prelude::{
         warn, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity,
-        EventWriter, Input, KeyCode, Local, NodeBundle, Query, Res, ResMut, Resource, TextBundle,
-        With,
+        EventWriter, Local, NodeBundle, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{Display, FlexDirection, Interaction, Overflow, Style, Val},
 };
 use metadata::MetadataResource;
-use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
+use resources::{hud::HudState, input::InputBuffer, ui::TextInput};
 use ui::{
     button::SFButton,
     fonts::{Fonts, SOURCECODE_REGULAR_FONT},
@@ -51,13 +50,12 @@ pub(crate) fn toggle_console_button(
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<ToggleConsoleButton>)>,
     mut state: ResMut<HudCommunicationState>,
     mut style_query: Query<&mut Style>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<InputBuffer>,
     mut focus_event: EventWriter<FocusTextInput>,
     mut open_hud: EventWriter<OpenHud>,
     text_input: Res<TextInput>,
-    binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(binds.bind(TOGGLE_CONSOLE_BIND)) && text_input.focused_input.is_none() {
+    if keys.just_pressed(TOGGLE_CONSOLE_BIND) && text_input.focused_input.is_none() {
         state.is_displaying_console = true;
         match style_query.get_mut(state.chat_messages_bg_node) {
             Ok(mut style) => {

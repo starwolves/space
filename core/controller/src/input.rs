@@ -3,15 +3,15 @@ use crate::{
     net::{ControllerClientMessage, MovementInput},
 };
 use bevy::prelude::{
-    warn, Entity, Event, EventReader, EventWriter, Input, KeyCode, Query, Res, ResMut, Vec2,
+    warn, Entity, Event, EventReader, EventWriter, KeyCode, Query, Res, ResMut, Vec2,
 };
 use entity::spawn::PawnId;
 use networking::client::OutgoingReliableClientMessage;
 use resources::{
     binds::{KeyBind, KeyBinds},
     input::{
-        HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND, MOVE_LEFT_BIND,
-        MOVE_RIGHT_BIND,
+        InputBuffer, HOLD_SPRINT_BIND, JUMP_BIND, MOVE_BACKWARD_BIND, MOVE_FORWARD_BIND,
+        MOVE_LEFT_BIND, MOVE_RIGHT_BIND,
     },
     math::Vec3Int,
 };
@@ -92,6 +92,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
             key_code: KeyCode::W,
             description: "Moves the player forward.".to_string(),
             name: "Move Forward".to_string(),
+            customizable: true,
         },
     );
     map.list.insert(
@@ -100,6 +101,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
             key_code: KeyCode::S,
             description: "Moves the player backward.".to_string(),
             name: "Move Backward".to_string(),
+            customizable: true,
         },
     );
     map.list.insert(
@@ -108,6 +110,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
             key_code: KeyCode::A,
             description: "Moves the player left.".to_string(),
             name: "Move Left".to_string(),
+            customizable: true,
         },
     );
     map.list.insert(
@@ -116,6 +119,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
             key_code: KeyCode::D,
             description: "Moves the player right.".to_string(),
             name: "Move Right".to_string(),
+            customizable: true,
         },
     );
     map.list.insert(
@@ -124,6 +128,7 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
             key_code: KeyCode::Space,
             description: "Jump into the air.".to_string(),
             name: "Jump".to_string(),
+            customizable: true,
         },
     );
     map.list.insert(
@@ -132,13 +137,13 @@ pub(crate) fn create_input_map(mut map: ResMut<KeyBinds>) {
             key_code: KeyCode::ShiftLeft,
             description: "Hold to sprint.".to_string(),
             name: "Sprint".to_string(),
+            customizable: true,
         },
     );
 }
 
 pub(crate) fn get_client_input(
-    map: Res<KeyBinds>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<InputBuffer>,
     mut net: EventWriter<OutgoingReliableClientMessage<ControllerClientMessage>>,
     mut movement_event: EventWriter<InputMovementInput>,
     pawn_id: Res<PawnId>,
@@ -158,36 +163,36 @@ pub(crate) fn get_client_input(
     let mut new_pressed_input = false;
     let mut new_released_input = false;
 
-    if keyboard.just_pressed(map.bind(MOVE_FORWARD_BIND)) {
+    if keyboard.just_pressed(MOVE_FORWARD_BIND) {
         pressed_movement.up = true;
         new_pressed_input = true;
     }
-    if keyboard.just_pressed(map.bind(MOVE_BACKWARD_BIND)) {
+    if keyboard.just_pressed(MOVE_BACKWARD_BIND) {
         pressed_movement.down = true;
         new_pressed_input = true;
     }
-    if keyboard.just_pressed(map.bind(MOVE_LEFT_BIND)) {
+    if keyboard.just_pressed(MOVE_LEFT_BIND) {
         pressed_movement.left = true;
         new_pressed_input = true;
     }
-    if keyboard.just_pressed(map.bind(MOVE_RIGHT_BIND)) {
+    if keyboard.just_pressed(MOVE_RIGHT_BIND) {
         pressed_movement.right = true;
         new_pressed_input = true;
     }
 
-    if keyboard.just_released(map.bind(MOVE_FORWARD_BIND)) {
+    if keyboard.just_released(MOVE_FORWARD_BIND) {
         released_movement.up = true;
         new_released_input = true;
     }
-    if keyboard.just_released(map.bind(MOVE_BACKWARD_BIND)) {
+    if keyboard.just_released(MOVE_BACKWARD_BIND) {
         released_movement.down = true;
         new_released_input = true;
     }
-    if keyboard.just_released(map.bind(MOVE_LEFT_BIND)) {
+    if keyboard.just_released(MOVE_LEFT_BIND) {
         released_movement.left = true;
         new_released_input = true;
     }
-    if keyboard.just_released(map.bind(MOVE_RIGHT_BIND)) {
+    if keyboard.just_released(MOVE_RIGHT_BIND) {
         released_movement.right = true;
         new_released_input = true;
     }

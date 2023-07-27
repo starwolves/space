@@ -1,12 +1,12 @@
 use bevy::{
-    prelude::{warn, Children, EventWriter, Input, KeyCode, Query, Res, ResMut},
+    prelude::{warn, Children, EventWriter, Query, Res, ResMut},
     text::Text,
     ui::{Display, Style},
 };
 use chat::net::ChatClientMessage;
 use console_commands::net::ClientSideConsoleInput;
 use networking::client::OutgoingReliableClientMessage;
-use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
+use resources::{hud::HudState, input::InputBuffer, ui::TextInput};
 use ui::text_input::{FocusTextInput, TextInputNode, UnfocusTextInput};
 
 use crate::{
@@ -17,18 +17,17 @@ use crate::{
 use super::build::HudCommunicationState;
 
 pub(crate) fn text_input(
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<InputBuffer>,
     text_input_state: Res<TextInput>,
     mut text_node_query: Query<(&mut TextInputNode, &Children)>,
     mut text_node_input_query: Query<&mut Text>,
     mut net: EventWriter<OutgoingReliableClientMessage<ChatClientMessage>>,
     state: Res<HudCommunicationState>,
     mut console: EventWriter<ClientSideConsoleInput>,
-    binds: Res<KeyBinds>,
 ) {
     match text_input_state.focused_input {
         Some(focused_input_entity) => {
-            if keyboard.just_pressed(binds.bind(SUBMIT_CONSOLE_BIND)) {
+            if keyboard.just_pressed(SUBMIT_CONSOLE_BIND) {
                 match text_node_query.get_mut(focused_input_entity) {
                     Ok((mut text_input_component, children)) => {
                         for child in children {
@@ -68,7 +67,7 @@ pub(crate) fn text_input(
 }
 
 pub(crate) fn tab_communication_input_toggle(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<InputBuffer>,
     mut state: ResMut<HudCommunicationState>,
     mut open_hud: EventWriter<OpenHud>,
     mut style_query: Query<&mut Style>,
@@ -76,10 +75,9 @@ pub(crate) fn tab_communication_input_toggle(
     mut focus_event: EventWriter<FocusTextInput>,
     mut unfocus_event: EventWriter<UnfocusTextInput>,
     hud_state: Res<HudState>,
-    binds: Res<KeyBinds>,
     text_input: Res<TextInput>,
 ) {
-    if keys.just_pressed(binds.bind(TOGGLE_CHAT)) {
+    if keys.just_pressed(TOGGLE_CHAT) {
         let is_focused = hud_state.expanded;
 
         if is_focused {

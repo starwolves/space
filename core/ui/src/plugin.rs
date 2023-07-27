@@ -9,8 +9,8 @@ use crate::{
     scrolling::{mouse_scroll, mouse_scroll_inverted},
     text_input::{
         focus_events, incoming_messages, input_characters, input_mouse_press_unfocus,
-        set_text_input_node_text, ui_events, FocusTextInput, SetText, TextInputLabel,
-        TextTreeInputSelection, UnfocusTextInput,
+        register_input, set_text_input_node_text, ui_events, FocusTextInput, SetText,
+        TextInputLabel, TextTreeInputSelection, UnfocusTextInput,
     },
 };
 use resources::{is_server::is_server, sets::MainSet, ui::TextInput};
@@ -50,7 +50,8 @@ impl Plugin for UiPlugin {
             .add_event::<UnfocusTextInput>()
             .add_event::<FocusTextInput>()
             .add_event::<SetText>()
-            .add_event::<FreezeButton>();
+            .add_event::<FreezeButton>()
+            .add_systems(Startup, register_input);
         }
         app.init_resource::<Fonts>()
             .add_systems(Startup, init_fonts);

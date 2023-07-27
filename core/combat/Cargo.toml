@@ -16,7 +16,6 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_xpbd_3d = { version = "0.2.0" , features = ["enhanced-determinism"]}
 
 rand = "0.8.5"
 
@@ -28,5 +27,4 @@ sfx = { path = "../sfx" }
 chat = { path = "../chat" }
 entity = { path = "../entity" }
 resources = { path = "../resources" }
-physics = { path = "../physics" }
 inventory = { path = "../inventory" }

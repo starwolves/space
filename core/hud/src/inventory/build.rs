@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use bevy::{
     prelude::{
         warn, BuildChildren, Color, Commands, Component, Entity, Event, EventReader, EventWriter,
-        Input, KeyCode, NodeBundle, Query, Res, ResMut, Resource, TextBundle, Visibility, With,
+        NodeBundle, Query, Res, ResMut, Resource, TextBundle, Visibility, With,
     },
     text::{Text, TextStyle},
     ui::{AlignItems, FlexDirection, JustifyContent, Style, UiRect, Val},
 };
 use player::configuration::Boarded;
-use resources::{binds::KeyBinds, hud::HudState, ui::TextInput};
+use resources::{hud::HudState, input::InputBuffer, ui::TextInput};
 use ui::fonts::{Fonts, ARIZONE_FONT};
 
 use crate::{
@@ -183,14 +183,13 @@ pub(crate) fn open_hud(
 }
 
 pub(crate) fn inventory_hud_key_press(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<InputBuffer>,
     mut event2: EventWriter<OpenInventoryHud>,
 
     state: Res<InventoryHudState>,
     focus: Res<TextInput>,
-    binds: Res<KeyBinds>,
 ) {
-    if keys.just_pressed(binds.bind(TOGGLE_INVENTORY)) && focus.focused_input.is_none() {
+    if keys.just_pressed(TOGGLE_INVENTORY) && focus.focused_input.is_none() {
         event2.send(OpenInventoryHud { open: !state.open });
     }
 }

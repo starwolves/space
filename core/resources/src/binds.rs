@@ -6,11 +6,12 @@ use bevy::prelude::{KeyCode, Resource};
 pub struct KeyBinds {
     pub list: HashMap<String, KeyBind>,
 }
-
+#[derive(Clone)]
 pub struct KeyBind {
     pub key_code: KeyCode,
     pub description: String,
     pub name: String,
+    pub customizable: bool,
 }
 
 impl KeyBinds {

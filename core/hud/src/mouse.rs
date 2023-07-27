@@ -57,20 +57,36 @@ pub struct FocusState {
     pub focused: bool,
 }
 
-pub(crate) fn focus_state(mut state: ResMut<FocusState>, mut events: EventReader<WindowFocused>) {
-    for event in events.iter() {
+pub(crate) fn focus_state(mut state: ResMut<FocusState>, events: Res<WindowFocusBuffer>) {
+    for event in events.buffer.iter() {
         state.focused = event.focused;
     }
 }
+#[derive(Resource, Default)]
+pub struct WindowFocusBuffer {
+    pub buffer: Vec<WindowFocused>,
+}
+
+pub(crate) fn window_focus_buffer(
+    mut events: EventReader<WindowFocused>,
+    mut res: ResMut<WindowFocusBuffer>,
+) {
+    for e in events.iter() {
+        res.buffer.push(e.clone());
+    }
+}
+pub(crate) fn clear_window_focus_buffer(mut res: ResMut<WindowFocusBuffer>) {
+    res.buffer.clear();
+}
 
 pub(crate) fn window_unfocus_event(
-    mut events: EventReader<WindowFocused>,
+    events: Res<WindowFocusBuffer>,
     state: Res<HudState>,
     boarded: Res<Boarded>,
     mut grab: EventWriter<GrabCursor>,
     mut release: EventWriter<ReleaseCursor>,
 ) {
-    for event in events.iter() {
+    for event in events.buffer.iter() {
         if !event.focused {
             release.send(ReleaseCursor);
         } else {
@@ -85,7 +101,7 @@ pub(crate) fn window_unfocus_event(
     }
 }
 
-pub(crate) fn grab_mouse_hud_expand(
+pub fn grab_mouse_hud_expand(
     mut events: EventReader<OpenHud>,
 
     mut grab: EventWriter<GrabCursor>,
