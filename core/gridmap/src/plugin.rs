@@ -136,7 +136,7 @@ impl Plugin for GridmapPlugin {
                 .add_systems(
                     FixedUpdate,
                     (
-                        set_cell_graphics,
+                        set_cell_graphics.after(AddTileSet::Add),
                         create_select_cell_cam_state,
                         set_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
                         show_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),

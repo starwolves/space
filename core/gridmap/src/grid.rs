@@ -971,14 +971,21 @@ pub(crate) fn add_tile_collision(
             },
             event.orientation,
         );
-        let mut collider_position = Transform::IDENTITY;
+        /*let mut collider_position = Transform::IDENTITY;
         collider_position.translation += cell_properties.collider_position.translation;
-        collider_position.rotation *= cell_properties.collider_position.rotation;
+        collider_position.rotation *= cell_properties.collider_position.rotation;*/
+
+        let masks = get_bit_masks(ColliderGroup::Standard);
+
+        let mut friction_component = Friction::new(cell_properties.friction);
+        friction_component.combine_rule = cell_properties.combine_rule;
 
         let mut entity_builder = commands.entity(event.entity);
         entity_builder
             .insert(RigidBody::Static)
-            .insert(Cell { id: event.id });
+            .insert(Cell { id: event.id })
+            .insert(friction_component)
+            .insert(CollisionLayers::from_bits(masks.0, masks.1));
 
         if is_server() {
             entity_builder.insert(TransformBundle {
@@ -986,16 +993,6 @@ pub(crate) fn add_tile_collision(
                 ..Default::default()
             });
         }
-
-        let masks = get_bit_masks(ColliderGroup::Standard);
-
-        let mut friction_component = Friction::new(cell_properties.friction);
-        friction_component.combine_rule = cell_properties.combine_rule;
-
-        entity_builder
-            //     .insert(collider_position)
-            .insert(friction_component)
-            .insert(CollisionLayers::from_bits(masks.0, masks.1));
     }
 }
 
