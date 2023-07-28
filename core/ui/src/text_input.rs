@@ -390,7 +390,7 @@ pub(crate) fn input_characters(
                                                     }
                                                 }
                                                 CharacterFilter::Chat => {
-                                                    if char.is_whitespace()
+                                                    if (char.is_whitespace() && char != '\t')
                                                         || char.is_ascii_alphanumeric()
                                                         || char.is_ascii_graphic()
                                                     {
@@ -444,7 +444,7 @@ pub(crate) fn input_characters(
                                             }
                                         }
                                         CharacterFilter::Chat => {
-                                            if ev.char.is_whitespace()
+                                            if (ev.char.is_whitespace() && ev.char != '\t')
                                                 || ev.char.is_ascii_alphanumeric()
                                                 || ev.char.is_ascii_graphic()
                                             {

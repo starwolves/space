@@ -1,7 +1,8 @@
 use bevy::{
     gltf::GltfMesh,
     prelude::{
-        AlphaMode, AssetServer, Assets, Color, Handle, Res, ResMut, Resource, StandardMaterial,
+        info, AlphaMode, AssetServer, Assets, Color, Handle, Res, ResMut, Resource,
+        StandardMaterial,
     },
 };
 
@@ -36,6 +37,7 @@ pub(crate) fn init_generic_meshes(
         ..Default::default()
     });
     mats.glass = mat;
+    info!("load generic mesh.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 
 #[derive(Default, Resource)]
