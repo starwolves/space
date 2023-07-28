@@ -135,35 +135,6 @@ pub(crate) fn focus_events(
     mut input_query: Query<(&mut BackgroundColor, &TextInputNode, &Children)>,
     mut text_query: Query<&mut Text>,
 ) {
-    for focus in focus_events.iter() {
-        match text_input.focused_input {
-            Some(entity) => {
-                if entity != focus.entity {
-                    match input_query.get_mut(entity) {
-                        Ok((mut old_color, text_input_node, _)) => {
-                            *old_color = text_input_node.bg_color.into();
-                        }
-                        Err(_) => {
-                            warn!("Couldnt find node of old text input focus. 1");
-                        }
-                    }
-                }
-            }
-            None => {}
-        }
-
-        match input_query.get_mut(focus.entity) {
-            Ok((mut new_color, text_input_node, _)) => {
-                *new_color = text_input_node.bg_color_focused.into();
-            }
-            Err(_) => {
-                warn!("Couldnt find node of new text input focus. 0");
-            }
-        }
-
-        text_input.focused_input = Some(focus.entity);
-    }
-
     for unfocus in unfocus_events.iter() {
         match text_input.focused_input {
             Some(entity) => {
@@ -228,6 +199,34 @@ pub(crate) fn focus_events(
             None => {}
         }
         text_input.focused_input = None;
+    }
+    for focus in focus_events.iter() {
+        match text_input.focused_input {
+            Some(entity) => {
+                if entity != focus.entity {
+                    match input_query.get_mut(entity) {
+                        Ok((mut old_color, text_input_node, _)) => {
+                            *old_color = text_input_node.bg_color.into();
+                        }
+                        Err(_) => {
+                            warn!("Couldnt find node of old text input focus. 1");
+                        }
+                    }
+                }
+            }
+            None => {}
+        }
+
+        match input_query.get_mut(focus.entity) {
+            Ok((mut new_color, text_input_node, _)) => {
+                *new_color = text_input_node.bg_color_focused.into();
+            }
+            Err(_) => {
+                warn!("Couldnt find node of new text input focus. 0");
+            }
+        }
+
+        text_input.focused_input = Some(focus.entity);
     }
 }
 
