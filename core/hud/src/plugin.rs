@@ -109,7 +109,7 @@ impl Plugin for HudPlugin {
                             receive_console_message,
                             display_console_message,
                             focus_state,
-                            display_chat_message,
+                            display_chat_message.after(receive_chat_message),
                             queue_inventory_updates
                                 .run_if(not(resource_exists::<InventoryHudState>())),
                             console_welcome_message,
