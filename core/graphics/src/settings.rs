@@ -7,9 +7,9 @@ use std::{
 use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
-        AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event,
-        EventReader, EventWriter, Local, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet,
-        Transform, With,
+        warn, AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle,
+        Event, EventReader, EventWriter, Local, Msaa, Quat, Query, Res, ResMut, Resource,
+        SystemSet, Transform, With,
     },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
@@ -272,6 +272,11 @@ pub(crate) fn settings_to_ron(settings: Res<GraphicsSettings>) {
     if settings.is_changed() {
         let path = Path::new("data").join("settings").join("graphics.ron");
         let settings_ron = ron::ser::to_string_pretty(&*settings, PrettyConfig::default()).unwrap();
-        fs::write(path, settings_ron).unwrap();
+        match fs::write(path, settings_ron) {
+            Ok(_) => {}
+            Err(rr) => {
+                warn!("Failed to write graphics.ron: {:?}", rr);
+            }
+        };
     }
 }

@@ -1,5 +1,5 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
-use graphics::settings::{set_vsync, SettingsSet};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup, Update};
+use graphics::settings::SettingsSet;
 use hud::{inventory::build::open_hud, mouse::grab_mouse_hud_expand};
 use resources::{is_server::is_server, sets::MainSet};
 use ui::fonts::init_fonts;
