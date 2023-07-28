@@ -229,7 +229,7 @@ pub fn register_unreliable_message<
 /// Wrapper for reliable messages.
 #[derive(Serialize, Deserialize)]
 
-pub(crate) struct ReliableMessage {
+pub struct ReliableMessage {
     pub serialized: Vec<u8>,
     pub typename_net: u16,
     pub stamp: u8,

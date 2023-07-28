@@ -13,7 +13,11 @@ impl Plugin for ChatPlugin {
         if is_server() {
             app.add_systems(
                 FixedUpdate,
-                (chat_net_input, broadcast_global_chat_message).in_set(MainSet::Update),
+                (
+                    chat_net_input,
+                    broadcast_global_chat_message.after(chat_net_input),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_event::<GlobalChatMessage>();
         }

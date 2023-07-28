@@ -1,6 +1,7 @@
 use bevy::prelude::{
     not, resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update,
 };
+use bevy_renet::renet::RenetClient;
 use console_commands::net::ClientSideConsoleInput;
 use resources::{is_server::is_server, sets::MainSet};
 use ui::text_input::TextInputLabel;
@@ -109,10 +110,10 @@ impl Plugin for HudPlugin {
                             display_console_message,
                             focus_state,
                             display_chat_message,
-                            update_server_stats,
                             queue_inventory_updates
                                 .run_if(not(resource_exists::<InventoryHudState>())),
                             console_welcome_message,
+                            update_server_stats.run_if(resource_exists::<RenetClient>()),
                         )
                             .in_set(MainSet::Update),
                     ),

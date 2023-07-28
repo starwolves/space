@@ -18,7 +18,7 @@ use player::boarding::BoardingPlayer;
 use resources::is_server::is_server;
 use resources::sets::{MainSet, UpdateSet};
 
-use super::net::{send_server_time, update_player_count};
+use super::net::update_player_count;
 
 #[derive(Default)]
 pub struct ControllerPlugin {
@@ -31,8 +31,7 @@ impl Plugin for ControllerPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    send_server_time.run_if(on_fixed_timer(Duration::from_secs_f32(2.))),
-                    update_player_count.run_if(on_fixed_timer(Duration::from_secs_f32(10.))),
+                    update_player_count.run_if(on_fixed_timer(Duration::from_secs_f32(5.))),
                     connections,
                 )
                     .in_set(MainSet::Update),

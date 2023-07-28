@@ -1,12 +1,14 @@
+use std::time::Duration;
+
 use bevy::{
     prelude::{
         BuildChildren, Color, Commands, Component, EventReader, Handle, NodeBundle, Query, Res,
         ResMut, Resource, TextBundle, With,
     },
     text::{Font, Text, TextSection, TextStyle},
-    time::{Time, Timer, TimerMode},
     ui::{Style, Val},
 };
+use bevy_renet::renet::RenetClient;
 use networking::client::IncomingReliableServerMessage;
 use player::net::PlayerServerMessage;
 use resources::hud::HudState;
@@ -45,21 +47,10 @@ pub(crate) fn build_server_stats(state: Res<HudState>, mut commands: Commands, f
         });
 }
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct ServerStatsState {
-    pub server_timer: Timer,
     pub connected_players: u16,
-    pub ping: u16,
-}
-
-impl Default for ServerStatsState {
-    fn default() -> Self {
-        Self {
-            server_timer: Timer::from_seconds(2., TimerMode::Repeating),
-            connected_players: 0,
-            ping: 0,
-        }
-    }
+    pub rtt: f32,
 }
 
 impl ServerStatsState {
@@ -74,7 +65,7 @@ impl ServerStatsState {
         };
 
         let ping_section = TextSection {
-            value: format!("{} ms.", self.ping),
+            value: format!("{} ms.", Duration::from_secs_f32(self.rtt).as_millis()),
             style: TextStyle {
                 font,
                 font_size: 6.,
@@ -89,27 +80,16 @@ pub(crate) fn update_server_stats(
     mut net: EventReader<IncomingReliableServerMessage<PlayerServerMessage>>,
     mut query: Query<&mut Text, With<ServerStats>>,
     mut state: ResMut<ServerStatsState>,
-    time: Res<Time>,
     fonts: Res<Fonts>,
+    client: Res<RenetClient>,
 ) {
     for message in net.iter() {
         let mut update = false;
         match &message.message {
-            PlayerServerMessage::ServerTime => {
-                state.server_timer.tick(time.delta());
-                let mut substracted = 2000;
-                let elapsed = state.server_timer.elapsed().as_millis();
-                if elapsed <= 2000 {
-                    substracted = elapsed;
-                }
-                let ping = (elapsed - substracted) as u16;
-                state.ping = ping;
-                update = true;
-                state.server_timer.reset();
-            }
             PlayerServerMessage::ConnectedPlayers(amount) => {
                 state.connected_players = *amount;
                 update = true;
+                state.rtt = client.rtt() as f32;
             }
             _ => (),
         }

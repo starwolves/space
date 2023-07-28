@@ -1634,6 +1634,7 @@ version = "0.0.3"
 dependencies = [
  "bevy",
  "bevy_renet",
+ "bincode",
  "combat",
  "entity",
  "networking",
@@ -2585,6 +2586,7 @@ version = "0.0.3"
 dependencies = [
  "actions",
  "bevy",
+ "bevy_renet",
  "chat",
  "console_commands",
  "entity",

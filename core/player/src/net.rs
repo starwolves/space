@@ -6,7 +6,6 @@ use typename::TypeName;
 
 pub enum PlayerServerMessage {
     InitGame,
-    ServerTime,
     ConnectedPlayers(u16),
     ConfigTickRate(u8),
     PawnId(Entity),

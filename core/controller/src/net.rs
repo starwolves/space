@@ -40,24 +40,6 @@ pub enum ControllerClientMessage {
     AltItemAttack,
     AttackCell(i16, i16, i16),
 }
-/// Send server time to clients for ping update.
-
-pub(crate) fn send_server_time(
-    mut server: EventWriter<OutgoingReliableServerMessage<PlayerServerMessage>>,
-    connected_players: Query<&ConnectedPlayer>,
-) {
-    for connected_player_component in connected_players.iter() {
-        if !connected_player_component.connected {
-            continue;
-        }
-
-        server.send(OutgoingReliableServerMessage {
-            handle: connected_player_component.handle,
-            message: PlayerServerMessage::ServerTime,
-        });
-    }
-}
-
 /// Update player count info for clients.
 
 pub(crate) fn update_player_count(
