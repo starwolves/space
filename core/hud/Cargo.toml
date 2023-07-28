@@ -16,7 +16,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
+bevy_renet = "0.0.9"
 
 resources = { path = "../resources"}
 player = { path = "../player"}
