@@ -1,6 +1,5 @@
 use bevy::prelude::{warn, Entity, Event, EventReader, EventWriter, Query, Res, ResMut, Resource};
 use entity::health::{HealthComponent, HealthContainer};
-use gridmap::grid::{AddTile, Gridmap};
 use inventory::server::combat::{DamageModel, MeleeCombat, ProjectileCombat};
 use resources::math::Vec3Int;
 
@@ -160,9 +159,7 @@ pub(crate) fn finalize_apply_damage(
     combat_storage: Res<ActiveAttacks>,
     mut health_entities: Query<&mut HealthComponent>,
     mut health_combat_hit_result: EventWriter<HealthCombatHitResult>,
-    _gridmap_main: Res<Gridmap>,
     mut active_applydamage: ResMut<ActiveApplyDamage>,
-    mut _set_cell: EventWriter<AddTile>,
 ) {
     for damage_appler in active_applydamage.list.iter() {
         let attack_cache;

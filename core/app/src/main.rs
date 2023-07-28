@@ -95,7 +95,7 @@ pub(crate) fn configure_and_start() {
     let mut app = App::new();
 
     let task_pool = TaskPoolPlugin {
-        task_pool_options: TaskPoolOptions::with_num_threads(4),
+        task_pool_options: TaskPoolOptions::with_num_threads(1),
     };
 
     if is_server() {

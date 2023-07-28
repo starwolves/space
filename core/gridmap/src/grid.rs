@@ -4,7 +4,7 @@ use bevy::{
     gltf::GltfMesh,
     prelude::{
         warn, Commands, Component, DespawnRecursiveExt, Entity, Event, EventWriter, Handle, Mat3,
-        Quat, Query, Res, Resource, StandardMaterial, Transform, Vec3, Without,
+        Quat, Query, Res, Resource, StandardMaterial, SystemSet, Transform, Vec3, Without,
     },
     transform::TransformBundle,
 };
@@ -640,8 +640,13 @@ impl Default for Cell {
     }
 }
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum AddTileSet {
+    Add,
+}
+
 /// Event to add a gridmap tile.
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct AddTile {
     pub id: Vec3Int,
     /// Id of tile type.

@@ -11,6 +11,7 @@ use entity::loading::load_entity;
 use entity::spawn::build_base_entities;
 
 use gridmap::construction::{GridmapConstructionState, ShowYLevelPlane};
+use gridmap::grid::AddTileSet;
 use hud::inventory::items::update_inventory_hud_add_item_to_slot;
 use hud::inventory::slots::InventoryHudSet;
 use inventory::client::items::active_item_display_camera;
@@ -72,7 +73,7 @@ impl Plugin for ConstructionToolAdminPlugin {
                         construction_tool_select_construction_option
                             .in_set(UpdateSet::TextTreeInputSelection),
                         send_constructable_items,
-                        mouse_click_input,
+                        mouse_click_input.before(AddTileSet::Add),
                     )
                         .in_set(MainSet::Update),
                 );

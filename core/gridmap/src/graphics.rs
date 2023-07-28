@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy::gltf::GltfMesh;
 use bevy::prelude::Assets;
 use bevy::prelude::Commands;
@@ -6,11 +8,25 @@ use bevy::prelude::EventReader;
 use bevy::prelude::warn;
 use bevy::prelude::PbrBundle;
 use bevy::prelude::Res;
+use bevy::prelude::ResMut;
+use bevy::prelude::Resource;
+use resources::grid::CellFace;
 use resources::grid::TargetCell;
+use resources::math::Vec3Int;
 
 use crate::grid::AddTile;
 use crate::grid::Gridmap;
 use crate::items::generic_assets::GenericMaterials;
+
+#[derive(Default, Resource)]
+pub(crate) struct CellGraphicsBuffer {
+    pub buffer: HashMap<BufferId, AddTile>,
+}
+#[derive(Clone, Eq, PartialEq, Hash)]
+pub(crate) struct BufferId {
+    pub id: Vec3Int,
+    pub face: CellFace,
+}
 
 pub(crate) fn set_cell_graphics(
     mut events: EventReader<AddTile>,
@@ -18,8 +34,19 @@ pub(crate) fn set_cell_graphics(
     mut commands: Commands,
     materials: Res<GenericMaterials>,
     assets_gltfmesh: Res<Assets<GltfMesh>>,
+    mut buffer: ResMut<CellGraphicsBuffer>,
 ) {
     for set_cell in events.iter() {
+        buffer.buffer.insert(
+            BufferId {
+                id: set_cell.id,
+                face: set_cell.face.clone(),
+            },
+            set_cell.clone(),
+        );
+    }
+    let mut remove_ids = vec![];
+    for (id, set_cell) in buffer.buffer.iter() {
         match gridmap_main.tile_properties.get(&set_cell.tile_type) {
             Some(properties) => {
                 let transform = gridmap_main.get_cell_transform(
@@ -46,15 +73,17 @@ pub(crate) fn set_cell_graphics(
                             transform: transform.into(),
                             ..Default::default()
                         });
+                        remove_ids.push(id.clone());
                     }
-                    None => {
-                        warn!("Couldnt find gltf mesh!");
-                    }
+                    None => {}
                 }
             }
             None => {
                 warn!("Couldnt find maincellproperties!");
             }
         }
+    }
+    for id in remove_ids {
+        buffer.buffer.remove(&id);
     }
 }

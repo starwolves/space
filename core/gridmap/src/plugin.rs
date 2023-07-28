@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, PreStartup},
+    prelude::{resource_exists, App, FixedUpdate, IntoSystemConfigs, Plugin, Startup},
     time::common_conditions::on_fixed_timer,
 };
 use networking::messaging::{register_reliable_message, MessageSender};
@@ -25,10 +25,11 @@ use crate::{
         GridmapExamineMessages, InputExamineMap,
     },
     fov::ProjectileFOV,
-    graphics::set_cell_graphics,
+    graphics::{set_cell_graphics, CellGraphicsBuffer},
     grid::{
         add_cell_client, add_tile, add_tile_collision, add_tile_net, remove_cell_client,
-        remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, Gridmap, RemoveTile,
+        remove_tile, remove_tile_net, spawn_group, AddGroup, AddTile, AddTileSet, Gridmap,
+        RemoveTile,
     },
     init::{
         init_tile_groups, init_tile_properties, load_ron_gridmap, startup_misc_resources,
@@ -113,7 +114,7 @@ impl Plugin for GridmapPlugin {
                         .after(process_response)
                         .in_set(ConfigurationLabel::Main)
                         .after(ConfigurationLabel::SpawnEntity),
-                    add_tile_net,
+                    add_tile_net.after(AddTileSet::Add),
                     remove_tile_net,
                 )
                     .in_set(MainSet::Update),
@@ -131,67 +132,71 @@ impl Plugin for GridmapPlugin {
             .add_event::<InputExamineMap>()
             .init_resource::<GridmapExamineMessages>();
         } else {
-            app.add_systems(
-                FixedUpdate,
-                (
-                    set_cell_graphics,
-                    create_select_cell_cam_state,
-                    set_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
-                    show_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
-                    input_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
-                    move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
-                    update_ghost_cell.run_if(resource_exists::<GridmapConstructionState>()),
-                    change_ghost_tile_request.run_if(resource_exists::<GridmapConstructionState>()),
-                    select_cell_in_front_camera
-                        .run_if(resource_exists::<GridmapConstructionState>())
-                        .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
+            app.init_resource::<CellGraphicsBuffer>()
+                .add_systems(
+                    FixedUpdate,
+                    (
+                        set_cell_graphics,
+                        create_select_cell_cam_state,
+                        set_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
+                        show_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
+                        input_yplane_position.run_if(resource_exists::<GridmapConstructionState>()),
+                        move_ylevel_plane.run_if(resource_exists::<GridmapConstructionState>()),
+                        update_ghost_cell.run_if(resource_exists::<GridmapConstructionState>()),
+                        change_ghost_tile_request
+                            .run_if(resource_exists::<GridmapConstructionState>()),
+                        select_cell_in_front_camera
+                            .run_if(resource_exists::<GridmapConstructionState>())
+                            .run_if(on_fixed_timer(Duration::from_secs_f32(1. / 8.))),
+                    )
+                        .in_set(MainSet::Update),
                 )
-                    .in_set(MainSet::Update),
-            )
-            .add_event::<SetYPlanePosition>()
-            .add_event::<ConstructionCellSelectionChanged>()
-            .add_systems(
-                FixedUpdate,
-                (
-                    input_ghost_rotation.run_if(resource_exists::<GridmapConstructionState>()),
-                    client_mouse_click_input.run_if(resource_exists::<GridmapConstructionState>()),
+                .add_event::<SetYPlanePosition>()
+                .add_event::<ConstructionCellSelectionChanged>()
+                .add_systems(
+                    FixedUpdate,
+                    (
+                        input_ghost_rotation.run_if(resource_exists::<GridmapConstructionState>()),
+                        client_mouse_click_input
+                            .run_if(resource_exists::<GridmapConstructionState>()),
+                    )
+                        .in_set(MainSet::PostUpdate),
                 )
-                    .in_set(MainSet::PostUpdate),
-            )
-            .add_systems(
-                FixedUpdate,
-                (add_cell_client, remove_cell_client).in_set(MainSet::Update),
-            )
-            .add_systems(
-                PreStartup,
-                (
-                    init_generic_meshes,
-                    register_input,
-                    init_default_materials,
-                    init_generic_wall_material.before(init_generic_wall),
-                    init_bridge_wall_material.before(init_bridge_wall),
-                    init_generic_floor_material.before(init_generic_floor),
-                    init_generic_half_diagonal_floor_material
-                        .before(init_generic_half_diagonal_floor_low)
-                        .before(init_generic_half_diagonal_floor_high),
-                    init_generic_half_diagonal_ceiling_material
-                        .before(init_generic_half_diagonal_ceiling_low)
-                        .before(init_generic_half_diagonal_ceiling_high),
-                    init_bridge_half_diagonal_ceiling_material
-                        .before(init_bridge_half_diagonal_ceiling_low)
-                        .before(init_bridge_half_diagonal_ceiling_high),
-                    init_bridge_floor_material
-                        .before(init_filled_bridge_floor)
-                        .before(init_half_bridge_floor)
-                        .before(init_corner_bridge_floor)
-                        .before(init_corner2_bridge_floor),
-                    init_reinforced_glass_half_diagonal_ceiling_material
-                        .before(init_reinforced_glass_half_diagonal_ceiling_low)
-                        .before(init_reinforced_glass_half_diagonal_ceiling_high),
-                    init_reinforced_glass_wall_material.before(init_reinforced_glass_wall),
-                    init_reinforced_glass_floor_material.before(init_reinforced_glass_floor),
-                ),
-            );
+                .add_systems(
+                    FixedUpdate,
+                    (add_cell_client.before(AddTileSet::Add), remove_cell_client)
+                        .in_set(MainSet::Update),
+                )
+                .add_systems(
+                    Startup,
+                    (
+                        init_generic_meshes,
+                        register_input,
+                        init_default_materials,
+                        init_generic_wall_material.before(init_generic_wall),
+                        init_bridge_wall_material.before(init_bridge_wall),
+                        init_generic_floor_material.before(init_generic_floor),
+                        init_generic_half_diagonal_floor_material
+                            .before(init_generic_half_diagonal_floor_low)
+                            .before(init_generic_half_diagonal_floor_high),
+                        init_generic_half_diagonal_ceiling_material
+                            .before(init_generic_half_diagonal_ceiling_low)
+                            .before(init_generic_half_diagonal_ceiling_high),
+                        init_bridge_half_diagonal_ceiling_material
+                            .before(init_bridge_half_diagonal_ceiling_low)
+                            .before(init_bridge_half_diagonal_ceiling_high),
+                        init_bridge_floor_material
+                            .before(init_filled_bridge_floor)
+                            .before(init_half_bridge_floor)
+                            .before(init_corner_bridge_floor)
+                            .before(init_corner2_bridge_floor),
+                        init_reinforced_glass_half_diagonal_ceiling_material
+                            .before(init_reinforced_glass_half_diagonal_ceiling_low)
+                            .before(init_reinforced_glass_half_diagonal_ceiling_high),
+                        init_reinforced_glass_wall_material.before(init_reinforced_glass_wall),
+                        init_reinforced_glass_floor_material.before(init_reinforced_glass_floor),
+                    ),
+                );
         }
         app.init_resource::<GenericMaterials>()
             .init_resource::<GenericMeshes>()
@@ -208,12 +213,13 @@ impl Plugin for GridmapPlugin {
             .add_systems(
                 FixedUpdate,
                 load_ron_gridmap
+                    .before(AddTileSet::Add)
                     .in_set(StartupSet::BuildGridmap)
                     .in_set(MainSet::PreUpdate)
                     .after(StartupSet::InitDefaultGridmapData),
             )
             .add_systems(
-                PreStartup,
+                Startup,
                 (
                     (
                         startup_misc_resources.in_set(StartupSet::MiscResources),
@@ -312,7 +318,13 @@ impl Plugin for GridmapPlugin {
             .init_resource::<DoryenMap>()
             .add_systems(
                 FixedUpdate,
-                (remove_tile, add_tile_collision, add_tile, spawn_group).in_set(MainSet::Update),
+                (
+                    remove_tile,
+                    add_tile_collision.after(AddTileSet::Add),
+                    add_tile.after(AddTileSet::Add),
+                    spawn_group.before(AddTileSet::Add),
+                )
+                    .in_set(MainSet::Update),
             )
             .add_event::<AddTile>()
             .add_event::<AddGroup>()
