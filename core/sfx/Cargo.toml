@@ -17,9 +17,9 @@ default-features = false
 
 [dependencies]
 rand = "0.8.5"
-serde = "1.0.150"
+serde = "1.0.177"
 typename = "0.1.2"
-const_format = "0.2.30"
+const_format = "0.2.31"
 
 entity = { path = "../entity" }
 networking = { path = "../networking" }

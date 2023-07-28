@@ -16,7 +16,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-num-traits = "0.2.15"
+num-traits = "0.2.16"
 resources = { path = "../resources" }
 hud = { path = "../hud" }
 ui = { path = "../ui" }

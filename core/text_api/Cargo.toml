@@ -13,4 +13,4 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
-const_format = "0.2.30"
+const_format = "0.2.31"

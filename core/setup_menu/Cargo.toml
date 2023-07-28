@@ -16,7 +16,7 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-serde = "1.0.150"
+serde = "1.0.177"
 typename = "0.1.2"
 
 networking = { path = "../networking" }

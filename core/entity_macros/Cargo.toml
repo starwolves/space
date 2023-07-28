@@ -13,4 +13,4 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-syn = "2.0.3"
+syn = "2.0.27"

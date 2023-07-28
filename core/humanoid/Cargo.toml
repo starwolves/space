@@ -15,9 +15,9 @@ version = "0.11.0"
 default-features = false
 
 [dependencies]
-vector2math = "0.13.0"
+vector2math = "0.13.1"
 bevy_renet = "0.0.9"
-const_format = "0.2.30"
+const_format = "0.2.31"
 
 networking = { path = "../networking" }
 pawn = { path = "../pawn" }
