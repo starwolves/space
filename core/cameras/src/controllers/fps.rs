@@ -80,9 +80,9 @@ impl Default for FpsCameraController {
     fn default() -> Self {
         Self {
             enabled: true,
-            mouse_rotate_sensitivity: Vec2::splat(0.2),
+            mouse_rotate_sensitivity: Vec2::splat(0.1),
             translate_sensitivity: 6.0,
-            smoothing_weight: 0.9,
+            smoothing_weight: 0.4,
         }
     }
 }
