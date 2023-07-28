@@ -8,7 +8,8 @@ use bevy::{
     core_pipeline::fxaa::{Fxaa, Sensitivity},
     prelude::{
         AmbientLight, Commands, DetectChanges, DirectionalLight, DirectionalLightBundle, Event,
-        EventReader, EventWriter, Local, Msaa, Quat, Query, Res, ResMut, Resource, Transform, With,
+        EventReader, EventWriter, Local, Msaa, Quat, Query, Res, ResMut, Resource, SystemSet,
+        Transform, With,
     },
     window::{PresentMode, PrimaryWindow, Window, WindowMode, WindowResolution},
 };
@@ -205,6 +206,13 @@ pub fn set_vsync(
         settings.vsync = event.enabled;
     }
 }
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum SettingsSet {
+    Apply,
+}
+
 #[derive(Event)]
 pub struct SetWindowMode {
     pub window_mode: SFWindowMode,

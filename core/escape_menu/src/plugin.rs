@@ -1,5 +1,5 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
-use graphics::settings::set_vsync;
+use graphics::settings::{set_vsync, SettingsSet};
 use hud::{inventory::build::open_hud, mouse::grab_mouse_hud_expand};
 use resources::{is_server::is_server, sets::MainSet};
 use ui::fonts::init_fonts;
@@ -26,8 +26,11 @@ impl Plugin for EscapeMenuPlugin {
                 (build_escape_menu.after(init_fonts), register_input),
             )
             .add_systems(
-                PostStartup,
-                (build_graphics_section, build_controls_section),
+                FixedUpdate,
+                (
+                    build_graphics_section.after(SettingsSet::Apply),
+                    build_controls_section,
+                ),
             )
             .add_systems(
                 Update,
@@ -60,11 +63,11 @@ impl Plugin for EscapeMenuPlugin {
                     general_section_button_pressed.before(toggle_general_menu_section),
                     graphics_section_button_pressed,
                     controls_section_button_pressed,
-                    appply_resolution,
-                    apply_window_mode,
-                    apply_vsync.before(set_vsync),
-                    apply_fxaa,
-                    apply_msaa,
+                    appply_resolution.before(SettingsSet::Apply),
+                    apply_window_mode.before(SettingsSet::Apply),
+                    apply_vsync.before(SettingsSet::Apply),
+                    apply_fxaa.before(SettingsSet::Apply),
+                    apply_msaa.before(SettingsSet::Apply),
                 )
                     .in_set(MainSet::Update),
             )

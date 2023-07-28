@@ -249,12 +249,29 @@ pub(crate) fn appply_resolution(
             Interaction::Pressed => {
                 let x = x_input.get_single().unwrap();
                 let y = y_input.get_single().unwrap();
+                let xz;
+                match x.input.parse::<u32>() {
+                    Ok(s) => {
+                        xz = s;
+                    }
+                    Err(_) => {
+                        warn!("Failed to parse resx: {}", x.input);
+                        continue;
+                    }
+                }
+                let yz;
+                match y.input.parse::<u32>() {
+                    Ok(s) => {
+                        yz = s;
+                    }
+                    Err(_) => {
+                        warn!("Failed to parse resy: {}", x.input);
+                        continue;
+                    }
+                }
 
                 events.send(SetResolution {
-                    resolution: (
-                        x.input.parse::<u32>().unwrap(),
-                        y.input.parse::<u32>().unwrap(),
-                    ),
+                    resolution: (xz, yz),
                 });
             }
             _ => (),

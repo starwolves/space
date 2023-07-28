@@ -5,7 +5,7 @@ use crate::{
     settings::{
         init_light, set_fxaa, set_msaa, set_resolution, set_vsync, set_window_mode,
         settings_to_ron, setup_graphics_settings, GraphicsSettings, SetFxaa, SetMsaa,
-        SetResolution, SetVsync, SetWindowMode,
+        SetResolution, SetVsync, SetWindowMode, SettingsSet,
     },
     skybox::preload_skybox,
     tonemapping::PerMethodSettings,
@@ -19,18 +19,13 @@ impl Plugin for GraphicsPlugin {
             app.add_systems(
                 FixedUpdate,
                 (
-                    settings_to_ron,
-                    set_fxaa,
-                    set_msaa,
-                    set_resolution,
-                    set_vsync,
-                    set_window_mode,
-                    setup_graphics_settings
-                        .before(set_fxaa)
-                        .before(set_msaa)
-                        .before(set_resolution)
-                        .before(set_vsync)
-                        .before(set_window_mode),
+                    settings_to_ron.after(SettingsSet::Apply),
+                    set_fxaa.in_set(SettingsSet::Apply),
+                    set_msaa.in_set(SettingsSet::Apply),
+                    set_resolution.in_set(SettingsSet::Apply),
+                    set_vsync.in_set(SettingsSet::Apply),
+                    set_window_mode.in_set(SettingsSet::Apply),
+                    setup_graphics_settings.before(SettingsSet::Apply),
                 )
                     .in_set(MainSet::Update),
             )

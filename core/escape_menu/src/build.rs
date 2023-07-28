@@ -4,8 +4,8 @@ use bevy::{
         AccessibilityNode,
     },
     prelude::{
-        BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label, NodeBundle, Res,
-        TextBundle,
+        BuildChildren, ButtonBundle, Color, Commands, Component, Entity, Label, Local, NodeBundle,
+        Res, TextBundle,
     },
     text::TextStyle,
     ui::{
@@ -522,7 +522,13 @@ pub(crate) fn build_graphics_section(
     fonts: Res<Fonts>,
     state: Res<EscapeMenuState>,
     settings: Res<GraphicsSettings>,
+    mut local: Local<bool>,
 ) {
+    if !*local {
+        *local = true;
+    } else {
+        return;
+    }
     let source_code = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
     let font = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
 
