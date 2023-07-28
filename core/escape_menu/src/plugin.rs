@@ -1,4 +1,4 @@
-use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup, Update};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, PostStartup, Startup, Update};
 use graphics::settings::SettingsSet;
 use hud::{inventory::build::open_hud, mouse::grab_mouse_hud_expand};
 use resources::{is_server::is_server, sets::MainSet};
@@ -25,12 +25,10 @@ impl Plugin for EscapeMenuPlugin {
                 Startup,
                 (build_escape_menu.after(init_fonts), register_input),
             )
+            .add_systems(PostStartup, build_controls_section)
             .add_systems(
                 FixedUpdate,
-                (
-                    build_graphics_section.after(SettingsSet::Apply),
-                    build_controls_section,
-                ),
+                (build_graphics_section.after(SettingsSet::Apply),),
             )
             .add_systems(
                 Update,
