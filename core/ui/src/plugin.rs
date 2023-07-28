@@ -4,7 +4,9 @@ use networking::messaging::{register_reliable_message, MessageSender};
 use crate::{
     button::button_hover_visuals,
     fonts::{init_fonts, Fonts},
-    hlist::{freeze_button, hlist_created, hlist_input, FreezeButton},
+    hlist::{
+        clear_freeze_buffer, freeze_button, hlist_created, hlist_input, FreezeBuffer, FreezeButton,
+    },
     net::{UiClientMessage, UiServerMessage},
     scrolling::{mouse_scroll, mouse_scroll_inverted},
     text_input::{
@@ -21,34 +23,36 @@ impl Plugin for UiPlugin {
             app.add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
                 .add_event::<TextTreeInputSelection>();
         } else {
-            app.add_systems(
-                Update,
-                (
-                    input_characters,
-                    focus_events.in_set(TextInputLabel::MousePressUnfocus),
-                    input_mouse_press_unfocus.before(TextInputLabel::MousePressUnfocus),
-                ),
-            )
-            .add_systems(
-                FixedUpdate,
-                (
-                    ui_events.before(TextInputLabel::MousePressUnfocus),
-                    button_hover_visuals,
-                    set_text_input_node_text,
-                    mouse_scroll_inverted,
-                    mouse_scroll,
-                    hlist_input,
-                    hlist_created,
-                    freeze_button.before(hlist_created),
+            app.init_resource::<FreezeBuffer>()
+                .add_systems(
+                    Update,
+                    (
+                        input_characters,
+                        focus_events.in_set(TextInputLabel::MousePressUnfocus),
+                        input_mouse_press_unfocus.before(TextInputLabel::MousePressUnfocus),
+                    ),
                 )
-                    .in_set(MainSet::Update),
-            )
-            .init_resource::<TextInput>()
-            .add_event::<UnfocusTextInput>()
-            .add_event::<FocusTextInput>()
-            .add_event::<SetText>()
-            .add_event::<FreezeButton>()
-            .add_systems(Startup, register_input);
+                .add_systems(FixedUpdate, clear_freeze_buffer.in_set(MainSet::PreUpdate))
+                .add_systems(
+                    FixedUpdate,
+                    (
+                        ui_events.before(TextInputLabel::MousePressUnfocus),
+                        button_hover_visuals,
+                        set_text_input_node_text,
+                        mouse_scroll_inverted,
+                        mouse_scroll,
+                        hlist_input.before(freeze_button),
+                        hlist_created.before(freeze_button),
+                        freeze_button,
+                    )
+                        .in_set(MainSet::Update),
+                )
+                .init_resource::<TextInput>()
+                .add_event::<UnfocusTextInput>()
+                .add_event::<FocusTextInput>()
+                .add_event::<SetText>()
+                .add_event::<FreezeButton>()
+                .add_systems(Startup, register_input);
         }
         app.init_resource::<Fonts>()
             .add_systems(Startup, init_fonts);

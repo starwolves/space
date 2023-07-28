@@ -1,7 +1,7 @@
 use bevy::{
     prelude::{
         warn, Added, BuildChildren, ButtonBundle, Changed, Color, Commands, Component, Entity,
-        Event, EventReader, EventWriter, Parent, Query, Res, TextBundle, With,
+        Event, EventReader, EventWriter, Parent, Query, Res, ResMut, Resource, TextBundle, With,
     },
     text::{TextSection, TextStyle},
     ui::{BackgroundColor, Interaction, Style},
@@ -19,12 +19,26 @@ pub struct HList {
     // Internal usage.
     pub selections_entities: Vec<Entity>,
 }
+#[derive(Resource, Default, Clone)]
+pub struct FreezeBuffer {
+    pub buffer: Vec<FreezeButton>,
+}
+
+pub(crate) fn clear_freeze_buffer(
+    mut res: ResMut<FreezeBuffer>,
+    mut events: EventWriter<FreezeButton>,
+) {
+    for s in res.buffer.clone() {
+        events.send(s);
+    }
+    res.buffer.clear();
+}
 
 pub(crate) fn hlist_created(
     mut query: Query<(Entity, &mut HList), Added<HList>>,
     mut commands: Commands,
     fonts: Res<Fonts>,
-    mut events: EventWriter<FreezeButton>,
+    mut events: ResMut<FreezeBuffer>,
 ) {
     for (entity, mut hlist) in query.iter_mut() {
         let source_code = fonts.handles.get(SOURCECODE_REGULAR_FONT).unwrap();
@@ -62,7 +76,7 @@ pub(crate) fn hlist_created(
         });
         match hlist.selected {
             Some(s) => {
-                events.send(FreezeButton {
+                events.buffer.push(FreezeButton {
                     entity: hlist.selections_entities[s as usize],
                     id: s,
                     frozen: true,
@@ -119,7 +133,7 @@ pub(crate) fn hlist_input(
         }
     }
 }
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct FreezeButton {
     pub entity: Entity,
     pub id: u8,
