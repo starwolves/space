@@ -1,3 +1,4 @@
+use console_commands::commands::ConsoleCommandsSet;
 use resources::is_server::is_server;
 pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default + 'static>(
     app: &mut App,
@@ -7,7 +8,7 @@ pub fn register_basic_console_commands_for_type<T: EntityType + Clone + Default 
             .add_systems(FixedUpdate, rcon_entity_console_commands::<T>);
     }
 }
-use bevy::prelude::{App, FixedUpdate};
+use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs};
 use entity::entity_types::EntityType;
 
 use crate::commands::{
@@ -23,7 +24,10 @@ pub fn register_basic_console_commands_for_inventory_item_type<
         app.add_event::<RconSpawnEntity<T>>()
             .add_systems(
                 FixedUpdate,
-                (rcon_entity_console_commands::<T>, rcon_spawn_entity::<T>),
+                (
+                    rcon_entity_console_commands::<T>.after(ConsoleCommandsSet::Input),
+                    rcon_spawn_entity::<T>,
+                ),
             )
             .add_event::<RconSpawnHeldEntity<T>>();
     }

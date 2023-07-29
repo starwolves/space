@@ -23,6 +23,7 @@ impl Plugin for LineArrowPlugin {
             app.add_systems(
                 FixedUpdate,
                 entity_console_commands
+                    .after(ConsoleCommandsSet::Input)
                     .in_set(BuildingSet::TriggerBuild)
                     .in_set(MainSet::Update),
             );

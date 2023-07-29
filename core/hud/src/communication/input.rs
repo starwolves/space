@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{warn, Children, EventWriter, Query, Res, ResMut},
+    prelude::{warn, Children, EventWriter, Query, Res, ResMut, SystemSet},
     text::Text,
     ui::{Display, Style},
 };
@@ -17,6 +17,13 @@ use crate::{
     input::binds::{SUBMIT_CONSOLE_BIND, TOGGLE_CHAT},
     inventory::build::OpenHud,
 };
+
+/// Label for systems ordering.
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum ConsoleCommandsClientSet {
+    Submit,
+    Display,
+}
 
 use super::build::HudCommunicationState;
 

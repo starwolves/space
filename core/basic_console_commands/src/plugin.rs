@@ -1,5 +1,6 @@
 use bevy::prelude::{App, FixedUpdate, IntoSystemConfigs, Plugin, Startup};
-use hud::communication::console::console_input;
+use console_commands::commands::ConsoleCommandsSet;
+use hud::communication::{console::console_input, input::ConsoleCommandsClientSet};
 use resources::{is_server::is_server, sets::MainSet};
 
 use crate::{
@@ -18,7 +19,9 @@ impl Plugin for BasicConsoleCommandsPlugin {
         if is_server() {
             app.add_systems(
                 FixedUpdate,
-                (rcon_console_commands, export_map, coords).in_set(MainSet::Update),
+                (rcon_console_commands, export_map, coords)
+                    .in_set(MainSet::Update)
+                    .after(ConsoleCommandsSet::Input),
             )
             .insert_resource::<GiveAllRCON>(GiveAllRCON {
                 give: self.give_all_rcon,
@@ -26,7 +29,11 @@ impl Plugin for BasicConsoleCommandsPlugin {
         } else {
             app.add_systems(Startup, add_help_command).add_systems(
                 FixedUpdate,
-                help_command.after(console_input).in_set(MainSet::Update),
+                help_command
+                    .after(ConsoleCommandsClientSet::Submit)
+                    .after(console_input)
+                    .before(ConsoleCommandsClientSet::Display)
+                    .in_set(MainSet::Update),
             );
         }
         app.add_systems(Startup, add_export_map_command);

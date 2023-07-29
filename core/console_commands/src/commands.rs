@@ -21,6 +21,7 @@ pub struct ConsoleCommand {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 
 pub enum ConsoleCommandsSet {
+    Input,
     Finalize,
 }
 

@@ -20,16 +20,21 @@ pub struct ConsoleCommandsPlugin;
 impl Plugin for ConsoleCommandsPlugin {
     fn build(&self, app: &mut App) {
         if is_server() {
-            app.add_systems(FixedUpdate, incoming_messages.in_set(MainSet::PreUpdate))
-                .add_event::<InputConsoleCommand>()
-                .add_systems(
-                    FixedUpdate,
-                    configure
-                        .after(process_response)
-                        .in_set(ConfigurationLabel::Main)
-                        .in_set(MainSet::Update)
-                        .after(ConfigurationLabel::SpawnEntity),
-                );
+            app.add_systems(
+                FixedUpdate,
+                incoming_messages
+                    .in_set(MainSet::Update)
+                    .in_set(ConsoleCommandsSet::Input),
+            )
+            .add_event::<InputConsoleCommand>()
+            .add_systems(
+                FixedUpdate,
+                configure
+                    .after(process_response)
+                    .in_set(ConfigurationLabel::Main)
+                    .in_set(MainSet::Update)
+                    .after(ConfigurationLabel::SpawnEntity),
+            );
         }
         app.add_systems(
             Startup,

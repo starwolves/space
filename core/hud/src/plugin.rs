@@ -14,7 +14,7 @@ use crate::{
         console::{
             console_input, display_console_message, receive_console_message, DisplayConsoleMessage,
         },
-        input::{tab_communication_input_toggle, text_input},
+        input::{tab_communication_input_toggle, text_input, ConsoleCommandsClientSet},
     },
     expand::{expand_inventory_hud, ExpandInventoryHud},
     input::{
@@ -95,7 +95,7 @@ impl Plugin for HudPlugin {
                                 .before(release_cursor),
                             release_cursor.after(grab_cursor),
                             grab_cursor.after(focus_state),
-                            text_input,
+                            text_input.in_set(ConsoleCommandsClientSet::Submit),
                             receive_chat_message,
                             tab_communication_input_toggle
                                 .before(TextInputLabel::MousePressUnfocus)
@@ -105,14 +105,16 @@ impl Plugin for HudPlugin {
                                 .before(TextInputLabel::MousePressUnfocus)
                                 .before(grab_mouse_hud_expand)
                                 .before(open_hud),
-                            console_input,
-                            receive_console_message,
-                            display_console_message,
+                            console_input
+                                .after(ConsoleCommandsClientSet::Submit)
+                                .before(ConsoleCommandsClientSet::Display),
+                            receive_console_message.before(ConsoleCommandsClientSet::Display),
+                            display_console_message.in_set(ConsoleCommandsClientSet::Display),
                             focus_state,
                             display_chat_message.after(receive_chat_message),
                             queue_inventory_updates
                                 .run_if(not(resource_exists::<InventoryHudState>())),
-                            console_welcome_message,
+                            console_welcome_message.before(ConsoleCommandsClientSet::Display),
                             update_server_stats.run_if(resource_exists::<RenetClient>()),
                         )
                             .in_set(MainSet::Update),
